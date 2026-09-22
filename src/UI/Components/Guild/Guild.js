@@ -543,6 +543,7 @@ Guild.setGuildInformations = function setGuildInformations(info) {
 	}
 
 	updateDisbandButton(root, getActiveTab(root));
+	updateSkillPoints(root, getActiveTab(root));
 
 	WinStats.getUI().update('guildname', info.guildname);
 
@@ -1366,6 +1367,7 @@ function onChangeTab(event) {
 	}
 
 	updateDisbandButton(root, targetClass);
+	updateSkillPoints(root, targetClass);
 
 	if (targetClass === 'members') {
 		Renderer.render(renderMemberFaces);
@@ -1544,6 +1546,20 @@ function updateDisbandButton(root, activeTab) {
 		btn.addEventListener('click', () => {
 			Guild.promptDisbandGuild();
 		});
+	}
+}
+
+// The client draws the skill point readout at window coordinates that land on
+// the bottom bar, not inside the skill list, so it lives in the frame's footer
+// and follows the tab instead of the pane.
+function updateSkillPoints(root, activeTab) {
+	if (!root) {
+		return;
+	}
+
+	const el = root.querySelector('.footer .skpoints');
+	if (el) {
+		el.style.display = activeTab === 'skills' ? 'block' : 'none';
 	}
 }
 
