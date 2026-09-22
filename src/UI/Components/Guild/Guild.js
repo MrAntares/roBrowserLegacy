@@ -272,6 +272,21 @@ Guild.init = function init() {
 				});
 			}
 
+			if (Session.isGuildMaster && !isSelf) {
+				ContextMenu.addElement(DB.getMessage(2923, 'Delegate guild master'), () => {
+					// 0x0aa5 member lists carry no character name, so the confirmation
+					// has to stand on its own when the name is empty.
+					const named = DB.getMessage(2924, 'Do you really want to delegate the guild master to %s?');
+					const text = member.CharName
+						? named.replace('%s', member.CharName)
+						: 'Do you really want to delegate the guild master to this member?';
+
+					UIManager.showPromptBox(text, 'ok', 'cancel', () => {
+						Guild.onChangeMemberPosRequest([{ AID: member.AID, GID: member.GID, positionID: 0 }]);
+					});
+				});
+			}
+
 			if (Session.guildRight & 0x10 && !isSelf) {
 				ContextMenu.addElement(DB.getMessage(509), () => {
 					InputBox.append();
