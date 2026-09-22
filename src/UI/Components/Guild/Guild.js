@@ -99,6 +99,17 @@ function _showApplyButton() {
 }
 
 /**
+ * Helper: the last login date, in the format the official client uses
+ */
+function _formatLastLogin(timestamp) {
+	const date = new Date(timestamp * 1000);
+	const month = `${date.getMonth() + 1}`.padStart(2, '0');
+	const day = `${date.getDate()}`.padStart(2, '0');
+
+	return `${date.getFullYear()}.${month}.${day}`;
+}
+
+/**
  * Helper: escape HTML
  */
 function _escapeHTML(text) {
@@ -651,6 +662,13 @@ Guild.setMember = function setMember(member) {
 	if (nameValue) {
 		nameValue.textContent = member.CharName;
 		nameValue.title = member.CharName;
+	}
+
+	const lastLogin = view.querySelector('.name .lastlogin');
+	if (lastLogin) {
+		lastLogin.textContent = member.LastLogin
+			? DB.getMessage(3012, 'Last login: %s').replace('%s', _formatLastLogin(member.LastLogin))
+			: '';
 	}
 
 	if (_positions[member.GPositionID]) {
