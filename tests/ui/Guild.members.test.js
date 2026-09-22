@@ -1,0 +1,178 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { alternating, uniform } from '../fixtures/guildMembers.js';
+
+const mocks = vi.hoisted(() => {
+	class MockGUIComponent {
+		constructor() {
+			this._host = document.createElement('div');
+			this.ui = { show: vi.fn(), hide: vi.fn(), is: vi.fn(() => true) };
+		}
+
+		getRoot() {
+			return this._host;
+		}
+
+		draggable() {}
+
+		focus() {}
+
+		parseHTML() {}
+	}
+
+	class MockEntity {
+		constructor() {
+			this.files = { shadow: {} };
+		}
+
+		renderEntity() {}
+	}
+	MockEntity.TYPE_PC = 0;
+
+	return {
+		MockGUIComponent,
+		MockEntity,
+		session: {
+			AID: 2000000,
+			GID: 150000,
+			hasGuild: true,
+			isGuildMaster: true,
+			guildRight: 0,
+			guildName: '',
+			Character: {},
+			Entity: { display: { name: 'Master' }, GUID: 1, GEmblemVer: 0 }
+		}
+	};
+});
+
+vi.mock('DB/DBManager.js', () => ({
+	default: {
+		INTERFACE_PATH: '',
+		getMessage: (id, defaultText) => (defaultText !== undefined ? defaultText : `NO MSG ${id}`)
+	}
+}));
+vi.mock('DB/Skills/SkillInfo.js', () => ({ default: {} }));
+vi.mock('DB/Monsters/MonsterTable.js', () => ({ default: {} }));
+vi.mock('Controls/KeyEventHandler.js', () => ({ default: {} }));
+vi.mock('Engine/SessionStorage.js', () => ({ default: mocks.session }));
+vi.mock('Renderer/Entity/Entity.js', () => ({ default: mocks.MockEntity }));
+vi.mock('Renderer/SpriteRenderer.js', () => ({ default: { bind2DContext: vi.fn() } }));
+vi.mock('Renderer/Camera.js', () => ({ default: {} }));
+vi.mock('Renderer/Renderer.js', () => ({
+	default: { width: 1200, height: 800, tick: 0, render: vi.fn(), stop: vi.fn() }
+}));
+vi.mock('Core/Client.js', () => ({
+	default: {
+		loadFile(_path, callback) {
+			callback?.('');
+		},
+		loadFiles(_paths, callback) {
+			callback?.('checkbox_0.bmp', 'checkbox_1.bmp');
+		}
+	}
+}));
+vi.mock('UI/GUIComponent.js', () => ({ default: mocks.MockGUIComponent }));
+vi.mock('UI/UIManager.js', () => ({
+	default: {
+		addComponent(component) {
+			const root = component.getRoot();
+			document.body.appendChild(root);
+			root.innerHTML = component.render();
+			component.init();
+			return component;
+		},
+		showPromptBox: vi.fn(),
+		showMessageBox: vi.fn()
+	}
+}));
+vi.mock('UI/Elements/Elements.js', () => ({}));
+vi.mock('UI/Components/ContextMenu/ContextMenu.js', () => ({
+	default: { remove: vi.fn(), append: vi.fn(), addElement: vi.fn() }
+}));
+vi.mock('UI/Components/ChatBox/ChatBox.js', () => ({
+	default: { addText: vi.fn(), TYPE: { BLUE: 1 }, FILTER: { GUILD: 1 } }
+}));
+vi.mock('UI/Components/InputBox/InputBox.js', () => ({
+	default: { append: vi.fn(), setType: vi.fn(), remove: vi.fn(), ui: { find: () => ({ text: vi.fn() }) } }
+}));
+vi.mock('UI/Components/GuildCompanion/GuildCompanion.js', () => ({ default: { openDisband: vi.fn() } }));
+vi.mock('UI/Components/SkillTargetSelection/SkillTargetSelection.js', () => ({ default: {} }));
+vi.mock('UI/Components/SkillDescription/SkillDescription.js', () => ({ default: {} }));
+vi.mock('UI/Components/WinStats/WinStats.js', () => ({ default: { getUI: () => ({ update: vi.fn() }) } }));
+
+HTMLCanvasElement.prototype.getContext = function () {
+	return { canvas: this, fillStyle: '', fillRect() {}, clearRect() {}, drawImage() {} };
+};
+
+const Guild = (await import('UI/Components/Guild/Guild.js')).default;
+const Configs = (await import('Core/Configs.js')).default;
+const UIPreferences = (await import('Preferences/UI.js')).default;
+const UIManager = (await import('UI/UIManager.js')).default;
+
+UIManager.addComponent(Guild);
+
+/**
+ * The names as rendered, top to bottom.
+ */
+function rendered() {
+	return [...Guild.getRoot().querySelectorAll('.content.members tbody tr .name .value')].map(el => el.textContent);
+}
+
+describe('guild member list, ordered by login status', () => {
+	beforeEach(() => {
+		Configs.set('guildMemberListSort', 'always');
+		UIPreferences.guildMemberListSorted = true;
+	});
+
+	it("leaves the server's order alone in ver12's mode", () => {
+		Configs.set('guildMemberListSort', 'never');
+		Guild.setMembers(alternating(6), false);
+
+		expect(rendered()).toEqual(['off-0', 'ON-1', 'off-2', 'ON-3', 'off-4', 'ON-5']);
+	});
+
+	it('puts the online members first in mars26\'s mode', () => {
+		Guild.setMembers(alternating(6), false);
+
+		expect(rendered()).toEqual(['ON-1', 'ON-3', 'ON-5', 'off-0', 'off-2', 'off-4']);
+	});
+
+	it("follows the player's checkbox in 2022's mode", () => {
+		Configs.set('guildMemberListSort', 'checkbox');
+
+		UIPreferences.guildMemberListSorted = true;
+		Guild.setMembers(alternating(4), false);
+		expect(rendered()).toEqual(['ON-1', 'ON-3', 'off-0', 'off-2']);
+
+		UIPreferences.guildMemberListSorted = false;
+		Guild.setMembers(alternating(4), false);
+		expect(rendered()).toEqual(['off-0', 'ON-1', 'off-2', 'ON-3']);
+	});
+
+	it('reorders without dropping anyone', () => {
+		const roster = alternating(9);
+		Guild.setMembers(roster, false);
+
+		const names = rendered();
+		expect(names).toHaveLength(roster.length);
+		expect([...names].sort()).toEqual(roster.map(m => m.CharName).sort());
+	});
+
+	it('is stable: members sharing a status keep the order they arrived in', () => {
+		// The client merge-sorts, which preserves the server's order within a
+		// group. A roster that is already uniform must come back untouched.
+		const online = uniform(5, true).map((m, i) => ({ ...m, CharName: `same-${i}` }));
+		Guild.setMembers(online, false);
+
+		expect(rendered()).toEqual(['same-0', 'same-1', 'same-2', 'same-3', 'same-4']);
+	});
+
+	it('marks the online rows and only those', () => {
+		Guild.setMembers(alternating(4), false);
+
+		const rows = [...Guild.getRoot().querySelectorAll('.content.members tbody tr')];
+		const online = rows.map(tr => tr.classList.contains('online'));
+
+		// Sorted, so the online pair leads.
+		expect(online).toEqual([true, true, false, false]);
+	});
+});

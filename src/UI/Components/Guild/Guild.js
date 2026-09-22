@@ -31,6 +31,8 @@ import SkillDescription from 'UI/Components/SkillDescription/SkillDescription.js
 import htmlText from './Guild.html?raw';
 import cssText from './Guild.css?raw';
 import WinStats from 'UI/Components/WinStats/WinStats.js';
+import Configs from 'Core/Configs.js';
+import UIPreferences from 'Preferences/UI.js';
 
 /**
  * Flags to check access
@@ -115,6 +117,7 @@ let lArrow, rArrow;
 let _totalExp = 0;
 let _guildAccess = 0;
 let _checkbox_off, _checkbox_on;
+let _hasMemo = false;
 
 /**
  * Helper: query inside shadow root
@@ -160,6 +163,46 @@ function _formatLastLogin(timestamp) {
 		.replace('%y', pad(date.getFullYear() % 100))
 		.replace('%m', pad(date.getMonth() + 1))
 		.replace('%d', pad(date.getDate()));
+}
+
+/**
+ * Helper: does the member list get ordered by login status right now
+ *
+ * Three client behaviours, selected by the deployment:
+ *   'never'    - ver12, which has no such sort
+ *   'checkbox' - 2022, sorted behind the tab's own checkbox
+ *   'always'   - mars26, which dropped the checkbox and left the sort on
+ *
+ * mars26's is the default: it is the newest behaviour, and it costs nothing to
+ * put the online members first when the order underneath is already the one the
+ * server sent.
+ *
+ * @return {boolean}
+ */
+function _sortsByLogin() {
+	const mode = Configs.get('guildMemberListSort', 'always');
+
+	if (mode === 'always') {
+		return true;
+	}
+	if (mode === 'never') {
+		return false;
+	}
+	return !!UIPreferences.guildMemberListSorted;
+}
+
+/**
+ * Helper: the roster, online first
+ *
+ * The client merge-sorts its member list on the same field that paints a row
+ * green, online ahead of offline. Array.prototype.sort is stable, so members
+ * sharing a status keep the order the server sent them in, as a merge does.
+ *
+ * @param {Array} members
+ * @return {Array} a sorted copy
+ */
+function _orderByLogin(members) {
+	return members.slice().sort((a, b) => (b.CurrentState ? 1 : 0) - (a.CurrentState ? 1 : 0));
 }
 
 /**
@@ -594,6 +637,7 @@ Guild.setGuildInformations = function setGuildInformations(info) {
 
 	updateDisbandButton(root, getActiveTab(root));
 	updateSkillPoints(root, getActiveTab(root));
+	updateMemberSort(root, getActiveTab(root));
 
 	WinStats.getUI().update('guildname', info.guildname);
 
@@ -667,9 +711,10 @@ Guild.setMembers = function setMembers(members, hasMemo) {
 	// The 0x0154 list carries a note and no last login, the later ones the
 	// other way round. Show the column the wire actually feeds, which is what
 	// the client of each era does.
+	_hasMemo = !!hasMemo;
 	const membersContent = root.querySelector('.content.members');
 	if (membersContent) {
-		membersContent.classList.toggle('has-memo', !!hasMemo);
+		membersContent.classList.toggle('has-memo', _hasMemo);
 	}
 
 	const tbody = root.querySelector('.content.members tbody');
@@ -691,8 +736,34 @@ Guild.setMembers = function setMembers(members, hasMemo) {
 		onlineEl.textContent = online;
 	}
 
+	const ordered = _sortsByLogin() ? _orderByLogin(members) : members;
+
+	// _members is the store the grade guard and the context menu read back,
+	// so it keeps the order the server sent. Only the table is sorted.
 	for (let i = 0; i < count; ++i) {
 		this.setMember(members[i]);
+	}
+
+	// appendChild moves a node that is already there, so this lays the rows
+	// out in the sorted order without rebuilding any of them.
+	const list = root.querySelector('.content.members tbody');
+	if (list) {
+		const rowAt = {};
+		for (const row of list.querySelectorAll('.MemberView')) {
+			rowAt[row.getAttribute('data-index')] = row;
+		}
+
+		const indexOf = {};
+		for (let i = 0; i < _members.length; ++i) {
+			indexOf[`${_members[i].AID}_${_members[i].GID}`] = i;
+		}
+
+		for (let i = 0; i < count; ++i) {
+			const row = rowAt[indexOf[`${ordered[i].AID}_${ordered[i].GID}`]];
+			if (row) {
+				list.appendChild(row);
+			}
+		}
 	}
 
 	renderMemberFaces(Renderer.tick + 1000);
@@ -1473,6 +1544,7 @@ function onChangeTab(event) {
 
 	updateDisbandButton(root, targetClass);
 	updateSkillPoints(root, targetClass);
+	updateMemberSort(root, targetClass);
 
 	if (targetClass === 'members') {
 		Renderer.render(renderMemberFaces);
@@ -1691,6 +1763,42 @@ function updateSkillPoints(root, activeTab) {
 	const el = root.querySelector('.footer .skpoints');
 	if (el) {
 		el.style.display = activeTab === 'skills' ? 'block' : 'none';
+	}
+}
+
+// 2022's own control for the sort, at (12, 299) on the bottom bar. It exists
+// only in that era - ver12 never had it, mars26 dropped it and left the sort on
+// - so the deployment decides whether it is offered at all, and the player's
+// answer is what gets persisted.
+function updateMemberSort(root, activeTab) {
+	if (!root) {
+		return;
+	}
+
+	const box = root.querySelector('.footer .sortlogin');
+	if (!box) {
+		return;
+	}
+
+	const offered = Configs.get('guildMemberListSort', 'always') === 'checkbox';
+	box.style.display = offered && activeTab === 'members' ? 'block' : 'none';
+
+	// Repainted on every visit rather than once at bind: the checkbox images
+	// are preloaded asynchronously and may not have arrived the first time.
+	const btn = box.querySelector('ui-button');
+	const uri = UIPreferences.guildMemberListSorted ? _checkbox_on : _checkbox_off;
+	if (btn && uri) {
+		btn.style.backgroundImage = `url(${uri})`;
+	}
+
+	if (!box.dataset.bound) {
+		box.dataset.bound = '1';
+		box.addEventListener('click', () => {
+			UIPreferences.guildMemberListSorted = !UIPreferences.guildMemberListSorted;
+			UIPreferences.save();
+			Guild.setMembers(_members.slice(), _hasMemo);
+			updateMemberSort(root, 'members');
+		});
 	}
 }
 

@@ -730,6 +730,28 @@
  * bottom bar: the two buttons at (46, 293) and (92, 293), the readout at
  * (W - 100, H - 20) = (300, 297). They live in the frame's footer for that
  * reason, and are shown only while the Skills tab is up. */
+/* SetSize(240, 12) then SetPos(12, H - 18) = (12, 299), label msgstring 0xb30.
+ * 2022 only: ver12 has no such control and mars26 dropped it, so whether this
+ * shows at all is the `guildMemberListSort` deployment setting. */
+#Guild .footer .sortlogin {
+	display: none;
+	position: absolute;
+	top: 11px;
+	left: 12px;
+	width: 240px;
+	height: 12px;
+	font-size: 11px;
+	line-height: 12px;
+}
+#Guild .footer .sortlogin ui-button {
+	width: 12px;
+	height: 12px;
+	border: none;
+	background-color: transparent;
+	background-repeat: no-repeat;
+	vertical-align: top;
+	margin-right: 4px;
+}
 #Guild .footer .skpoints {
 	display: none;
 	position: absolute;
