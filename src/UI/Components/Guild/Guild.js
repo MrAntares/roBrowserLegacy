@@ -92,6 +92,16 @@ function _hasStorageColumn() {
 	return parseInt(PACKETVER.value, 10) >= 20140205;
 }
 
+/**
+ * The Info tab's tendency chart and Tax Point are drawn by ver12 and by no
+ * client after it: msgstrings 0x14e and 0x151 have zero references in either
+ * 2022-03-30 or mars26. The exact release that dropped them is not known, so
+ * the cut is the oldest client where their absence was verified.
+ */
+function _drawsLegacyInfo() {
+	return parseInt(PACKETVER.value, 10) < 20220330;
+}
+
 let _btnIncSkillTemplate;
 let _skpoints = 0;
 let _btnLevelUp;
@@ -581,7 +591,13 @@ Guild.setGuildInformations = function setGuildInformations(info) {
 
 	WinStats.getUI().update('guildname', info.guildname);
 
-	renderTendency(info.honor, info.virtue);
+	const infoContent = root.querySelector('.content.info');
+	if (infoContent) {
+		infoContent.classList.toggle('modern', !_drawsLegacyInfo());
+	}
+	if (_drawsLegacyInfo()) {
+		renderTendency(info.honor, info.virtue);
+	}
 };
 
 Guild.setEmblem = function setEmblem(image) {

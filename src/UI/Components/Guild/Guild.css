@@ -193,6 +193,14 @@
 /* 3px higher than it was, so the chart's bottom label stops 2px short of the
  * pane instead of 2px past it. The whole block is a ver12 reproduction - 2022
  * and mars26 draw no tendency chart - so it has no client rect to hold to. */
+/* ver12 draws the tendency chart and Tax Point; no client after it does -
+ * their msgstrings are unreferenced from the guild window in 2022-03-30 and
+ * in mars26. The release that dropped them is unknown, so the cut is the
+ * oldest client where the absence was verified. */
+#Guild .content.info.modern .tendency,
+#Guild .content.info.modern .tax {
+	display: none;
+}
 #Guild .content.info .tendency {
 	position: absolute;
 	left: 8px;
