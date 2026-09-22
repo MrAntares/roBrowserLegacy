@@ -175,10 +175,14 @@
 	left: 8px;
 	top: 114px;
 }
+/* The .tendency box is absolutely positioned with no width and only absolutely
+ * positioned children, so it shrink-to-fits to zero and the label wraps after
+ * the first word. */
 #Guild .content.info .tendency .title {
 	position: absolute;
 	top: 0px;
 	left: 0px;
+	white-space: nowrap;
 }
 #Guild .content.info .tendency .righteous {
 	position: absolute;
@@ -577,8 +581,13 @@
 /*
  * Guild Skills
  */
+/* The scrolling element on this tab is .skill_list, not the pane, so the bar
+ * lands on .skill_list's right edge. Dropping the pane's right padding and
+ * widening the list to 396 puts that edge at 398, which is where the bar has to
+ * start from to sit at the client's x=385. */
 #Guild .content.skills {
 	overflow-y: hidden;
+	padding-right: 0;
 }
 /* border-box, so the 5px padding stays inside the 394. Without it this box is
  * 404 wide and overflows the pane, which is what pushed the Skills tab to the
@@ -590,7 +599,7 @@
 	overflow-y: auto;
 	padding: 5px;
 	border-top: 1px solid #c6c6c6;
-	width: 394px;
+	width: 396px;
 	height: 215px;
 }
 #Guild .content.skills .skill_list table {
