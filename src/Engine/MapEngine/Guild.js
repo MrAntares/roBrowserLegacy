@@ -750,12 +750,12 @@ function onGuildMemberUpdate(pkt) {
 }
 
 /**
- * Update member rank
+ * Update member ranks
  *
  * @param {object} pkt - PACKET.ZC.ACK_REQ_CHANGE_MEMBERS
  */
 function onGuildMemberPositionUpdate(pkt) {
-	Guild.updateMemberPosition(pkt.AID, pkt.GID, pkt.positionID);
+	Guild.setMemberPositions(pkt.memberInfo);
 }
 
 /**

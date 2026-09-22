@@ -59,6 +59,13 @@ const _positions = [];
 const _members = [];
 const _skills = [];
 
+/**
+ * Grade changes queued by the member dropdown, keyed by GID so that
+ * re-editing a member overwrites its pending value instead of appending.
+ * Flushed on Apply, dropped whenever fresh guild data arrives.
+ */
+let _pendingPositions = {};
+
 let _btnIncSkillTemplate;
 let _skpoints = 0;
 let _btnLevelUp;
@@ -72,6 +79,23 @@ let _checkbox_off, _checkbox_on;
  */
 function _root(comp) {
 	return comp.getRoot();
+}
+
+/**
+ * Helper: drop the queued grade changes
+ */
+function _clearPendingPositions() {
+	_pendingPositions = {};
+}
+
+/**
+ * Helper: reveal the Apply button, the affordance for a pending change
+ */
+function _showApplyButton() {
+	const btnOk = _root(Guild).querySelector('.footer .btn_ok');
+	if (btnOk) {
+		btnOk.style.display = 'block';
+	}
 }
 
 /**
@@ -538,6 +562,8 @@ Guild.setMembers = function setMembers(members) {
 	_members.length = 0;
 	_totalExp = 0;
 
+	_clearPendingPositions();
+
 	const root = _root(this);
 	const tbody = root.querySelector('.content.members tbody');
 	if (tbody) {
@@ -618,7 +644,13 @@ Guild.setMember = function setMember(member) {
 			const selectEl = positionCell.querySelector(`.member_${member.AID}_${member.GID}`);
 			if (selectEl) {
 				selectEl.addEventListener('change', evt => {
-					Guild.updateMemberPosition(member.AID, member.GID, parseInt(evt.target.value, 10), true);
+					const positionID = parseInt(evt.target.value, 10);
+					if (!Guild.updateMemberPosition(member.AID, member.GID, positionID, true)) {
+						// Refused selection, keep the dropdown on the grade we know.
+						evt.target.value = member.GPositionID;
+						return;
+					}
+					_showApplyButton();
 				});
 			}
 		} else {
@@ -722,22 +754,73 @@ Guild.updateMemberStatus = function updateMemberStatus(member) {
 	);
 };
 
+/**
+ * Move a member to another grade
+ *
+ * From the dropdown the change is only queued: the native client guards the
+ * selection then flushes the queue on Apply, it never sends on selection.
+ *
+ * @param {number} AID - account id
+ * @param {number} GID - character id
+ * @param {number} positionID - grade to move the member to
+ * @param {boolean} fromDropdown - true when the grade dropdown is the source
+ * @return {boolean} false when the member is unknown or the selection refused
+ */
 Guild.updateMemberPosition = function updateMemberPosition(AID, GID, positionID, fromDropdown) {
 	for (let i = 0, count = _members.length; i < count; ++i) {
 		if (_members[i].AID === AID && _members[i].GID === GID) {
+			const currentID = _members[i].GPositionID;
+
+			// Grade 0 is the guild master. It is neither given nor taken from the
+			// dropdown, delegation is a path of its own. An unchanged grade and a
+			// value that did not parse are refused the same way, silently.
+			if (fromDropdown && (!positionID || !currentID || positionID === currentID)) {
+				return false;
+			}
+
 			_members[i].GPositionID = positionID;
 
-			// The dropdown already displays the new position, re-rendering the row
-			// here would replace the <select> while its change event is dispatching.
-			if (!fromDropdown) {
+			if (fromDropdown) {
+				_pendingPositions[GID] = { AID: AID, GID: GID, positionID: positionID };
+			} else {
+				// The dropdown already displays the new position, re-rendering the row
+				// here would replace the <select> while its change event is dispatching.
 				Guild.setMember(_members[i]);
 			}
-			break;
+
+			return true;
 		}
 	}
 
-	if (fromDropdown) {
-		onValidate();
+	return false;
+};
+
+/**
+ * Apply the grades the server acknowledged
+ *
+ * The acknowledgement is the server truth, so it also drops whatever was
+ * still queued. A grade of 0 is the guild master moving, not a grade change.
+ *
+ * @param {Array} memberInfo - PACKET.ZC.ACK_REQ_CHANGE_MEMBERS entries
+ */
+Guild.setMemberPositions = function setMemberPositions(memberInfo) {
+	_clearPendingPositions();
+
+	if (!memberInfo) {
+		return;
+	}
+
+	for (let i = 0, count = memberInfo.length; i < count; ++i) {
+		const entry = memberInfo[i];
+
+		// A grade of 0 acknowledges a new guild master, not a grade change. The
+		// member list the server pushes along with it repaints the rows.
+		if (!entry.positionID) {
+			Session.isGuildMaster = entry.AID === Session.AID && entry.GID === Session.GID;
+			continue;
+		}
+
+		Guild.updateMemberPosition(entry.AID, entry.GID, entry.positionID, false);
 	}
 };
 
@@ -770,6 +853,8 @@ Guild.setPositions = function setPositions(positions, erase) {
 
 Guild.setPositionsName = function setPositionsName(positions) {
 	let rank;
+
+	_clearPendingPositions();
 
 	for (let i = 0, count = positions.length; i < count; ++i) {
 		rank = positions[i];
@@ -1306,14 +1391,18 @@ function onValidate() {
 	switch (activeTab) {
 		case 'members': {
 			const list = [];
-			_members.forEach(member => {
-				list.push({
-					AID: member.AID,
-					GID: member.GID,
-					positionID: member.GPositionID
-				});
-			});
+			for (const GID in _pendingPositions) {
+				list.push(_pendingPositions[GID]);
+			}
+
+			// Nothing queued, nothing to apply. Sending the whole roster here is
+			// what the server reads as a guild master transfer.
+			if (!list.length) {
+				return;
+			}
+
 			Guild.onChangeMemberPosRequest(list);
+			_clearPendingPositions();
 			break;
 		}
 		case 'positions': {
