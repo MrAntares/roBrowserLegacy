@@ -79,6 +79,8 @@ class GuildEngine {
 		Network.hookPacket(PACKET.ZC.UPDATE_GDID, onGuildOwnInfo);
 		Network.hookPacket(PACKET.ZC.UPDATE_GDID2, onGuildOwnInfo);
 		Network.hookPacket(PACKET.ZC.BAN_LIST, onGuildExpelList);
+		Network.hookPacket(PACKET.ZC.BAN_LIST2, onGuildExpelList);
+		Network.hookPacket(PACKET.ZC.BAN_LIST3, onGuildExpelList);
 		Network.hookPacket(PACKET.ZC.ACK_DISORGANIZE_GUILD_RESULT, onGuildDestroy);
 		Network.hookPacket(PACKET.ZC.REQ_JOIN_GUILD, onGuildInviteRequest);
 		Network.hookPacket(PACKET.ZC.ACK_REQ_JOIN_GUILD, onGuildInviteResult);

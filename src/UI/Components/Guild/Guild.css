@@ -47,14 +47,23 @@
 	clear: both;
 }
 
+/* The client's content pane is (1, 41, 398, 276) painted over (0, 41, 400, 276),
+ * so the only edges it leaves are the 1px verticals at x=0 and x=399 - there is
+ * no horizontal rule under the tabs. The bottom 29 of that 276 are overpainted
+ * by the button bar, which is a sibling of this box, so the strips this panel
+ * has to draw are exactly its own height.
+ *
+ * A shadow rather than a border on purpose: every band in this window is a
+ * border-box width that already includes its own separator, and the totals are
+ * pinned (members 370 in a 375 band, positions a hard 376, skills a hard 398).
+ * A border would not grow this box, it would take those 2px out of .content and
+ * walk every measured separator inward. An inset shadow paints in the same
+ * place and takes part in no layout at all. */
 #Guild .panel {
 	background-color: white;
 	padding-right: 2px;
+	box-shadow: inset 1px 0 #c8c8c8, inset -1px 0 #c8c8c8;
 }
-/* The client's content pane is (1, 41, 398, 276) painted over (0, 41, 400, 276),
- * so the only edges it leaves are the 1px verticals at x=0 and x=399 - there is
- * no horizontal rule under the tabs. 247 here plus the 29px button bar is that
- * same 276. */
 #Guild .content {
 	position: relative;
 	box-sizing: border-box;
@@ -243,14 +252,16 @@
 	left: 10px;
 }
 
-#Guild .content.info .members ui-button {
+/* The client blits grp_online.bmp at (128, 95) - it is an image, not a widget,
+ * with no hover and nothing to click. A ui-button here loaded the right bitmap
+ * but also put the game cursor into its "click" state over a decoration. */
+#Guild .content.info .members .online-icon {
+	display: inline-block;
 	margin-left: 5px;
 	vertical-align: -4px;
-	border: none;
 	width: 15px;
 	height: 15px;
 	background-repeat: no-repeat;
-	background-color: transparent;
 }
 
 #Guild .content.info .exp {
@@ -357,6 +368,14 @@
 /*
  * Guild Members
  */
+/* Alone among the tabs, this one insets its bar a further pixel - SetPos(W-16)
+ * against the W-15 that Positions, Skills and Expel History all use. Offsetting
+ * the bar rather than narrowing the pane keeps the column separators where they
+ * were measured. !important because Scrollbar.js writes right: 0px inline when
+ * it attaches, which no selector outranks. */
+#Guild .content.members > .ro-custom-scrollbar {
+	right: 1px !important;
+}
 /* The client's list frame starts at x=5 and its row band at x=6; the pane's own
  * 2px padding puts us at 2, so 3px of margin makes up the difference. */
 #Guild .content.members table {

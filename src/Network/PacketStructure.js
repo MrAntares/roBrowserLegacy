@@ -13564,6 +13564,22 @@ PACKET.ZC.GUILD_INFO3 = function PACKET_ZC_GUILD_INFO3(fp, end) {
 };
 PACKET.ZC.GUILD_INFO3.size = 114 - 20; // - <master name>.24B + <master char id>.L
 
+// 0xa87
+PACKET.ZC.BAN_LIST2 = function PACKET_ZC_BAN_LIST2(fp, end) {
+	this.banList = (function () {
+		const count = ((end - fp.tell()) / 44) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
+			out[i] = {};
+			out[i].GID = fp.readULong();
+			out[i].reason = fp.readString(40);
+			out[i].charname = ''; // todo char_id to char_name
+		}
+		return out;
+	})();
+};
+PACKET.ZC.BAN_LIST2.size = -1;
+
 // 0xa89
 PACKET.ZC.STORE_ASSISTANT_ENTRY = function PACKET_ZC_STORE_ASSISTANT_ENTRY(fp, end) {
 	this.GID = fp.readULong();
@@ -15224,6 +15240,23 @@ PACKET.ZC.GUILD_INFO4 = function PACKET_ZC_GUILD_INFO4(fp, end) {
 	this.masterName = fp.readString(NAME_LENGTH);
 };
 PACKET.ZC.GUILD_INFO4.size = 118; // - <master name>.24B + <master char id>.L
+
+// 0xb7c
+PACKET.ZC.BAN_LIST3 = function PACKET_ZC_BAN_LIST3(fp, end) {
+	this.banList = (function () {
+		const count = ((end - fp.tell()) / 68) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
+			out[i] = {};
+			out[i].GID = fp.readULong();
+			// The name comes after the reason here, not before it as in 0x163.
+			out[i].reason = fp.readString(40);
+			out[i].charname = fp.readString(NAME_LENGTH);
+		}
+		return out;
+	})();
+};
+PACKET.ZC.BAN_LIST3.size = -1;
 
 // 0xb7d
 PACKET.ZC.MEMBERMGR_INFO3 = function PACKET_ZC_MEMBERMGR_INFO3(fp, end) {

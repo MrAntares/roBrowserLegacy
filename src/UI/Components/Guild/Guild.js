@@ -341,24 +341,31 @@ Guild.init = function init() {
 	// Members
 	const membersBody = root.querySelector('.content.members tbody');
 	if (membersBody) {
+		const selectRow = tr => {
+			for (const row of membersBody.querySelectorAll('tr')) {
+				row.classList.remove('active');
+			}
+			tr.classList.add('active');
+		};
+
 		membersBody.addEventListener('mousedown', e => {
 			const tr = e.target.closest('tr');
 			if (tr) {
-				for (const row of membersBody.querySelectorAll('tr')) {
-					row.classList.remove('active');
-				}
-				tr.classList.add('active');
+				selectRow(tr);
 			}
 		});
 
 		membersBody.addEventListener('contextmenu', e => {
-			const td = e.target.closest('td.name');
-			if (!td) {
+			// The client hit-tests the whole row band, not one column.
+			const tr = e.target.closest('tr');
+			const member = tr && _members[tr.getAttribute('data-index')];
+			if (!member) {
 				return;
 			}
-			const tr = td.parentNode;
-			const index = tr.getAttribute('data-index');
-			const member = _members[index];
+			// Move the highlight from this path too rather than leaning on
+			// mousedown having fired first - the row the menu acts on is the row
+			// that has to look selected.
+			selectRow(tr);
 			const isSelf = member.AID === Session.AID && member.GID === Session.GID;
 
 			ContextMenu.remove();
@@ -1494,7 +1501,9 @@ Guild.setExpelList = function setExpelList(list) {
 		const element = _expelViewTemplate.cloneNode(true);
 		const nameCell = element.querySelector('.name');
 		if (nameCell) {
-			nameCell.textContent = list[i].charname;
+			// The 0x0a87 list carries a char id and no name, the same way the
+			// 0x0aa5 member list does, so it falls back the same way.
+			nameCell.textContent = list[i].charname || DB.getMessage(581, 'Nameless');
 		}
 		const reasonCell = element.querySelector('.reason');
 		if (reasonCell) {
