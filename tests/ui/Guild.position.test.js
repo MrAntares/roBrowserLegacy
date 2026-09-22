@@ -37,6 +37,8 @@ const mocks = vi.hoisted(() => {
 		// Stands in for msgstringtable: what a server actually ships wins over
 		// the fallback baked into the call.
 		messages: {},
+		// The guild storage right, and its column, start at 20140205.
+		packetver: { value: 20211103 },
 		contextMenu: { remove: vi.fn(), append: vi.fn(), addElement: vi.fn() },
 		promptBox: vi.fn(),
 		session: {
@@ -80,6 +82,7 @@ vi.mock('Core/Client.js', () => ({
 		}
 	}
 }));
+vi.mock('Network/PacketVerManager.js', () => ({ default: mocks.packetver }));
 vi.mock('UI/GUIComponent.js', () => ({ default: mocks.MockGUIComponent }));
 vi.mock('UI/UIManager.js', () => ({
 	default: {
@@ -233,6 +236,7 @@ let sentPositions;
 beforeEach(() => {
 	sent = [];
 	sentPositions = [];
+	mocks.packetver.value = 20211103;
 	// Closing the window drops whatever the positions tab had queued, so every
 	// case starts on a table the server is still allowed to repaint.
 	Guild.onRemove();
@@ -586,6 +590,26 @@ describe('Guild position tab', () => {
 			}
 		});
 
+		it('draws the storage column on a packetver that has the right', () => {
+			Guild.setPositions(POSITIONS, true);
+
+			// The class is what the stylesheet keys the sixth column and Title's
+			// width off. It is decided at render, never at init: init runs at
+			// import, long before the packetver is settled.
+			expect(root().querySelector('.content.positions').classList.contains('has-storage')).toBe(true);
+			expect(root().querySelector('.content.positions th.storage')).not.toBeNull();
+		});
+
+		it('drops the column again on an older packetver, and on "auto"', () => {
+			for (const value of [20130101, 'auto']) {
+				mocks.packetver.value = value;
+				Guild.onRemove();
+				Guild.setPositions(POSITIONS, true);
+
+				expect(root().querySelector('.content.positions').classList.contains('has-storage')).toBe(false);
+			}
+		});
+
 		it('paints the permissions the packet carried', () => {
 			Guild.setPositions(POSITIONS, true);
 			showPositionsTab();
@@ -692,6 +716,42 @@ describe('Guild position tab', () => {
 			clickApply();
 
 			expect(sentPositions).toHaveLength(0);
+		});
+
+		it('grants the guild storage right from its own column', () => {
+			Guild.setPositions(POSITIONS, true);
+			showPositionsTab();
+
+			// Officer holds invite|expel; give it the storeroom too.
+			expect(checkboxOf(2, 'storage').classList.contains('on')).toBe(false);
+			clickCheckbox(2, 'storage');
+			clickApply();
+
+			expect(sentPositions[0][0]).toMatchObject({ positionID: 2, right: 0x111 });
+		});
+
+		it('revokes it again, which nothing else in the tab can do', () => {
+			Guild.setPositions(POSITIONS, true);
+			showPositionsTab();
+
+			expect(checkboxOf(0, 'storage').classList.contains('on')).toBe(true);
+			clickCheckbox(0, 'storage');
+			clickApply();
+
+			expect(sentPositions[0][0]).toMatchObject({ positionID: 0, right: 0x011 });
+		});
+
+		it('leaves the bit alone on a packetver that has no column for it', () => {
+			// Before 20140205 rathena does not define GUILD_PERM_STORAGE at all,
+			// so the tab must neither show the right nor rewrite it.
+			mocks.packetver.value = 20130101;
+			Guild.setPositions(POSITIONS, true);
+			showPositionsTab();
+
+			clickCheckbox(0, 'invite');
+			clickApply();
+
+			expect(sentPositions[0][0]).toMatchObject({ positionID: 0, right: 0x110 });
 		});
 
 		it('does not push a mode it never received', () => {

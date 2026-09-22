@@ -18,6 +18,7 @@ import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import Camera from 'Renderer/Camera.js';
 import Renderer from 'Renderer/Renderer.js';
 import Client from 'Core/Client.js';
+import PACKETVER from 'Network/PacketVerManager.js';
 import UIManager from 'UI/UIManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
 import 'UI/Elements/Elements.js';
@@ -71,6 +72,18 @@ let _pendingPositions = {};
  * the DOM. Once an edit is in them, a server update must not repaint over it.
  */
 let _positionsDirty = false;
+
+/**
+ * GUILD_PERM_STORAGE exists from PACKETVER 20140205 on, and only then does the
+ * tab draw a column for it. Below that the bit is preserved but never touched.
+ */
+const GUILD_PERM_STORAGE = 0x100;
+
+function _hasStorageColumn() {
+	// Read it late, never cached: init() runs at import, and the packetver is
+	// only settled at login - and is the string 'auto' until then.
+	return parseInt(PACKETVER.value, 10) >= 20140205;
+}
 
 let _btnIncSkillTemplate;
 let _skpoints = 0;
@@ -958,6 +971,8 @@ Guild.updatePositionView = function updatePositionView() {
 		return;
 	}
 
+	container.closest('.content.positions')?.classList.toggle('has-storage', _hasStorageColumn());
+
 	container.innerHTML = '';
 
 	const count = _positions.length;
@@ -994,6 +1009,14 @@ Guild.updatePositionView = function updatePositionView() {
 			punishBox.style.backgroundImage = `url(${rank.right & 0x10 ? _checkbox_on : _checkbox_off})`;
 			punishBox.className = punishBox.className.replace(/\b(on|off)\b/g, '').trim();
 			punishBox.classList.add(rank.right & 0x10 ? 'on' : 'off');
+		}
+
+		const storageBox = view.querySelector('.storage .checkbox');
+		if (storageBox) {
+			const on = rank.right & GUILD_PERM_STORAGE;
+			storageBox.style.backgroundImage = `url(${on ? _checkbox_on : _checkbox_off})`;
+			storageBox.className = storageBox.className.replace(/\b(on|off)\b/g, '').trim();
+			storageBox.classList.add(on ? 'on' : 'off');
 		}
 
 		container.appendChild(view);
@@ -1512,10 +1535,11 @@ function onValidate() {
 				const posName = position.querySelector('.title input')?.value || '';
 				const payRate = parseInt(position.querySelector('.tax input')?.value || '0', 10);
 
-				// Invitation and punishment are the only bits with a column here.
-				// Rebuilding the mode from zero drops the rest - guild storage
-				// (0x100) above all, which every default position holds.
-				let right = _positions[i].right & ~(0x01 | 0x10);
+				// Keep every bit the tab has no column for. Rebuilding the mode
+				// from zero is what used to drop the guild storage right on a
+				// packetver too old to draw it.
+				const owned = _hasStorageColumn() ? 0x01 | 0x10 | GUILD_PERM_STORAGE : 0x01 | 0x10;
+				let right = _positions[i].right & ~owned;
 
 				const inviteBox = position.querySelector('.invite .checkbox');
 				if (inviteBox && inviteBox.classList.contains('on')) {
@@ -1525,6 +1549,11 @@ function onValidate() {
 				const punishBox = position.querySelector('.punish .checkbox');
 				if (punishBox && punishBox.classList.contains('on')) {
 					right |= 0x10;
+				}
+
+				const storageBox = position.querySelector('.storage .checkbox');
+				if (_hasStorageColumn() && storageBox && storageBox.classList.contains('on')) {
+					right |= GUILD_PERM_STORAGE;
 				}
 
 				if (

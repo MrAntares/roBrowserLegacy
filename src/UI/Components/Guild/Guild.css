@@ -555,14 +555,13 @@
 	padding: 2px 2px 0px 3px;
 	border: 1px solid #c2c2c2;
 }
-/* ver12's five-column layout - 50/142/60/60/60, a band of x 5..381 - rather
- * than the modern one. 2022 and mars26 split this into six columns by adding
- * Storage and cutting Title from 142 to 100, and their band then runs to x=400,
- * under the scrollbar that starts at 385. We render five columns because the
- * tab has no Storage control yet - not for want of data: 0x160 and 0x174 both
- * carry the whole mode mask, 0x100 included. ver12's widths are the ones that
- * fit the five we do draw and keep the band clear of the bar. Each width carries
- * +1px for its own separator; the last closes against the frame. */
+/* ver12's five-column layout - 50/142/60/60/60, a band of x 5..381. 2022 and
+ * mars26 add Storage and cut Title from 142 to 100, and their band then runs to
+ * x=400, under the scrollbar that starts at 385 - the client paints its own Tax
+ * cell beneath its own bar. We take the sixth column but not that regression:
+ * Title gives up the width instead, so the band still closes at 381 whichever
+ * layout is up. Each width carries +1px for its own separator; the last closes
+ * against the frame. */
 #Guild .content.positions .id {
 	width: 50px;
 }
@@ -579,6 +578,22 @@
 #Guild .content.positions .tax {
 	width: 61px;
 	padding: 0;
+}
+/* The guild storage right only exists from PACKETVER 20140205, and ver12 has no
+ * column for it. Off, the five widths above sum to the band's 376; on, Title
+ * pays for the sixth so the sum does not move. */
+#Guild .content.positions .storage {
+	display: none;
+	width: 61px;
+}
+#Guild .content.positions.has-storage .storage {
+	display: table-cell;
+}
+#Guild .content.positions.has-storage .title {
+	width: 82px;
+}
+#Guild .content.positions.has-storage .title input {
+	width: 75px;
 }
 #Guild .content.positions input {
 	border: none;
