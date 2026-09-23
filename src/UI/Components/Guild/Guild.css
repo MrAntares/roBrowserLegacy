@@ -968,3 +968,29 @@
 	border: none;
 	resize: none;
 }
+
+/* Text selection, re-enabled where the browser gave it to us for free.
+ *
+ * Common.css suppresses selection globally - `* { -moz-user-select: none }`
+ * (:9-11) and `body { user-select: none }` (:64-65), which is inherited across
+ * the shadow boundary. That is deliberate: it stops a drag fighting the game
+ * canvas. But it lands on the form controls too, so the guild master cannot
+ * double-click a word in the Notice they are typing, and nobody can copy a
+ * member's name to paste into a whisper.
+ *
+ * Scoped here rather than carved out of Common.css, which ~30 components share.
+ * All four typed fields are listed, not just the two that were reported: a
+ * field you type into has to be selectable, and the notice subject and the tax
+ * cell are the same kind of control as the two beside them.
+ *
+ * No `cursor: text` to go with it. The member name is not in GUIComponent's
+ * clickable-cursor list, and giving it a text caret would fight the row's own
+ * context-menu affordance. */
+#Guild .content.members .name .value,
+#Guild .content.positions .title input,
+#Guild .content.positions .tax input,
+#Guild .notice .subject,
+#Guild .notice .notice {
+	-webkit-user-select: text;
+	user-select: text;
+}
