@@ -1671,14 +1671,27 @@ const renderMemberFaces = (function renderMemberFacesClosure() {
 
 		lastTick = tick;
 		const root = _root(Guild);
-		const canvases = root.querySelectorAll('.content.members canvas');
+
+		// Each member's OWN canvas, resolved through the index the row carries,
+		// never through its position. `_members` keeps the order the server
+		// sent; the rows are re-appended in login order by setMembers. Walking
+		// the two in lockstep was correct until that sort existed, and after it
+		// each head lands on whichever row happens to sit at the same offset -
+		// so an offline row gets an online member's head and the online row is
+		// cleared and left blank.
+		const canvasFor = {};
+		for (const row of root.querySelectorAll('.content.members .MemberView')) {
+			canvasFor[row.getAttribute('data-index')] = row.querySelector('canvas');
+		}
+
 		Camera.direction = 4;
 
 		for (let i = 0, count = _members.length; i < count; ++i) {
-			if (!canvases[i]) {
+			const canvas = canvasFor[i];
+			if (!canvas) {
 				continue;
 			}
-			const ctx = canvases[i].getContext('2d');
+			const ctx = canvas.getContext('2d');
 			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
 			if (!_members[i].CurrentState) {

@@ -31,6 +31,8 @@ const mocks = vi.hoisted(() => {
 	return {
 		MockGUIComponent,
 		MockEntity,
+		sprite: { bind2DContext: vi.fn() },
+		renderer: { width: 1200, height: 800, tick: 0, render: vi.fn(), stop: vi.fn() },
 		session: {
 			AID: 2000000,
 			GID: 150000,
@@ -55,11 +57,9 @@ vi.mock('DB/Monsters/MonsterTable.js', () => ({ default: {} }));
 vi.mock('Controls/KeyEventHandler.js', () => ({ default: {} }));
 vi.mock('Engine/SessionStorage.js', () => ({ default: mocks.session }));
 vi.mock('Renderer/Entity/Entity.js', () => ({ default: mocks.MockEntity }));
-vi.mock('Renderer/SpriteRenderer.js', () => ({ default: { bind2DContext: vi.fn() } }));
+vi.mock('Renderer/SpriteRenderer.js', () => ({ default: mocks.sprite }));
 vi.mock('Renderer/Camera.js', () => ({ default: {} }));
-vi.mock('Renderer/Renderer.js', () => ({
-	default: { width: 1200, height: 800, tick: 0, render: vi.fn(), stop: vi.fn() }
-}));
+vi.mock('Renderer/Renderer.js', () => ({ default: mocks.renderer }));
 vi.mock('Core/Client.js', () => ({
 	default: {
 		loadFile(_path, callback) {
@@ -164,6 +164,28 @@ describe('guild member list, ordered by login status', () => {
 		Guild.setMembers(online, false);
 
 		expect(rendered()).toEqual(['same-0', 'same-1', 'same-2', 'same-3', 'same-4']);
+	});
+
+	// The heads are drawn from `_members`, which keeps the order the server sent,
+	// onto canvases collected from the DOM, which the sort has reordered. Walking
+	// the two by position was correct until that sort existed; after it, an
+	// online member's head lands on whatever row sits at the same offset.
+	it('paints each head on its own row, not on whichever row shares its offset', () => {
+		const roster = alternating(4); // off-0, ON-1, off-2, ON-3
+		mocks.sprite.bind2DContext.mockClear();
+		mocks.renderer.tick += 5000;
+
+		Guild.setMembers(roster, false);
+
+		const nameOfCanvas = canvas => {
+			const row = canvas.closest('tr');
+			return row ? row.querySelector('.name .value').textContent : '(detached)';
+		};
+		const painted = mocks.sprite.bind2DContext.mock.calls.map(call => nameOfCanvas(call[0].canvas));
+
+		// Sorted order is ON-1, ON-3, off-0, off-2 - so positional indexing would
+		// paint ON-1's head on ON-3's row and ON-3's onto off-0's, an offline row.
+		expect(painted.sort()).toEqual(['ON-1', 'ON-3']);
 	});
 
 	it('marks the online rows and only those', () => {
