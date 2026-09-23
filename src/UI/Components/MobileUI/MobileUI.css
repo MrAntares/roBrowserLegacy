@@ -135,6 +135,119 @@
 	pointer-events: none;
 }
 
+#MobileUI .guideWindow {
+	position: fixed;
+	z-index: 1002;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: min(90vw, 640px);
+	max-height: 85vh;
+	display: flex;
+	flex-direction: column;
+	background: rgba(20, 20, 20, 0.92);
+	border: 1px solid #c6c6c6;
+	border-radius: 8px;
+	color: white;
+	font-size: 3.2vmin;
+	text-shadow: 1px 1px black;
+	pointer-events: auto;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+}
+
+#MobileUI .guideWindow.disabled {
+	display: none;
+}
+
+#MobileUI .guideHeader {
+	flex: 0 0 auto;
+	display: flex;
+	align-items: center;
+	gap: 2vmin;
+	padding: 1.5vmin 2vmin;
+	border-bottom: 1px solid #666;
+	background: rgba(60, 60, 60, 0.9);
+	border-radius: 8px 8px 0 0;
+}
+
+#MobileUI .guideTitle {
+	flex: 1 1 auto;
+	font-weight: bold;
+	font-size: 3.8vmin;
+}
+
+#MobileUI .guideNever {
+	display: flex;
+	align-items: center;
+	gap: 1vmin;
+	white-space: nowrap;
+	font-size: 2.8vmin;
+	cursor: pointer;
+}
+
+#MobileUI .guideNever input {
+	width: 3.5vmin;
+	height: 3.5vmin;
+	margin: 0;
+}
+
+#MobileUI .guideClose {
+	width: 6vmin;
+	height: 6vmin;
+	background: rgba(193, 193, 193, 0.33);
+	border: 1px solid grey;
+	border-radius: 6px;
+	color: white;
+	font-size: 3.5vmin;
+	font-weight: bold;
+}
+
+#MobileUI .guideBody {
+	flex: 1 1 auto;
+	overflow-y: auto;
+	-webkit-overflow-scrolling: touch;
+	touch-action: pan-y;
+	padding: 2vmin;
+	line-height: 1.4;
+}
+
+#MobileUI .guideBody p {
+	margin: 0 0 2vmin;
+}
+
+#MobileUI .guideSection {
+	margin: 2.5vmin 0 1vmin;
+	font-weight: bold;
+	color: #ffd97a;
+	border-bottom: 1px solid #555;
+}
+
+#MobileUI .guideEntry {
+	display: flex;
+	align-items: flex-start;
+	gap: 2vmin;
+	margin-bottom: 1.5vmin;
+}
+
+#MobileUI .guideIcon {
+	flex: 0 0 9vmin;
+	text-align: center;
+	font-size: 4.5vmin;
+	background: rgba(193, 193, 193, 0.33);
+	border: 1px solid grey;
+	border-radius: 6px;
+	padding: 0.5vmin 0;
+}
+
+#MobileUI .guideText {
+	flex: 1 1 auto;
+	white-space: pre-line;
+}
+
+#MobileUI .guideLabel {
+	font-weight: bold;
+}
+
 #MobileUI .primary {
 	width: 11vmin;
 	height: 11vmin;

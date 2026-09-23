@@ -20,8 +20,10 @@ import Network from 'Network/NetworkManager.js';
 import PathFinding from 'Utils/PathFinding.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Events from 'Core/Events.js';
+import Client from 'Core/Client.js';
 import htmlText from './MobileUI.html?raw';
 import cssText from './MobileUI.css?raw';
+import defaultTexts from './robrowser_mobileui.txt?raw';
 import glMatrix from 'Vendors/gl-matrix.js';
 import Camera from 'Renderer/Camera.js';
 import BattleMode from 'Controls/BattleMode.js';
@@ -59,10 +61,257 @@ const _preferences = Preferences.get(
 		zIndex: 1000,
 		width: window.innerWidth,
 		height: window.innerHeight,
-		show: false
+		show: false,
+		guideNeverShow: false
 	},
 	1.0
 );
+
+/**
+ * Language file: bundled English defaults, optionally overridden by
+ * data/robrowser_mobileui.txt from the remote client.
+ */
+const C_LANG_FILE = 'data/robrowser_mobileui.txt';
+const _texts = parseTexts(defaultTexts);
+let guideShownThisSession = false;
+
+/**
+ * Guide layout: sections and the buttons they describe.
+ * `key` is the suffix of the TIP_/DESC_ ids in the language file.
+ */
+const GUIDE_SECTIONS = [
+	{
+		title: 'GUIDE_SECTION_GENERAL',
+		entries: [
+			{ button: '#toggleUIButton', key: 'toggleUIButton' },
+			{ button: '#fullscreenButton', key: 'fullscreenButton' },
+			{ icon: '🕹️', label: 'GUIDE_JOYSTICK_LABEL', desc: 'GUIDE_JOYSTICK' }
+		]
+	},
+	{
+		title: 'GUIDE_SECTION_SKILLBAR',
+		entries: [
+			{ icon: 'F1', label: 'GUIDE_SKILLROWS_LABEL', desc: 'GUIDE_SKILLROWS' },
+			{ button: '#switchshorcutButton', key: 'switchshorcutButton' }
+		]
+	},
+	{
+		title: 'GUIDE_SECTION_ACTIONS',
+		entries: [
+			{ button: '#attackButton', key: 'attackButton' },
+			{ button: '#pickupButton', key: 'pickupButton' },
+			{ button: '#talktonpcButton', key: 'talktonpcButton' }
+		]
+	},
+	{
+		title: 'GUIDE_SECTION_LEFT',
+		entries: [
+			{ button: '#f10Button', key: 'f10Button' },
+			{ button: '#f12Button', key: 'f12Button' },
+			{ button: '#insButton', key: 'insButton' }
+		]
+	},
+	{
+		title: 'GUIDE_SECTION_RIGHT',
+		entries: [
+			{ button: '#toggleStatusButton', key: 'toggleStatusButton' },
+			{ button: '#toggleTargetingButton', key: 'toggleTargetingButton' },
+			{ button: '#toggleAutoFollowButton', key: 'toggleAutoFollowButton' },
+			{ button: '#toggleAutoTargetButton', key: 'toggleAutoTargetButton' }
+		]
+	}
+];
+
+/**
+ * Parse a "ID = text" language file into an object
+ *
+ * @param {string} content
+ * @param {object} [out]
+ * @returns {object}
+ */
+function parseTexts(content, out = {}) {
+	content.split(/\r?\n/).forEach(line => {
+		const trimmed = line.trim();
+		if (!trimmed || trimmed.startsWith('//')) {
+			return;
+		}
+
+		const separator = trimmed.indexOf('=');
+		if (separator < 1) {
+			return;
+		}
+
+		const id = trimmed.slice(0, separator).trim();
+		const text = trimmed
+			.slice(separator + 1)
+			.trim()
+			.replace(/\\n/g, '\n');
+
+		if (id) {
+			out[id] = text;
+		}
+	});
+
+	return out;
+}
+
+/**
+ * Get a text by id, replacing %s with the given argument
+ *
+ * @param {string} id
+ * @param {string} [arg]
+ * @returns {string}
+ */
+function getText(id, arg) {
+	const text = _texts[id] ?? id;
+	return arg === undefined ? text : text.replace('%s', arg);
+}
+
+/**
+ * Load the optional translation from the remote client, then apply the texts
+ */
+function loadTexts() {
+	Client.loadFile(
+		C_LANG_FILE,
+		buffer => {
+			const data = buffer instanceof ArrayBuffer ? new Uint8Array(buffer) : buffer;
+			parseTexts(new TextDecoder('utf-8').decode(data), _texts);
+			applyTexts();
+		},
+		() => {}
+	);
+}
+
+/**
+ * Write the language texts into the button tips and the guide window
+ */
+function applyTexts() {
+	const root = MobileUI.getRoot();
+
+	root.querySelectorAll('button[id]').forEach(button => {
+		const arg = button.dataset.tipArg;
+		const id = arg !== undefined ? 'TIP_skillKey' : `TIP_${button.id}`;
+
+		if (id in _texts) {
+			button.dataset.tip = getText(id, arg);
+		}
+	});
+
+	root.querySelector('#guideTitle').textContent = getText('GUIDE_TITLE');
+	root.querySelector('#guideNeverLabel').textContent = getText('GUIDE_NEVER_SHOW');
+	root.querySelector('#guideCloseButton').title = getText('GUIDE_CLOSE');
+	buildGuide(root);
+}
+
+/**
+ * Build the guide body from the GUIDE_SECTIONS layout
+ *
+ * @param {ShadowRoot} root
+ */
+function buildGuide(root) {
+	const body = root.querySelector('#guideBody');
+	body.textContent = '';
+
+	const addParagraph = id => {
+		const p = document.createElement('p');
+		p.textContent = getText(id);
+		body.appendChild(p);
+	};
+
+	addParagraph('GUIDE_INTRO');
+	addParagraph('GUIDE_COMMAND');
+
+	GUIDE_SECTIONS.forEach(section => {
+		const title = document.createElement('div');
+		title.className = 'guideSection';
+		title.textContent = getText(section.title);
+		body.appendChild(title);
+
+		section.entries.forEach(entry => {
+			const button = entry.button ? root.querySelector(entry.button) : null;
+
+			const row = document.createElement('div');
+			row.className = 'guideEntry';
+
+			const icon = document.createElement('span');
+			icon.className = 'guideIcon';
+			icon.textContent = button ? button.textContent.trim() : entry.icon;
+
+			const text = document.createElement('div');
+			text.className = 'guideText';
+
+			const label = document.createElement('div');
+			label.className = 'guideLabel';
+			label.textContent = getText(entry.key ? `TIP_${entry.key}` : entry.label);
+
+			const desc = document.createElement('div');
+			desc.textContent = getText(entry.key ? `DESC_${entry.key}` : entry.desc);
+
+			text.appendChild(label);
+			text.appendChild(desc);
+			row.appendChild(icon);
+			row.appendChild(text);
+			body.appendChild(row);
+		});
+	});
+}
+
+/**
+ * Show the guide window
+ */
+function showGuide() {
+	const root = MobileUI.getRoot();
+	const guide = root.querySelector('#guideWindow');
+
+	root.querySelector('#guideNeverShow').checked = _preferences.guideNeverShow;
+	root.querySelector('#guideBody').scrollTop = 0;
+	guide.classList.remove('disabled');
+	guideShownThisSession = true;
+}
+
+/**
+ * Hide the guide window
+ */
+function hideGuide() {
+	MobileUI.getRoot().querySelector('#guideWindow').classList.add('disabled');
+}
+
+/**
+ * Show the guide on the first MobileUI activation of the session,
+ * unless the player asked to never see it again
+ */
+function showGuideOnActivate() {
+	if (!guideShownThisSession && !_preferences.guideNeverShow) {
+		showGuide();
+	}
+}
+
+/**
+ * Bind the guide window controls
+ *
+ * @param {ShadowRoot} root
+ */
+function setupGuide(root) {
+	const guide = root.querySelector('#guideWindow');
+
+	// Keep touches on the guide away from the map controls, but let them
+	// scroll the body and toggle the checkbox.
+	['touchstart', 'touchmove', 'touchend', 'touchcancel', 'mousedown', 'mouseup', 'click'].forEach(type => {
+		guide.addEventListener(type, event => event.stopPropagation());
+	});
+
+	root.querySelector('#guideNeverShow').addEventListener('change', event => {
+		_preferences.guideNeverShow = event.target.checked;
+		_preferences.save();
+	});
+
+	bindButton(root, '#guideCloseButton', e => {
+		hideGuide();
+		stopPropagation(e);
+	});
+
+	ProcessCommand.add('mobileguide', getText('GUIDE_TITLE'), showGuide, [], false);
+}
 
 let showButtons = false;
 let autoTargetTimer;
@@ -345,6 +594,10 @@ MobileUI.init = function init() {
 	setupJoystick();
 	// Initialize the NPC Talk Button - MicromeX
 	setupTalkToNpcButton();
+
+	setupGuide(root);
+	applyTexts();
+	loadTexts();
 };
 
 /**
@@ -1071,6 +1324,7 @@ function isFreeCell(x, y) {
 MobileUI.onAppend = function onAppend() {
 	if (Session.isTouchDevice) {
 		this._host.style.display = 'block';
+		showGuideOnActivate();
 	} else {
 		this._host.style.display = 'none';
 	}
@@ -1129,6 +1383,7 @@ MobileUI.onRemove = function onRemove() {
  */
 MobileUI.show = function show() {
 	this._host.style.display = 'block';
+	showGuideOnActivate();
 };
 
 /**
