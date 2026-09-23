@@ -1,0 +1,77 @@
+// roBrowser Mobile UI texts (default: English)
+//
+// This file holds every text shown by the Mobile UI: the long-press help tips of
+// the buttons and the content of the Mobile UI guide window (/mobileguide).
+//
+// === Server owners: how to add your own translation ===
+// 1. Copy this file and translate the text after the "=" sign on every line.
+//    Do NOT change the ID before the "=" sign, the client looks up texts by ID.
+// 2. Save the file as UTF-8 and name it exactly:  robrowser_mobileui.txt
+// 3. Place it into the "data" folder of your remote client (next to files such
+//    as data/msgstringtable.txt), so it is reachable as: data/robrowser_mobileui.txt
+// The client loads it automatically when the Mobile UI starts. Any ID missing from
+// your file falls back to the English text bundled with the client, so a partial
+// translation is fine. If the file is not present, this bundled English text is used.
+//
+// Format: one entry per line -> ID = text
+// Lines starting with "//" are comments. Use \n inside a text for a line break.
+
+// --- Guide window ---
+GUIDE_TITLE = Mobile UI guide
+GUIDE_INTRO = Welcome to the touch controls! Tap a button to use it, or hold a button for a second to see a short description of it. This guide lists every button of the Mobile UI.
+GUIDE_COMMAND = You can open this guide again at any time by typing /mobileguide into the chat.
+GUIDE_NEVER_SHOW = Don't show again
+GUIDE_CLOSE = Close
+GUIDE_SECTION_GENERAL = General
+GUIDE_SECTION_SKILLBAR = Skill bar
+GUIDE_SECTION_ACTIONS = Actions
+GUIDE_SECTION_LEFT = Left bar
+GUIDE_SECTION_RIGHT = Right bar
+GUIDE_JOYSTICK_LABEL = Joystick
+GUIDE_JOYSTICK = Drag the joystick in the bottom left corner to walk. Your character keeps walking in that direction while you hold it.
+GUIDE_SKILLROWS_LABEL = F1-F9 / 1-9 / Q-O / A-L
+GUIDE_SKILLROWS = The nine buttons around the attack button trigger the skill bar hotkeys of the currently selected row. Use the switch button to cycle through the rows.
+
+// --- Button descriptions (long-press tips and guide) ---
+// Long-press tip: TIP_<button> | Guide description: DESC_<button>
+TIP_toggleUIButton = Show / hide the mobile controls
+DESC_toggleUIButton = Shows or hides all the other mobile buttons. Hide them when you only want to look at the game and show them again when you need them.
+
+TIP_fullscreenButton = Toggle full screen
+DESC_fullscreenButton = Switches the game between full screen and windowed mode.
+
+TIP_skillKey = Skill bar hotkey %s
+DESC_skillKey = Triggers the skill or item placed on slot %s of the skill bar.
+
+TIP_switchshorcutButton = Switch skill bar row (F1-F9 / 1-9 / Q-O / A-L)
+DESC_switchshorcutButton = Cycles the nine skill buttons through the four hotkey rows: F1-F9, 1-9, Q-O and A-L.
+
+TIP_attackButton = Attack the selected target
+DESC_attackButton = Attacks the selected target. If nothing is selected, the nearest monster gets targeted and attacked.
+
+TIP_pickupButton = Pick up the nearest item
+DESC_pickupButton = Walks to the nearest item on the ground and picks it up.
+
+TIP_talktonpcButton = Talk to the nearest NPC
+DESC_talktonpcButton = Starts a conversation with the nearest NPC within 3 cells.
+
+TIP_f10Button = Change chat box size (F10)
+DESC_f10Button = Changes the size of the chat box, same as pressing F10 on a keyboard.
+
+TIP_f12Button = Change skill bar size (F12)
+DESC_f12Button = Changes the size of the skill bar, same as pressing F12 on a keyboard.
+
+TIP_insButton = Sit down / stand up
+DESC_insButton = Makes your character sit down or stand up (the /sit command).
+
+TIP_toggleStatusButton = Show / hide status icons
+DESC_toggleStatusButton = Shows or hides the status effect icons on the right side of the screen.
+
+TIP_toggleTargetingButton = Toggle touch targeting
+DESC_toggleTargetingButton = Turns touch targeting on or off. While it is on, tapping a monster or player only selects it instead of attacking, and the auto follow and auto target buttons become available.
+
+TIP_toggleAutoFollowButton = Auto follow the selected target
+DESC_toggleAutoFollowButton = Makes your character follow the selected target around until you turn it off. Requires touch targeting.
+
+TIP_toggleAutoTargetButton = Auto target the nearest monster
+DESC_toggleAutoTargetButton = Keeps selecting the nearest monster automatically so the attack button always has a target. Requires touch targeting.
