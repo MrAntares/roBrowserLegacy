@@ -127,11 +127,17 @@
 	position: relative;
 	border-radius: 0px 0px 3px 3px;
 }
-/* SetPos(W - 61, H - 23) = (339, 294), inside a bar that starts at 288. */
+/* SetPos(W - 61, H - 23) = (339, 294), inside a bar that starts at 288.
+ *
+ * Deliberately 1px above the client. The bar is 29 tall and the button 20, so
+ * dead centre is 4.5 and the client's own 6 leaves 6 above against 3 below. The
+ * client is not self-consistent here either - it puts btn_disBand at 292 and
+ * btn_use at 293 in the same bar - so 5 both centres this button as closely as
+ * an integer allows and lands it on the same line as `.footer .btn`. */
 #Guild .footer .btn_ok {
 	display: none;
 	position: absolute;
-	top: 6px;
+	top: 5px;
 	left: 339px;
 	width: 42px;
 	height: 20px;
@@ -362,13 +368,22 @@
 
 /* The client draws the emblem at (300, 65) in a 26x26 frame at (299, 64), and
  * puts the edit button at (W - w - 8, 69) = (350, 69) - w being btn_edit.bmp's
- * own 42x20. The pane's padding box starts at y=41, so these tops are the
- * client's y minus 41. */
+ * own 42x20. The pane's padding box starts at y=41, so a faithful top is the
+ * client's y minus 41: 24 here and 28 on the button.
+ *
+ * The two tops below are deliberately 3px and 1px past that, and this is the one
+ * place in this window where the port lays out better than the binary instead of
+ * reproducing it. The client aligns nothing in this row - the "Emblem" label,
+ * the 24px icon and the 20px button land on three different vertical centres,
+ * 80.2 / 77 / 79, which reads as a row sagging to the right. Moving the icon and
+ * the button puts all three on 80. The label itself does not move: it belongs to
+ * the left column's rhythm (.emblem 32, .tax 56, .ally 98) and shifting it would
+ * break that. */
 #Guild .content.info .emblem_container {
 	width: 24px;
 	height: 24px;
 	position: absolute;
-	top: 24px;
+	top: 27px;
 	left: 300px;
 	background-color: #709fed;
 	background-repeat: no-repeat;
@@ -377,9 +392,10 @@
 	 * a border, to leave the box at the emblem's own size. */
 	box-shadow: 0 0 0 1px #709fed;
 }
+/* 29 rather than the client's 28 - see the emblem_container note above. */
 #Guild .content.info .emblem_edit {
 	position: absolute;
-	top: 28px;
+	top: 29px;
 	left: 350px;
 	width: 42px;
 	height: 20px;
@@ -858,13 +874,18 @@
 	white-space: nowrap;
 }
 
-/* SetPos(W - w - 15, H - h - 5) with btn_disBand.bmp at 64x20, so (321, 292). */
+/* SetPos(W - w - 15, H - h - 5) with btn_disBand.bmp at 64x20, so (321, 292).
+ *
+ * Deliberately 1px below the client, for the same reason btn_ok sits 1px above
+ * it: the client scatters this bar's three buttons over 292 / 293 / 294, and
+ * `top: 5` puts all three on one line at 293 - the closest an integer gets to
+ * centring a 20px button in a 29px bar. */
 #Guild .footer .btn_disband {
 	display: none;
 	position: absolute;
 	width: 64px;
 	height: 20px;
-	bottom: 5px;
+	top: 5px;
 	right: 15px;
 	border: none;
 	background-color: transparent;
