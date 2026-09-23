@@ -319,6 +319,27 @@ function setupGuide(root) {
 		guide.addEventListener(type, event => event.stopPropagation());
 	});
 
+	// Drag to scroll the body (native touch scrolling is unreliable inside the overlay)
+	const body = root.querySelector('#guideBody');
+	let lastY = 0;
+	body.addEventListener(
+		'touchstart',
+		event => {
+			lastY = event.touches[0].clientY;
+		},
+		{ passive: true }
+	);
+	body.addEventListener(
+		'touchmove',
+		event => {
+			const y = event.touches[0].clientY;
+			body.scrollTop += lastY - y;
+			lastY = y;
+			event.preventDefault();
+		},
+		{ passive: false }
+	);
+
 	root.querySelector('#guideNeverShow').addEventListener('change', event => {
 		_preferences.guideNeverShow = event.target.checked;
 		_preferences.save();
