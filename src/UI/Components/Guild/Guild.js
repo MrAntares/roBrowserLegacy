@@ -101,13 +101,21 @@ function _hasStorageColumn() {
 }
 
 /**
- * The Info tab's tendency chart and Tax Point are drawn by ver12 and by no
- * client after it: msgstrings 0x14e and 0x151 have zero references in either
- * 2022-03-30 or mars26. The exact release that dropped them is not known, so
- * the cut is the oldest client where their absence was verified.
+ * Helper: does the Info tab draw the tendency chart
+ *
+ * @return {boolean}
  */
-function _drawsLegacyInfo() {
-	return parseInt(PACKETVER.value, 10) < 20220330;
+function _showsTendency() {
+	return _config().showTendency === true;
+}
+
+/**
+ * Helper: does the Info tab draw the Tax Point line
+ *
+ * @return {boolean}
+ */
+function _showsTaxPoint() {
+	return _config().showTaxPoint === true;
 }
 
 let _btnIncSkillTemplate;
@@ -169,12 +177,27 @@ function _formatLastLogin(timestamp) {
  *
  * @property {string} memberListSort - 'never' | 'checkbox' | 'always'
  * @property {boolean} showLastLogin - draw the access date under each member
+ * @property {boolean} showTendency - draw the legacy tendency chart
+ * @property {boolean} showTaxPoint - draw the legacy Tax Point line
  */
 const GUILD_CONFIG = {
 	memberListSort: 'always',
 	// Off by default: only the 2022 client draws it. ver12 and mars26 have no
 	// access date at all, and their member rows are 8px shorter for it.
-	showLastLogin: false
+	showLastLogin: false,
+	// Both LEGACY: ver12 draws them and no client after it does. Neither
+	// 2022-03-30 nor mars26 ever passes msgstring 0x14e or 0x151 to the
+	// msgstring getter - read out of both draw functions end to end, not
+	// merely grepped. (The raw values do occur in both binaries, as packet ids
+	// in the packet-length registry, which is why the claim is about getter
+	// calls and not about references.)
+	//
+	// Off by default, so a deployment gets the newest client's tab. Turning
+	// either on reproduces ver12 - but note rAthena hardcodes point, honor and
+	// virtue to 0 (clif.cpp), so Tax Point can only ever read 0 and the
+	// chart's marker can only ever sit dead centre.
+	showTendency: false,
+	showTaxPoint: false
 };
 
 /**
@@ -638,6 +661,8 @@ Guild.show = function show() {
 	this.ui.show();
 	const root = _root(this);
 
+	updateInfoOptions(root);
+
 	if (!root.querySelector('.tabs .active')) {
 		const infoBtn = root.querySelector('.tabs .info');
 		if (infoBtn) {
@@ -688,14 +713,25 @@ Guild.setGuildInformations = function setGuildInformations(info) {
 
 	WinStats.getUI().update('guildname', info.guildname);
 
-	const infoContent = root.querySelector('.content.info');
-	if (infoContent) {
-		infoContent.classList.toggle('modern', !_drawsLegacyInfo());
-	}
-	if (_drawsLegacyInfo()) {
+	updateInfoOptions(root);
+	if (_showsTendency()) {
 		renderTendency(info.honor, info.virtue);
 	}
 };
+
+/**
+ * Reflect the two legacy switches onto the tab. Kept out of
+ * setGuildInformations because they decide whether those elements are drawn at
+ * all, and a window opened before the first ZC_GUILD_INFO would otherwise
+ * show them whatever the deployment asked for.
+ */
+function updateInfoOptions(root) {
+	const infoContent = root.querySelector('.content.info');
+	if (infoContent) {
+		infoContent.classList.toggle('shows_tendency', _showsTendency());
+		infoContent.classList.toggle('shows_taxpoint', _showsTaxPoint());
+	}
+}
 
 Guild.setEmblem = function setEmblem(image) {
 	const root = _root(this);
@@ -1539,6 +1575,7 @@ function onChangeTab(event) {
 	updateDisbandButton(root, targetClass);
 	updateSkillFooter(root, targetClass);
 	updateMemberSort(root, targetClass);
+	updateInfoOptions(root);
 
 	if (targetClass === 'members') {
 		Renderer.render(renderMemberFaces);
