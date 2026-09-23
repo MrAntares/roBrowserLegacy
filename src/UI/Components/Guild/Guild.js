@@ -724,7 +724,26 @@ Guild.onKeyDown = function onKeyDown(event) {
 		return;
 	}
 
+	// Only take the keystroke when there is something to apply. Apply is revealed
+	// by a pending edit and hidden again once it is flushed, so its visibility is
+	// exactly "the default button would do something" - and when it would not,
+	// Enter has to stay the chat key rather than being swallowed.
+	const apply = root.querySelector('.footer .btn_ok');
+	if (!apply || apply.style.display === 'none') {
+		return;
+	}
+
 	onValidate();
+
+	// Release the control afterwards. ChatBox yields Enter while an input or a
+	// select holds the focus (its `isOtherTextInputFocused` guard), so leaving the
+	// dropdown focused would make the next Enter do nothing at all - neither apply,
+	// there being nothing left to apply, nor open the chat. Blurring hands Enter
+	// back to its normal owner.
+	if (focused.blur) {
+		focused.blur();
+	}
+
 	return false;
 };
 

@@ -376,6 +376,34 @@ describe('guild window, Enter applies where the client binds a default button', 
 		expect(sent).toEqual([]);
 	});
 
+	// ChatBox owns Enter client-wide: it captures the key on window and focuses the
+	// chat box. It already yields while an input or select elsewhere has focus, so
+	// Enter can reach here at all - but that also means a swallowed Enter is a key
+	// the player never gets back. With nothing to apply it has to fall through.
+	it('leaves Enter alone when there is nothing to apply', () => {
+		showTab('members');
+
+		expect(pressEnter(selectOf(ALICE))).toBeUndefined();
+		expect(sent).toEqual([]);
+	});
+
+	// ...and having applied, the control is released, so the *next* Enter is the
+	// chat key again rather than a no-op behind ChatBox's own guard.
+	it('releases the focus after applying, so the next Enter opens the chat', () => {
+		showTab('members');
+		const select = selectOf(ALICE);
+		select.value = '2';
+		select.dispatchEvent(new Event('change'));
+
+		expect(pressEnter(select)).toBe(false);
+		expect(sent).toHaveLength(1);
+		expect(document.activeElement).not.toBe(select);
+
+		// Second press: nothing queued, nothing focused, not consumed.
+		expect(Guild.onKeyDown({ which: 13, key: 'Enter' })).toBeUndefined();
+		expect(sent).toHaveLength(1);
+	});
+
 	// The tab strip is six real <button>s, which activate on Enter and Space by
 	// themselves. Consuming Enter here would preventDefault that activation and
 	// the tab would never switch.
