@@ -1588,6 +1588,38 @@ function onChangeTab(event) {
 	return false;
 }
 
+/**
+ * Where the tendency marker sits, in canvas-local pixels.
+ *
+ * The client works in window coordinates and puts the axes' crossing at
+ * (67, 232), which is (44, 44) once the chart's own origin at (23, 188) is
+ * taken off. Honor runs along x towards F and away from V, virtue along y
+ * towards R and away from W, both scaled by 0.42 - the pair of floats parked
+ * between this window's vtable and the next. The scale is what fixes the
+ * domain: 100 * 0.42 = 42, just inside the 44px half-axis.
+ *
+ * The conversion truncates rather than rounds. The client reaches it through
+ * _ftol, which sets the FPU rounding mode to round-toward-zero first, so a
+ * marker one pixel out is a real difference and not a tie-break detail.
+ *
+ * @param {number} honor - ZC_GUILD_INFO honor, [-100, 100]
+ * @param {number} virtue - ZC_GUILD_INFO virtue, [-100, 100]
+ * @returns {{x: number, y: number}} top-left of the 2x2 marker
+ */
+function tendencyMarker(honor, virtue) {
+	return {
+		x: 44 + Math.trunc((honor || 0) * 0.42),
+		y: 44 - Math.trunc((virtue || 0) * 0.42)
+	};
+}
+
+/**
+ * The ver12 chart, drawn at the client's own rects translated into the canvas.
+ * Every colour here is a pixel out of colorchip.bmp, at the palette coordinate
+ * the draw passes: frame (14,6), face (6,2), axes (22,2), marker (2,2). They
+ * are the same four the rest of this window uses, so a skin that moves them
+ * moves them everywhere together.
+ */
 function renderTendency(honor, virtue) {
 	const root = _root(Guild);
 	const canvas = root.querySelector('.content.info .tendency canvas');
@@ -1596,18 +1628,19 @@ function renderTendency(honor, virtue) {
 	}
 	const ctx = canvas.getContext('2d');
 
-	ctx.fillStyle = '#cecfce';
-	ctx.fillRect(0, 0, canvas.width, canvas.height);
+	ctx.fillStyle = '#c8c8c8';
+	ctx.fillRect(0, 0, 90, 90);
 
-	ctx.fillStyle = '#739eef';
-	ctx.fillRect(1, 1, canvas.width - 2, canvas.height - 2);
+	ctx.fillStyle = '#709fed';
+	ctx.fillRect(1, 1, 88, 88);
 
-	ctx.fillStyle = '#4261a5';
-	ctx.fillRect(canvas.width / 2 - 1, 1, 2, canvas.height - 2);
-	ctx.fillRect(1, canvas.height / 2 - 1, canvas.width - 2, 2);
+	ctx.fillStyle = '#4262a5';
+	ctx.fillRect(44, 1, 2, 88);
+	ctx.fillRect(1, 44, 88, 2);
 
+	const marker = tendencyMarker(honor, virtue);
 	ctx.fillStyle = '#ffffff';
-	ctx.fillRect(canvas.width / 2 - 1, canvas.height / 2 - 1, 2, 2);
+	ctx.fillRect(marker.x, marker.y, 2, 2);
 }
 
 const renderMemberFaces = (function renderMemberFacesClosure() {

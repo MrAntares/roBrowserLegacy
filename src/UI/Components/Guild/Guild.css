@@ -152,12 +152,13 @@
  * Guild Info CSS
  */
 /* The client's Info tab is a fixed layout drawn at literal coordinates and it
- * never scrolls - its lowest element is the antagonist box at 229..277, well
- * clear of the bar at 288. Ours overflowed it by 2px through the tendency
- * chart's bottom label, which was enough to raise a scrollbar for two pixels.
- * The chart is ver12-era and has no counterpart in 2022 or mars26 at all. */
+ * never scrolls - the modern clients' lowest element is the antagonist box at
+ * 229..277, well clear of the bar at 288, and ver12's tendency label at 281 is
+ * simply painted past it onto the same surface. So the pane is not a scroll
+ * container at all: `visible` rather than the `hidden` this used to carry,
+ * which would clip that label instead of letting it through. */
 #Guild .content.info {
-	overflow-y: hidden;
+	overflow-y: visible;
 }
 #Guild .content.info .exp,
 #Guild .content.info .emblem,
@@ -201,9 +202,6 @@
 	left: 8px;
 	top: 88px;
 }
-/* 3px higher than it was, so the chart's bottom label stops 2px short of the
- * pane instead of 2px past it. The whole block is a ver12 reproduction - 2022
- * and mars26 draw no tendency chart - so it has no client rect to hold to. */
 /* LEGACY, both of them: ver12 draws the tendency chart and Tax Point and no
  * client after it does - no call to the msgstring getter passes 0x14e or 0x151
  * in 2022-03-30 or in mars26, read out of both draw functions rather than
@@ -217,10 +215,21 @@
 #Guild .content.info.shows_taxpoint .tax {
 	display: block;
 }
+/* The client puts the label at (8, 161) and hangs the chart off it, the last
+ * of its bottom labels landing at y=281. That is past this pane's 288 once the
+ * glyph box is counted, but the client has no pane edge there - it fills one
+ * surface from y=41 to the window's full 317 and paints the chart over it. So
+ * the block keeps the client's coordinates and is allowed out of the pane
+ * instead of being nudged up to fit. `visible` on both axes, so this is not a
+ * scroll container and cannot raise a bar for the overflow. */
 #Guild .content.info .tendency {
 	position: absolute;
 	left: 8px;
-	top: 111px;
+	top: 120px;
+	/* Over the button bar, which follows in the DOM and would otherwise cover
+	 * the bottom label. The client draws its chrome first and every label
+	 * after, so this is the client's own order. */
+	z-index: 1;
 }
 /* The .tendency box is absolutely positioned with no width and only absolutely
  * positioned children, so it shrink-to-fits to zero and the label wraps after
@@ -231,32 +240,34 @@
 	left: 0px;
 	white-space: nowrap;
 }
+/* Four labels, not three: the client draws R at (63, 176), V at (11, 227),
+ * W at (64, 281) and F at (116, 227) - a full compass. Horizontal is honor,
+ * V at -100 and F at +100; vertical is virtue, R at +100 and W at -100. */
 #Guild .content.info .tendency .righteous {
 	position: absolute;
-	left: 50px;
-	top: 16px;
-	text-align: center;
+	left: 55px;
+	top: 15px;
 }
 #Guild .content.info .tendency .wiked {
 	position: absolute;
-	left: 50px;
+	left: 56px;
 	top: 120px;
-	text-align: center;
 }
 #Guild .content.info .tendency .vulgar {
 	position: absolute;
-	left: 0px;
-	top: 68px;
+	left: 3px;
+	top: 66px;
 }
 #Guild .content.info .tendency .famed {
 	position: absolute;
-	left: 102px;
-	top: 68px;
+	left: 108px;
+	top: 66px;
 }
+/* Frame at (23, 188), 90x90. */
 #Guild .content.info .tendency canvas {
 	position: absolute;
-	top: 30px;
-	left: 10px;
+	top: 27px;
+	left: 15px;
 }
 
 /* The client blits grp_online.bmp at (128, 95) - it is an image, not a widget,
@@ -281,10 +292,13 @@
 	left: 200px;
 	top: 32px;
 }
+/* (200, 97) - the one right-column slot only ver12 fills, between Emblem at 73
+ * and Alliance at 139. It had been sitting 5px low at 102, which nothing caught
+ * because the modern clients draw nothing here to compare against. */
 #Guild .content.info .tax {
 	position: absolute;
 	left: 200px;
-	top: 61px;
+	top: 56px;
 }
 #Guild .content.info .ally {
 	position: absolute;
