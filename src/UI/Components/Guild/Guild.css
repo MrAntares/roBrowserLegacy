@@ -941,6 +941,10 @@
 	top: 13px;
 	left: 9px;
 }
+/* border-box and 331 so the field closes on x=381, the same right edge as the
+ * textarea below it and as the member list's band. Content-box at 333 plus the
+ * 5px padding put it at 390 - nine pixels past the textarea, and past the band
+ * into the gutter the scrollbar reserves. */
 #Guild .notice .subject {
 	position: absolute;
 	top: 11px;
@@ -948,7 +952,8 @@
 	padding-left: 5px;
 	height: 14px;
 	border: none;
-	width: 333px;
+	box-sizing: border-box;
+	width: 331px;
 	background-color: #eee;
 }
 #Guild .notice .noticeTitle {
