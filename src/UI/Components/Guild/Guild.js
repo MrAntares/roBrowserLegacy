@@ -165,6 +165,30 @@ function _formatLastLogin(timestamp) {
 }
 
 /**
+ * This window's deployment settings, under the `guild` config key.
+ *
+ * @property {string} memberListSort - 'never' | 'checkbox' | 'always'
+ * @property {boolean} showLastLogin - draw the access date under each member
+ */
+const GUILD_CONFIG = {
+	memberListSort: 'always',
+	showLastLogin: true
+};
+
+/**
+ * Helper: this window's settings, with the defaults above filled in
+ *
+ * Configs.get hands back the server's object whole rather than merging it into
+ * the client's, so a server naming `guild` at all would otherwise drop every
+ * key it does not itself set.
+ *
+ * @return {object}
+ */
+function _config() {
+	return { ...GUILD_CONFIG, ...Configs.get('guild', {}) };
+}
+
+/**
  * Helper: does the member list get ordered by login status right now
  *
  * Three client behaviours, selected by the deployment:
@@ -179,7 +203,7 @@ function _formatLastLogin(timestamp) {
  * @return {boolean}
  */
 function _sortsByLogin() {
-	const mode = Configs.get('guildMemberListSort', 'always');
+	const mode = _config().memberListSort;
 
 	if (mode === 'always') {
 		return true;
@@ -832,11 +856,15 @@ Guild.setMember = function setMember(member) {
 		nameValue.title = displayName;
 	}
 
+	// The client draws this line unconditionally, so hiding it is a deployment's
+	// choice rather than client behaviour - it is not the member sort checkbox,
+	// which reorders the list and never touches this.
 	const lastLogin = view.querySelector('.name .lastlogin');
 	if (lastLogin) {
-		lastLogin.textContent = member.LastLogin
-			? DB.getMessage(3012, 'Last login: %s').replace('%s', _formatLastLogin(member.LastLogin))
-			: '';
+		lastLogin.textContent =
+			member.LastLogin && _config().showLastLogin
+				? DB.getMessage(3012, 'Last login: %s').replace('%s', _formatLastLogin(member.LastLogin))
+				: '';
 	}
 
 	if (_positions[member.GPositionID]) {
@@ -1741,7 +1769,7 @@ function updateMemberSort(root, activeTab) {
 		return;
 	}
 
-	const offered = Configs.get('guildMemberListSort', 'always') === 'checkbox';
+	const offered = _config().memberListSort === 'checkbox';
 	box.style.display = offered && activeTab === 'members' ? 'block' : 'none';
 
 	// Repainted on every visit rather than once at bind: the checkbox images

@@ -768,7 +768,7 @@
  * reason, and are shown only while the Skills tab is up. */
 /* SetSize(240, 12) then SetPos(12, H - 18) = (12, 299), label msgstring 0xb30.
  * 2022 only: ver12 has no such control and mars26 dropped it, so whether this
- * shows at all is the `guildMemberListSort` deployment setting. */
+ * shows at all is the `guild.memberListSort` deployment setting. */
 #Guild .footer .sortlogin {
 	display: none;
 	position: absolute;

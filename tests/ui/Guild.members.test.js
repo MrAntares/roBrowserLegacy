@@ -119,12 +119,12 @@ function rendered() {
 
 describe('guild member list, ordered by login status', () => {
 	beforeEach(() => {
-		Configs.set('guildMemberListSort', 'always');
+		Configs.set('guild', { memberListSort: 'always' });
 		UIPreferences.guildMemberListSorted = true;
 	});
 
 	it("leaves the server's order alone in ver12's mode", () => {
-		Configs.set('guildMemberListSort', 'never');
+		Configs.set('guild', { memberListSort: 'never' });
 		Guild.setMembers(alternating(6), false);
 
 		expect(rendered()).toEqual(['off-0', 'ON-1', 'off-2', 'ON-3', 'off-4', 'ON-5']);
@@ -137,7 +137,7 @@ describe('guild member list, ordered by login status', () => {
 	});
 
 	it("follows the player's checkbox in 2022's mode", () => {
-		Configs.set('guildMemberListSort', 'checkbox');
+		Configs.set('guild', { memberListSort: 'checkbox' });
 
 		UIPreferences.guildMemberListSorted = true;
 		Guild.setMembers(alternating(4), false);
@@ -174,5 +174,50 @@ describe('guild member list, ordered by login status', () => {
 
 		// Sorted, so the online pair leads.
 		expect(online).toEqual([true, true, false, false]);
+	});
+});
+
+/**
+ * The client draws the access date unconditionally, so this switch is a
+ * deployment's own choice rather than a client behaviour being reproduced.
+ */
+describe('guild member list, the access date sub-line', () => {
+	function lastLogins() {
+		return [...Guild.getRoot().querySelectorAll('.content.members tbody tr .name .lastlogin')].map(
+			el => el.textContent
+		);
+	}
+
+	it('is drawn by default', () => {
+		Configs.set('guild', {});
+		Guild.setMembers(alternating(3), false);
+
+		expect(lastLogins().every(text => text !== '')).toBe(true);
+	});
+
+	it('is dropped when the deployment turns it off', () => {
+		Configs.set('guild', { showLastLogin: false });
+		Guild.setMembers(alternating(3), false);
+
+		expect(lastLogins()).toEqual(['', '', '']);
+	});
+
+	it('leaves the sort alone when it is the only key the server sets', () => {
+		// Configs hands back the server's object whole, so a config naming only
+		// showLastLogin must not take memberListSort's default down with it.
+		Configs.set('guild', { showLastLogin: false });
+		Guild.setMembers(alternating(6), false);
+
+		expect(rendered()).toEqual(['ON-1', 'ON-3', 'ON-5', 'off-0', 'off-2', 'off-4']);
+	});
+
+	it('stays empty for a member the server has no date for', () => {
+		Configs.set('guild', {});
+		Guild.setMembers(
+			alternating(2).map(m => ({ ...m, LastLogin: 0 })),
+			false
+		);
+
+		expect(lastLogins()).toEqual(['', '']);
 	});
 });

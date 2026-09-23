@@ -19,7 +19,7 @@ export default Preferences.get(
 		// state of the tab's own checkbox, which 2022 persisted client-side as
 		// bGuildMemberListSort - so it belongs to the player, not the server.
 		// It is only consulted when the deployment asks for that era's
-		// behaviour: Configs' guildMemberListSort defaults to mars26's, where
+		// behaviour: Configs' guild.memberListSort defaults to mars26's, where
 		// the sort is on and there is no checkbox.
 		//
 		// No version bump needed: get() merges by iterating the *stored* keys,
