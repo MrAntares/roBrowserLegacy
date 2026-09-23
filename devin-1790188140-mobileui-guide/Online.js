@@ -309421,6 +309421,17 @@ function setupGuide(root) {
 	].forEach((type) => {
 		guide.addEventListener(type, (event) => event.stopPropagation());
 	});
+	const body = root.querySelector("#guideBody");
+	let lastY = 0;
+	body.addEventListener("touchstart", (event) => {
+		lastY = event.touches[0].clientY;
+	}, { passive: true });
+	body.addEventListener("touchmove", (event) => {
+		const y = event.touches[0].clientY;
+		body.scrollTop += lastY - y;
+		lastY = y;
+		event.preventDefault();
+	}, { passive: false });
 	root.querySelector("#guideNeverShow").addEventListener("change", (event) => {
 		_preferences$17.guideNeverShow = event.target.checked;
 		_preferences$17.save();
