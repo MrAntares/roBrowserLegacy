@@ -930,7 +930,15 @@ Guild.setMember = function setMember(member) {
 	if (_positions[member.GPositionID]) {
 		const positionCell = view.querySelector('.position');
 		if (Session.isGuildMaster) {
-			let selectHTML = `<select class="changePosition member_${member.AID}_${member.GID}">`;
+			// The guild master's own grade is not changeable from this dropdown:
+			// updateMemberPosition refuses every value on a row whose current grade
+			// is 0, delegation being a path of its own. The client draws the
+			// combobox live on that row anyway and refuses on selection; we mark it
+			// disabled instead, which is a deviation above the binary - see
+			// PR-NOTES.md. `disabled` rather than dropping the element, so the
+			// column width and the row geometry, both asm-cited, do not move.
+			const own = !member.GPositionID ? ' disabled' : '';
+			let selectHTML = `<select class="changePosition member_${member.AID}_${member.GID}"${own}>`;
 			_positions.forEach((position, key) => {
 				selectHTML +=
 					`<option value="${position.positionID}" ${key === member.GPositionID ? 'selected' : ''}>` +
