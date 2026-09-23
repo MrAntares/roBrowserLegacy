@@ -128,6 +128,7 @@ HTMLCanvasElement.prototype.getContext = function () {
 
 const Guild = (await import('UI/Components/Guild/Guild.js')).default;
 const PACKET = (await import('Network/PacketStructure.js')).default;
+const Configs = (await import('Core/Configs.js')).default;
 
 const MASTER = { AID: 2000000, GID: 150000, GPositionID: 0, CharName: 'Master' };
 const ALICE = { AID: 2000001, GID: 150001, GPositionID: 1, CharName: 'Alice' };
@@ -444,6 +445,9 @@ describe('Guild member position', () => {
 		});
 
 		it('renders the last login when the list carries it', () => {
+			// Off by default - only 2022 draws an access date - so the deployment
+			// has to ask for it before there is anything to format.
+			Configs.set('guild', { showLastLogin: true });
 			Guild.setMembers([member(MASTER), { ...member(ALICE), LastLogin: 1758499200 }]);
 
 			expect(lastLoginOf(ALICE).textContent).toContain('2025.09.22');
@@ -453,6 +457,7 @@ describe('Guild member position', () => {
 			// The compiled default is %Y.%m.%d but the iRO table ships %y.%m.%d,
 			// and the client hands whichever it has to strftime.
 			mocks.messages[3011] = '%y.%m.%d';
+			Configs.set('guild', { showLastLogin: true });
 			Guild.setMembers([member(MASTER), { ...member(ALICE), LastLogin: 1758499200 }]);
 
 			expect(lastLoginOf(ALICE).textContent).toContain('25.09.22');

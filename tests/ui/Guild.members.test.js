@@ -188,31 +188,64 @@ describe('guild member list, the access date sub-line', () => {
 		);
 	}
 
-	it('is drawn by default', () => {
+	function membersPane() {
+		return Guild.getRoot().querySelector('.content.members');
+	}
+
+	it('is absent by default, since only the 2022 client draws one', () => {
 		Configs.set('guild', {});
 		Guild.setMembers(alternating(3), false);
 
-		expect(lastLogins().every(text => text !== '')).toBe(true);
+		expect(lastLogins()).toEqual(['', '', '']);
+		expect(membersPane().classList.contains('has-lastlogin')).toBe(false);
 	});
 
-	it('is dropped when the deployment turns it off', () => {
-		Configs.set('guild', { showLastLogin: false });
+	it('is drawn when the deployment turns it on', () => {
+		Configs.set('guild', { showLastLogin: true });
 		Guild.setMembers(alternating(3), false);
 
-		expect(lastLogins()).toEqual(['', '', '']);
+		expect(lastLogins().every(text => text !== '')).toBe(true);
+		expect(membersPane().classList.contains('has-lastlogin')).toBe(true);
+	});
+
+	// 2022 pays 8px of row height for the access date - `add [esi+0x154], 8` in
+	// its member layout - and no other client draws one. A row carrying 2022's
+	// height without its date is a shape the client never produces, so the two
+	// ride the same flag.
+	it('takes the taller row with it', () => {
+		Configs.set('guild', { showLastLogin: true });
+		Guild.setMembers(alternating(2), false);
+		expect(membersPane().classList.contains('has-lastlogin')).toBe(true);
+
+		Configs.set('guild', { showLastLogin: false });
+		Guild.setMembers(alternating(2), false);
+		expect(membersPane().classList.contains('has-lastlogin')).toBe(false);
+	});
+
+	// The memo-era packet carries a note and no date at all, so the taller row
+	// must not appear there even if a deployment asks for it.
+	it('stays single-line on a memo-era list even when asked for', () => {
+		Configs.set('guild', { showLastLogin: true });
+		Guild.setMembers(alternating(2), true);
+
+		expect(membersPane().classList.contains('has-memo')).toBe(true);
+		expect(membersPane().classList.contains('has-lastlogin')).toBe(false);
 	});
 
 	it('leaves the sort alone when it is the only key the server sets', () => {
 		// Configs hands back the server's object whole, so a config naming only
 		// showLastLogin must not take memberListSort's default down with it.
-		Configs.set('guild', { showLastLogin: false });
+		// Set it to the non-default value, or the case proves nothing.
+		Configs.set('guild', { showLastLogin: true });
 		Guild.setMembers(alternating(6), false);
 
 		expect(rendered()).toEqual(['ON-1', 'ON-3', 'ON-5', 'off-0', 'off-2', 'off-4']);
 	});
 
+	// Switched on, so an empty cell here means the timestamp was missing rather
+	// than the feature being off.
 	it('stays empty for a member the server has no date for', () => {
-		Configs.set('guild', {});
+		Configs.set('guild', { showLastLogin: true });
 		Guild.setMembers(
 			alternating(2).map(m => ({ ...m, LastLogin: 0 })),
 			false

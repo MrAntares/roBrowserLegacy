@@ -172,7 +172,9 @@ function _formatLastLogin(timestamp) {
  */
 const GUILD_CONFIG = {
 	memberListSort: 'always',
-	showLastLogin: true
+	// Off by default: only the 2022 client draws it. ver12 and mars26 have no
+	// access date at all, and their member rows are 8px shorter for it.
+	showLastLogin: false
 };
 
 /**
@@ -760,6 +762,10 @@ Guild.setMembers = function setMembers(members, hasMemo) {
 	const membersContent = root.querySelector('.content.members');
 	if (membersContent) {
 		membersContent.classList.toggle('has-memo', _hasMemo);
+		// The access date is the whole reason 2022's rows are 8px taller than
+		// every other client's, so the line and the height move together. A row
+		// without the date and with 2022's height is a shape no client draws.
+		membersContent.classList.toggle('has-lastlogin', !_hasMemo && _config().showLastLogin);
 	}
 
 	const tbody = root.querySelector('.content.members tbody');
