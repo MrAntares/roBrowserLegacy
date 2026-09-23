@@ -220135,19 +220135,19 @@ async function repeatedGreetingsLoop(book_information) {
 	for (let i = 0; i < text1.length; i++) {
 		if (_BOOK_INFORMATION["book_open"]) break;
 		if (text1[i] === "" && i === 0) {
-			getText("   ");
+			getText$1("   ");
 			continue;
 		}
 		if (i === 1) {
-			getText(text1[i]);
+			getText$1(text1[i]);
 			continue;
 		}
 		await sleepNow(5e3);
 		if (_BOOK_INFORMATION["book_open"]) break;
-		getText(text1[i]);
+		getText$1(text1[i]);
 	}
 }
-function getText(textbook) {
+function getText$1(textbook) {
 	let text = cleanTextColor(textbook);
 	text = CodepageManager.decodeString(text);
 	ChatBox_default.addText(text == "" ? "  " : text, ChatBox_default.TYPE.ANNOUNCE, ChatBox_default.FILTER.PUBLIC_LOG, "#ffffff");
@@ -308285,13 +308285,19 @@ var init_Queue = __esmMin((() => {
 //#region src/UI/Components/MobileUI/MobileUI.html?raw
 var MobileUI_default$2;
 var init_MobileUI$2 = __esmMin((() => {
-	MobileUI_default$2 = "<div id=\"MobileUI\">\r\n	<div id=\"buttonTip\" class=\"buttonTip disabled\"></div>\r\n	<button id=\"toggleUIButton\" data-tip=\"Show / hide the mobile controls\" class=\"buttons\">🛠️</button>\r\n\r\n	<div id=\"topBar\" class=\"buttonBar disabled\">\r\n		<button id=\"fullscreenButton\" data-tip=\"Toggle full screen\" class=\"buttons mobileKeys secondary horizontal\">\r\n			⛶\r\n		</button>\r\n	</div>\r\n\r\n	<!-- Joystick -MicromeX -->\r\n	<div id=\"joystickContainer\" class=\"joystick-container disabled\">\r\n		<div id=\"joystickBase\" class=\"joystick-base\">\r\n			<div id=\"joystickThumb\" class=\"joystick-thumb\"></div>\r\n		</div>\r\n	</div>\r\n\r\n	<!-- Functional Buttons -MicromeX -->\r\n	<div id=\"buttonContainer\" class=\"buttonContainer disabled\">\r\n		<!-- Functional Buttons -->\r\n		<button id=\"f1Button\" data-tip=\"Skill bar hotkey F1\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			F1\r\n		</button>\r\n		<button id=\"f2Button\" data-tip=\"Skill bar hotkey F2\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			F2\r\n		</button>\r\n		<button id=\"f3Button\" data-tip=\"Skill bar hotkey F3\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			F3\r\n		</button>\r\n		<button id=\"f4Button\" data-tip=\"Skill bar hotkey F4\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			F4\r\n		</button>\r\n		<button id=\"f5Button\" data-tip=\"Skill bar hotkey F5\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			F5\r\n		</button>\r\n		<button id=\"f6Button\" data-tip=\"Skill bar hotkey F6\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			F6\r\n		</button>\r\n		<button id=\"f7Button\" data-tip=\"Skill bar hotkey F7\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			F7\r\n		</button>\r\n		<button id=\"f8Button\" data-tip=\"Skill bar hotkey F8\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			F8\r\n		</button>\r\n		<button id=\"f9Button\" data-tip=\"Skill bar hotkey F9\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			F9\r\n		</button>\r\n\r\n		<button id=\"n1Button\" data-tip=\"Skill bar hotkey 1\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			1\r\n		</button>\r\n		<button id=\"n2Button\" data-tip=\"Skill bar hotkey 2\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			2\r\n		</button>\r\n		<button id=\"n3Button\" data-tip=\"Skill bar hotkey 3\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			3\r\n		</button>\r\n		<button id=\"n4Button\" data-tip=\"Skill bar hotkey 4\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			4\r\n		</button>\r\n		<button id=\"n5Button\" data-tip=\"Skill bar hotkey 5\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			5\r\n		</button>\r\n		<button id=\"n6Button\" data-tip=\"Skill bar hotkey 6\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			6\r\n		</button>\r\n		<button id=\"n7Button\" data-tip=\"Skill bar hotkey 7\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			7\r\n		</button>\r\n		<button id=\"n8Button\" data-tip=\"Skill bar hotkey 8\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			8\r\n		</button>\r\n		<button id=\"n9Button\" data-tip=\"Skill bar hotkey 9\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			9\r\n		</button>\r\n\r\n		<button id=\"qButton\" data-tip=\"Skill bar hotkey Q\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			Q\r\n		</button>\r\n		<button id=\"wButton\" data-tip=\"Skill bar hotkey W\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			W\r\n		</button>\r\n		<button id=\"eButton\" data-tip=\"Skill bar hotkey E\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			E\r\n		</button>\r\n		<button id=\"rButton\" data-tip=\"Skill bar hotkey R\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			R\r\n		</button>\r\n		<button id=\"tButton\" data-tip=\"Skill bar hotkey T\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			T\r\n		</button>\r\n		<button id=\"yButton\" data-tip=\"Skill bar hotkey Y\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			Y\r\n		</button>\r\n		<button id=\"uButton\" data-tip=\"Skill bar hotkey U\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			U\r\n		</button>\r\n		<button id=\"iButton\" data-tip=\"Skill bar hotkey I\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			I\r\n		</button>\r\n		<button id=\"oButton\" data-tip=\"Skill bar hotkey O\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			O\r\n		</button>\r\n\r\n		<button id=\"aButton\" data-tip=\"Skill bar hotkey A\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			A\r\n		</button>\r\n		<button id=\"sButton\" data-tip=\"Skill bar hotkey S\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			S\r\n		</button>\r\n		<button id=\"dButton\" data-tip=\"Skill bar hotkey D\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			D\r\n		</button>\r\n		<button id=\"fButton\" data-tip=\"Skill bar hotkey F\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			F\r\n		</button>\r\n		<button id=\"gButton\" data-tip=\"Skill bar hotkey G\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			G\r\n		</button>\r\n		<button id=\"hButton\" data-tip=\"Skill bar hotkey H\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			H\r\n		</button>\r\n		<button id=\"jButton\" data-tip=\"Skill bar hotkey J\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			J\r\n		</button>\r\n		<button id=\"kButton\" data-tip=\"Skill bar hotkey K\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			K\r\n		</button>\r\n		<button id=\"lButton\" data-tip=\"Skill bar hotkey L\" class=\"FButton mobileKeys vertical secondary disabled\">\r\n			L\r\n		</button>\r\n\r\n		<button\r\n			id=\"pickupButton\"\r\n			data-tip=\"Pick up the nearest item\"\r\n			class=\"pickupButton mobileKeys vertical secondary disabled\"\r\n		>\r\n			🖐\r\n		</button>\r\n		<!-- Pick Up Button -MicromeX -->\r\n		<button\r\n			id=\"talktonpcButton\"\r\n			data-tip=\"Talk to the nearest NPC\"\r\n			class=\"talktonpcButton mobileKeys vertical secondary disabled\"\r\n		>\r\n			💬\r\n		</button>\r\n		<!-- Talk to NPC Button -MicromeX -->\r\n		<button\r\n			id=\"switchshorcutButton\"\r\n			data-tip=\"Switch skill bar row (F1-F9 / 1-9 / Q-O / A-L)\"\r\n			class=\"switchshorcutButton mobileKeys vertical secondary disabled\"\r\n		>\r\n			🔄\r\n		</button>\r\n		<!-- Auto Skill Button -MicromeX -->\r\n\r\n		<!-- Attack Button -MicromeX -->\r\n		<button\r\n			id=\"attackButton\"\r\n			data-tip=\"Attack the selected target\"\r\n			class=\"atkButton mobileKeys vertical secondary disabled\"\r\n		>\r\n			⚔️\r\n		</button>\r\n	</div>\r\n\r\n	<div id=\"leftBar\" class=\"buttonBar disabled\">\r\n		<button id=\"f10Button\" data-tip=\"Change chat box size (F10)\" class=\"buttons mobileKeys secondary vertical\">\r\n			⏫</button\r\n		><br />\r\n		<button id=\"f12Button\" data-tip=\"Change skill bar size (F12)\" class=\"buttons mobileKeys secondary vertical\">\r\n			🔢</button\r\n		><br />\r\n		<button id=\"insButton\" data-tip=\"Sit down / stand up\" class=\"buttons mobileKeys secondary vertical\">🧎</button\r\n		><br />\r\n	</div>\r\n\r\n	<div id=\"rightBar\" class=\"buttonBar disabled\">\r\n		<button\r\n			id=\"toggleStatusButton\"\r\n			data-tip=\"Show / hide status icons\"\r\n			class=\"buttons mobileKeys secondary vertical active\"\r\n		>\r\n			👀</button\r\n		><br />\r\n		<button\r\n			id=\"toggleTargetingButton\"\r\n			data-tip=\"Toggle touch targeting\"\r\n			class=\"buttons mobileKeys secondary vertical\"\r\n		>\r\n			⚙️</button\r\n		><br />\r\n		<button\r\n			id=\"toggleAutoFollowButton\"\r\n			data-tip=\"Auto follow the selected target\"\r\n			class=\"buttons mobileKeys vertical secondary disabled\"\r\n		>\r\n			👥</button\r\n		><br />\r\n		<button\r\n			id=\"toggleAutoTargetButton\"\r\n			data-tip=\"Auto target the nearest monster\"\r\n			class=\"buttons mobileKeys vertical secondary disabled\"\r\n		>\r\n			🎯</button\r\n		><br />\r\n	</div>\r\n</div>\r\n";
+	MobileUI_default$2 = "<div id=\"MobileUI\">\r\n	<div id=\"buttonTip\" class=\"buttonTip disabled\"></div>\r\n\r\n	<div id=\"guideWindow\" class=\"guideWindow disabled\">\r\n		<div class=\"guideHeader\">\r\n			<span id=\"guideTitle\" class=\"guideTitle\"></span>\r\n			<label class=\"guideNever\"\r\n				><input id=\"guideNeverShow\" type=\"checkbox\" /><span id=\"guideNeverLabel\"></span\r\n			></label>\r\n			<button id=\"guideCloseButton\" class=\"guideClose\">✕</button>\r\n		</div>\r\n		<div id=\"guideBody\" class=\"guideBody\"></div>\r\n	</div>\r\n	<button id=\"toggleUIButton\" class=\"buttons\">🛠️</button>\r\n\r\n	<div id=\"topBar\" class=\"buttonBar disabled\">\r\n		<button id=\"fullscreenButton\" class=\"buttons mobileKeys secondary horizontal\">⛶</button>\r\n	</div>\r\n\r\n	<!-- Joystick -MicromeX -->\r\n	<div id=\"joystickContainer\" class=\"joystick-container disabled\">\r\n		<div id=\"joystickBase\" class=\"joystick-base\">\r\n			<div id=\"joystickThumb\" class=\"joystick-thumb\"></div>\r\n		</div>\r\n	</div>\r\n\r\n	<!-- Functional Buttons -MicromeX -->\r\n	<div id=\"buttonContainer\" class=\"buttonContainer disabled\">\r\n		<!-- Functional Buttons -->\r\n		<button id=\"f1Button\" data-tip-arg=\"F1\" class=\"FButton mobileKeys vertical secondary disabled\">F1</button>\r\n		<button id=\"f2Button\" data-tip-arg=\"F2\" class=\"FButton mobileKeys vertical secondary disabled\">F2</button>\r\n		<button id=\"f3Button\" data-tip-arg=\"F3\" class=\"FButton mobileKeys vertical secondary disabled\">F3</button>\r\n		<button id=\"f4Button\" data-tip-arg=\"F4\" class=\"FButton mobileKeys vertical secondary disabled\">F4</button>\r\n		<button id=\"f5Button\" data-tip-arg=\"F5\" class=\"FButton mobileKeys vertical secondary disabled\">F5</button>\r\n		<button id=\"f6Button\" data-tip-arg=\"F6\" class=\"FButton mobileKeys vertical secondary disabled\">F6</button>\r\n		<button id=\"f7Button\" data-tip-arg=\"F7\" class=\"FButton mobileKeys vertical secondary disabled\">F7</button>\r\n		<button id=\"f8Button\" data-tip-arg=\"F8\" class=\"FButton mobileKeys vertical secondary disabled\">F8</button>\r\n		<button id=\"f9Button\" data-tip-arg=\"F9\" class=\"FButton mobileKeys vertical secondary disabled\">F9</button>\r\n\r\n		<button id=\"n1Button\" data-tip-arg=\"1\" class=\"FButton mobileKeys vertical secondary disabled\">1</button>\r\n		<button id=\"n2Button\" data-tip-arg=\"2\" class=\"FButton mobileKeys vertical secondary disabled\">2</button>\r\n		<button id=\"n3Button\" data-tip-arg=\"3\" class=\"FButton mobileKeys vertical secondary disabled\">3</button>\r\n		<button id=\"n4Button\" data-tip-arg=\"4\" class=\"FButton mobileKeys vertical secondary disabled\">4</button>\r\n		<button id=\"n5Button\" data-tip-arg=\"5\" class=\"FButton mobileKeys vertical secondary disabled\">5</button>\r\n		<button id=\"n6Button\" data-tip-arg=\"6\" class=\"FButton mobileKeys vertical secondary disabled\">6</button>\r\n		<button id=\"n7Button\" data-tip-arg=\"7\" class=\"FButton mobileKeys vertical secondary disabled\">7</button>\r\n		<button id=\"n8Button\" data-tip-arg=\"8\" class=\"FButton mobileKeys vertical secondary disabled\">8</button>\r\n		<button id=\"n9Button\" data-tip-arg=\"9\" class=\"FButton mobileKeys vertical secondary disabled\">9</button>\r\n\r\n		<button id=\"qButton\" data-tip-arg=\"Q\" class=\"FButton mobileKeys vertical secondary disabled\">Q</button>\r\n		<button id=\"wButton\" data-tip-arg=\"W\" class=\"FButton mobileKeys vertical secondary disabled\">W</button>\r\n		<button id=\"eButton\" data-tip-arg=\"E\" class=\"FButton mobileKeys vertical secondary disabled\">E</button>\r\n		<button id=\"rButton\" data-tip-arg=\"R\" class=\"FButton mobileKeys vertical secondary disabled\">R</button>\r\n		<button id=\"tButton\" data-tip-arg=\"T\" class=\"FButton mobileKeys vertical secondary disabled\">T</button>\r\n		<button id=\"yButton\" data-tip-arg=\"Y\" class=\"FButton mobileKeys vertical secondary disabled\">Y</button>\r\n		<button id=\"uButton\" data-tip-arg=\"U\" class=\"FButton mobileKeys vertical secondary disabled\">U</button>\r\n		<button id=\"iButton\" data-tip-arg=\"I\" class=\"FButton mobileKeys vertical secondary disabled\">I</button>\r\n		<button id=\"oButton\" data-tip-arg=\"O\" class=\"FButton mobileKeys vertical secondary disabled\">O</button>\r\n\r\n		<button id=\"aButton\" data-tip-arg=\"A\" class=\"FButton mobileKeys vertical secondary disabled\">A</button>\r\n		<button id=\"sButton\" data-tip-arg=\"S\" class=\"FButton mobileKeys vertical secondary disabled\">S</button>\r\n		<button id=\"dButton\" data-tip-arg=\"D\" class=\"FButton mobileKeys vertical secondary disabled\">D</button>\r\n		<button id=\"fButton\" data-tip-arg=\"F\" class=\"FButton mobileKeys vertical secondary disabled\">F</button>\r\n		<button id=\"gButton\" data-tip-arg=\"G\" class=\"FButton mobileKeys vertical secondary disabled\">G</button>\r\n		<button id=\"hButton\" data-tip-arg=\"H\" class=\"FButton mobileKeys vertical secondary disabled\">H</button>\r\n		<button id=\"jButton\" data-tip-arg=\"J\" class=\"FButton mobileKeys vertical secondary disabled\">J</button>\r\n		<button id=\"kButton\" data-tip-arg=\"K\" class=\"FButton mobileKeys vertical secondary disabled\">K</button>\r\n		<button id=\"lButton\" data-tip-arg=\"L\" class=\"FButton mobileKeys vertical secondary disabled\">L</button>\r\n\r\n		<button id=\"pickupButton\" class=\"pickupButton mobileKeys vertical secondary disabled\">🖐</button>\r\n		<!-- Pick Up Button -MicromeX -->\r\n		<button id=\"talktonpcButton\" class=\"talktonpcButton mobileKeys vertical secondary disabled\">💬</button>\r\n		<!-- Talk to NPC Button -MicromeX -->\r\n		<button id=\"switchshorcutButton\" class=\"switchshorcutButton mobileKeys vertical secondary disabled\">🔄</button>\r\n		<!-- Auto Skill Button -MicromeX -->\r\n\r\n		<!-- Attack Button -MicromeX -->\r\n		<button id=\"attackButton\" class=\"atkButton mobileKeys vertical secondary disabled\">⚔️</button>\r\n	</div>\r\n\r\n	<div id=\"leftBar\" class=\"buttonBar disabled\">\r\n		<button id=\"f10Button\" class=\"buttons mobileKeys secondary vertical\">⏫</button><br />\r\n		<button id=\"f12Button\" class=\"buttons mobileKeys secondary vertical\">🔢</button><br />\r\n		<button id=\"insButton\" class=\"buttons mobileKeys secondary vertical\">🧎</button><br />\r\n	</div>\r\n\r\n	<div id=\"rightBar\" class=\"buttonBar disabled\">\r\n		<button id=\"toggleStatusButton\" class=\"buttons mobileKeys secondary vertical active\">👀</button><br />\r\n		<button id=\"toggleTargetingButton\" class=\"buttons mobileKeys secondary vertical\">⚙️</button><br />\r\n		<button id=\"toggleAutoFollowButton\" class=\"buttons mobileKeys vertical secondary disabled\">👥</button><br />\r\n		<button id=\"toggleAutoTargetButton\" class=\"buttons mobileKeys vertical secondary disabled\">🎯</button><br />\r\n	</div>\r\n</div>\r\n";
 }));
 //#endregion
 //#region src/UI/Components/MobileUI/MobileUI.css?raw
 var MobileUI_default$1;
 var init_MobileUI$1 = __esmMin((() => {
-	MobileUI_default$1 = ":host {\r\n	width: 100%;\r\n	height: 100%;\r\n	pointer-events: none;\r\n}\r\n\r\n#MobileUI {\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n	width: 100%;\r\n	height: 100%;\r\n	pointer-events: none;\r\n}\r\n\r\n#MobileUI button,\r\n#MobileUI .joystick-base {\r\n	pointer-events: auto;\r\n}\r\n\r\n#MobileUI * {\r\n	z-index: 1000;\r\n}\r\n\r\n#MobileUI .buttonBar,\r\n#MobileUI #toggleUIButton {\r\n	position: absolute;\r\n}\r\n\r\n#MobileUI #toggleUIButton {\r\n	top: 1%;\r\n	left: 1%;\r\n	width: 6.5vmin;\r\n	height: 6.5vmin;\r\n}\r\n\r\n#MobileUI .buttons {\r\n	background: rgba(193, 193, 193, 0.33);\r\n	border-radius: 6px;\r\n	border: 1px solid grey;\r\n	font-size: 4vmin;\r\n	font-weight: bold;\r\n}\r\n\r\n#MobileUI .mobileKeys {\r\n	visibility: inherit;\r\n}\r\n\r\n#MobileUI .horizontal {\r\n	margin: 0 3.5vmin;\r\n}\r\n\r\n#MobileUI .vertical {\r\n	margin: 3.5vmin 0;\r\n}\r\n\r\n#MobileUI .disabled {\r\n	visibility: hidden;\r\n}\r\n\r\n#MobileUI #topBar {\r\n	left: 50%;\r\n	top: 1%;\r\n	transform: translate(-50%, 0);\r\n}\r\n\r\n#MobileUI #leftBar {\r\n	left: 1%;\r\n	bottom: 35%;\r\n	transform: translate(0, 50%);\r\n}\r\n\r\n#MobileUI #rightBar {\r\n	right: 1%;\r\n	bottom: 35%;\r\n	transform: translate(0, 50%);\r\n}\r\n\r\n#MobileUI #rightBar .buttons {\r\n	float: right;\r\n}\r\n\r\n#MobileUI .active {\r\n	background: linear-gradient(135deg, rgba(144, 238, 144, 0.5), rgba(193, 255, 193, 0.8));\r\n	border: 2px solid rgba(144, 238, 144, 0.8);\r\n	box-shadow: 0px 4px 8px rgba(144, 238, 144, 0.4);\r\n	border-radius: 8px;\r\n	animation: pulse 1.5s infinite;\r\n	transition:\r\n		background 0.3s ease,\r\n		box-shadow 0.3s ease,\r\n		transform 0.3s ease;\r\n}\r\n\r\n#MobileUI #toggleUIButton:active {\r\n	background: linear-gradient(135deg, rgba(144, 238, 144, 0.5), rgba(193, 255, 193, 0.8));\r\n	border: 2px solid rgba(144, 238, 144, 0.8);\r\n	box-shadow: 0px 4px 8px rgba(144, 238, 144, 0.4);\r\n	border-radius: 8px;\r\n	animation: pulse 1.5s infinite;\r\n	transition:\r\n		background 0.3s ease,\r\n		box-shadow 0.3s ease,\r\n		transform 0.3s ease;\r\n}\r\n\r\n@keyframes pulse {\r\n	0% {\r\n		box-shadow: 0px 4px 8px rgba(144, 238, 144, 0.4);\r\n	}\r\n	50% {\r\n		box-shadow: 0px 6px 12px rgba(144, 238, 144, 0.6);\r\n	}\r\n	100% {\r\n		box-shadow: 0px 4px 8px rgba(144, 238, 144, 0.4);\r\n	}\r\n}\r\n\r\n#MobileUI .pressed {\r\n	background: rgba(193, 255, 255, 0.33);\r\n}\r\n\r\n#MobileUI .buttonTip {\r\n	position: fixed;\r\n	z-index: 1001;\r\n	max-width: 70vw;\r\n	padding: 1.2vmin 2vmin;\r\n	background: rgba(0, 0, 0, 0.8);\r\n	border: 1px solid #c6c6c6;\r\n	border-radius: 6px;\r\n	color: white;\r\n	font-size: 3.5vmin;\r\n	text-align: center;\r\n	text-shadow: 1px 1px black;\r\n	pointer-events: none;\r\n}\r\n\r\n#MobileUI .primary {\r\n	width: 11vmin;\r\n	height: 11vmin;\r\n}\r\n\r\n#MobileUI .secondary {\r\n	width: 7.5vmin;\r\n	height: 7.5vmin;\r\n}\r\n\r\n/* Container for all buttons -MicromeX */\r\n#MobileUI #buttonContainer {\r\n	display: flex;\r\n	flex-direction: column;\r\n	align-items: center;\r\n	position: absolute;\r\n	bottom: 10%;\r\n	right: max(10%, 80px);\r\n	width: 37.5vmin;\r\n	height: 37.5vmin;\r\n	z-index: 1000;\r\n}\r\n\r\n/* Attack Button (center and larger) -MicromeX */\r\n#MobileUI .atkButton {\r\n	position: absolute;\r\n	width: 17.5vmin;\r\n	height: 17.5vmin;\r\n	background-color: #f44336;\r\n	border: 1px solid #666;\r\n	border-radius: 50%;\r\n	font-size: 7vmin;\r\n	color: white;\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2);\r\n	cursor: pointer;\r\n}\r\n\r\n/* Functional Buttons (around the attack button) -MicromeX */\r\n#MobileUI .pickupButton {\r\n	position: absolute;\r\n	width: 10vmin;\r\n	height: 10vmin;\r\n	background: rgba(193, 193, 193, 0.33);\r\n	border: 1px solid #666;\r\n	border-radius: 50%;\r\n	font-size: 6.25vmin;\r\n	color: rgb(0, 0, 0);\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2);\r\n	cursor: pointer;\r\n}\r\n\r\n#MobileUI .talktonpcButton {\r\n	position: absolute;\r\n	width: 10vmin;\r\n	height: 10vmin;\r\n	background: rgba(193, 193, 193, 0.33);\r\n	border: 1px solid #666;\r\n	border-radius: 50%;\r\n	font-size: 6.25vmin;\r\n	color: rgb(0, 0, 0);\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2);\r\n	cursor: pointer;\r\n}\r\n\r\n#MobileUI .switchshorcutButton {\r\n	position: absolute;\r\n	width: 10vmin;\r\n	height: 10vmin;\r\n	background: rgba(193, 193, 193, 0.33);\r\n	border: 1px solid #666;\r\n	border-radius: 50%;\r\n	font-size: 6.25vmin;\r\n	font-weight: bold;\r\n	color: rgb(0, 0, 0);\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2);\r\n	cursor: pointer;\r\n}\r\n\r\n/* Functional Buttons (smaller and proportional) -MicromeX */\r\n#MobileUI .FButton {\r\n	position: absolute;\r\n	width: 7.5vmin;\r\n	height: 7.5vmin;\r\n	background: rgba(193, 193, 193, 0.33);\r\n	border: 1px solid #666;\r\n	border-radius: 50%;\r\n	font-size: 3.75vmin;\r\n	font-weight: bold;\r\n	color: rgb(0, 0, 0);\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2);\r\n	cursor: pointer;\r\n}\r\n\r\n/* Positioning Buttons Around Attack Button -MicromeX */\r\n#MobileUI #f1Button {\r\n	top: 97%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #f2Button {\r\n	top: 78%;\r\n	left: 24%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #f3Button {\r\n	top: 56%;\r\n	left: 24%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #f4Button {\r\n	top: 37%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #f5Button {\r\n	top: 30%;\r\n	left: 57%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #f6Button {\r\n	top: 37%;\r\n	left: 80%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #f7Button {\r\n	top: 7%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #f8Button {\r\n	top: 7%;\r\n	left: 57%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #f9Button {\r\n	top: 7%;\r\n	left: 80%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n/* Positioning Buttons Around Attack Button -MicromeX */\r\n#MobileUI #n1Button {\r\n	top: 97%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #n2Button {\r\n	top: 78%;\r\n	left: 24%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #n3Button {\r\n	top: 56%;\r\n	left: 24%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #n4Button {\r\n	top: 37%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #n5Button {\r\n	top: 30%;\r\n	left: 57%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #n6Button {\r\n	top: 37%;\r\n	left: 80%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #n7Button {\r\n	top: 7%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #n8Button {\r\n	top: 7%;\r\n	left: 57%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #n9Button {\r\n	top: 7%;\r\n	left: 80%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n/* Positioning Buttons Around Attack Button -MicromeX */\r\n#MobileUI #qButton {\r\n	top: 97%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #wButton {\r\n	top: 78%;\r\n	left: 24%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #eButton {\r\n	top: 56%;\r\n	left: 24%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #rButton {\r\n	top: 37%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #tButton {\r\n	top: 30%;\r\n	left: 57%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #yButton {\r\n	top: 37%;\r\n	left: 80%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #uButton {\r\n	top: 7%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #iButton {\r\n	top: 7%;\r\n	left: 57%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #oButton {\r\n	top: 7%;\r\n	left: 80%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n/* Positioning Buttons Around Attack Button -MicromeX */\r\n#MobileUI #aButton {\r\n	top: 97%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #sButton {\r\n	top: 78%;\r\n	left: 24%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #dButton {\r\n	top: 56%;\r\n	left: 24%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #fButton {\r\n	top: 37%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #gButton {\r\n	top: 30%;\r\n	left: 57%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #hButton {\r\n	top: 37%;\r\n	left: 80%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #jButton {\r\n	top: 7%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #kButton {\r\n	top: 7%;\r\n	left: 57%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #lButton {\r\n	top: 7%;\r\n	left: 80%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n/* Pickup Button (slightly below attackButton) -MicromeX */\r\n#MobileUI #attackButton {\r\n	bottom: -10%;\r\n	left: 60%;\r\n	transform: translate(-50%, 0);\r\n}\r\n/* Pickup Button (slightly below attackButton) -MicromeX */\r\n#MobileUI #pickupButton {\r\n	bottom: 10%;\r\n	left: 105%;\r\n	transform: translate(-50%, 0);\r\n}\r\n\r\n/* TalkToNpc Button (slightly below attackButton) -MicromeX */\r\n#MobileUI #talktonpcButton {\r\n	bottom: -23%;\r\n	left: 105%;\r\n	transform: translate(-50%, 0);\r\n}\r\n/* TalkToNpc Button (slightly below attackButton) -MicromeX */\r\n#MobileUI #switchshorcutButton {\r\n	bottom: 43%;\r\n	left: 105%;\r\n	transform: translate(-50%, 0);\r\n}\r\n\r\n/* Hover Effect for Buttons -MicromeX */\r\n#MobileUI #f1Button:active,\r\n#MobileUI #f2Button:active,\r\n#MobileUI #f3Button:active,\r\n#MobileUI #f4Button:active,\r\n#MobileUI #f5Button:active,\r\n#MobileUI #f6Button:active,\r\n#MobileUI #f7Button:active,\r\n#MobileUI #f8Button:active,\r\n#MobileUI #f9Button:active,\r\n#MobileUI #n1Button:active,\r\n#MobileUI #n2Button:active,\r\n#MobileUI #n3Button:active,\r\n#MobileUI #n4Button:active,\r\n#MobileUI #n5Button:active,\r\n#MobileUI #n6Button:active,\r\n#MobileUI #n7Button:active,\r\n#MobileUI #n8Button:active,\r\n#MobileUI #n9Button:active,\r\n#MobileUI #qButton:active,\r\n#MobileUI #wButton:active,\r\n#MobileUI #eButton:active,\r\n#MobileUI #rButton:active,\r\n#MobileUI #tButton:active,\r\n#MobileUI #yButton:active,\r\n#MobileUI #uButton:active,\r\n#MobileUI #iButton:active,\r\n#MobileUI #oButton:active,\r\n#MobileUI #aButton:active,\r\n#MobileUI #sButton:active,\r\n#MobileUI #dButton:active,\r\n#MobileUI #fButton:active,\r\n#MobileUI #gButton:active,\r\n#MobileUI #hButton:active,\r\n#MobileUI #jButton:active,\r\n#MobileUI #kButton:active,\r\n#MobileUI #lButton:active,\r\n#MobileUI #switchshorcutButton:active,\r\n#MobileUI #pickupButton:active {\r\n	background: linear-gradient(135deg, rgba(144, 238, 144, 0.5), rgba(193, 255, 193, 0.8));\r\n	border: 2px solid rgba(144, 238, 144, 0.8);\r\n	box-shadow: 0px 4px 8px rgba(144, 238, 144, 0.4);\r\n	border-radius: 50%;\r\n	animation: pulse 1.5s infinite;\r\n	transition:\r\n		background 0.3s ease,\r\n		box-shadow 0.3s ease,\r\n		transform 0.3s ease;\r\n}\r\n\r\n#MobileUI #talktonpcButton:active {\r\n	background: linear-gradient(135deg, rgba(144, 238, 144, 0.5), rgba(193, 255, 193, 0.8));\r\n	border: 2px solid rgba(144, 238, 144, 0.8);\r\n	box-shadow: 0px 4px 8px rgba(144, 238, 144, 0.4);\r\n	border-radius: 50%;\r\n	animation: pulse 1.5s infinite;\r\n	transition:\r\n		background 0.3s ease,\r\n		box-shadow 0.3s ease,\r\n		transform 0.3s ease;\r\n}\r\n\r\n#MobileUI #attackButton:active {\r\n	background-color: #4caf50;\r\n	box-shadow: 0px 8px 12px rgba(0, 0, 0, 0.4);\r\n	border: 2px solid #388e3c;\r\n	transition:\r\n		transform 0.2s ease,\r\n		background-color 0.2s ease,\r\n		box-shadow 0.2s ease,\r\n		border 0.2s ease;\r\n}\r\n\r\n/* Joystick container -MicromeX */\r\n#MobileUI .joystick-container {\r\n	position: absolute;\r\n	bottom: 7%;\r\n	left: 10%;\r\n	width: 25vmin;\r\n	height: 25vmin;\r\n	z-index: 1000;\r\n}\r\n\r\n/* Joystick base -MicromeX */\r\n#MobileUI .joystick-base {\r\n	position: relative;\r\n	width: 100%;\r\n	height: 100%;\r\n	background: rgba(193, 193, 193, 0.33);\r\n	border-radius: 50%;\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n}\r\n\r\n/* Joystick thumb -MicromeX */\r\n#MobileUI .joystick-thumb {\r\n	position: absolute;\r\n	width: 10vmin;\r\n	height: 10vmin;\r\n	background: radial-gradient(circle, rgba(236, 240, 241, 1) 70%, rgba(189, 195, 199, 1) 100%);\r\n	border-radius: 50%;\r\n	box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.4);\r\n	touch-action: none;\r\n	cursor: grab;\r\n}\r\n";
+	MobileUI_default$1 = ":host {\r\n	width: 100%;\r\n	height: 100%;\r\n	pointer-events: none;\r\n}\r\n\r\n#MobileUI {\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n	width: 100%;\r\n	height: 100%;\r\n	pointer-events: none;\r\n}\r\n\r\n#MobileUI button,\r\n#MobileUI .joystick-base {\r\n	pointer-events: auto;\r\n}\r\n\r\n#MobileUI * {\r\n	z-index: 1000;\r\n}\r\n\r\n#MobileUI .buttonBar,\r\n#MobileUI #toggleUIButton {\r\n	position: absolute;\r\n}\r\n\r\n#MobileUI #toggleUIButton {\r\n	top: 1%;\r\n	left: 1%;\r\n	width: 6.5vmin;\r\n	height: 6.5vmin;\r\n}\r\n\r\n#MobileUI .buttons {\r\n	background: rgba(193, 193, 193, 0.33);\r\n	border-radius: 6px;\r\n	border: 1px solid grey;\r\n	font-size: 4vmin;\r\n	font-weight: bold;\r\n}\r\n\r\n#MobileUI .mobileKeys {\r\n	visibility: inherit;\r\n}\r\n\r\n#MobileUI .horizontal {\r\n	margin: 0 3.5vmin;\r\n}\r\n\r\n#MobileUI .vertical {\r\n	margin: 3.5vmin 0;\r\n}\r\n\r\n#MobileUI .disabled {\r\n	visibility: hidden;\r\n}\r\n\r\n#MobileUI #topBar {\r\n	left: 50%;\r\n	top: 1%;\r\n	transform: translate(-50%, 0);\r\n}\r\n\r\n#MobileUI #leftBar {\r\n	left: 1%;\r\n	bottom: 35%;\r\n	transform: translate(0, 50%);\r\n}\r\n\r\n#MobileUI #rightBar {\r\n	right: 1%;\r\n	bottom: 35%;\r\n	transform: translate(0, 50%);\r\n}\r\n\r\n#MobileUI #rightBar .buttons {\r\n	float: right;\r\n}\r\n\r\n#MobileUI .active {\r\n	background: linear-gradient(135deg, rgba(144, 238, 144, 0.5), rgba(193, 255, 193, 0.8));\r\n	border: 2px solid rgba(144, 238, 144, 0.8);\r\n	box-shadow: 0px 4px 8px rgba(144, 238, 144, 0.4);\r\n	border-radius: 8px;\r\n	animation: pulse 1.5s infinite;\r\n	transition:\r\n		background 0.3s ease,\r\n		box-shadow 0.3s ease,\r\n		transform 0.3s ease;\r\n}\r\n\r\n#MobileUI #toggleUIButton:active {\r\n	background: linear-gradient(135deg, rgba(144, 238, 144, 0.5), rgba(193, 255, 193, 0.8));\r\n	border: 2px solid rgba(144, 238, 144, 0.8);\r\n	box-shadow: 0px 4px 8px rgba(144, 238, 144, 0.4);\r\n	border-radius: 8px;\r\n	animation: pulse 1.5s infinite;\r\n	transition:\r\n		background 0.3s ease,\r\n		box-shadow 0.3s ease,\r\n		transform 0.3s ease;\r\n}\r\n\r\n@keyframes pulse {\r\n	0% {\r\n		box-shadow: 0px 4px 8px rgba(144, 238, 144, 0.4);\r\n	}\r\n	50% {\r\n		box-shadow: 0px 6px 12px rgba(144, 238, 144, 0.6);\r\n	}\r\n	100% {\r\n		box-shadow: 0px 4px 8px rgba(144, 238, 144, 0.4);\r\n	}\r\n}\r\n\r\n#MobileUI .pressed {\r\n	background: rgba(193, 255, 255, 0.33);\r\n}\r\n\r\n#MobileUI .buttonTip {\r\n	position: fixed;\r\n	z-index: 1001;\r\n	max-width: 70vw;\r\n	padding: 1.2vmin 2vmin;\r\n	background: rgba(0, 0, 0, 0.8);\r\n	border: 1px solid #c6c6c6;\r\n	border-radius: 6px;\r\n	color: white;\r\n	font-size: 3.5vmin;\r\n	text-align: center;\r\n	text-shadow: 1px 1px black;\r\n	pointer-events: none;\r\n}\r\n\r\n#MobileUI .guideWindow {\r\n	position: fixed;\r\n	z-index: 1002;\r\n	top: 50%;\r\n	left: 50%;\r\n	transform: translate(-50%, -50%);\r\n	width: min(90vw, 640px);\r\n	max-height: 85vh;\r\n	display: flex;\r\n	flex-direction: column;\r\n	background: rgba(20, 20, 20, 0.92);\r\n	border: 1px solid #c6c6c6;\r\n	border-radius: 8px;\r\n	color: white;\r\n	font-size: 3.2vmin;\r\n	text-shadow: 1px 1px black;\r\n	pointer-events: auto;\r\n	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);\r\n}\r\n\r\n#MobileUI .guideWindow.disabled {\r\n	display: none;\r\n}\r\n\r\n/* Guide opened on a non-touch device: hide all the mobile controls */\r\n#MobileUI.guideOnly > :not(#guideWindow) {\r\n	visibility: hidden;\r\n}\r\n\r\n#MobileUI .guideHeader {\r\n	flex: 0 0 auto;\r\n	display: flex;\r\n	align-items: center;\r\n	gap: 2vmin;\r\n	padding: 1.5vmin 2vmin;\r\n	border-bottom: 1px solid #666;\r\n	background: rgba(60, 60, 60, 0.9);\r\n	border-radius: 8px 8px 0 0;\r\n}\r\n\r\n#MobileUI .guideTitle {\r\n	flex: 1 1 auto;\r\n	font-weight: bold;\r\n	font-size: 3.8vmin;\r\n}\r\n\r\n#MobileUI .guideNever {\r\n	display: flex;\r\n	align-items: center;\r\n	gap: 1vmin;\r\n	white-space: nowrap;\r\n	font-size: 2.8vmin;\r\n	cursor: pointer;\r\n}\r\n\r\n#MobileUI .guideNever input {\r\n	width: 3.5vmin;\r\n	height: 3.5vmin;\r\n	margin: 0;\r\n}\r\n\r\n#MobileUI .guideClose {\r\n	width: 6vmin;\r\n	height: 6vmin;\r\n	background: rgba(193, 193, 193, 0.33);\r\n	border: 1px solid grey;\r\n	border-radius: 6px;\r\n	color: white;\r\n	font-size: 3.5vmin;\r\n	font-weight: bold;\r\n}\r\n\r\n#MobileUI .guideBody {\r\n	flex: 1 1 auto;\r\n	overflow-y: auto;\r\n	-webkit-overflow-scrolling: touch;\r\n	touch-action: pan-y;\r\n	padding: 2vmin;\r\n	line-height: 1.4;\r\n}\r\n\r\n#MobileUI .guideBody p {\r\n	margin: 0 0 2vmin;\r\n}\r\n\r\n#MobileUI .guideSection {\r\n	margin: 2.5vmin 0 1vmin;\r\n	font-weight: bold;\r\n	color: #ffd97a;\r\n	border-bottom: 1px solid #555;\r\n}\r\n\r\n#MobileUI .guideEntry {\r\n	display: flex;\r\n	align-items: flex-start;\r\n	gap: 2vmin;\r\n	margin-bottom: 1.5vmin;\r\n}\r\n\r\n#MobileUI .guideIcon {\r\n	flex: 0 0 9vmin;\r\n	text-align: center;\r\n	font-size: 4.5vmin;\r\n	background: rgba(193, 193, 193, 0.33);\r\n	border: 1px solid grey;\r\n	border-radius: 6px;\r\n	padding: 0.5vmin 0;\r\n}\r\n\r\n#MobileUI .guideText {\r\n	flex: 1 1 auto;\r\n	white-space: pre-line;\r\n}\r\n\r\n#MobileUI .guideLabel {\r\n	font-weight: bold;\r\n}\r\n\r\n#MobileUI .primary {\r\n	width: 11vmin;\r\n	height: 11vmin;\r\n}\r\n\r\n#MobileUI .secondary {\r\n	width: 7.5vmin;\r\n	height: 7.5vmin;\r\n}\r\n\r\n/* Container for all buttons -MicromeX */\r\n#MobileUI #buttonContainer {\r\n	display: flex;\r\n	flex-direction: column;\r\n	align-items: center;\r\n	position: absolute;\r\n	bottom: 10%;\r\n	right: max(10%, 80px);\r\n	width: 37.5vmin;\r\n	height: 37.5vmin;\r\n	z-index: 1000;\r\n}\r\n\r\n/* Attack Button (center and larger) -MicromeX */\r\n#MobileUI .atkButton {\r\n	position: absolute;\r\n	width: 17.5vmin;\r\n	height: 17.5vmin;\r\n	background-color: #f44336;\r\n	border: 1px solid #666;\r\n	border-radius: 50%;\r\n	font-size: 7vmin;\r\n	color: white;\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2);\r\n	cursor: pointer;\r\n}\r\n\r\n/* Functional Buttons (around the attack button) -MicromeX */\r\n#MobileUI .pickupButton {\r\n	position: absolute;\r\n	width: 10vmin;\r\n	height: 10vmin;\r\n	background: rgba(193, 193, 193, 0.33);\r\n	border: 1px solid #666;\r\n	border-radius: 50%;\r\n	font-size: 6.25vmin;\r\n	color: rgb(0, 0, 0);\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2);\r\n	cursor: pointer;\r\n}\r\n\r\n#MobileUI .talktonpcButton {\r\n	position: absolute;\r\n	width: 10vmin;\r\n	height: 10vmin;\r\n	background: rgba(193, 193, 193, 0.33);\r\n	border: 1px solid #666;\r\n	border-radius: 50%;\r\n	font-size: 6.25vmin;\r\n	color: rgb(0, 0, 0);\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2);\r\n	cursor: pointer;\r\n}\r\n\r\n#MobileUI .switchshorcutButton {\r\n	position: absolute;\r\n	width: 10vmin;\r\n	height: 10vmin;\r\n	background: rgba(193, 193, 193, 0.33);\r\n	border: 1px solid #666;\r\n	border-radius: 50%;\r\n	font-size: 6.25vmin;\r\n	font-weight: bold;\r\n	color: rgb(0, 0, 0);\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2);\r\n	cursor: pointer;\r\n}\r\n\r\n/* Functional Buttons (smaller and proportional) -MicromeX */\r\n#MobileUI .FButton {\r\n	position: absolute;\r\n	width: 7.5vmin;\r\n	height: 7.5vmin;\r\n	background: rgba(193, 193, 193, 0.33);\r\n	border: 1px solid #666;\r\n	border-radius: 50%;\r\n	font-size: 3.75vmin;\r\n	font-weight: bold;\r\n	color: rgb(0, 0, 0);\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2);\r\n	cursor: pointer;\r\n}\r\n\r\n/* Positioning Buttons Around Attack Button -MicromeX */\r\n#MobileUI #f1Button {\r\n	top: 97%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #f2Button {\r\n	top: 78%;\r\n	left: 24%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #f3Button {\r\n	top: 56%;\r\n	left: 24%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #f4Button {\r\n	top: 37%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #f5Button {\r\n	top: 30%;\r\n	left: 57%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #f6Button {\r\n	top: 37%;\r\n	left: 80%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #f7Button {\r\n	top: 7%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #f8Button {\r\n	top: 7%;\r\n	left: 57%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #f9Button {\r\n	top: 7%;\r\n	left: 80%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n/* Positioning Buttons Around Attack Button -MicromeX */\r\n#MobileUI #n1Button {\r\n	top: 97%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #n2Button {\r\n	top: 78%;\r\n	left: 24%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #n3Button {\r\n	top: 56%;\r\n	left: 24%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #n4Button {\r\n	top: 37%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #n5Button {\r\n	top: 30%;\r\n	left: 57%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #n6Button {\r\n	top: 37%;\r\n	left: 80%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #n7Button {\r\n	top: 7%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #n8Button {\r\n	top: 7%;\r\n	left: 57%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #n9Button {\r\n	top: 7%;\r\n	left: 80%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n/* Positioning Buttons Around Attack Button -MicromeX */\r\n#MobileUI #qButton {\r\n	top: 97%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #wButton {\r\n	top: 78%;\r\n	left: 24%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #eButton {\r\n	top: 56%;\r\n	left: 24%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #rButton {\r\n	top: 37%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #tButton {\r\n	top: 30%;\r\n	left: 57%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #yButton {\r\n	top: 37%;\r\n	left: 80%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #uButton {\r\n	top: 7%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #iButton {\r\n	top: 7%;\r\n	left: 57%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #oButton {\r\n	top: 7%;\r\n	left: 80%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n/* Positioning Buttons Around Attack Button -MicromeX */\r\n#MobileUI #aButton {\r\n	top: 97%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #sButton {\r\n	top: 78%;\r\n	left: 24%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #dButton {\r\n	top: 56%;\r\n	left: 24%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #fButton {\r\n	top: 37%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #gButton {\r\n	top: 30%;\r\n	left: 57%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #hButton {\r\n	top: 37%;\r\n	left: 80%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #jButton {\r\n	top: 7%;\r\n	left: 35%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #kButton {\r\n	top: 7%;\r\n	left: 57%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n#MobileUI #lButton {\r\n	top: 7%;\r\n	left: 80%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n/* Pickup Button (slightly below attackButton) -MicromeX */\r\n#MobileUI #attackButton {\r\n	bottom: -10%;\r\n	left: 60%;\r\n	transform: translate(-50%, 0);\r\n}\r\n/* Pickup Button (slightly below attackButton) -MicromeX */\r\n#MobileUI #pickupButton {\r\n	bottom: 10%;\r\n	left: 105%;\r\n	transform: translate(-50%, 0);\r\n}\r\n\r\n/* TalkToNpc Button (slightly below attackButton) -MicromeX */\r\n#MobileUI #talktonpcButton {\r\n	bottom: -23%;\r\n	left: 105%;\r\n	transform: translate(-50%, 0);\r\n}\r\n/* TalkToNpc Button (slightly below attackButton) -MicromeX */\r\n#MobileUI #switchshorcutButton {\r\n	bottom: 43%;\r\n	left: 105%;\r\n	transform: translate(-50%, 0);\r\n}\r\n\r\n/* Hover Effect for Buttons -MicromeX */\r\n#MobileUI #f1Button:active,\r\n#MobileUI #f2Button:active,\r\n#MobileUI #f3Button:active,\r\n#MobileUI #f4Button:active,\r\n#MobileUI #f5Button:active,\r\n#MobileUI #f6Button:active,\r\n#MobileUI #f7Button:active,\r\n#MobileUI #f8Button:active,\r\n#MobileUI #f9Button:active,\r\n#MobileUI #n1Button:active,\r\n#MobileUI #n2Button:active,\r\n#MobileUI #n3Button:active,\r\n#MobileUI #n4Button:active,\r\n#MobileUI #n5Button:active,\r\n#MobileUI #n6Button:active,\r\n#MobileUI #n7Button:active,\r\n#MobileUI #n8Button:active,\r\n#MobileUI #n9Button:active,\r\n#MobileUI #qButton:active,\r\n#MobileUI #wButton:active,\r\n#MobileUI #eButton:active,\r\n#MobileUI #rButton:active,\r\n#MobileUI #tButton:active,\r\n#MobileUI #yButton:active,\r\n#MobileUI #uButton:active,\r\n#MobileUI #iButton:active,\r\n#MobileUI #oButton:active,\r\n#MobileUI #aButton:active,\r\n#MobileUI #sButton:active,\r\n#MobileUI #dButton:active,\r\n#MobileUI #fButton:active,\r\n#MobileUI #gButton:active,\r\n#MobileUI #hButton:active,\r\n#MobileUI #jButton:active,\r\n#MobileUI #kButton:active,\r\n#MobileUI #lButton:active,\r\n#MobileUI #switchshorcutButton:active,\r\n#MobileUI #pickupButton:active {\r\n	background: linear-gradient(135deg, rgba(144, 238, 144, 0.5), rgba(193, 255, 193, 0.8));\r\n	border: 2px solid rgba(144, 238, 144, 0.8);\r\n	box-shadow: 0px 4px 8px rgba(144, 238, 144, 0.4);\r\n	border-radius: 50%;\r\n	animation: pulse 1.5s infinite;\r\n	transition:\r\n		background 0.3s ease,\r\n		box-shadow 0.3s ease,\r\n		transform 0.3s ease;\r\n}\r\n\r\n#MobileUI #talktonpcButton:active {\r\n	background: linear-gradient(135deg, rgba(144, 238, 144, 0.5), rgba(193, 255, 193, 0.8));\r\n	border: 2px solid rgba(144, 238, 144, 0.8);\r\n	box-shadow: 0px 4px 8px rgba(144, 238, 144, 0.4);\r\n	border-radius: 50%;\r\n	animation: pulse 1.5s infinite;\r\n	transition:\r\n		background 0.3s ease,\r\n		box-shadow 0.3s ease,\r\n		transform 0.3s ease;\r\n}\r\n\r\n#MobileUI #attackButton:active {\r\n	background-color: #4caf50;\r\n	box-shadow: 0px 8px 12px rgba(0, 0, 0, 0.4);\r\n	border: 2px solid #388e3c;\r\n	transition:\r\n		transform 0.2s ease,\r\n		background-color 0.2s ease,\r\n		box-shadow 0.2s ease,\r\n		border 0.2s ease;\r\n}\r\n\r\n/* Joystick container -MicromeX */\r\n#MobileUI .joystick-container {\r\n	position: absolute;\r\n	bottom: 7%;\r\n	left: 10%;\r\n	width: 25vmin;\r\n	height: 25vmin;\r\n	z-index: 1000;\r\n}\r\n\r\n/* Joystick base -MicromeX */\r\n#MobileUI .joystick-base {\r\n	position: relative;\r\n	width: 100%;\r\n	height: 100%;\r\n	background: rgba(193, 193, 193, 0.33);\r\n	border-radius: 50%;\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n}\r\n\r\n/* Joystick thumb -MicromeX */\r\n#MobileUI .joystick-thumb {\r\n	position: absolute;\r\n	width: 10vmin;\r\n	height: 10vmin;\r\n	background: radial-gradient(circle, rgba(236, 240, 241, 1) 70%, rgba(189, 195, 199, 1) 100%);\r\n	border-radius: 50%;\r\n	box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.4);\r\n	touch-action: none;\r\n	cursor: grab;\r\n}\r\n";
+}));
+//#endregion
+//#region src/UI/Components/MobileUI/robrowser_mobileui.txt?raw
+var robrowser_mobileui_default;
+var init_robrowser_mobileui = __esmMin((() => {
+	robrowser_mobileui_default = "// roBrowser Mobile UI texts (default: English)\r\n//\r\n// This file holds every text shown by the Mobile UI: the long-press help tips of\r\n// the buttons and the content of the Mobile UI guide window (/mobileguide).\r\n//\r\n// === Server owners: how to add your own translation ===\r\n// 1. Copy this file and translate the text after the \"=\" sign on every line.\r\n//    Do NOT change the ID before the \"=\" sign, the client looks up texts by ID.\r\n// 2. Save the file as UTF-8 and name it exactly:  robrowser_mobileui.txt\r\n// 3. Place it into the \"data\" folder of your remote client (next to files such\r\n//    as data/msgstringtable.txt), so it is reachable as: data/robrowser_mobileui.txt\r\n// The client loads it automatically when the Mobile UI starts. Any ID missing from\r\n// your file falls back to the English text bundled with the client, so a partial\r\n// translation is fine. If the file is not present, this bundled English text is used.\r\n//\r\n// Format: one entry per line -> ID = text\r\n// Lines starting with \"//\" are comments. Use \\n inside a text for a line break.\r\n\r\n// --- Guide window ---\r\nGUIDE_TITLE = Mobile UI guide\r\nGUIDE_INTRO = Welcome to the touch controls! Tap a button to use it, or hold a button for a second to see a short description of it. This guide lists every button of the Mobile UI.\r\nGUIDE_COMMAND = You can open this guide again at any time by typing /mobileguide into the chat.\r\nGUIDE_NEVER_SHOW = Don't show again\r\nGUIDE_CLOSE = Close\r\nGUIDE_SECTION_GENERAL = General\r\nGUIDE_SECTION_SKILLBAR = Skill bar\r\nGUIDE_SECTION_ACTIONS = Actions\r\nGUIDE_SECTION_LEFT = Left bar\r\nGUIDE_SECTION_RIGHT = Right bar\r\nGUIDE_JOYSTICK_LABEL = Joystick\r\nGUIDE_JOYSTICK = Drag the joystick in the bottom left corner to walk. Your character keeps walking in that direction while you hold it.\r\nGUIDE_SKILLROWS_LABEL = F1-F9 / 1-9 / Q-O / A-L\r\nGUIDE_SKILLROWS = The nine buttons around the attack button trigger the skill bar hotkeys of the currently selected row. Use the switch button to cycle through the rows.\r\n\r\n// --- Button descriptions (long-press tips and guide) ---\r\n// Long-press tip: TIP_<button> | Guide description: DESC_<button>\r\nTIP_toggleUIButton = Show / hide the mobile controls\r\nDESC_toggleUIButton = Shows or hides all the other mobile buttons. Hide them when you only want to look at the game and show them again when you need them.\r\n\r\nTIP_fullscreenButton = Toggle full screen\r\nDESC_fullscreenButton = Switches the game between full screen and windowed mode.\r\n\r\nTIP_skillKey = Skill bar hotkey %s\r\nDESC_skillKey = Triggers the skill or item placed on slot %s of the skill bar.\r\n\r\nTIP_switchshorcutButton = Switch skill bar row (F1-F9 / 1-9 / Q-O / A-L)\r\nDESC_switchshorcutButton = Cycles the nine skill buttons through the four hotkey rows: F1-F9, 1-9, Q-O and A-L.\r\n\r\nTIP_attackButton = Attack the selected target\r\nDESC_attackButton = Attacks the selected target. If nothing is selected, the nearest monster gets targeted and attacked.\r\n\r\nTIP_pickupButton = Pick up the nearest item\r\nDESC_pickupButton = Walks to the nearest item on the ground and picks it up.\r\n\r\nTIP_talktonpcButton = Talk to the nearest NPC\r\nDESC_talktonpcButton = Starts a conversation with the nearest NPC within 3 cells.\r\n\r\nTIP_f10Button = Change chat box size (F10)\r\nDESC_f10Button = Changes the size of the chat box, same as pressing F10 on a keyboard.\r\n\r\nTIP_f12Button = Change skill bar size (F12)\r\nDESC_f12Button = Changes the size of the skill bar, same as pressing F12 on a keyboard.\r\n\r\nTIP_insButton = Sit down / stand up\r\nDESC_insButton = Makes your character sit down or stand up (the /sit command).\r\n\r\nTIP_toggleStatusButton = Show / hide status icons\r\nDESC_toggleStatusButton = Shows or hides the status effect icons on the right side of the screen.\r\n\r\nTIP_toggleTargetingButton = Toggle touch targeting\r\nDESC_toggleTargetingButton = Turns touch targeting on or off. While it is on, tapping a monster or player only selects it instead of attacking, and the auto follow and auto target buttons become available.\r\n\r\nTIP_toggleAutoFollowButton = Auto follow the selected target\r\nDESC_toggleAutoFollowButton = Makes your character follow the selected target around until you turn it off. Requires touch targeting.\r\n\r\nTIP_toggleAutoTargetButton = Auto target the nearest monster\r\nDESC_toggleAutoTargetButton = Keeps selecting the nearest monster automatically so the attack button always has a target. Requires touch targeting.\r\n";
 }));
 //#endregion
 //#region src/UI/Components/StatusIcons/StatusIcons.html?raw
@@ -308566,6 +308572,180 @@ var init_StatusIcons = __esmMin((() => {
 }));
 //#endregion
 //#region src/UI/Components/MobileUI/MobileUI.js
+/**
+* Parse a "ID = text" language file into an object
+*
+* @param {string} content
+* @param {object} [out]
+* @returns {object}
+*/
+function parseTexts(content, out = {}) {
+	content.split(/\r?\n/).forEach((line) => {
+		const trimmed = line.trim();
+		if (!trimmed || trimmed.startsWith("//")) return;
+		const separator = trimmed.indexOf("=");
+		if (separator < 1) return;
+		const id = trimmed.slice(0, separator).trim();
+		const text = trimmed.slice(separator + 1).trim().replace(/\\n/g, "\n");
+		if (id) out[id] = text;
+	});
+	return out;
+}
+/**
+* Get a text by id, replacing %s with the given argument
+*
+* @param {string} id
+* @param {string} [arg]
+* @returns {string}
+*/
+function getText(id, arg) {
+	const text = _texts[id] ?? id;
+	return arg === void 0 ? text : text.replace("%s", arg);
+}
+/**
+* Load the optional translation from the remote client, then apply the texts
+*/
+function loadTexts() {
+	Client.loadFile(C_LANG_FILE, (buffer) => {
+		const data = buffer instanceof ArrayBuffer ? new Uint8Array(buffer) : buffer;
+		parseTexts(new TextDecoder("utf-8").decode(data), _texts);
+		applyTexts();
+	}, () => {});
+}
+/**
+* Write the language texts into the button tips and the guide window
+*/
+function applyTexts() {
+	const root = MobileUI.getRoot();
+	root.querySelectorAll("button[id]").forEach((button) => {
+		const arg = button.dataset.tipArg;
+		const id = arg !== void 0 ? "TIP_skillKey" : `TIP_${button.id}`;
+		if (id in _texts) button.dataset.tip = getText(id, arg);
+	});
+	root.querySelector("#guideTitle").textContent = getText("GUIDE_TITLE");
+	root.querySelector("#guideNeverLabel").textContent = getText("GUIDE_NEVER_SHOW");
+	root.querySelector("#guideCloseButton").title = getText("GUIDE_CLOSE");
+	buildGuide(root);
+}
+/**
+* Build the guide body from the GUIDE_SECTIONS layout
+*
+* @param {ShadowRoot} root
+*/
+function buildGuide(root) {
+	const body = root.querySelector("#guideBody");
+	body.textContent = "";
+	const addParagraph = (id) => {
+		const p = document.createElement("p");
+		p.textContent = getText(id);
+		body.appendChild(p);
+	};
+	addParagraph("GUIDE_INTRO");
+	addParagraph("GUIDE_COMMAND");
+	GUIDE_SECTIONS.forEach((section) => {
+		const title = document.createElement("div");
+		title.className = "guideSection";
+		title.textContent = getText(section.title);
+		body.appendChild(title);
+		section.entries.forEach((entry) => {
+			const button = entry.button ? root.querySelector(entry.button) : null;
+			const row = document.createElement("div");
+			row.className = "guideEntry";
+			const icon = document.createElement("span");
+			icon.className = "guideIcon";
+			icon.textContent = button ? button.textContent.trim() : entry.icon;
+			const text = document.createElement("div");
+			text.className = "guideText";
+			const label = document.createElement("div");
+			label.className = "guideLabel";
+			label.textContent = getText(entry.key ? `TIP_${entry.key}` : entry.label);
+			const desc = document.createElement("div");
+			desc.textContent = getText(entry.key ? `DESC_${entry.key}` : entry.desc);
+			text.appendChild(label);
+			text.appendChild(desc);
+			row.appendChild(icon);
+			row.appendChild(text);
+			body.appendChild(row);
+		});
+	});
+}
+/**
+* Show the guide window
+*/
+function showGuide() {
+	const root = MobileUI.getRoot();
+	const guide = root.querySelector("#guideWindow");
+	if (MobileUI._host.style.display === "none") {
+		MobileUI._host.style.display = "block";
+		root.querySelector("#MobileUI").classList.add("guideOnly");
+	}
+	root.querySelector("#guideNeverShow").checked = _preferences$17.guideNeverShow;
+	root.querySelector("#guideBody").scrollTop = 0;
+	guide.classList.remove("disabled");
+	guideShownThisSession = true;
+}
+/**
+* Hide the guide window
+*/
+function hideGuide() {
+	const root = MobileUI.getRoot();
+	const container = root.querySelector("#MobileUI");
+	root.querySelector("#guideWindow").classList.add("disabled");
+	if (container.classList.contains("guideOnly")) {
+		container.classList.remove("guideOnly");
+		MobileUI._host.style.display = "none";
+	}
+}
+/**
+* Show the guide on the first MobileUI activation of the session,
+* unless the player asked to never see it again
+*
+* @returns {boolean} guide got opened
+*/
+function showGuideOnActivate() {
+	if (guideShownThisSession || _preferences$17.guideNeverShow) return false;
+	showGuide();
+	return true;
+}
+/**
+* Bind the guide window controls
+*
+* @param {ShadowRoot} root
+*/
+function setupGuide(root) {
+	const guide = root.querySelector("#guideWindow");
+	[
+		"touchstart",
+		"touchmove",
+		"touchend",
+		"touchcancel",
+		"mousedown",
+		"mouseup",
+		"click"
+	].forEach((type) => {
+		guide.addEventListener(type, (event) => event.stopPropagation());
+	});
+	const body = root.querySelector("#guideBody");
+	let lastY = 0;
+	body.addEventListener("touchstart", (event) => {
+		lastY = event.touches[0].clientY;
+	}, { passive: true });
+	body.addEventListener("touchmove", (event) => {
+		const y = event.touches[0].clientY;
+		body.scrollTop += lastY - y;
+		lastY = y;
+		event.preventDefault();
+	}, { passive: false });
+	root.querySelector("#guideNeverShow").addEventListener("change", (event) => {
+		_preferences$17.guideNeverShow = event.target.checked;
+		_preferences$17.save();
+	});
+	bindButton(root, "#guideCloseButton", (e) => {
+		hideGuide();
+		stopPropagation$7(e);
+	});
+	ProcessCommand_default.add("mobileguide", getText("GUIDE_TITLE"), showGuide, [], false);
+}
 /**
 * Show the long-press help tip above a button
 *
@@ -309212,7 +309392,7 @@ function isFreeCell$2(x, y) {
 	});
 	return free;
 }
-var vec2, mat2, direction, rotate, targetPos, movementTimer, MobileUI, _preferences$17, showButtons, C_AUTOTARGET_DELAY, C_TOUCH_CLICK_GUARD, C_LONG_PRESS_DELAY, C_TOUCH_MOVE_TOLERANCE, centerX, centerY, maxDistance, normalizedX, normalizedY, _joystickBase, _joystickThumb, MobileUI_default;
+var vec2, mat2, direction, rotate, targetPos, movementTimer, MobileUI, _preferences$17, C_LANG_FILE, _texts, guideShownThisSession, GUIDE_SECTIONS, showButtons, C_AUTOTARGET_DELAY, C_TOUCH_CLICK_GUARD, C_LONG_PRESS_DELAY, C_TOUCH_MOVE_TOLERANCE, centerX, centerY, maxDistance, normalizedX, normalizedY, _joystickBase, _joystickThumb, MobileUI_default;
 var init_MobileUI = __esmMin((() => {
 	init_Context();
 	init_UIManager();
@@ -309227,8 +309407,10 @@ var init_MobileUI = __esmMin((() => {
 	init_PathFinding();
 	init_Altitude();
 	init_Events();
+	init_Client();
 	init_MobileUI$2();
 	init_MobileUI$1();
+	init_robrowser_mobileui();
 	init_gl_matrix$1();
 	init_Camera();
 	init_BattleMode();
@@ -309249,8 +309431,98 @@ var init_MobileUI = __esmMin((() => {
 		zIndex: 1e3,
 		width: window.innerWidth,
 		height: window.innerHeight,
-		show: false
+		show: false,
+		guideNeverShow: false
 	}, 1);
+	C_LANG_FILE = "data/robrowser_mobileui.txt";
+	_texts = parseTexts(robrowser_mobileui_default);
+	guideShownThisSession = false;
+	GUIDE_SECTIONS = [
+		{
+			title: "GUIDE_SECTION_GENERAL",
+			entries: [
+				{
+					button: "#toggleUIButton",
+					key: "toggleUIButton"
+				},
+				{
+					button: "#fullscreenButton",
+					key: "fullscreenButton"
+				},
+				{
+					icon: "🕹️",
+					label: "GUIDE_JOYSTICK_LABEL",
+					desc: "GUIDE_JOYSTICK"
+				}
+			]
+		},
+		{
+			title: "GUIDE_SECTION_SKILLBAR",
+			entries: [{
+				icon: "F1",
+				label: "GUIDE_SKILLROWS_LABEL",
+				desc: "GUIDE_SKILLROWS"
+			}, {
+				button: "#switchshorcutButton",
+				key: "switchshorcutButton"
+			}]
+		},
+		{
+			title: "GUIDE_SECTION_ACTIONS",
+			entries: [
+				{
+					button: "#attackButton",
+					key: "attackButton"
+				},
+				{
+					button: "#pickupButton",
+					key: "pickupButton"
+				},
+				{
+					button: "#talktonpcButton",
+					key: "talktonpcButton"
+				}
+			]
+		},
+		{
+			title: "GUIDE_SECTION_LEFT",
+			entries: [
+				{
+					button: "#f10Button",
+					key: "f10Button"
+				},
+				{
+					button: "#f12Button",
+					key: "f12Button"
+				},
+				{
+					button: "#insButton",
+					key: "insButton"
+				}
+			]
+		},
+		{
+			title: "GUIDE_SECTION_RIGHT",
+			entries: [
+				{
+					button: "#toggleStatusButton",
+					key: "toggleStatusButton"
+				},
+				{
+					button: "#toggleTargetingButton",
+					key: "toggleTargetingButton"
+				},
+				{
+					button: "#toggleAutoFollowButton",
+					key: "toggleAutoFollowButton"
+				},
+				{
+					button: "#toggleAutoTargetButton",
+					key: "toggleAutoTargetButton"
+				}
+			]
+		}
+	];
 	showButtons = false;
 	C_AUTOTARGET_DELAY = 500;
 	C_TOUCH_CLICK_GUARD = 750;
@@ -309380,13 +309652,18 @@ var init_MobileUI = __esmMin((() => {
 		});
 		setupJoystick();
 		setupTalkToNpcButton();
+		setupGuide(root);
+		applyTexts();
+		loadTexts();
 	};
 	/**
 	* Apply preferences once append to body
 	*/
 	MobileUI.onAppend = function onAppend() {
-		if (SessionStorage_default.isTouchDevice) this._host.style.display = "block";
-		else this._host.style.display = "none";
+		if (SessionStorage_default.isTouchDevice) {
+			this._host.style.display = "block";
+			showGuideOnActivate();
+		} else this._host.style.display = "none";
 		this._host.style.top = "0px";
 		this._host.style.left = "0px";
 		this._host.style.zIndex = "1000";
@@ -309428,9 +309705,13 @@ var init_MobileUI = __esmMin((() => {
 	};
 	/**
 	* Shows MobileUI
+	*
+	* @returns {boolean} the guide popup got opened by this activation
 	*/
 	MobileUI.show = function show() {
+		this.getRoot().querySelector("#MobileUI").classList.remove("guideOnly");
 		this._host.style.display = "block";
+		return showGuideOnActivate();
 	};
 	MobileUI_default = UIManager.addComponent(MobileUI);
 }));
@@ -309580,9 +309861,14 @@ function onTouchMove(event) {
 		Camera.zoomFinal = Math.max(Camera.zoomFinal, 2);
 	}
 }
-function touchDevice() {
+function touchDevice(event) {
 	SessionStorage_default.isTouchDevice = true;
-	if (SessionStorage_default.Playing) MobileUI_default.show();
+	if (SessionStorage_default.Playing) {
+		if (MobileUI_default.show()) {
+			event.preventDefault();
+			event.stopImmediatePropagation();
+		}
+	}
 }
 var _processGesture, _scale, _touches, _intersect, _timer$1, _uiTouch, _pageZoomed, VIEWPORT_META, UI_TOUCH_SELECTOR, Mobile, delayedClick, onTouchStart, onPointerInput;
 var init_Mobile = __esmMin((() => {
@@ -309646,7 +309932,10 @@ var init_Mobile = __esmMin((() => {
 	if (Math.max(screen.availHeight, screen.availWidth) <= 800) window.addEventListener("touchstart", () => {
 		if (!Context.isFullScreen()) Context.requestFullScreen();
 	});
-	window.addEventListener("touchstart", touchDevice, { once: true });
+	window.addEventListener("touchstart", touchDevice, {
+		once: true,
+		passive: false
+	});
 	ensureViewportMeta();
 	if (window.visualViewport) {
 		window.visualViewport.addEventListener("resize", onVisualViewportResize);
