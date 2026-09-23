@@ -159,6 +159,11 @@
 	display: none;
 }
 
+/* Guide opened on a non-touch device: hide all the mobile controls */
+#MobileUI.guideOnly > :not(#guideWindow) {
+	visibility: hidden;
+}
+
 #MobileUI .guideHeader {
 	flex: 0 0 auto;
 	display: flex;

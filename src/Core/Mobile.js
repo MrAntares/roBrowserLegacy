@@ -374,15 +374,19 @@ if (Math.max(screen.availHeight, screen.availWidth) <= 800) {
 }
 
 //Add mobile UI on touch
-function touchDevice() {
+function touchDevice(event) {
 	Session.isTouchDevice = true;
 
 	if (Session.Playing) {
 		//Already playing, don't wait for map change, just show it
-		MobileUI.show();
+		//If the guide popup opened, the activating touch must not reach the map
+		if (MobileUI.show()) {
+			event.preventDefault();
+			event.stopImmediatePropagation();
+		}
 	}
 }
-window.addEventListener('touchstart', touchDevice, { once: true });
+window.addEventListener('touchstart', touchDevice, { once: true, passive: false });
 
 ensureViewportMeta();
 

@@ -263,6 +263,12 @@ function showGuide() {
 	const root = MobileUI.getRoot();
 	const guide = root.querySelector('#guideWindow');
 
+	// Desktop (/mobileguide): the host is hidden, expose only the guide
+	if (MobileUI._host.style.display === 'none') {
+		MobileUI._host.style.display = 'block';
+		root.querySelector('#MobileUI').classList.add('guideOnly');
+	}
+
 	root.querySelector('#guideNeverShow').checked = _preferences.guideNeverShow;
 	root.querySelector('#guideBody').scrollTop = 0;
 	guide.classList.remove('disabled');
@@ -273,17 +279,30 @@ function showGuide() {
  * Hide the guide window
  */
 function hideGuide() {
-	MobileUI.getRoot().querySelector('#guideWindow').classList.add('disabled');
+	const root = MobileUI.getRoot();
+	const container = root.querySelector('#MobileUI');
+
+	root.querySelector('#guideWindow').classList.add('disabled');
+
+	if (container.classList.contains('guideOnly')) {
+		container.classList.remove('guideOnly');
+		MobileUI._host.style.display = 'none';
+	}
 }
 
 /**
  * Show the guide on the first MobileUI activation of the session,
  * unless the player asked to never see it again
+ *
+ * @returns {boolean} guide got opened
  */
 function showGuideOnActivate() {
-	if (!guideShownThisSession && !_preferences.guideNeverShow) {
-		showGuide();
+	if (guideShownThisSession || _preferences.guideNeverShow) {
+		return false;
 	}
+
+	showGuide();
+	return true;
 }
 
 /**
@@ -1380,10 +1399,13 @@ MobileUI.onRemove = function onRemove() {
 
 /**
  * Shows MobileUI
+ *
+ * @returns {boolean} the guide popup got opened by this activation
  */
 MobileUI.show = function show() {
+	this.getRoot().querySelector('#MobileUI').classList.remove('guideOnly');
 	this._host.style.display = 'block';
-	showGuideOnActivate();
+	return showGuideOnActivate();
 };
 
 /**
