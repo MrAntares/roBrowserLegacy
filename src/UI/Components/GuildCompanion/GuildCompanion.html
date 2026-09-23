@@ -1,8 +1,13 @@
 <div id="GuildCompanion">
+	<!-- The "you have no guild yet" pane. Its client counterpart, UIGuildTipWnd,
+	     is a scrollable tip list fed from client data rather than a two-button
+	     prompt, so this pane is a web affordance. It takes the client's caption
+	     for that window and the button bitmaps the client ships for it, under
+	     유저인터페이스\guild_helper. -->
 	<div class="win companion">
 		<div class="titlebar">
 			<ui-image src="basic_interface/titlebar_mid.bmp"></ui-image>
-			<span class="title">Guild Companion</span>
+			<span class="title"><ui-text msg="2078">Guild System</ui-text></span>
 			<div class="right">
 				<ui-button
 					class="base btn_x"
@@ -13,17 +18,37 @@
 			<div class="clear"></div>
 		</div>
 		<div class="body">
+			<!-- No msgstring says this: the client's tip window shows a list of
+			     help entries, not a one-line invitation. Kept as a literal on
+			     purpose rather than forced onto an id that means something else. -->
 			<div class="msg">Join a guild or start your own!</div>
 			<div class="btns">
-				<button class="btn btn_create" type="button">create guild</button>
-				<button class="btn btn_close" type="button">OK</button>
+				<ui-button
+					class="btn btn_create"
+					bg="guild_helper/create_guild.bmp"
+					hover="guild_helper/create_guild_a.bmp"
+					down="guild_helper/create_guild_b.bmp"
+				></ui-button>
+				<ui-button
+					class="btn btn_close"
+					bg="guild_helper/btn_ok.bmp"
+					hover="guild_helper/btn_ok_a.bmp"
+					down="guild_helper/btn_ok_b.bmp"
+				></ui-button>
 			</div>
 		</div>
 	</div>
+
+	<!-- One window for both create and disband, which is what the client does:
+	     class 0xd5 and class 0xd7 are the same UICreateGuildWnd built with a
+	     mode flag, and its draw picks the caption and the label off that flag
+	     (fcn.005f2150 - 0x81c/0x81d create, 0x828/0x829 disband). The two
+	     strings are the only difference, so open() fills them and the markup
+	     carries neither. -->
 	<div class="win namebox">
 		<div class="titlebar">
 			<ui-image src="basic_interface/titlebar_mid.bmp"></ui-image>
-			<span class="title name_title">Create Guild</span>
+			<span class="title name_title"></span>
 			<div class="right">
 				<ui-button
 					class="base btn_x2"
@@ -34,11 +59,16 @@
 			<div class="clear"></div>
 		</div>
 		<div class="body">
-			<div class="label name_label">Guild Name</div>
+			<div class="label name_label"></div>
 			<input type="text" class="guildname" maxlength="23" />
 			<div class="btns">
-				<button class="btn btn_ok" type="button">OK</button>
-				<button class="btn btn_cancel" type="button">cancel</button>
+				<ui-button class="btn btn_ok" bg="btn_ok.bmp" hover="btn_ok_a.bmp" down="btn_ok_b.bmp"></ui-button>
+				<ui-button
+					class="btn btn_cancel"
+					bg="btn_cancel.bmp"
+					hover="btn_cancel_a.bmp"
+					down="btn_cancel_b.bmp"
+				></ui-button>
 			</div>
 		</div>
 	</div>

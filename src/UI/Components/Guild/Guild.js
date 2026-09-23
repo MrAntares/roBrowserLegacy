@@ -1894,7 +1894,12 @@ Guild.promptDisbandGuild = function promptDisbandGuild() {
 		return;
 	}
 
-	UIManager.showMessageBox('If you are using a guild storage, all items inside it will disappear.', 'ok', () => {
+	// msgstring 0xa04, and a single OK: the client's own box passes 0 as
+	// fcn.0062cea0's button-set selector, and discards the result before
+	// opening the name window unconditionally (fcn.005f62e0).
+	const warning = DB.getMessage(2564, 'If you are using a guild storage, all items inside it will disappear.');
+
+	UIManager.showMessageBox(warning, 'ok', () => {
 		GuildCompanion.openDisband();
 	});
 };
