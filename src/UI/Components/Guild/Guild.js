@@ -277,6 +277,41 @@ function _sortsByLogin() {
 }
 
 /**
+ * Helper: lay the rows out in a given order without rebuilding any of them
+ *
+ * appendChild moves a node that is already in the tree, so the rows keep their
+ * listeners, their canvases and their data-index. That index is the link back
+ * to `_members`, which deliberately stays in the order the server sent - only
+ * the table is sorted.
+ *
+ * @param {ShadowRoot|Element} root
+ * @param {Array} ordered - the members in the order the rows should appear
+ */
+function reorderMemberRows(root, ordered) {
+	const list = root.querySelector('.content.members tbody');
+	if (!list) {
+		return;
+	}
+
+	const rowAt = {};
+	for (const row of list.querySelectorAll('.MemberView')) {
+		rowAt[row.getAttribute('data-index')] = row;
+	}
+
+	const indexOf = {};
+	for (let i = 0; i < _members.length; ++i) {
+		indexOf[`${_members[i].AID}_${_members[i].GID}`] = i;
+	}
+
+	for (let i = 0, count = ordered.length; i < count; ++i) {
+		const row = rowAt[indexOf[`${ordered[i].AID}_${ordered[i].GID}`]];
+		if (row) {
+			list.appendChild(row);
+		}
+	}
+}
+
+/**
  * Helper: the roster, online first
  *
  * The client merge-sorts its member list on the same field that paints a row
@@ -930,27 +965,7 @@ Guild.setMembers = function setMembers(members, hasMemo) {
 		this.setMember(members[i]);
 	}
 
-	// appendChild moves a node that is already there, so this lays the rows
-	// out in the sorted order without rebuilding any of them.
-	const list = root.querySelector('.content.members tbody');
-	if (list) {
-		const rowAt = {};
-		for (const row of list.querySelectorAll('.MemberView')) {
-			rowAt[row.getAttribute('data-index')] = row;
-		}
-
-		const indexOf = {};
-		for (let i = 0; i < _members.length; ++i) {
-			indexOf[`${_members[i].AID}_${_members[i].GID}`] = i;
-		}
-
-		for (let i = 0; i < count; ++i) {
-			const row = rowAt[indexOf[`${ordered[i].AID}_${ordered[i].GID}`]];
-			if (row) {
-				list.appendChild(row);
-			}
-		}
-	}
+	reorderMemberRows(root, ordered);
 
 	renderMemberFaces(Renderer.tick + 1000);
 };
@@ -1131,6 +1146,15 @@ Guild.updateMemberStatus = function updateMemberStatus(member) {
 	const onlineEl = root.querySelector('.content.info .members .online');
 	if (onlineEl) {
 		onlineEl.textContent = online;
+	}
+
+	// A login changes the sort key, so the list has to settle again. The client
+	// re-sorts from its draw (fcn.005f2f10.c:62), which means its roster is
+	// online-first at all times and not merely each time the member list packet
+	// arrives - without this the row just turns green where it already sits.
+	if (_sortsByLogin()) {
+		reorderMemberRows(root, _orderByLogin(_members));
+		renderMemberFaces(Renderer.tick + 1000);
 	}
 
 	const nameValue = view?.querySelector('.name .value');

@@ -311,6 +311,74 @@ describe('guild window, the login-status checkbox', () => {
 });
 
 /**
+ * The sort is a property of the list, not of the member-list packet. The client
+ * re-sorts from its draw, so its roster is online-first at all times; ours only
+ * reordered inside setMembers, which meant a member who logged in turned green
+ * where they already sat and stayed there until the next full list arrived.
+ */
+describe('guild member list, re-sorting when someone logs in', () => {
+	beforeEach(() => {
+		Configs.set('guild', {});
+		mocks.session.isGuildMaster = true;
+		mount();
+		Guild.setPositionsName(POSITION_NAMES);
+	});
+
+	function names() {
+		return [...root().querySelectorAll('.content.members tbody tr .name .value')].map(el => el.textContent);
+	}
+
+	it('lifts a member to the online group the moment they connect', () => {
+		const roster = [member(0, { CharName: 'a-off', CurrentState: 0 }), member(1, { CharName: 'b-on', CurrentState: 1 })];
+		Guild.setMembers(roster, false);
+		expect(names()).toEqual(['b-on', 'a-off']);
+
+		const a = roster[0];
+		Guild.updateMemberStatus({ AID: a.AID, GID: a.GID, status: 1 });
+
+		// Both online now, so the server's own order is restored - and a-off came
+		// first in it.
+		expect(names()).toEqual(['a-off', 'b-on']);
+	});
+
+	it('drops a member to the offline group when they disconnect', () => {
+		const roster = [member(0, { CharName: 'a-on', CurrentState: 1 }), member(1, { CharName: 'b-on', CurrentState: 1 })];
+		Guild.setMembers(roster, false);
+		expect(names()).toEqual(['a-on', 'b-on']);
+
+		const a = roster[0];
+		Guild.updateMemberStatus({ AID: a.AID, GID: a.GID, status: 0 });
+
+		expect(names()).toEqual(['b-on', 'a-on']);
+	});
+
+	it("leaves the order alone in ver12's mode, where there is no sort", () => {
+		Configs.set('guild', { memberListSort: 'never' });
+		const roster = [member(0, { CharName: 'a-off', CurrentState: 0 }), member(1, { CharName: 'b-on', CurrentState: 1 })];
+		Guild.setMembers(roster, false);
+		expect(names()).toEqual(['a-off', 'b-on']);
+
+		const b = roster[1];
+		Guild.updateMemberStatus({ AID: b.AID, GID: b.GID, status: 0 });
+
+		expect(names()).toEqual(['a-off', 'b-on']);
+	});
+
+	// The row keeps its identity through the move - appendChild relocates the
+	// existing node - so the head canvas still belongs to the right member.
+	it('moves the existing row rather than rebuilding it', () => {
+		const roster = [member(0, { CharName: 'a-off', CurrentState: 0 }), member(1, { CharName: 'b-on', CurrentState: 1 })];
+		Guild.setMembers(roster, false);
+		const before = root().querySelector('.MemberView[data-index="0"]');
+
+		const a = roster[0];
+		Guild.updateMemberStatus({ AID: a.AID, GID: a.GID, status: 1 });
+
+		expect(root().querySelector('.MemberView[data-index="0"]')).toBe(before);
+	});
+});
+
+/**
  * Enter reaches a window as message 0, and the base UIWindow handler re-emits
  * `this+0x8c` as a WM_COMMAND. Only the member manager and the position manager
  * set that field, both to btn_ok's `0xb0`; the other four tabs keep the base
