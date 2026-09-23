@@ -1031,3 +1031,13 @@
 #Guild .content textarea:focus-visible {
 	background-color: #f7f7f7;
 }
+
+/* The permission checkboxes are bare <div>s - they were a <ui-button> until that
+ * element's own repaint started fighting the checked/unchecked bitmap - so they
+ * are the one control in this window that never told the pointer it was
+ * actionable. GUIComponent's CLICKABLE_SELECTOR now lists `.checkbox`, which is
+ * what drives the in-game cursor; this rule covers the case where the custom
+ * cursor is off and the real CSS one is showing. */
+#Guild .checkbox {
+	cursor: pointer;
+}

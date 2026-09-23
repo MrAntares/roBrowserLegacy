@@ -759,6 +759,10 @@ class GUIComponent {
 			'label',
 			'select',
 			'textarea',
+			// Checkbox widgets built as a styled <div> rather than a control, so
+			// they would otherwise be the only clickable thing the cursor ignores.
+			// EquipmentV4's carry the class on a <button> and already matched.
+			'.checkbox',
 			'.item-link',
 			'.draggable',
 			'.ro-custom-scrollbar',
