@@ -287,6 +287,12 @@
 	left: 200px;
 	top: 8px;
 }
+/* At max guild level 2022 and mars26 paint this line red. Label and value are
+ * one string in a single draw call there, so the colour takes the whole line
+ * and not just the figure. ver12 blanks the figure instead and stays black. */
+#Guild .content.info .exp.maxlevel {
+	color: #ff0000;
+}
 #Guild .content.info .emblem {
 	position: absolute;
 	left: 200px;

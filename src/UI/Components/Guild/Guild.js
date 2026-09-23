@@ -118,6 +118,21 @@ function _showsTaxPoint() {
 	return _config().showTaxPoint === true;
 }
 
+/**
+ * At max guild level the client stops showing the EXP figure, and the three
+ * versions disagree on how. All branch on the same `level >= 50`:
+ *
+ * - ver12 substitutes a literal 0 for the value and leaves the text black,
+ * - 2022-03-30 keeps the real value and paints the line red,
+ * - mars26 does both, off one comparison and a pair of cmovs.
+ *
+ * mars26's is what we draw, for the same reason memberListSort defaults to
+ * its behaviour: it is the newest, and the two older ones are each a strict
+ * subset of it. Label and value are one sprintf'd string drawn in a single
+ * call there, so the colour takes the whole line and not just the number.
+ */
+const GUILD_LEVEL_MAX = 50;
+
 let _btnIncSkillTemplate;
 let _skpoints = 0;
 let _btnLevelUp;
@@ -696,8 +711,11 @@ Guild.setGuildInformations = function setGuildInformations(info) {
 	general.querySelector('.members .maxMember').textContent = info.maxUserNum;
 	general.querySelector('.avglevel .value').textContent = info.userAverageLevel;
 	general.querySelector('.territory .value').textContent = info.manageLand;
-	general.querySelector('.exp .value').textContent = info.exp;
 	general.querySelector('.tax .value').textContent = info.point;
+
+	const atMaxLevel = info.level >= GUILD_LEVEL_MAX;
+	general.querySelector('.exp .value').textContent = atMaxLevel ? 0 : info.exp;
+	general.querySelector('.exp').classList.toggle('maxlevel', atMaxLevel);
 
 	Guild.updateSession(info);
 	Guild.onRequestGuildEmblem(info.GDID, info.emblemVersion, Guild.setEmblem.bind(this));
