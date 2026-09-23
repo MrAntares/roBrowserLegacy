@@ -994,3 +994,40 @@
 	-webkit-user-select: text;
 	user-select: text;
 }
+
+/* Keyboard focus, made visible again.
+ *
+ * Common.css:2 kills the outline on every :focus so the client's chrome is not
+ * ringed by the browser. Correct for a mouse, but it also means a keyboard user
+ * tabbing through this window has no idea where they are.
+ *
+ * `:focus-visible` throughout, not `:focus`, so all of this is keyboard-only:
+ * clicking a control paints nothing and the window looks exactly as the client
+ * does under a mouse, which is why Common.css suppressed the outline to begin
+ * with.
+ *
+ * The tab strip gets weight rather than a ring. The six cells already use
+ * background to mean *active* (#fff against the inactive #c8c8c8), so focus
+ * needs a different channel or the two states blur together. Measured before
+ * choosing it: five of the six labels are unaffected, and the sixth
+ * ("Announcement") is already ellipsised by 19px at normal weight - the client
+ * truncates its own labels the same way - so bold costs 6px more of a label
+ * that is clipped either way, and introduces no new clipping. */
+#Guild .tabs button:focus-visible {
+	font-weight: bold;
+}
+
+/* The editable fields shift to one shared colour when focused, and their resting
+ * colours are left exactly as they ship - #eee on the Notice pair, white on the
+ * Positions inputs. #f7f7f7 sits between the two, so the focused field reads as
+ * different from its neighbours either way: a shade up from the Notice grey, a
+ * shade down from the Positions white. Nine tones in both directions.
+ *
+ * No outline. A ring is the conventional answer and it was tried, but it is the
+ * most browser-looking mark available in a window that is otherwise the client's
+ * pixels, and a fill change is enough once the resting colours are left alone. */
+#Guild .content input:focus-visible,
+#Guild .content select:focus-visible,
+#Guild .content textarea:focus-visible {
+	background-color: #f7f7f7;
+}
