@@ -305,6 +305,11 @@
 	left: 200px;
 	top: 98px;
 }
+/* 168x48 holds exactly three of the client's 16px rows, which is also where
+ * its draw loop hard-stops: it never paints a fourth, whatever the server
+ * sent, and rAthena's cap is sixteen. Clipped rather than scrolled - no guild
+ * tab in any of the three clients puts a bar here, and one drawn inside this
+ * fill reads as pasted on. */
 #Guild .content.info .ally_list {
 	position: absolute;
 	left: 200px;
@@ -312,6 +317,7 @@
 	white-space: pre;
 	width: 168px;
 	height: 48px;
+	overflow: hidden;
 	background: #c8c8c8;
 }
 #Guild .content.info .hostile {
@@ -326,17 +332,26 @@
 	white-space: pre;
 	width: 168px;
 	height: 48px;
+	overflow: hidden;
 	background: #c8c8c8;
 }
 
+/* The client's rows are a 16px pitch starting 2px inside the box, with their
+ * text at x=204 - four past the box's own 200 - and a selection band only 80
+ * wide, which is the width of its hit test rather than of the box. Ours were
+ * a 2px padding on a 12px/1.2 line, so an 18.4px pitch at x=202 with the
+ * highlight running the full 168. */
 #Guild .content.info .ally_list div,
 #Guild .content.info .hostile_list div {
-	padding: 2px;
+	height: 16px;
+	line-height: 16px;
+	padding: 0 0 0 4px;
+	box-sizing: border-box;
 }
 #Guild .content.info .ally_list div.active,
 #Guild .content.info .hostile_list div.active {
 	background-color: #709fed;
-	padding: 2px;
+	width: 80px;
 }
 
 /* The client draws the emblem at (300, 65) in a 26x26 frame at (299, 64), and
