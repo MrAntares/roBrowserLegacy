@@ -173,18 +173,6 @@ function mount() {
  * mocked GUIComponent. The inline display that onChangeTab writes is what can be
  * read, and it is also the thing under test.
  */
-/**
- * onKeyDown is bound to `window` and reads focus off the document, so the press
- * has to come from a real element inside the component.
- *
- * @param {Element} from - the element to focus first
- * @return {*} whatever the handler returned; false means "consumed"
- */
-function pressEnter(from) {
-	from.focus();
-	return Guild.onKeyDown({ which: 13, key: 'Enter' });
-}
-
 function hiddenByAncestor(el) {
 	for (let node = el; node && node !== root(); node = node.parentElement) {
 		if (node.style.display === 'none') {
@@ -379,128 +367,6 @@ describe('guild member list, re-sorting when someone logs in', () => {
 });
 
 /**
- * Enter reaches a window as message 0, and the base UIWindow handler re-emits
- * `this+0x8c` as a WM_COMMAND. Only the member manager and the position manager
- * set that field, both to btn_ok's `0xb0`; the other four tabs keep the base
- * constructor's inert `0x239`. So Enter applies on exactly two of the six.
- */
-describe('guild window, Enter applies where the client binds a default button', () => {
-	let sent;
-	let sentPositions;
-
-	beforeEach(() => {
-		Configs.set('guild', {});
-		mocks.session.isGuildMaster = true;
-		mount();
-		Guild.setPositions(POSITIONS, true);
-		Guild.setPositionsName(POSITION_NAMES);
-		Guild.setMembers([member(MASTER), member(ALICE), member(BOB)]);
-
-		sent = [];
-		sentPositions = [];
-		Guild.onChangeMemberPosRequest = list => sent.push(list);
-		Guild.onPositionUpdateRequest = list => sentPositions.push(list);
-	});
-
-	it('applies on the positions tab', () => {
-		showTab('positions');
-		const title = root().querySelector('.content.positions .PositionView .title input');
-		title.value = 'Renamed';
-		title.dispatchEvent(new Event('change', { bubbles: true }));
-
-		expect(pressEnter(title)).toBe(false);
-		expect(sentPositions).toHaveLength(1);
-	});
-
-	// btn_send on the Notice tab is a plain button - UIGuildNoticeWnd never writes
-	// +0x8c. Enter there has to stay a newline in the textarea.
-	it('does nothing on the notice tab', () => {
-		showTab('notice');
-		const textarea = root().querySelector('.content.notice textarea.notice');
-
-		expect(pressEnter(textarea)).toBeUndefined();
-	});
-
-	it('does nothing on the four tabs with no default button', () => {
-		for (const name of ['info', 'skills', 'history', 'notice']) {
-			showTab(name);
-			expect(`${name}:${pressEnter(root().querySelector(`.tabs button.${name}`))}`).toBe(`${name}:undefined`);
-		}
-	});
-
-	// The handler is on `window`, so without this guard an Enter typed in the
-	// chatbox would flush whatever the guild window had queued.
-	it('ignores Enter when the focus is outside the window', () => {
-		showTab('members');
-		const select = selectOf(ALICE);
-		select.value = '2';
-		select.dispatchEvent(new Event('change'));
-
-		const outside = document.createElement('input');
-		document.body.appendChild(outside);
-		outside.focus();
-
-		expect(Guild.onKeyDown({ which: 13, key: 'Enter' })).toBeUndefined();
-		expect(sent).toEqual([]);
-	});
-
-	// ChatBox owns Enter client-wide: it captures the key on window and focuses the
-	// chat box. It already yields while an input or select elsewhere has focus, so
-	// Enter can reach here at all - but that also means a swallowed Enter is a key
-	// the player never gets back. With nothing to apply it has to fall through.
-	it('leaves Enter alone when there is nothing to apply', () => {
-		showTab('members');
-
-		expect(pressEnter(selectOf(ALICE))).toBeUndefined();
-		expect(sent).toEqual([]);
-	});
-
-	// ...and having applied, the control is released, so the *next* Enter is the
-	// chat key again rather than a no-op behind ChatBox's own guard.
-	it('releases the focus after applying, so the next Enter opens the chat', () => {
-		showTab('members');
-		const select = selectOf(ALICE);
-		select.value = '2';
-		select.dispatchEvent(new Event('change'));
-
-		expect(pressEnter(select)).toBe(false);
-		expect(sent).toHaveLength(1);
-		expect(document.activeElement).not.toBe(select);
-
-		// Second press: nothing queued, nothing focused, not consumed.
-		expect(Guild.onKeyDown({ which: 13, key: 'Enter' })).toBeUndefined();
-		expect(sent).toHaveLength(1);
-	});
-
-	// The tab strip is six real <button>s, which activate on Enter and Space by
-	// themselves. Consuming Enter here would preventDefault that activation and
-	// the tab would never switch.
-	it('leaves Enter to a focused button rather than applying', () => {
-		showTab('members');
-		const select = selectOf(ALICE);
-		select.value = '2';
-		select.dispatchEvent(new Event('change'));
-
-		expect(pressEnter(root().querySelector('.tabs button.positions'))).toBeUndefined();
-		expect(sent).toEqual([]);
-	});
-
-	it('still closes on Escape', () => {
-		Guild.toggle = vi.fn();
-		showTab('members');
-
-		Guild.onKeyDown({ which: 27, key: 'Escape' });
-
-		expect(Guild.toggle).toHaveBeenCalled();
-	});
-
-	function selectOf(i) {
-		const fixture = member(i);
-		return root().querySelector(`.member_${fixture.AID}_${fixture.GID}`);
-	}
-});
-
-/**
  * The client draws the combobox on every row, including the guild master's own,
  * and refuses the change on selection. Marking it disabled instead is a
  * deliberate deviation above the binary - recorded in PR-NOTES.md - on the
@@ -545,20 +411,6 @@ describe('guild window, the grade dropdown', () => {
 		// grade-0 row from moving, and it has to hold when called directly.
 		const master = member(MASTER);
 		expect(Guild.updateMemberPosition(master.AID, master.GID, 2, true)).toBe(false);
-	});
-
-	it('applies a queued grade change on Enter', () => {
-		const sent = [];
-		Guild.onChangeMemberPosRequest = list => sent.push(list);
-
-		const alice = member(ALICE);
-		const select = selectOf(ALICE);
-		select.value = '2';
-		select.dispatchEvent(new Event('change'));
-
-		expect(pressEnter(select)).toBe(false); // consumed
-		expect(sent).toHaveLength(1);
-		expect(sent[0]).toEqual([{ AID: alice.AID, GID: alice.GID, positionID: 2 }]);
 	});
 
 	it('draws no dropdown at all for a member who is not the guild master', () => {

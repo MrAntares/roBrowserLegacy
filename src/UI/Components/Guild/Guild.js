@@ -133,28 +133,6 @@ function _showsTaxPoint() {
  */
 const GUILD_LEVEL_MAX = 50;
 
-/**
- * The tabs where Enter applies, because the client binds a default button there.
- *
- * Enter never reaches a window through a vtable slot. `fcn.0063ca70` routes it -
- * `case 0xd:` on key-down calls `fcn.00629ad0`, which delivers message 0 to the
- * active window's generic message slot `+0x88`. The base UIWindow handler reads
- * `this+0x8c` and re-emits it as a synthetic WM_COMMAND
- * (`fcn.00a56ab0.asm:111-121`), so a tab has a default button exactly when its
- * OnCreate wrote that field.
- *
- * Only two of the six do, both to `0xb0` - the command id of btn_ok, the Apply
- * button: the member manager (`fcn.005ef130.asm:850`) and the position manager
- * (`fcn.005f0380.asm:713-715`). The other four keep the sentinel `0x239` the
- * base constructor seeds (`fcn.00a42530.asm:45-46`), which matches no case in
- * any guild handler, so Enter is a no-op on them. Notably the Notice tab's
- * btn_send is NOT a default button, which is why Enter there stays a newline.
- *
- * Read on 2022-03-30. ver12 puts this field at a different offset and its
- * equivalent was not located, so this is not claimed cross-version.
- */
-const ENTER_APPLIES_ON = ['members', 'positions'];
-
 let _btnIncSkillTemplate;
 let _skpoints = 0;
 let _btnLevelUp;
@@ -718,68 +696,9 @@ Guild.toggle = function onToggle() {
 };
 
 Guild.onKeyDown = function onKeyDown(event) {
-	if (!this.ui.is(':visible')) {
-		return;
-	}
-
-	if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
+	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this.ui.is(':visible')) {
 		this.toggle();
-		return;
 	}
-
-	if (event.which !== KEYS.ENTER && event.key !== 'Enter') {
-		return;
-	}
-
-	// The handler is bound to `window`, so it hears every Enter in the client.
-	// The client only reaches its default button when the window owning it is the
-	// active one, and the nearest thing to that here is the focus being inside
-	// this component - which is also what keeps Enter in the chatbox from
-	// applying guild edits. Narrower than the client on one point, recorded
-	// rather than papered over: with the window open but nothing in it focused,
-	// the client would apply and we do not.
-	const root = _root(this);
-	const host = root.host || root;
-	if (document.activeElement !== host && !host.contains(document.activeElement)) {
-		return;
-	}
-
-	// A focused <button> already activates on Enter and Space by itself, and the
-	// tab strip is six real buttons. Applying here would consume the keystroke
-	// (this handler's `false` becomes preventDefault) and the tab would never
-	// switch, so the native action wins whenever a button holds the focus.
-	// A ShadowRoot reports its own activeElement; a plain element root has none,
-	// and then the document's is the one to read.
-	const focused = root.activeElement || document.activeElement;
-	if (focused && focused.closest && focused.closest('button, ui-button')) {
-		return;
-	}
-
-	if (!ENTER_APPLIES_ON.includes(getActiveTab(root))) {
-		return;
-	}
-
-	// Only take the keystroke when there is something to apply. Apply is revealed
-	// by a pending edit and hidden again once it is flushed, so its visibility is
-	// exactly "the default button would do something" - and when it would not,
-	// Enter has to stay the chat key rather than being swallowed.
-	const apply = root.querySelector('.footer .btn_ok');
-	if (!apply || apply.style.display === 'none') {
-		return;
-	}
-
-	onValidate();
-
-	// Release the control afterwards. ChatBox yields Enter while an input or a
-	// select holds the focus (its `isOtherTextInputFocused` guard), so leaving the
-	// dropdown focused would make the next Enter do nothing at all - neither apply,
-	// there being nothing left to apply, nor open the chat. Blurring hands Enter
-	// back to its normal owner.
-	if (focused.blur) {
-		focused.blur();
-	}
-
-	return false;
 };
 
 Guild.show = function show() {
