@@ -693,13 +693,21 @@
 }
 /* A plain element rather than a ui-button: that one reloads its `bg` on every
  * hover and press, which paints the unticked image back over a ticked box. The
- * client's checkbox is 12x12 at x 160 / 221, y 66 + 19r. */
+ * client's checkbox is 12x12 at x 160 / 221, y 66 + 19r.
+ *
+ * The bitmap is smaller than the cell - checkbox_0/1.bmp are 10x10 - and the
+ * client does not stretch it: the blit takes its extent from the surface, never
+ * from the widget, so the 12x12 size never reaches it. It goes out at x = 0 and
+ * y = (cellH - bmpH) / 2, i.e. flush left and vertically centred. `left center`
+ * rather than a hard `0 1px` because that division is the rule, and a skin
+ * shipping a different checkbox size has to keep working. */
 #Guild .content.positions .checkbox {
 	display: inline-block;
 	border: none;
 	width: 12px;
 	height: 12px;
 	background-repeat: no-repeat;
+	background-position: left center;
 	background-color: transparent;
 }
 
