@@ -245233,6 +245233,929 @@ var init_Inflate = __esmMin((() => {
 	};
 }));
 //#endregion
+//#region src/UI/Components/SkillListMH/SkillListMH.js
+/**
+* Build a Homunculus/Mercenary skill window on top of the shared SkillList
+* factory, using its list-only (old-style) mode and layering the MH-specific
+* bits (window name, titlebar text, drag origin, Escape-to-close) on top.
+*/
+function createSkillListMH(type) {
+	const component = createSkillList({
+		name: `SkillList${type === "homunculus" ? "HOM" : "MER"}`,
+		htmlText: SkillList_default$2,
+		cssText: SkillList_default$1,
+		listOnly: true,
+		dragFrom: "SkillListMH",
+		titlebarText: type === "homunculus" ? "Homunculus Skills" : "Mercenary Skills",
+		containerSelector: ".SkillList",
+		preferenceDefaults: {
+			x: 100,
+			y: 200,
+			width: 8,
+			height: 5,
+			show: false
+		}
+	});
+	component.onKeyDown = function onKeyDown(event) {
+		if ((event.which === KEYS.ESCAPE || event.key === "Escape") && this.ui.is(":visible")) this.toggle();
+	};
+	return component;
+}
+var SkillListMH_default;
+var init_SkillListMH = __esmMin((() => {
+	init_KeyEventHandler();
+	init_SkillListCommon();
+	init_SkillList$3();
+	init_SkillList$2();
+	SkillListMH_default = {
+		homunculus: createSkillListMH("homunculus"),
+		mercenary: createSkillListMH("mercenary")
+	};
+}));
+//#endregion
+//#region src/UI/Components/ShortCut/ShortCut.html?raw
+var ShortCut_default$2;
+var init_ShortCut$2 = __esmMin((() => {
+	ShortCut_default$2 = "<div id=\"ShortCut\" data-background=\"basic_interface/shortitem_bg.bmp\">\r\n	<button\r\n		class=\"close\"\r\n		data-background=\"basic_interface/sys_close_off.bmp\"\r\n		data-hover=\"basic_interface/sys_close_on.bmp\"\r\n	></button>\r\n	<button class=\"resize\" data-background=\"btn_resize.bmp\"></button>\r\n\r\n	<div class=\"row\">\r\n		<div class=\"container\" data-index=\"0\"></div>\r\n		<div class=\"container\" data-index=\"1\"></div>\r\n		<div class=\"container\" data-index=\"2\"></div>\r\n		<div class=\"container\" data-index=\"3\"></div>\r\n		<div class=\"container\" data-index=\"4\"></div>\r\n		<div class=\"container\" data-index=\"5\"></div>\r\n		<div class=\"container\" data-index=\"6\"></div>\r\n		<div class=\"container\" data-index=\"7\"></div>\r\n		<div class=\"container\" data-index=\"8\"></div>\r\n		<div class=\"index\">1</div>\r\n		<div class=\"clear\"></div>\r\n	</div>\r\n\r\n	<div class=\"row\">\r\n		<div class=\"container\" data-index=\"9\"></div>\r\n		<div class=\"container\" data-index=\"10\"></div>\r\n		<div class=\"container\" data-index=\"11\"></div>\r\n		<div class=\"container\" data-index=\"12\"></div>\r\n		<div class=\"container\" data-index=\"13\"></div>\r\n		<div class=\"container\" data-index=\"14\"></div>\r\n		<div class=\"container\" data-index=\"15\"></div>\r\n		<div class=\"container\" data-index=\"16\"></div>\r\n		<div class=\"container\" data-index=\"17\"></div>\r\n		<div class=\"index\">2</div>\r\n		<div class=\"clear\"></div>\r\n	</div>\r\n\r\n	<div class=\"row\">\r\n		<div class=\"container\" data-index=\"18\"></div>\r\n		<div class=\"container\" data-index=\"19\"></div>\r\n		<div class=\"container\" data-index=\"20\"></div>\r\n		<div class=\"container\" data-index=\"21\"></div>\r\n		<div class=\"container\" data-index=\"22\"></div>\r\n		<div class=\"container\" data-index=\"23\"></div>\r\n		<div class=\"container\" data-index=\"24\"></div>\r\n		<div class=\"container\" data-index=\"25\"></div>\r\n		<div class=\"container\" data-index=\"26\"></div>\r\n		<div class=\"index\">3</div>\r\n		<div class=\"clear\"></div>\r\n	</div>\r\n\r\n	<div class=\"row\">\r\n		<div class=\"container\" data-index=\"27\"></div>\r\n		<div class=\"container\" data-index=\"28\"></div>\r\n		<div class=\"container\" data-index=\"29\"></div>\r\n		<div class=\"container\" data-index=\"30\"></div>\r\n		<div class=\"container\" data-index=\"31\"></div>\r\n		<div class=\"container\" data-index=\"32\"></div>\r\n		<div class=\"container\" data-index=\"33\"></div>\r\n		<div class=\"container\" data-index=\"34\"></div>\r\n		<div class=\"container\" data-index=\"35\"></div>\r\n		<div class=\"index\">4</div>\r\n		<div class=\"clear\"></div>\r\n	</div>\r\n\r\n	<div class=\"shortcut-tooltip\"></div>\r\n</div>\r\n";
+}));
+//#endregion
+//#region src/UI/Components/ShortCut/ShortCut.css?raw
+var ShortCut_default$1;
+var init_ShortCut$1 = __esmMin((() => {
+	ShortCut_default$1 = ":host {\r\n	width: 280px;\r\n	top: 0px;\r\n	left: 480px;\r\n	overflow: hidden;\r\n}\r\n\r\n#ShortCut {\r\n	position: absolute;\r\n	width: 280px;\r\n	height: 100%;\r\n	background-repeat: repeat-y;\r\n}\r\n#ShortCut .close {\r\n	position: absolute;\r\n	top: 2px;\r\n	right: 2px;\r\n	border: none;\r\n	background-color: transparent;\r\n	width: 11px;\r\n	height: 11px;\r\n}\r\n#ShortCut .resize {\r\n	position: absolute;\r\n	bottom: 1px;\r\n	right: 1px;\r\n	border: none;\r\n	background-color: transparent;\r\n	width: 13px;\r\n	height: 13px;\r\n}\r\n\r\n#ShortCut .row {\r\n	position: relative;\r\n}\r\n#ShortCut .row .container {\r\n	float: left;\r\n	width: 24px;\r\n	height: 23px;\r\n	margin-top: 5px;\r\n	margin-left: 5px;\r\n	margin-bottom: 6px;\r\n}\r\n#ShortCut .row .container:hover {\r\n	background-color: #b5ffb5;\r\n}\r\n#ShortCut .row .index {\r\n	float: left;\r\n	position: relative;\r\n	top: 13px;\r\n	left: 5px;\r\n}\r\n#ShortCut .row .clear {\r\n}\r\n\r\n#ShortCut .icon {\r\n	position: relative;\r\n}\r\n#ShortCut .icon .img {\r\n	width: 24px;\r\n	height: 24px;\r\n	background-repeat: no-repeat;\r\n	border: none;\r\n	background-color: transparent;\r\n}\r\n#ShortCut .icon .name {\r\n	display: none;\r\n	z-index: 1;\r\n	position: absolute;\r\n	top: 0px;\r\n	left: 0px;\r\n	background-color: rgba(0, 0, 0, 0.6);\r\n	text-shadow: 1px 1px black;\r\n	color: white;\r\n	padding: 5px;\r\n	white-space: nowrap;\r\n}\r\n#ShortCut .icon:hover .name {\r\n	display: block;\r\n}\r\n#ShortCut .icon.hide .name {\r\n	display: none;\r\n}\r\n#ShortCut .icon .amount {\r\n	position: absolute;\r\n	right: 1px;\r\n	top: 20px;\r\n	text-shadow: 1px 1px 0px white;\r\n	text-align: right;\r\n	font-weight: bold;\r\n}\r\n\r\n.shortcut-tooltip {\r\n	display: none;\r\n	position: fixed;\r\n	background-color: rgba(0, 0, 0, 0.8);\r\n	text-shadow: 1px 1px black;\r\n	color: white;\r\n	padding: 2px 6px;\r\n	white-space: nowrap;\r\n	z-index: 10000;\r\n	border-radius: 2px;\r\n	pointer-events: none;\r\n	line-height: 1.2;\r\n}\r\n.shortcut-tooltip.show {\r\n	display: block;\r\n}\r\n\r\n#ShortCut .cooldown-overlay {\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n	width: 24px;\r\n	height: 24px;\r\n	pointer-events: none;\r\n	border-radius: 2px;\r\n	z-index: 999;\r\n	background: conic-gradient(rgba(0, 0, 0, 0.75) 0deg, transparent 0deg);\r\n}\r\n";
+}));
+//#endregion
+//#region src/UI/Components/ShortCut/ShortCut.js
+var ShortCut_exports = /* @__PURE__ */ __exportAll({ default: () => ShortCut_default });
+/**
+* Resolve which skill window owns a skill id
+*
+* @param {number} skill id
+* @return {object} component exposing useSkillID / getSkillById
+*/
+function getSkillOwner(id) {
+	if (id >= SkillConst_default.GD_APPROVAL && id <= SkillConst_default.GD_LAST) return Guild_default;
+	if (id >= SkillConst_default.HOMUN_BEGIN && id <= SkillConst_default.HOMUN_LAST) return SkillListMH_default.homunculus;
+	if (id >= SkillConst_default.MERCENARY_BEGIN && id <= SkillConst_default.MERCENARY_LAST) return SkillListMH_default.mercenary;
+	return Controller$4.getUI();
+}
+/**
+* Update tooltip for empty slots with hotkey only
+*/
+function updateEmptySlotTooltips() {
+	const containers = ShortCut.getRoot().querySelectorAll(".container");
+	for (let i = 0; i < containers.length; ++i) if (!_list$4[i] || !_list$4[i].isSkill && !_list$4[i].ID) {
+		const hotkey = getHotKeyString(i);
+		if (hotkey) containers[i].setAttribute("data-tooltip", hotkey);
+	}
+}
+/**
+* Get hotkey string for shortcut index
+*
+* @param {number} index of the shortcut slot
+* @return {string} hotkey string or empty string
+*/
+function getHotKeyString(index) {
+	const shortcutKeys = [
+		"F1_1",
+		"F1_2",
+		"F1_3",
+		"F1_4",
+		"F1_5",
+		"F1_6",
+		"F1_7",
+		"F1_8",
+		"F1_9",
+		"F2_1",
+		"F2_2",
+		"F2_3",
+		"F2_4",
+		"F2_5",
+		"F2_6",
+		"F2_7",
+		"F2_8",
+		"F2_9",
+		"F3_1",
+		"F3_2",
+		"F3_3",
+		"F3_4",
+		"F3_5",
+		"F3_6",
+		"F3_7",
+		"F3_8",
+		"F3_9",
+		"F4_1",
+		"F4_2",
+		"F4_3",
+		"F4_4",
+		"F4_5",
+		"F4_6",
+		"F4_7",
+		"F4_8",
+		"F4_9"
+	];
+	if (index < 0 || index >= shortcutKeys.length) return "";
+	const scKey = shortcutKeys[index];
+	const shortcut = ShortCutControls_default.ShortCuts[scKey];
+	if (!shortcut) return "";
+	const key = shortcut.cust ? shortcut.cust.key : shortcut.init.key;
+	const alt = shortcut.cust ? shortcut.cust.alt : shortcut.init.alt;
+	const ctrl = shortcut.cust ? shortcut.cust.ctrl : shortcut.init.ctrl;
+	const shift = shortcut.cust ? shortcut.cust.shift : shortcut.init.shift;
+	if (!key) return "";
+	let hotkeyStr = "";
+	if (alt) hotkeyStr += "ALT + ";
+	if (ctrl) hotkeyStr += "CTRL + ";
+	if (shift) hotkeyStr += "SHIFT + ";
+	hotkeyStr += KEYS.toReadableKey(key);
+	return hotkeyStr;
+}
+/**
+* Show fixed tooltip on container hover
+*/
+function onContainerMouseEnter(event) {
+	const tooltipText = event.currentTarget.getAttribute("data-tooltip");
+	if (tooltipText) {
+		const tooltip = ShortCut.getRoot().querySelector(".shortcut-tooltip");
+		const hostRect = ShortCut._host.getBoundingClientRect();
+		tooltip.textContent = tooltipText;
+		tooltip.classList.add("show");
+		const tooltipRect = tooltip.getBoundingClientRect();
+		const showAbove = window.innerHeight - (hostRect.top + hostRect.height) < tooltipRect.height + 10;
+		const left = hostRect.left + hostRect.width / 2 - tooltipRect.width / 2;
+		let top;
+		if (showAbove) top = hostRect.top - tooltipRect.height - 2;
+		else top = hostRect.top + hostRect.height + 2;
+		tooltip.style.left = `${left}px`;
+		tooltip.style.top = `${top}px`;
+	}
+}
+/**
+* Hide fixed tooltip on container leave
+*/
+function onContainerMouseLeave() {
+	const tooltip = ShortCut.getRoot().querySelector(".shortcut-tooltip");
+	if (tooltip) tooltip.classList.remove("show");
+}
+/**
+* Resizing hotkey window
+*/
+function onResize$3(event) {
+	const host = ShortCut._host;
+	const top = host.offsetTop;
+	let lastHeight = 0;
+	function resizing() {
+		let h = Math.floor((Mouse.screen.y - top) / 34 + 1);
+		h = Math.min(Math.max(h, 1), _rowCount);
+		if (h === lastHeight) return;
+		host.style.height = `${h * 34}px`;
+		_preferences$23.size = h;
+		_preferences$23.save();
+		lastHeight = h;
+	}
+	const _Interval = setInterval(resizing, 30);
+	const mouseUpHandler = (_event) => {
+		if (_event.which === 1) {
+			clearInterval(_Interval);
+			window.removeEventListener("mouseup", mouseUpHandler);
+		}
+	};
+	window.addEventListener("mouseup", mouseUpHandler);
+	event.stopImmediatePropagation();
+	event.preventDefault();
+}
+/**
+* Displays the cooldown overlay on an icon
+*
+* @param {number} index of the icon
+* @param {number} delay in ms
+*/
+function setDelayOnIndex(index, delay) {
+	if (!_list$4[index]) return;
+	if (_list$4[index].Delay && _list$4[index].Delay >= Renderer.tick + delay) return;
+	_list$4[index].Delay = Renderer.tick + delay;
+	const ui = ShortCut.getRoot().querySelector(`.container[data-index="${index}"]`);
+	if (!ui) return;
+	const existing = ui.querySelector(".cooldown-overlay");
+	if (existing) existing.remove();
+	const overlay = document.createElement("div");
+	overlay.className = "cooldown-overlay";
+	const icon = ui.querySelector(".icon");
+	if (icon) {
+		icon.appendChild(overlay);
+		const img = icon.querySelector(".img");
+		if (img) img.style.filter = "none";
+	}
+	if (_activeAnimations.has(index)) {
+		cancelAnimationFrame(_activeAnimations.get(index));
+		_activeAnimations.delete(index);
+	}
+	function updateCooldown() {
+		if (!_list$4 || !_list$4[index]) {
+			overlay.remove();
+			if (_activeAnimations.has(index)) {
+				cancelAnimationFrame(_activeAnimations.get(index));
+				_activeAnimations.delete(index);
+			}
+			return;
+		}
+		const now = Renderer.tick;
+		const remaining = _list$4[index].Delay - now;
+		if (remaining <= 0 || !_list$4[index].Delay) {
+			overlay.remove();
+			_list$4[index].Delay = 0;
+			if (_activeAnimations.has(index)) {
+				cancelAnimationFrame(_activeAnimations.get(index));
+				_activeAnimations.delete(index);
+			}
+			return;
+		}
+		const degrees = (1 - remaining / delay) * 360;
+		overlay.style.background = `conic-gradient(transparent 0deg, transparent ${degrees}deg, rgba(0,0,0,0.75) ${degrees}deg)`;
+		const animationId = requestAnimationFrame(updateCooldown);
+		_activeAnimations.set(index, animationId);
+	}
+	const animationId = requestAnimationFrame(updateCooldown);
+	_activeAnimations.set(index, animationId);
+}
+/**
+* Drop something in the shortcut
+* Does the client allow other source than shortcut, inventory
+* and skill window to save to shortcut ?
+*/
+function onDrop$8(event, target) {
+	let data, element;
+	const index = parseInt(target.getAttribute("data-index"), 10);
+	const row = Math.floor(index / 9);
+	event.stopImmediatePropagation();
+	event.preventDefault();
+	try {
+		data = JSON.parse(event.dataTransfer.getData("Text"));
+		element = data.data;
+	} catch (_e) {
+		return;
+	}
+	if (data.type !== "item" && data.type !== "skill") return;
+	switch (data.from) {
+		case "SkillList":
+		case "Guild":
+		case "SkillListMH":
+			ShortCut.removeElement(true, element.SKID, row, element.selectedLevel ? element.selectedLevel : element.level);
+			ShortCut.addElement(index, true, element.SKID, element.selectedLevel ? element.selectedLevel : element.level);
+			ShortCut.onChange(index, true, element.SKID, element.selectedLevel ? element.selectedLevel : element.level);
+			break;
+		case "Inventory":
+			ShortCut.removeElement(false, element.ITID, row);
+			ShortCut.addElement(index, false, element.ITID, 0);
+			ShortCut.onChange(index, false, element.ITID, 0);
+			break;
+		case "ShortCut":
+			ShortCut.removeElement(element.isSkill, element.ID, row, element.isSkill ? element.count : null);
+			ShortCut.addElement(index, element.isSkill, element.ID, element.count);
+			ShortCut.onChange(index, element.isSkill, element.ID, element.count);
+	}
+}
+/**
+* Stop the drag and drop
+*/
+function onDragEnd(icon) {
+	delete window._OBJ_DRAG_;
+	icon.classList.remove("hide");
+}
+/**
+* Prepare data to be stored in the dragged element
+* to change position in the shortcut.
+*/
+function onDragStart$2(event, icon) {
+	const index = parseInt(icon.parentNode.getAttribute("data-index"), 10);
+	icon.classList.add("hide");
+	const img = new Image();
+	img.decoding = "async";
+	img.src = icon.querySelector(".img").style.backgroundImage.match(/\(([^)]+)/)[1].replace(/"/g, "");
+	event.dataTransfer.setDragImage(img, 12, 12);
+	event.dataTransfer.setData("Text", JSON.stringify(window._OBJ_DRAG_ = {
+		type: _list$4[index].isSkill ? "skill" : "item",
+		from: "ShortCut",
+		data: _list$4[index]
+	}));
+}
+/**
+* Get informations from a skill/item when
+* using right click on it.
+*/
+function onElementInfo(event, icon) {
+	const index = parseInt(icon.parentNode.getAttribute("data-index"), 10);
+	const element = _list$4[index];
+	event.stopImmediatePropagation();
+	event.preventDefault();
+	if (element.isSkill) {
+		if (SkillDescription_default.uid === _list$4[index].ID) SkillDescription_default.remove();
+		else {
+			SkillDescription_default.append();
+			SkillDescription_default.setSkill(_list$4[index].ID);
+		}
+	} else {
+		if (ItemInfo_default.uid === _list$4[index].ID) {
+			ItemInfo_default.remove();
+			return;
+		}
+		ItemInfo_default.append();
+		ItemInfo_default.uid = _list$4[index].ID;
+		ItemInfo_default.setItem(InventoryController.getUI().getItemById(_list$4[index].ID));
+	}
+}
+/**
+* Double-click on a shortcut
+*/
+function onUseShortCut(icon) {
+	clickElement(parseInt(icon.parentNode.getAttribute("data-index"), 10));
+}
+/**
+* Clicking on a shortcut
+*
+* @param {number} shortcut index
+*/
+function clickElement(index) {
+	const shortcut = _list$4[index];
+	SkillTargetSelection_default.remove();
+	if (!shortcut) return;
+	if (shortcut.isSkill) ShortCut.useSkill(shortcut.ID, shortcut.count);
+	else {
+		const item = InventoryController.getUI().getItemById(_list$4[index].ID);
+		if (item) InventoryController.getUI().useItem(item);
+	}
+}
+/**
+* Closing the window
+*/
+function onClose$5() {
+	ShortCut._host.style.height = "0px";
+	_preferences$23.size = 0;
+	_preferences$23.save();
+}
+/**
+* Hook Inventory, get informations when there is a change
+* to update the shortcut
+*
+* @param {number} index
+* @param {number} count
+*/
+function onUpdateItem(index, count) {
+	ShortCut.setElement(false, index, count);
+}
+/**
+* Hook Skill List, get informations when there is a change
+* to update the shortcut
+*
+* @param {number} skill id
+* @param {number} level
+*/
+function onUpdateSkill(id, level) {
+	ShortCut.setElement(true, id, level);
+}
+function onUpdateOwnerName$1() {
+	for (const index in _list$4) if (!_list$4[index].isSkill) ShortCut.setElement(false, _list$4[index].ID, _list$4[index].count);
+}
+function convertHotkeysToServerFormat() {
+	const serverData = {
+		Type: 1,
+		data: {
+			EmotionHotkey: [],
+			UserHotkey_V2: { SkillBar_1Tab: [] }
+		}
+	};
+	[
+		"Macro1",
+		"Macro2",
+		"Macro3",
+		"Macro4",
+		"Macro5",
+		"Macro6",
+		"Macro7",
+		"Macro8",
+		"Macro9",
+		"Macro10"
+	].forEach((key, index) => {
+		const shortcut = ShortCutControls_default.ShortCuts[key];
+		if (shortcut && shortcut.cust && shortcut.cust.emotion) serverData.data.EmotionHotkey[index] = shortcut.cust.emotion;
+	});
+	[
+		"F1_1",
+		"F1_2",
+		"F1_3",
+		"F1_4",
+		"F1_5",
+		"F1_6",
+		"F1_7",
+		"F1_8",
+		"F1_9",
+		"F2_1",
+		"F2_2",
+		"F2_3",
+		"F2_4",
+		"F2_5",
+		"F2_6",
+		"F2_7",
+		"F2_8",
+		"F2_9",
+		"F3_1",
+		"F3_2",
+		"F3_3",
+		"F3_4",
+		"F3_5",
+		"F3_6",
+		"F3_7",
+		"F3_8",
+		"F3_9",
+		"F4_1",
+		"F4_2",
+		"F4_3",
+		"F4_4",
+		"F4_5",
+		"F4_6",
+		"F4_7",
+		"F4_8",
+		"F4_9"
+	].forEach((key, index) => {
+		const shortcut = ShortCutControls_default.ShortCuts[key];
+		if (shortcut) {
+			const keyData = shortcut.cust || shortcut.init;
+			serverData.data.UserHotkey_V2.SkillBar_1Tab.push({
+				desc: `Skill ${index + 1}`,
+				index,
+				key1: keyData.key || 0,
+				key2: 0
+			});
+		}
+	});
+	return serverData;
+}
+function convertHotkeysFromServerFormat(serverData) {
+	if (!serverData || !serverData.data) return;
+	if (serverData.data.EmotionHotkey) {
+		const emotionKeys = [
+			"Macro1",
+			"Macro2",
+			"Macro3",
+			"Macro4",
+			"Macro5",
+			"Macro6",
+			"Macro7",
+			"Macro8",
+			"Macro9",
+			"Macro10"
+		];
+		serverData.data.EmotionHotkey.forEach((emotion, index) => {
+			if (emotion && emotionKeys[index]) {
+				if (!ShortCutControls_default.ShortCuts[emotionKeys[index]].cust) ShortCutControls_default.ShortCuts[emotionKeys[index]].cust = {};
+				ShortCutControls_default.ShortCuts[emotionKeys[index]].cust.emotion = emotion;
+			}
+		});
+	}
+	if (serverData.data.UserHotkey_V2 && serverData.data.UserHotkey_V2.SkillBar_1Tab) {
+		const shortcutKeys = [
+			"F1_1",
+			"F1_2",
+			"F1_3",
+			"F1_4",
+			"F1_5",
+			"F1_6",
+			"F1_7",
+			"F1_8",
+			"F1_9",
+			"F2_1",
+			"F2_2",
+			"F2_3",
+			"F2_4",
+			"F2_5",
+			"F2_6",
+			"F2_7",
+			"F2_8",
+			"F2_9",
+			"F3_1",
+			"F3_2",
+			"F3_3",
+			"F3_4",
+			"F3_5",
+			"F3_6",
+			"F3_7",
+			"F3_8",
+			"F3_9",
+			"F4_1",
+			"F4_2",
+			"F4_3",
+			"F4_4",
+			"F4_5",
+			"F4_6",
+			"F4_7",
+			"F4_8",
+			"F4_9"
+		];
+		serverData.data.UserHotkey_V2.SkillBar_1Tab.forEach((skillData) => {
+			if (skillData && skillData.index < shortcutKeys.length) {
+				const key = shortcutKeys[skillData.index];
+				if (key && skillData.key1) {
+					if (!ShortCutControls_default.ShortCuts[key].cust) ShortCutControls_default.ShortCuts[key].cust = {};
+					ShortCutControls_default.ShortCuts[key].cust.key = skillData.key1;
+				}
+			}
+		});
+	}
+}
+function haveHotkeysChanged(currentData) {
+	if (!_lastServerHotkeys) return true;
+	return JSON.stringify(currentData) !== JSON.stringify(_lastServerHotkeys);
+}
+var ShortCut, _list$4, _rowCount, _lastServerHotkeys, _activeAnimations, _preferences$23, ShortCut_default;
+var init_ShortCut = __esmMin((() => {
+	init_DBManager();
+	init_ItemType();
+	init_SkillInfo();
+	init_SkillConst();
+	init_Client();
+	init_Preferences$1();
+	init_SessionStorage();
+	init_Renderer();
+	init_MouseEventHandler();
+	init_UIManager();
+	init_GUIComponent();
+	init_ItemInfo();
+	init_Inventory();
+	init_SkillListMH();
+	init_SkillDescription();
+	init_SkillTargetSelection();
+	init_Guild$1();
+	init_ShortCutControls();
+	init_KeyEventHandler();
+	init_Configs();
+	init_PacketVerManager();
+	init_SkillList();
+	init_ShortCut$2();
+	init_ShortCut$1();
+	ShortCut = new GUIComponent("ShortCut", ShortCut_default$1);
+	ShortCut.render = () => ShortCut_default$2;
+	_list$4 = [];
+	_rowCount = 0;
+	_lastServerHotkeys = null;
+	_activeAnimations = /* @__PURE__ */ new Map();
+	_preferences$23 = Preferences.get("ShortCut", {
+		x: 480,
+		y: 0,
+		size: 1,
+		magnet_top: true,
+		magnet_bottom: false,
+		magnet_left: false,
+		magnet_right: false
+	}, 1);
+	/**
+	* Initialize UI
+	*/
+	ShortCut.init = function init() {
+		const root = ShortCut.getRoot();
+		const resizeBtn = root.querySelector(".resize");
+		if (resizeBtn) resizeBtn.addEventListener("mousedown", onResize$3);
+		const closeBtn = root.querySelector(".close");
+		if (closeBtn) {
+			closeBtn.addEventListener("mousedown", (e) => {
+				e.stopImmediatePropagation();
+				e.preventDefault();
+			});
+			closeBtn.addEventListener("click", onClose$5);
+		}
+		const container = root.querySelector("#ShortCut");
+		container.addEventListener("drop", (e) => {
+			const target = e.target.closest(".container");
+			if (target) onDrop$8(e, target);
+		});
+		container.addEventListener("dragover", (e) => {
+			if (e.target.closest(".container")) {
+				e.stopImmediatePropagation();
+				e.preventDefault();
+			}
+		});
+		container.addEventListener("dragstart", (e) => {
+			const icon = e.target.closest(".icon");
+			if (icon) onDragStart$2(e, icon);
+		});
+		container.addEventListener("dragend", (e) => {
+			const icon = e.target.closest(".icon");
+			if (icon) onDragEnd(icon);
+		});
+		container.addEventListener("dblclick", (e) => {
+			const icon = e.target.closest(".icon");
+			if (icon) onUseShortCut(icon);
+		});
+		container.addEventListener("contextmenu", (e) => {
+			const icon = e.target.closest(".icon");
+			if (icon) onElementInfo(e, icon);
+		});
+		container.addEventListener("mousedown", (e) => {
+			if (e.target.closest(".icon")) e.stopImmediatePropagation();
+		});
+		this.draggable();
+		root.querySelectorAll(".container").forEach((el) => {
+			el.addEventListener("mouseenter", onContainerMouseEnter);
+			el.addEventListener("mouseleave", onContainerMouseLeave);
+		});
+		DB.UpdateOwnerName.ShortCut = onUpdateOwnerName$1;
+		InventoryController.getUI().onUpdateItem = onUpdateItem;
+	};
+	/**
+	* Append to body
+	*/
+	ShortCut.onAppend = function onAppend() {
+		this._host.style.height = `${34 * _preferences$23.size}px`;
+		const rect = this._host.getBoundingClientRect();
+		this._host.style.top = `${Math.min(Math.max(0, _preferences$23.y), Renderer.height - rect.height)}px`;
+		this._host.style.left = `${Math.min(Math.max(0, _preferences$23.x), Renderer.width - rect.width)}px`;
+		this.magnet.TOP = _preferences$23.magnet_top;
+		this.magnet.BOTTOM = _preferences$23.magnet_bottom;
+		this.magnet.LEFT = _preferences$23.magnet_left;
+		this.magnet.RIGHT = _preferences$23.magnet_right;
+		Controller$4.getUI().onUpdateSkill = onUpdateSkill;
+		updateEmptySlotTooltips();
+	};
+	/**
+	* When removed, clean up
+	*/
+	ShortCut.onRemove = function onRemove() {
+		const tooltip = ShortCut.getRoot().querySelector(".shortcut-tooltip");
+		if (tooltip) tooltip.classList.remove("show");
+		for (const [index, animationId] of _activeAnimations.entries()) cancelAnimationFrame(animationId);
+		_activeAnimations.clear();
+		_preferences$23.y = parseInt(this._host.style.top, 10);
+		_preferences$23.x = parseInt(this._host.style.left, 10);
+		_preferences$23.size = Math.floor(parseInt(this._host.style.height, 10) / 34);
+		_preferences$23.magnet_top = this.magnet.TOP;
+		_preferences$23.magnet_bottom = this.magnet.BOTTOM;
+		_preferences$23.magnet_left = this.magnet.LEFT;
+		_preferences$23.magnet_right = this.magnet.RIGHT;
+		_preferences$23.save();
+	};
+	/**
+	* Request to clean the list
+	* Used only from MapEngine when exiting the game
+	*/
+	ShortCut.clean = function clean() {
+		for (const [index, animationId] of _activeAnimations.entries()) cancelAnimationFrame(animationId);
+		_activeAnimations.clear();
+		_list$4.length = 0;
+		ShortCut.getRoot().querySelectorAll(".container").forEach((el) => {
+			el.innerHTML = "";
+		});
+	};
+	/**
+	* Process shortcut
+	*
+	* @param {object} key
+	*/
+	ShortCut.onShortCut = function onShortCut(key) {
+		switch (key.cmd.replace(/\d+$/, "")) {
+			case "EXECUTE":
+				clickElement(parseInt(key.cmd.match(/\d+$/).toString(), 10));
+				break;
+			case "EXTEND":
+				_preferences$23.size = (_preferences$23.size + 1) % (_rowCount + 1);
+				_preferences$23.save();
+				this._host.style.height = `${_preferences$23.size * 34}px`;
+		}
+	};
+	ShortCut.useSkill = function useSkill(id, level) {
+		getSkillOwner(id).useSkillID(id, level);
+	};
+	ShortCut.getSkillById = function getSkillById(id) {
+		return getSkillOwner(id).getSkillById(id);
+	};
+	/**
+	* Bind UI with list of shortcut
+	*
+	* @param {Array} shortcut list
+	*/
+	ShortCut.setList = function setList(list) {
+		let skill;
+		let needGuildSkills = false;
+		ShortCut.getRoot().querySelectorAll(".container").forEach((el) => {
+			el.innerHTML = "";
+		});
+		_list$4.length = list.length;
+		_rowCount = Math.min(4, Math.floor(list.length / 9));
+		for (let i = 0, count = list.length; i < count; ++i) if (list[i].isSkill) {
+			skill = ShortCut.getSkillById(list[i].ID);
+			if (getSkillOwner(list[i].ID) === Guild_default) needGuildSkills = true;
+			if (skill && skill.level) ShortCut.addElement(i, true, list[i].ID, list[i].count || skill.level);
+			else {
+				if (!_list$4[i]) _list$4[i] = {};
+				_list$4[i].isSkill = true;
+				_list$4[i].ID = list[i].ID;
+				_list$4[i].count = list[i].count;
+			}
+		} else ShortCut.addElement(i, list[i].isSkill, list[i].ID, list[i].count);
+		if (needGuildSkills) ShortCut.onRequestGuildSkills();
+	};
+	/**
+	* Hook: ask the server for the guild skill list (set by MapEngine/Guild)
+	*/
+	ShortCut.onRequestGuildSkills = function onRequestGuildSkills() {};
+	/**
+	* Update all tooltips (for both empty and filled slots)
+	* Called when hotkey settings change
+	*/
+	ShortCut.updateAllTooltips = function updateAllTooltips() {
+		const root = ShortCut.getRoot();
+		for (let i = 0, size = _list$4.length; i < size; ++i) {
+			const container = root.querySelector(`.container[data-index="${i}"]`);
+			if (!container) continue;
+			const hotkey = getHotKeyString(i);
+			if (!_list$4[i] || !_list$4[i].isSkill && !_list$4[i].ID) {
+				if (hotkey) container.setAttribute("data-tooltip", hotkey);
+			} else if (_list$4[i] && (_list$4[i].isSkill || _list$4[i].ID)) {
+				let name = "";
+				if (_list$4[i].isSkill && SkillInfo[_list$4[i].ID]) name = SkillInfo[_list$4[i].ID].SkillName;
+				else if (_list$4[i].ID) {
+					const item = InventoryController.getUI().getItemById(_list$4[i].ID);
+					if (item) name = DB.getItemName(item);
+				}
+				if (name) {
+					const tooltipText = hotkey ? `[ ${hotkey} ] ${name}` : name;
+					container.setAttribute("data-tooltip", tooltipText);
+				}
+			}
+		}
+	};
+	ShortCut.setElement = function setElement(isSkill, ID, count) {
+		for (let i = 0, size = _list$4.length; i < size; ++i) if (_list$4[i] && _list$4[i].isSkill == isSkill && _list$4[i].ID === ID) {
+			if (isSkill && _list$4[i].count && _list$4[i].count <= count) ShortCut.addElement(i, isSkill, ID, _list$4[i].count);
+			else ShortCut.addElement(i, isSkill, ID, count);
+		}
+	};
+	/**
+	* Add an element to shortcut
+	*
+	* @param {number} index of the element
+	* @param {boolean} is a skill ?
+	* @param {number} ID
+	* @param {number} count or level
+	*/
+	ShortCut.addElement = function addElement(index, isSkill, ID, count) {
+		let file, name;
+		const ui = ShortCut.getRoot().querySelector(`.container[data-index="${index}"]`);
+		if (!ui) return;
+		ui.innerHTML = "";
+		if (!_list$4[index]) _list$4[index] = {};
+		_list$4[index].isSkill = isSkill;
+		_list$4[index].ID = ID;
+		if (isSkill) {
+			if (!count) return;
+			else {
+				_list$4[index].count = count;
+				file = SkillInfo[ID].Name;
+				name = SkillInfo[ID].SkillName;
+			}
+		} else {
+			_list$4[index].count = count;
+			const item = InventoryController.getUI().getItemById(ID);
+			if (!item) return;
+			const it = DB.getItemInfo(ID);
+			file = item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName;
+			name = DB.getItemName(item);
+			if (item.type === ItemType_default.WEAPON || item.type === ItemType_default.ARMOR || item.type === ItemType_default.SHADOWGEAR) count = 1;
+			else count = item.count;
+			if (!count) return;
+		}
+		const hotkey = getHotKeyString(index);
+		const tooltipText = hotkey ? `[ ${hotkey} ] ${name}` : name;
+		Client.loadFile(`${DB.INTERFACE_PATH}item/${file}.bmp`, (url) => {
+			ui.innerHTML = "<div draggable=\"true\" class=\"icon\"><div class=\"img\"></div><div class=\"amount\"></div></div>";
+			ui.querySelector(".img").style.backgroundImage = `url(${url})`;
+			ui.querySelector(".amount").textContent = count;
+			ui.setAttribute("data-tooltip", tooltipText);
+		});
+	};
+	/**
+	* Displays the cooldown over every skill
+	*
+	* @param {number} delay in ms
+	*/
+	ShortCut.setGlobalSkillDelay = function setGlobalSkillDelay(delay) {
+		_list$4.forEach((element, index) => {
+			if (element.isSkill) setDelayOnIndex(index, delay);
+		});
+	};
+	/**
+	* Displays the cooldown over a single skill
+	*
+	* @param {number} ID of the skill
+	* @param {number} delay in ms
+	*/
+	ShortCut.setSkillDelay = function setSkillDelay(ID, delay) {
+		_list$4.forEach((element, index) => {
+			if (element.isSkill && element.ID == ID) setDelayOnIndex(index, delay);
+		});
+	};
+	/**
+	* Remove an element from shortcut
+	*
+	* @param {boolean} is a skill ?
+	* @param {number} ID of the element to remove
+	* @param {number} row id
+	* @param {number} amount (optional)
+	*/
+	ShortCut.removeElement = function removeElement(isSkill, ID, row, amount) {
+		if (!ID) return;
+		const root = ShortCut.getRoot();
+		for (let i = row * 9, count = Math.min(_list$4.length, row * 9 + 9); i < count; ++i) if (_list$4[i] && _list$4[i].isSkill == isSkill && _list$4[i].ID === ID && (!isSkill || _list$4[i].count == amount)) {
+			const container = root.querySelector(`.container[data-index="${i}"]`);
+			if (container) container.innerHTML = "";
+			_list$4[i].isSkill = 0;
+			_list$4[i].ID = 0;
+			_list$4[i].count = 0;
+			ShortCut.onChange(i, 0, 0, 0);
+		}
+	};
+	Guild_default.onUpdateSkill = (id, level) => {
+		ShortCut.setElement(true, id, level);
+	};
+	SkillListMH_default.mercenary.onUpdateSkill = (id, level) => {
+		ShortCut.setElement(true, id, level);
+	};
+	SkillListMH_default.homunculus.onUpdateSkill = (id, level) => {
+		ShortCut.setElement(true, id, level);
+	};
+	/**
+	* Method to define to notify a change.
+	*
+	* @param {number} index
+	* @param {boolean} isSkill
+	* @param {number} id
+	* @param {number} count
+	*/
+	ShortCut.onChange = function onChange() {};
+	ShortCut.saveToServer = function saveToServer() {
+		if (PacketVerManager_default.value >= 20170315 && SessionStorage_default.WebToken) {
+			const hotkeys = JSON.stringify(convertHotkeysToServerFormat());
+			if (!haveHotkeysChanged(hotkeys)) return;
+			const formData = new FormData();
+			formData.append("AID", SessionStorage_default.AID);
+			formData.append("WorldName", SessionStorage_default.ServerName);
+			formData.append("AuthToken", SessionStorage_default.WebToken);
+			formData.append("data", hotkeys);
+			const xhr = new XMLHttpRequest();
+			let webserverAddress = "";
+			if (window.location.protocol !== "http:" && window.location.protocol !== "https:") webserverAddress = Configs.get("webserverAddress", "http://127.0.0.1:8888");
+			xhr.open("POST", `${webserverAddress}/userconfig/save`, true);
+			xhr.timeout = 5e3;
+			xhr.onload = () => {
+				if (xhr.status === 200) console.log("Hotkeys saved to server successfully");
+				else console.warn("Hotkey save returned non-200 status:", xhr.status);
+			};
+			xhr.onerror = () => {
+				console.warn("Hotkey save failed: web-server unreachable");
+			};
+			xhr.ontimeout = () => {
+				console.warn("Hotkey save timed out");
+			};
+			xhr.send(formData);
+		}
+	};
+	ShortCut.loadFromServer = function loadFromServer(callback) {
+		if (PacketVerManager_default.value >= 20170315 && SessionStorage_default.WebToken) {
+			const formData = new FormData();
+			formData.append("AID", SessionStorage_default.AID);
+			formData.append("WorldName", SessionStorage_default.ServerName);
+			formData.append("AuthToken", SessionStorage_default.WebToken);
+			const xhr = new XMLHttpRequest();
+			let webserverAddress = "";
+			if (window.location.protocol !== "http:" && window.location.protocol !== "https:") webserverAddress = Configs.get("webserverAddress", "http://127.0.0.1:8888");
+			xhr.open("POST", `${webserverAddress}/userconfig/load`, true);
+			xhr.timeout = 5e3;
+			xhr.onload = () => {
+				if (xhr.status === 200) try {
+					const serverData = JSON.parse(xhr.responseText);
+					_lastServerHotkeys = JSON.parse(JSON.stringify(serverData));
+					convertHotkeysFromServerFormat(serverData);
+				} catch (e) {
+					console.error("Error parsing server hotkeys:", e);
+				}
+				else console.warn("Hotkey load returned non-200 status:", xhr.status);
+				if (callback) callback();
+			};
+			xhr.onerror = () => {
+				console.warn("Hotkey load failed: web-server unreachable");
+				if (callback) callback();
+			};
+			xhr.ontimeout = () => {
+				console.warn("Hotkey load timed out");
+				if (callback) callback();
+			};
+			xhr.send(formData);
+		} else if (callback) callback();
+	};
+	ShortCut.getList = function getList() {
+		return _list$4;
+	};
+	ShortCut_default = UIManager.addComponent(ShortCut);
+}));
+//#endregion
 //#region src/Engine/MapEngine/Guild.js
 function adler32(data) {
 	let s1 = 1;
@@ -245290,6 +246213,10 @@ function onGuildOwnInfo(pkt) {
 	if (pkt.GName) SessionStorage_default.guildName = pkt.GName;
 	SessionStorage_default.Entity.GUID = pkt.GDID;
 	SessionStorage_default.Entity.GEmblemVer = pkt.emblemVersion;
+	if (_pendingGuildSkillRequest) {
+		_pendingGuildSkillRequest = false;
+		GuildEngine.requestInfo(3);
+	}
 	if (pkt.GDID && pkt.emblemVersion) GuildEngine.requestGuildEmblem(pkt.GDID, pkt.emblemVersion, (image, gif) => {
 		SessionStorage_default.Entity.setEntityGuildEmblem(image, gif);
 	});
@@ -245585,7 +246512,7 @@ function onGuildHostilityResult(pkt) {
 	}
 }
 function onGuildCastleInfo(pkt) {}
-var _emblems, GuildEngine, onGuildEmblem;
+var _emblems, _pendingGuildSkillRequest, GuildEngine, onGuildEmblem;
 var init_Guild = __esmMin((() => {
 	init_DBManager();
 	init_Inflate();
@@ -245602,7 +246529,9 @@ var init_Guild = __esmMin((() => {
 	init_UIManager();
 	init_Configs();
 	init_MiniMap();
+	init_ShortCut();
 	_emblems = {};
+	_pendingGuildSkillRequest = false;
 	GuildEngine = class GuildEngine {
 		/**
 		* @var {number} our guild id
@@ -245664,6 +246593,14 @@ var init_Guild = __esmMin((() => {
 			Guild_default.onRequestBreakGuild = GuildEngine.breakGuild;
 			Guild_default.onRequestGuildEmblem = GuildEngine.requestGuildEmblem;
 			Guild_default.onSendEmblem = GuildEngine.sendEmblem;
+			ShortCut_default.onRequestGuildSkills = GuildEngine.requestGuildSkills;
+		}
+		/**
+		* Request the guild skill list, deferred until we know the player has a guild
+		*/
+		static requestGuildSkills() {
+			if (SessionStorage_default.hasGuild) GuildEngine.requestInfo(3);
+			else _pendingGuildSkillRequest = true;
 		}
 		/**
 		* Ask server to get guild informations
@@ -246035,46 +246972,6 @@ var init_Guild = __esmMin((() => {
 			}
 		};
 	})();
-}));
-//#endregion
-//#region src/UI/Components/SkillListMH/SkillListMH.js
-/**
-* Build a Homunculus/Mercenary skill window on top of the shared SkillList
-* factory, using its list-only (old-style) mode and layering the MH-specific
-* bits (window name, titlebar text, drag origin, Escape-to-close) on top.
-*/
-function createSkillListMH(type) {
-	const component = createSkillList({
-		name: `SkillList${type === "homunculus" ? "HOM" : "MER"}`,
-		htmlText: SkillList_default$2,
-		cssText: SkillList_default$1,
-		listOnly: true,
-		dragFrom: "SkillListMH",
-		titlebarText: type === "homunculus" ? "Homunculus Skills" : "Mercenary Skills",
-		containerSelector: ".SkillList",
-		preferenceDefaults: {
-			x: 100,
-			y: 200,
-			width: 8,
-			height: 5,
-			show: false
-		}
-	});
-	component.onKeyDown = function onKeyDown(event) {
-		if ((event.which === KEYS.ESCAPE || event.key === "Escape") && this.ui.is(":visible")) this.toggle();
-	};
-	return component;
-}
-var SkillListMH_default;
-var init_SkillListMH = __esmMin((() => {
-	init_KeyEventHandler();
-	init_SkillListCommon();
-	init_SkillList$3();
-	init_SkillList$2();
-	SkillListMH_default = {
-		homunculus: createSkillListMH("homunculus"),
-		mercenary: createSkillListMH("mercenary")
-	};
 }));
 //#endregion
 //#region src/Core/AIDriver.js
@@ -246474,7 +247371,7 @@ var init_HomunInformations$1 = __esmMin((() => {
 * Checks if homun should be fed or not
 */
 function autoFeedCheck() {
-	if (_preferences$23.autoFeed != 1) return;
+	if (_preferences$22.autoFeed != 1) return;
 	const player = SessionStorage_default.Entity;
 	if (!player) return;
 	if (player.life.hp <= 0) return;
@@ -246489,11 +247386,11 @@ function autoFeedCheck() {
 * Toggle AutoFeed
 */
 function homunToggleAutoFeed() {
-	HomunInformations.setFeedConfig(_preferences$23.autoFeed == 1 ? 0 : 1);
+	HomunInformations.setFeedConfig(_preferences$22.autoFeed == 1 ? 0 : 1);
 	if (PacketVerManager_default.value < 20170920) return;
-	HomunInformations.onConfigUpdate(3, _preferences$23.autoFeed ? 1 : 0);
+	HomunInformations.onConfigUpdate(3, _preferences$22.autoFeed ? 1 : 0);
 }
-var autoFeedInterval, autoFeedIntervalMs, autoFeedPercent, HomunInformations, _preferences$23, HomunInformations_default;
+var autoFeedInterval, autoFeedIntervalMs, autoFeedPercent, HomunInformations, _preferences$22, HomunInformations_default;
 var init_HomunInformations = __esmMin((() => {
 	init_DBManager();
 	init_Client();
@@ -246516,7 +247413,7 @@ var init_HomunInformations = __esmMin((() => {
 	HomunInformations = new GUIComponent("HomunInformations", HomunInformations_default$1);
 	HomunInformations.render = () => HomunInformations_default$2;
 	HomunInformations.captureKeyEvents = true;
-	_preferences$23 = Preferences.get("HomunInformations", {
+	_preferences$22 = Preferences.get("HomunInformations", {
 		x: 100,
 		y: 200,
 		show: false,
@@ -246556,7 +247453,7 @@ var init_HomunInformations = __esmMin((() => {
 		if (autoFeedBtn) autoFeedBtn.addEventListener("click", () => {
 			homunToggleAutoFeed();
 		});
-		if (!_preferences$23.show) this._host.style.display = "none";
+		if (!_preferences$22.show) this._host.style.display = "none";
 		const skillBtn = root.querySelector(".skill");
 		if (skillBtn) skillBtn.addEventListener("mousedown", () => {
 			SkillListMH_default.homunculus.toggle();
@@ -246566,7 +247463,7 @@ var init_HomunInformations = __esmMin((() => {
 	};
 	HomunInformations.onAppend = function onAppend() {
 		const root = HomunInformations.getRoot();
-		Client.loadFile(DB.INTERFACE_PATH + `checkbox_${_preferences$23.autoFeed ? "1" : "0"}.bmp`, (data) => {
+		Client.loadFile(DB.INTERFACE_PATH + `checkbox_${_preferences$22.autoFeed ? "1" : "0"}.bmp`, (data) => {
 			const el = root.querySelector(".homun_auto_feed");
 			if (el) el.style.backgroundImage = `url(${data})`;
 		});
@@ -246577,8 +247474,8 @@ var init_HomunInformations = __esmMin((() => {
 				if (feeding) feeding.style.display = "none";
 			}
 		}
-		this._host.style.top = `${Math.min(Math.max(0, _preferences$23.y), Renderer.height - this._host.getBoundingClientRect().height)}px`;
-		this._host.style.left = `${Math.min(Math.max(0, _preferences$23.x), Renderer.width - this._host.getBoundingClientRect().width)}px`;
+		this._host.style.top = `${Math.min(Math.max(0, _preferences$22.y), Renderer.height - this._host.getBoundingClientRect().height)}px`;
+		this._host.style.left = `${Math.min(Math.max(0, _preferences$22.x), Renderer.width - this._host.getBoundingClientRect().width)}px`;
 	};
 	HomunInformations.startAutoFeed = function startAutoFeed() {
 		window.clearInterval(autoFeedInterval);
@@ -246592,10 +247489,10 @@ var init_HomunInformations = __esmMin((() => {
 	* Once remove from body, save user preferences
 	*/
 	HomunInformations.onRemove = function onRemove() {
-		_preferences$23.show = this._host.style.display !== "none";
-		_preferences$23.y = parseInt(this._host.style.top, 10);
-		_preferences$23.x = parseInt(this._host.style.left, 10);
-		_preferences$23.save();
+		_preferences$22.show = this._host.style.display !== "none";
+		_preferences$22.y = parseInt(this._host.style.top, 10);
+		_preferences$22.x = parseInt(this._host.style.left, 10);
+		_preferences$22.save();
 		HomunInformations.stopAutoFeed();
 		this.stopAI();
 	};
@@ -246836,10 +247733,10 @@ var init_HomunInformations = __esmMin((() => {
 		this.startAI();
 	};
 	HomunInformations.setFeedConfig = function setFeedConfig(flag) {
-		_preferences$23.autoFeed = flag;
-		_preferences$23.save();
+		_preferences$22.autoFeed = flag;
+		_preferences$22.save();
 		const root = HomunInformations.getRoot();
-		if (root) Client.loadFile(DB.INTERFACE_PATH + `checkbox_${_preferences$23.autoFeed ? "1" : "0"}.bmp`, (data) => {
+		if (root) Client.loadFile(DB.INTERFACE_PATH + `checkbox_${_preferences$22.autoFeed ? "1" : "0"}.bmp`, (data) => {
 			const el = root.querySelector(".homun_auto_feed");
 			if (el) el.style.backgroundImage = `url(${data})`;
 		});
@@ -246871,7 +247768,7 @@ var init_MercenaryInformations$1 = __esmMin((() => {
 }));
 //#endregion
 //#region src/UI/Components/MercenaryInformations/MercenaryInformations.js
-var MercenaryInformations, _preferences$22, MercenaryInformations_default;
+var MercenaryInformations, _preferences$21, MercenaryInformations_default;
 var init_MercenaryInformations = __esmMin((() => {
 	init_DBManager();
 	init_Client();
@@ -246889,7 +247786,7 @@ var init_MercenaryInformations = __esmMin((() => {
 	init_MercenaryInformations$1();
 	MercenaryInformations = new GUIComponent("MercenaryInformations", MercenaryInformations_default$1);
 	MercenaryInformations.render = () => MercenaryInformations_default$2;
-	_preferences$22 = Preferences.get("MercenaryInformations", {
+	_preferences$21 = Preferences.get("MercenaryInformations", {
 		x: 100,
 		y: 100,
 		show: false,
@@ -246918,7 +247815,7 @@ var init_MercenaryInformations = __esmMin((() => {
 		if (dismissBtn) dismissBtn.addEventListener("click", () => {
 			MercenaryInformations.reqDeleteMercenary();
 		});
-		if (!_preferences$22.show) this._host.style.display = "none";
+		if (!_preferences$21.show) this._host.style.display = "none";
 		const skillBtn = root.querySelector(".skill");
 		if (skillBtn) skillBtn.addEventListener("mousedown", () => {
 			SkillListMH_default.mercenary.toggle();
@@ -246930,18 +247827,18 @@ var init_MercenaryInformations = __esmMin((() => {
 	* Once append to body
 	*/
 	MercenaryInformations.onAppend = function onAppend() {
-		if (!_preferences$22.show) this._host.style.display = "none";
-		this._host.style.top = `${Math.min(Math.max(0, _preferences$22.y), Renderer.height - this._host.getBoundingClientRect().height)}px`;
-		this._host.style.left = `${Math.min(Math.max(0, _preferences$22.x), Renderer.width - this._host.getBoundingClientRect().width)}px`;
+		if (!_preferences$21.show) this._host.style.display = "none";
+		this._host.style.top = `${Math.min(Math.max(0, _preferences$21.y), Renderer.height - this._host.getBoundingClientRect().height)}px`;
+		this._host.style.left = `${Math.min(Math.max(0, _preferences$21.x), Renderer.width - this._host.getBoundingClientRect().width)}px`;
 	};
 	/**
 	* Once remove from body
 	*/
 	MercenaryInformations.onRemove = function onRemove() {
-		_preferences$22.show = this._host.style.display !== "none";
-		_preferences$22.y = parseInt(this._host.style.top, 10);
-		_preferences$22.x = parseInt(this._host.style.left, 10);
-		_preferences$22.save();
+		_preferences$21.show = this._host.style.display !== "none";
+		_preferences$21.y = parseInt(this._host.style.top, 10);
+		_preferences$21.x = parseInt(this._host.style.left, 10);
+		_preferences$21.save();
 		this.stopAI();
 	};
 	/**
@@ -247167,7 +248064,7 @@ var init_CaptchaUpload$1 = __esmMin((() => {
 }));
 //#endregion
 //#region src/UI/Components/Captcha/CaptchaUpload.js
-var CaptchaUpload, _preferences$21, CaptchaUpload_default;
+var CaptchaUpload, _preferences$20, CaptchaUpload_default;
 var init_CaptchaUpload = __esmMin((() => {
 	init_UIManager();
 	init_GUIComponent();
@@ -247178,7 +248075,7 @@ var init_CaptchaUpload = __esmMin((() => {
 	init_CaptchaUpload$2();
 	init_CaptchaUpload$1();
 	CaptchaUpload = new GUIComponent("CaptchaUpload", CaptchaUpload_default$1);
-	_preferences$21 = Preferences.get("CaptchaUpload", {
+	_preferences$20 = Preferences.get("CaptchaUpload", {
 		x: 230,
 		y: 295
 	}, 2);
@@ -247249,16 +248146,16 @@ var init_CaptchaUpload = __esmMin((() => {
 	* Append to DOM
 	*/
 	CaptchaUpload.onAppend = function onAppend() {
-		this._host.style.top = `${Math.min(Math.max(0, _preferences$21.y), Renderer.height - this._host.offsetHeight)}px`;
-		this._host.style.left = `${Math.min(Math.max(0, _preferences$21.x), Renderer.width - this._host.offsetWidth)}px`;
+		this._host.style.top = `${Math.min(Math.max(0, _preferences$20.y), Renderer.height - this._host.offsetHeight)}px`;
+		this._host.style.left = `${Math.min(Math.max(0, _preferences$20.x), Renderer.width - this._host.offsetWidth)}px`;
 	};
 	/**
 	* Remove data from UI
 	*/
 	CaptchaUpload.onRemove = function onRemove() {
-		_preferences$21.y = parseInt(this._host.style.top, 10);
-		_preferences$21.x = parseInt(this._host.style.left, 10);
-		_preferences$21.save();
+		_preferences$20.y = parseInt(this._host.style.top, 10);
+		_preferences$20.x = parseInt(this._host.style.left, 10);
+		_preferences$20.save();
 		const root = this.getRoot();
 		const previewBox = root.querySelector(".preview_box");
 		if (previewBox) previewBox.innerHTML = "";
@@ -247296,7 +248193,7 @@ var init_CaptchaSelector$1 = __esmMin((() => {
 }));
 //#endregion
 //#region src/UI/Components/Captcha/CaptchaSelector.js
-var CaptchaSelector, _preferences$20, _aidList, _aidInformation, _range, _active$2, CaptchaSelector_default;
+var CaptchaSelector, _preferences$19, _aidList, _aidInformation, _range, _active$2, CaptchaSelector_default;
 var init_CaptchaSelector = __esmMin((() => {
 	init_UIManager();
 	init_GUIComponent();
@@ -247310,7 +248207,7 @@ var init_CaptchaSelector = __esmMin((() => {
 	init_CaptchaSelector$2();
 	init_CaptchaSelector$1();
 	CaptchaSelector = new GUIComponent("CaptchaSelector", CaptchaSelector_default$1);
-	_preferences$20 = Preferences.get("CaptchaSelector", {
+	_preferences$19 = Preferences.get("CaptchaSelector", {
 		x: 230,
 		y: 295
 	}, 2);
@@ -247373,16 +248270,16 @@ var init_CaptchaSelector = __esmMin((() => {
 	* Append to DOM
 	*/
 	CaptchaSelector.onAppend = function onAppend() {
-		this._host.style.top = `${Math.min(Math.max(0, _preferences$20.y), Renderer.height - this._host.offsetHeight)}px`;
-		this._host.style.left = `${Math.min(Math.max(0, _preferences$20.x), Renderer.width - this._host.offsetWidth)}px`;
+		this._host.style.top = `${Math.min(Math.max(0, _preferences$19.y), Renderer.height - this._host.offsetHeight)}px`;
+		this._host.style.left = `${Math.min(Math.max(0, _preferences$19.x), Renderer.width - this._host.offsetWidth)}px`;
 	};
 	/**
 	* Remove data from UI
 	*/
 	CaptchaSelector.onRemove = function onRemove() {
-		_preferences$20.y = parseInt(this._host.style.top, 10);
-		_preferences$20.x = parseInt(this._host.style.left, 10);
-		_preferences$20.save();
+		_preferences$19.y = parseInt(this._host.style.top, 10);
+		_preferences$19.x = parseInt(this._host.style.left, 10);
+		_preferences$19.save();
 		const charInfo = this.getRoot().querySelector(".character_info");
 		if (charInfo) charInfo.style.display = "none";
 		this.cleanUIList();
@@ -253094,7 +253991,7 @@ function repeatEffect(effect) {
 function clean(name, AID, effectID) {
 	const effectIdList = Array.isArray(effectID) ? effectID : [effectID];
 	let i, count;
-	const list = _list$4[name];
+	const list = _list$3[name];
 	count = list.length;
 	for (i = 0; i < count; ++i) if ((!AID || list[i]._Params.Init.ownerAID === AID) && (!effectID || effectIdList.includes(list[i]._Params.Inst.effectID))) {
 		if (list[i].free) list[i].free(_gl);
@@ -253102,18 +253999,18 @@ function clean(name, AID, effectID) {
 		i--;
 		count--;
 	}
-	if (!count) delete _list$4[name];
+	if (!count) delete _list$3[name];
 }
 function cleanRepeat(name, AID, effectID) {
 	const effectIdList = Array.isArray(effectID) ? effectID : [effectID];
-	_list$4[name].forEach((item) => {
+	_list$3[name].forEach((item) => {
 		if ((!AID || item._Params.Init.ownerAID === AID) && (!effectID || effectIdList.includes(item.effectID))) {
 			if (item._Params.Inst.persistent) item._Params.Inst.persistent = false;
 			if (item._Params.Inst.repeatEnd) item._Params.Inst.repeatEnd = false;
 		}
 	});
 }
-var _gl, _list$4, _uniqueId, targetableUnits, traps, EffectManager;
+var _gl, _list$3, _uniqueId, targetableUnits, traps, EffectManager;
 var init_EffectManager = __esmMin((() => {
 	init_EffectTable();
 	init_SkillEffect();
@@ -253139,7 +254036,7 @@ var init_EffectManager = __esmMin((() => {
 	init_WaterfallEffect();
 	init_SessionStorage();
 	init_Graphics();
-	_list$4 = {};
+	_list$3 = {};
 	_uniqueId = 1;
 	targetableUnits = [SkillUnitConst_default.UNT_ICEWALL, SkillUnitConst_default.UNT_REVERBERATION];
 	traps = [
@@ -253183,8 +254080,8 @@ var init_EffectManager = __esmMin((() => {
 		*/
 		static add(effect, Params) {
 			const name = effect.constructor.name || effect.constructor._uid || (effect.constructor._uid = _uniqueId++);
-			if (!(name in _list$4)) {
-				_list$4[name] = [];
+			if (!(name in _list$3)) {
+				_list$3[name] = [];
 				if (effect.constructor.init) effect.constructor.needInit = true;
 			}
 			if (effect.init) effect.needInit = true;
@@ -253202,20 +254099,20 @@ var init_EffectManager = __esmMin((() => {
 					881
 				].indexOf(effect._Params.Inst.effectID) !== -1) effect.renderBeforeEntities = true;
 			}
-			_list$4[name].push(effect);
+			_list$3[name].push(effect);
 		}
 		/**
 		* Destroy all effects
 		*/
 		static free(gl) {
-			Object.keys(_list$4).forEach((key) => {
-				const list = _list$4[key];
+			Object.keys(_list$3).forEach((key) => {
+				const list = _list$3[key];
 				const constructor = list[0].constructor;
 				list.forEach((item) => {
 					if (item.free) item.free(gl);
 				});
 				if (constructor.free) constructor.free(gl);
-				delete _list$4[key];
+				delete _list$3[key];
 			});
 		}
 		/**
@@ -253231,7 +254128,7 @@ var init_EffectManager = __esmMin((() => {
 		* @param {boolean} render before entities ?
 		*/
 		static render(gl, modelView, projection, fog, tick, renderBeforeEntities) {
-			const keys = Object.keys(_list$4);
+			const keys = Object.keys(_list$3);
 			const count = keys.length;
 			let i, j, size, list, constructor;
 			let center = [
@@ -253243,9 +254140,9 @@ var init_EffectManager = __esmMin((() => {
 			const area_size = GraphicsSettings.performanceMode ? GraphicsSettings.viewArea : 20;
 			const cullDistanceSq = area_size * area_size;
 			for (i = 0; i < count; ++i) {
-				list = _list$4[keys[i]];
+				list = _list$3[keys[i]];
 				if (!list.length) {
-					delete _list$4[keys[i]];
+					delete _list$3[keys[i]];
 					continue;
 				}
 				constructor = list[0].constructor;
@@ -253291,7 +254188,7 @@ var init_EffectManager = __esmMin((() => {
 					constructor.afterRender(gl);
 					if (size === 0) {
 						if (constructor.free) constructor.free(gl);
-						delete _list$4[keys[i]];
+						delete _list$3[keys[i]];
 					}
 				}
 			}
@@ -253764,7 +254661,7 @@ var init_EffectManager = __esmMin((() => {
 			if (hatEffects) delete hatEffects[effectID];
 		}
 		static debug() {
-			console.log("%c[DEBUG] EffectManager _list: ", "color:#F5B342", _list$4);
+			console.log("%c[DEBUG] EffectManager _list: ", "color:#F5B342", _list$3);
 		}
 		/**
 		* Remove an effect
@@ -253773,7 +254670,7 @@ var init_EffectManager = __esmMin((() => {
 		* @param {mixed} effect owner ID
 		*/
 		static remove(effect, AID, effectID) {
-			if (!effect || !(effect.name in _list$4)) Object.keys(_list$4).forEach((key) => clean(key, AID, effectID));
+			if (!effect || !(effect.name in _list$3)) Object.keys(_list$3).forEach((key) => clean(key, AID, effectID));
 			else clean(effect.name, AID, effectID);
 			if (!(AID == null)) {
 				const entity = EntityManager.get(AID);
@@ -253794,8 +254691,8 @@ var init_EffectManager = __esmMin((() => {
 		* @param {mixed} effect ID
 		*/
 		static endRepeat(effect, AID, effectID) {
-			if (!effect || !(effect.name in _list$4)) {
-				Object.keys(_list$4).forEach((key) => cleanRepeat(key, AID, effectID));
+			if (!effect || !(effect.name in _list$3)) {
+				Object.keys(_list$3).forEach((key) => cleanRepeat(key, AID, effectID));
 				return;
 			}
 			cleanRepeat(effect.name, AID, effectID);
@@ -253808,26 +254705,26 @@ var init_EffectManager = __esmMin((() => {
 * Add 3D sound to the list
 */
 function add(mapEffect) {
-	_list$3.push(mapEffect);
+	_list$2.push(mapEffect);
 }
 /**
 * Remove data from memory
 */
 function free$2() {
-	_list$3.length = 0;
+	_list$2.length = 0;
 }
 /**
 * Get effect from list
 */
 function get(GID) {
-	return _list$3.find((mapEffect) => mapEffect.name == GID) || null;
+	return _list$2.find((mapEffect) => mapEffect.name == GID) || null;
 }
 /**
 * Remove effect from list
 */
 function remove(GID) {
-	const index = _list$3.findIndex((mapEffect) => mapEffect.name == GID);
-	if (index !== -1) _list$3.splice(index, 1);
+	const index = _list$2.findIndex((mapEffect) => mapEffect.name == GID);
+	if (index !== -1) _list$2.splice(index, 1);
 }
 /**
 * Add effects to scene
@@ -253835,7 +254732,7 @@ function remove(GID) {
 * @param {vec3} position
 */
 function spam(position, tick) {
-	_list$3.forEach((mapEffect) => {
+	_list$2.forEach((mapEffect) => {
 		if (!mapEffect.isVisible && vec3$2.dist(mapEffect.pos, position) < 25) {
 			const EF_Init_Par = {
 				effectId: mapEffect.id,
@@ -253852,12 +254749,12 @@ function spam(position, tick) {
 		}
 	});
 }
-var vec3$2, _list$3, Effects_default;
+var vec3$2, _list$2, Effects_default;
 var init_Effects = __esmMin((() => {
 	init_gl_matrix();
 	init_EffectManager();
 	vec3$2 = gl_matrix_default.vec3;
-	_list$3 = [];
+	_list$2 = [];
 	Effects_default = {
 		add,
 		free: free$2,
@@ -254699,7 +255596,7 @@ var init_Sky = __esmMin((() => {
 }));
 //#endregion
 //#region src/Renderer/Effects/Damage.js
-var EndureSound, dpr$1, procCanvas$1, procCtx$1, _skin, _damageSkins, _loadedSkinsData, _enableSuffix, _msgNames, _list$2, _rgbaFrame, prevCombo, Damage;
+var EndureSound, dpr$1, procCanvas$1, procCtx$1, _skin, _damageSkins, _loadedSkinsData, _enableSuffix, _msgNames, _list$1, _rgbaFrame, prevCombo, Damage;
 var init_Damage = __esmMin((() => {
 	init_WebGL();
 	init_Client();
@@ -254753,7 +255650,7 @@ var init_Damage = __esmMin((() => {
 		4: "luckybg",
 		5: "lucky"
 	};
-	_list$2 = [];
+	_list$1 = [];
 	_rgbaFrame = { type: 1 };
 	prevCombo = [];
 	Damage = class Damage {
@@ -254947,7 +255844,7 @@ var init_Damage = __esmMin((() => {
 				bgObj.height = msgData.critbg.canvas.height * .6;
 				bgObj.offset = [0, -6];
 				bgObj.isDisposable = false;
-				_list$2.push(bgObj);
+				_list$1.push(bgObj);
 				const EF_Init_Par = {
 					effectId: 1,
 					ownerAID: entity.GID,
@@ -254975,7 +255872,7 @@ var init_Damage = __esmMin((() => {
 				bgObj.height = msgBlueData.critbg.canvas.height * .6;
 				bgObj.offset = [0, -6];
 				bgObj.isDisposable = false;
-				_list$2.push(bgObj);
+				_list$1.push(bgObj);
 			} else {
 				obj.color[0] = 1;
 				obj.color[1] = 1;
@@ -254987,7 +255884,7 @@ var init_Damage = __esmMin((() => {
 					obj.width = msgData.miss.canvas.width;
 					obj.height = msgData.miss.canvas.height;
 					obj.isDisposable = false;
-					_list$2.push(obj);
+					_list$1.push(obj);
 				}
 				return;
 			}
@@ -255025,7 +255922,7 @@ var init_Damage = __esmMin((() => {
 			if (entity.objecttype === Entity.TYPE_PC) hitSound = DB.getJobHitSound(entity._job);
 			else if (weapon || weapon === 0) hitSound = DB.getWeaponHitSound(weapon);
 			if (hitSound) obj.soundFile = hitSound;
-			_list$2.push(obj);
+			_list$1.push(obj);
 		}
 		/**
 		* Remove damages from map, clean up memory
@@ -255033,10 +255930,10 @@ var init_Damage = __esmMin((() => {
 		* @param {object} gl context
 		*/
 		static free(gl) {
-			_list$2.forEach((item) => {
+			_list$1.forEach((item) => {
 				if (item.isDisposable) gl.deleteTexture(item.texture);
 			});
-			_list$2.length = 0;
+			_list$1.length = 0;
 		}
 		/**
 		* Rendering damages on maps
@@ -255048,7 +255945,7 @@ var init_Damage = __esmMin((() => {
 		* @param {number} tick - game tick
 		*/
 		static render(gl, modelView, projection, fog, tick) {
-			if (!_list$2.length) return;
+			if (!_list$1.length) return;
 			SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
 			SpriteRenderer.shadow = 1;
 			SpriteRenderer.angle = 0;
@@ -255058,12 +255955,12 @@ var init_Damage = __esmMin((() => {
 			let damage;
 			let size;
 			const skinData = _loadedSkinsData[_skin];
-			for (i = 0, count = _list$2.length; i < count; ++i) {
-				damage = _list$2[i];
+			for (i = 0, count = _list$1.length; i < count; ++i) {
+				damage = _list$1[i];
 				if (damage.startTick > tick) continue;
 				if (damage.startTick + damage.delay < tick) {
 					if (damage.isDisposable) gl.deleteTexture(damage.texture);
-					_list$2.splice(i, 1);
+					_list$1.splice(i, 1);
 					count--;
 					i--;
 					continue;
@@ -255179,879 +256076,6 @@ var init_JoystickSetManager = __esmMin((() => {
 			currentSet = currentSet === 1 ? 2 : 1;
 		}
 	};
-}));
-//#endregion
-//#region src/UI/Components/ShortCut/ShortCut.html?raw
-var ShortCut_default$2;
-var init_ShortCut$2 = __esmMin((() => {
-	ShortCut_default$2 = "<div id=\"ShortCut\" data-background=\"basic_interface/shortitem_bg.bmp\">\r\n	<button\r\n		class=\"close\"\r\n		data-background=\"basic_interface/sys_close_off.bmp\"\r\n		data-hover=\"basic_interface/sys_close_on.bmp\"\r\n	></button>\r\n	<button class=\"resize\" data-background=\"btn_resize.bmp\"></button>\r\n\r\n	<div class=\"row\">\r\n		<div class=\"container\" data-index=\"0\"></div>\r\n		<div class=\"container\" data-index=\"1\"></div>\r\n		<div class=\"container\" data-index=\"2\"></div>\r\n		<div class=\"container\" data-index=\"3\"></div>\r\n		<div class=\"container\" data-index=\"4\"></div>\r\n		<div class=\"container\" data-index=\"5\"></div>\r\n		<div class=\"container\" data-index=\"6\"></div>\r\n		<div class=\"container\" data-index=\"7\"></div>\r\n		<div class=\"container\" data-index=\"8\"></div>\r\n		<div class=\"index\">1</div>\r\n		<div class=\"clear\"></div>\r\n	</div>\r\n\r\n	<div class=\"row\">\r\n		<div class=\"container\" data-index=\"9\"></div>\r\n		<div class=\"container\" data-index=\"10\"></div>\r\n		<div class=\"container\" data-index=\"11\"></div>\r\n		<div class=\"container\" data-index=\"12\"></div>\r\n		<div class=\"container\" data-index=\"13\"></div>\r\n		<div class=\"container\" data-index=\"14\"></div>\r\n		<div class=\"container\" data-index=\"15\"></div>\r\n		<div class=\"container\" data-index=\"16\"></div>\r\n		<div class=\"container\" data-index=\"17\"></div>\r\n		<div class=\"index\">2</div>\r\n		<div class=\"clear\"></div>\r\n	</div>\r\n\r\n	<div class=\"row\">\r\n		<div class=\"container\" data-index=\"18\"></div>\r\n		<div class=\"container\" data-index=\"19\"></div>\r\n		<div class=\"container\" data-index=\"20\"></div>\r\n		<div class=\"container\" data-index=\"21\"></div>\r\n		<div class=\"container\" data-index=\"22\"></div>\r\n		<div class=\"container\" data-index=\"23\"></div>\r\n		<div class=\"container\" data-index=\"24\"></div>\r\n		<div class=\"container\" data-index=\"25\"></div>\r\n		<div class=\"container\" data-index=\"26\"></div>\r\n		<div class=\"index\">3</div>\r\n		<div class=\"clear\"></div>\r\n	</div>\r\n\r\n	<div class=\"row\">\r\n		<div class=\"container\" data-index=\"27\"></div>\r\n		<div class=\"container\" data-index=\"28\"></div>\r\n		<div class=\"container\" data-index=\"29\"></div>\r\n		<div class=\"container\" data-index=\"30\"></div>\r\n		<div class=\"container\" data-index=\"31\"></div>\r\n		<div class=\"container\" data-index=\"32\"></div>\r\n		<div class=\"container\" data-index=\"33\"></div>\r\n		<div class=\"container\" data-index=\"34\"></div>\r\n		<div class=\"container\" data-index=\"35\"></div>\r\n		<div class=\"index\">4</div>\r\n		<div class=\"clear\"></div>\r\n	</div>\r\n\r\n	<div class=\"shortcut-tooltip\"></div>\r\n</div>\r\n";
-}));
-//#endregion
-//#region src/UI/Components/ShortCut/ShortCut.css?raw
-var ShortCut_default$1;
-var init_ShortCut$1 = __esmMin((() => {
-	ShortCut_default$1 = ":host {\r\n	width: 280px;\r\n	top: 0px;\r\n	left: 480px;\r\n	overflow: hidden;\r\n}\r\n\r\n#ShortCut {\r\n	position: absolute;\r\n	width: 280px;\r\n	height: 100%;\r\n	background-repeat: repeat-y;\r\n}\r\n#ShortCut .close {\r\n	position: absolute;\r\n	top: 2px;\r\n	right: 2px;\r\n	border: none;\r\n	background-color: transparent;\r\n	width: 11px;\r\n	height: 11px;\r\n}\r\n#ShortCut .resize {\r\n	position: absolute;\r\n	bottom: 1px;\r\n	right: 1px;\r\n	border: none;\r\n	background-color: transparent;\r\n	width: 13px;\r\n	height: 13px;\r\n}\r\n\r\n#ShortCut .row {\r\n	position: relative;\r\n}\r\n#ShortCut .row .container {\r\n	float: left;\r\n	width: 24px;\r\n	height: 23px;\r\n	margin-top: 5px;\r\n	margin-left: 5px;\r\n	margin-bottom: 6px;\r\n}\r\n#ShortCut .row .container:hover {\r\n	background-color: #b5ffb5;\r\n}\r\n#ShortCut .row .index {\r\n	float: left;\r\n	position: relative;\r\n	top: 13px;\r\n	left: 5px;\r\n}\r\n#ShortCut .row .clear {\r\n}\r\n\r\n#ShortCut .icon {\r\n	position: relative;\r\n}\r\n#ShortCut .icon .img {\r\n	width: 24px;\r\n	height: 24px;\r\n	background-repeat: no-repeat;\r\n	border: none;\r\n	background-color: transparent;\r\n}\r\n#ShortCut .icon .name {\r\n	display: none;\r\n	z-index: 1;\r\n	position: absolute;\r\n	top: 0px;\r\n	left: 0px;\r\n	background-color: rgba(0, 0, 0, 0.6);\r\n	text-shadow: 1px 1px black;\r\n	color: white;\r\n	padding: 5px;\r\n	white-space: nowrap;\r\n}\r\n#ShortCut .icon:hover .name {\r\n	display: block;\r\n}\r\n#ShortCut .icon.hide .name {\r\n	display: none;\r\n}\r\n#ShortCut .icon .amount {\r\n	position: absolute;\r\n	right: 1px;\r\n	top: 20px;\r\n	text-shadow: 1px 1px 0px white;\r\n	text-align: right;\r\n	font-weight: bold;\r\n}\r\n\r\n.shortcut-tooltip {\r\n	display: none;\r\n	position: fixed;\r\n	background-color: rgba(0, 0, 0, 0.8);\r\n	text-shadow: 1px 1px black;\r\n	color: white;\r\n	padding: 2px 6px;\r\n	white-space: nowrap;\r\n	z-index: 10000;\r\n	border-radius: 2px;\r\n	pointer-events: none;\r\n	line-height: 1.2;\r\n}\r\n.shortcut-tooltip.show {\r\n	display: block;\r\n}\r\n\r\n#ShortCut .cooldown-overlay {\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n	width: 24px;\r\n	height: 24px;\r\n	pointer-events: none;\r\n	border-radius: 2px;\r\n	z-index: 999;\r\n	background: conic-gradient(rgba(0, 0, 0, 0.75) 0deg, transparent 0deg);\r\n}\r\n";
-}));
-//#endregion
-//#region src/UI/Components/ShortCut/ShortCut.js
-var ShortCut_exports = /* @__PURE__ */ __exportAll({ default: () => ShortCut_default });
-/**
-* Update tooltip for empty slots with hotkey only
-*/
-function updateEmptySlotTooltips() {
-	const containers = ShortCut.getRoot().querySelectorAll(".container");
-	for (let i = 0; i < containers.length; ++i) if (!_list$1[i] || !_list$1[i].isSkill && !_list$1[i].ID) {
-		const hotkey = getHotKeyString(i);
-		if (hotkey) containers[i].setAttribute("data-tooltip", hotkey);
-	}
-}
-/**
-* Get hotkey string for shortcut index
-*
-* @param {number} index of the shortcut slot
-* @return {string} hotkey string or empty string
-*/
-function getHotKeyString(index) {
-	const shortcutKeys = [
-		"F1_1",
-		"F1_2",
-		"F1_3",
-		"F1_4",
-		"F1_5",
-		"F1_6",
-		"F1_7",
-		"F1_8",
-		"F1_9",
-		"F2_1",
-		"F2_2",
-		"F2_3",
-		"F2_4",
-		"F2_5",
-		"F2_6",
-		"F2_7",
-		"F2_8",
-		"F2_9",
-		"F3_1",
-		"F3_2",
-		"F3_3",
-		"F3_4",
-		"F3_5",
-		"F3_6",
-		"F3_7",
-		"F3_8",
-		"F3_9",
-		"F4_1",
-		"F4_2",
-		"F4_3",
-		"F4_4",
-		"F4_5",
-		"F4_6",
-		"F4_7",
-		"F4_8",
-		"F4_9"
-	];
-	if (index < 0 || index >= shortcutKeys.length) return "";
-	const scKey = shortcutKeys[index];
-	const shortcut = ShortCutControls_default.ShortCuts[scKey];
-	if (!shortcut) return "";
-	const key = shortcut.cust ? shortcut.cust.key : shortcut.init.key;
-	const alt = shortcut.cust ? shortcut.cust.alt : shortcut.init.alt;
-	const ctrl = shortcut.cust ? shortcut.cust.ctrl : shortcut.init.ctrl;
-	const shift = shortcut.cust ? shortcut.cust.shift : shortcut.init.shift;
-	if (!key) return "";
-	let hotkeyStr = "";
-	if (alt) hotkeyStr += "ALT + ";
-	if (ctrl) hotkeyStr += "CTRL + ";
-	if (shift) hotkeyStr += "SHIFT + ";
-	hotkeyStr += KEYS.toReadableKey(key);
-	return hotkeyStr;
-}
-/**
-* Show fixed tooltip on container hover
-*/
-function onContainerMouseEnter(event) {
-	const tooltipText = event.currentTarget.getAttribute("data-tooltip");
-	if (tooltipText) {
-		const tooltip = ShortCut.getRoot().querySelector(".shortcut-tooltip");
-		const hostRect = ShortCut._host.getBoundingClientRect();
-		tooltip.textContent = tooltipText;
-		tooltip.classList.add("show");
-		const tooltipRect = tooltip.getBoundingClientRect();
-		const showAbove = window.innerHeight - (hostRect.top + hostRect.height) < tooltipRect.height + 10;
-		const left = hostRect.left + hostRect.width / 2 - tooltipRect.width / 2;
-		let top;
-		if (showAbove) top = hostRect.top - tooltipRect.height - 2;
-		else top = hostRect.top + hostRect.height + 2;
-		tooltip.style.left = `${left}px`;
-		tooltip.style.top = `${top}px`;
-	}
-}
-/**
-* Hide fixed tooltip on container leave
-*/
-function onContainerMouseLeave() {
-	const tooltip = ShortCut.getRoot().querySelector(".shortcut-tooltip");
-	if (tooltip) tooltip.classList.remove("show");
-}
-/**
-* Resizing hotkey window
-*/
-function onResize$3(event) {
-	const host = ShortCut._host;
-	const top = host.offsetTop;
-	let lastHeight = 0;
-	function resizing() {
-		let h = Math.floor((Mouse.screen.y - top) / 34 + 1);
-		h = Math.min(Math.max(h, 1), _rowCount);
-		if (h === lastHeight) return;
-		host.style.height = `${h * 34}px`;
-		_preferences$19.size = h;
-		_preferences$19.save();
-		lastHeight = h;
-	}
-	const _Interval = setInterval(resizing, 30);
-	const mouseUpHandler = (_event) => {
-		if (_event.which === 1) {
-			clearInterval(_Interval);
-			window.removeEventListener("mouseup", mouseUpHandler);
-		}
-	};
-	window.addEventListener("mouseup", mouseUpHandler);
-	event.stopImmediatePropagation();
-	event.preventDefault();
-}
-/**
-* Displays the cooldown overlay on an icon
-*
-* @param {number} index of the icon
-* @param {number} delay in ms
-*/
-function setDelayOnIndex(index, delay) {
-	if (!_list$1[index]) return;
-	if (_list$1[index].Delay && _list$1[index].Delay >= Renderer.tick + delay) return;
-	_list$1[index].Delay = Renderer.tick + delay;
-	const ui = ShortCut.getRoot().querySelector(`.container[data-index="${index}"]`);
-	if (!ui) return;
-	const existing = ui.querySelector(".cooldown-overlay");
-	if (existing) existing.remove();
-	const overlay = document.createElement("div");
-	overlay.className = "cooldown-overlay";
-	const icon = ui.querySelector(".icon");
-	if (icon) {
-		icon.appendChild(overlay);
-		const img = icon.querySelector(".img");
-		if (img) img.style.filter = "none";
-	}
-	if (_activeAnimations.has(index)) {
-		cancelAnimationFrame(_activeAnimations.get(index));
-		_activeAnimations.delete(index);
-	}
-	function updateCooldown() {
-		if (!_list$1 || !_list$1[index]) {
-			overlay.remove();
-			if (_activeAnimations.has(index)) {
-				cancelAnimationFrame(_activeAnimations.get(index));
-				_activeAnimations.delete(index);
-			}
-			return;
-		}
-		const now = Renderer.tick;
-		const remaining = _list$1[index].Delay - now;
-		if (remaining <= 0 || !_list$1[index].Delay) {
-			overlay.remove();
-			_list$1[index].Delay = 0;
-			if (_activeAnimations.has(index)) {
-				cancelAnimationFrame(_activeAnimations.get(index));
-				_activeAnimations.delete(index);
-			}
-			return;
-		}
-		const degrees = (1 - remaining / delay) * 360;
-		overlay.style.background = `conic-gradient(transparent 0deg, transparent ${degrees}deg, rgba(0,0,0,0.75) ${degrees}deg)`;
-		const animationId = requestAnimationFrame(updateCooldown);
-		_activeAnimations.set(index, animationId);
-	}
-	const animationId = requestAnimationFrame(updateCooldown);
-	_activeAnimations.set(index, animationId);
-}
-/**
-* Drop something in the shortcut
-* Does the client allow other source than shortcut, inventory
-* and skill window to save to shortcut ?
-*/
-function onDrop$8(event, target) {
-	let data, element;
-	const index = parseInt(target.getAttribute("data-index"), 10);
-	const row = Math.floor(index / 9);
-	event.stopImmediatePropagation();
-	event.preventDefault();
-	try {
-		data = JSON.parse(event.dataTransfer.getData("Text"));
-		element = data.data;
-	} catch (_e) {
-		return;
-	}
-	if (data.type !== "item" && data.type !== "skill") return;
-	switch (data.from) {
-		case "SkillList":
-		case "Guild":
-		case "SkillListMH":
-			ShortCut.removeElement(true, element.SKID, row, element.selectedLevel ? element.selectedLevel : element.level);
-			ShortCut.addElement(index, true, element.SKID, element.selectedLevel ? element.selectedLevel : element.level);
-			ShortCut.onChange(index, true, element.SKID, element.selectedLevel ? element.selectedLevel : element.level);
-			break;
-		case "Inventory":
-			ShortCut.removeElement(false, element.ITID, row);
-			ShortCut.addElement(index, false, element.ITID, 0);
-			ShortCut.onChange(index, false, element.ITID, 0);
-			break;
-		case "ShortCut":
-			ShortCut.removeElement(element.isSkill, element.ID, row, element.isSkill ? element.count : null);
-			ShortCut.addElement(index, element.isSkill, element.ID, element.count);
-			ShortCut.onChange(index, element.isSkill, element.ID, element.count);
-	}
-}
-/**
-* Stop the drag and drop
-*/
-function onDragEnd(icon) {
-	delete window._OBJ_DRAG_;
-	icon.classList.remove("hide");
-}
-/**
-* Prepare data to be stored in the dragged element
-* to change position in the shortcut.
-*/
-function onDragStart$2(event, icon) {
-	const index = parseInt(icon.parentNode.getAttribute("data-index"), 10);
-	icon.classList.add("hide");
-	const img = new Image();
-	img.decoding = "async";
-	img.src = icon.querySelector(".img").style.backgroundImage.match(/\(([^)]+)/)[1].replace(/"/g, "");
-	event.dataTransfer.setDragImage(img, 12, 12);
-	event.dataTransfer.setData("Text", JSON.stringify(window._OBJ_DRAG_ = {
-		type: _list$1[index].isSkill ? "skill" : "item",
-		from: "ShortCut",
-		data: _list$1[index]
-	}));
-}
-/**
-* Get informations from a skill/item when
-* using right click on it.
-*/
-function onElementInfo(event, icon) {
-	const index = parseInt(icon.parentNode.getAttribute("data-index"), 10);
-	const element = _list$1[index];
-	event.stopImmediatePropagation();
-	event.preventDefault();
-	if (element.isSkill) {
-		if (SkillDescription_default.uid === _list$1[index].ID) SkillDescription_default.remove();
-		else {
-			SkillDescription_default.append();
-			SkillDescription_default.setSkill(_list$1[index].ID);
-		}
-	} else {
-		if (ItemInfo_default.uid === _list$1[index].ID) {
-			ItemInfo_default.remove();
-			return;
-		}
-		ItemInfo_default.append();
-		ItemInfo_default.uid = _list$1[index].ID;
-		ItemInfo_default.setItem(InventoryController.getUI().getItemById(_list$1[index].ID));
-	}
-}
-/**
-* Double-click on a shortcut
-*/
-function onUseShortCut(icon) {
-	clickElement(parseInt(icon.parentNode.getAttribute("data-index"), 10));
-}
-/**
-* Clicking on a shortcut
-*
-* @param {number} shortcut index
-*/
-function clickElement(index) {
-	const shortcut = _list$1[index];
-	SkillTargetSelection_default.remove();
-	if (!shortcut) return;
-	if (shortcut.isSkill) ShortCut.useSkill(shortcut.ID, shortcut.count);
-	else {
-		const item = InventoryController.getUI().getItemById(_list$1[index].ID);
-		if (item) InventoryController.getUI().useItem(item);
-	}
-}
-/**
-* Closing the window
-*/
-function onClose$5() {
-	ShortCut._host.style.height = "0px";
-	_preferences$19.size = 0;
-	_preferences$19.save();
-}
-/**
-* Hook Inventory, get informations when there is a change
-* to update the shortcut
-*
-* @param {number} index
-* @param {number} count
-*/
-function onUpdateItem(index, count) {
-	ShortCut.setElement(false, index, count);
-}
-/**
-* Hook Skill List, get informations when there is a change
-* to update the shortcut
-*
-* @param {number} skill id
-* @param {number} level
-*/
-function onUpdateSkill(id, level) {
-	ShortCut.setElement(true, id, level);
-}
-function onUpdateOwnerName$1() {
-	for (const index in _list$1) if (!_list$1[index].isSkill) ShortCut.setElement(false, _list$1[index].ID, _list$1[index].count);
-}
-function convertHotkeysToServerFormat() {
-	const serverData = {
-		Type: 1,
-		data: {
-			EmotionHotkey: [],
-			UserHotkey_V2: { SkillBar_1Tab: [] }
-		}
-	};
-	[
-		"Macro1",
-		"Macro2",
-		"Macro3",
-		"Macro4",
-		"Macro5",
-		"Macro6",
-		"Macro7",
-		"Macro8",
-		"Macro9",
-		"Macro10"
-	].forEach((key, index) => {
-		const shortcut = ShortCutControls_default.ShortCuts[key];
-		if (shortcut && shortcut.cust && shortcut.cust.emotion) serverData.data.EmotionHotkey[index] = shortcut.cust.emotion;
-	});
-	[
-		"F1_1",
-		"F1_2",
-		"F1_3",
-		"F1_4",
-		"F1_5",
-		"F1_6",
-		"F1_7",
-		"F1_8",
-		"F1_9",
-		"F2_1",
-		"F2_2",
-		"F2_3",
-		"F2_4",
-		"F2_5",
-		"F2_6",
-		"F2_7",
-		"F2_8",
-		"F2_9",
-		"F3_1",
-		"F3_2",
-		"F3_3",
-		"F3_4",
-		"F3_5",
-		"F3_6",
-		"F3_7",
-		"F3_8",
-		"F3_9",
-		"F4_1",
-		"F4_2",
-		"F4_3",
-		"F4_4",
-		"F4_5",
-		"F4_6",
-		"F4_7",
-		"F4_8",
-		"F4_9"
-	].forEach((key, index) => {
-		const shortcut = ShortCutControls_default.ShortCuts[key];
-		if (shortcut) {
-			const keyData = shortcut.cust || shortcut.init;
-			serverData.data.UserHotkey_V2.SkillBar_1Tab.push({
-				desc: `Skill ${index + 1}`,
-				index,
-				key1: keyData.key || 0,
-				key2: 0
-			});
-		}
-	});
-	return serverData;
-}
-function convertHotkeysFromServerFormat(serverData) {
-	if (!serverData || !serverData.data) return;
-	if (serverData.data.EmotionHotkey) {
-		const emotionKeys = [
-			"Macro1",
-			"Macro2",
-			"Macro3",
-			"Macro4",
-			"Macro5",
-			"Macro6",
-			"Macro7",
-			"Macro8",
-			"Macro9",
-			"Macro10"
-		];
-		serverData.data.EmotionHotkey.forEach((emotion, index) => {
-			if (emotion && emotionKeys[index]) {
-				if (!ShortCutControls_default.ShortCuts[emotionKeys[index]].cust) ShortCutControls_default.ShortCuts[emotionKeys[index]].cust = {};
-				ShortCutControls_default.ShortCuts[emotionKeys[index]].cust.emotion = emotion;
-			}
-		});
-	}
-	if (serverData.data.UserHotkey_V2 && serverData.data.UserHotkey_V2.SkillBar_1Tab) {
-		const shortcutKeys = [
-			"F1_1",
-			"F1_2",
-			"F1_3",
-			"F1_4",
-			"F1_5",
-			"F1_6",
-			"F1_7",
-			"F1_8",
-			"F1_9",
-			"F2_1",
-			"F2_2",
-			"F2_3",
-			"F2_4",
-			"F2_5",
-			"F2_6",
-			"F2_7",
-			"F2_8",
-			"F2_9",
-			"F3_1",
-			"F3_2",
-			"F3_3",
-			"F3_4",
-			"F3_5",
-			"F3_6",
-			"F3_7",
-			"F3_8",
-			"F3_9",
-			"F4_1",
-			"F4_2",
-			"F4_3",
-			"F4_4",
-			"F4_5",
-			"F4_6",
-			"F4_7",
-			"F4_8",
-			"F4_9"
-		];
-		serverData.data.UserHotkey_V2.SkillBar_1Tab.forEach((skillData) => {
-			if (skillData && skillData.index < shortcutKeys.length) {
-				const key = shortcutKeys[skillData.index];
-				if (key && skillData.key1) {
-					if (!ShortCutControls_default.ShortCuts[key].cust) ShortCutControls_default.ShortCuts[key].cust = {};
-					ShortCutControls_default.ShortCuts[key].cust.key = skillData.key1;
-				}
-			}
-		});
-	}
-}
-function haveHotkeysChanged(currentData) {
-	if (!_lastServerHotkeys) return true;
-	return JSON.stringify(currentData) !== JSON.stringify(_lastServerHotkeys);
-}
-var ShortCut, _list$1, _rowCount, _lastServerHotkeys, _activeAnimations, _preferences$19, ShortCut_default;
-var init_ShortCut = __esmMin((() => {
-	init_DBManager();
-	init_ItemType();
-	init_SkillInfo();
-	init_Client();
-	init_Preferences$1();
-	init_SessionStorage();
-	init_Renderer();
-	init_MouseEventHandler();
-	init_UIManager();
-	init_GUIComponent();
-	init_ItemInfo();
-	init_Inventory();
-	init_SkillListMH();
-	init_SkillDescription();
-	init_SkillTargetSelection();
-	init_Guild$1();
-	init_ShortCutControls();
-	init_KeyEventHandler();
-	init_Configs();
-	init_PacketVerManager();
-	init_SkillList();
-	init_ShortCut$2();
-	init_ShortCut$1();
-	ShortCut = new GUIComponent("ShortCut", ShortCut_default$1);
-	ShortCut.render = () => ShortCut_default$2;
-	_list$1 = [];
-	_rowCount = 0;
-	_lastServerHotkeys = null;
-	_activeAnimations = /* @__PURE__ */ new Map();
-	_preferences$19 = Preferences.get("ShortCut", {
-		x: 480,
-		y: 0,
-		size: 1,
-		magnet_top: true,
-		magnet_bottom: false,
-		magnet_left: false,
-		magnet_right: false
-	}, 1);
-	/**
-	* Initialize UI
-	*/
-	ShortCut.init = function init() {
-		const root = ShortCut.getRoot();
-		const resizeBtn = root.querySelector(".resize");
-		if (resizeBtn) resizeBtn.addEventListener("mousedown", onResize$3);
-		const closeBtn = root.querySelector(".close");
-		if (closeBtn) {
-			closeBtn.addEventListener("mousedown", (e) => {
-				e.stopImmediatePropagation();
-				e.preventDefault();
-			});
-			closeBtn.addEventListener("click", onClose$5);
-		}
-		const container = root.querySelector("#ShortCut");
-		container.addEventListener("drop", (e) => {
-			const target = e.target.closest(".container");
-			if (target) onDrop$8(e, target);
-		});
-		container.addEventListener("dragover", (e) => {
-			if (e.target.closest(".container")) {
-				e.stopImmediatePropagation();
-				e.preventDefault();
-			}
-		});
-		container.addEventListener("dragstart", (e) => {
-			const icon = e.target.closest(".icon");
-			if (icon) onDragStart$2(e, icon);
-		});
-		container.addEventListener("dragend", (e) => {
-			const icon = e.target.closest(".icon");
-			if (icon) onDragEnd(icon);
-		});
-		container.addEventListener("dblclick", (e) => {
-			const icon = e.target.closest(".icon");
-			if (icon) onUseShortCut(icon);
-		});
-		container.addEventListener("contextmenu", (e) => {
-			const icon = e.target.closest(".icon");
-			if (icon) onElementInfo(e, icon);
-		});
-		container.addEventListener("mousedown", (e) => {
-			if (e.target.closest(".icon")) e.stopImmediatePropagation();
-		});
-		this.draggable();
-		root.querySelectorAll(".container").forEach((el) => {
-			el.addEventListener("mouseenter", onContainerMouseEnter);
-			el.addEventListener("mouseleave", onContainerMouseLeave);
-		});
-		DB.UpdateOwnerName.ShortCut = onUpdateOwnerName$1;
-		InventoryController.getUI().onUpdateItem = onUpdateItem;
-	};
-	/**
-	* Append to body
-	*/
-	ShortCut.onAppend = function onAppend() {
-		this._host.style.height = `${34 * _preferences$19.size}px`;
-		const rect = this._host.getBoundingClientRect();
-		this._host.style.top = `${Math.min(Math.max(0, _preferences$19.y), Renderer.height - rect.height)}px`;
-		this._host.style.left = `${Math.min(Math.max(0, _preferences$19.x), Renderer.width - rect.width)}px`;
-		this.magnet.TOP = _preferences$19.magnet_top;
-		this.magnet.BOTTOM = _preferences$19.magnet_bottom;
-		this.magnet.LEFT = _preferences$19.magnet_left;
-		this.magnet.RIGHT = _preferences$19.magnet_right;
-		Controller$4.getUI().onUpdateSkill = onUpdateSkill;
-		updateEmptySlotTooltips();
-	};
-	/**
-	* When removed, clean up
-	*/
-	ShortCut.onRemove = function onRemove() {
-		const tooltip = ShortCut.getRoot().querySelector(".shortcut-tooltip");
-		if (tooltip) tooltip.classList.remove("show");
-		for (const [index, animationId] of _activeAnimations.entries()) cancelAnimationFrame(animationId);
-		_activeAnimations.clear();
-		_preferences$19.y = parseInt(this._host.style.top, 10);
-		_preferences$19.x = parseInt(this._host.style.left, 10);
-		_preferences$19.size = Math.floor(parseInt(this._host.style.height, 10) / 34);
-		_preferences$19.magnet_top = this.magnet.TOP;
-		_preferences$19.magnet_bottom = this.magnet.BOTTOM;
-		_preferences$19.magnet_left = this.magnet.LEFT;
-		_preferences$19.magnet_right = this.magnet.RIGHT;
-		_preferences$19.save();
-	};
-	/**
-	* Request to clean the list
-	* Used only from MapEngine when exiting the game
-	*/
-	ShortCut.clean = function clean() {
-		for (const [index, animationId] of _activeAnimations.entries()) cancelAnimationFrame(animationId);
-		_activeAnimations.clear();
-		_list$1.length = 0;
-		ShortCut.getRoot().querySelectorAll(".container").forEach((el) => {
-			el.innerHTML = "";
-		});
-	};
-	/**
-	* Process shortcut
-	*
-	* @param {object} key
-	*/
-	ShortCut.onShortCut = function onShortCut(key) {
-		switch (key.cmd.replace(/\d+$/, "")) {
-			case "EXECUTE":
-				clickElement(parseInt(key.cmd.match(/\d+$/).toString(), 10));
-				break;
-			case "EXTEND":
-				_preferences$19.size = (_preferences$19.size + 1) % (_rowCount + 1);
-				_preferences$19.save();
-				this._host.style.height = `${_preferences$19.size * 34}px`;
-		}
-	};
-	ShortCut.useSkill = function useSkill(id, level) {
-		if (id > 1e4 && id < 10100) Guild_default.useSkillID(id, level);
-		else if (id > 8e3 && id < 8044) {
-			SkillListMH_default.mercenary.useSkillID(id, level);
-			SkillListMH_default.homunculus.useSkillID(id, level);
-		} else Controller$4.getUI().useSkillID(id, level);
-	};
-	ShortCut.getSkillById = function getSkillById(id) {
-		let skill;
-		if (id > 1e4 && id < 10100) skill = Guild_default.getSkillById(id);
-		else if (id > 8e3 && id < 8044) {
-			skill = SkillListMH_default.mercenary.getSkillById(id);
-			if (!skill) skill = SkillListMH_default.homunculus.getSkillById(id);
-		} else skill = Controller$4.getUI().getSkillById(id);
-		return skill;
-	};
-	/**
-	* Bind UI with list of shortcut
-	*
-	* @param {Array} shortcut list
-	*/
-	ShortCut.setList = function setList(list) {
-		let skill;
-		ShortCut.getRoot().querySelectorAll(".container").forEach((el) => {
-			el.innerHTML = "";
-		});
-		_list$1.length = list.length;
-		_rowCount = Math.min(4, Math.floor(list.length / 9));
-		for (let i = 0, count = list.length; i < count; ++i) if (list[i].isSkill) {
-			skill = ShortCut.getSkillById(list[i].ID);
-			if (skill && skill.level) ShortCut.addElement(i, true, list[i].ID, list[i].count || skill.level);
-			else {
-				if (!_list$1[i]) _list$1[i] = {};
-				_list$1[i].isSkill = true;
-				_list$1[i].ID = list[i].ID;
-				_list$1[i].count = list[i].count;
-			}
-		} else ShortCut.addElement(i, list[i].isSkill, list[i].ID, list[i].count);
-	};
-	/**
-	* Update all tooltips (for both empty and filled slots)
-	* Called when hotkey settings change
-	*/
-	ShortCut.updateAllTooltips = function updateAllTooltips() {
-		const root = ShortCut.getRoot();
-		for (let i = 0, size = _list$1.length; i < size; ++i) {
-			const container = root.querySelector(`.container[data-index="${i}"]`);
-			if (!container) continue;
-			const hotkey = getHotKeyString(i);
-			if (!_list$1[i] || !_list$1[i].isSkill && !_list$1[i].ID) {
-				if (hotkey) container.setAttribute("data-tooltip", hotkey);
-			} else if (_list$1[i] && (_list$1[i].isSkill || _list$1[i].ID)) {
-				let name = "";
-				if (_list$1[i].isSkill && SkillInfo[_list$1[i].ID]) name = SkillInfo[_list$1[i].ID].SkillName;
-				else if (_list$1[i].ID) {
-					const item = InventoryController.getUI().getItemById(_list$1[i].ID);
-					if (item) name = DB.getItemName(item);
-				}
-				if (name) {
-					const tooltipText = hotkey ? `[ ${hotkey} ] ${name}` : name;
-					container.setAttribute("data-tooltip", tooltipText);
-				}
-			}
-		}
-	};
-	ShortCut.setElement = function setElement(isSkill, ID, count) {
-		for (let i = 0, size = _list$1.length; i < size; ++i) if (_list$1[i] && _list$1[i].isSkill == isSkill && _list$1[i].ID === ID) {
-			if (isSkill && _list$1[i].count && _list$1[i].count <= count) ShortCut.addElement(i, isSkill, ID, _list$1[i].count);
-			else ShortCut.addElement(i, isSkill, ID, count);
-		}
-	};
-	/**
-	* Add an element to shortcut
-	*
-	* @param {number} index of the element
-	* @param {boolean} is a skill ?
-	* @param {number} ID
-	* @param {number} count or level
-	*/
-	ShortCut.addElement = function addElement(index, isSkill, ID, count) {
-		let file, name;
-		const ui = ShortCut.getRoot().querySelector(`.container[data-index="${index}"]`);
-		if (!ui) return;
-		ui.innerHTML = "";
-		if (!_list$1[index]) _list$1[index] = {};
-		_list$1[index].isSkill = isSkill;
-		_list$1[index].ID = ID;
-		if (isSkill) {
-			if (!count) return;
-			else {
-				_list$1[index].count = count;
-				file = SkillInfo[ID].Name;
-				name = SkillInfo[ID].SkillName;
-			}
-		} else {
-			_list$1[index].count = count;
-			const item = InventoryController.getUI().getItemById(ID);
-			if (!item) return;
-			const it = DB.getItemInfo(ID);
-			file = item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName;
-			name = DB.getItemName(item);
-			if (item.type === ItemType_default.WEAPON || item.type === ItemType_default.ARMOR || item.type === ItemType_default.SHADOWGEAR) count = 1;
-			else count = item.count;
-			if (!count) return;
-		}
-		const hotkey = getHotKeyString(index);
-		const tooltipText = hotkey ? `[ ${hotkey} ] ${name}` : name;
-		Client.loadFile(`${DB.INTERFACE_PATH}item/${file}.bmp`, (url) => {
-			ui.innerHTML = "<div draggable=\"true\" class=\"icon\"><div class=\"img\"></div><div class=\"amount\"></div></div>";
-			ui.querySelector(".img").style.backgroundImage = `url(${url})`;
-			ui.querySelector(".amount").textContent = count;
-			ui.setAttribute("data-tooltip", tooltipText);
-		});
-	};
-	/**
-	* Displays the cooldown over every skill
-	*
-	* @param {number} delay in ms
-	*/
-	ShortCut.setGlobalSkillDelay = function setGlobalSkillDelay(delay) {
-		_list$1.forEach((element, index) => {
-			if (element.isSkill) setDelayOnIndex(index, delay);
-		});
-	};
-	/**
-	* Displays the cooldown over a single skill
-	*
-	* @param {number} ID of the skill
-	* @param {number} delay in ms
-	*/
-	ShortCut.setSkillDelay = function setSkillDelay(ID, delay) {
-		_list$1.forEach((element, index) => {
-			if (element.isSkill && element.ID == ID) setDelayOnIndex(index, delay);
-		});
-	};
-	/**
-	* Remove an element from shortcut
-	*
-	* @param {boolean} is a skill ?
-	* @param {number} ID of the element to remove
-	* @param {number} row id
-	* @param {number} amount (optional)
-	*/
-	ShortCut.removeElement = function removeElement(isSkill, ID, row, amount) {
-		if (!ID) return;
-		const root = ShortCut.getRoot();
-		for (let i = row * 9, count = Math.min(_list$1.length, row * 9 + 9); i < count; ++i) if (_list$1[i] && _list$1[i].isSkill == isSkill && _list$1[i].ID === ID && (!isSkill || _list$1[i].count == amount)) {
-			const container = root.querySelector(`.container[data-index="${i}"]`);
-			if (container) container.innerHTML = "";
-			_list$1[i].isSkill = 0;
-			_list$1[i].ID = 0;
-			_list$1[i].count = 0;
-			ShortCut.onChange(i, 0, 0, 0);
-		}
-	};
-	Guild_default.onUpdateSkill = (id, level) => {
-		ShortCut.setElement(true, id, level);
-	};
-	SkillListMH_default.mercenary.onUpdateSkill = (id, level) => {
-		ShortCut.setElement(true, id, level);
-	};
-	SkillListMH_default.homunculus.onUpdateSkill = (id, level) => {
-		ShortCut.setElement(true, id, level);
-	};
-	/**
-	* Method to define to notify a change.
-	*
-	* @param {number} index
-	* @param {boolean} isSkill
-	* @param {number} id
-	* @param {number} count
-	*/
-	ShortCut.onChange = function onChange() {};
-	ShortCut.saveToServer = function saveToServer() {
-		if (PacketVerManager_default.value >= 20170315 && SessionStorage_default.WebToken) {
-			const hotkeys = JSON.stringify(convertHotkeysToServerFormat());
-			if (!haveHotkeysChanged(hotkeys)) return;
-			const formData = new FormData();
-			formData.append("AID", SessionStorage_default.AID);
-			formData.append("WorldName", SessionStorage_default.ServerName);
-			formData.append("AuthToken", SessionStorage_default.WebToken);
-			formData.append("data", hotkeys);
-			const xhr = new XMLHttpRequest();
-			let webserverAddress = "";
-			if (window.location.protocol !== "http:" && window.location.protocol !== "https:") webserverAddress = Configs.get("webserverAddress", "http://127.0.0.1:8888");
-			xhr.open("POST", `${webserverAddress}/userconfig/save`, true);
-			xhr.timeout = 5e3;
-			xhr.onload = () => {
-				if (xhr.status === 200) console.log("Hotkeys saved to server successfully");
-				else console.warn("Hotkey save returned non-200 status:", xhr.status);
-			};
-			xhr.onerror = () => {
-				console.warn("Hotkey save failed: web-server unreachable");
-			};
-			xhr.ontimeout = () => {
-				console.warn("Hotkey save timed out");
-			};
-			xhr.send(formData);
-		}
-	};
-	ShortCut.loadFromServer = function loadFromServer(callback) {
-		if (PacketVerManager_default.value >= 20170315 && SessionStorage_default.WebToken) {
-			const formData = new FormData();
-			formData.append("AID", SessionStorage_default.AID);
-			formData.append("WorldName", SessionStorage_default.ServerName);
-			formData.append("AuthToken", SessionStorage_default.WebToken);
-			const xhr = new XMLHttpRequest();
-			let webserverAddress = "";
-			if (window.location.protocol !== "http:" && window.location.protocol !== "https:") webserverAddress = Configs.get("webserverAddress", "http://127.0.0.1:8888");
-			xhr.open("POST", `${webserverAddress}/userconfig/load`, true);
-			xhr.timeout = 5e3;
-			xhr.onload = () => {
-				if (xhr.status === 200) try {
-					const serverData = JSON.parse(xhr.responseText);
-					_lastServerHotkeys = JSON.parse(JSON.stringify(serverData));
-					convertHotkeysFromServerFormat(serverData);
-				} catch (e) {
-					console.error("Error parsing server hotkeys:", e);
-				}
-				else console.warn("Hotkey load returned non-200 status:", xhr.status);
-				if (callback) callback();
-			};
-			xhr.onerror = () => {
-				console.warn("Hotkey load failed: web-server unreachable");
-				if (callback) callback();
-			};
-			xhr.ontimeout = () => {
-				console.warn("Hotkey load timed out");
-				if (callback) callback();
-			};
-			xhr.send(formData);
-		} else if (callback) callback();
-	};
-	ShortCut.getList = function getList() {
-		return _list$1;
-	};
-	ShortCut_default = UIManager.addComponent(ShortCut);
 }));
 //#endregion
 //#region src/UI/Components/JoystickUI/JoystickUIRenderer.js
@@ -326118,8 +326142,8 @@ function onIncreaseSkill(SKID) {
 function onUseSkill(id, level, targetID) {
 	let entity;
 	let range;
-	const isHomun = id > SkillConst_default.HOMUN_BEGIN && id < SkillConst_default.HOMUN_LAST;
-	const isMerc = id > SkillConst_default.MERCENARY_BEGIN && id < SkillConst_default.MERCENARY_LAST;
+	const isHomun = id >= SkillConst_default.HOMUN_BEGIN && id <= SkillConst_default.HOMUN_LAST;
+	const isMerc = id >= SkillConst_default.MERCENARY_BEGIN && id <= SkillConst_default.MERCENARY_LAST;
 	if (isHomun) entity = EntityManager.get(SessionStorage_default.homunId);
 	else if (isMerc) entity = EntityManager.get(SessionStorage_default.mercId);
 	else entity = SessionStorage_default.Entity;
@@ -326336,8 +326360,10 @@ var init_Skill = __esmMin((() => {
 	SkillTargetSelection_default.onUseSkillToPos = function onUseSkillToPos(id, level, x, y) {
 		let entity;
 		let range;
-		const isHomun = id > 8e3 && id < 8044;
+		const isHomun = id >= SkillConst_default.HOMUN_BEGIN && id <= SkillConst_default.HOMUN_LAST;
+		const isMerc = id >= SkillConst_default.MERCENARY_BEGIN && id <= SkillConst_default.MERCENARY_LAST;
 		if (isHomun) entity = EntityManager.get(SessionStorage_default.homunId);
+		else if (isMerc) entity = EntityManager.get(SessionStorage_default.mercId);
 		else {
 			entity = SessionStorage_default.Entity;
 			if (entity.isOverWeight) {
@@ -326372,6 +326398,9 @@ var init_Skill = __esmMin((() => {
 		if (isHomun) {
 			pkt = new PACKET.CZ.REQUEST_MOVENPC();
 			pkt.GID = SessionStorage_default.homunId;
+		} else if (isMerc) {
+			pkt = new PACKET.CZ.REQUEST_MOVENPC();
+			pkt.GID = SessionStorage_default.mercId;
 		} else if (PacketVerManager_default.value >= 20180307) pkt = new PACKET.CZ.REQUEST_MOVE2();
 		else pkt = new PACKET.CZ.REQUEST_MOVE();
 		pkt.dest[0] = out[(count - 1) * 2 + 0];
