@@ -245727,13 +245727,13 @@ var init_ShortCut = __esmMin((() => {
 		_rowCount = Math.min(4, Math.floor(list.length / 9));
 		for (let i = 0, count = list.length; i < count; ++i) if (list[i].isSkill) {
 			skill = ShortCut.getSkillById(list[i].ID);
+			if (getSkillOwner(list[i].ID) === Guild_default) needGuildSkills = true;
 			if (skill && skill.level) ShortCut.addElement(i, true, list[i].ID, list[i].count || skill.level);
 			else {
 				if (!_list$4[i]) _list$4[i] = {};
 				_list$4[i].isSkill = true;
 				_list$4[i].ID = list[i].ID;
 				_list$4[i].count = list[i].count;
-				if (getSkillOwner(list[i].ID) === Guild_default) needGuildSkills = true;
 			}
 		} else ShortCut.addElement(i, list[i].isSkill, list[i].ID, list[i].count);
 		if (needGuildSkills) ShortCut.onRequestGuildSkills();
