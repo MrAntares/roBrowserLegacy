@@ -289,6 +289,10 @@ ShortCut.setList = function setList(list) {
 		if (list[i].isSkill) {
 			skill = ShortCut.getSkillById(list[i].ID);
 
+			if (getSkillOwner(list[i].ID) === Guild) {
+				needGuildSkills = true;
+			}
+
 			if (skill && skill.level) {
 				ShortCut.addElement(i, true, list[i].ID, list[i].count || skill.level);
 			} else {
@@ -299,10 +303,6 @@ ShortCut.setList = function setList(list) {
 				_list[i].isSkill = true;
 				_list[i].ID = list[i].ID;
 				_list[i].count = list[i].count;
-
-				if (getSkillOwner(list[i].ID) === Guild) {
-					needGuildSkills = true;
-				}
 			}
 		} else {
 			ShortCut.addElement(i, list[i].isSkill, list[i].ID, list[i].count);
