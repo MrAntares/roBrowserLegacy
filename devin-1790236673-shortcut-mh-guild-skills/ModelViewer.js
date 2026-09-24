@@ -107388,7 +107388,6 @@ var init_SkillConst = __esmMin((() => {
 		EL_STONE_RAIN: 8442,
 		ELEMENTAL_LAST: 8443,
 		FOLLOWER_NPC_RESET: 9999,
-		GUILD_BEGIN: 1e4,
 		GD_APPROVAL: 1e4,
 		GD_KAFRACONTRACT: 10001,
 		GD_GUARDRESEARCH: 10002,
@@ -107410,7 +107409,6 @@ var init_SkillConst = __esmMin((() => {
 		GD_CHARGESHOUT_BEATING: 10018,
 		GD_EMERGENCY_MOVE: 10019,
 		GD_LAST: 10020,
-		GUILD_LAST: 10020,
 		SYS_FIRSTJOBLV: 10100,
 		SYS_SECONDJOBLV: 10101,
 		SCRIPT_000: 11e3,
@@ -255194,7 +255192,7 @@ var ShortCut_exports = /* @__PURE__ */ __exportAll({ default: () => ShortCut_def
 * @return {object} component exposing useSkillID / getSkillById
 */
 function getSkillOwner(id) {
-	if (id >= SkillConst_default.GUILD_BEGIN && id <= SkillConst_default.GUILD_LAST) return Guild_default;
+	if (id >= SkillConst_default.GD_APPROVAL && id <= SkillConst_default.GD_LAST) return Guild_default;
 	if (id >= SkillConst_default.HOMUN_BEGIN && id <= SkillConst_default.HOMUN_LAST) return SkillListMH_default.homunculus;
 	if (id >= SkillConst_default.MERCENARY_BEGIN && id <= SkillConst_default.MERCENARY_LAST) return SkillListMH_default.mercenary;
 	return Controller$4.getUI();
