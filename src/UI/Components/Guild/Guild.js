@@ -889,6 +889,56 @@ Guild.setMembers = function setMembers(members, hasMemo) {
 	renderMemberFaces(Renderer.tick + 1000);
 };
 
+/**
+ * The entity behind a member row's 30x30 cell.
+ *
+ * The cell is a head icon, and saying so here is the point of this function. It
+ * used to be one by accident: setMember wrote `entity._job` raw, which bypasses
+ * the `job` property whose setter loads the body, so `files.body.spr` stayed null
+ * and renderElement skipped every body pass. updateMemberStatus then assigned
+ * `entity.sex`, and UpdateSex's first statement is `this.job = this._job` - the
+ * real setter. A member who logged in or out while the window was open grew a
+ * whole sprite, which the renderer anchors at the feet, and their row showed a
+ * pair of boots while everybody else's showed a head.
+ *
+ * So both callers come through here, and the sprite the portrait wants is the only
+ * one it asks for. `sex` and `job` are written to the private fields deliberately:
+ * their setters both start a body load, and the body lands in an asynchronous
+ * Client.loadFile callback that a later `files.body.spr = null` cannot take back.
+ * `head` is the real setter - it is the sprite being drawn - and it reads the job
+ * and sex that were just written.
+ *
+ * The frozen action and animation match what every other sprite portrait does
+ * (Equipment, ItemPreview, CharSelect): nothing here is on the world's animation
+ * clock, so pin the frame rather than sample it off Date.now().
+ *
+ * @param {object} [entity] - the member's existing entity, if they have one
+ * @param {{sex: number, job: number, head: number, headPalette: number}} look
+ * @returns {object} the entity to store back on the member
+ */
+function memberPortrait(entity, look) {
+	if (!entity) {
+		entity = new Entity();
+		// Before anything reads entity.ACTION: EntityAction builds that table from
+		// objecttype at construction time, and the default is TYPE_UNKNOWN.
+		entity.objecttype = Entity.TYPE_PC;
+		entity.files.shadow.spr = null;
+	}
+
+	entity._sex = look.sex;
+	entity._job = look.job;
+	entity._effectiveJob = look.job;
+	entity.head = look.head;
+	entity.headpalette = look.headPalette;
+
+	entity.direction = 4;
+	entity.headDir = 0;
+	entity.action = entity.ACTION.IDLE;
+	entity.animation = { tick: 0, frame: 0, repeat: true, play: true, next: false, delay: 0, save: false };
+
+	return entity;
+}
+
 Guild.setMember = function setMember(member) {
 	let i, count;
 	const root = _root(this);
@@ -1003,17 +1053,12 @@ Guild.setMember = function setMember(member) {
 		taxCell.title = member.MemberExp;
 	}
 
-	if (!member.entity) {
-		member.entity = new Entity();
-		member.entity.direction = 4;
-		member.entity.objecttype = Entity.TYPE_PC;
-		member.entity.files.shadow.spr = null;
-	}
-	member.entity.sex = member.Sex;
-	member.entity._job = member.Job;
-	member.entity._effectiveJob = member.Job;
-	member.entity.head = member.HeadType;
-	member.entity.headpalette = member.HeadPalette;
+	member.entity = memberPortrait(member.entity, {
+		sex: member.Sex,
+		job: member.Job,
+		head: member.HeadType,
+		headPalette: member.HeadPalette
+	});
 
 	const numMember = root.querySelector('.content.info .members .numMember');
 	if (numMember) {
@@ -1047,17 +1092,32 @@ Guild.updateMemberStatus = function updateMemberStatus(member) {
 		}
 	}
 
-	if ('sex' in member) {
-		_members[i].entity.sex = member.sex;
+	// ZC_UPDATE_CHARSTAT2 carries the look again; plain ZC_UPDATE_CHARSTAT does not.
+	// Only the online notice carries a real one: rAthena fills gender, hairStyle
+	// and hairColor from the member's session, and sends all three as 0 when there
+	// is no session left to read (clif.cpp, clif_guild_memberlogin_notice). Keeping
+	// a logout's zeroes would rewrite the member's look as female, hairstyle 0.
+	const current = _members[i];
+	if (member.status) {
+		if ('sex' in member) {
+			current.Sex = member.sex;
+		}
+		if ('head' in member) {
+			current.HeadType = member.head;
+		}
+		if ('headPalette' in member) {
+			current.HeadPalette = member.headPalette;
+		}
 	}
 
-	if ('head' in member) {
-		_members[i].entity.head = member.head;
-	}
-
-	if ('headPalette' in member) {
-		_members[i].entity.headpalette = member.headPalette;
-	}
+	// Rebuilt from the roster entry, through the same builder the roster uses, so a
+	// login cannot leave one member's portrait in a different shape from the rest.
+	current.entity = memberPortrait(current.entity, {
+		sex: current.Sex,
+		job: current.Job,
+		head: current.HeadType,
+		headPalette: current.HeadPalette
+	});
 
 	for (i = 0, count = _members.length; i < count; ++i) {
 		online += _members[i].CurrentState ? 1 : 0;
@@ -1693,8 +1753,53 @@ function renderTendency(honor, virtue) {
 	ctx.fillRect(marker.x, marker.y, 2, 2);
 }
 
+/**
+ * RenderCanvas2D draws every layer centred on `bindY + offset - 0.5 * 35`. Passing
+ * the shift back cancels it, so the entity's origin lands exactly where asked.
+ */
+const CELL_SHIFT = 0.5 * 35;
+
+/** Side of the scratch canvas the portrait is drawn into before being cropped. */
+const PORTRAIT_BOX = 96;
+
+/**
+ * Bounds of everything non-transparent, or null if nothing was drawn.
+ *
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {number} side
+ */
+function opaqueBounds(ctx, side) {
+	const data = ctx.getImageData(0, 0, side, side).data;
+	let top = -1,
+		bottom = -1,
+		left = side,
+		right = -1;
+
+	for (let y = 0; y < side; ++y) {
+		const row = y * side;
+		for (let x = 0; x < side; ++x) {
+			if (data[(row + x) * 4 + 3] > 8) {
+				if (top < 0) {
+					top = y;
+				}
+				bottom = y;
+				if (x < left) {
+					left = x;
+				}
+				if (x > right) {
+					right = x;
+				}
+			}
+		}
+	}
+
+	return top < 0 ? null : { top, bottom, left, right };
+}
+
 const renderMemberFaces = (function renderMemberFacesClosure() {
 	let lastTick = 0;
+	let scratch = null;
+	let scratchCtx = null;
 
 	return function renderMemberFace(tick) {
 		if (tick < lastTick + 1000) {
@@ -1703,6 +1808,12 @@ const renderMemberFaces = (function renderMemberFacesClosure() {
 
 		lastTick = tick;
 		const root = _root(Guild);
+
+		if (!scratch) {
+			scratch = document.createElement('canvas');
+			scratch.width = scratch.height = PORTRAIT_BOX;
+			scratchCtx = scratch.getContext('2d');
+		}
 
 		// Each member's OWN canvas, resolved through the index the row carries,
 		// never through its position. `_members` keeps the order the server
@@ -1724,14 +1835,46 @@ const renderMemberFaces = (function renderMemberFacesClosure() {
 				continue;
 			}
 			const ctx = canvas.getContext('2d');
-			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+			const cellW = canvas.width;
+			const cellH = canvas.height;
+			ctx.clearRect(0, 0, cellW, cellH);
 
 			if (!_members[i].CurrentState) {
 				continue;
 			}
 
-			SpriteRenderer.bind2DContext(ctx, 15, 45);
+			// Draw into a box big enough to hold the sprite whole, then crop to what
+			// was actually drawn. A fixed bind offset cannot do this: it has to know
+			// the sprite's height in advance, and a head .act places its layers
+			// wherever it likes - they are authored to be differenced against the
+			// body's attach point, which a head-only portrait never has. Measuring
+			// the result is the only thing that is right for every job and hairstyle.
+			scratchCtx.clearRect(0, 0, PORTRAIT_BOX, PORTRAIT_BOX);
+			SpriteRenderer.bind2DContext(scratchCtx, PORTRAIT_BOX / 2, PORTRAIT_BOX / 2 + CELL_SHIFT);
 			_members[i].entity.renderEntity();
+
+			const box = opaqueBounds(scratchCtx, PORTRAIT_BOX);
+			if (!box) {
+				continue;
+			}
+
+			// Centre the drawing in the cell, and keep the top when it is too tall -
+			// the head is at the top of anything that overflows.
+			const boxH = box.bottom - box.top + 1;
+			const sx = box.left + (box.right - box.left + 1 - cellW) / 2;
+			const sy = boxH > cellH ? box.top : box.top + (boxH - cellH) / 2;
+
+			ctx.drawImage(
+				scratch,
+				Math.min(Math.max(Math.round(sx), 0), PORTRAIT_BOX - cellW),
+				Math.min(Math.max(Math.round(sy), 0), PORTRAIT_BOX - cellH),
+				cellW,
+				cellH,
+				0,
+				0,
+				cellW,
+				cellH
+			);
 		}
 	};
 })();

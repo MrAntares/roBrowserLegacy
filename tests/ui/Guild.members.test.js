@@ -21,7 +21,32 @@ const mocks = vi.hoisted(() => {
 
 	class MockEntity {
 		constructor() {
-			this.files = { shadow: {} };
+			this.files = { shadow: {}, body: { spr: null }, head: {} };
+			this.ACTION = { IDLE: 0 };
+			this._sex = -1;
+			this._job = 0;
+		}
+
+		// Mirrors EntityView, because this is the behaviour the guild portrait has
+		// to steer around: the `job` setter loads a body sprite, and UpdateSex's
+		// first statement is `this.job = this._job`, so assigning `sex` loads one
+		// too. A portrait that touches either stops being a head.
+		get sex() {
+			return this._sex;
+		}
+
+		set sex(value) {
+			this._sex = value;
+			this.job = this._job;
+		}
+
+		get job() {
+			return this._job;
+		}
+
+		set job(value) {
+			this._job = value;
+			this.files.body.spr = 'body.spr';
 		}
 
 		renderEntity() {}
@@ -99,8 +124,26 @@ vi.mock('UI/Components/SkillTargetSelection/SkillTargetSelection.js', () => ({ d
 vi.mock('UI/Components/SkillDescription/SkillDescription.js', () => ({ default: {} }));
 vi.mock('UI/Components/WinStats/WinStats.js', () => ({ default: { getUI: () => ({ update: vi.fn() }) } }));
 
+// Every canvas the member list blits into, in the order it was blitted. The head
+// is cropped out of an offscreen scratch canvas and drawn into the row's cell, so
+// the destination of that drawImage - not the bind offset, which now names the
+// scratch - is what says whose head landed where.
+const blits = [];
+
 HTMLCanvasElement.prototype.getContext = function () {
-	return { canvas: this, fillStyle: '', fillRect() {}, clearRect() {}, drawImage() {} };
+	if (!this.__ctx) {
+		this.__ctx = {
+			canvas: this,
+			fillStyle: '',
+			fillRect() {},
+			clearRect() {},
+			drawImage: (...args) => blits.push({ canvas: this, args }),
+			// Opaque everywhere, so the portrait's bounding box is the whole scratch
+			// and the crop runs its real arithmetic.
+			getImageData: (_x, _y, w, h) => ({ data: new Uint8ClampedArray(w * h * 4).fill(255) })
+		};
+	}
+	return this.__ctx;
 };
 
 const Guild = (await import('UI/Components/Guild/Guild.js')).default;
@@ -172,7 +215,7 @@ describe('guild member list, ordered by login status', () => {
 	// online member's head lands on whatever row sits at the same offset.
 	it('paints each head on its own row, not on whichever row shares its offset', () => {
 		const roster = alternating(4); // off-0, ON-1, off-2, ON-3
-		mocks.sprite.bind2DContext.mockClear();
+		blits.length = 0;
 		mocks.renderer.tick += 5000;
 
 		Guild.setMembers(roster, false);
@@ -181,11 +224,55 @@ describe('guild member list, ordered by login status', () => {
 			const row = canvas.closest('tr');
 			return row ? row.querySelector('.name .value').textContent : '(detached)';
 		};
-		const painted = mocks.sprite.bind2DContext.mock.calls.map(call => nameOfCanvas(call[0].canvas));
+		const painted = blits.map(blit => nameOfCanvas(blit.canvas));
 
 		// Sorted order is ON-1, ON-3, off-0, off-2 - so positional indexing would
 		// paint ON-1's head on ON-3's row and ON-3's onto off-0's, an offline row.
 		expect(painted.sort()).toEqual(['ON-1', 'ON-3']);
+	});
+
+	// A member who logs in or out while the window is open used to stop being a
+	// head. `updateMemberStatus` assigned `entity.sex`, and UpdateSex's first
+	// statement is `this.job = this._job` - the real job setter - so a body sprite
+	// loaded and the row started drawing the feet at the portrait's ground anchor.
+	it('keeps a member head-only after a status update carries their look again', () => {
+		const roster = uniform(2, true);
+		Guild.setMembers(roster, false);
+
+		const member = roster[0];
+		const { entity } = member;
+		expect(entity.files.body.spr).toBe(null);
+
+		Guild.updateMemberStatus({
+			AID: member.AID,
+			GID: member.GID,
+			status: 1,
+			sex: member.Sex,
+			head: member.HeadType,
+			headPalette: member.HeadPalette
+		});
+
+		expect(entity.files.body.spr).toBe(null);
+	});
+
+	// rAthena fills the look from the member's session and sends gender, hairStyle
+	// and hairColor as 0 once there is no session left to read, so the logout
+	// notice is not a look change and must not be stored as one.
+	it('does not take the zeroed look a logout notice carries', () => {
+		const roster = uniform(2, true).map(m => ({ ...m, Sex: 1, HeadType: 7, HeadPalette: 3 }));
+		Guild.setMembers(roster, false);
+
+		const member = roster[0];
+		Guild.updateMemberStatus({
+			AID: member.AID,
+			GID: member.GID,
+			status: 0,
+			sex: 0,
+			head: 0,
+			headPalette: 0
+		});
+
+		expect([member.Sex, member.HeadType, member.HeadPalette]).toEqual([1, 7, 3]);
 	});
 
 	it('marks the online rows and only those', () => {

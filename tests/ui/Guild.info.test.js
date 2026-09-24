@@ -24,7 +24,8 @@ const mocks = vi.hoisted(() => {
 
 	class MockEntity {
 		constructor() {
-			this.files = { shadow: {} };
+			this.files = { shadow: {}, body: { spr: null }, head: {} };
+			this.ACTION = { IDLE: 0 };
 		}
 
 		renderEntity() {}
@@ -123,7 +124,8 @@ HTMLCanvasElement.prototype.getContext = function () {
 			mocks.fills.push([x, y, w, h, ctx.fillStyle]);
 		},
 		clearRect() {},
-		drawImage() {}
+		drawImage() {},
+		getImageData: (_x, _y, w, h) => ({ data: new Uint8ClampedArray(w * h * 4).fill(255) }),
 	};
 	return ctx;
 };

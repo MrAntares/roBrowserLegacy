@@ -21,7 +21,8 @@ const mocks = vi.hoisted(() => {
 
 	class MockEntity {
 		constructor() {
-			this.files = { shadow: {} };
+			this.files = { shadow: {}, body: { spr: null }, head: {} };
+			this.ACTION = { IDLE: 0 };
 		}
 
 		renderEntity() {}
@@ -102,7 +103,7 @@ vi.mock('UI/Components/SkillDescription/SkillDescription.js', () => ({ default: 
 vi.mock('UI/Components/WinStats/WinStats.js', () => ({ default: { getUI: () => ({ update: vi.fn() }) } }));
 
 HTMLCanvasElement.prototype.getContext = function () {
-	return { canvas: this, fillStyle: '', fillRect() {}, clearRect() {}, drawImage() {} };
+	return { canvas: this, fillStyle: '', fillRect() {}, clearRect() {}, drawImage() {}, getImageData: (_x, _y, w, h) => ({ data: new Uint8ClampedArray(w * h * 4).fill(255) }) };
 };
 
 const Guild = (await import('UI/Components/Guild/Guild.js')).default;
