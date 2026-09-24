@@ -249,7 +249,7 @@ ShortCut.onShortCut = function onShortCut(key) {
  * @return {object} component exposing useSkillID / getSkillById
  */
 function getSkillOwner(id) {
-	if (id >= SkillId.GUILD_BEGIN && id <= SkillId.GUILD_LAST) {
+	if (id >= SkillId.GD_APPROVAL && id <= SkillId.GD_LAST) {
 		return Guild;
 	}
 	if (id >= SkillId.HOMUN_BEGIN && id <= SkillId.HOMUN_LAST) {
