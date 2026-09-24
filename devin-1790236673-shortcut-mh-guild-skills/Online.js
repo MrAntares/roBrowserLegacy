@@ -326842,8 +326842,8 @@ function onIncreaseSkill(SKID) {
 function onUseSkill(id, level, targetID) {
 	let entity;
 	let range;
-	const isHomun = id > SkillConst_default.HOMUN_BEGIN && id < SkillConst_default.HOMUN_LAST;
-	const isMerc = id > SkillConst_default.MERCENARY_BEGIN && id < SkillConst_default.MERCENARY_LAST;
+	const isHomun = id >= SkillConst_default.HOMUN_BEGIN && id <= SkillConst_default.HOMUN_LAST;
+	const isMerc = id >= SkillConst_default.MERCENARY_BEGIN && id <= SkillConst_default.MERCENARY_LAST;
 	if (isHomun) entity = EntityManager.get(SessionStorage_default.homunId);
 	else if (isMerc) entity = EntityManager.get(SessionStorage_default.mercId);
 	else entity = SessionStorage_default.Entity;
@@ -327060,8 +327060,10 @@ var init_Skill = __esmMin((() => {
 	SkillTargetSelection_default.onUseSkillToPos = function onUseSkillToPos(id, level, x, y) {
 		let entity;
 		let range;
-		const isHomun = id > 8e3 && id < 8044;
+		const isHomun = id >= SkillConst_default.HOMUN_BEGIN && id <= SkillConst_default.HOMUN_LAST;
+		const isMerc = id >= SkillConst_default.MERCENARY_BEGIN && id <= SkillConst_default.MERCENARY_LAST;
 		if (isHomun) entity = EntityManager.get(SessionStorage_default.homunId);
+		else if (isMerc) entity = EntityManager.get(SessionStorage_default.mercId);
 		else {
 			entity = SessionStorage_default.Entity;
 			if (entity.isOverWeight) {
@@ -327096,6 +327098,9 @@ var init_Skill = __esmMin((() => {
 		if (isHomun) {
 			pkt = new PACKET.CZ.REQUEST_MOVENPC();
 			pkt.GID = SessionStorage_default.homunId;
+		} else if (isMerc) {
+			pkt = new PACKET.CZ.REQUEST_MOVENPC();
+			pkt.GID = SessionStorage_default.mercId;
 		} else if (PacketVerManager_default.value >= 20180307) pkt = new PACKET.CZ.REQUEST_MOVE2();
 		else pkt = new PACKET.CZ.REQUEST_MOVE();
 		pkt.dest[0] = out[(count - 1) * 2 + 0];
