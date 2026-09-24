@@ -11,6 +11,7 @@
 import DB from 'DB/DBManager.js';
 import ItemType from 'DB/Items/ItemType.js';
 import SkillInfo from 'DB/Skills/SkillInfo.js';
+import SkillId from 'DB/Skills/SkillConst.js';
 import Client from 'Core/Client.js';
 import Preferences from 'Core/Preferences.js';
 import Session from 'Engine/SessionStorage.js';
@@ -241,33 +242,31 @@ ShortCut.onShortCut = function onShortCut(key) {
 	}
 };
 
-ShortCut.useSkill = function useSkill(id, level) {
-	if (id > 10000 && id < 10100) {
-		Guild.useSkillID(id, level);
-	} else if (id > 8000 && id < 8044) {
-		// if one of them don't have the skill, it returns early
-		SkillListMH.mercenary.useSkillID(id, level);
-		SkillListMH.homunculus.useSkillID(id, level);
-	} else {
-		SkillWindow.getUI().useSkillID(id, level);
+/**
+ * Resolve which skill window owns a skill id
+ *
+ * @param {number} skill id
+ * @return {object} component exposing useSkillID / getSkillById
+ */
+function getSkillOwner(id) {
+	if (id >= SkillId.GUILD_BEGIN && id <= SkillId.GUILD_LAST) {
+		return Guild;
 	}
+	if (id >= SkillId.HOMUN_BEGIN && id <= SkillId.HOMUN_LAST) {
+		return SkillListMH.homunculus;
+	}
+	if (id >= SkillId.MERCENARY_BEGIN && id <= SkillId.MERCENARY_LAST) {
+		return SkillListMH.mercenary;
+	}
+	return SkillWindow.getUI();
+}
+
+ShortCut.useSkill = function useSkill(id, level) {
+	getSkillOwner(id).useSkillID(id, level);
 };
 
 ShortCut.getSkillById = function getSkillById(id) {
-	let skill;
-
-	if (id > 10000 && id < 10100) {
-		skill = Guild.getSkillById(id);
-	} else if (id > 8000 && id < 8044) {
-		skill = SkillListMH.mercenary.getSkillById(id);
-		if (!skill) {
-			skill = SkillListMH.homunculus.getSkillById(id);
-		}
-	} else {
-		skill = SkillWindow.getUI().getSkillById(id);
-	}
-
-	return skill;
+	return getSkillOwner(id).getSkillById(id);
 };
 
 /**

@@ -602,6 +602,9 @@ function onGuildOwnInfo(pkt) {
 	Session.Entity.GUID = pkt.GDID;
 	Session.Entity.GEmblemVer = pkt.emblemVersion;
 
+	// Guild skills are needed for the shortcut bar before the guild window is opened
+	GuildEngine.requestInfo(3);
+
 	// Request emblem for the player's own entity
 	if (pkt.GDID && pkt.emblemVersion) {
 		GuildEngine.requestGuildEmblem(pkt.GDID, pkt.emblemVersion, (image, gif) => {
