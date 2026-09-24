@@ -276,6 +276,7 @@ ShortCut.getSkillById = function getSkillById(id) {
  */
 ShortCut.setList = function setList(list) {
 	let skill;
+	let needGuildSkills = false;
 	const root = ShortCut.getRoot();
 
 	root.querySelectorAll('.container').forEach(el => {
@@ -298,12 +299,25 @@ ShortCut.setList = function setList(list) {
 				_list[i].isSkill = true;
 				_list[i].ID = list[i].ID;
 				_list[i].count = list[i].count;
+
+				if (getSkillOwner(list[i].ID) === Guild) {
+					needGuildSkills = true;
+				}
 			}
 		} else {
 			ShortCut.addElement(i, list[i].isSkill, list[i].ID, list[i].count);
 		}
 	}
+
+	if (needGuildSkills) {
+		ShortCut.onRequestGuildSkills();
+	}
 };
+
+/**
+ * Hook: ask the server for the guild skill list (set by MapEngine/Guild)
+ */
+ShortCut.onRequestGuildSkills = function onRequestGuildSkills() {};
 
 /**
  * Update tooltip for empty slots with hotkey only
