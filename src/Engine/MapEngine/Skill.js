@@ -665,8 +665,8 @@ function onUseSkill(id, level, targetID) {
 	let entity;
 	let range;
 
-	const isHomun = id > SkillId.HOMUN_BEGIN && id < SkillId.HOMUN_LAST;
-	const isMerc = id > SkillId.MERCENARY_BEGIN && id < SkillId.MERCENARY_LAST;
+	const isHomun = id >= SkillId.HOMUN_BEGIN && id <= SkillId.HOMUN_LAST;
+	const isMerc = id >= SkillId.MERCENARY_BEGIN && id <= SkillId.MERCENARY_LAST;
 
 	// Not used so far
 	//var isElem = (id > SkillId.ELEMENTAL_BEGIN && id < SkillId.ELEMENTAL_LAST);
@@ -777,10 +777,13 @@ SkillTargetSelection.onUseSkillToPos = function onUseSkillToPos(id, level, x, y)
 	let entity;
 	let range;
 
-	const isHomun = id > 8000 && id < 8044;
+	const isHomun = id >= SkillId.HOMUN_BEGIN && id <= SkillId.HOMUN_LAST;
+	const isMerc = id >= SkillId.MERCENARY_BEGIN && id <= SkillId.MERCENARY_LAST;
 
 	if (isHomun) {
 		entity = EntityManager.get(Session.homunId);
+	} else if (isMerc) {
+		entity = EntityManager.get(Session.mercId);
 	} else {
 		entity = Session.Entity;
 		if (entity.isOverWeight) {
@@ -843,6 +846,9 @@ SkillTargetSelection.onUseSkillToPos = function onUseSkillToPos(id, level, x, y)
 	if (isHomun) {
 		pkt = new PACKET.CZ.REQUEST_MOVENPC();
 		pkt.GID = Session.homunId;
+	} else if (isMerc) {
+		pkt = new PACKET.CZ.REQUEST_MOVENPC();
+		pkt.GID = Session.mercId;
 	} else {
 		if (PACKETVER.value >= 20180307) {
 			pkt = new PACKET.CZ.REQUEST_MOVE2();

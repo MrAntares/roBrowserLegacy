@@ -26,11 +26,17 @@ import GuildCompanion from 'UI/Components/GuildCompanion/GuildCompanion.js';
 import UIManager from 'UI/UIManager.js';
 import Configs from 'Core/Configs.js';
 import MiniMap from 'UI/Components/MiniMap/MiniMap.js';
+import ShortCut from 'UI/Components/ShortCut/ShortCut.js';
 
 /**
  * @var {Object} emblem list
  */
 const _emblems = {};
+
+/**
+ * @var {boolean} shortcut bar asked for guild skills before guild info arrived
+ */
+let _pendingGuildSkillRequest = false;
 
 /**
  * Engine namespace
@@ -98,6 +104,18 @@ class GuildEngine {
 		Guild.onRequestBreakGuild = GuildEngine.breakGuild;
 		Guild.onRequestGuildEmblem = GuildEngine.requestGuildEmblem;
 		Guild.onSendEmblem = GuildEngine.sendEmblem;
+		ShortCut.onRequestGuildSkills = GuildEngine.requestGuildSkills;
+	}
+
+	/**
+	 * Request the guild skill list, deferred until we know the player has a guild
+	 */
+	static requestGuildSkills() {
+		if (Session.hasGuild) {
+			GuildEngine.requestInfo(3);
+		} else {
+			_pendingGuildSkillRequest = true;
+		}
 	}
 
 	/**
@@ -601,6 +619,11 @@ function onGuildOwnInfo(pkt) {
 
 	Session.Entity.GUID = pkt.GDID;
 	Session.Entity.GEmblemVer = pkt.emblemVersion;
+
+	if (_pendingGuildSkillRequest) {
+		_pendingGuildSkillRequest = false;
+		GuildEngine.requestInfo(3);
+	}
 
 	// Request emblem for the player's own entity
 	if (pkt.GDID && pkt.emblemVersion) {
