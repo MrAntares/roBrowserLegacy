@@ -733,13 +733,17 @@
  * y = (cellH - bmpH) / 2, i.e. flush left and vertically centred. `left center`
  * rather than a hard `0 1px` because that division is the rule, and a skin
  * shipping a different checkbox size has to keep working. */
+/* The tick is 12x12 in a 61x20 cell, so a click at the cell's centre used to
+ * land on nothing. Filling the cell makes the whole of it the target and, since
+ * the cursor list matches the element under the pointer, makes it read as one
+ * too. 16px is the cell's content box: 20 less its border and top padding. */
 #Guild .content.positions .checkbox {
-	display: inline-block;
+	display: block;
 	border: none;
-	width: 12px;
-	height: 12px;
+	width: 100%;
+	height: 16px;
 	background-repeat: no-repeat;
-	background-position: left center;
+	background-position: left top;
 	background-color: transparent;
 }
 
