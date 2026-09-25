@@ -22,19 +22,30 @@ friend notice - are gated on one flag, and `/li` is the command that writes it.
 
 ## Why
 
-All three clients open each case body with a comparison on **the same global**
-before anything is printed - in ver12 that is `cmp dword [data.0079fa74], 1`.
-The sites are ver12 `fcn.00585c80` case 0x99, 2022 `fcn.00788200` case 140,
-mars26 `fcn.00b55460` case 140. The `cmp` is the **first** instruction of the
-case body, so nothing reaches the print without it.
+All three clients open each case body with a comparison on a flag of their own
+before anything is printed, and the `cmp` is the **first** instruction of the
+case body, so nothing reaches the print without it. **The global, the comparand
+and the branch are all per client** - mars26 tests the opposite sense:
+
+| client | site | instruction | branch | prints when |
+|---|---|---|---|---|
+| ver12 | `fcn.00585c80` case 0x99 | `cmp dword [data.0079fa74], 1` | `jne` skip | flag == 1 |
+| 20220330 | `fcn.00788200` case 140 | `cmp dword [data.011310b8], 1` | `jne` skip | flag == 1 |
+| mars26 | `fcn.00b55460` case 140 | `cmp dword [data.0140a81c], 0` | **`je` skip** | flag != 0 |
+
+mars26 uses the `, 0` form at every reader, not only here, so it is the client's
+convention rather than a one-off. The three flags are the same logical toggle
+only because each is written by its own command handler.
 
 The guild notice takes the same gate, in ver12 through `fcn.005a5580`, where
 `cmp dword [data.0079fa74], 1` guards the print in the same way.
 
-`/li` is what writes that flag. It is the **friend-list** toggle, confirmed
-through the `0x0206` path to ver12 `fcn.0065cae0`, which uses ids 1041/1042;
-the toggle's own confirmations are ids 1044/1045. Both string tables name it
-explicitly: "Display online status of friends in Chat Window. [/li ON]".
+`/li` is what writes that flag - in ver12 `fcn.0057c640` case 164, which
+subtracts and stores. The **reader** reached through the `0x0206` path,
+ver12 `fcn.0065cae0`, only loads it; it uses ids 1041/1042, and the toggle's
+own confirmations are ids 1044/1045. It is the **friend-list** toggle. Both
+string tables name it explicitly: "Display online status of friends in Chat
+Window. [/li ON]".
 
 roBrowser printed all three lines unconditionally and had no such command at
 all.
