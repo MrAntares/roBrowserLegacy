@@ -278,6 +278,28 @@ describe('guild window, the login-status checkbox', () => {
 		}
 	});
 
+	// The sort is a display order, not new guild data. It used to rebuild the
+	// list through setMembers, which drops the queued grade changes as a side
+	// effect and loses the guild master's unsent work.
+	it('keeps the queued grade changes, which are not guild data', () => {
+		Configs.set('guild', { memberListSort: 'checkbox' });
+		showTab('members');
+		vi.spyOn(UIPreferences, 'save').mockImplementation(() => {});
+
+		const sent = [];
+		Guild.onChangeMemberPosRequest = list => sent.push(list);
+
+		const select = root().querySelector(`.member_${member(ALICE).AID}_${member(ALICE).GID}`);
+		select.value = '2';
+		select.dispatchEvent(new Event('change'));
+
+		sortlogin().dispatchEvent(new MouseEvent('click', { bubbles: true }));
+		root().querySelector('.footer .btn_ok').dispatchEvent(new Event('click'));
+
+		expect(sent).toHaveLength(1);
+		expect(sent[0]).toEqual([{ AID: member(ALICE).AID, GID: member(ALICE).GID, positionID: 2 }]);
+	});
+
 	it('reorders the list when clicked, and persists the answer', () => {
 		Configs.set('guild', { memberListSort: 'checkbox' });
 		showTab('members');

@@ -2068,7 +2068,11 @@ function updateMemberSort(root, activeTab) {
 		box.addEventListener('click', () => {
 			UIPreferences.guildMemberListSorted = !UIPreferences.guildMemberListSorted;
 			UIPreferences.save();
-			Guild.setMembers(_members.slice(), _hasMemo);
+
+			// Move the rows rather than rebuild the list: setMembers drops the
+			// queued grade changes, and the sort is a display order, not new
+			// guild data.
+			reorderMemberRows(root, _sortsByLogin() ? _orderByLogin(_members) : _members);
 			updateMemberSort(root, 'members');
 		});
 	}
