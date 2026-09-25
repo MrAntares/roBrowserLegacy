@@ -96,9 +96,9 @@ describe('GuildCompanion', () => {
 	});
 
 	describe('the mode strings come from the table, not from the markup', () => {
-		// Class 0xd5 and class 0xd7 are one UICreateGuildWnd built with a mode
-		// flag, and fcn.005f2150 picks 0x81c / 0x81d against 0x828 / 0x829 off
-		// that flag. Those four ids are 2076 / 2077 and 2088 / 2089.
+		// Create and disband are one window built with a mode flag, and the
+		// client picks 2076 / 2077 against 2088 / 2089 off that flag.
+		// @see docs/reference/guild/create-disband-dialogs.md
 		it('disband takes 2088 and 2089', () => {
 			GuildCompanion.openDisband();
 
@@ -174,8 +174,9 @@ describe('GuildCompanion', () => {
 		});
 
 		it('an empty field raises msgstring 2080 rather than doing nothing', () => {
-			// The client answers an empty edit with 0x820 (fcn.005f5da0); the
-			// port used to silently refocus, which reads as a dead button.
+			// The client answers an empty edit with msgstring 2080; the port used
+			// to silently refocus, which reads as a dead button.
+			// @see docs/reference/guild/create-disband-dialogs.md
 			GuildCompanion.openDisband();
 			input().value = '   ';
 			click('.btn_ok');

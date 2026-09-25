@@ -616,8 +616,7 @@
  *   ver12   34 + 1 = 35   one line, no access date
  *   mars26  35 + 1 = 36   one line, no access date
  *   2022    43 + 1 = 44   two lines - it is the only client that draws an
- *                         access date, and it pays 8px for it
- *                         (`add [esi+0x154], 8` in its member layout)
+ *                         access date, and it pays 8px of row height for it
  *
  * mars26 is the baseline as the newest. The memo-era packet carries a note and
  * no date at all, which is the ver12 generation, so it selects ver12's pitch. */

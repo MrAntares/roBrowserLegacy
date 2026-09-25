@@ -286,8 +286,9 @@ describe('guild member list, ordered by login status', () => {
 	});
 
 	// The client announces a member connecting or disconnecting, behind the flag
-	// /li writes: fcn.00585c80 case 0x99 opens on `cmp dword [data.0079fa74], 1`
-	// before anything is printed, and 2022 and mars26 gate the same way.
+	// /li writes. All three clients test it before anything is printed, each on
+	// its own global and mars26 on the opposite sense.
+	// @see docs/reference/guild/login-announcements.md
 	describe('announcing a member connecting or disconnecting', () => {
 		function announce(roster, index, status) {
 			ChatBox.addText.mockClear();
@@ -399,8 +400,8 @@ describe('guild member list, the access date sub-line', () => {
 		expect(membersPane().classList.contains('has-lastlogin')).toBe(true);
 	});
 
-	// 2022 pays 8px of row height for the access date - `add [esi+0x154], 8` in
-	// its member layout - and no other client draws one. A row carrying 2022's
+	// 20220330 pays 8px of row height for the access date, and no other client
+	// draws one. A row carrying that client's
 	// height without its date is a shape the client never produces, so the two
 	// ride the same flag.
 	it('takes the taller row with it', () => {

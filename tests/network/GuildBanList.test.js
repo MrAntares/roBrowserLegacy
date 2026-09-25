@@ -6,8 +6,8 @@ import BinaryReader from 'Utils/BinaryReader.js';
 const NAME_LENGTH = 24;
 const REASON_LENGTH = 40;
 
-// rathena src/map/packets_struct.hpp, PACKET_ZC_BAN_LIST_sub - one arm per
-// generation. The strides are what tells the three apart on the wire, and the
+// One arm per generation, as the server declares them. The strides are what
+// tells the three apart on the wire, and the
 // field order is not the same in all three: 0x0b7c puts the name *after* the
 // reason, where 0x0163 puts it before.
 const STRIDE = {

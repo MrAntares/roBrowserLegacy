@@ -253,7 +253,7 @@ function reorderMemberRows(root, ordered) {
 	}
 
 	const indexOf = {};
-	for (let i = 0; i < _members.length; ++i) {
+	for (let i = 0, count = _members.length; i < count; ++i) {
 		indexOf[`${_members[i].AID}_${_members[i].GID}`] = i;
 	}
 
@@ -769,8 +769,9 @@ Guild.setGuildInformations = function setGuildInformations(info) {
 /**
  * Reflect the two legacy switches onto the tab
  *
- * Kept out of setGuildInformations: they decide whether those elements are
- * drawn at all, so waiting for a packet would draw them and take them away.
+ * Called on open and on every tab change, not only when a guild-info packet
+ * lands: they decide whether those elements are drawn at all, so waiting for a
+ * packet would draw them and take them away.
  * @see docs/reference/guild/info-tab-legacy.md
  */
 function updateInfoOptions(root) {

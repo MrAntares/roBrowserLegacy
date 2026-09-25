@@ -29,7 +29,7 @@ const MODE_STRINGS = {
  * Helper: query inside shadow root
  */
 function _root() {
-	return GuildCompanion._shadow || GuildCompanion._host;
+	return GuildCompanion.getRoot();
 }
 
 GuildCompanion.init = function init() {

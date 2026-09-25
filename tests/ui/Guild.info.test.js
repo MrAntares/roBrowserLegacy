@@ -191,11 +191,10 @@ describe('Guild info tab', () => {
 	});
 
 	describe('experience at max guild level', () => {
-		// mars26 blanks the value AND reddens the line off one comparison
-		// against 50 - fcn.008464c0.asm:0x8467e0, a cmovge on the sprintf
-		// vararg and another on the colour. ver12 blanks only
-		// (fcn.004a7e40.asm:271-302) and 2022 reddens only
-		// (fcn.005f2750.asm:0x5f2abf). We draw the newest.
+		// The three clients differ here: the newest blanks the value and reddens
+		// the line, the oldest only blanks it, and 20220330 only reddens it. We
+		// draw the newest.
+		// @see docs/reference/guild/info-tab-legacy.md
 		it('below max level shows the real figure', () => {
 			Guild.setGuildInformations(guildInfo({ level: 49, exp: 5121 }));
 
@@ -271,8 +270,9 @@ describe('Guild info tab', () => {
 	describe('the tendency chart', () => {
 		// ver12 draws frame (23,188,90,90) palette (14,6), face (24,189,88,88)
 		// palette (6,2), axes (67,189,2,88) and (24,232,88,2) palette (22,2),
-		// and a 2x2 palette-(2,2) marker - fcn.004a7e40.asm:433-562. The canvas
-		// sits at (23,188), so these are those rects less that origin.
+		// and a 2x2 palette-(2,2) marker. The canvas sits at (23,188), so these
+		// are those rects less that origin.
+		// @see docs/reference/guild/info-tab-legacy.md
 		function chart() {
 			mocks.fills.length = 0;
 			Configs.set('guild', { showTendency: true });

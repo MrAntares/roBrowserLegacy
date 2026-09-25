@@ -163,10 +163,11 @@ describe('Guild disband', () => {
 	});
 
 	describe('the guild-master gate', () => {
-		// The client gates its own button on _data.01110f9c, and the port gates
-		// twice: once on the button's visibility and once inside the handler.
-		// rAthena refuses a non-master silently anyway (guild.cpp), so a leak
+		// The client gates its own button on the guild-master flag, and the port
+		// gates twice: once on the button's visibility and once inside the
+		// handler. The server refuses a non-master silently anyway, so a leak
 		// here would read as a dead button rather than an error.
+		// @see docs/reference/guild/create-disband-dialogs.md
 		it('a non-master never sees the button', () => {
 			mocks.session.isGuildMaster = false;
 			showTab('info');
@@ -197,9 +198,10 @@ describe('Guild disband', () => {
 	});
 
 	describe('the warning step', () => {
-		// case 0x1b9 fetches msgstring 0xa04, raises the box with 0 as
-		// fcn.0062cea0's button-set selector - a single btn_ok - and then calls
-		// MakeWindow(0xd7) without testing the result (fcn.005f62e0).
+		// The client fetches msgstring 2564, raises a box whose button-set
+		// selector is 0 - a single OK - and then opens the name window without
+		// testing the result.
+		// @see docs/reference/guild/create-disband-dialogs.md
 		it('quotes msgstring 2564 rather than a literal', () => {
 			mocks.messages[2564] = 'If you are using a guild storage, all items inside it will disappear.';
 
