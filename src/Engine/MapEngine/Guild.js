@@ -45,6 +45,11 @@ let _pendingGuildSkillRequest = false;
 let _memberInfoTimer = 0;
 
 /**
+ * @var {Object} last emblem version each guild announced, keyed by guild id
+ */
+const _emblemNotified = {};
+
+/**
  * @var {string} who we last invited, so the answer can name them
  *
  * The ack is a flag byte, so the name can only come from this side.
@@ -90,6 +95,9 @@ class GuildEngine {
 		Network.hookPacket(PACKET.ZC.BAN_LIST, onGuildExpelList);
 		Network.hookPacket(PACKET.ZC.BAN_LIST2, onGuildExpelList);
 		Network.hookPacket(PACKET.ZC.BAN_LIST3, onGuildExpelList);
+		Network.hookPacket(PACKET.ZC.CHANGE_GUILD, onGuildEmblemChanged);
+		Network.hookPacket(PACKET.ZC.CHANGE_GUILD2, onGuildEmblemChanged);
+		Network.hookPacket(PACKET.ZC.CHANGE_GUILD3, onGuildEmblemChanged);
 		Network.hookPacket(PACKET.ZC.ACK_DISORGANIZE_GUILD_RESULT, onGuildDestroy);
 		Network.hookPacket(PACKET.ZC.REQ_JOIN_GUILD, onGuildInviteRequest);
 		Network.hookPacket(PACKET.ZC.ACK_REQ_JOIN_GUILD, onGuildInviteResult);
@@ -550,6 +558,16 @@ class GuildEngine {
 					const response = JSON.parse(xhr.responseText);
 					console.log('Emblem uploaded successfully, version:', response.version);
 
+					// The web server only writes the image; it never tells the map
+					// server, and the server only listens for this from 20190724.
+					// @see docs/reference/guild/emblem-picker.md
+					if (PACKETVER.value >= 20190724) {
+						const pkt = new PACKET.CZ.REQ_ADD_NEW_EMBLEM();
+						pkt.GDID = Session.Entity.GUID;
+						pkt.version = response.version;
+						Network.sendPacket(pkt);
+					}
+
 					GuildEngine.requestGuildEmblem(Session.Entity.GUID, response.version, (image, _gif) => {
 						Guild.setEmblem(image);
 					});
@@ -737,6 +755,35 @@ const onGuildEmblem = (function onGuildEmblemClosure() {
 		}
 	};
 })();
+
+/**
+ * A guild changed its emblem - fetch the new one for everyone wearing it
+ *
+ * Sent to everyone in range, so it arrives for other guilds too. The request
+ * repaints every entity of that guild.
+ * @see docs/reference/guild/emblem-picker.md
+ *
+ * @param {object} pkt - PACKET.ZC.CHANGE_GUILD | PACKET.ZC.CHANGE_GUILD2
+ */
+function onGuildEmblemChanged(pkt) {
+	if (!pkt.GDID || !pkt.emblemVersion) {
+		return;
+	}
+
+	// The server sends this once per entity of that guild in range, so the same
+	// version arrives many times over. The request only stops repeating once the
+	// image has decoded, which is far too late to hold off a burst.
+	if (_emblemNotified[pkt.GDID] === pkt.emblemVersion) {
+		return;
+	}
+	_emblemNotified[pkt.GDID] = pkt.emblemVersion;
+
+	if (pkt.GDID === Session.Entity.GUID) {
+		Session.Entity.GEmblemVer = pkt.emblemVersion;
+	}
+
+	GuildEngine.requestGuildEmblem(pkt.GDID, pkt.emblemVersion, () => {});
+}
 
 /**
  * Get guild members informations

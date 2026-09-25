@@ -1,5 +1,7 @@
 # The emblem picker
 
+Introduced by `e3dfcae9`, with the map-server notice added later.
+
 The guild master replaces the guild's 24x24 emblem from the Info tab. The port
 offers three ways in - the emblem itself, the Edit button next to it, and a file
 dropped on the window - and all three reach one validation and one refusal.
@@ -147,6 +149,36 @@ window's:
   after which the new version is fetched back through the normal emblem
   request. A deployment without that endpoint gets no emblem change and a
   console warning.
+
+## The web upload has to be announced to the map server
+
+The web tier and the map server keep two different things. The POST writes the
+image into the emblem table and answers with a version number; it never touches
+the guild's own `emblem_id`, which is what the map server hands to everyone
+else and what gates the download at login.
+
+The bridge is **`CZ_REQ_ADD_NEW_EMBLEM` (0x0b46)**, `guild_id.L version.L`, ten
+bytes, which the client sends once the POST comes back. Without it the upload
+looks like it worked and is visible only to the uploader, only until relog:
+nobody else is told, and the login-time fetch is gated on a version that is
+still zero.
+
+The server only listens for it **from 20190724**. Between 20170315 and that
+build the upload has no way to announce itself at all, which is a gap in the
+protocol rather than in the port.
+
+The counterpart is **`ZC_CHANGE_GUILD`**, broadcast to everyone in range so
+their client refetches. It has three generations - `0x01b4`, then `0x0b1f`
+(main 20190703 / re 20190605 / zero 20190709), then `0x0b47` (main 20190807 /
+re 20190731 / zero 20190814) - and the two newer ones reorder the fields and
+widen the version from a short to a long.
+
+All three are registered, **each against its own structure**: registering takes
+the opcode on the structure object itself, so two opcodes sharing one structure
+keep only the one registered last and the other is parsed and then dropped with
+no handler and no error. The handler refetches for every entity of that guild,
+and ignores a repeat of a version it has already asked for - the broadcast
+arrives once per entity in range, not once per guild.
 
 ## See also
 

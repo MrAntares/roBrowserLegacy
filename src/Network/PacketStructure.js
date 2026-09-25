@@ -6799,7 +6799,7 @@ PACKET.ZC.SHOW_IMAGE2.size = 67;
 PACKET.ZC.CHANGE_GUILD = function PACKET_ZC_CHANGE_GUILD(fp, end) {
 	this.AID = fp.readULong();
 	this.GDID = fp.readULong();
-	this.emblemVersion = fp.readShort();
+	this.emblemVersion = fp.readUShort();
 };
 PACKET.ZC.CHANGE_GUILD.size = 12;
 
@@ -14958,6 +14958,43 @@ PACKET.ZC.ADD_ITEM_TO_CART4 = function PACKET_ZC_ADD_ITEM_TO_CART4(fp, end) {
 	this.grade = fp.readUChar();
 };
 PACKET.ZC.ADD_ITEM_TO_CART4.size = 58;
+
+// 0xb46
+PACKET.CZ.REQ_ADD_NEW_EMBLEM = function PACKET_CZ_REQ_ADD_NEW_EMBLEM() {
+	this.GDID = 0;
+	this.version = 0;
+};
+PACKET.CZ.REQ_ADD_NEW_EMBLEM.prototype.build = function () {
+	const pkt_len = 2 + 4 + 4;
+	const pkt_buf = new BinaryWriter(pkt_len);
+
+	pkt_buf.writeShort(0xb46);
+	pkt_buf.writeULong(this.GDID);
+	pkt_buf.writeULong(this.version);
+
+	return pkt_buf;
+};
+PACKET.CZ.REQ_ADD_NEW_EMBLEM.size = 10;
+
+// 0xb1f, and 0xb47 after it - same layout, and both reorder the fields the
+// 0x1b4 generation sent while widening the version from a short to a long.
+// They need one structure each: registering takes the id on the structure
+// itself, so a shared one keeps only the opcode it was registered under last
+// and the other never reaches its handler.
+PACKET.ZC.CHANGE_GUILD2 = function PACKET_ZC_CHANGE_GUILD2(fp, end) {
+	this.GDID = fp.readULong();
+	this.emblemVersion = fp.readULong();
+	this.AID = fp.readULong();
+};
+PACKET.ZC.CHANGE_GUILD2.size = 14;
+
+// 0xb47
+PACKET.ZC.CHANGE_GUILD3 = function PACKET_ZC_CHANGE_GUILD3(fp, end) {
+	this.GDID = fp.readULong();
+	this.emblemVersion = fp.readULong();
+	this.AID = fp.readULong();
+};
+PACKET.ZC.CHANGE_GUILD3.size = 14;
 
 // 0xb4e
 PACKET.ZC.NPC_MARKET_PURCHASE_RESULT2 = function PACKET_ZC_NPC_MARKET_PURCHASE_RESULT2(fp, end) {
