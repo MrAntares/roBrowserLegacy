@@ -981,6 +981,14 @@ ChatBox.onKeyDown = function OnKeyDown(event) {
 				}
 
 				if (event.altKey || KEYS.ALT) {
+					// macOS Option composes characters (e.g. Option+Q = '@' on Latin American layouts,
+					// Option+2 on Spanish): while typing, insert the character instead of firing the Alt hotkey.
+					// On Windows/Linux Alt+key reports the plain key, so hotkeys there are unaffected.
+					if (isComposedAltCharacter(event)) {
+						event.stopImmediatePropagation();
+						return true;
+					}
+
 					const isAltEditingCombo =
 						event.which === KEYS.LEFT ||
 						event.which === KEYS.RIGHT ||
@@ -1005,8 +1013,11 @@ ChatBox.onKeyDown = function OnKeyDown(event) {
 					return true;
 				}
 
+				// Escape leaves the chat input so Alt hotkeys (e.g. Option+Q) open their windows again
 				if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
-					return true;
+					activeElement.blur();
+					event.stopImmediatePropagation();
+					return false;
 				}
 
 				event.stopImmediatePropagation();
@@ -1180,6 +1191,27 @@ ChatBox.submit = function Submit() {
 
 	this.onRequestTalk(user, trimmedText, ChatBox.sendTo);
 };
+
+/**
+ * Whether an Alt/Option keydown produces a different printable character than its key
+ * (macOS Option layer, dead keys), i.e. the user is typing rather than using a hotkey.
+ * @param {KeyboardEvent} event
+ * @returns {boolean}
+ */
+function isComposedAltCharacter(event) {
+	if (event.ctrlKey || event.metaKey || !event.key) {
+		return false;
+	}
+	if (event.key === 'Dead') {
+		return true;
+	}
+	if (event.key.length !== 1) {
+		return false;
+	}
+	// Only letter/digit keys: their unmodified character is known from event.code
+	const match = /^(?:Key|Digit)(.)$/.exec(event.code || '');
+	return !!match && event.key.toUpperCase() !== match[1];
+}
 
 /**
  * Move caret to the end of a contenteditable element.
