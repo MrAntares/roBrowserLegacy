@@ -283,6 +283,21 @@ describe('Guild emblem picker', () => {
 			expect(info('.emblem_pick').style.display).toBe('none');
 		});
 
+		// The emblem is the container's background and the picker is a label
+		// inside it, so hiding the way in must not take the picture with it.
+		// Nothing else pins that, and the tidier fix - hiding the container -
+		// would blank the emblem for every member but the master.
+		it('a non-master still sees the emblem, only not the way in', () => {
+			mocks.session.isGuildMaster = false;
+
+			Guild.setEmblem({ src: 'emblem.bmp' });
+			Guild.setGuildInformations(guildInfo({ masterName: 'Someone Else' }));
+
+			expect(info('.emblem_container').style.backgroundImage).toContain('emblem.bmp');
+			expect(info('.emblem_container').style.display).not.toBe('none');
+			expect(info('.emblem_pick').style.display).toBe('none');
+		});
+
 		it('the master gets both', () => {
 			Guild.setGuildInformations(guildInfo());
 
