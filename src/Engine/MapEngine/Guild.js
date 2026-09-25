@@ -486,7 +486,7 @@ class GuildEngine {
 		clearTimeout(_memberInfoTimer);
 		_memberInfoTimer = setTimeout(() => {
 			ChatBox.addText(
-				`${DB.getMessage(129)} : the server did not answer (rAthena does not implement this packet).`,
+				`${DB.getMessage(129, 'View Information')} : the server did not answer.`,
 				ChatBox.TYPE.ERROR,
 				ChatBox.FILTER.GUILD
 			);
