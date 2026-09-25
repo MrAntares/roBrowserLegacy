@@ -946,6 +946,11 @@ function addInviteResult(id, defaultText, type) {
 	// No-op on a string without one, which is every stock table.
 	const text = DB.getMessage(id, defaultText).replace('%s', _lastInvited || DB.getMessage(581, 'Nameless'));
 
+	// The name answers one ack and is then spent. The server drops some invites
+	// without replying at all, so a name kept past its own answer would end up
+	// on somebody else's.
+	_lastInvited = '';
+
 	ChatBox.addText(text, type, ChatBox.FILTER.GUILD);
 }
 
