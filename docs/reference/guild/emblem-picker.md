@@ -180,6 +180,29 @@ no handler and no error. The handler refetches for every entity of that guild,
 and ignores a repeat of a version it has already asked for - the broadcast
 arrives once per entity in range, not once per guild.
 
+## A refusal is invisible, and the window repaints anyway
+
+Nothing tells the client that the map server turned the change down. Of the four
+exits in rAthena's `clif_parse_GuildChangeEmblem2`, two - a guild-id mismatch and
+*not the guild master* - return without sending anything at all; WoE sends one
+red chat line; only the fourth applies the version. The whole body is compiled in
+from 20190724, so below that the packet parses to nothing. A further refusal for
+guilds holding `GD_GLORYGUILD` answers with only a skill-fail. **There is no
+acknowledgement packet for an emblem change**: the three packets that do go out
+(`0x016c`, `0x0152`, `0x01b4`) are all on the success path.
+
+The port repaints unconditionally once the POST returns 200 - it refetches
+through the normal emblem request and sets the image - so a refused change still
+shows. The client's own guild-master gate holds (`submitEmblem` returns early,
+and neither the picker nor the drop target is rendered for a non-master); what
+has no such check is the **web tier**, which writes the row regardless. The case
+left over is a genuine guild master uploading during WoE.
+
+Waiting for the `0x0152` / `0x01b4` broadcast instead - which is what the older
+0x153 path already does - would close it. It is unported because what the native
+client does after an upload has not been decoded, and this window reproduces the
+client rather than improving on it.
+
 ## See also
 
 - [info-tab-legacy.md](info-tab-legacy.md) - the other Info tab elements, and
