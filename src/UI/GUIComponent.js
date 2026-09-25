@@ -866,7 +866,21 @@ class GUIComponent {
 			});
 
 			// Focus on mousedown
-			element.addEventListener('mousedown', () => this.focus());
+			element.addEventListener('mousedown', () => {
+				this.focus();
+
+				// focus() only raises the zIndex. Without moving the real DOM
+				// focus too, clicking a window leaves the tab sequence wherever
+				// it was, so Tab walks the whole document instead of the window
+				// just clicked. Skip it when the focus is already inside, and
+				// let the browser's own default then land it on whatever
+				// focusable control was actually clicked.
+				const host = this._host;
+				if (host && !host.contains(document.activeElement)) {
+					host.tabIndex = -1;
+					host.focus({ preventScroll: true });
+				}
+			});
 		}
 
 		if (this.mouseMode !== GUIComponent.MouseMode.CROSS) {

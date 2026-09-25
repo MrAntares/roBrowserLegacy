@@ -1087,6 +1087,15 @@ ChatBox.onKeyDown = function OnKeyDown(event) {
 
 		// Send message
 		case KEYS.ENTER: {
+			// A focused button owns Enter - activation is its default action.
+			// This handler runs on window in the capture phase, so cancelling
+			// that default leaves every button in the client reachable by Tab
+			// but dead to Enter. Space already works, because a button
+			// activates on Space keyup, which never reaches this branch.
+			if (activeElement && activeElement.tagName === 'BUTTON' && !root.contains(activeElement)) {
+				return true;
+			}
+
 			if (document.activeElement.className === 'message input-chatbox' && document.activeElement !== messageBox) {
 				return true;
 			}
