@@ -26,6 +26,8 @@ Nothing is sent on selection, and the whole roster is never sent.
 - **Echo `ranking`, never recompute or renumber it.** The positions-tab apply
   entry is fixed-width, so the slot has to be filled whatever goes in it - and
   nothing the client puts there is ever read. See below.
+- **A member sees the Positions tab and touches nothing in it** - including the
+  cursor, which must not offer a click that cannot happen. See below.
 
 ## Why
 
@@ -66,6 +68,30 @@ when it was not.
 
 Then the acknowledged rate is compared against what Apply sent, and a
 difference is reported in guild chat, quoting the server's own number.
+
+### What a member sees on the Positions tab
+
+The tab is drawn for everyone and editable by one person. Refusing the edit is
+the easy half, and it was already done in two places: the checkbox handler
+runs only for the guild master, and a mousedown on either text field is
+cancelled for anyone else.
+
+The half that is easy to miss is the pointer. The game cursor takes its shape
+from whatever element sits under it, matched against one list of things that
+count as clickable - and a styled checkbox is on that list. So a member got the
+click cursor over a control whose handler would ignore them: an affordance
+offered and then withdrawn on contact, which is worse than never offering it.
+
+The fix is to take the row's controls out of hit testing for a member, so the
+pointer resolves to the cell behind them instead, which is not a clickable.
+That is the same reasoning that made the Info tab's online count an image
+rather than a button. The native client sidesteps the question entirely - it
+draws a member this tab with no widgets on it at all, only blitted images, so
+there is nothing to hit-test in the first place.
+
+Note this costs a member the ability to select the text in the two fields. It
+is not a regression: the mousedown that would have started the selection was
+already being cancelled for them.
 
 ### The ranking field is echoed, and read by nobody
 

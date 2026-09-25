@@ -1333,7 +1333,12 @@ Guild.updatePositionView = function updatePositionView() {
 		return;
 	}
 
-	container.closest('.content.positions')?.classList.toggle('has-storage', _hasStorageColumn());
+	const positionsContent = container.closest('.content.positions');
+	positionsContent?.classList.toggle('has-storage', _hasStorageColumn());
+
+	// A member sees the grades as they stand and can change none of them. The
+	// handlers already refuse, but the cursor would still offer the click.
+	positionsContent?.classList.toggle('readonly', !Session.isGuildMaster);
 
 	container.innerHTML = '';
 

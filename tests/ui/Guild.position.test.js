@@ -772,6 +772,33 @@ describe('Guild position tab', () => {
 
 			expect(checkboxOf(1, 'punish').classList.contains('on')).toBe(false);
 		});
+
+		// Refusing the click is not enough on its own: the game cursor reads
+		// whatever sits under the pointer, so a control left hit-testable still
+		// offers a member a click that cannot happen. The stylesheet takes them
+		// out of hit testing; this holds the flag the stylesheet keys off, which
+		// is as far as jsdom can see - it has no layout and no hit testing.
+		it('tells the stylesheet a member may look and not touch', () => {
+			mocks.session.isGuildMaster = false;
+			Guild.setPositions(POSITIONS, true);
+
+			const pane = root().querySelector('.content.positions');
+			expect(pane.classList.contains('readonly')).toBe(true);
+
+			// Still drawn, and still showing the grades as they stand.
+			expect(positionRows()).toHaveLength(3);
+			expect(checkboxOf(1, 'invite').classList.contains('on')).toBe(true);
+		});
+
+		it('drops the flag again for the guild master', () => {
+			mocks.session.isGuildMaster = false;
+			Guild.setPositions(POSITIONS, true);
+
+			mocks.session.isGuildMaster = true;
+			Guild.setPositions(POSITIONS, true);
+
+			expect(root().querySelector('.content.positions').classList.contains('readonly')).toBe(false);
+		});
 	});
 
 	describe('the tax and title fields', () => {

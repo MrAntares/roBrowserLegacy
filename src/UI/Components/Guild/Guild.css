@@ -746,6 +746,18 @@
 	background-color: transparent;
 }
 
+/* A member sees the table and changes nothing in it. The handlers already
+ * refuse, but the cursor reads whatever sits under the pointer, so a control
+ * left hit-testable still offers a click that cannot happen - the same reason
+ * the online count is an image rather than a ui-button. Taking the row's
+ * controls out of hit testing resolves the pointer to the cell instead, which
+ * is not a clickable. The client draws a member this tab without widgets at
+ * all. See docs/reference/guild/grade-change.md */
+#Guild .content.positions.readonly .checkbox,
+#Guild .content.positions.readonly input {
+	pointer-events: none;
+}
+
 /*
  * Guild Skills
  */
