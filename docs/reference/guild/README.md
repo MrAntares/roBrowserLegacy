@@ -25,6 +25,7 @@ both forms.
 | [login-announcements.md](login-announcements.md) | The member login and notice lines, and the `/li` toggle that gates them |
 | [invitation-ack.md](invitation-ack.md) | `ZC_ACK_REQ_JOIN_GUILD`, and why no stock string can name the character |
 | [info-tab-legacy.md](info-tab-legacy.md) | The tendency chart, Tax Point, and guild EXP at max level |
+| [emblem-picker.md](emblem-picker.md) | Why the picker cannot be the client's, the 24x24 rule, and the guild-master gate |
 | [create-disband-dialogs.md](create-disband-dialogs.md) | One window, two modes, and the disband key check |
 | [member-info-request.md](member-info-request.md) | `CZ_REQ_OPEN_MEMBER_INFO`, and the answer that never comes |
 

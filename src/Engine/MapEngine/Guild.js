@@ -512,6 +512,7 @@ class GuildEngine {
 	 * Note: it's a hacky way that do not compress the emblem.
 	 *
 	 * @param {Uint8Array} file
+	 * @see docs/reference/guild/emblem-picker.md
 	 */
 	static sendEmblem(data) {
 		if (PACKETVER.value >= 20170315) {

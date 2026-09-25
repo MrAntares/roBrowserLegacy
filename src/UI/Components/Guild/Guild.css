@@ -16,6 +16,31 @@
 	height: 317px;
 }
 
+/* Dropping a file to change the emblem is a web addition, so there is no client
+ * state to copy. Hidden until a file is actually dragged over the window, and
+ * only for the guild master on the tab the emblem lives on.
+ * See docs/reference/guild/emblem-picker.md */
+#Guild .emblem_drop {
+	display: none;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 10;
+	align-items: center;
+	justify-content: center;
+	border: 2px dashed #707070;
+	border-radius: 3px;
+	background-color: rgba(255, 255, 255, 0.75);
+	box-sizing: border-box;
+	font-size: 12px;
+	font-weight: bold;
+}
+#Guild .emblem_drop.dragover {
+	display: flex;
+}
+
 #Guild .titlebar {
 	width: 100%;
 	height: 17px;
@@ -388,6 +413,16 @@
 	 * a border, to leave the box at the emblem's own size. */
 	box-shadow: 0 0 0 1px #709fed;
 }
+/* The emblem doubles as the picker's label, so clicking it opens the file
+ * dialog and the cursor reads it as clickable. Hidden for anyone but the guild
+ * master. See docs/reference/guild/emblem-picker.md */
+#Guild .content.info .emblem_pick {
+	display: block;
+	height: 100%;
+}
+#Guild .content.info .emblem_pick input {
+	display: none;
+}
 /* 29 rather than the client's 28 - see the emblem_container note above. */
 #Guild .content.info .emblem_edit {
 	position: absolute;
@@ -399,24 +434,6 @@
 	background-color: transparent;
 	background-repeat: no-repeat;
 	overflow: hidden;
-}
-/* Web override, and a forced one. The client does not open a file dialog here:
- * it enumerates <dir>\emblem\*.bmp and *.gif with FindFirstFileA and shows an
- * in-game list. A browser cannot read a directory, so a file input is the only
- * way to get the same 24x24 bitmap in.
- *
- * The native control is ~253px wide and only its own button opens the picker,
- * so inside a 42x20 clip the clickable part may not be the part on screen.
- * Filling the button and over-scaling the font blows the UA's internal button
- * up until it covers the whole clip, which makes the visible 42x20 the hit
- * target. The element is out of flow, so none of this can reach the frame. */
-#Guild .content.info .emblem_edit input {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	opacity: 0;
 }
 
 /*

@@ -110,6 +110,10 @@ function _showsTaxPoint() {
 // @see docs/reference/guild/info-tab-legacy.md
 const GUILD_LEVEL_MAX = 50;
 
+// The only emblem size the client accepts, in both formats it offers.
+// @see docs/reference/guild/emblem-picker.md
+const EMBLEM_SIDE = 24;
+
 let _btnIncSkillTemplate;
 let _skpoints = 0;
 let _btnLevelUp;
@@ -562,29 +566,43 @@ Guild.init = function init() {
 		);
 	}
 
-	// Upload emblem
-	const emblemInput = root.querySelector('.content.info .emblem_edit input');
+	// Upload emblem: the Edit button, the emblem itself and a drop on it all
+	// reach the same picker and the same validation.
+	// @see docs/reference/guild/emblem-picker.md
+	const emblemInput = root.querySelector('.content.info .emblem_pick input');
 	if (emblemInput) {
 		emblemInput.addEventListener('change', function () {
-			const file = this.files[0];
-			if (!file) {
-				return;
-			}
+			submitEmblem(this.files[0]);
+			// So picking the same file again after a refusal still fires change
+			this.value = '';
+		});
+	}
 
-			const isBmp = /^image\/(bmp|x-bmp|x-ms-bmp|x-windows-bmp)$/.test(file.type) || /\.bmp$/i.test(file.name);
-			const isGif = file.type === 'image/gif' || /\.gif$/i.test(file.name);
+	const emblemEdit = root.querySelector('.content.info .emblem_edit');
+	if (emblemEdit && emblemInput) {
+		emblemEdit.addEventListener('click', () => emblemInput.click());
+	}
 
-			if ((isBmp && file.size <= 1783) || (isGif && file.size <= 50000)) {
-				const reader = new FileReader();
-				reader.onload = e => {
-					Guild.onSendEmblem(new Uint8Array(e.target.result));
-				};
-				reader.readAsArrayBuffer(this.files[0]);
-			} else {
-				console.warn(
-					'[Warning] Incorrect emblem file type. Only BMP, 24bit or lower is accepted or GIFs max size 50Kb or lower.'
-				);
+	const emblemDrop = root.querySelector('.emblem_drop');
+	const guildWindow = root.querySelector('#Guild');
+	if (emblemDrop && guildWindow) {
+		// preventDefault unconditionally, on the window and on the overlay, or a
+		// drop the gate refuses would make the browser navigate away from the game
+		guildWindow.addEventListener('dragenter', e => {
+			e.preventDefault();
+			if (_acceptsEmblemDrop(root, e.dataTransfer)) {
+				emblemDrop.classList.add('dragover');
 			}
+		});
+		guildWindow.addEventListener('dragover', e => e.preventDefault());
+		guildWindow.addEventListener('drop', e => e.preventDefault());
+
+		// Once up, the overlay covers the window, so it owns every later event
+		// and leaving it is leaving the window - no flicker over the children.
+		emblemDrop.addEventListener('dragleave', () => emblemDrop.classList.remove('dragover'));
+		emblemDrop.addEventListener('drop', e => {
+			emblemDrop.classList.remove('dragover');
+			submitEmblem(e.dataTransfer.files[0]);
 		});
 	}
 
@@ -704,9 +722,18 @@ Guild.setGuildInformations = function setGuildInformations(info) {
 	Guild.updateSession(info);
 	Guild.onRequestGuildEmblem(info.GDID, info.emblemVersion, Guild.setEmblem.bind(this));
 
+	// Only the guild master edits the emblem, so neither the button nor the
+	// emblem-as-picker is offered to anyone else.
+	// @see docs/reference/guild/emblem-picker.md
+	const emblemDisplay = Session.isGuildMaster ? '' : 'none';
 	const emblemEdit = general.querySelector('.emblem_edit');
 	if (emblemEdit) {
-		emblemEdit.style.display = Session.isGuildMaster ? '' : 'none';
+		emblemEdit.style.display = emblemDisplay;
+	}
+
+	const emblemPick = general.querySelector('.emblem_pick');
+	if (emblemPick) {
+		emblemPick.style.display = emblemDisplay;
 	}
 
 	updateDisbandButton(root, getActiveTab(root));
@@ -734,6 +761,58 @@ function updateInfoOptions(root) {
 		infoContent.classList.toggle('shows_tendency', _showsTendency());
 		infoContent.classList.toggle('shows_taxpoint', _showsTaxPoint());
 	}
+}
+
+/**
+ * Is this drag something the emblem would take, from someone allowed to set it
+ * @see docs/reference/guild/emblem-picker.md
+ */
+function _acceptsEmblemDrop(root, transfer) {
+	const carriesAFile = transfer && Array.prototype.indexOf.call(transfer.types, 'Files') !== -1;
+	return carriesAFile && Session.isGuildMaster && getActiveTab(root) === 'info';
+}
+
+/**
+ * A BMP or GIF of exactly 24x24, small enough for the server to store
+ * @see docs/reference/guild/emblem-picker.md
+ */
+function isEmblem(data) {
+	const view = new DataView(data.buffer);
+
+	// "BM"
+	if (data[0] === 0x42 && data[1] === 0x4d && data.length >= 26 && data.length <= 1783) {
+		// A top-down bitmap stores its height negated
+		return view.getInt32(18, true) === EMBLEM_SIDE && Math.abs(view.getInt32(22, true)) === EMBLEM_SIDE;
+	}
+
+	// "GIF", whose logical screen is the emblem's own size
+	if (data[0] === 0x47 && data[1] === 0x49 && data[2] === 0x46 && data.length >= 10 && data.length <= 50000) {
+		return view.getUint16(6, true) === EMBLEM_SIDE && view.getUint16(8, true) === EMBLEM_SIDE;
+	}
+
+	return false;
+}
+
+/**
+ * Send a picked emblem, or refuse it with the client's own message - the one
+ * path behind all three ways of picking one
+ * @see docs/reference/guild/emblem-picker.md
+ */
+function submitEmblem(file) {
+	if (!file || !Session.isGuildMaster) {
+		return;
+	}
+
+	const reader = new FileReader();
+	reader.onload = e => {
+		const data = new Uint8Array(e.target.result);
+		if (isEmblem(data)) {
+			Guild.onSendEmblem(data);
+		} else {
+			UIManager.showMessageBox(DB.getMessage(3587, 'This file cannot be registered.'), 'ok');
+		}
+	};
+	reader.readAsArrayBuffer(file);
 }
 
 Guild.setEmblem = function setEmblem(image) {

@@ -52,10 +52,13 @@
 			</div>
 			<div class="exp"><ui-text msg="335">EXP</ui-text> : <span class="value"></span></div>
 			<div class="emblem"><ui-text msg="336">Emblem</ui-text></div>
-			<div class="emblem_container"></div>
-			<ui-button class="emblem_edit" bg="btn_edit.bmp" hover="btn_edit_a.bmp" down="btn_edit_b.bmp">
-				<input type="file" />
-			</ui-button>
+			<!-- The emblem is the picker: one file input, opened by clicking the
+			     emblem, by the Edit button or by a drop.
+			     See docs/reference/guild/emblem-picker.md -->
+			<div class="emblem_container">
+				<label class="emblem_pick"><input type="file" accept=".bmp,.gif,image/bmp,image/gif" /></label>
+			</div>
+			<ui-button class="emblem_edit" bg="btn_edit.bmp" hover="btn_edit_a.bmp" down="btn_edit_b.bmp"></ui-button>
 
 			<div class="tax"><ui-text msg="337">Tax Point</ui-text> : <span class="value">0</span></div>
 			<div class="ally"><ui-text msg="338">Alliance</ui-text></div>
@@ -189,4 +192,9 @@
 		     close button, so it is a duplicate. See Guild.js. -->
 		<ui-button class="btn btn_use" bg="btn_use.bmp" hover="btn_use_a.bmp" down="btn_use_b.bmp"></ui-button>
 	</div>
+
+	<!-- The whole window becomes the drop target while a file is dragged over
+	     it, the emblem alone being a 24x24 target.
+	     See docs/reference/guild/emblem-picker.md -->
+	<div class="emblem_drop"><ui-text msg="336">Emblem</ui-text></div>
 </div>
