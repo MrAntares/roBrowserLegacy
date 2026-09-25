@@ -27,6 +27,7 @@ import UIManager from 'UI/UIManager.js';
 import Configs from 'Core/Configs.js';
 import MiniMap from 'UI/Components/MiniMap/MiniMap.js';
 import ShortCut from 'UI/Components/ShortCut/ShortCut.js';
+import UIPreferences from 'Preferences/UI.js';
 
 /**
  * @var {Object} emblem list
@@ -824,8 +825,13 @@ function onGuildSkillList(pkt) {
  * @param {object} pkt - PACKET.ZC.GUILD_NOTICE
  */
 function onGuildNotice(pkt) {
-	ChatBox.addText('[ ' + pkt.subject + ' ]', ChatBox.TYPE.GUILD, ChatBox.FILTER.GUILD, '#FFFF63');
-	ChatBox.addText('[ ' + pkt.notice + ' ]', ChatBox.TYPE.GUILD, ChatBox.FILTER.GUILD, '#FFFF63');
+	// The window keeps the notice either way - only the chat echo is the player's
+	// to silence, and the client puts it behind the same /li flag as the login
+	// lines (fcn.005a5580, `cmp dword [data.0079fa74], 1` guarding the print).
+	if (UIPreferences.li) {
+		ChatBox.addText('[ ' + pkt.subject + ' ]', ChatBox.TYPE.GUILD, ChatBox.FILTER.GUILD, '#FFFF63');
+		ChatBox.addText('[ ' + pkt.notice + ' ]', ChatBox.TYPE.GUILD, ChatBox.FILTER.GUILD, '#FFFF63');
+	}
 
 	Guild.setNotice(pkt.subject, pkt.notice);
 }

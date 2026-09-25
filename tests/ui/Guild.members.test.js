@@ -147,6 +147,7 @@ HTMLCanvasElement.prototype.getContext = function () {
 };
 
 const Guild = (await import('UI/Components/Guild/Guild.js')).default;
+const ChatBox = (await import('UI/Components/ChatBox/ChatBox.js')).default;
 const Configs = (await import('Core/Configs.js')).default;
 const UIPreferences = (await import('Preferences/UI.js')).default;
 const UIManager = (await import('UI/UIManager.js')).default;
@@ -273,6 +274,57 @@ describe('guild member list, ordered by login status', () => {
 		});
 
 		expect([member.Sex, member.HeadType, member.HeadPalette]).toEqual([1, 7, 3]);
+	});
+
+	// The client announces a member connecting or disconnecting, behind the flag
+	// /li writes: fcn.00585c80 case 0x99 opens on `cmp dword [data.0079fa74], 1`
+	// before anything is printed, and 2022 and mars26 gate the same way.
+	describe('announcing a member connecting or disconnecting', () => {
+		function announce(roster, index, status) {
+			ChatBox.addText.mockClear();
+			Guild.setMembers(roster, false);
+			ChatBox.addText.mockClear();
+			Guild.updateMemberStatus({ AID: roster[index].AID, GID: roster[index].GID, status });
+			return ChatBox.addText.mock.calls.map(call => call[0]);
+		}
+
+		beforeEach(() => {
+			UIPreferences.li = true;
+		});
+
+		it('names the member, and says which way they went', () => {
+			const roster = alternating(3);
+
+			expect(announce(roster, 1, 0)).toEqual(['Guild Member ON-1 has disconnected.']);
+			expect(announce(roster, 1, 1)).toEqual(['Guild Member ON-1 has connected.']);
+		});
+
+		// Without a default the lookup falls through to "NO MSG 485", which is what
+		// the player used to see on any table that did not carry the id.
+		it('has text to fall back on when the message table has no such id', () => {
+			expect(announce(uniform(1, false), 0, 1)[0]).not.toMatch(/NO MSG/);
+		});
+
+		// The name used to be read back out of the row's DOM node, which is found
+		// through an index that the online-count loop has already spent.
+		it('takes the name from the roster rather than the rendered row', () => {
+			const roster = uniform(1, false).map(m => ({ ...m, CharName: 'Rostered' }));
+			Guild.setMembers(roster, false);
+
+			const row = Guild.getRoot().querySelector('.content.members tbody tr .name .value');
+			row.textContent = 'WhateverTheDomSays';
+
+			ChatBox.addText.mockClear();
+			Guild.updateMemberStatus({ AID: roster[0].AID, GID: roster[0].GID, status: 1 });
+
+			expect(ChatBox.addText.mock.calls[0][0]).toBe('Guild Member Rostered has connected.');
+		});
+
+		it('says nothing at all while /li is off', () => {
+			UIPreferences.li = false;
+
+			expect(announce(alternating(3), 1, 1)).toEqual([]);
+		});
 	});
 
 	it('marks the online rows and only those', () => {

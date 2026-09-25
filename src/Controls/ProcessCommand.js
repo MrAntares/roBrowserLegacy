@@ -102,6 +102,18 @@ const CommandStore = {
 			return;
 		}
 	},
+	li: {
+		description: 'Toggles the chat announcements when a friend or a guild member connects or disconnects',
+		callback: function () {
+			// 1044 is the "on" line, 1045 the "off" one, and the client reports the
+			// state it is switching *to* - which reading the flag before flipping
+			// it gives, exactly as every other toggle in this table does.
+			this.addText(DB.getMessage(1044 + UIPreferences.li), this.TYPE.INFO, this.FILTER.PUBLIC_LOG);
+			UIPreferences.li = !UIPreferences.li;
+			UIPreferences.save();
+			return;
+		}
+	},
 	aura: {
 		description: 'Minimizes the aura effect for level 99 and 175 characters',
 		callback: function () {

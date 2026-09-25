@@ -1136,9 +1136,22 @@ Guild.updateMemberStatus = function updateMemberStatus(member) {
 		renderMemberFaces(Renderer.tick + 1000);
 	}
 
-	const nameValue = view?.querySelector('.name .value');
+	// Behind the same toggle as the friend notices: the client's handler opens on
+	// `cmp dword [data.0079fa74], 1` before it prints anything (fcn.00585c80 case
+	// 0x99; fcn.00788200 case 140 in 2022, fcn.00b55460 case 140 in mars26), and
+	// that flag is the one /li writes.
+	if (!UIPreferences.li) {
+		return;
+	}
+
+	// The name comes from the roster, not from the row: `i` was spent counting the
+	// online members just above, and `view` is null whenever the row is not in the
+	// DOM - which printed the line with a hole where the name belongs.
 	ChatBox.addText(
-		DB.getMessage(485 + (member.status ? 0 : 1)).replace('%s', nameValue ? nameValue.textContent : ''),
+		DB.getMessage(
+			member.status ? 485 : 486,
+			member.status ? 'Guild Member %s has connected.' : 'Guild Member %s has disconnected.'
+		).replace('%s', current.CharName || DB.getMessage(581, 'Nameless')),
 		ChatBox.TYPE.BLUE,
 		ChatBox.FILTER.GUILD
 	);
