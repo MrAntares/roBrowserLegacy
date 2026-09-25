@@ -9,10 +9,11 @@ introduced it, is written down here instead: why a behaviour reproduces the
 native client, what the binary actually does, and where this port deliberately
 departs from it.
 
-A function that has depth available carries an `@see docs/guild/<topic>.md`
-right above it. CSS and HTML have no JSDoc, so there the same pointer is
-written `See docs/guild/<topic>.md`. **`grep -rn 'docs/guild/' src/` is the
-complete map** - it catches both forms.
+A function that has depth available carries an
+`@see docs/reference/guild/<topic>.md` right above it. CSS and HTML have no
+JSDoc, so there the same pointer is written `See docs/reference/guild/<topic>.md`.
+**`grep -rn 'docs/reference/guild/' src/` is the complete map** - it catches
+both forms.
 
 ## Notes
 
