@@ -62,36 +62,24 @@ const _positions = [];
 const _members = [];
 const _skills = [];
 
-/**
- * Grade changes queued by the member dropdown, keyed by GID so that
- * re-editing a member overwrites its pending value instead of appending.
- * Flushed on Apply, dropped whenever fresh guild data arrives.
- */
+// Grade changes queued by the member dropdown, keyed by GID. Flushed on Apply.
+// @see docs/reference/guild/grade-change.md
 let _pendingPositions = {};
 
-/**
- * The position rows are their own edit buffer - Apply reads them back out of
- * the DOM. Once an edit is in them, a server update must not repaint over it.
- */
+// The position rows are their own edit buffer, so a server update must not
+// repaint over an edit already in them.
 let _positionsDirty = false;
 
-/**
- * Which row carries the highlight. The client writes this from its own mouse
- * hit-tests and from building the window, never from a packet, so a refresh
- * leaves the bar where the guild master put it.
- */
+// Which row carries the highlight. Never written from a packet, so a refresh
+// leaves the bar where the guild master put it.
 let _positionsSelected = 0;
 
-/**
- * Tax rates sent by the last Apply, keyed by positionID, so the ack can be
- * compared against them. rathena silently caps the rate to guild_exp_limit.
- */
+// Tax rates sent by the last Apply, keyed by positionID, so the ack can be
+// compared against them.
 let _sentPayRates = {};
 
-/**
- * GUILD_PERM_STORAGE exists from PACKETVER 20140205 on, and only then does the
- * tab draw a column for it. Below that the bit is preserved but never touched.
- */
+// Only drawn from PACKETVER 20140205 on. Below that the bit is preserved but
+// never touched.
 const GUILD_PERM_STORAGE = 0x100;
 
 function _hasStorageColumn() {
@@ -118,19 +106,8 @@ function _showsTaxPoint() {
 	return _config().showTaxPoint === true;
 }
 
-/**
- * At max guild level the client stops showing the EXP figure, and the three
- * versions disagree on how. All branch on the same `level >= 50`:
- *
- * - ver12 substitutes a literal 0 for the value and leaves the text black,
- * - 2022-03-30 keeps the real value and paints the line red,
- * - mars26 does both, off one comparison and a pair of cmovs.
- *
- * mars26's is what we draw, for the same reason memberListSort defaults to
- * its behaviour: it is the newest, and the two older ones are each a strict
- * subset of it. Label and value are one sprintf'd string drawn in a single
- * call there, so the colour takes the whole line and not just the number.
- */
+// At max level the EXP figure is zeroed and the whole line turns red.
+// @see docs/reference/guild/info-tab-legacy.md
 const GUILD_LEVEL_MAX = 50;
 
 let _btnIncSkillTemplate;
@@ -168,10 +145,7 @@ function _showApplyButton() {
 /**
  * Helper: the last login date, built from the client's own format string
  *
- * The client hands msgstring 3011 to strftime, and the tables do not all ask
- * for the same thing - the compiled default is %Y.%m.%d, the iRO table ships
- * %y.%m.%d. Only the fields those use are substituted; anything else is left
- * as it is rather than guessed at.
+ * Only the fields the shipped formats use are substituted, not all of strftime.
  *
  * @param {number} timestamp - seconds since epoch, as the member list sends it
  * @return {string} the date, localtime, like the client shows it
@@ -197,20 +171,12 @@ function _formatLastLogin(timestamp) {
  */
 const GUILD_CONFIG = {
 	memberListSort: 'always',
-	// Off by default: only the 2022 client draws it. ver12 and mars26 have no
-	// access date at all, and their member rows are 8px shorter for it.
+	// Off by default: only the 2022 client draws the access date, and its 8px
+	// of row height rides this same flag.
+	// @see docs/reference/guild/member-list-sort.md
 	showLastLogin: false,
-	// Both LEGACY: ver12 draws them and no client after it does. Neither
-	// 2022-03-30 nor mars26 ever passes msgstring 0x14e or 0x151 to the
-	// msgstring getter - read out of both draw functions end to end, not
-	// merely grepped. (The raw values do occur in both binaries, as packet ids
-	// in the packet-length registry, which is why the claim is about getter
-	// calls and not about references.)
-	//
-	// Off by default, so a deployment gets the newest client's tab. Turning
-	// either on reproduces ver12 - but note rAthena hardcodes point, honor and
-	// virtue to 0 (clif.cpp), so Tax Point can only ever read 0 and the
-	// chart's marker can only ever sit dead centre.
+	// Both legacy, drawn by ver12 only, so off by default.
+	// @see docs/reference/guild/info-tab-legacy.md
 	showTendency: false,
 	showTaxPoint: false
 };
@@ -218,9 +184,8 @@ const GUILD_CONFIG = {
 /**
  * Helper: this window's settings, with the defaults above filled in
  *
- * Configs.get hands back the server's object whole rather than merging it into
- * the client's, so a server naming `guild` at all would otherwise drop every
- * key it does not itself set.
+ * Configs.get does not merge, so a server naming `guild` at all would
+ * otherwise drop every key it does not itself set.
  *
  * @return {object}
  */
@@ -231,14 +196,8 @@ function _config() {
 /**
  * Helper: does the member list get ordered by login status right now
  *
- * Three client behaviours, selected by the deployment:
- *   'never'    - ver12, which has no such sort
- *   'checkbox' - 2022, sorted behind the tab's own checkbox
- *   'always'   - mars26, which dropped the checkbox and left the sort on
- *
- * mars26's is the default: it is the newest behaviour, and it costs nothing to
- * put the online members first when the order underneath is already the one the
- * server sent.
+ * 'never' | 'checkbox' | 'always', one per client generation.
+ * @see docs/reference/guild/member-list-sort.md
  *
  * @return {boolean}
  */
@@ -257,10 +216,9 @@ function _sortsByLogin() {
 /**
  * Helper: lay the rows out in a given order without rebuilding any of them
  *
- * appendChild moves a node that is already in the tree, so the rows keep their
- * listeners, their canvases and their data-index. That index is the link back
- * to `_members`, which deliberately stays in the order the server sent - only
- * the table is sorted.
+ * Rows are moved, so each keeps its listeners, its canvas and its data-index.
+ * `_members` stays in the order the server sent - only the table is sorted.
+ * @see docs/reference/guild/member-list-sort.md
  *
  * @param {ShadowRoot|Element} root
  * @param {Array} ordered - the members in the order the rows should appear
@@ -292,9 +250,7 @@ function reorderMemberRows(root, ordered) {
 /**
  * Helper: the roster, online first
  *
- * The client merge-sorts its member list on the same field that paints a row
- * green, online ahead of offline. Array.prototype.sort is stable, so members
- * sharing a status keep the order the server sent them in, as a merge does.
+ * Stable, so members sharing a status keep the order the server sent them in.
  *
  * @param {Array} members
  * @return {Array} a sorted copy
@@ -638,16 +594,9 @@ Guild.init = function init() {
 		footerOk.addEventListener('click', () => onValidate());
 	}
 
-	// The Skills tab's cast button, which is all the client's own handler does
-	// once it has a selected row: send the skill at its level.
-	//
-	// The client officially has a second button next to it - btn_close at x=92,
-	// built unconditionally and never hidden, and the only close button across
-	// the six guild tabs. It is deliberately not reproduced here, and its
-	// absence is a choice rather than an omission: the titlebar's own close
-	// button is assigned the same command id, so both buttons dispatch to the
-	// same handler and do the same thing. Rendering it would duplicate a
-	// control this window already has, on one tab out of six.
+	// The Skills tab's cast button: send the selected skill at its level. The
+	// client's second button here is not reproduced - it dispatches to the same
+	// handler as the titlebar close this window already has.
 	const footerUse = root.querySelector('.footer .btn_use');
 	if (footerUse) {
 		footerUse.addEventListener('click', () => {
@@ -773,10 +722,11 @@ Guild.setGuildInformations = function setGuildInformations(info) {
 };
 
 /**
- * Reflect the two legacy switches onto the tab. Kept out of
- * setGuildInformations because they decide whether those elements are drawn at
- * all, and a window opened before the first ZC_GUILD_INFO would otherwise
- * show them whatever the deployment asked for.
+ * Reflect the two legacy switches onto the tab
+ *
+ * Kept out of setGuildInformations: they decide whether those elements are
+ * drawn at all, so waiting for a packet would draw them and take them away.
+ * @see docs/reference/guild/info-tab-legacy.md
  */
 function updateInfoOptions(root) {
 	const infoContent = root.querySelector('.content.info');
@@ -890,31 +840,15 @@ Guild.setMembers = function setMembers(members, hasMemo) {
 };
 
 /**
- * The entity behind a member row's 30x30 cell.
+ * The entity behind a member row's 30x30 cell - a head, deliberately
  *
- * The cell is a head icon, and saying so here is the point of this function. It
- * used to be one by accident: setMember wrote `entity._job` raw, which bypasses
- * the `job` property whose setter loads the body, so `files.body.spr` stayed null
- * and renderElement skipped every body pass. updateMemberStatus then assigned
- * `entity.sex`, and UpdateSex's first statement is `this.job = this._job` - the
- * real setter. A member who logged in or out while the window was open grew a
- * whole sprite, which the renderer anchors at the feet, and their row showed a
- * pair of boots while everybody else's showed a head.
- *
- * So both callers come through here, and the sprite the portrait wants is the only
- * one it asks for. `sex` and `job` are written to the private fields deliberately:
- * their setters both start a body load, and the body lands in an asynchronous
- * Client.loadFile callback that a later `files.body.spr = null` cannot take back.
- * `head` is the real setter - it is the sprite being drawn - and it reads the job
- * and sex that were just written.
- *
- * The frozen action and animation match what every other sprite portrait does
- * (Equipment, ItemPreview, CharSelect): nothing here is on the world's animation
- * clock, so pin the frame rather than sample it off Date.now().
+ * `sex` and `job` go to the private fields on purpose: their setters each start
+ * an asynchronous body load that cannot be taken back afterwards.
+ * @see docs/reference/guild/member-portrait.md
  *
  * @param {object} [entity] - the member's existing entity, if they have one
  * @param {{sex: number, job: number, head: number, headPalette: number}} look
- * @returns {object} the entity to store back on the member
+ * @return {object} the entity to store back on the member
  */
 function memberPortrait(entity, look) {
 	if (!entity) {
@@ -995,13 +929,8 @@ Guild.setMember = function setMember(member) {
 	if (_positions[member.GPositionID]) {
 		const positionCell = view.querySelector('.position');
 		if (Session.isGuildMaster) {
-			// The guild master's own grade is not changeable from this dropdown:
-			// updateMemberPosition refuses every value on a row whose current grade
-			// is 0, delegation being a path of its own. The client draws the
-			// combobox live on that row anyway and refuses on selection; we mark it
-			// disabled instead, which is a deviation above the binary - see
-			// PR-NOTES.md. `disabled` rather than dropping the element, so the
-			// column width and the row geometry, both asm-cited, do not move.
+			// Disabled rather than dropped, so the column width does not move.
+			// @see docs/reference/guild/grade-change.md
 			const own = !member.GPositionID ? ' disabled' : '';
 			let selectHTML = `<select class="changePosition member_${member.AID}_${member.GID}"${own}>`;
 			_positions.forEach((position, key) => {
@@ -1092,11 +1021,9 @@ Guild.updateMemberStatus = function updateMemberStatus(member) {
 		}
 	}
 
-	// ZC_UPDATE_CHARSTAT2 carries the look again; plain ZC_UPDATE_CHARSTAT does not.
-	// Only the online notice carries a real one: rAthena fills gender, hairStyle
-	// and hairColor from the member's session, and sends all three as 0 when there
-	// is no session left to read (clif.cpp, clif_guild_memberlogin_notice). Keeping
-	// a logout's zeroes would rewrite the member's look as female, hairstyle 0.
+	// Only the online notice carries a real look - a logout sends zeroes, which
+	// would rewrite the member as female, hairstyle 0.
+	// @see docs/reference/guild/member-portrait.md
 	const current = _members[i];
 	if (member.status) {
 		if ('sex' in member) {
@@ -1127,26 +1054,22 @@ Guild.updateMemberStatus = function updateMemberStatus(member) {
 		onlineEl.textContent = online;
 	}
 
-	// A login changes the sort key, so the list has to settle again. The client
-	// re-sorts from its draw (fcn.005f2f10.c:62), which means its roster is
-	// online-first at all times and not merely each time the member list packet
-	// arrives - without this the row just turns green where it already sits.
+	// A login changes the sort key, so the list has to settle again - without
+	// this the row just turns green where it already sits.
+	// @see docs/reference/guild/member-list-sort.md
 	if (_sortsByLogin()) {
 		reorderMemberRows(root, _orderByLogin(_members));
 		renderMemberFaces(Renderer.tick + 1000);
 	}
 
-	// Behind the same toggle as the friend notices: the client's handler opens on
-	// `cmp dword [data.0079fa74], 1` before it prints anything (fcn.00585c80 case
-	// 0x99; fcn.00788200 case 140 in 2022, fcn.00b55460 case 140 in mars26), and
-	// that flag is the one /li writes.
+	// Behind the same toggle as the friend notices, which is what /li writes.
+	// @see docs/reference/guild/login-announcements.md
 	if (!UIPreferences.li) {
 		return;
 	}
 
-	// The name comes from the roster, not from the row: `i` was spent counting the
-	// online members just above, and `view` is null whenever the row is not in the
-	// DOM - which printed the line with a hole where the name belongs.
+	// The name comes from the roster, not from the row: `i` is spent counting the
+	// online members above, and `view` is null whenever the row is not in the DOM.
 	ChatBox.addText(
 		DB.getMessage(
 			member.status ? 485 : 486,
@@ -1160,8 +1083,8 @@ Guild.updateMemberStatus = function updateMemberStatus(member) {
 /**
  * Move a member to another grade
  *
- * From the dropdown the change is only queued: the native client guards the
- * selection then flushes the queue on Apply, it never sends on selection.
+ * From the dropdown the change is only queued, never sent on selection.
+ * @see docs/reference/guild/grade-change.md
  *
  * @param {number} AID - account id
  * @param {number} GID - character id
@@ -1201,8 +1124,8 @@ Guild.updateMemberPosition = function updateMemberPosition(AID, GID, positionID,
 /**
  * Apply the grades the server acknowledged
  *
- * The acknowledgement is the server truth, so it also drops whatever was
- * still queued. A grade of 0 is the guild master moving, not a grade change.
+ * The ack is server truth, so it also drops whatever was still queued.
+ * @see docs/reference/guild/grade-change.md
  *
  * @param {Array} memberInfo - PACKET.ZC.ACK_REQ_CHANGE_MEMBERS entries
  */
@@ -1250,9 +1173,9 @@ Guild.setPositions = function setPositions(positions, erase) {
 			_positions[rank.positionID].posName = rank.posName;
 		}
 
-		// rathena caps the rate to guild_exp_limit and says nothing. The native
-		// client guesses at the limit instead - msgstring 3486 has 50 written
-		// into the text - where the ack carries the number the server kept.
+		// The server caps the rate and says nothing, so report the number it
+		// kept rather than guessing at the limit.
+		// @see docs/reference/guild/grade-change.md
 		const sent = _sentPayRates[rank.positionID];
 		if (sent !== undefined && rank.payRate !== undefined && sent !== rank.payRate) {
 			ChatBox.addText(
@@ -1307,10 +1230,8 @@ Guild.updatePositionView = function updatePositionView() {
 
 	container.innerHTML = '';
 
-	// _positions is keyed by positionID and the server is free to skip one, so
-	// it can have holes - and setPositions truncates its length to the entry
-	// count, which leaves them inside the range. Rows carry the id they render
-	// rather than relying on their place in the table matching it.
+	// _positions is keyed by positionID and the server may skip one, so it can
+	// have holes. Rows carry the id they render rather than their place in it.
 	const count = _positions.length;
 	let rendered = 0;
 	for (let i = 0; i < count; ++i) {
@@ -1712,22 +1633,14 @@ function onChangeTab(event) {
 }
 
 /**
- * Where the tendency marker sits, in canvas-local pixels.
+ * Where the tendency marker sits, in canvas-local pixels
  *
- * The client works in window coordinates and puts the axes' crossing at
- * (67, 232), which is (44, 44) once the chart's own origin at (23, 188) is
- * taken off. Honor runs along x towards F and away from V, virtue along y
- * towards R and away from W, both scaled by 0.42 - the pair of floats parked
- * between this window's vtable and the next. The scale is what fixes the
- * domain: 100 * 0.42 = 42, just inside the 44px half-axis.
- *
- * The conversion truncates rather than rounds. The client reaches it through
- * _ftol, which sets the FPU rounding mode to round-toward-zero first, so a
- * marker one pixel out is a real difference and not a tie-break detail.
+ * Truncates rather than rounds, which is a real one-pixel difference here.
+ * @see docs/reference/guild/info-tab-legacy.md
  *
  * @param {number} honor - ZC_GUILD_INFO honor, [-100, 100]
  * @param {number} virtue - ZC_GUILD_INFO virtue, [-100, 100]
- * @returns {{x: number, y: number}} top-left of the 2x2 marker
+ * @return {{x: number, y: number}} top-left of the 2x2 marker
  */
 function tendencyMarker(honor, virtue) {
 	return {
@@ -1737,11 +1650,10 @@ function tendencyMarker(honor, virtue) {
 }
 
 /**
- * The ver12 chart, drawn at the client's own rects translated into the canvas.
- * Every colour here is a pixel out of colorchip.bmp, at the palette coordinate
- * the draw passes: frame (14,6), face (6,2), axes (22,2), marker (2,2). They
- * are the same four the rest of this window uses, so a skin that moves them
- * moves them everywhere together.
+ * The ver12 chart, at the client's own rects translated into the canvas
+ *
+ * The four colours are the same ones the rest of this window uses.
+ * @see docs/reference/guild/info-tab-legacy.md
  */
 function renderTendency(honor, virtue) {
 	const root = _root(Guild);
@@ -1766,10 +1678,8 @@ function renderTendency(honor, virtue) {
 	ctx.fillRect(marker.x, marker.y, 2, 2);
 }
 
-/**
- * RenderCanvas2D draws every layer centred on `bindY + offset - 0.5 * 35`. Passing
- * the shift back cancels it, so the entity's origin lands exactly where asked.
- */
+// Cancels the centring RenderCanvas2D applies, so the entity's origin lands
+// exactly where asked. @see docs/reference/guild/member-portrait.md
 const CELL_SHIFT = 0.5 * 35;
 
 /** Side of the scratch canvas the portrait is drawn into before being cropped. */
@@ -1829,12 +1739,8 @@ const renderMemberFaces = (function renderMemberFacesClosure() {
 		}
 
 		// Each member's OWN canvas, resolved through the index the row carries,
-		// never through its position. `_members` keeps the order the server
-		// sent; the rows are re-appended in login order by setMembers. Walking
-		// the two in lockstep was correct until that sort existed, and after it
-		// each head lands on whichever row happens to sit at the same offset -
-		// so an offline row gets an online member's head and the online row is
-		// cleared and left blank.
+		// never through its position - the two orders differ once sorted.
+		// @see docs/reference/guild/member-portrait.md
 		const canvasFor = {};
 		for (const row of root.querySelectorAll('.content.members .MemberView')) {
 			canvasFor[row.getAttribute('data-index')] = row.querySelector('canvas');
@@ -1856,12 +1762,8 @@ const renderMemberFaces = (function renderMemberFacesClosure() {
 				continue;
 			}
 
-			// Draw into a box big enough to hold the sprite whole, then crop to what
-			// was actually drawn. A fixed bind offset cannot do this: it has to know
-			// the sprite's height in advance, and a head .act places its layers
-			// wherever it likes - they are authored to be differenced against the
-			// body's attach point, which a head-only portrait never has. Measuring
-			// the result is the only thing that is right for every job and hairstyle.
+			// Draw into a box big enough for the whole sprite, then crop to what
+			// was drawn. No fixed offset can be right for every job and hairstyle.
 			scratchCtx.clearRect(0, 0, PORTRAIT_BOX, PORTRAIT_BOX);
 			SpriteRenderer.bind2DContext(scratchCtx, PORTRAIT_BOX / 2, PORTRAIT_BOX / 2 + CELL_SHIFT);
 			_members[i].entity.renderEntity();
@@ -1946,10 +1848,9 @@ function onValidate() {
 
 				const posName = position.querySelector('.title input')?.value || '';
 
-				// The client's edit takes two characters, so 0-99, and that is
-				// also rathena's ceiling for guild_exp_limit. The limit itself is
-				// per-server config, so it is not ours to second-guess any
-				// further - the server caps what it will accept.
+				// Two characters, so 0-99. Deliberately no tighter clamp: the
+				// real limit is per-server config and the server caps it.
+				// @see docs/reference/guild/grade-change.md
 				const typed = parseInt(position.querySelector('.tax input')?.value, 10) || 0;
 				const payRate = Math.min(99, Math.max(0, typed));
 
@@ -2050,10 +1951,9 @@ function updateSkillFooter(root, activeTab) {
 	}
 }
 
-// 2022's own control for the sort, at (12, 299) on the bottom bar. It exists
-// only in that era - ver12 never had it, mars26 dropped it and left the sort on
-// - so the deployment decides whether it is offered at all, and the player's
-// answer is what gets persisted.
+// 2022's own control for the sort, offered only when the deployment asks for
+// that era's behaviour.
+// @see docs/reference/guild/member-list-sort.md
 function updateMemberSort(root, activeTab) {
 	if (!root) {
 		return;
@@ -2095,9 +1995,9 @@ Guild.promptDisbandGuild = function promptDisbandGuild() {
 		return;
 	}
 
-	// msgstring 0xa04, and a single OK: the client's own box passes 0 as
-	// fcn.0062cea0's button-set selector, and discards the result before
-	// opening the name window unconditionally (fcn.005f62e0).
+	// OK-only, and the answer is discarded - the client opens the name window
+	// either way.
+	// @see docs/reference/guild/create-disband-dialogs.md
 	const warning = DB.getMessage(2564, 'If you are using a guild storage, all items inside it will disappear.');
 
 	UIManager.showMessageBox(warning, 'ok', () => {

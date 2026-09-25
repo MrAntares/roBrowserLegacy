@@ -208,11 +208,9 @@
 	left: 8px;
 	top: 88px;
 }
-/* LEGACY, both of them: ver12 draws the tendency chart and Tax Point and no
- * client after it does - no call to the msgstring getter passes 0x14e or 0x151
- * in 2022-03-30 or in mars26, read out of both draw functions rather than
- * grepped. Off unless the deployment asks, through guild.showTendency and
- * guild.showTaxPoint, so the default tab is the newest client's. */
+/* Both legacy, drawn by ver12 only, so off unless the deployment asks through
+ * guild.showTendency and guild.showTaxPoint.
+ * See docs/reference/guild/info-tab-legacy.md */
 #Guild .content.info .tendency,
 #Guild .content.info .tax {
 	display: none;
@@ -318,10 +316,8 @@
 	top: 98px;
 }
 /* 168x48 holds exactly three of the client's 16px rows, which is also where
- * its draw loop hard-stops: it never paints a fourth, whatever the server
- * sent, and rAthena's cap is sixteen. Clipped rather than scrolled - no guild
- * tab in any of the three clients puts a bar here, and one drawn inside this
- * fill reads as pasted on. */
+ * its draw loop hard-stops. Clipped rather than scrolled - no guild tab in any
+ * client puts a bar here. */
 #Guild .content.info .ally_list {
 	position: absolute;
 	left: 200px;
@@ -844,9 +840,9 @@
  * bottom bar: the two buttons at (46, 293) and (92, 293), the readout at
  * (W - 100, H - 20) = (300, 297). They live in the frame's footer for that
  * reason, and are shown only while the Skills tab is up. */
-/* SetSize(240, 12) then SetPos(12, H - 18) = (12, 299), label msgstring 0xb30.
- * 2022 only: ver12 has no such control and mars26 dropped it, so whether this
- * shows at all is the `guild.memberListSort` deployment setting. */
+/* 240x12 at (12, 299). 2022 only, so whether this shows at all is the
+ * `guild.memberListSort` deployment setting.
+ * See docs/reference/guild/member-list-sort.md */
 #Guild .footer .sortlogin {
 	display: none;
 	position: absolute;

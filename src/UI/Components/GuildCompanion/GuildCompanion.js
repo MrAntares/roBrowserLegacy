@@ -15,11 +15,10 @@ GuildCompanion.onRequestCreateGuild = function onRequestCreateGuild() {};
 GuildCompanion.onRequestBreakGuild = function onRequestBreakGuild() {};
 
 /**
- * The caption and the field label are the only thing that differs between the
- * two modes, which is also all the client varies: class 0xd5 and class 0xd7 are
- * one UICreateGuildWnd built with a mode flag, and its draw picks the pair off
- * that flag - fcn.005f2150 reads this+0xa0 and takes 0x81c / 0x81d for create,
- * 0x828 / 0x829 for disband.
+ * The caption and the field label, all that differs between the two modes
+ *
+ * That is also all the client varies - one window, one mode flag.
+ * @see docs/reference/guild/create-disband-dialogs.md
  */
 const MODE_STRINGS = {
 	create: { title: [2076, 'Create Guild'], label: [2077, 'Guild Name'] },
@@ -61,8 +60,7 @@ GuildCompanion.init = function init() {
 		const name = input.value.trim();
 
 		if (!name.length) {
-			// The client answers an empty field with msgstring 0x820 rather than
-			// doing nothing (fcn.005f5da0).
+			// The client raises this rather than doing nothing.
 			UIManager.showMessageBox(DB.getMessage(2080, 'You must enter the name of your guild.'), 'ok', () => {
 				input.focus();
 			});
@@ -70,15 +68,9 @@ GuildCompanion.init = function init() {
 		}
 
 		if (_mode === 'disband') {
-			// Load-bearing, not a convenience: rAthena's guild_break returns 0
-			// with no packet at all when the name does not match (guild.cpp),
-			// so without this the dialog would wait for an answer that never
-			// comes.
-			// 401 is the id the client itself shows when the server refuses a
-			// disband for a bad key: ver12's 0x15e handler maps reason 0/1/2 to
-			// msgstring 0x190/0x191/0x192 (fcn.005a4cc0.asm). This check exists
-			// only because rAthena returns 0 with no packet instead of sending
-			// that reason 1, so it stands in for it and quotes the same string.
+			// Load-bearing: the server answers a wrong key with no packet at
+			// all, so without this the dialog waits forever.
+			// @see docs/reference/guild/create-disband-dialogs.md
 			if (Session.guildName && name !== Session.guildName) {
 				UIManager.showMessageBox(DB.getMessage(401, 'You have failed to disband the guild.'), 'ok', () => {
 					input.value = '';

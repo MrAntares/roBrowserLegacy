@@ -18,9 +18,8 @@
 			<div class="clear"></div>
 		</div>
 		<div class="body">
-			<!-- No msgstring says this: the client's tip window shows a list of
-			     help entries, not a one-line invitation. Kept as a literal on
-			     purpose rather than forced onto an id that means something else. -->
+			<!-- No table id says this, so it is kept as a literal on purpose
+			     rather than forced onto an id that means something else. -->
 			<div class="msg">Join a guild or start your own!</div>
 			<div class="btns">
 				<ui-button
@@ -39,12 +38,10 @@
 		</div>
 	</div>
 
-	<!-- One window for both create and disband, which is what the client does:
-	     class 0xd5 and class 0xd7 are the same UICreateGuildWnd built with a
-	     mode flag, and its draw picks the caption and the label off that flag
-	     (fcn.005f2150 - 0x81c/0x81d create, 0x828/0x829 disband). The two
-	     strings are the only difference, so open() fills them and the markup
-	     carries neither. -->
+	<!-- One window for both create and disband, which is what the client does.
+	     The caption and the label are the only difference, so open() fills them
+	     and the markup carries neither.
+	     See docs/reference/guild/create-disband-dialogs.md -->
 	<div class="win namebox">
 		<div class="titlebar">
 			<ui-image src="basic_interface/titlebar_mid.bmp"></ui-image>

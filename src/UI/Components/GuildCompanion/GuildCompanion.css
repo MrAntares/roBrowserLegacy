@@ -93,34 +93,23 @@
 }
 
 /* ---- Create / disband, on the client's box -----------------------------
- * Window class 0xd5 (create) and 0xd7 (disband) are one UICreateGuildWnd built
- * with a mode flag, and both reach the same geometry block:
- *   SetSize(0x96, 0x64)                       -> 150 x 100
- *   label   fcn.00a90ee0(0x10, 0x17, ...)     -> (16, 23)
- *   edit    SetSize(0x7c, 0x14) SetPos(0xd, 0x2a) -> 124 x 20 at (13, 42)
- *   btn_ok      (W - 0x5c, H - 0x18)          -> (58, 76)
- *   btn_cancel  (W - 0x2e, H - 0x18)          -> (104, 76)
- * The edit's own max length is +0x88 = 0x17 = 23, which the markup already had.
- * Children are absolute so each of those numbers appears once, unmodified. */
+ * One window for both modes, at the client's own geometry: 150x100, edit
+ * 124x20 at (13, 42), OK and Cancel at (58, 76) and (104, 76). Children are
+ * absolute so each number appears once.
+ * See docs/reference/guild/create-disband-dialogs.md */
 #GuildCompanion .namebox {
 	width: 150px;
 	height: 100px;
-	/* The label is a TextOut at an anchor point, with no box and no measuring
-	 * pass, so a long string just runs on - and GDI stops it at the window's
-	 * DC. An absolute box has no such edge: the served English fits, but a
-	 * localised msgstring 2089 painted 86px past the frame. */
+	/* The client's label has no box and is clipped by the window DC. An
+	 * absolute box has no such edge, and a localised label overran the frame. */
 	overflow: hidden;
 }
-/* An anchor, not a box: the client draws this label with a bare
- * TextOut(16, 23) - no width, no alignment flag, no measuring pass - so there
- * is nothing to centre it in, and the web form of that idea is left/top with
- * no width and no text-align.
+/* An anchor, not a box - there is nothing to centre the label in, so left/top
+ * with no width and no text-align.
  *
  * 13 rather than the client's 16, deliberately: flush with the field's left
- * edge. The client puts its label on the text *inside* the field, 3px in, which
- * leaves the label visibly indented against the box below it - faithful, and it
- * reads as a mistake. Aligning the two left edges is a deviation above the
- * binary, in the same spirit as session 11's emblem row. */
+ * edge rather than with the text inside it, which reads as an indent.
+ * See docs/reference/guild/create-disband-dialogs.md */
 #GuildCompanion .namebox .label {
 	position: absolute;
 	left: 13px;
@@ -135,8 +124,7 @@
 	box-sizing: border-box;
 	padding: 0 2px;
 	border: 1px solid #c1c6c2;
-	/* fcn.00534540(0xe6, 0xe6, 0xe6) on the edit widget - the same near-white
-	 * this call sets on every edit box in the binary (0xe8 is the common one). */
+	/* The client's own near-white on this edit widget. */
 	background-color: #e6e6e6;
 	/* The UA's `font` shorthand on form controls drops the inherited family and
 	 * resets font-size-adjust, so an input opts out of the x-height

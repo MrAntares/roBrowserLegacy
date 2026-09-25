@@ -503,9 +503,9 @@ export function createPartyFriends(config) {
 
 		_friends[index].State = state;
 
-		// The list itself always follows; only the chat line is behind /li, which
-		// is the toggle these two strings are named for - the client gates them on
-		// it in fcn.0065cae0, the same flag as the guild login lines.
+		// The list itself always follows; only the chat line is behind /li, the
+		// toggle these two strings are named for.
+		// @see docs/reference/guild/login-announcements.md
 		if (state) {
 			if (node) node.style.backgroundImage = '';
 			if (UIPreferences.li) {

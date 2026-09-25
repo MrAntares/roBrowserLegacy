@@ -47,9 +47,8 @@ let _memberInfoTimer = 0;
 /**
  * @var {string} who we last invited, so the answer can name them
  *
- * ZC_ACK_REQ_JOIN_GUILD carries a flag byte and nothing else, so a message
- * table that writes its strings with a `%s` has to be filled from what this
- * side already knows - the character we just sent the invitation to.
+ * The ack is a flag byte, so the name can only come from this side.
+ * @see docs/reference/guild/invitation-ack.md
  */
 let _lastInvited = '';
 
@@ -481,11 +480,9 @@ class GuildEngine {
 
 		Network.sendPacket(pkt);
 
-		// Not every server answers this one - rAthena registers 0x157 with a null
-		// handler (clif_packetdb.hpp, `packet(0x0157,6)` rather than
-		// `parseable_packet`), so the request is read off the wire and dropped,
-		// and 0x158 never comes back. Name the reason rather than leave the click
-		// looking like nothing happened.
+		// Not every server answers this one. Name the reason rather than leave
+		// the click looking like nothing happened.
+		// @see docs/reference/guild/member-info-request.md
 		clearTimeout(_memberInfoTimer);
 		_memberInfoTimer = setTimeout(() => {
 			ChatBox.addText(
@@ -825,9 +822,9 @@ function onGuildSkillList(pkt) {
  * @param {object} pkt - PACKET.ZC.GUILD_NOTICE
  */
 function onGuildNotice(pkt) {
-	// The window keeps the notice either way - only the chat echo is the player's
-	// to silence, and the client puts it behind the same /li flag as the login
-	// lines (fcn.005a5580, `cmp dword [data.0079fa74], 1` guarding the print).
+	// The window keeps the notice either way - only the chat echo is the
+	// player's to silence, behind the same /li flag as the login lines.
+	// @see docs/reference/guild/login-announcements.md
 	if (UIPreferences.li) {
 		ChatBox.addText('[ ' + pkt.subject + ' ]', ChatBox.TYPE.GUILD, ChatBox.FILTER.GUILD, '#FFFF63');
 		ChatBox.addText('[ ' + pkt.notice + ' ]', ChatBox.TYPE.GUILD, ChatBox.FILTER.GUILD, '#FFFF63');
@@ -937,10 +934,8 @@ function onGuildInviteRequest(pkt) {
  * One line of the invitation result, with the invited character's name
  * substituted if the message table asked for one.
  *
- * The stock strings carry no `%s` - the client's own handler passes the id
- * straight to its chat printer - so this changes nothing until a deployment
- * rewrites them. Once it does ("%s accepted the guild invitation."), the name
- * is there to use, since the packet itself is a single flag byte.
+ * A no-op on the stock tables, none of whose strings carry a `%s`.
+ * @see docs/reference/guild/invitation-ack.md
  *
  * @param {number} id - message table id
  * @param {string} defaultText - used when the table has no such id
