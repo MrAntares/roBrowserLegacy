@@ -44,6 +44,15 @@ let _pendingGuildSkillRequest = false;
 let _memberInfoTimer = 0;
 
 /**
+ * @var {string} who we last invited, so the answer can name them
+ *
+ * ZC_ACK_REQ_JOIN_GUILD carries a flag byte and nothing else, so a message
+ * table that writes its strings with a `%s` has to be filled from what this
+ * side already knows - the character we just sent the invitation to.
+ */
+let _lastInvited = '';
+
+/**
  * Engine namespace
  */
 class GuildEngine {
@@ -361,6 +370,9 @@ class GuildEngine {
 	 * @param {number} target account id
 	 */
 	static requestPlayerInvitation(AID) {
+		const entity = EntityManager.get(AID);
+		_lastInvited = entity ? entity.display.name : '';
+
 		const pkt = new PACKET.CZ.REQ_JOIN_GUILD();
 		pkt.AID = AID;
 		pkt.MyAID = Session.AID;
@@ -388,6 +400,8 @@ class GuildEngine {
 			);
 			return;
 		}
+
+		_lastInvited = name;
 
 		const pkt = new PACKET.CZ.REQ_JOIN_GUILD2();
 		pkt.name = name;
@@ -914,6 +928,26 @@ function onGuildInviteRequest(pkt) {
 }
 
 /**
+ * One line of the invitation result, with the invited character's name
+ * substituted if the message table asked for one.
+ *
+ * The stock strings carry no `%s` - the client's own handler passes the id
+ * straight to its chat printer - so this changes nothing until a deployment
+ * rewrites them. Once it does ("%s accepted the guild invitation."), the name
+ * is there to use, since the packet itself is a single flag byte.
+ *
+ * @param {number} id - message table id
+ * @param {string} defaultText - used when the table has no such id
+ * @param {number} type - ChatBox.TYPE
+ */
+function addInviteResult(id, defaultText, type) {
+	// No-op on a string without one, which is every stock table.
+	const text = DB.getMessage(id, defaultText).replace('%s', _lastInvited || DB.getMessage(581, 'Nameless'));
+
+	ChatBox.addText(text, type, ChatBox.FILTER.GUILD);
+}
+
+/**
  * Result from a guild invitation
  *
  * @param {object} pkt - PACKET.ZC.ACK_REQ_JOIN_GUILD
@@ -921,19 +955,19 @@ function onGuildInviteRequest(pkt) {
 function onGuildInviteResult(pkt) {
 	switch (pkt.answer) {
 		case 0: // Already in guild.
-			ChatBox.addText(DB.getMessage(378), ChatBox.TYPE.ERROR, ChatBox.FILTER.GUILD);
+			addInviteResult(378, 'He/She is already in a Guild.', ChatBox.TYPE.ERROR);
 			break;
 
 		case 1: // Offer rejected.
-			ChatBox.addText(DB.getMessage(379), ChatBox.TYPE.ERROR, ChatBox.FILTER.GUILD);
+			addInviteResult(379, 'You have refused the guild invitation.', ChatBox.TYPE.ERROR);
 			break;
 
 		case 2: // Offer accepted.
-			ChatBox.addText(DB.getMessage(380), ChatBox.TYPE.BLUE, ChatBox.FILTER.GUILD);
+			addInviteResult(380, 'You have accepted the guild invitation.', ChatBox.TYPE.BLUE);
 			break;
 
 		case 3: // Guild full.
-			ChatBox.addText(DB.getMessage(381), ChatBox.TYPE.ERROR, ChatBox.FILTER.GUILD);
+			addInviteResult(381, 'Your Guild is full.', ChatBox.TYPE.ERROR);
 			break;
 	}
 }
