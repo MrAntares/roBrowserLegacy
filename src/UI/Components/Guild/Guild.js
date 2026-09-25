@@ -1985,6 +1985,10 @@ function onValidate() {
 				if (rank.right !== right || rank.posName !== posName || rank.payRate !== payRate) {
 					positionList.push({
 						positionID: rank.positionID,
+						// Echoed, never recomputed: the entry is fixed-width so the slot
+						// has to be filled, and the server derives rank from the entry
+						// order and never reads this.
+						// @see docs/reference/guild/grade-change.md
 						ranking: rank.ranking,
 						right: right,
 						posName: posName,

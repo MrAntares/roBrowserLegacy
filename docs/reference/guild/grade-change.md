@@ -23,6 +23,9 @@ Nothing is sent on selection, and the whole roster is never sent.
 - **`ZC_ACK_REQ_CHANGE_MEMBERS` (0x156) carries `memberInfo[]` only** - not
   `AID` / `GID` / `positionID`. An acknowledged grade of 0 is the guild master
   moving, not a grade change.
+- **Echo `ranking`, never recompute or renumber it.** The positions-tab apply
+  entry is fixed-width, so the slot has to be filled whatever goes in it - and
+  nothing the client puts there is ever read. See below.
 
 ## Why
 
@@ -63,6 +66,26 @@ when it was not.
 
 Then the acknowledged rate is compared against what Apply sent, and a
 difference is reported in guild chat, quoting the server's own number.
+
+### The ranking field is echoed, and read by nobody
+
+The positions-tab apply sends one entry per edited row, and each entry carries
+a `ranking` the client read back out of its own store rather than computing.
+That looks like a value being round-tripped for no reason, and half of it is:
+the server never reads it. The parse walks the packet in fixed 40-byte strides
+from offset 4 and consumes only the position id, the mode, the pay rate and the
+name - the four bytes at `+8` are stepped over, and the structure it fills has
+no member to hold them.
+
+The slot is still mandatory. Because the stride is fixed, dropping those four
+bytes does not shorten the entry, it desynchronises every entry after the
+first. So the field is filled, and filled with what arrived rather than with a
+guess.
+
+Both packets that carry rank the other way synthesize it from the entry's own
+index at send time, so it is not stored server-side either. On the wire it is
+therefore always equal to the position id - which is why renumbering it
+client-side would look harmless right up until it was not.
 
 ## Deviations
 
