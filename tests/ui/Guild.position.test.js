@@ -238,6 +238,31 @@ function wireEntries(memberInfo) {
 	return out;
 }
 
+/**
+ * The same, for the positions packet. The server walks it in fixed 40-byte
+ * strides, so a field dropped or reordered here does not shorten an entry, it
+ * misreads every entry after the first.
+ */
+function wirePositions(memberList) {
+	const pkt = new PACKET.CZ.REG_CHANGE_GUILD_POSITIONINFO();
+	pkt.memberList = memberList;
+
+	const view = new DataView(pkt.build().buffer);
+	expect(view.getUint16(0, true)).toBe(0x161);
+	expect(view.getUint16(2, true)).toBe(4 + memberList.length * 40);
+
+	const out = [];
+	for (let offset = 4; offset < view.byteLength; offset += 40) {
+		out.push({
+			positionID: view.getInt32(offset, true),
+			right: view.getInt32(offset + 4, true),
+			ranking: view.getInt32(offset + 8, true),
+			payRate: view.getInt32(offset + 12, true)
+		});
+	}
+	return out;
+}
+
 let sent;
 let sentPositions;
 const chat = [];
@@ -947,6 +972,23 @@ describe('Guild position tab', () => {
 			clickApply();
 
 			expect(sentPositions).toHaveLength(0);
+		});
+	});
+
+	// The field the server steps over is still the field the server counts on
+	// being there, so the one instruction about it - echo it, never recompute -
+	// is worth holding rather than only writing down.
+	describe('what the positions packet puts on the wire', () => {
+		it('carries the ranking it was given, in the slot the stride expects', () => {
+			Guild.setPositions(POSITIONS, true);
+			showPositionsTab();
+
+			clickCheckbox(1, 'invite');
+			clickApply();
+
+			expect(wirePositions(sentPositions[0])).toEqual([
+				{ positionID: 1, right: 0x000, ranking: 1, payRate: 10 }
+			]);
 		});
 	});
 
