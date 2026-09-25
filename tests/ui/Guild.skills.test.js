@@ -329,6 +329,31 @@ describe('Guild skills tab', () => {
 			expect(rowOf(10002).querySelector('.levelup').style.display).toBe('none');
 		});
 
+		// The gate has to hold on all three paths that show the button. The test
+		// above only reaches addSkill's, because setPoints runs before the list
+		// exists and its loop body never executes.
+		it('stays hidden for a member when a skill update arrives after the list', () => {
+			mocks.session.isGuildMaster = false;
+			Guild.setPoints(3);
+			Guild.setSkills([skill({ SKID: 10002, level: 1, upgradable: 1 })]);
+
+			Guild.updateSkill(skill({ SKID: 10002, level: 2, upgradable: 1 }));
+
+			expect(rowOf(10002).querySelector('.levelup').style.display).toBe('none');
+		});
+
+		// setPoints returns early when the count's truthiness does not change, so
+		// the list has to start on zero points for its loop to run at all.
+		it('stays hidden for a member when the point count arrives after the list', () => {
+			mocks.session.isGuildMaster = false;
+			Guild.setPoints(0);
+			Guild.setSkills([skill({ SKID: 10002, level: 1, upgradable: 1 })]);
+
+			Guild.setPoints(3);
+
+			expect(rowOf(10002).querySelector('.levelup').style.display).toBe('none');
+		});
+
 		it('follows the point count once the list is already up', () => {
 			mocks.session.isGuildMaster = true;
 			Guild.setPoints(0);

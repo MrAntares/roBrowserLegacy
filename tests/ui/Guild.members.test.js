@@ -152,6 +152,11 @@ const Configs = (await import('Core/Configs.js')).default;
 const UIPreferences = (await import('Preferences/UI.js')).default;
 const UIManager = (await import('UI/UIManager.js')).default;
 
+// Captured before any test writes the flag, so it is the value the module
+// ships rather than one a test put there.
+const SHIPPED = { li: UIPreferences.li };
+
+
 UIManager.addComponent(Guild);
 
 /**
@@ -165,6 +170,10 @@ describe('guild member list, ordered by login status', () => {
 	beforeEach(() => {
 		Configs.set('guild', { memberListSort: 'always' });
 		UIPreferences.guildMemberListSorted = true;
+
+		// UIPreferences is a module singleton, so a test that writes the flag
+		// leaves it written for every test declared after it.
+		UIPreferences.li = SHIPPED.li;
 	});
 
 	it("leaves the server's order alone in ver12's mode", () => {
@@ -305,6 +314,19 @@ describe('guild member list, ordered by login status', () => {
 			expect(announce(uniform(1, false), 0, 1)[0]).not.toMatch(/NO MSG/);
 		});
 
+		// A whole packetver band sends the member list with no character name at
+		// all, so the rendered row falls back to a placeholder rather than an
+		// empty cell. The only other assertion naming the placeholder is on the
+		// delegation prompt, a different path.
+		it('renders a placeholder when the list carries no name', () => {
+			const roster = uniform(1, false).map(m => ({ ...m, CharName: '' }));
+			Guild.setMembers(roster, false);
+
+			const cell = Guild.getRoot().querySelector('.content.members tbody tr .name .value');
+
+			expect(cell.textContent).toBe('Nameless');
+		});
+
 		// The name used to be read back out of the row's DOM node, which is found
 		// through an index that the online-count loop has already spent.
 		it('takes the name from the roster rather than the rendered row', () => {
@@ -324,6 +346,14 @@ describe('guild member list, ordered by login status', () => {
 			UIPreferences.li = false;
 
 			expect(announce(alternating(3), 1, 1)).toEqual([]);
+		});
+
+		// The port ships this on where the client ships it off, which is a
+		// deliberate departure - so the default is worth a test of its own.
+		// Every other case here writes the flag before reading it, which leaves
+		// the shipped value unobserved.
+		it('ships on, so a fresh install announces without being asked', () => {
+			expect(SHIPPED.li).toBe(true);
 		});
 	});
 

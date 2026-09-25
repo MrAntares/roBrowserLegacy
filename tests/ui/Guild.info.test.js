@@ -235,7 +235,13 @@ describe('Guild info tab', () => {
 		// The switches decide whether those elements are drawn at all, so they
 		// cannot wait for the first ZC_GUILD_INFO.
 		it('are applied when the window opens, before any packet', () => {
+			// show() clicks the Info tab when no tab is active, and the tab-change
+			// path applies the switches too - so with none active this passes
+			// whether or not show() applies them itself. Leave a tab active so
+			// only show()'s own call can be doing the work.
+			showTab('members');
 			Configs.set('guild', { showTendency: true });
+
 			// show() is a no-op on an already-open window, so start it closed.
 			Guild.ui.is = vi.fn(() => false);
 			Guild.show();

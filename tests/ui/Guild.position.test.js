@@ -555,6 +555,16 @@ describe('Guild member position', () => {
 			expect(entryLabelled('Assign Guild Leader')).not.toBeNull();
 		});
 
+		// The client hit-tests the whole row band, not the name cell. Every
+		// other case here right-clicks the name, so they pass under either
+		// selector and none of them notices if the band narrows back.
+		it('opens from any cell of the row, not just the name', () => {
+			const cell = root().querySelector(`.MemberView[data-index="${ALICE_ROW}"] td.position`);
+			cell.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true }));
+
+			expect(entryLabelled('Assign Guild Leader')).not.toBeNull();
+		});
+
 		it('hides the entry from a member who is not the guild master', () => {
 			mocks.session.isGuildMaster = false;
 			Guild.setMembers([member(MASTER), member(ALICE), member(BOB)]);
