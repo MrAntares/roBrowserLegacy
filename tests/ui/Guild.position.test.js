@@ -381,6 +381,33 @@ describe('Guild member position', () => {
 		});
 	});
 
+	describe('reading a grade name the column is too narrow for', () => {
+		// The cell a member sees carries its full text in a title; the dropdown
+		// the guild master gets in its place did not, so the one player who can
+		// change a grade was the one who could not read it.
+		it('the dropdown carries the current grade name', () => {
+			expect(selectOf(ALICE).title).toBe('Member');
+		});
+
+		it('it follows an accepted change', () => {
+			changeGrade(ALICE, 2);
+
+			expect(selectOf(ALICE).title).toBe('Officer');
+		});
+
+		it('a refused change leaves it on the grade the row still shows', () => {
+			changeGrade(ALICE, 0);
+
+			expect(selectOf(ALICE).title).toBe('Member');
+		});
+
+		it('it survives a single-row refresh', () => {
+			Guild.setMember({ ...member(ALICE), GPositionID: 2 });
+
+			expect(selectOf(ALICE).title).toBe('Officer');
+		});
+	});
+
 	it('guards against the grade the row actually shows after a single-member refresh', () => {
 		// ZC.ACK_GUILD_MEMBER_INFO re-renders one row from a brand new object.
 		// The guard reads the member list back, so the list has to follow.

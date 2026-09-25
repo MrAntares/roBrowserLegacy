@@ -1031,6 +1031,15 @@ Guild.setMember = function setMember(member) {
 					}
 					_showApplyButton();
 				});
+
+				// The column is too narrow for most grade names, and a closed
+				// select has no ellipsis to hover. Registered after the handler
+				// above, so a refused selection reverts first.
+				const showFullGrade = () => {
+					selectEl.title = selectEl.options[selectEl.selectedIndex].textContent;
+				};
+				showFullGrade();
+				selectEl.addEventListener('change', showFullGrade);
 			}
 		} else {
 			positionCell.textContent = _positions[member.GPositionID].posName;
