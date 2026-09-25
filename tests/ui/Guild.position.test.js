@@ -949,4 +949,56 @@ describe('Guild position tab', () => {
 			expect(sentPositions).toHaveLength(0);
 		});
 	});
+
+	/**
+	 * The tab holds its edits in its own rows, so leaving and coming back has to
+	 * bring the way to apply them back too - and Apply having run has to take it
+	 * away again.
+	 */
+	describe('Apply follows whether the tab has unsent edits', () => {
+		// The display helpers above cannot serve here: it is onChangeTab that
+		// decides, and only a real click runs it.
+		function clickTab(name) {
+			root()
+				.querySelector(`.tabs button.${name}`)
+				.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+		}
+
+		function applyIsOffered() {
+			return applyButton().style.display !== 'none';
+		}
+
+		beforeEach(() => {
+			// 0xd7 is what the server sends a guild master; onChangeTab refuses
+			// the switch, silently, without the positions bit.
+			Guild.setAccess(0xd7);
+			Guild.setPositions(POSITIONS, true);
+
+			// onChangeTab returns early on the tab already marked active, and the
+			// mount is shared, so landing on positions takes a real transition.
+			clickTab('info');
+			clickTab('positions');
+		});
+
+		it('is offered again on returning to an edited tab', () => {
+			clickCheckbox(1, 'invite');
+
+			clickTab('info');
+			expect(applyIsOffered()).toBe(false);
+			clickTab('positions');
+
+			expect(applyIsOffered()).toBe(true);
+		});
+
+		it('stops being offered once the edits have gone out', () => {
+			clickCheckbox(1, 'invite');
+			clickApply();
+			expect(sentPositions).toHaveLength(1);
+
+			clickTab('info');
+			clickTab('positions');
+
+			expect(applyIsOffered()).toBe(false);
+		});
+	});
 });

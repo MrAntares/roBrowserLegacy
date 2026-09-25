@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { alternating, uniform } from '../fixtures/guildMembers.js';
 
 const mocks = vi.hoisted(() => {
@@ -53,9 +53,14 @@ const mocks = vi.hoisted(() => {
 	}
 	MockEntity.TYPE_PC = 0;
 
+	/** Every pixel opaque - the default the portrait cases inherit. */
+	const opaqueEverywhere = (w, h) => new Uint8ClampedArray(w * h * 4).fill(255);
+
 	return {
 		MockGUIComponent,
 		MockEntity,
+		alpha: opaqueEverywhere,
+		opaqueEverywhere,
 		sprite: { bind2DContext: vi.fn() },
 		renderer: { width: 1200, height: 800, tick: 0, render: vi.fn(), stop: vi.fn() },
 		session: {
@@ -138,9 +143,10 @@ HTMLCanvasElement.prototype.getContext = function () {
 			fillRect() {},
 			clearRect() {},
 			drawImage: (...args) => blits.push({ canvas: this, args }),
-			// Opaque everywhere, so the portrait's bounding box is the whole scratch
-			// and the crop runs its real arithmetic.
-			getImageData: (_x, _y, w, h) => ({ data: new Uint8ClampedArray(w * h * 4).fill(255) })
+			// Opaque everywhere by default, which makes the bounding box the whole
+			// scratch. A case that wants to pin WHICH region is copied replaces
+			// this with a mask whose opaque part is somewhere else.
+			getImageData: (_x, _y, w, h) => ({ data: mocks.alpha(w, h) })
 		};
 	}
 	return this.__ctx;
@@ -366,6 +372,82 @@ describe('guild member list, ordered by login status', () => {
 
 		// Sorted, so the online pair leads.
 		expect(online).toEqual([true, true, false, false]);
+	});
+});
+
+/**
+ * The cell is 30x30 cropped out of a 96x96 scratch, so WHICH region is copied
+ * is the whole point of measuring what was drawn: asserting only that a draw
+ * happened leaves the crop free to be the wrong corner of the sprite.
+ */
+describe('guild member list, the head cropped to what was drawn', () => {
+	/** A mask opaque only inside the given bounds, inclusive. */
+	function opaqueRect(x0, x1, y0, y1) {
+		return (w, h) => {
+			const data = new Uint8ClampedArray(w * h * 4);
+			for (let y = y0; y <= y1; ++y) {
+				for (let x = x0; x <= x1; ++x) {
+					data[(y * w + x) * 4 + 3] = 255;
+				}
+			}
+			return data;
+		};
+	}
+
+	// The mask is module state shared with every other describe, and the ones
+	// declared after this would otherwise inherit whichever rectangle ran last.
+	afterEach(() => {
+		mocks.alpha = mocks.opaqueEverywhere;
+	});
+
+	/** The source origin of the blit into a member's own cell. */
+	function cropOrigin() {
+		blits.length = 0;
+		mocks.renderer.tick += 5000;
+		Guild.setMembers(uniform(1, true), false);
+
+		const blit = blits.find(entry => entry.canvas.closest('.MemberView'));
+		return blit && [blit.args[1], blit.args[2]];
+	}
+
+	it('centres a drawing shorter than the cell', () => {
+		mocks.alpha = opaqueRect(40, 59, 50, 69);
+
+		// 20 wide and 20 tall against a 30x30 cell: both axes centre, so the
+		// origin backs off five pixels from the drawing on each.
+		expect(cropOrigin()).toEqual([35, 45]);
+	});
+
+	it('keeps the top of a drawing taller than the cell, where the head is', () => {
+		mocks.alpha = opaqueRect(40, 59, 10, 90);
+
+		// 81 tall overflows the cell, so the top is kept rather than centred.
+		expect(cropOrigin()).toEqual([35, 10]);
+	});
+});
+
+/**
+ * The ban list has the member list's hole and worse: the 0x0a87 generation
+ * carries a char id and no name at all, so every one of its rows would be blank.
+ */
+describe('guild expel list, a row the server sends no name for', () => {
+	function expelled() {
+		return [...Guild.getRoot().querySelectorAll('.content.history tbody .ExpelView')].map(row => [
+			row.querySelector('.name').textContent,
+			row.querySelector('.reason').textContent
+		]);
+	}
+
+	it('falls back to the placeholder, keeping the reason it did send', () => {
+		Guild.setExpelList([
+			{ charname: 'Dismissed', reason: 'left of their own accord' },
+			{ charname: '', reason: 'banned' }
+		]);
+
+		expect(expelled()).toEqual([
+			['Dismissed', 'left of their own accord'],
+			['Nameless', 'banned']
+		]);
 	});
 });
 

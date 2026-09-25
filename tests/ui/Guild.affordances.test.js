@@ -29,9 +29,14 @@ const mocks = vi.hoisted(() => {
 	}
 	MockEntity.TYPE_PC = 0;
 
+	/** The preload answering at once, which is what every case but one wants. */
+	const loadFilesNow = (_paths, callback) => callback?.('checkbox_0.bmp', 'checkbox_1.bmp');
+
 	return {
 		MockGUIComponent,
 		MockEntity,
+		loadFiles: loadFilesNow,
+		loadFilesNow,
 		sprite: { bind2DContext: vi.fn() },
 		packetver: { value: 20211103 },
 		renderer: { width: 1200, height: 800, tick: 0, render: vi.fn(), stop: vi.fn() },
@@ -69,7 +74,7 @@ vi.mock('Core/Client.js', () => ({
 			callback?.('');
 		},
 		loadFiles(_paths, callback) {
-			callback?.('checkbox_0.bmp', 'checkbox_1.bmp');
+			mocks.loadFiles(_paths, callback);
 		}
 	}
 }));
@@ -242,6 +247,7 @@ describe('guild window, the login-status checkbox', () => {
 	beforeEach(() => {
 		Configs.set('guild', {});
 		mocks.session.isGuildMaster = true;
+		mocks.loadFiles = mocks.loadFilesNow;
 		UIPreferences.guildMemberListSorted = true;
 		mount();
 		Guild.setPositionsName(POSITION_NAMES);
@@ -298,6 +304,32 @@ describe('guild window, the login-status checkbox', () => {
 
 		expect(sent).toHaveLength(1);
 		expect(sent[0]).toEqual([{ AID: member(ALICE).AID, GID: member(ALICE).GID, positionID: 2 }]);
+	});
+
+	// The preload is asynchronous, so the images can arrive after the checkbox
+	// has already been shown once. Painting it on every visit rather than once
+	// at bind is what keeps that first visit from staying blank for good.
+	it('repaints the image on every visit, not once at bind', () => {
+		Configs.set('guild', { memberListSort: 'checkbox' });
+
+		let deliver;
+		mocks.loadFiles = (_paths, callback) => {
+			deliver = callback;
+		};
+		mount();
+
+		const image = () => sortlogin().querySelector('ui-button').style.backgroundImage;
+
+		deliver('early_off.bmp', 'early_on.bmp');
+		showTab('members');
+		expect(image()).toContain('early_on.bmp');
+
+		// A second answer stands in for images that only landed after that paint.
+		deliver('late_off.bmp', 'late_on.bmp');
+		showTab('info');
+		showTab('members');
+
+		expect(image()).toContain('late_on.bmp');
 	});
 
 	it('reorders the list when clicked, and persists the answer', () => {

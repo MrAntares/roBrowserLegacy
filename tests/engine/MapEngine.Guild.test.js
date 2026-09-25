@@ -16,7 +16,10 @@ const mocks = vi.hoisted(() => ({
 		setExpelList: vi.fn()
 	},
 	entities: [],
-	emblemRequests: []
+	emblemRequests: [],
+	// Invitation by click reads the entity the AID names; by default there is
+	// nobody on screen, which is the fallback path.
+	entityGet: () => null
 }));
 
 vi.mock('Network/NetworkManager.js', () => ({
@@ -48,7 +51,7 @@ vi.mock('UI/UIManager.js', () => ({ default: { showPromptBox: vi.fn(), showMessa
 vi.mock('UI/Components/MiniMap/MiniMap.js', () => ({ default: { addGuildMemberMarker: vi.fn() } }));
 vi.mock('Core/Configs.js', () => ({ default: { get: (_k, d) => d } }));
 vi.mock('Renderer/EntityManager.js', () => ({
-	default: { forEach: fn => mocks.entities.forEach(fn), get: () => null }
+	default: { forEach: fn => mocks.entities.forEach(fn), get: AID => mocks.entityGet(AID) }
 }));
 vi.mock('Utils/Texture.js', () => ({ default: { load: vi.fn() } }));
 vi.mock('Utils/Inflate.js', () => ({ default: class {} }));
@@ -77,6 +80,7 @@ beforeEach(() => {
 	mocks.entities.length = 0;
 	mocks.emblemRequests.length = 0;
 	mocks.messages = {};
+	mocks.entityGet = () => null;
 	mocks.chat.mockClear();
 	// init() also hangs its own callbacks off the window object, so only the
 	// spies are resettable.
@@ -302,6 +306,28 @@ describe('the invitation result names who was invited', () => {
 
 		expect(mocks.chat.mock.calls[0][0]).toBe('ClaudeTestB accepted your invitation.');
 		expect(mocks.chat.mock.calls[1][0]).toBe('Nameless accepted your invitation.');
+	});
+
+	// Clicking a player is the other way in, and it is the one with an entity to
+	// read the name off - the packet carries an account id and nothing else.
+	it('names a player invited by clicking them, not only one typed', () => {
+		mocks.messages[380] = '%s accepted your invitation.';
+		mocks.entityGet = AID => (AID === 2000007 ? { display: { name: 'Clicked' } } : null);
+
+		GuildEngine.requestPlayerInvitation(2000007);
+		deliver(PACKET.ZC.ACK_REQ_JOIN_GUILD, { answer: 2 });
+
+		expect(mocks.chat.mock.calls[0][0]).toBe('Clicked accepted your invitation.');
+	});
+
+	it('falls back when the player clicked has left the screen', () => {
+		mocks.messages[380] = '%s accepted your invitation.';
+		mocks.messages[581] = 'Nameless';
+
+		GuildEngine.requestPlayerInvitation(2000007);
+		deliver(PACKET.ZC.ACK_REQ_JOIN_GUILD, { answer: 2 });
+
+		expect(mocks.chat.mock.calls[0][0]).toBe('Nameless accepted your invitation.');
 	});
 
 	it('has text to fall back on for every answer the server sends', () => {
