@@ -928,10 +928,13 @@ describe('Guild position tab', () => {
 			// own entry rather than with row N.
 			expect([...positionRows()].map(r => r.dataset.positionId)).toEqual(['0', '1', '4']);
 
-			clickCheckbox(1, 'punish');
+			// Row 2, not row 1: row 1's id is also 1, so pairing by row ordinal and
+			// pairing by id agree there and the assertion holds either way. Only a
+			// row past a hole tells them apart.
+			clickCheckbox(2, 'punish');
 			clickApply();
 
-			expect(sentPositions[0][0]).toMatchObject({ positionID: 1, right: 0x011 });
+			expect(sentPositions[0][0]).toMatchObject({ positionID: 4, right: 0x001 });
 		});
 
 		it('does not push a mode it never received', () => {
