@@ -275,21 +275,11 @@ ChatBox.init = function init() {
 	// Move caret to end of text
 	if (inputChatbox) {
 		inputChatbox.addEventListener('click', function () {
-			const range = document.createRange();
-			const selection = window.getSelection();
-			range.selectNodeContents(this);
-			range.collapse(false);
-			selection.removeAllRanges();
-			selection.addRange(range);
+			setCaretToEnd(this);
 		});
 
 		inputChatbox.addEventListener('focus', function () {
-			const range = document.createRange();
-			const selection = window.getSelection();
-			range.selectNodeContents(this);
-			range.collapse(false);
-			selection.removeAllRanges();
-			selection.addRange(range);
+			setCaretToEnd(this);
 		});
 
 		inputChatbox.maxLength = MAX_LENGTH;
@@ -1109,12 +1099,7 @@ ChatBox.onKeyDown = function OnKeyDown(event) {
 			}
 
 			messageBox.focus();
-			const range = document.createRange();
-			const sel = window.getSelection();
-			range.selectNodeContents(messageBox);
-			range.collapse(false);
-			sel.removeAllRanges();
-			sel.addRange(range);
+			setCaretToEnd(messageBox);
 			event.stopImmediatePropagation();
 			return false;
 		}
@@ -1195,6 +1180,16 @@ ChatBox.submit = function Submit() {
 
 	this.onRequestTalk(user, trimmedText, ChatBox.sendTo);
 };
+
+/**
+ * Move caret to the end of a contenteditable element.
+ * Uses Selection.collapse(): WebKit ignores addRange() for ranges inside a shadow root, so the
+ * removeAllRanges()+addRange() idiom left Safari with no caret and typing went nowhere.
+ * @param {HTMLElement} el
+ */
+function setCaretToEnd(el) {
+	window.getSelection().collapse(el, el.childNodes.length);
+}
 
 /**
  * Extract plain chat text from the contenteditable input while preserving item links.
