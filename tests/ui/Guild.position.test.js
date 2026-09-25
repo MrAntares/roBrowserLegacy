@@ -317,6 +317,19 @@ describe('Guild member position', () => {
 		expect(sent).toHaveLength(1);
 	});
 
+	// Closing the window drops them, and that had never fired: onRemove is the
+	// engine's teardown, which a close does not reach.
+	describe('pending edits are dropped by closing the window', () => {
+		it('through hide, not only through engine teardown', () => {
+			changeGrade(ALICE, 2);
+
+			Guild.hide();
+			clickApply();
+
+			expect(sent).toHaveLength(0);
+		});
+	});
+
 	describe('pending edits are dropped by fresh guild data', () => {
 		it('on a member list', () => {
 			changeGrade(ALICE, 2);

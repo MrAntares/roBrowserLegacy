@@ -137,6 +137,20 @@ function _clearPendingPositions() {
 }
 
 /**
+ * Helper: put the Positions tab back to what the server last sent
+ *
+ * Both the queued edits and the flag that keeps them are dropped together:
+ * keeping one without the other either applies edits the rows no longer show,
+ * or refuses every refresh for edits that are gone.
+ * @see docs/reference/guild/grade-change.md
+ */
+function _resetPositionsTab() {
+	_clearPendingPositions();
+	_positionsDirty = false;
+	_positionsSelected = 0;
+}
+
+/**
  * Helper: reveal the Apply button, the affordance for a pending change
  */
 function _showApplyButton() {
@@ -636,8 +650,7 @@ Guild.init = function init() {
  */
 Guild.onRemove = function onRemove() {
 	Renderer.stop(renderMemberFaces);
-	_positionsDirty = false;
-	_positionsSelected = 0;
+	_resetPositionsTab();
 };
 
 Guild.onShortCut = function onShortCut(key) {
@@ -697,6 +710,11 @@ Guild.show = function show() {
 Guild.hide = function hide() {
 	this.ui.hide();
 	Renderer.stop(renderMemberFaces);
+
+	// Closing the window drops the unsent edits. onRemove is the engine's
+	// teardown and never runs on a close, so it cannot be the only place this
+	// happens.
+	_resetPositionsTab();
 };
 
 Guild.setGuildInformations = function setGuildInformations(info) {
