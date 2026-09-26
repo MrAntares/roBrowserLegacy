@@ -137,6 +137,18 @@ describe('the cursor over a clickable a component has marked refused', () => {
 		expect(mocks.cursor.setType).not.toHaveBeenCalledWith(mocks.cursor.ACTION.CLICK, true, 1);
 	});
 
+	// Releasing over it must not hand the cursor back to the click shape, or the
+	// refusal blinks away the moment the button comes up.
+	it('keeps the refusal shape when the button comes back up', async () => {
+		const component = mount('<button class="denied">Announcement</button>');
+		await new Promise(resolve => setTimeout(resolve, 0));
+
+		component._container.querySelector('.denied').dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+
+		expect(mocks.cursor.setType).toHaveBeenCalledWith(mocks.cursor.ACTION.NOWALK);
+		expect(mocks.cursor.setType).not.toHaveBeenCalledWith(mocks.cursor.ACTION.CLICK);
+	});
+
 	it('leaves an ordinary clickable on the click shape', async () => {
 		const component = mount('<button class="plain">Members</button>');
 		await new Promise(resolve => setTimeout(resolve, 0));

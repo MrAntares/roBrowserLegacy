@@ -236,6 +236,19 @@ describe('Guild skills tab', () => {
 			expect(footer('.btn_use').style.display).toBe('block');
 		});
 
+		// The footer is the third view the owner flag decides, and the flag can
+		// move with this tab already open.
+		it('gives the readout back when the flag moves', () => {
+			mocks.session.isGuildMaster = false;
+			showTab('skills');
+			expect(footer('.skpoints').style.display).toBe('none');
+
+			mocks.session.isGuildMaster = true;
+			Guild.updateMasterView();
+
+			expect(footer('.skpoints').style.display).toBe('block');
+		});
+
 		it('casts the selected skill at its level when Use is pressed', () => {
 			Guild.setPoints(0);
 			Guild.setSkills([skill({ SKID: 10013, level: 1 })]);
