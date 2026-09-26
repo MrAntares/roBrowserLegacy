@@ -814,7 +814,7 @@ class GUIComponent {
 				}
 				// No press animation on a refusal - there is nothing being pressed.
 				if (target.closest('.denied')) {
-					_Cursor?.setType(cursorFor(target));
+					_Cursor?.setType(_Cursor?.ACTION?.NOWALK ?? 0);
 				} else {
 					_Cursor?.setType(_Cursor?.ACTION?.CLICK ?? 0, true, 1);
 				}

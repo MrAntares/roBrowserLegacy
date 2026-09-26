@@ -163,9 +163,18 @@ something, never add an affordance the client lacks.
 
 ## Rules for the code
 
-- **Repaint from `ZC_UPDATE_GDID` (`0x016c`), and from nothing else.** It is the
-  only packet that carries who the player now is, and handing leadership over
-  moves the flag with the window already open. rAthena sends three packets to
+- **Repaint from `ZC_UPDATE_GDID` (`0x016c`), on a change and nothing else.** It
+  is the only packet that carries who the player now is, and handing leadership
+  over moves the flag with the window already open. But it is **not rare**: five
+  server paths send it, including every emblem change and every member joining,
+  each to the whole online roster. Repainting unconditionally rebuilds the member
+  rows, and that drops a guild master's queued grade edits under them - so
+  compare the flag against its previous value first.
+- **Ask for the access mask from that same packet.** It is per character, the
+  server answers only when asked, and it never reaches a member unsolicited at
+  all. Asking on map entry instead is too early: the server has not set its own
+  guild-master flag by then, so a real guild master is answered `0x57` and gets a
+  wrongly greyed tab until something asks again. rAthena sends three packets to
   every online member on a leadership change, in this order:
 
   | packet | what it does here |

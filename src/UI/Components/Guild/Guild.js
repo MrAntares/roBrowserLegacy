@@ -727,10 +727,7 @@ Guild.reset = function reset() {
 	_skills.length = 0;
 	_skpoints = 0;
 	_guildAccess = 0;
-	_notice.subject = '';
-	_notice.body = '';
 	_sentPayRates = {};
-	_clearPendingPositions();
 	_resetPositionsTab();
 
 	for (const selector of ['.content.members tbody', '.content.positions tbody', '.content.history tbody']) {
@@ -745,30 +742,25 @@ Guild.reset = function reset() {
 		skillList.innerHTML = '';
 	}
 
-	Guild.updateNoticeView();
-	_writeNotice(root.querySelector('.content.notice'));
+	// Stores the empty notice and redraws the pane, which is the whole of what
+	// clearing it by hand then repainting would do.
+	Guild.setNotice('', '');
 
-	// Back to a window that has never been opened, which is the point: `onShow`
-	// asks for the access mask only when no tab is active, so leaving one active
-	// would strand the next character on a zeroed mask - and a zeroed mask
-	// refuses every tab. Dropping it here puts the whole bootstrap back, the
-	// access request and the first tab's data with it.
+	// Back to a window that has never been opened. `show()` asks for the access
+	// mask only when no tab is active, so leaving one would strand a window that
+	// was closed through the change; the mask itself is asked for again from the
+	// packet that names the new character, which is the first moment the server
+	// can answer it correctly.
 	//
 	// The marks go too rather than being recomputed: against zero every tab but
 	// the first reads as refused, and marking them so would grey the strip on
 	// the way into the map, before the server has said anything.
 	for (const btn of root.querySelectorAll('.tabs button')) {
 		btn.classList.remove('active', 'denied');
-		btn.title = _tabLabel(btn);
 	}
 	for (const content of root.querySelectorAll('.content')) {
 		content.style.display = 'none';
 	}
-
-	// Asked for here rather than left to `show()`, which returns early when the
-	// window is already up - and it can be, since a character change does not
-	// close it. Without this the mask stays zero, and a zero refuses every tab.
-	Guild.onRequestAccess();
 };
 
 Guild.onShortCut = function onShortCut(key) {
@@ -1445,10 +1437,14 @@ Guild.updatePositionView = function updatePositionView() {
 		return;
 	}
 
+	// A member is shown the grades, not controls over them.
+	// @see docs/reference/guild/member-view.md
+	const isMaster = Session.isGuildMaster;
+
 	// 0x166 rides in with every member list, and rebuilding here would drop the
 	// edits the rows are holding. The guild master's changes stand until Apply.
 	if (_positionsDirty) {
-		if (Session.isGuildMaster) {
+		if (isMaster) {
 			return;
 		}
 
@@ -1462,10 +1458,6 @@ Guild.updatePositionView = function updatePositionView() {
 	positionsContent?.classList.toggle('has-storage', _hasStorageColumn());
 
 	container.innerHTML = '';
-
-	// A member is shown the grades, not controls over them.
-	// @see docs/reference/guild/member-view.md
-	const isMaster = Session.isGuildMaster;
 
 	// _positions is keyed by positionID and the server may skip one, so it can
 	// have holes. Rows carry the id they render rather than their place in it.
@@ -1880,12 +1872,6 @@ Guild.updateMasterView = function updateMasterView() {
 	if (_members.length) {
 		Guild.setMembers([..._members], _hasMemo);
 	}
-
-	// Which tabs open is the same question one level up, and the server answers
-	// it only at login or on request - a handover does not resend it. Without
-	// this a promoted guild master keeps a greyed Announcement tab, and a demoted
-	// one keeps the right to open it.
-	Guild.onRequestAccess();
 };
 
 Guild.setExpelList = function setExpelList(list) {
@@ -2196,15 +2182,16 @@ function onValidate() {
 		}
 	}
 
+	// Every branch below sends a packet the server drops from anyone else without
+	// a word, and their tabs hold values rather than fields.
+	// @see docs/reference/guild/member-view.md
+	if (!Session.isGuildMaster) {
+		_hideApplyButton();
+		return;
+	}
+
 	switch (activeTab) {
 		case 'members': {
-			// The grade cell is a control for the guild master and text for anyone
-			// else, and the server drops this packet from a member without a word.
-			// @see docs/reference/guild/member-view.md
-			if (!Session.isGuildMaster) {
-				break;
-			}
-
 			const list = [];
 			for (const GID in _pendingPositions) {
 				list.push(_pendingPositions[GID]);
@@ -2221,13 +2208,6 @@ function onValidate() {
 			break;
 		}
 		case 'positions': {
-			// A member's rows hold values, not fields, so reading them back would
-			// send empty names and a zeroed mode over every grade the server has.
-			// @see docs/reference/guild/member-view.md
-			if (!Session.isGuildMaster) {
-				break;
-			}
-
 			const positionList = [];
 			const positions = root.querySelectorAll('.PositionView');
 
@@ -2299,12 +2279,6 @@ function onValidate() {
 			break;
 		}
 		case 'notice': {
-			// The server drops a member's notice without answering it, so sending
-			// would leave their own text standing as if it had been accepted.
-			if (!Session.isGuildMaster) {
-				break;
-			}
-
 			const subject = root.querySelector('.content.notice .subject')?.value || '';
 			const content = root.querySelector('.content.notice textarea.notice')?.value || '';
 			Guild.onNoticeUpdateRequest(subject, content);

@@ -371,32 +371,6 @@ describe('guild window, tab order', () => {
 		expect(root().querySelectorAll('.tabs button.active')).toHaveLength(0);
 	});
 
-	// `show()` returns early when the window is already up, and a character
-	// change does not close it - so a reset that leaned on show() to re-ask left
-	// the mask at zero, which refuses every tab. Reported live as "I can't
-	// click". The reset asks for itself.
-	it('asks for the access mask itself, without waiting to be shown', () => {
-		Guild.setAccess(0xd7);
-		showTab('notice');
-		Guild.onRequestAccess = vi.fn();
-
-		Guild.reset();
-
-		expect(Guild.onRequestAccess).toHaveBeenCalled();
-	});
-
-	// rAthena sends the menu mask at login and on request, never on a handover,
-	// so the flag moving under an open window leaves the tabs on the old answer.
-	it('asks for the access mask again when the owner flag moves', () => {
-		Guild.setAccess(0x57);
-		Guild.onRequestAccess = vi.fn();
-
-		mocks.session.isGuildMaster = true;
-		Guild.updateMasterView();
-
-		expect(Guild.onRequestAccess).toHaveBeenCalled();
-	});
-
 	// The grade cell is a control for one person and text for everyone else, so
 	// a handover has to rebuild the rows it already drew for the wrong one.
 	it('rebuilds the member rows when the owner flag moves', () => {

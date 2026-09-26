@@ -133,6 +133,7 @@ describe('the guild engine wires each packet to a handler', () => {
 	// only this one carries who the player now is. The window has to repaint off
 	// it, because the guild info that precedes it still names the old master.
 	it('repaints what the guild-master flag decides, off the packet that moves it', () => {
+		Session.isGuildMaster = true;
 		deliver(PACKET.ZC.UPDATE_GDID, { GDID: 150000, isMaster: 0, right: 0 });
 
 		expect(Session.isGuildMaster).toBe(false);
@@ -144,6 +145,26 @@ describe('the guild engine wires each packet to a handler', () => {
 
 		expect(Session.isGuildMaster).toBe(true);
 		expect(mocks.guild.updateMasterView).toHaveBeenCalled();
+	});
+
+	// This packet is not rare - it also rides every emblem change and every
+	// member joining. The repaint rebuilds the member rows, which drops a guild
+	// master's queued grade edits, so it must fire on a change and nothing else.
+	it('repaints only when the flag actually moved', () => {
+		Session.isGuildMaster = false;
+		deliver(PACKET.ZC.UPDATE_GDID, { GDID: 150000, isMaster: 0, right: 0 });
+
+		expect(mocks.guild.updateMasterView).not.toHaveBeenCalled();
+	});
+
+	// Which tabs open is per character, and the server answers only when asked -
+	// never on a handover, and never unsolicited to a member at all.
+	it('asks which tabs this character may open, every time', () => {
+		deliver(PACKET.ZC.UPDATE_GDID, { GDID: 150000, isMaster: 0, right: 0 });
+		deliver(PACKET.ZC.UPDATE_GDID, { GDID: 150000, isMaster: 0, right: 0 });
+
+		const asked = mocks.sent.filter(p => p instanceof PACKET.CZ.REQ_GUILD_MENUINTERFACE);
+		expect(asked).toHaveLength(2);
 	});
 });
 

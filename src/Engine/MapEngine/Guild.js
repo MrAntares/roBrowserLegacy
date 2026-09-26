@@ -662,14 +662,24 @@ function onGuildOwnInfo(pkt) {
 
 	GuildEngine.guild_id = pkt.GDID;
 
+	const wasMaster = Session.isGuildMaster;
+
 	Session.hasGuild = true;
 	Session.guildRight = pkt.right;
 	Session.isGuildMaster = !!pkt.isMaster;
 
-	// The only packet that takes the flag away, and it arrives after the guild
-	// info that would otherwise have been the window's last word on who is here.
+	// Which tabs open is per character and the server answers only when asked,
+	// so ask on every one of these - it is the first packet that arrives knowing
+	// who the player is.
+	GuildEngine.requestAccess();
+
+	// Only on a change. This packet is not rare: it also rides every emblem
+	// change and every member joining, and the repaint rebuilds the member rows,
+	// which would drop a guild master's queued grade edits under them.
 	// @see docs/reference/guild/member-view.md
-	Guild.updateMasterView();
+	if (Session.isGuildMaster !== wasMaster) {
+		Guild.updateMasterView();
+	}
 
 	if (pkt.GName) {
 		Session.guildName = pkt.GName;
