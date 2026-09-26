@@ -772,6 +772,12 @@ class GUIComponent {
 		let _hovering = false;
 		let _savedType = _Cursor?.ACTION?.DEFAULT ?? 0;
 
+		// A clickable a component has marked `denied` takes the game's own
+		// refusal cursor instead of the click one. CSS cannot answer this: the
+		// custom cursor forces `cursor: none` across the window, so `not-allowed`
+		// only shows when it is switched off.
+		const cursorFor = target => (target.closest('.denied') ? _Cursor?.ACTION?.NOWALK : _Cursor?.ACTION?.CLICK) ?? 0;
+
 		container.addEventListener('mouseover', e => {
 			const target = e.target;
 			if (target.closest && target.closest(CLICKABLE_SELECTOR)) {
@@ -779,8 +785,9 @@ class GUIComponent {
 					_savedType = _Cursor?.getActualType() ?? 0;
 					_hovering = true;
 				}
-				if ((_Cursor?.getActualType() ?? 0) !== (_Cursor?.ACTION?.CLICK ?? 0)) {
-					_Cursor?.setType(_Cursor?.ACTION?.CLICK ?? 0);
+				const wanted = cursorFor(target);
+				if ((_Cursor?.getActualType() ?? 0) !== wanted) {
+					_Cursor?.setType(wanted);
 				}
 			}
 		});
@@ -805,15 +812,21 @@ class GUIComponent {
 					_savedType = _Cursor?.getActualType() ?? 0;
 					_hovering = true;
 				}
-				_Cursor?.setType(_Cursor?.ACTION?.CLICK ?? 0, true, 1);
+				// No press animation on a refusal - there is nothing being pressed.
+				if (target.closest('.denied')) {
+					_Cursor?.setType(cursorFor(target));
+				} else {
+					_Cursor?.setType(_Cursor?.ACTION?.CLICK ?? 0, true, 1);
+				}
 			}
 		});
 
 		container.addEventListener('mouseup', e => {
 			const target = e.target;
 			if (target.closest && target.closest(CLICKABLE_SELECTOR)) {
-				if ((_Cursor?.getActualType() ?? 0) !== (_Cursor?.ACTION?.CLICK ?? 0)) {
-					_Cursor?.setType(_Cursor?.ACTION?.CLICK ?? 0);
+				const wanted = cursorFor(target);
+				if ((_Cursor?.getActualType() ?? 0) !== wanted) {
+					_Cursor?.setType(wanted);
 				}
 				return;
 			}

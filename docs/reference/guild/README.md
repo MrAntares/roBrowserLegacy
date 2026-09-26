@@ -20,6 +20,7 @@ both forms.
 | note | what it covers |
 |---|---|
 | [grade-change.md](grade-change.md) | Moving a member to another grade: why only the delta is sent, and the Apply queue |
+| [member-view.md](member-view.md) | What a non-master is shown across the tabs, why it is values and not disabled controls, and the two deviations |
 | [member-list-sort.md](member-list-sort.md) | Online members first, the three client behaviours, and the config key |
 | [member-portrait.md](member-portrait.md) | The 30x30 cell on a member row, why it is a head, and how the crop is derived |
 | [login-announcements.md](login-announcements.md) | The member login and notice lines, and the `/li` toggle that gates them |

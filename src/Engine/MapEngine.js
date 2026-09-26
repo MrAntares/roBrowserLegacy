@@ -572,6 +572,11 @@ function onConnectionAccepted(pkt) {
 	Session.isPartyLeader = false;
 	Session.hasGuild = false;
 	Session.guildRight = 0;
+	// The guild window is a singleton and survives a character change, so it has
+	// to be emptied with the rest of the session or the next character inherits
+	// the last one's roster, tabs and notice.
+	Session.isGuildMaster = false;
+	Guild.reset();
 
 	Session.homunId = 0;
 

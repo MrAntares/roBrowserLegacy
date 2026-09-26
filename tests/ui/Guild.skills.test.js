@@ -224,6 +224,18 @@ describe('Guild skills tab', () => {
 			expect(footer('.skpoints').style.display).toBe('none');
 		});
 
+		// A deliberate departure from the client, which draws the count for
+		// everyone. Nothing a member can reach spends a point - the level-up
+		// buttons are already theirs to look at and not press - so the readout
+		// goes with them rather than standing alone.
+		it('keeps the readout from a member, and Use for them', () => {
+			mocks.session.isGuildMaster = false;
+			showTab('skills');
+
+			expect(footer('.skpoints').style.display).toBe('none');
+			expect(footer('.btn_use').style.display).toBe('block');
+		});
+
 		it('casts the selected skill at its level when Use is pressed', () => {
 			Guild.setPoints(0);
 			Guild.setSkills([skill({ SKID: 10013, level: 1 })]);

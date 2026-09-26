@@ -58,6 +58,13 @@ Guild.render = () => htmlText;
  */
 let _memberViewTemplate, _positionViewTemplate, _expelViewTemplate;
 
+// The Notice tab's two fields, kept so the pane can go back to them: delegation
+// makes a member the guild master with the window already open.
+let _noticeSubjectTemplate, _noticeBodyTemplate;
+
+// Last notice the server sent, so the pane can be redrawn without it.
+const _notice = { subject: '', body: '' };
+
 const _positions = [];
 const _members = [];
 const _skills = [];
@@ -81,6 +88,13 @@ let _sentPayRates = {};
 // Only drawn from PACKETVER 20140205 on. Below that the bit is preserved but
 // never touched.
 const GUILD_PERM_STORAGE = 0x100;
+
+// The three permission columns of the Positions tab, by the bit each one holds.
+const PERMISSION_COLUMNS = {
+	invite: 0x01,
+	punish: 0x10,
+	storage: GUILD_PERM_STORAGE
+};
 
 function _hasStorageColumn() {
 	// Read it late, never cached: init() runs at import, and the packetver is
@@ -158,6 +172,38 @@ function _showApplyButton() {
 	if (btnOk) {
 		btnOk.style.display = 'block';
 	}
+}
+
+/**
+ * Helper: take the Apply button back, there being nothing left to send
+ */
+function _hideApplyButton() {
+	const btnOk = _root(Guild).querySelector('.footer .btn_ok');
+	if (btnOk) {
+		btnOk.style.display = 'none';
+	}
+}
+
+/**
+ * Helper: put a value where the guild master gets a control
+ *
+ * @see docs/reference/guild/member-view.md
+ *
+ * @param {HTMLElement} cell - the cell to fill
+ * @param {string} text - the value to show
+ */
+function _asValue(cell, text) {
+	if (!cell) {
+		return;
+	}
+
+	const value = document.createElement('span');
+	value.className = 'value';
+	value.textContent = text;
+	value.title = text;
+
+	cell.innerHTML = '';
+	cell.appendChild(value);
 }
 
 /**
@@ -322,6 +368,12 @@ Guild.init = function init() {
 				onChangeTab.call(btn, e);
 			}
 		});
+
+		// Every cell clips its label, so the tooltip is owed from the first paint
+		// rather than from whenever the access mask turns up.
+		for (const btn of tabsContainer.querySelectorAll('button')) {
+			btn.title = _tabLabel(btn);
+		}
 	}
 
 	// Preload checkbox images
@@ -334,11 +386,6 @@ Guild.init = function init() {
 	const posBody = root.querySelector('.content.positions tbody');
 	if (posBody) {
 		posBody.addEventListener('mousedown', e => {
-			const input = e.target.closest('input');
-			if (input && !Session.isGuildMaster) {
-				e.preventDefault();
-			}
-
 			const tr = e.target.closest('tr');
 			if (tr) {
 				const rows = [...posBody.querySelectorAll('tr')];
@@ -566,14 +613,18 @@ Guild.init = function init() {
 	// Notice
 	const noticeContent = root.querySelector('.content.notice');
 	if (noticeContent) {
+		_noticeSubjectTemplate = noticeContent.querySelector('.subject')?.cloneNode(true);
+		_noticeBodyTemplate = noticeContent.querySelector('textarea.notice')?.cloneNode(true);
+
+		// The markup ships the fields, so the pane is the guild master's until it
+		// is told otherwise. Draw it for whoever is here before that can be seen.
+		Guild.updateNoticeView();
+
 		noticeContent.addEventListener(
 			'focus',
 			e => {
-				if (e.target.matches('textarea, input')) {
-					const btnOk = root.querySelector('.footer .btn_ok');
-					if (btnOk) {
-						btnOk.style.display = 'block';
-					}
+				if (Session.isGuildMaster && e.target.matches('textarea, input')) {
+					_showApplyButton();
 				}
 			},
 			true
@@ -651,6 +702,68 @@ Guild.init = function init() {
 Guild.onRemove = function onRemove() {
 	Renderer.stop(renderMemberFaces);
 	_resetPositionsTab();
+};
+
+/**
+ * Empty the window of the character who was here before
+ *
+ * The component is a singleton and outlives a character change, so everything
+ * below would otherwise be inherited by whoever logs in next - a roster still
+ * showing who was online an account ago, an access mask that opens tabs the new
+ * character may not have, and a notice belonging to another guild.
+ *
+ * @see docs/reference/guild/member-view.md
+ */
+Guild.reset = function reset() {
+	// Entering the map can happen before the window has ever been built, and an
+	// unmounted component has no root to empty.
+	const root = _root(this);
+	if (!root) {
+		return;
+	}
+
+	_members.length = 0;
+	_positions.length = 0;
+	_skills.length = 0;
+	_skpoints = 0;
+	_guildAccess = 0;
+	_notice.subject = '';
+	_notice.body = '';
+	_sentPayRates = {};
+	_clearPendingPositions();
+	_resetPositionsTab();
+
+	for (const selector of ['.content.members tbody', '.content.positions tbody', '.content.history tbody']) {
+		const container = root.querySelector(selector);
+		if (container) {
+			container.innerHTML = '';
+		}
+	}
+
+	const skillList = root.querySelector('.content.skills .skill_list');
+	if (skillList) {
+		skillList.innerHTML = '';
+	}
+
+	Guild.updateNoticeView();
+	_writeNotice(root.querySelector('.content.notice'));
+
+	// Back to a window that has never been opened, which is the point: `onShow`
+	// asks for the access mask only when no tab is active, so leaving one active
+	// would strand the next character on a zeroed mask - and a zeroed mask
+	// refuses every tab. Dropping it here puts the whole bootstrap back, the
+	// access request and the first tab's data with it.
+	//
+	// The marks go too rather than being recomputed: against zero every tab but
+	// the first reads as refused, and marking them so would grey the strip on
+	// the way into the map, before the server has said anything.
+	for (const btn of root.querySelectorAll('.tabs button')) {
+		btn.classList.remove('active', 'denied');
+		btn.title = _tabLabel(btn);
+	}
+	for (const content of root.querySelectorAll('.content')) {
+		content.style.display = 'none';
+	}
 };
 
 Guild.onShortCut = function onShortCut(key) {
@@ -1330,17 +1443,24 @@ Guild.updatePositionView = function updatePositionView() {
 	// 0x166 rides in with every member list, and rebuilding here would drop the
 	// edits the rows are holding. The guild master's changes stand until Apply.
 	if (_positionsDirty) {
-		return;
+		if (Session.isGuildMaster) {
+			return;
+		}
+
+		// Demoted while editing. The rows are the server's again, and leaving the
+		// flag up would keep Apply over cells that no longer hold an edit.
+		_positionsDirty = false;
+		_hideApplyButton();
 	}
 
 	const positionsContent = container.closest('.content.positions');
 	positionsContent?.classList.toggle('has-storage', _hasStorageColumn());
 
-	// A member sees the grades as they stand and can change none of them. The
-	// handlers already refuse, but the cursor would still offer the click.
-	positionsContent?.classList.toggle('readonly', !Session.isGuildMaster);
-
 	container.innerHTML = '';
+
+	// A member is shown the grades, not controls over them.
+	// @see docs/reference/guild/member-view.md
+	const isMaster = Session.isGuildMaster;
 
 	// _positions is keyed by positionID and the server may skip one, so it can
 	// have holes. Rows carry the id they render rather than their place in it.
@@ -1364,35 +1484,35 @@ Guild.updatePositionView = function updatePositionView() {
 		if (idCell) {
 			idCell.textContent = rank.positionID;
 		}
-		const titleInput = view.querySelector('.title input');
-		if (titleInput) {
-			titleInput.value = rank.posName;
-		}
-		const taxInput = view.querySelector('.tax input');
-		if (taxInput) {
-			taxInput.value = rank.payRate;
-		}
-
-		const inviteBox = view.querySelector('.invite .checkbox');
-		if (inviteBox) {
-			inviteBox.style.backgroundImage = `url(${rank.right & 0x01 ? _checkbox_on : _checkbox_off})`;
-			inviteBox.className = inviteBox.className.replace(/\b(on|off)\b/g, '').trim();
-			inviteBox.classList.add(rank.right & 0x01 ? 'on' : 'off');
-		}
-
-		const punishBox = view.querySelector('.punish .checkbox');
-		if (punishBox) {
-			punishBox.style.backgroundImage = `url(${rank.right & 0x10 ? _checkbox_on : _checkbox_off})`;
-			punishBox.className = punishBox.className.replace(/\b(on|off)\b/g, '').trim();
-			punishBox.classList.add(rank.right & 0x10 ? 'on' : 'off');
+		if (isMaster) {
+			const titleInput = view.querySelector('.title input');
+			if (titleInput) {
+				titleInput.value = rank.posName;
+			}
+			const taxInput = view.querySelector('.tax input');
+			if (taxInput) {
+				taxInput.value = rank.payRate;
+			}
+		} else {
+			// The unit rides in the member's own string rather than beside the
+			// field, which is where the guild master's sits.
+			_asValue(view.querySelector('.title'), rank.posName);
+			_asValue(view.querySelector('.tax'), `${rank.payRate} %`);
 		}
 
-		const storageBox = view.querySelector('.storage .checkbox');
-		if (storageBox) {
-			const on = rank.right & GUILD_PERM_STORAGE;
-			storageBox.style.backgroundImage = `url(${on ? _checkbox_on : _checkbox_off})`;
-			storageBox.className = storageBox.className.replace(/\b(on|off)\b/g, '').trim();
-			storageBox.classList.add(on ? 'on' : 'off');
+		for (const column in PERMISSION_COLUMNS) {
+			const box = view.querySelector(`.${column} .checkbox`);
+			if (!box) {
+				continue;
+			}
+
+			const on = rank.right & PERMISSION_COLUMNS[column];
+			box.style.backgroundImage = `url(${on ? _checkbox_on : _checkbox_off})`;
+
+			// A member's tick is the image alone. `checkbox` is what puts an element
+			// on the clickable-cursor list, so carrying it would offer the click the
+			// handler then refuses.
+			box.className = `${isMaster ? 'checkbox' : 'tick'} ${on ? 'on' : 'off'}`;
 		}
 
 		container.appendChild(view);
@@ -1655,15 +1775,99 @@ function onSkillDragEnd() {
 }
 
 Guild.setNotice = function setNotice(subject, notice) {
+	_notice.subject = subject;
+	_notice.body = notice;
+	Guild.updateNoticeView();
+	_writeNotice(_root(this).querySelector('.content.notice'));
+};
+
+/**
+ * Helper: put the stored notice into whichever pair the pane is holding
+ */
+function _writeNotice(content) {
+	const subject = content?.querySelector('.subject');
+	const body = content?.querySelector('.notice');
+	if (!subject || !body) {
+		return;
+	}
+
+	if (Session.isGuildMaster) {
+		subject.value = _notice.subject;
+		body.value = _notice.body;
+		return;
+	}
+
+	subject.textContent = _notice.subject;
+	body.textContent = _notice.body;
+}
+
+/**
+ * Draw the Notice tab for whoever is looking at it
+ *
+ * A member gets the text and no field: the server drops their notice without
+ * answering it, so a field would take an edit nothing ever confirms or refuses.
+ *
+ * @see docs/reference/guild/member-view.md
+ */
+Guild.updateNoticeView = function updateNoticeView() {
 	const root = _root(this);
-	const subjectInput = root.querySelector('.content.notice .subject');
-	if (subjectInput) {
-		subjectInput.value = subject;
+	const content = root.querySelector('.content.notice');
+	if (!content || !_noticeSubjectTemplate || !_noticeBodyTemplate) {
+		return;
 	}
-	const noticeTextarea = root.querySelector('.content.notice textarea.notice');
-	if (noticeTextarea) {
-		noticeTextarea.value = notice;
+
+	// Either form carries the class the geometry is written against, so the pane
+	// does not move when the two swap.
+	const subjectSlot = content.querySelector('.subject');
+	const bodySlot = content.querySelector('.notice');
+	if (!subjectSlot || !bodySlot) {
+		return;
 	}
+
+	// Only the role changing swaps the pair. Rebuilding a pane that is already
+	// the right shape would take the guild master's unsent draft with it, and a
+	// member's selection.
+	const isMaster = Session.isGuildMaster;
+	if (isMaster === (subjectSlot.tagName === 'INPUT')) {
+		return;
+	}
+
+	const fill = (slot, template) => {
+		let next;
+		if (isMaster) {
+			next = template.cloneNode(true);
+		} else {
+			next = document.createElement('div');
+			next.className = `${template.className} value`;
+		}
+		slot.replaceWith(next);
+	};
+
+	fill(subjectSlot, _noticeSubjectTemplate);
+	fill(bodySlot, _noticeBodyTemplate);
+	_writeNotice(content);
+
+	// Apply is revealed by touching a field, so losing the fields has to take it
+	// back with them.
+	if (!isMaster) {
+		_hideApplyButton();
+	}
+};
+
+/**
+ * Redraw everything the guild-master flag decides
+ *
+ * Called from the flag's own packet. The flag changes under an open window -
+ * delegation is what this whole branch is for - and none of these views has a
+ * packet of its own that is guaranteed to follow it.
+ *
+ * @see docs/reference/guild/member-view.md
+ */
+Guild.updateMasterView = function updateMasterView() {
+	const root = _root(this);
+	Guild.updatePositionView();
+	Guild.updateNoticeView();
+	updateSkillFooter(root, getActiveTab(root));
 };
 
 Guild.setExpelList = function setExpelList(list) {
@@ -1692,7 +1896,59 @@ Guild.setExpelList = function setExpelList(list) {
 
 Guild.setAccess = function setAccess(access) {
 	_guildAccess = access;
+	updateTabAccess(_root(this));
 };
+
+/**
+ * Helper: a tab's label in full, which its 64px cell ellipsises
+ *
+ * Read through the message id rather than off the element: the label is only
+ * the markup's English fallback until `ui-text` upgrades.
+ */
+function _tabLabel(btn) {
+	const text = btn.querySelector('ui-text');
+	if (!text) {
+		return btn.textContent.trim();
+	}
+
+	return DB.getMessage(parseInt(text.getAttribute('msg'), 10), text.textContent.trim());
+}
+
+/**
+ * Mark the tabs this member's access mask refuses
+ *
+ * Only ever reached from the packet that carries the mask, so a tab is never
+ * marked on the zero the window starts with.
+ *
+ * @see docs/reference/guild/member-view.md
+ */
+function updateTabAccess(root) {
+	if (!root) {
+		return;
+	}
+
+	for (const btn of root.querySelectorAll('.tabs button')) {
+		// Tab 0 has no bit and is always open, which is the same test onChangeTab
+		// makes before it refuses.
+		const tab = parseInt(btn.getAttribute('data-flag'), 10);
+		const denied = !!tab && !(_guildAccess & AccessTypeBit[tab]);
+
+		btn.classList.toggle('denied', denied);
+
+		// Refreshed rather than left as init wrote it: the message table can land
+		// after the window is built, and until it does a label is the markup's own
+		// English fallback.
+		btn.title = _tabLabel(btn);
+	}
+
+	// Marking is not enough when the refused tab is the one already open: the
+	// window outlives a character change, so logging in as the guild master and
+	// then as a member leaves a member sitting on the guild master's tab. Send
+	// them to the first one, which carries no bit and is always open.
+	if (root.querySelector('.tabs button.active.denied')) {
+		onChangeTab.call(root.querySelector('.tabs button'));
+	}
+}
 
 function onChangeTab(event) {
 	const tab = parseInt(this.getAttribute('data-flag'), 10);
@@ -1717,10 +1973,7 @@ function onChangeTab(event) {
 		targetContent.style.display = 'block';
 	}
 
-	const btnOk = root.querySelector('.footer .btn_ok');
-	if (btnOk) {
-		btnOk.style.display = 'none';
-	}
+	_hideApplyButton();
 
 	// The positions tab holds its edits in its rows, so coming back to an edited
 	// one has to bring the way to apply them back too.
@@ -1943,6 +2196,13 @@ function onValidate() {
 			break;
 		}
 		case 'positions': {
+			// A member's rows hold values, not fields, so reading them back would
+			// send empty names and a zeroed mode over every grade the server has.
+			// @see docs/reference/guild/member-view.md
+			if (!Session.isGuildMaster) {
+				break;
+			}
+
 			const positionList = [];
 			const positions = root.querySelectorAll('.PositionView');
 
@@ -2014,17 +2274,20 @@ function onValidate() {
 			break;
 		}
 		case 'notice': {
-			const subject = root.querySelector('.content.notice input')?.value || '';
-			const content = root.querySelector('.content.notice textarea')?.value || '';
+			// The server drops a member's notice without answering it, so sending
+			// would leave their own text standing as if it had been accepted.
+			if (!Session.isGuildMaster) {
+				break;
+			}
+
+			const subject = root.querySelector('.content.notice .subject')?.value || '';
+			const content = root.querySelector('.content.notice textarea.notice')?.value || '';
 			Guild.onNoticeUpdateRequest(subject, content);
 			break;
 		}
 	}
 
-	const btnOk = root.querySelector('.footer .btn_ok');
-	if (btnOk) {
-		btnOk.style.display = 'none';
-	}
+	_hideApplyButton();
 }
 
 function getActiveTab(root) {
@@ -2062,8 +2325,15 @@ function updateSkillFooter(root, activeTab) {
 
 	const onSkills = activeTab === 'skills';
 
-	for (const el of root.querySelectorAll('.footer .skpoints, .footer .btn_use')) {
+	for (const el of root.querySelectorAll('.footer .btn_use')) {
 		el.style.display = onSkills ? 'block' : 'none';
+	}
+
+	// Deliberate deviation: the client shows the count to everyone. Nothing a
+	// member can reach spends a point, so the readout follows the controls.
+	// @see docs/reference/guild/member-view.md
+	for (const el of root.querySelectorAll('.footer .skpoints')) {
+		el.style.display = onSkills && Session.isGuildMaster ? 'block' : 'none';
 	}
 }
 

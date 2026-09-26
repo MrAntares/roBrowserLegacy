@@ -71,27 +71,27 @@ difference is reported in guild chat, quoting the server's own number.
 
 ### What a member sees on the Positions tab
 
-The tab is drawn for everyone and editable by one person. Refusing the edit is
-the easy half, and it was already done in two places: the checkbox handler
-runs only for the guild master, and a mousedown on either text field is
-cancelled for anyone else.
+The tab is drawn for everyone and editable by one person, and a member's rows
+now hold **values rather than controls** - the title and the tax as text, the
+three permission columns as the tick image alone. Full reasoning, the
+cross-version evidence and the rule it generalises to are in
+[member-view.md](member-view.md); what matters at this function is that the
+Apply path rebuilds each entry's permission mode from the row it reads, so a
+row of values would send an empty name and a zeroed mode for every grade. That
+is what the master gate on the Apply case is for.
 
-The half that is easy to miss is the pointer. The game cursor takes its shape
-from whatever element sits under it, matched against one list of things that
-count as clickable - and a styled checkbox is on that list. So a member got the
-click cursor over a control whose handler would ignore them: an affordance
-offered and then withdrawn on contact, which is worse than never offering it.
+**Two earlier claims here were wrong and are retracted.**
 
-The fix is to take the row's controls out of hit testing for a member, so the
-pointer resolves to the cell behind them instead, which is not a clickable.
-That is the same reasoning that made the Info tab's online count an image
-rather than a button. The native client sidesteps the question entirely - it
-draws a member this tab with no widgets on it at all, only blitted images, so
-there is nothing to hit-test in the first place.
-
-Note this costs a member the ability to select the text in the two fields. It
-is not a regression: the mousedown that would have started the selection was
-already being cancelled for them.
+- *"The client draws a member this tab with no widgets on it at all, only
+  blitted images."* Half true, and read the wrong way round. A member really
+  does get no interactive widget - but the title and the tax are `UIStaticText`
+  widgets the draw fills, not blits, and the sentence was being used to describe
+  the *tab* when it describes the *role*. The guild master's own view of the
+  same tab is edit controls and checkboxes throughout.
+- *"This costs a member the ability to select the text, and that is not a
+  regression."* It was a real loss under the `pointer-events` rule that has
+  since been removed, and the values that replaced those fields are listed in
+  the selection carve-out, so the text is selectable again.
 
 ### The ranking field is echoed, and read by nobody
 

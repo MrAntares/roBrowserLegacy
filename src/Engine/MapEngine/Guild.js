@@ -666,6 +666,11 @@ function onGuildOwnInfo(pkt) {
 	Session.guildRight = pkt.right;
 	Session.isGuildMaster = !!pkt.isMaster;
 
+	// The only packet that takes the flag away, and it arrives after the guild
+	// info that would otherwise have been the window's last word on who is here.
+	// @see docs/reference/guild/member-view.md
+	Guild.updateMasterView();
+
 	if (pkt.GName) {
 		Session.guildName = pkt.GName;
 	}

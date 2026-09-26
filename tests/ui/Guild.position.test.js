@@ -764,40 +764,41 @@ describe('Guild position tab', () => {
 		});
 
 		it('takes no edit from a member who is not the guild master', () => {
+			mocks.session.isGuildMaster = false;
 			Guild.setPositions(POSITIONS, true);
 			showPositionsTab();
-			mocks.session.isGuildMaster = false;
 
-			clickCheckbox(1, 'punish');
+			const box = positionRows()[1].querySelector('.punish .tick');
+			box.dispatchEvent(new MouseEvent('click', { bubbles: true }));
 
-			expect(checkboxOf(1, 'punish').classList.contains('on')).toBe(false);
+			expect(box.classList.contains('on')).toBe(false);
 		});
 
-		// Refusing the click is not enough on its own: the game cursor reads
-		// whatever sits under the pointer, so a control left hit-testable still
-		// offers a member a click that cannot happen. The stylesheet takes them
-		// out of hit testing; this holds the flag the stylesheet keys off, which
-		// is as far as jsdom can see - it has no layout and no hit testing.
-		it('tells the stylesheet a member may look and not touch', () => {
+		// What the cursor does cannot be read here - jsdom has no layout and no hit
+		// testing, and the cursor is drawn on a canvas. What is pinned is the
+		// markup the cursor reads: a member's mark carries no class that puts it on
+		// the clickable list, so there is no click left to offer and withdraw.
+		it('shows a member the mark without the widget behind it', () => {
 			mocks.session.isGuildMaster = false;
 			Guild.setPositions(POSITIONS, true);
-
-			const pane = root().querySelector('.content.positions');
-			expect(pane.classList.contains('readonly')).toBe(true);
 
 			// Still drawn, and still showing the grades as they stand.
 			expect(positionRows()).toHaveLength(3);
-			expect(checkboxOf(1, 'invite').classList.contains('on')).toBe(true);
+			expect(positionRows()[1].querySelector('.invite .tick').classList.contains('on')).toBe(true);
+			expect(positionRows()[1].querySelector('.punish .tick').classList.contains('on')).toBe(false);
+
+			expect(root().querySelectorAll('.content.positions tbody .checkbox')).toHaveLength(0);
 		});
 
-		it('drops the flag again for the guild master', () => {
+		it('gives the guild master the widgets back', () => {
 			mocks.session.isGuildMaster = false;
 			Guild.setPositions(POSITIONS, true);
 
 			mocks.session.isGuildMaster = true;
 			Guild.setPositions(POSITIONS, true);
 
-			expect(root().querySelector('.content.positions').classList.contains('readonly')).toBe(false);
+			expect(root().querySelectorAll('.content.positions tbody .tick')).toHaveLength(0);
+			expect(checkboxOf(1, 'invite').classList.contains('on')).toBe(true);
 		});
 	});
 
@@ -813,6 +814,34 @@ describe('Guild position tab', () => {
 			Guild.setPositionsName(POSITION_NAMES);
 
 			expect(positionRows()[1].querySelector('.tax input').value).toBe('42');
+		});
+
+		it('gives a member the value where the guild master gets a field', () => {
+			mocks.session.isGuildMaster = false;
+			Guild.setPositions(POSITIONS, true);
+
+			const row = positionRows()[2];
+			expect(row.querySelector('.title .value').textContent).toBe('Officer');
+
+			// The unit rides in the member's own string, one space, which is the
+			// client's own format rather than a choice made here.
+			expect(row.querySelector('.tax .value').textContent).toBe('20 %');
+
+			expect(row.querySelector('.title input')).toBeNull();
+			expect(row.querySelector('.tax input')).toBeNull();
+		});
+
+		it('gives the guild master the fields back', () => {
+			mocks.session.isGuildMaster = false;
+			Guild.setPositions(POSITIONS, true);
+
+			mocks.session.isGuildMaster = true;
+			Guild.setPositions(POSITIONS, true);
+
+			const row = positionRows()[2];
+			expect(row.querySelector('.title input').value).toBe('Officer');
+			expect(row.querySelector('.tax input').value).toBe('20');
+			expect(row.querySelectorAll('.value')).toHaveLength(0);
 		});
 	});
 
@@ -1076,6 +1105,33 @@ describe('Guild position tab', () => {
 			clickTab('positions');
 
 			expect(applyIsOffered()).toBe(false);
+		});
+
+		// Handing leadership over mid-edit is the one moment the rows can be
+		// holding changes their owner is no longer allowed to send. Keeping them
+		// would leave Apply standing over cells that are values again, and reading
+		// those back sends an empty name and a zeroed mode for every grade.
+		it('drops a demoted guild master edits they can no longer send', () => {
+			clickCheckbox(1, 'invite');
+			expect(applyIsOffered()).toBe(true);
+
+			mocks.session.isGuildMaster = false;
+			Guild.updateMasterView();
+
+			expect(positionRows()[1].querySelector('.invite .tick').classList.contains('on')).toBe(true);
+			expect(applyIsOffered()).toBe(false);
+
+			clickApply();
+			expect(sentPositions).toHaveLength(0);
+		});
+
+		it('sends nothing at all when the sender is not the guild master', () => {
+			clickCheckbox(1, 'invite');
+			mocks.session.isGuildMaster = false;
+
+			clickApply();
+
+			expect(sentPositions).toHaveLength(0);
 		});
 	});
 });

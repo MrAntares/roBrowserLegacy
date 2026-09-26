@@ -9,7 +9,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
 	cursor: {
-		ACTION: { DEFAULT: 0, CLICK: 2 },
+		ACTION: { DEFAULT: 0, CLICK: 2, NOWALK: 13 },
 		getActualType: vi.fn(() => 0),
 		setType: vi.fn()
 	}
@@ -110,5 +110,39 @@ describe('the cursor over a styled checkbox', () => {
 		component._container.querySelector('.plain').dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
 
 		expect(mocks.cursor.setType).not.toHaveBeenCalled();
+	});
+});
+
+// CSS cannot answer this one: the custom cursor forces `cursor: none` over the
+// whole window, so a `not-allowed` rule is invisible exactly when it is needed.
+describe('the cursor over a clickable a component has marked refused', () => {
+	it('takes the refusal shape rather than the click one', async () => {
+		const component = mount('<button class="denied">Announcement</button>');
+		await new Promise(resolve => setTimeout(resolve, 0));
+
+		component._container.querySelector('.denied').dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+
+		expect(mocks.cursor.setType).toHaveBeenCalledWith(mocks.cursor.ACTION.NOWALK);
+		expect(mocks.cursor.setType).not.toHaveBeenCalledWith(mocks.cursor.ACTION.CLICK);
+	});
+
+	// Pressing it must not animate: there is nothing being pressed.
+	it('does not play the press animation on the way down', async () => {
+		const component = mount('<button class="denied">Announcement</button>');
+		await new Promise(resolve => setTimeout(resolve, 0));
+
+		component._container.querySelector('.denied').dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+
+		expect(mocks.cursor.setType).toHaveBeenCalledWith(mocks.cursor.ACTION.NOWALK);
+		expect(mocks.cursor.setType).not.toHaveBeenCalledWith(mocks.cursor.ACTION.CLICK, true, 1);
+	});
+
+	it('leaves an ordinary clickable on the click shape', async () => {
+		const component = mount('<button class="plain">Members</button>');
+		await new Promise(resolve => setTimeout(resolve, 0));
+
+		component._container.querySelector('.plain').dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+
+		expect(mocks.cursor.setType).toHaveBeenCalledWith(mocks.cursor.ACTION.CLICK);
 	});
 });

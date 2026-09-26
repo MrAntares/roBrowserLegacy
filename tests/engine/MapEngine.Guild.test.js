@@ -13,7 +13,8 @@ const mocks = vi.hoisted(() => ({
 		setMemberPositions: vi.fn(),
 		setNotice: vi.fn(),
 		setEmblem: vi.fn(),
-		setExpelList: vi.fn()
+		setExpelList: vi.fn(),
+		updateMasterView: vi.fn()
 	},
 	entities: [],
 	emblemRequests: [],
@@ -126,6 +127,23 @@ describe('the guild engine wires each packet to a handler', () => {
 
 		deliver(PACKET.ZC.MEMBERMGR_INFO3, { memberInfo: [] });
 		expect(mocks.guild.setMembers).toHaveBeenLastCalledWith([], false);
+	});
+
+	// Handing leadership over sends basic info, the member list and this - and
+	// only this one carries who the player now is. The window has to repaint off
+	// it, because the guild info that precedes it still names the old master.
+	it('repaints what the guild-master flag decides, off the packet that moves it', () => {
+		deliver(PACKET.ZC.UPDATE_GDID, { GDID: 150000, isMaster: 0, right: 0 });
+
+		expect(Session.isGuildMaster).toBe(false);
+		expect(mocks.guild.updateMasterView).toHaveBeenCalled();
+	});
+
+	it('repaints the same way when the flag arrives the other way up', () => {
+		deliver(PACKET.ZC.UPDATE_GDID, { GDID: 150000, isMaster: 1, right: 0 });
+
+		expect(Session.isGuildMaster).toBe(true);
+		expect(mocks.guild.updateMasterView).toHaveBeenCalled();
 	});
 });
 

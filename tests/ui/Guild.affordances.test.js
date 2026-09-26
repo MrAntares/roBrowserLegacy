@@ -19,6 +19,8 @@ const mocks = vi.hoisted(() => {
 		parseHTML() {}
 	}
 
+	const messages = {};
+
 	class MockEntity {
 		constructor() {
 			this.files = { shadow: {}, body: { spr: null }, head: {} };
@@ -35,6 +37,7 @@ const mocks = vi.hoisted(() => {
 	return {
 		MockGUIComponent,
 		MockEntity,
+		messages,
 		loadFiles: loadFilesNow,
 		loadFilesNow,
 		sprite: { bind2DContext: vi.fn() },
@@ -56,7 +59,10 @@ const mocks = vi.hoisted(() => {
 vi.mock('DB/DBManager.js', () => ({
 	default: {
 		INTERFACE_PATH: '',
-		getMessage: (id, defaultText) => (defaultText !== undefined ? defaultText : `NO MSG ${id}`)
+		// Table-backed, as the sibling guild files are: a case that only ever
+		// sees the fallback cannot tell one msgstring id from another.
+		getMessage: (id, defaultText) =>
+			id in mocks.messages ? mocks.messages[id] : defaultText !== undefined ? defaultText : `NO MSG ${id}`
 	}
 }));
 vi.mock('DB/Skills/SkillInfo.js', () => ({ default: {} }));
@@ -235,6 +241,186 @@ describe('guild window, tab order', () => {
 
 		const tabButtons = reachableControls().filter(el => el.closest('.tabs'));
 		expect(tabButtons).toHaveLength(TABS.length);
+	});
+
+	// Taking a control out of hit testing only answers the mouse. Tab does not
+	// hit-test, so a field left in the markup stayed reachable, took focus,
+	// revealed Apply and sent an edit the server refuses without saying so.
+	// Nothing the keyboard can reach is the only form of that which holds.
+	for (const name of ['positions', 'notice']) {
+		it(`offers a member no control at all on ${name}`, () => {
+			mocks.session.isGuildMaster = false;
+			Guild.setPositions(POSITIONS, true);
+			Guild.setNotice('Subject', 'Body');
+			showTab(name);
+
+			const offered = reachableControls().filter(el => el.closest(`.content.${name}`));
+
+			expect(offered).toEqual([]);
+		});
+	}
+
+	// rAthena sends the guild master 0xd7 and everyone else 0x57; the only bit
+	// that differs is 0x80, the Announcement tab. The client draws the cell and
+	// refuses the click in silence - marking it is a deliberate deviation.
+	it('marks the tab a member cannot open, and only that one', () => {
+		Guild.setAccess(0x57);
+
+		const denied = [...root().querySelectorAll('.tabs button.denied')].map(b => b.className.split(' ')[0]);
+
+		expect(denied).toEqual(['notice']);
+	});
+
+	it('leaves the guild master no tab marked', () => {
+		Guild.setAccess(0x57);
+		Guild.setAccess(0xd7);
+
+		expect(root().querySelectorAll('.tabs button.denied')).toHaveLength(0);
+	});
+
+	// The client ships the text - it just never shows it here. Nothing is
+	// invented, and the tooltip goes away with the refusal.
+	//
+	// The table's text is deliberately NOT the source's fallback. Seed them the
+	// same and the case passes for any id at all, which is how a clamp-message
+	// assertion in this suite once stayed green with its substitution deleted.
+	// The cell is 64px and the client ellipsises rather than widening, so every
+	// label is a candidate for clipping whoever is looking at it. The tooltip is
+	// the label and nothing else - the refusal is said by the grey and the
+	// cursor, not written out.
+	it('gives every tab its full label to hover, refused or not', () => {
+		mocks.messages[345] = 'Announcement';
+		Guild.setAccess(0x57);
+
+		const notice = root().querySelector('.tabs button.notice');
+		expect(notice.classList.contains('denied')).toBe(true);
+		expect(notice.title).toBe('Announcement');
+
+		Guild.setAccess(0xd7);
+		expect(notice.title).toBe('Announcement');
+	});
+
+	// The message table can arrive after the window is built, so the label read
+	// at init is the markup's English fallback until something refreshes it.
+	it('takes the label from the message table, not the markup', () => {
+		mocks.messages[345] = 'Announcement';
+		Guild._host.innerHTML = Guild.render();
+		Guild.init();
+		const notice = root().querySelector('.tabs button.notice');
+		expect(notice.title).toBe('Announcement');
+
+		delete mocks.messages[345];
+		Guild._host.innerHTML = Guild.render();
+		Guild.init();
+
+		expect(root().querySelector('.tabs button.notice').title).toBe('Guild Notice');
+	});
+
+	// The window outlives a character change: log in as the guild master, open
+	// Announcement, log in again as a member, and the same window is reused with
+	// that tab still selected. Marking it refused leaves them standing on it.
+	it('sends a member off a tab the guild master left open', () => {
+		Guild.setAccess(0xd7);
+		showTab('notice');
+		expect(panel('notice').style.display).toBe('block');
+
+		Guild.setAccess(0x57);
+
+		expect(panel('notice').style.display).toBe('none');
+		expect(panel('info').style.display).toBe('block');
+		expect(root().querySelector('.tabs button.notice').classList.contains('active')).toBe(false);
+	});
+
+	it('leaves the guild master where they were', () => {
+		Guild.setAccess(0xd7);
+		showTab('notice');
+
+		Guild.setAccess(0xd7);
+
+		expect(panel('notice').style.display).toBe('block');
+	});
+
+	// Reported live: log in as a member, go back to character select, log in as
+	// the guild master, and the window was still the member's - the roster even
+	// showed the character who had just logged OUT as online, and the one now
+	// playing as offline, because it was the previous session's list.
+	it('keeps nothing of the character who was here before', () => {
+		// As a member, so the notice renders as text and its content can be read
+		// at all - an <input>'s textContent is always '', which is how the first
+		// version of this case passed with the notice left untouched.
+		mocks.session.isGuildMaster = false;
+		Guild.setAccess(0x57);
+		Guild.setPositions(POSITIONS, true);
+		Guild.setMembers([member(MASTER), member(ALICE), member(BOB)]);
+		Guild.setNotice('Old guild', 'Old notice');
+
+		expect(root().querySelectorAll('.content.members tbody .MemberView').length).toBeGreaterThan(0);
+		expect(root().querySelector('.tabs button.notice').classList.contains('denied')).toBe(true);
+
+		Guild.reset();
+
+		expect(root().querySelectorAll('.content.members tbody .MemberView')).toHaveLength(0);
+		expect(root().querySelectorAll('.content.positions tbody .PositionView')).toHaveLength(0);
+		expect(root().querySelector('.content.notice .subject').textContent).toBe('');
+		// Nothing stays marked from a mask that belonged to someone else.
+		expect(root().querySelectorAll('.tabs button.denied')).toHaveLength(0);
+
+		// And no tab stays active. `onShow` asks for the access mask only when
+		// none is - leave one and the next character is stranded on a zeroed
+		// mask, which refuses every tab and never refills the roster.
+		expect(root().querySelectorAll('.tabs button.active')).toHaveLength(0);
+	});
+
+	it('asks for the access mask again once it has been reset', () => {
+		Guild.setAccess(0xd7);
+		showTab('notice');
+		Guild.onRequestAccess = vi.fn();
+		Guild.ui.is = () => false; // not already visible, or show() returns early
+
+		Guild.reset();
+		Guild.show();
+
+		expect(Guild.onRequestAccess).toHaveBeenCalled();
+	});
+
+	it('survives a reset before the window has ever been built', () => {
+		const host = Guild._host;
+		Guild._host = null;
+
+		expect(() => Guild.reset()).not.toThrow();
+
+		Guild._host = host;
+	});
+
+	// The mask is zero again after a reset, and every tab but the first reads as
+	// refused against zero - so recomputing the marks there would grey the strip
+	// on the way into the map, before the server has said anything.
+	it('does not grey the whole strip between the reset and the access packet', () => {
+		Guild.setAccess(0xd7);
+
+		Guild.reset();
+
+		expect(root().querySelectorAll('.tabs button.denied')).toHaveLength(0);
+	});
+
+	// The mask starts at zero, so marking off it before the packet lands would
+	// paint every tab refused for a second.
+	it('marks nothing before the access packet has arrived', () => {
+		Guild._host.innerHTML = Guild.render();
+		Guild.init();
+
+		expect(root().querySelectorAll('.tabs button.denied')).toHaveLength(0);
+	});
+
+	it('offers the guild master those same controls', () => {
+		Guild.setPositions(POSITIONS, true);
+		Guild.setNotice('Subject', 'Body');
+
+		showTab('positions');
+		expect(reachableControls().filter(el => el.closest('.content.positions')).length).toBeGreaterThan(0);
+
+		showTab('notice');
+		expect(reachableControls().filter(el => el.closest('.content.notice'))).toHaveLength(2);
 	});
 });
 

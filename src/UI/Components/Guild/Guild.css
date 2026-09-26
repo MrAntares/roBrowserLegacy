@@ -110,6 +110,23 @@
 #Guild .tabs button.active {
 	background-color: #fff;
 }
+/* A tab this member's access mask refuses.
+ *
+ * Deliberate deviation. The client draws all six cells and refuses the click in
+ * its own message handler with no chat line, no sound and no cursor change - so
+ * the tab looks live and does nothing, which is the one shape this window is
+ * trying to stop offering.
+ *
+ * The label goes grey and the pointer says the rest. `not-allowed` here only
+ * covers the custom cursor being off, since it forces `cursor: none` over the
+ * whole window; the game cursor is told separately, in GUIComponent, which is
+ * what actually shows in play. Nothing is added inside the cell, so the label
+ * keeps its width and the band keeps the client's 66px pitch.
+ * See docs/reference/guild/member-view.md */
+#Guild .tabs button.denied {
+	color: #8c8c8c;
+	cursor: not-allowed;
+}
 /* The client paints a 64x23 cell at x = 1 + 66k and puts a 62x15 label box
  * inside it at (3 + 66k, 22) - so the label is inset 2px left and 4px top, and
  * is 62 wide, not 58. The margins below already reproduce the 66px pitch; the
@@ -678,7 +695,6 @@
 }
 #Guild .content.positions .title {
 	width: 143px;
-	padding: 0px;
 }
 #Guild .content.positions .invite {
 	width: 61px;
@@ -688,6 +704,15 @@
 }
 #Guild .content.positions .tax {
 	width: 61px;
+}
+/* These two cells place their own contents, so they give up the shared padding
+ * - but on the cell only. Three classes outrank the `th, td` rule above, so
+ * leaving it unqualified took the heading's indent with it and left the two
+ * labels flush against the border while the other four kept theirs. The widths
+ * stay unqualified: there is no colgroup, so the fixed layout takes them from
+ * the header row. */
+#Guild .content.positions td.title,
+#Guild .content.positions td.tax {
 	padding: 0;
 }
 /* The guild storage right only exists from PACKETVER 20140205, and ver12 has no
@@ -735,8 +760,13 @@
 /* The tick is 12x12 in a 61x20 cell, so a click at the cell's centre used to
  * land on nothing. Filling the cell makes the whole of it the target and, since
  * the cursor list matches the element under the pointer, makes it read as one
- * too. 16px is the cell's content box: 20 less its border and top padding. */
-#Guild .content.positions .checkbox {
+ * too. 16px is the cell's content box: 20 less its border and top padding.
+ *
+ * `.tick` is the same box without the class: a member's mark is the image and
+ * nothing else, so it is on neither the clickable-cursor list nor the rule
+ * below. See docs/reference/guild/member-view.md */
+#Guild .content.positions .checkbox,
+#Guild .content.positions .tick {
 	display: block;
 	border: none;
 	width: 100%;
@@ -746,16 +776,22 @@
 	background-color: transparent;
 }
 
-/* A member sees the table and changes nothing in it. The handlers already
- * refuse, but the cursor reads whatever sits under the pointer, so a control
- * left hit-testable still offers a click that cannot happen - the same reason
- * the online count is an image rather than a ui-button. Taking the row's
- * controls out of hit testing resolves the pointer to the cell instead, which
- * is not a clickable. The client draws a member this tab without widgets at
- * all. See docs/reference/guild/grade-change.md */
-#Guild .content.positions.readonly .checkbox,
-#Guild .content.positions.readonly input {
-	pointer-events: none;
+/* The inset the field carried, on the text that replaces it: the two cells give
+ * up their padding so the guild master's input can place itself, which would
+ * otherwise leave a member's value flush against the border. The name is the
+ * only value here that can outrun its cell - the field was held to 75px and
+ * text is not - so it is the one that clips. */
+#Guild .content.positions .title .value,
+#Guild .content.positions .tax .value {
+	display: block;
+	padding: 2px 0 0 6px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+/* The tax field insets by 5, not 6. */
+#Guild .content.positions .tax .value {
+	padding-left: 5px;
 }
 
 /*
@@ -1001,6 +1037,22 @@
 	border: none;
 	resize: none;
 }
+/* A member gets the notice as text. Each value carries the class of the field it
+ * stands in for, so the two rules above place it and neither box moves on the
+ * swap; only what the control did for free has to be restored. The subject
+ * stands in for a single-line input and keeps its one line - wrapping it would
+ * push text out of a 14px box - while the body gets the textarea's wrap, line
+ * breaks and scroll. See docs/reference/guild/member-view.md */
+#Guild .notice .value {
+	box-sizing: border-box;
+	overflow: hidden;
+	white-space: nowrap;
+}
+#Guild .notice .notice.value {
+	overflow-y: auto;
+	white-space: pre-wrap;
+	word-break: break-word;
+}
 
 /* Text selection, re-enabled where the browser gave it to us for free.
  *
@@ -1014,7 +1066,10 @@
  * Scoped here rather than carved out of Common.css, which ~30 components share.
  * All four typed fields are listed, not just the two that were reported: a
  * field you type into has to be selectable, and the notice subject and the tax
- * cell are the same kind of control as the two beside them.
+ * cell are the same kind of control as the two beside them. The values a member
+ * gets in place of those fields are listed too - copying a grade name is the
+ * whole of what is left to them there, and the notice pair already matches by
+ * carrying its field's class.
  *
  * No `cursor: text` to go with it. The member name is not in GUIComponent's
  * clickable-cursor list, and giving it a text caret would fight the row's own
@@ -1022,6 +1077,8 @@
 #Guild .content.members .name .value,
 #Guild .content.positions .title input,
 #Guild .content.positions .tax input,
+#Guild .content.positions .title .value,
+#Guild .content.positions .tax .value,
 #Guild .notice .subject,
 #Guild .notice .notice {
 	-webkit-user-select: text;
