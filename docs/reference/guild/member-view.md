@@ -58,14 +58,15 @@ Two details worth carrying:
   which is why ours carries `tick` rather than `checkbox` - the latter is what
   puts an element on the clickable-cursor list.
 - **The tax unit moves.** The master gets `%d` in the field and a separately
-  blitted `%` beside it (`fcn.005f34b0.asm:495-509`); the member's is one
-  string, `sprintf("%d %s", payRate, "%")` (`.asm:513-521`). So a member's cell
+  blitted `%` beside it (`fcn.005f34b0.asm:461-465` and `:499-507`); the member's
+  is one string, `sprintf("%d %s", payRate, "%")` (`.asm:511-516`). So a member's cell
   reads `50 %`, space included, and that space is the client's, not a choice
   made here.
 
 **This corrects an earlier reading.** `grade-change.md` said the client draws a
 member this tab "with no widgets on it at all, only blitted images". It is true
-of a **member** - across all five or six columns - and false of the guild
+of everything a member can *operate* - they get static text for the title and
+the tax, and no widget at all in the permission columns - and false of the guild
 master, who gets edit controls and checkboxes. The sentence was read as a fact
 about the tab when it is a fact about the role, which is the whole point of this
 note.
@@ -103,9 +104,9 @@ fact, not a guarantee; the handler refusing is the guarantee.
 The `SkillPoint : %d` readout is emitted at the tail of the skills draw, at the
 merge point where the row loop exits, straight through to `ret` - no branch, no
 read of the master flag (ver12 `fcn.004b0710.asm:253-279`, 20220330
-`fcn.005f3c20.asm:234-263`, mars26 `fcn.008476a0.asm:229-258`) - stronger than
+`fcn.005f3c20.asm:234-264`, mars26 `fcn.008476a0.asm:229-259`) - stronger than
 that, the flag's global does not appear anywhere in any of those three
-functions. It gates only the per-row level-up button, as one of five conditions
+functions. It gates only the per-row level-up button, as one of six conditions
 that park it off-screen (20220330 `fcn.005f5a60.c:42` and peers). **The client
 shows the count to everyone.**
 
@@ -118,15 +119,17 @@ something, never add an affordance the client lacks.
    spends a point is already master-gated, so the count stands alone as a
    number a member can do nothing with. Cited above as client-false.
 2. **A tab the access mask refuses is marked, not left looking live.** The
-   client draws all six cells and refuses the click inside its own message
-   handler — the `je` lands on the function epilogue, so there is no chat line,
+   client draws all six cells and refuses the click inside the shared tail of
+   every guild pane's command handler - not a method of the window class itself -
+   where the `je` lands on the function epilogue, so there is no chat line,
    no message box, no sound and no cursor change, and it does not even close the
    tab that is open (ver12 `fcn.004a76a0.asm:80`, 20220330
    `fcn.005f9040.asm:81`, mars26 `fcn.0084d0f0.asm:79-81`; the mask array is
    `{0, 1, 2, 4, 0x10, 0x80, 0x40}` indexed by tab). That is a silent no-op on a
    control that looks exactly like its neighbours — the one shape the rest of
-   this note exists to remove. The tab strip itself never reads the mask on any
-   client; only the command handler does.
+   this note exists to remove. The tab strip reads the mask only to notice it has
+   not arrived yet (`== -1`) and ask for it; the bit test lives in the command
+   handler alone, and only tabs 1, 2, 4 and 5 are tested at all.
 
    Two channels say so instead: the label goes grey, and the **game cursor**
    takes `NOWALK`, the client's own refusal shape. No wording — a cell you

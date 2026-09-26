@@ -764,6 +764,11 @@ Guild.reset = function reset() {
 	for (const content of root.querySelectorAll('.content')) {
 		content.style.display = 'none';
 	}
+
+	// Asked for here rather than left to `show()`, which returns early when the
+	// window is already up - and it can be, since a character change does not
+	// close it. Without this the mask stays zero, and a zero refuses every tab.
+	Guild.onRequestAccess();
 };
 
 Guild.onShortCut = function onShortCut(key) {
@@ -1868,6 +1873,19 @@ Guild.updateMasterView = function updateMasterView() {
 	Guild.updatePositionView();
 	Guild.updateNoticeView();
 	updateSkillFooter(root, getActiveTab(root));
+
+	// The member rows' grade cell is the fourth thing the flag decides, and the
+	// roster arrives before the flag on a handover - so it was built for the
+	// wrong person. Rebuilt from a copy: setMembers empties the store first.
+	if (_members.length) {
+		Guild.setMembers([..._members], _hasMemo);
+	}
+
+	// Which tabs open is the same question one level up, and the server answers
+	// it only at login or on request - a handover does not resend it. Without
+	// this a promoted guild master keeps a greyed Announcement tab, and a demoted
+	// one keeps the right to open it.
+	Guild.onRequestAccess();
 };
 
 Guild.setExpelList = function setExpelList(list) {
@@ -2180,6 +2198,13 @@ function onValidate() {
 
 	switch (activeTab) {
 		case 'members': {
+			// The grade cell is a control for the guild master and text for anyone
+			// else, and the server drops this packet from a member without a word.
+			// @see docs/reference/guild/member-view.md
+			if (!Session.isGuildMaster) {
+				break;
+			}
+
 			const list = [];
 			for (const GID in _pendingPositions) {
 				list.push(_pendingPositions[GID]);

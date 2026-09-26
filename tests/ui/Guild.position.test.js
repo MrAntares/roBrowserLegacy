@@ -1133,5 +1133,18 @@ describe('Guild position tab', () => {
 
 			expect(sentPositions).toHaveLength(0);
 		});
+
+		// The grade queue is the other half of the same Apply button, and it was
+		// the one case left ungated: the server drops it from a member in
+		// silence, so the row would show the new grade as if it had been taken.
+		it('sends no queued grade change from someone who is not the guild master', () => {
+			clickTab('members');
+			changeGrade(ALICE, 2);
+			mocks.session.isGuildMaster = false;
+
+			clickApply();
+
+			expect(sent).toHaveLength(0);
+		});
 	});
 });
