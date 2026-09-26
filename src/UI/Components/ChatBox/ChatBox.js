@@ -261,6 +261,11 @@ ChatBox.init = function init() {
 
 	if (Configs.get('restoreChatFocus', false) && inputChatbox) {
 		inputChatbox.addEventListener('blur', () => {
+			// Escape is an explicit request to leave the chat, don't pull focus back
+			if (inputChatbox.dataset.escapeBlur) {
+				delete inputChatbox.dataset.escapeBlur;
+				return;
+			}
 			Events.setTimeout(() => {
 				const active = KEYS.getDeepActiveElement();
 				const movedInsideChatbox = active && root.querySelector('#chatbox').contains(active);
@@ -1015,6 +1020,7 @@ ChatBox.onKeyDown = function OnKeyDown(event) {
 
 				// Escape leaves the chat input so Alt hotkeys (e.g. Option+Q) open their windows again
 				if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
+					activeElement.dataset.escapeBlur = '1';
 					activeElement.blur();
 					event.stopImmediatePropagation();
 					return false;
