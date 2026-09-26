@@ -261,6 +261,11 @@ ChatBox.init = function init() {
 
 	if (Configs.get('restoreChatFocus', false) && inputChatbox) {
 		inputChatbox.addEventListener('blur', () => {
+			// Escape is an explicit request to leave the chat, don't pull focus back
+			if (inputChatbox.dataset.escapeBlur) {
+				delete inputChatbox.dataset.escapeBlur;
+				return;
+			}
 			Events.setTimeout(() => {
 				const active = KEYS.getDeepActiveElement();
 				const movedInsideChatbox = active && root.querySelector('#chatbox').contains(active);
@@ -275,21 +280,11 @@ ChatBox.init = function init() {
 	// Move caret to end of text
 	if (inputChatbox) {
 		inputChatbox.addEventListener('click', function () {
-			const range = document.createRange();
-			const selection = window.getSelection();
-			range.selectNodeContents(this);
-			range.collapse(false);
-			selection.removeAllRanges();
-			selection.addRange(range);
+			setCaretToEnd(this);
 		});
 
 		inputChatbox.addEventListener('focus', function () {
-			const range = document.createRange();
-			const selection = window.getSelection();
-			range.selectNodeContents(this);
-			range.collapse(false);
-			selection.removeAllRanges();
-			selection.addRange(range);
+			setCaretToEnd(this);
 		});
 
 		inputChatbox.maxLength = MAX_LENGTH;
@@ -991,6 +986,14 @@ ChatBox.onKeyDown = function OnKeyDown(event) {
 				}
 
 				if (event.altKey || KEYS.ALT) {
+					// macOS Option composes characters (e.g. Option+Q = '@' on Latin American layouts,
+					// Option+2 on Spanish): while typing, insert the character instead of firing the Alt hotkey.
+					// On Windows/Linux Alt+key reports the plain key, so hotkeys there are unaffected.
+					if (isComposedAltCharacter(event)) {
+						event.stopImmediatePropagation();
+						return true;
+					}
+
 					const isAltEditingCombo =
 						event.which === KEYS.LEFT ||
 						event.which === KEYS.RIGHT ||
@@ -1015,8 +1018,12 @@ ChatBox.onKeyDown = function OnKeyDown(event) {
 					return true;
 				}
 
+				// Escape leaves the chat input so Alt hotkeys (e.g. Option+Q) open their windows again
 				if (event.which === KEYS.ESCAPE || event.key === 'Escape') {
-					return true;
+					activeElement.dataset.escapeBlur = '1';
+					activeElement.blur();
+					event.stopImmediatePropagation();
+					return false;
 				}
 
 				event.stopImmediatePropagation();
@@ -1109,12 +1116,7 @@ ChatBox.onKeyDown = function OnKeyDown(event) {
 			}
 
 			messageBox.focus();
-			const range = document.createRange();
-			const sel = window.getSelection();
-			range.selectNodeContents(messageBox);
-			range.collapse(false);
-			sel.removeAllRanges();
-			sel.addRange(range);
+			setCaretToEnd(messageBox);
 			event.stopImmediatePropagation();
 			return false;
 		}
@@ -1195,6 +1197,37 @@ ChatBox.submit = function Submit() {
 
 	this.onRequestTalk(user, trimmedText, ChatBox.sendTo);
 };
+
+/**
+ * Whether an Alt/Option keydown produces a different printable character than its key
+ * (macOS Option layer, dead keys), i.e. the user is typing rather than using a hotkey.
+ * @param {KeyboardEvent} event
+ * @returns {boolean}
+ */
+function isComposedAltCharacter(event) {
+	if (event.ctrlKey || event.metaKey || !event.key) {
+		return false;
+	}
+	if (event.key === 'Dead') {
+		return true;
+	}
+	if (event.key.length !== 1) {
+		return false;
+	}
+	// Only letter/digit keys: their unmodified character is known from event.code
+	const match = /^(?:Key|Digit)(.)$/.exec(event.code || '');
+	return !!match && event.key.toUpperCase() !== match[1];
+}
+
+/**
+ * Move caret to the end of a contenteditable element.
+ * Uses Selection.collapse(): WebKit ignores addRange() for ranges inside a shadow root, so the
+ * removeAllRanges()+addRange() idiom left Safari with no caret and typing went nowhere.
+ * @param {HTMLElement} el
+ */
+function setCaretToEnd(el) {
+	window.getSelection().collapse(el, el.childNodes.length);
+}
 
 /**
  * Extract plain chat text from the contenteditable input while preserving item links.
