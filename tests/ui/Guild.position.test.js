@@ -882,6 +882,13 @@ describe('Guild position tab', () => {
 
 		it('says so when the server keeps a different tax', () => {
 			// rathena caps to guild_exp_limit and answers with what it stored.
+			//
+			// The cap has to differ from the number written into the message, or the
+			// assertion cannot tell a substitution from the raw string: the table's
+			// own text carries a literal limit rather than a placeholder, and the
+			// default limit happens to be the same 50 a server would answer with.
+			mocks.messages[3486] = "You can't enter value more than 50%.";
+
 			Guild.setPositions(POSITIONS, true);
 			showPositionsTab();
 
@@ -892,11 +899,12 @@ describe('Guild position tab', () => {
 			expect(sentPositions[0][0]).toMatchObject({ positionID: 1, payRate: 99 });
 
 			chat.length = 0;
-			Guild.setPositions([{ ...POSITIONS[1], payRate: 50 }], false);
+			Guild.setPositions([{ ...POSITIONS[1], payRate: 30 }], false);
 
 			expect(chat).toHaveLength(1);
 			// The number shown is the server's, not the one baked into the string.
-			expect(chat[0]).toContain('50');
+			expect(chat[0]).toContain('30');
+			expect(chat[0]).not.toContain('50');
 			expect(chat[0]).not.toContain('%d');
 		});
 
