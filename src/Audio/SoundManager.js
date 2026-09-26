@@ -36,6 +36,11 @@ const _buffers = {};
 let _playGen = 0;
 
 /**
+ * Per-filename generation, bumped by stop(filename) to cancel pending plays
+ */
+const _fileGen = {};
+
+/**
  * Shared audio context, created lazily
  */
 let _context = null;
@@ -70,7 +75,7 @@ function getContext() {
 function getBuffer(filename) {
 	if (!(filename in _buffers)) {
 		const context = getContext();
-		_buffers[filename] = new Promise(resolve => {
+		const promise = new Promise(resolve => {
 			Client.loadFile(
 				`data/wav/${filename}`,
 				url => {
@@ -86,6 +91,13 @@ function getBuffer(filename) {
 				() => resolve(null)
 			);
 		});
+		// Don't cache failures so the next play retries (unless a full stop already replaced the entry)
+		promise.then(buffer => {
+			if (!buffer && _buffers[filename] === promise) {
+				delete _buffers[filename];
+			}
+		});
+		_buffers[filename] = promise;
 	}
 	return _buffers[filename];
 }
@@ -111,8 +123,7 @@ class SoundManager {
 		if (typeof vol !== 'number' || !isFinite(vol) || vol <= 0) {
 			vol = 1;
 		}
-		const volume = vol * this.volume;
-		if (volume <= 0 || !Preferences.Sound.play) {
+		if (vol * this.volume <= 0 || !Preferences.Sound.play) {
 			return;
 		}
 
@@ -122,8 +133,18 @@ class SoundManager {
 		}
 
 		const myGen = _playGen;
+		const myFileGen = _fileGen[filename] || 0;
 		getBuffer(filename).then(buffer => {
-			if (!buffer || myGen !== _playGen || context.state !== 'running') {
+			if (!buffer || myGen !== _playGen || myFileGen !== (_fileGen[filename] || 0)) {
+				return;
+			}
+			// Autoplay not unlocked yet: drop the sound rather than replay it late
+			if (context.state !== 'running') {
+				return;
+			}
+			// Preferences may have changed while decoding
+			const volume = vol * SoundManager.volume;
+			if (volume <= 0 || !Preferences.Sound.play) {
 				return;
 			}
 
@@ -179,6 +200,7 @@ class SoundManager {
 	 */
 	static stop(filename) {
 		if (filename) {
+			_fileGen[filename] = (_fileGen[filename] || 0) + 1;
 			if (filename in _sounds) {
 				stopInstances(_sounds[filename].instances);
 				delete _sounds[filename];
@@ -196,7 +218,7 @@ class SoundManager {
 		});
 		const list = Memory.search(/\.wav$/);
 		list.forEach(key => {
-			Memory.remove(key);
+			Memory.remove(null, key);
 		});
 	}
 
