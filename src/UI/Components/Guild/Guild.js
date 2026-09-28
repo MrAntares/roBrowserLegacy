@@ -930,7 +930,7 @@ function submitEmblem(file) {
 
 Guild.setEmblem = function setEmblem(image) {
 	const root = _root(this);
-	const el = root.querySelector('.content.info .emblem_container');
+	const el = root ? root.querySelector('.content.info .emblem_container') : null;
 	if (el) {
 		el.style.backgroundImage = `url(${image.src})`;
 	}

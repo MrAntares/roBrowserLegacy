@@ -808,11 +808,21 @@ function onGuildEmblemChanged(pkt) {
 	}
 	_emblemNotified[pkt.GDID] = pkt.emblemVersion;
 
-	if (pkt.GDID === Session.Entity.GUID) {
+	const isOwnGuild = pkt.GDID === Session.Entity.GUID;
+	if (isOwnGuild) {
 		Session.Entity.GEmblemVer = pkt.emblemVersion;
 	}
 
-	GuildEngine.requestGuildEmblem(pkt.GDID, pkt.emblemVersion, () => {});
+	// The fetch repaints the entities on the map by itself. An open window is a
+	// separate surface and has to be told, or it keeps the old emblem until
+	// something else happens to rebuild the Info tab. Our own guild only: another
+	// guild's emblem arriving would otherwise land in our own tab.
+	// @see docs/reference/guild/emblem-picker.md
+	GuildEngine.requestGuildEmblem(pkt.GDID, pkt.emblemVersion, image => {
+		if (isOwnGuild) {
+			Guild.setEmblem(image);
+		}
+	});
 }
 
 /**

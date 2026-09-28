@@ -244,6 +244,34 @@ describe('a guild changing its emblem', () => {
 		expect(mocks.emblemRequests.length - before).toBe(2);
 	});
 
+	// The download repaints the entities on the map by itself, so the map looked
+	// right while an open window kept the old emblem until something else
+	// rebuilt the Info tab. Watched happening on two clients at once.
+	it('repaints an open window when the emblem is our own guild s', () => {
+		const image = { src: 'data:image/png;base64,AAAA' };
+		GuildEngine.requestGuildEmblem.mockImplementation((guildId, version, callback) => {
+			mocks.emblemRequests.push({ guildId, version });
+			callback(image, null);
+		});
+
+		deliver(PACKET.ZC.CHANGE_GUILD2, { GDID: 42, emblemVersion: 11, AID: 2000000 });
+
+		expect(mocks.guild.setEmblem).toHaveBeenCalledWith(image);
+	});
+
+	// Every guild in range announces its own changes, so an unfiltered repaint
+	// would drop a stranger's emblem into our Info tab.
+	it('leaves the window alone when the emblem belongs to another guild', () => {
+		GuildEngine.requestGuildEmblem.mockImplementation((guildId, version, callback) => {
+			mocks.emblemRequests.push({ guildId, version });
+			callback({ src: 'data:image/png;base64,BBBB' }, null);
+		});
+
+		deliver(PACKET.ZC.CHANGE_GUILD2, { GDID: 777, emblemVersion: 11, AID: 4242 });
+
+		expect(mocks.guild.setEmblem).not.toHaveBeenCalled();
+	});
+
 	it('records the new version when the guild is our own', () => {
 		deliver(PACKET.ZC.CHANGE_GUILD2, { GDID: 42, emblemVersion: 7, AID: 2000000 });
 
