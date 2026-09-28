@@ -13544,9 +13544,12 @@ PACKET.CZ.CLOSE_UI_ENCHANT.prototype.build = function () {
 };
 
 // 0xa82
+// The reason comes FIRST here and second in 0xa83 below. The two packets are
+// otherwise identical, which is exactly why the order has to be read off the
+// wire rather than assumed to match its neighbour.
 PACKET.ZC.ACK_BAN_GUILD_DELNAME = function PACKET_ZC_ACK_BAN_GUILD_DELNAME(fp, end) {
-	this.GID = fp.readULong();
 	this.reasonDesc = fp.readString(40);
+	this.GID = fp.readULong();
 };
 PACKET.ZC.ACK_BAN_GUILD_DELNAME.size = 46;
 

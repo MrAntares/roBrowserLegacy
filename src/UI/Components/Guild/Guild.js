@@ -164,6 +164,9 @@ let _totalExp = 0;
 // -1 = not received. Every bit set, so no tab is refused before the server has
 // answered. @see docs/reference/guild/member-view.md
 let _guildAccess = ACCESS_UNKNOWN;
+// An unknown mask means no answer yet, which is not the same as no question yet.
+// @see docs/reference/guild/member-view.md
+let _accessRequested = false;
 let _checkbox_off, _checkbox_on;
 let _hasMemo = false;
 
@@ -205,6 +208,35 @@ function _hasPendingPositions() {
 }
 
 /**
+ * Helper: take back the queued grades, putting their rows on the server's
+ *
+ * Dropping the queue is not enough: the row was moved to the picked grade when
+ * it was queued, so forgetting the queue would leave that grade on show as
+ * though the server had agreed to it - and the grade guard would then refuse to
+ * queue it a second time, the row already reading as the value asked for.
+ * @see docs/reference/guild/grade-change.md
+ */
+function _cancelPendingPositions() {
+	// An unmounted component has no rows to put back, and setMember reads them.
+	if (_root(Guild)) {
+		for (const GID in _pendingPositions) {
+			const pending = _pendingPositions[GID];
+
+			for (let i = 0, count = _members.length; i < count; ++i) {
+				const member = _members[i];
+				if (member.AID === pending.AID && member.GID === pending.GID) {
+					member.GPositionID = pending.previousID;
+					Guild.setMember(member);
+					break;
+				}
+			}
+		}
+	}
+
+	_clearPendingPositions();
+}
+
+/**
  * Helper: put the Positions tab back to what the server last sent
  *
  * Both the queued edits and the flag that keeps them are dropped together:
@@ -213,9 +245,19 @@ function _hasPendingPositions() {
  * @see docs/reference/guild/grade-change.md
  */
 function _resetPositionsTab() {
-	_clearPendingPositions();
+	_cancelPendingPositions();
+
+	// Cleared before the rebuild, not after: updatePositionView refuses to paint
+	// over an edit while this is up, and the edit is what has to go.
 	_positionsDirty = false;
 	_positionsSelected = 0;
+
+	if (_root(Guild)) {
+		// Apply is the affordance for a pending change, so it goes with the change.
+		// Leaving it up offers a button that now sends nothing at all.
+		_hideApplyButton();
+		Guild.updatePositionView();
+	}
 }
 
 /**
@@ -816,6 +858,7 @@ Guild.reset = function reset() {
 	_skills.length = 0;
 	_skpoints = 0;
 	_guildAccess = ACCESS_UNKNOWN;
+	_accessRequested = false;
 	_hasMemo = false;
 	_sentPayRates = {};
 	_resetPositionsTab();
@@ -1074,6 +1117,19 @@ Guild.setMembers = function setMembers(members, hasMemo) {
 	const count = members.length;
 	_members.length = 0;
 	_totalExp = 0;
+
+	// The roster is server truth and has just overwritten whatever was queued. It
+	// does not only arrive when asked for - a member leaving the guild is enough,
+	// and that push lands on the guild master before anyone else - so an edit can
+	// die without its author having touched a thing. Hence a word for it.
+	// @see docs/reference/guild/grade-change.md
+	if (_hasPendingPositions()) {
+		ChatBox.addText(
+			'The guild member list changed. The grade waiting to be applied was dropped.',
+			ChatBox.TYPE.ERROR,
+			ChatBox.FILTER.GUILD
+		);
+	}
 
 	_clearPendingPositions();
 
@@ -1437,7 +1493,16 @@ Guild.updateMemberPosition = function updateMemberPosition(AID, GID, positionID,
 			_members[i].GPositionID = positionID;
 
 			if (fromDropdown) {
-				_pendingPositions[GID] = { AID: AID, GID: GID, positionID: positionID };
+				// The grade to go back to is the server's, so the first edit of a row
+				// records it and a later one leaves it where it was: last edit wins on
+				// what is sent, never on what cancelling returns to.
+				const queued = _pendingPositions[GID];
+				_pendingPositions[GID] = {
+					AID: AID,
+					GID: GID,
+					positionID: positionID,
+					previousID: queued ? queued.previousID : currentID
+				};
 			} else {
 				// The dropdown already displays the new position, re-rendering the row
 				// here would replace the <select> while its change event is dispatching.
@@ -1469,10 +1534,12 @@ Guild.setMemberPositions = function setMemberPositions(memberInfo) {
 	for (let i = 0, count = memberInfo.length; i < count; ++i) {
 		const entry = memberInfo[i];
 
-		// A grade of 0 acknowledges a new guild master, not a grade change. The
-		// member list the server pushes along with it repaints the rows.
+		// A grade of 0 acknowledges a new guild master, not a grade change. Who
+		// holds the role is read off the belonging packet and nowhere else: it is
+		// the only one that can tell a handover from a repeat, and a role written
+		// here would consume that difference before it arrives.
+		// @see docs/reference/guild/grade-change.md
 		if (!entry.positionID) {
-			Session.isGuildMaster = entry.AID === Session.AID && entry.GID === Session.GID;
 			continue;
 		}
 
@@ -2003,6 +2070,11 @@ Guild.updateMasterView = function updateMasterView() {
 	updateEmblemControls(root);
 	updateDisbandButton(root, getActiveTab(root));
 
+	// The role just changed, so a grade queued under the old one has nothing left
+	// to mean. Dropped here rather than by the rebuild below, which would report
+	// it as a roster the server pushed.
+	_clearPendingPositions();
+
 	// The roster arrives before the flag on a handover, so the grade cells were
 	// built for the wrong person. Rebuilt from a copy: setMembers empties the
 	// store first.
@@ -2037,6 +2109,9 @@ Guild.setExpelList = function setExpelList(list) {
 
 Guild.setAccess = function setAccess(access) {
 	_guildAccess = access;
+	// Answered, or deliberately forgotten. Either way the question may be asked
+	// again, which is what lets a new role get a mask of its own.
+	_accessRequested = false;
 	updateTabAccess(_root(this));
 };
 
@@ -2049,10 +2124,11 @@ Guild.setAccess = function setAccess(access) {
 Guild.requestAccessIfUnknown = function requestAccessIfUnknown() {
 	// The server answers a guildless player too, and caching that answer would
 	// then stand in for the guild they join next.
-	if (_guildAccess !== ACCESS_UNKNOWN || !Session.hasGuild) {
+	if (_guildAccess !== ACCESS_UNKNOWN || _accessRequested || !Session.hasGuild) {
 		return;
 	}
 
+	_accessRequested = true;
 	Guild.onRequestAccess();
 };
 
@@ -2361,8 +2437,11 @@ function onValidate() {
 	switch (activeTab) {
 		case 'members': {
 			const list = [];
+			// Built field by field: the queue also carries the grade to go back to on
+			// a cancel, which is ours and has no place on the wire.
 			for (const GID in _pendingPositions) {
-				list.push(_pendingPositions[GID]);
+				const pending = _pendingPositions[GID];
+				list.push({ AID: pending.AID, GID: pending.GID, positionID: pending.positionID });
 			}
 
 			// Nothing queued, nothing to apply. Sending the whole roster here is

@@ -16,6 +16,10 @@ back to show anything. On rAthena that answer never comes.
   reads like something the next click might survive. It will not.
 - **The 0x158 handler is hooked purely to call the timer off.** That is also
   what will carry the data once there is a window to put it in.
+- **A character change calls it off too.** The timer is module state and outlives
+  the character who armed it, so a request left waiting on its own silence would
+  otherwise report itself in the guild chat of whoever entered the map next -
+  three seconds is easily enough to cross a character selection.
 
 ## Why
 

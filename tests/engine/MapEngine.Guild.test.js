@@ -530,6 +530,17 @@ describe('a member info request that goes unanswered', () => {
 
 		expect(mocks.chat).not.toHaveBeenCalled();
 	});
+
+	// The window is a singleton and so is the timer. A character change is the one
+	// moment the request can neither be answered nor reported to whoever asked.
+	it('does not report itself in the guild chat of the character after', () => {
+		GuildEngine.requestMemberInfo(150000, 2000001);
+
+		GuildEngine.resetForNewCharacter();
+		vi.advanceTimersByTime(3000);
+
+		expect(mocks.chat).not.toHaveBeenCalled();
+	});
 });
 
 /**

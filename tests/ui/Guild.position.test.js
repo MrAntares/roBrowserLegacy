@@ -356,6 +356,115 @@ describe('Guild member position', () => {
 
 			expect(sent).toHaveLength(0);
 		});
+
+		it('takes the Apply button back with the edit', () => {
+			changeGrade(MARGARETHA, 2);
+			expect(applyButton().style.display).toBe('block');
+
+			Guild.hide();
+
+			expect(applyButton().style.display).toBe('none');
+		});
+
+		it('puts the row back on the grade the server sent', () => {
+			// Queueing moved the row to the picked grade, so dropping the queue on its
+			// own would leave that grade on show as though it had been agreed to.
+			changeGrade(MARGARETHA, 2);
+			Guild.hide();
+
+			expect(selectOf(MARGARETHA).value).toBe('1');
+			expect(selectOf(MARGARETHA).closest('.MemberView').classList.contains('pending')).toBe(false);
+		});
+
+		it('lets the cancelled grade be picked again', () => {
+			// The selection guard refuses a grade the row already reads, so a row left
+			// on its cancelled value cannot be edited back to it.
+			changeGrade(MARGARETHA, 2);
+			Guild.hide();
+
+			showMembersTab();
+			changeGrade(MARGARETHA, 2);
+			clickApply();
+
+			expect(sent).toHaveLength(1);
+			expect(wireEntries(sent[0])).toEqual([{ AID: MARGARETHA.AID, GID: MARGARETHA.GID, positionID: 2 }]);
+		});
+
+		it('goes back to the server grade, not to the one edited over', () => {
+			// Last edit wins on what is sent. It does not win on where cancelling
+			// lands: only the first edit of a row saw the server's own value.
+			changeGrade(MARGARETHA, 2);
+			changeGrade(MARGARETHA, 1);
+			Guild.hide();
+
+			expect(selectOf(MARGARETHA).value).toBe('1');
+		});
+
+		it('rebuilds the positions rows the server last sent', () => {
+			// The positions tab has no queue - its rows are the edit buffer - so the
+			// only way to take an edit back is to draw the table again.
+			Guild.setPositions(POSITIONS, true);
+			showPositionsTab();
+
+			const tax = positionRows()[1].querySelector('.tax input');
+			tax.dispatchEvent(new Event('focus'));
+			tax.value = '42';
+			// Grade 1 holds invite and not punish, so the tick added here is the one
+			// the rebuild has to take away, and the one it has to keep.
+			clickCheckbox(1, 'punish');
+
+			Guild.hide();
+
+			expect(positionRows()[1].querySelector('.tax input').value).toBe('10');
+			expect(checkboxOf(1, 'punish').classList.contains('on')).toBe(false);
+			expect(checkboxOf(1, 'invite').classList.contains('on')).toBe(true);
+		});
+	});
+
+	describe('a queue dropped by the server is reported', () => {
+		it('says so when a member list lands on an unsent edit', () => {
+			// rAthena pushes the roster unprompted - a member leaving the guild is
+			// enough, and that push reaches the guild master first - so the edit can
+			// die without its author having touched anything.
+			changeGrade(MARGARETHA, 2);
+			Guild.setMembers([member(MASTER), member(MARGARETHA), member(HOWARD)]);
+
+			expect(chat).toHaveLength(1);
+			expect(chat[0]).toMatch(/grade waiting to be applied/);
+		});
+
+		it('stays quiet when there was nothing queued', () => {
+			Guild.setMembers([member(MASTER), member(MARGARETHA), member(HOWARD)]);
+
+			expect(chat).toHaveLength(0);
+		});
+
+		it('stays quiet on the acknowledgement, which answers our own send', () => {
+			changeGrade(MARGARETHA, 2);
+			Guild.setMemberPositions([{ AID: MARGARETHA.AID, GID: MARGARETHA.GID, positionID: 2 }]);
+
+			expect(chat).toHaveLength(0);
+		});
+
+		it('stays quiet when the window is closed, the edit being taken back', () => {
+			changeGrade(MARGARETHA, 2);
+			Guild.hide();
+
+			expect(chat).toHaveLength(0);
+		});
+
+		it('stays quiet on the role rebuild, the edit having lost its meaning', () => {
+			// updateMasterView redraws through setMembers off a copy of the roster.
+			// That is us, not a push, and the role it follows has just changed.
+			changeGrade(MARGARETHA, 2);
+			Guild.updateMasterView();
+
+			expect(chat).toHaveLength(0);
+
+			showMembersTab();
+			clickApply();
+			expect(sent).toHaveLength(0);
+		});
 	});
 
 	describe('pending edits are dropped by fresh guild data', () => {
@@ -548,10 +657,15 @@ describe('Guild member position', () => {
 			expect(selectOf(MARGARETHA).value).toBe('2');
 		});
 
-		it('reads a grade of 0 as the guild master moving', () => {
+		it('skips a grade of 0, and leaves the role to the packet that owns it', () => {
+			// A grade of 0 is the guild master moving, not a grade change. Writing the
+			// role here would spend the transition the belonging packet is watching
+			// for, and the tab permissions would never be asked for again.
+			const before = selectOf(MARGARETHA).value;
 			Guild.setMemberPositions([{ AID: MARGARETHA.AID, GID: MARGARETHA.GID, positionID: 0 }]);
 
-			expect(mocks.session.isGuildMaster).toBe(false);
+			expect(mocks.session.isGuildMaster).toBe(true);
+			expect(selectOf(MARGARETHA).value).toBe(before);
 		});
 
 		it('tolerates a packet with no entry', () => {

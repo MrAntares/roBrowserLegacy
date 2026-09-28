@@ -14,11 +14,21 @@ Nothing is sent on selection, and the whole roster is never sent.
 - **Flush on Apply, then clear.** Drop the queue whenever fresh guild data
   arrives (member list, grade names, the change acknowledgement) - the server
   is the truth and it has just overwritten what was pending.
+- **Say so when a member list drops a queue.** That one can arrive unprompted,
+  so the edit dies with nobody having touched anything. See below.
 - **Do not ask for that data while something is queued.** Menus 1 and 2 are the
   two whose answer carries grade names, and a tab click is what sends them. See
   below.
-- **Closing the window is the cancel.** There is no reset button, in the client
-  or here, and `hide()` already drops the queue.
+- **Closing the window is the cancel, and a cancel restores.** There is no
+  reset button, in the client or here. Dropping the queue is not enough: the row
+  was moved to the picked grade when it was queued, so each entry also carries
+  the grade to go back to, and the Positions tab is redrawn from `_positions`.
+  See below.
+- **The grade to go back to is recorded once per row, on its first edit.** Last
+  edit wins on what is sent, never on where cancelling lands - only the first
+  edit of a row saw a value the server had agreed to.
+- **An acknowledged grade of 0 is skipped and nothing else.** Who holds the role
+  is read off the belonging packet alone. See below.
 - **Mark a row whose grade is queued**, or the only sign an edit exists is a
   button in the footer. Declared deviation, below.
 - **Apply with an empty queue sends no packet at all.**
@@ -30,6 +40,9 @@ Nothing is sent on selection, and the whole roster is never sent.
 - **`ZC_ACK_REQ_CHANGE_MEMBERS` (0x156) carries `memberInfo[]` only** - not
   `AID` / `GID` / `positionID`. An acknowledged grade of 0 is the guild master
   moving, not a grade change.
+- **Send the three wire fields, built one by one.** The queue entry carries a
+  fourth of its own - the grade a cancel returns to - and pushing the entry
+  itself into the packet would offer that field to the builder.
 - **Echo `ranking`, never recompute or renumber it.** The positions-tab apply
   entry is fixed-width, so the slot has to be filled whatever goes in it - and
   nothing the client puts there is ever read. See below.
@@ -132,8 +145,25 @@ hang off both menus.
 So a guild master who picked a grade and looked at the Positions tab lost the
 edit **on the way out**, to the menu-2 answer, not on the way back. The row went
 back to the server's grade, Apply was gone, and nothing had been sent or said.
-Every refresh in that story is one this client asked for: rAthena pushes neither
-list unprompted.
+
+**An earlier claim here was wrong and is retracted.** *"Every refresh in that
+story is one this client asked for: rAthena pushes neither list unprompted."*
+True of the grade names - `clif_guild_positionnamelist` and
+`clif_guild_positioninfolist` have one caller between them, the menu handler -
+and false of the member list, which has three unprompted senders:
+
+| Sender | When | Who gets it |
+| --- | --- | --- |
+| `guild_recv_info` | the member count changed | the player whose guild info came back from the char-server |
+| `guild_member_withdraw` | a member leaves or is expelled | `guild_getavailablesd`, an `ARR_FIND` from index 0 |
+| `guild_gm_changed` | leadership moved | every member, in a loop |
+
+`clif_guild_memberlist` sends `SELF`, so each of those is a unicast. But index 0
+of a guild is its master, which makes the second row the case that matters: the
+one player who can edit grades is the one player certain to be told when
+somebody else leaves. Holding the menus back does nothing for that push, and
+nothing should - the roster is server truth. What was missing is that it
+happened at all, hence the line in guild chat.
 
 **The fix is not to ask.** Menu 1 and menu 2 are held back while the queue is
 non-empty; the other four carry neither list and go out as before, so the Info,

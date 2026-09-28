@@ -539,6 +539,29 @@ describe('guild window, asking which tabs open', () => {
 		expect(asked).toHaveBeenCalledTimes(1);
 	});
 
+	// An unknown mask means no answer has arrived, which is not the same as no
+	// question having been asked. A burst of ZC_UPDATE_GDID - and opening the
+	// window on top of it - each saw an unknown mask and each asked.
+	it('asks once while the first question is still unanswered', () => {
+		Guild.invalidateAccess();
+
+		Guild.requestAccessIfUnknown();
+		Guild.requestAccessIfUnknown();
+		Guild.requestAccessIfUnknown();
+
+		expect(asked).toHaveBeenCalledTimes(1);
+	});
+
+	it('asks again once the role changes under an unanswered question', () => {
+		Guild.invalidateAccess();
+		Guild.requestAccessIfUnknown();
+
+		Guild.invalidateAccess();
+		Guild.requestAccessIfUnknown();
+
+		expect(asked).toHaveBeenCalledTimes(2);
+	});
+
 	it('asks again after a character change', () => {
 		Guild.setAccess(0x57);
 
@@ -546,6 +569,16 @@ describe('guild window, asking which tabs open', () => {
 		Guild.requestAccessIfUnknown();
 
 		expect(asked).toHaveBeenCalledTimes(1);
+	});
+
+	it('asks again after a character change that interrupted a question', () => {
+		Guild.invalidateAccess();
+		Guild.requestAccessIfUnknown();
+
+		Guild.reset();
+		Guild.requestAccessIfUnknown();
+
+		expect(asked).toHaveBeenCalledTimes(2);
 	});
 
 	// The client's own trigger is the window being built, and it asks whatever

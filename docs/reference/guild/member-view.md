@@ -284,6 +284,15 @@ something a member could not use, never add an affordance the client lacks.
   the player is. One request per identity or role change, and none at all for the
   four other things that ride `0x016c`.
 
+  **The sentinel alone is not enough to guard it, because it says nothing about a
+  question already in the air.** Both send sites can fire between the request and
+  the reply - `0x016c` arrives in bursts, and the window can be opened in the
+  middle of one - and each saw an unknown mask and asked again. So a second piece
+  of state tracks the request itself, raised on the way out and lowered by
+  `setAccess`. Lowered *there* rather than on the reply, because that is also the
+  path `invalidateAccess` takes: forgetting the mask for a new role has to permit
+  the new question, not sit on the old one.
+
   **This is a declared deviation, and a rare one: the official client never sends
   `CZ_REQ_GUILD_MENUINTERFACE` (`0x014d`) at all.** Its single send site in all
   three builds is the `mask == -1` branch of the tab-strip builder, the function
@@ -452,10 +461,23 @@ having been cut back to the house limit.
   which took two more opcodes.** rAthena swaps both packets at
   `PACKETVER_MAIN 20161019` / `RE 20160921` for forms that carry a **character id
   instead of a name**: `ZC_ACK_LEAVE_GUILD_DELNAME` (`0x0a83`) and
-  `ZC_ACK_BAN_GUILD_DELNAME` (`0x0a82`), both `<CID>.L <reason>.40B`. This port
-  registered only the older opcodes, so on a modern server the packet was read and
-  dropped: no departure chat line, and the handler that resets never ran. Both are
-  registered now and both eras share one reporting path.
+  `ZC_ACK_BAN_GUILD_DELNAME` (`0x0a82`). This port registered only the older
+  opcodes, so on a modern server the packet was read and dropped: no departure chat
+  line, and the handler that resets never ran. Both are registered now and both eras
+  share one reporting path.
+
+  **The two carry the same two fields in the opposite order**, and an earlier claim
+  here that both are `<CID>.L <reason>.40B` was wrong:
+
+  - `0x0a83` withdrawal — `<CID>.L <reason>.40B`
+  - `0x0a82` expulsion — `<reason>.40B <CID>.L`
+
+  Read with the neighbour's order, the reason loses its first four characters to the
+  id field and the id is reason bytes, so the departing character is never
+  recognised as themselves. It is not a subtle failure once seen - a reason of
+  `u2 live check` arrives as `ive check` - but nothing in a same-shaped test fixture
+  can see it, which is how it shipped: one builder served both packets and encoded
+  the very assumption under test. Each opcode is built from its own layout now.
 
   **The id to match is `Session.GID`, not `Session.Entity.GID`.** The first is the
   character id, which is what the packet carries and what the member list is keyed
@@ -466,6 +488,13 @@ having been cut back to the house limit.
   too - the packet has none. A roster generation that carries no name, and a member
   already dropped from the list, both fall back to the same placeholder the member
   list itself draws.
+
+  That placeholder is also what the swapped order above looks like from the chat
+  log, and it is a trap worth naming: a departure reported for the placeholder
+  rather than for a member is the id having been read out of the wrong field, not
+  the roster being short of a name. Against a live server the same expulsion read
+  `Nameless has been expelled` before the order was fixed and `ClaudeTestB has been
+  expelled` after, with nothing else changed.
 
 ## See also
 

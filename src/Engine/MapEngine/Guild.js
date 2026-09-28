@@ -326,6 +326,13 @@ class GuildEngine {
 	 */
 	static resetForNewCharacter() {
 		Session.isGuildMaster = false;
+
+		// A request the character before this one made, still waiting on its own
+		// silence, would otherwise report itself in the new one's guild chat.
+		// @see docs/reference/guild/member-info-request.md
+		clearTimeout(_memberInfoTimer);
+		_memberInfoTimer = 0;
+
 		Guild.reset();
 	}
 

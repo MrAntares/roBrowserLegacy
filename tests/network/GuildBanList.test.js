@@ -154,7 +154,21 @@ describe('guild expulsion list', () => {
  * @see docs/reference/guild/member-view.md
  */
 describe('guild departure notices that carry a character id', () => {
-	function buildDeparture(GID, reason) {
+	/**
+	 * The two carry the same two fields IN THE OPPOSITE ORDER: the expulsion leads
+	 * with the reason, the withdrawal with the id. One builder for both would encode
+	 * the assumption the structures are the same, which is the bug these cases
+	 * exist to catch - a shared builder let it pass byte-level tests once already.
+	 */
+	function buildExpulsion(GID, reason) {
+		const buf = new ArrayBuffer(REASON_LENGTH + 4);
+		const view = new DataView(buf);
+		writeString(view, 0, reason, REASON_LENGTH);
+		view.setUint32(REASON_LENGTH, GID, true);
+		return buf;
+	}
+
+	function buildWithdrawal(GID, reason) {
 		const buf = new ArrayBuffer(4 + REASON_LENGTH);
 		const view = new DataView(buf);
 		view.setUint32(0, GID, true);
@@ -162,9 +176,9 @@ describe('guild departure notices that carry a character id', () => {
 		return buf;
 	}
 
-	for (const [label, Struct] of [
-		['ZC_ACK_BAN_GUILD_DELNAME (0x0a82)', PACKET.ZC.ACK_BAN_GUILD_DELNAME],
-		['ZC_ACK_LEAVE_GUILD_DELNAME (0x0a83)', PACKET.ZC.ACK_LEAVE_GUILD_DELNAME]
+	for (const [label, Struct, build] of [
+		['ZC_ACK_BAN_GUILD_DELNAME (0x0a82)', PACKET.ZC.ACK_BAN_GUILD_DELNAME, buildExpulsion],
+		['ZC_ACK_LEAVE_GUILD_DELNAME (0x0a83)', PACKET.ZC.ACK_LEAVE_GUILD_DELNAME, buildWithdrawal]
 	]) {
 		describe(label, () => {
 			it('declares the size the server sends, header included', () => {
@@ -172,7 +186,7 @@ describe('guild departure notices that carry a character id', () => {
 			});
 
 			it('reads the character id and the reason', () => {
-				const pkt = parse(Struct, buildDeparture(150002, 'Rekenber spy'));
+				const pkt = parse(Struct, build(150002, 'Rekenber spy'));
 
 				expect(pkt.GID).toBe(150002);
 				expect(pkt.reasonDesc).toBe('Rekenber spy');
@@ -181,9 +195,18 @@ describe('guild departure notices that carry a character id', () => {
 			// The id is unsigned on the wire and rAthena's own column is unsigned.
 			// Read as signed, a high char id comes back negative and matches nobody.
 			it('reads a high character id unsigned', () => {
-				const pkt = parse(Struct, buildDeparture(0xf0000001, 'bye'));
+				const pkt = parse(Struct, build(0xf0000001, 'bye'));
 
 				expect(pkt.GID).toBe(0xf0000001);
+			});
+
+			// A reason read four bytes late loses its first four characters and the id
+			// becomes reason bytes, so nobody is ever recognised as themselves. That is
+			// what a swapped field order looks like from the outside.
+			it('keeps the whole reason, first character included', () => {
+				const pkt = parse(Struct, build(150002, 'u2 live check'));
+
+				expect(pkt.reasonDesc).toBe('u2 live check');
 			});
 		});
 	}
