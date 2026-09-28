@@ -110,6 +110,7 @@ const _isUglyShadow = (function isUglyGPUShadow() {
  * @property {string} title_name Achievement / player title
  * @property {Image|null} emblem Static guild emblem image
  * @property {HTMLCanvasElement|null} gifEmblem Animated guild emblem canvas
+ * @property {number} emblemY Emblem top offset on the canvas, in backing px
  * @property {boolean} display Whether nameplate is currently visible
  * @property {HTMLCanvasElement} canvas Nameplate canvas element
  * @property {CanvasRenderingContext2D} ctx 2d context for nameplate
@@ -139,6 +140,7 @@ class Display {
 		this.title_name = '';
 		this.emblem = null;
 		this.gifEmblem = null;
+		this.emblemY = 0;
 		this.display = false;
 		this.canvas = document.createElement('canvas');
 		this.canvas.className = 'entity-display';
@@ -182,6 +184,7 @@ class Display {
 	/**
 	 * Update the display
 	 * @param {string} color
+	 * @see docs/reference/guild/nameplate-emblem.md
 	 */
 	update(style) {
 		style = style || this.STYLE.DEFAULT;
@@ -191,14 +194,16 @@ class Display {
 		const fontSize = 12 * dpr;
 		const ctx = this.ctx;
 		const start_x =
-			(this.emblem &&
+			((this.emblem &&
 			(style === this.STYLE.DEFAULT ||
 				style === this.STYLE.ADMIN ||
 				style === this.STYLE.MOB ||
 				style === this.STYLE.NPC)
 				? 26
-				: 0) + 5;
-		const paddingTop = 5;
+				: 0) +
+				5) *
+			dpr;
+		const paddingTop = 5 * dpr;
 
 		// Skip the "#" in the pseudo
 		lines[0] = this.fakename ? this.fakename.split('#')[0] : this.name.split('#')[0];
@@ -257,10 +262,15 @@ class Display {
 		const fontBold = MapPreferences.showname ? 'bold ' : '';
 		ctx.font = fontBold + fontSize + 'px Arial';
 
-		const width = Math.max(ctx.measureText(lines[0]).width, ctx.measureText(lines[1]).width) + start_x + 5;
+		const width = Math.max(ctx.measureText(lines[0]).width, ctx.measureText(lines[1]).width) + start_x + 5 * dpr;
 		const height = fontSize * 3 * (lines[1].length ? 2 : 1) + paddingTop;
 		ctx.canvas.width = width;
 		ctx.canvas.height = height;
+
+		// Emblem is native 24x24 for a 12px font, centred on a plate of
+		// (fontHeight + 2) * lines + 6 clamped to the emblem height (client rule)
+		const plateHeight = Math.max((fontSize + 2 * dpr) * (lines[1].length ? 2 : 1) + 6 * dpr, 24 * dpr);
+		this.emblemY = (plateHeight - 24 * dpr) / 2 + paddingTop - 4 * dpr;
 
 		// Draw emblem
 		if (
@@ -273,9 +283,9 @@ class Display {
 			if (this.gifEmblem) {
 				const fw = this.gifEmblem.frameWidth;
 				const fh = this.gifEmblem.frameHeight;
-				ctx.drawImage(this.gifEmblem, 0, 0, fw, fh, 0, paddingTop, 24, 24);
+				ctx.drawImage(this.gifEmblem, 0, 0, fw, fh, 0, this.emblemY, 24 * dpr, 24 * dpr);
 			} else {
-				ctx.drawImage(this.emblem, 0, paddingTop, 24, 24);
+				ctx.drawImage(this.emblem, 0, this.emblemY, 24 * dpr, 24 * dpr);
 			}
 		}
 
@@ -357,10 +367,10 @@ class Display {
 
 	/**
 	 * Rendering GUI
+	 * @see docs/reference/guild/nameplate-emblem.md
 	 */
 	render(matrix) {
 		if (this.gifEmblem) {
-			const paddingTop = 5;
 			const now = Date.now();
 
 			const currentFrameIndex = this.gifEmblem.currentFrame || 0;
@@ -381,11 +391,11 @@ class Display {
 
 				this.ctx.save();
 				this.ctx.setTransform(1, 0, 0, 1, 0, 0);
-				this.ctx.clearRect(0, paddingTop * dpr, 24 * dpr, 24 * dpr);
+				this.ctx.clearRect(0, this.emblemY, 24 * dpr, 24 * dpr);
 				this.ctx.restore();
 
 				// updates gif image only when needed
-				this.ctx.drawImage(this.gifEmblem, col * fw, row * fh, fw, fh, 0, paddingTop, 24, 24);
+				this.ctx.drawImage(this.gifEmblem, col * fw, row * fh, fw, fh, 0, this.emblemY, 24 * dpr, 24 * dpr);
 			}
 		}
 
