@@ -180,6 +180,19 @@ no handler and no error. The handler refetches for every entity of that guild,
 and ignores a repeat of a version it has already asked for - the broadcast
 arrives once per entity in range, not once per guild.
 
+**That mark means "asked for", never "have", and a fetch that gives up has to
+take it back.** It is set before the request, because the point of it is to stop
+a burst that arrives long before any download could answer. The download has five
+ways to end with nothing painted - a non-200, a decode that throws, a gif the
+spritesheet pass refuses, a transport error, a timeout - and on every one of them
+the old code kept the mark. Every later broadcast of that version was then
+refused, so a web server that blinked froze that guild's emblem, on the map and
+in the window, until the guild changed it again. The request takes an `onFailure`
+alongside its callback and the handler clears its own mark from it: the mark is
+the handler's state, so releasing it belongs there and not inside the fetch.
+Success needs no such path - the stored version moves, and a repeat then takes
+the early return that repaints from cache.
+
 ## A refusal is invisible, and the window repaints anyway
 
 Nothing tells the client that the map server turned the change down. Of the four

@@ -164,8 +164,11 @@ class GuildEngine {
 	 * @param {number} guild id
 	 * @param {number} version
 	 * @param {function} callback
+	 * @param {function} [onFailure] - the fetch gave up, and nothing was repainted
 	 */
-	static requestGuildEmblem(guild_id, version, callback) {
+	static requestGuildEmblem(guild_id, version, callback, onFailure) {
+		const failed = onFailure || function () {};
+
 		// Guild does not exist
 		if (!_emblems[guild_id]) {
 			_emblems[guild_id] = {
@@ -226,6 +229,7 @@ class GuildEngine {
 			xhr.onload = () => {
 				if (xhr.status !== 200) {
 					console.warn('Emblem download returned non-200 status:', xhr.status);
+					failed();
 					return;
 				}
 				try {
@@ -277,18 +281,24 @@ class GuildEngine {
 									img.src = this.toDataURL();
 									URL.revokeObjectURL(blobUrl);
 								});
+							} else {
+								console.warn('Emblem gif could not be decoded');
+								failed();
 							}
 						});
 					}
 				} catch (e) {
 					console.error('Error processing guild emblem:', e);
+					failed();
 				}
 			}; // End xhr.onload
 			xhr.onerror = () => {
 				console.warn('Emblem download failed: web-server unreachable');
+				failed();
 			};
 			xhr.ontimeout = () => {
 				console.warn('Emblem download timed out');
+				failed();
 			};
 
 			xhr.send(formData);
@@ -818,11 +828,21 @@ function onGuildEmblemChanged(pkt) {
 	// something else happens to rebuild the Info tab. Our own guild only: another
 	// guild's emblem arriving would otherwise land in our own tab.
 	// @see docs/reference/guild/emblem-picker.md
-	GuildEngine.requestGuildEmblem(pkt.GDID, pkt.emblemVersion, image => {
-		if (isOwnGuild) {
-			Guild.setEmblem(image);
+	GuildEngine.requestGuildEmblem(
+		pkt.GDID,
+		pkt.emblemVersion,
+		image => {
+			if (isOwnGuild) {
+				Guild.setEmblem(image);
+			}
+		},
+		// The mark above means "asked for", not "have". A fetch that gave up
+		// leaves nothing painted, so holding the mark would refuse every later
+		// broadcast of that version and freeze the emblem until the next one.
+		() => {
+			delete _emblemNotified[pkt.GDID];
 		}
-	});
+	);
 }
 
 /**

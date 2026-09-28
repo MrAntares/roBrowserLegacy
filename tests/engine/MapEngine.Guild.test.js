@@ -296,6 +296,45 @@ describe('a guild changing its emblem', () => {
 
 		expect(Session.Entity.GEmblemVer).toBe(3);
 	});
+
+	// The mark that stops the burst means "asked for", not "have". Holding it
+	// through a download that gave up left every later broadcast of that version
+	// refused, so a web server that blinked froze the emblem until the guild
+	// changed it again.
+	describe('a download that gave up', () => {
+		/** Answer every request by failing, and count them. */
+		function failEveryFetch() {
+			GuildEngine.requestGuildEmblem.mockImplementation((guildId, version, _callback, onFailure) => {
+				mocks.emblemRequests.push({ guildId, version });
+				onFailure();
+			});
+		}
+
+		// The mark outlives a test: it is module state keyed by guild, so each
+		// case below needs a guild no earlier one has announced.
+		it('lets the next broadcast of that same version try again', () => {
+			failEveryFetch();
+
+			deliver(PACKET.ZC.CHANGE_GUILD2, { GDID: 4001, emblemVersion: 7, AID: 1 });
+			deliver(PACKET.ZC.CHANGE_GUILD2, { GDID: 4001, emblemVersion: 7, AID: 2 });
+
+			expect(mocks.emblemRequests).toHaveLength(2);
+		});
+
+		it('still holds the burst back once one of them succeeds', () => {
+			failEveryFetch();
+			deliver(PACKET.ZC.CHANGE_GUILD2, { GDID: 4002, emblemVersion: 7, AID: 1 });
+
+			GuildEngine.requestGuildEmblem.mockImplementation((guildId, version, callback) => {
+				mocks.emblemRequests.push({ guildId, version });
+				callback({ src: 'data:image/png;base64,AAAA' }, null);
+			});
+			deliver(PACKET.ZC.CHANGE_GUILD2, { GDID: 4002, emblemVersion: 7, AID: 2 });
+			deliver(PACKET.ZC.CHANGE_GUILD2, { GDID: 4002, emblemVersion: 7, AID: 3 });
+
+			expect(mocks.emblemRequests).toHaveLength(2);
+		});
+	});
 });
 
 describe('uploading an emblem tells the map server about it', () => {
