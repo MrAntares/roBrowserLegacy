@@ -1982,16 +1982,18 @@ function updateTabAccess(root) {
 
 		btn.classList.toggle('denied', denied);
 
+		// A refused tab is out of the keyboard's reach too, or Enter lands on it
+		// and does nothing.
+		btn.setAttribute('aria-disabled', denied ? 'true' : 'false');
+		btn.tabIndex = denied ? -1 : 0;
+
 		// Refreshed rather than left as init wrote it: the message table can land
-		// after the window is built, and until it does a label is the markup's own
-		// English fallback.
+		// after the window is built.
 		btn.title = _tabLabel(btn);
 	}
 
-	// Marking is not enough when the refused tab is the one already open: the
-	// window outlives a character change, so logging in as the guild master and
-	// then as a member leaves a member sitting on the guild master's tab. Send
-	// them to the first one, which carries no bit and is always open.
+	// A refused tab that is the open one has to be left, not only marked. The
+	// first carries no bit and is always somewhere to go.
 	if (root.querySelector('.tabs button.active.denied')) {
 		onChangeTab.call(root.querySelector('.tabs button'));
 	}

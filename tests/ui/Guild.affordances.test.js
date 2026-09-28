@@ -271,6 +271,41 @@ describe('guild window, tab order', () => {
 		expect(denied).toEqual(['notice']);
 	});
 
+	// Marking the cell answers the mouse; the keyboard needs its own answer, or
+	// Tab still lands on the tab and Enter still activates it into a silent
+	// no-op. A declared deviation - the client has no such notion.
+	it('takes a refused tab out of the keyboard order', () => {
+		Guild.setAccess(0x57);
+
+		const notice = root().querySelector('.tabs button.notice');
+		const members = root().querySelector('.tabs button.members');
+
+		expect(notice.tabIndex).toBe(-1);
+		expect(notice.getAttribute('aria-disabled')).toBe('true');
+		expect(members.tabIndex).toBe(0);
+		expect(members.getAttribute('aria-disabled')).toBe('false');
+	});
+
+	it('puts it back when the mask allows it', () => {
+		Guild.setAccess(0x57);
+		Guild.setAccess(0xd7);
+
+		const notice = root().querySelector('.tabs button.notice');
+
+		expect(notice.tabIndex).toBe(0);
+		expect(notice.getAttribute('aria-disabled')).toBe('false');
+	});
+
+	// The mask goes unknown on a character change, so a tab refused for the
+	// previous character must not stay out of the next one's reach.
+	it('puts it back on a character change', () => {
+		Guild.setAccess(0x57);
+
+		Guild.reset();
+
+		expect(root().querySelector('.tabs button.notice').tabIndex).toBe(0);
+	});
+
 	it('leaves the guild master no tab marked', () => {
 		Guild.setAccess(0x57);
 		Guild.setAccess(0xd7);
