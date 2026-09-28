@@ -410,10 +410,7 @@ Guild.init = function init() {
 			e => {
 				if (e.target.matches('input')) {
 					_positionsDirty = true;
-					const btnOk = root.querySelector('.footer .btn_ok');
-					if (btnOk) {
-						btnOk.style.display = 'block';
-					}
+					_showApplyButton();
 					e.target.select();
 				}
 			},
@@ -430,10 +427,7 @@ Guild.init = function init() {
 				box.classList.add(isOn ? 'on' : 'off');
 				box.style.backgroundImage = `url(${isOn ? _checkbox_on : _checkbox_off})`;
 				_positionsDirty = true;
-				const btnOk = root.querySelector('.footer .btn_ok');
-				if (btnOk) {
-					btnOk.style.display = 'block';
-				}
+				_showApplyButton();
 			}
 		});
 	}
