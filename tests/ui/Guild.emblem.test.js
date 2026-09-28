@@ -305,6 +305,30 @@ describe('Guild emblem picker', () => {
 			expect(info('.emblem_pick').style.display).toBe('');
 		});
 
+		// A handover sends the guild info before the packet carrying the flag, so
+		// the guild info is the wrong place to learn this from on its own: a
+		// demoted master would keep a working picker until the next one arrived.
+		it('takes both away when the flag moves, with no guild info behind it', () => {
+			Guild.setGuildInformations(guildInfo());
+			mocks.session.isGuildMaster = false;
+
+			Guild.updateMasterView();
+
+			expect(info('.emblem_edit').style.display).toBe('none');
+			expect(info('.emblem_pick').style.display).toBe('none');
+		});
+
+		it('gives both back the same way', () => {
+			mocks.session.isGuildMaster = false;
+			Guild.setGuildInformations(guildInfo({ masterName: 'Someone Else' }));
+			mocks.session.isGuildMaster = true;
+
+			Guild.updateMasterView();
+
+			expect(info('.emblem_edit').style.display).toBe('');
+			expect(info('.emblem_pick').style.display).toBe('');
+		});
+
 		it('a drop by a non-master does nothing at all', async () => {
 			mocks.session.isGuildMaster = false;
 

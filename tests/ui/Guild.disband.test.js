@@ -187,6 +187,28 @@ describe('Guild disband', () => {
 			expect(disbandButton().style.display).toBe('none');
 		});
 
+		// A handover leaves the window open on whatever tab it was on, and the
+		// flag's own packet is the only thing that follows it - so a demoted
+		// master would keep a live Disband button standing on the Info tab.
+		it('goes away when the flag moves, with no tab change behind it', () => {
+			showTab('info');
+			mocks.session.isGuildMaster = false;
+
+			Guild.updateMasterView();
+
+			expect(disbandButton().style.display).toBe('none');
+		});
+
+		it('comes back the same way', () => {
+			mocks.session.isGuildMaster = false;
+			showTab('info');
+			mocks.session.isGuildMaster = true;
+
+			Guild.updateMasterView();
+
+			expect(disbandButton().style.display).toBe('block');
+		});
+
 		it('a non-master reaching the handler anyway opens nothing', () => {
 			mocks.session.isGuildMaster = false;
 

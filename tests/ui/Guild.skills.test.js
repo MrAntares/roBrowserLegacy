@@ -391,6 +391,48 @@ describe('Guild skills tab', () => {
 			expect(rowOf(10002).querySelector('.levelup').style.display).not.toBe('none');
 		});
 
+		// A handover repaints nothing on this tab of its own accord, and the
+		// server's own "can this be raised" byte still says yes for the person who
+		// just lost the guild - so without this the demoted master keeps arrows
+		// that work as far as the click.
+		it('goes away when the flag moves, with no skill packet behind it', () => {
+			Guild.setPoints(3);
+			Guild.setSkills([skill({ SKID: 10002, level: 1, upgradable: 1 })]);
+			expect(rowOf(10002).querySelector('.levelup').style.display).not.toBe('none');
+
+			mocks.session.isGuildMaster = false;
+			Guild.updateMasterView();
+
+			expect(rowOf(10002).querySelector('.levelup').style.display).toBe('none');
+		});
+
+		// The promotion direction is deliberately NOT fixed: the byte arrives per
+		// recipient and no server resends it, so it still reads 0 for the new
+		// master. The client is stale in exactly the same way.
+		// @see docs/reference/guild/member-view.md
+		it('stays hidden on promotion, the server flag being what it is', () => {
+			mocks.session.isGuildMaster = false;
+			Guild.setPoints(3);
+			Guild.setSkills([skill({ SKID: 10002, level: 1, upgradable: 0 })]);
+
+			mocks.session.isGuildMaster = true;
+			Guild.updateMasterView();
+
+			expect(rowOf(10002).querySelector('.levelup').style.display).toBe('none');
+		});
+
+		// A hidden control is a layout fact; the handler is the guarantee.
+		it('sends nothing when a member reaches the handler anyway', () => {
+			Guild.setPoints(3);
+			Guild.setSkills([skill({ SKID: 10002, level: 1, upgradable: 1 })]);
+			Guild.onIncreaseSkill = vi.fn();
+			mocks.session.isGuildMaster = false;
+
+			rowOf(10002).querySelector('.levelup').dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+			expect(Guild.onIncreaseSkill).not.toHaveBeenCalled();
+		});
+
 		it('raises the skill it sits in', () => {
 			Guild.setPoints(3);
 			Guild.setSkills([skill({ SKID: 10002, level: 1, upgradable: 1 })]);

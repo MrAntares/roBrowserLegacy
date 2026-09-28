@@ -859,20 +859,7 @@ Guild.setGuildInformations = function setGuildInformations(info) {
 	Guild.updateSession(info);
 	Guild.onRequestGuildEmblem(info.GDID, info.emblemVersion, Guild.setEmblem.bind(this));
 
-	// Only the guild master edits the emblem, so neither the button nor the
-	// emblem-as-picker is offered to anyone else.
-	// @see docs/reference/guild/emblem-picker.md
-	const emblemDisplay = Session.isGuildMaster ? '' : 'none';
-	const emblemEdit = general.querySelector('.emblem_edit');
-	if (emblemEdit) {
-		emblemEdit.style.display = emblemDisplay;
-	}
-
-	const emblemPick = general.querySelector('.emblem_pick');
-	if (emblemPick) {
-		emblemPick.style.display = emblemDisplay;
-	}
-
+	updateEmblemControls(root);
 	updateDisbandButton(root, getActiveTab(root));
 	updateSkillFooter(root, getActiveTab(root));
 	updateMemberSort(root, getActiveTab(root));
@@ -1682,15 +1669,28 @@ Guild.setPoints = function setPoints(amount) {
 	}
 
 	_skpoints = amount;
+	updateSkillArrows(root);
+};
+
+/**
+ * Show the level-up arrow on each skill the player may actually raise
+ *
+ * @see docs/reference/guild/member-view.md
+ */
+function updateSkillArrows(root) {
+	if (!root) {
+		return;
+	}
+
 	const count = _skills.length;
 
 	for (let i = 0; i < count; ++i) {
 		const levelupEl = root.querySelector(`.skill.id${_skills[i].SKID} .levelup`);
 		if (levelupEl) {
-			levelupEl.style.display = _skills[i].upgradable && amount && Session.isGuildMaster ? '' : 'none';
+			levelupEl.style.display = _skills[i].upgradable && _skpoints && Session.isGuildMaster ? '' : 'none';
 		}
 	}
-};
+}
 
 Guild.onLevelUp = function onLevelUp() {
 	if (_btnLevelUp) {
@@ -1711,6 +1711,10 @@ function getSkillById(id) {
 }
 
 function onRequestSkillUp() {
+	if (!Session.isGuildMaster) {
+		return;
+	}
+
 	const index = this.parentNode.parentNode.getAttribute('data-index');
 	Guild.onIncreaseSkill(parseInt(index, 10));
 }
@@ -1863,21 +1867,25 @@ Guild.updateNoticeView = function updateNoticeView() {
 /**
  * Redraw everything the guild-master flag decides
  *
- * Called from the flag's own packet. The flag changes under an open window -
- * delegation is what this whole branch is for - and none of these views has a
- * packet of its own that is guaranteed to follow it.
- *
+ * Reached from the flag's own packet, which can arrive before the window exists.
  * @see docs/reference/guild/member-view.md
  */
 Guild.updateMasterView = function updateMasterView() {
 	const root = _root(this);
+	if (!root) {
+		return;
+	}
+
 	Guild.updatePositionView();
 	Guild.updateNoticeView();
 	updateSkillFooter(root, getActiveTab(root));
+	updateSkillArrows(root);
+	updateEmblemControls(root);
+	updateDisbandButton(root, getActiveTab(root));
 
-	// The member rows' grade cell is the fourth thing the flag decides, and the
-	// roster arrives before the flag on a handover - so it was built for the
-	// wrong person. Rebuilt from a copy: setMembers empties the store first.
+	// The roster arrives before the flag on a handover, so the grade cells were
+	// built for the wrong person. Rebuilt from a copy: setMembers empties the
+	// store first.
 	if (_members.length) {
 		Guild.setMembers([..._members], _hasMemo);
 	}
@@ -2327,6 +2335,30 @@ function onValidate() {
 function getActiveTab(root) {
 	const btn = root ? root.querySelector('.tabs button.active') : null;
 	return btn ? btn.className.replace(/\s*active\s*/g, '').trim() : '';
+}
+
+/**
+ * Show or hide the two ways into the emblem picker
+ * @see docs/reference/guild/emblem-picker.md
+ */
+function updateEmblemControls(root) {
+	const general = root ? root.querySelector('.content.info') : null;
+	if (!general) {
+		return;
+	}
+
+	// Only the guild master edits the emblem, so neither the button nor the
+	// emblem-as-picker is offered to anyone else.
+	const emblemDisplay = Session.isGuildMaster ? '' : 'none';
+	const emblemEdit = general.querySelector('.emblem_edit');
+	if (emblemEdit) {
+		emblemEdit.style.display = emblemDisplay;
+	}
+
+	const emblemPick = general.querySelector('.emblem_pick');
+	if (emblemPick) {
+		emblemPick.style.display = emblemDisplay;
+	}
 }
 
 function updateDisbandButton(root, activeTab) {
