@@ -59,7 +59,7 @@ export default {
 	isPartyLeader: false,
 
 	hasGuild: false,
-	guildRight: 0,
+	guildPermission: 0,
 	guildName: '',
 	isGuildMaster: false,
 

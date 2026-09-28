@@ -482,7 +482,7 @@ class EntityControl {
 
 				// Guild features
 				if (Session.hasGuild) {
-					if (Session.guildRight & 0x01 && !this.GUID) {
+					if (Session.guildPermission & 0x01 && !this.GUID) {
 						// Send (%s) a Guild invitation
 						ContextMenu.addElement(DB.getMessage(382).replace('%s', this.display.name), () => {
 							Guild.requestPlayerInvitation(entity.GID);

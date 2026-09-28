@@ -48,7 +48,7 @@ const mocks = vi.hoisted(() => {
 			GID: 150000,
 			hasGuild: true,
 			isGuildMaster: true,
-			guildRight: 0,
+			guildPermission: 0,
 			guildName: '',
 			Character: {},
 			Entity: { display: { name: 'Master' }, GUID: 1, GEmblemVer: 0 }
@@ -277,7 +277,7 @@ beforeEach(() => {
 	// case starts on a table the server is still allowed to repaint.
 	Guild.onRemove();
 	mocks.session.isGuildMaster = true;
-	mocks.session.guildRight = 0;
+	mocks.session.guildPermission = 0;
 	mocks.contextMenu.addElement.mockClear();
 	mocks.promptBox.mockClear();
 	for (const id in mocks.messages) {

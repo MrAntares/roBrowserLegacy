@@ -534,7 +534,7 @@ Guild.init = function init() {
 				});
 			}
 
-			if (Session.guildRight & 0x10 && !isSelf) {
+			if (Session.guildPermission & 0x10 && !isSelf) {
 				ContextMenu.addElement(DB.getMessage(509), () => {
 					InputBox.append();
 					InputBox.setType('text');

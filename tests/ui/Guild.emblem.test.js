@@ -43,7 +43,7 @@ const mocks = vi.hoisted(() => {
 			GID: 150000,
 			hasGuild: true,
 			isGuildMaster: true,
-			guildRight: 0,
+			guildPermission: 0,
 			guildName: 'ClaudeGuild',
 			Character: {},
 			Entity: { display: { name: 'Master' }, GUID: 1, GEmblemVer: 0 }
