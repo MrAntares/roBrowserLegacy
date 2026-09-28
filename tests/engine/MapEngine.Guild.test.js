@@ -14,7 +14,11 @@ const mocks = vi.hoisted(() => ({
 		setNotice: vi.fn(),
 		setEmblem: vi.fn(),
 		setExpelList: vi.fn(),
-		updateMasterView: vi.fn()
+		updateMasterView: vi.fn(),
+		invalidateAccess: vi.fn(),
+		requestAccessIfUnknown: vi.fn(),
+		reset: vi.fn(),
+		hide: vi.fn()
 	},
 	entities: [],
 	emblemRequests: [],
@@ -157,14 +161,50 @@ describe('the guild engine wires each packet to a handler', () => {
 		expect(mocks.guild.updateMasterView).not.toHaveBeenCalled();
 	});
 
-	// Which tabs open is per character, and the server answers only when asked -
-	// never on a handover, and never unsolicited to a member at all.
-	it('asks which tabs this character may open, every time', () => {
-		deliver(PACKET.ZC.UPDATE_GDID, { GDID: 150000, isMaster: 0, right: 0 });
+	// The official client never sends this request at all, so the window decides
+	// whether to - and it decides on the mask being unknown. The handler's job is
+	// only to say when the mask it holds has stopped being true.
+	it('lets the window decide whether to ask which tabs open', () => {
 		deliver(PACKET.ZC.UPDATE_GDID, { GDID: 150000, isMaster: 0, right: 0 });
 
-		const asked = mocks.sent.filter(p => p instanceof PACKET.CZ.REQ_GUILD_MENUINTERFACE);
-		expect(asked).toHaveLength(2);
+		expect(mocks.guild.requestAccessIfUnknown).toHaveBeenCalled();
+		expect(mocks.sent.filter(p => p instanceof PACKET.CZ.REQ_GUILD_MENUINTERFACE)).toHaveLength(0);
+	});
+
+	// The mask is per role and no server resends it on a handover, so a flag that
+	// moved is the one thing that makes a held mask stale. hasGuild is set
+	// deliberately in each of these three: it is what tells a real handover from
+	// the first of these packets, and it is module state that leaks between tests.
+	it('forgets the mask when the flag moves', () => {
+		Session.hasGuild = true;
+		Session.isGuildMaster = false;
+		deliver(PACKET.ZC.UPDATE_GDID, { GDID: 150000, isMaster: 1, right: 0 });
+
+		expect(mocks.guild.invalidateAccess).toHaveBeenCalled();
+	});
+
+	// Every emblem change rides this packet, to the whole roster. Forgetting the
+	// mask there would put a request on the wire for each one.
+	it('keeps the mask when the flag did not move', () => {
+		Session.hasGuild = true;
+		Session.isGuildMaster = false;
+		deliver(PACKET.ZC.UPDATE_GDID, { GDID: 150000, isMaster: 0, right: 0 });
+
+		expect(mocks.guild.invalidateAccess).not.toHaveBeenCalled();
+	});
+
+	// The first of these packets is not a handover: there was no earlier role for
+	// the mask to have been answered under. rAthena sends a guild master their
+	// mask unsolicited just before it, so forgetting it here would ask again for
+	// what had only just arrived.
+	it('keeps the mask on the first of these packets', () => {
+		Session.hasGuild = false;
+		Session.isGuildMaster = false;
+		deliver(PACKET.ZC.UPDATE_GDID, { GDID: 150000, isMaster: 1, right: 0 });
+
+		expect(Session.isGuildMaster).toBe(true);
+		expect(mocks.guild.updateMasterView).toHaveBeenCalled();
+		expect(mocks.guild.invalidateAccess).not.toHaveBeenCalled();
 	});
 });
 

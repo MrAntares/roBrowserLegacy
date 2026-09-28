@@ -35,6 +35,12 @@ import Configs from 'Core/Configs.js';
 import UIPreferences from 'Preferences/UI.js';
 
 /**
+ * Access mask not received yet, which is the client's own sentinel for it
+ * @see docs/reference/guild/member-view.md
+ */
+const ACCESS_UNKNOWN = -1;
+
+/**
  * Flags to check access
  */
 const AccessTypeBit = {
@@ -132,7 +138,9 @@ let _btnIncSkillTemplate;
 let _skpoints = 0;
 let _btnLevelUp;
 let _totalExp = 0;
-let _guildAccess = 0;
+// -1 = not received. Every bit set, so no tab is refused before the server has
+// answered. @see docs/reference/guild/member-view.md
+let _guildAccess = ACCESS_UNKNOWN;
 let _checkbox_off, _checkbox_on;
 let _hasMemo = false;
 
@@ -726,7 +734,7 @@ Guild.reset = function reset() {
 	_positions.length = 0;
 	_skills.length = 0;
 	_skpoints = 0;
-	_guildAccess = 0;
+	_guildAccess = ACCESS_UNKNOWN;
 	_sentPayRates = {};
 	_resetPositionsTab();
 
@@ -808,8 +816,9 @@ Guild.show = function show() {
 		if (infoBtn) {
 			infoBtn.click();
 		}
-		Guild.onRequestAccess();
 	}
+
+	Guild.requestAccessIfUnknown();
 
 	const membersContent = root.querySelector('.content.members');
 	if (membersContent && membersContent.style.display !== 'none') {
@@ -1901,6 +1910,32 @@ Guild.setExpelList = function setExpelList(list) {
 Guild.setAccess = function setAccess(access) {
 	_guildAccess = access;
 	updateTabAccess(_root(this));
+};
+
+/**
+ * Ask which tabs this character may open, once
+ *
+ * The mask changes with who the player is, not with what the guild does.
+ * @see docs/reference/guild/member-view.md
+ */
+Guild.requestAccessIfUnknown = function requestAccessIfUnknown() {
+	// The server answers a guildless player too, and caching that answer would
+	// then stand in for the guild they join next.
+	if (_guildAccess !== ACCESS_UNKNOWN || !Session.hasGuild) {
+		return;
+	}
+
+	Guild.onRequestAccess();
+};
+
+/**
+ * Forget the mask, the role having changed under it
+ *
+ * Through setAccess, so the marks cannot outlive the mask that earned them.
+ * @see docs/reference/guild/member-view.md
+ */
+Guild.invalidateAccess = function invalidateAccess() {
+	Guild.setAccess(ACCESS_UNKNOWN);
 };
 
 /**

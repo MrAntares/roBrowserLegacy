@@ -405,13 +405,32 @@ describe('guild window, tab order', () => {
 		expect(root().querySelectorAll('.tabs button.denied')).toHaveLength(0);
 	});
 
-	// The mask starts at zero, so marking off it before the packet lands would
-	// paint every tab refused for a second.
-	it('marks nothing before the access packet has arrived', () => {
-		Guild._host.innerHTML = Guild.render();
-		Guild.init();
+	// The mask is unknown rather than zero until the packet lands, which is the
+	// client's own sentinel: zero refuses every tab, so marking off it early
+	// would paint the whole strip refused.
+	//
+	// Marked first, then unknown, so the second read cannot pass on a strip that
+	// was never marked in the first place.
+	it('marks nothing while the mask is unknown', () => {
+		Guild.setAccess(0x57);
+		expect(root().querySelectorAll('.tabs button.denied')).toHaveLength(1);
 
+		Guild.setAccess(-1);
 		expect(root().querySelectorAll('.tabs button.denied')).toHaveLength(0);
+	});
+
+	// The character-switch report: the window outlives the change, so the reset
+	// leaves it visible with no mask. Refusing every tab is what was reported as
+	// "I can't click anything".
+	it('refuses no tab after a character change', () => {
+		Guild.reset();
+
+		const strip = [...root().querySelectorAll('.tabs button')];
+
+		expect(strip.length).toBeGreaterThan(0);
+		expect(strip.filter(b => b.classList.contains('denied'))).toEqual([]);
+		showTab('members');
+		expect(root().querySelector('.tabs button.members').classList.contains('active')).toBe(true);
 	});
 
 	it('offers the guild master those same controls', () => {
@@ -423,6 +442,118 @@ describe('guild window, tab order', () => {
 
 		showTab('notice');
 		expect(reachableControls().filter(el => el.closest('.content.notice'))).toHaveLength(2);
+	});
+});
+
+/**
+ * The official client never puts CZ_REQ_GUILD_MENUINTERFACE on the wire - its one
+ * send site is behind a sentinel no build ever writes. We have to ask, because no
+ * server tells a member unsolicited and none tells anybody on a handover, so the
+ * count is what is under test: once per identity or role change, never per packet.
+ *
+ * See docs/reference/guild/member-view.md
+ */
+describe('guild window, asking which tabs open', () => {
+	let asked;
+
+	beforeEach(() => {
+		mount();
+		asked = vi.fn();
+		Guild.onRequestAccess = asked;
+	});
+
+	it('does not ask again once the mask is known', () => {
+		Guild.setAccess(0x57);
+
+		Guild.requestAccessIfUnknown();
+		Guild.requestAccessIfUnknown();
+
+		expect(asked).not.toHaveBeenCalled();
+	});
+
+	it('asks while the mask is unknown', () => {
+		Guild.invalidateAccess();
+
+		Guild.requestAccessIfUnknown();
+
+		expect(asked).toHaveBeenCalledTimes(1);
+	});
+
+	// The server answers a guildless player too, with no guild check of its own,
+	// and that answer would then stand in for the guild they join next.
+	it('does not ask without a guild to ask about', () => {
+		mocks.session.hasGuild = false;
+		Guild.invalidateAccess();
+
+		Guild.requestAccessIfUnknown();
+
+		expect(asked).not.toHaveBeenCalled();
+		mocks.session.hasGuild = true;
+	});
+
+	// Twice is the regression this replaced: the handler asked on every
+	// ZC_UPDATE_GDID, which an emblem change sends to the whole roster.
+	it('asks once, however many times it is invited to', () => {
+		Guild.invalidateAccess();
+
+		Guild.requestAccessIfUnknown();
+		Guild.setAccess(0x57);
+		Guild.requestAccessIfUnknown();
+		Guild.requestAccessIfUnknown();
+
+		expect(asked).toHaveBeenCalledTimes(1);
+	});
+
+	it('asks again after a character change', () => {
+		Guild.setAccess(0x57);
+
+		Guild.reset();
+		Guild.requestAccessIfUnknown();
+
+		expect(asked).toHaveBeenCalledTimes(1);
+	});
+
+	// The client's own trigger is the window being built, and it asks whatever
+	// tab is showing. Ours used to ask only when no tab was active, which is a
+	// one-time bootstrap: a window already open across a character change would
+	// never ask again, and that was the reported bug.
+	it('asks on opening the window even with a tab already active', () => {
+		Guild.invalidateAccess();
+		showTab('members');
+		Guild.ui.is = vi.fn(() => false);
+
+		Guild.show();
+
+		expect(asked).toHaveBeenCalledTimes(1);
+	});
+
+	// The marks must not outlive the mask that earned them. Forgetting the mask
+	// without repainting leaves a tab grey, refusal-cursored and out of the tab
+	// order while the click gate - reading the same unknown mask - lets it
+	// through: the rarer direction, looks absent and still works. It also
+	// re-opens a path onChangeTab cannot parse, since it derives its pane by
+	// stripping only `active` from the class list.
+	it('clears the marks when it forgets the mask', () => {
+		Guild.setAccess(0x57);
+		const notice = root().querySelector('.tabs button.notice');
+		expect(notice.classList.contains('denied')).toBe(true);
+
+		Guild.invalidateAccess();
+
+		expect(notice.classList.contains('denied')).toBe(false);
+		expect(notice.tabIndex).toBe(0);
+		expect(notice.getAttribute('aria-disabled')).toBe('false');
+	});
+
+	it('leaves a tab it just unmarked actually openable', () => {
+		Guild.setAccess(0x57);
+
+		Guild.invalidateAccess();
+		showTab('notice');
+
+		const notice = root().querySelector('.tabs button.notice');
+		expect(notice.classList.contains('active')).toBe(true);
+		expect(panel('notice').style.display).toBe('block');
 	});
 });
 
@@ -669,5 +800,60 @@ describe('guild window, the grade dropdown', () => {
 		expect(root().querySelector('.content.members .MemberView[data-index="0"] .position').textContent).toBe(
 			'Guild Master'
 		);
+	});
+});
+
+/**
+ * The value the module starts on, which no other test can reach: every one of
+ * them arrives at the unknown mask through setAccess, invalidateAccess or reset.
+ * A freshly loaded module is the state a first-ever login is in, and the bug this
+ * sentinel exists to fix - a strip that refuses every tab - lives exactly there.
+ *
+ * resetModules re-runs the module and its vi.mock factories, so this needs its
+ * own Guild instance rather than the one the rest of the file shares.
+ */
+describe('guild window, straight off a cold module', () => {
+	it('starts with the mask unknown, so nothing is refused', async () => {
+		vi.resetModules();
+		const FreshGuild = (await import('UI/Components/Guild/Guild.js')).default;
+
+		FreshGuild._host = document.createElement('div');
+		document.body.innerHTML = '';
+		document.body.appendChild(FreshGuild._host);
+		FreshGuild._host.innerHTML = FreshGuild.render();
+		FreshGuild.init();
+		FreshGuild.onGuildInfoRequest = vi.fn();
+		FreshGuild.onRequestGuildEmblem = vi.fn();
+
+		const strip = [...FreshGuild.getRoot().querySelectorAll('.tabs button')];
+		expect(strip.length).toBeGreaterThan(0);
+		expect(strip.filter(b => b.classList.contains('denied'))).toEqual([]);
+
+		// And the tab a member would be refused on a real mask opens here, which
+		// is what tells an unknown mask from a zero one.
+		FreshGuild.getRoot()
+			.querySelector('.tabs button.notice')
+			.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+		expect(FreshGuild.getRoot().querySelector('.tabs button.notice').classList.contains('active')).toBe(true);
+	});
+
+	it('asks for the mask on that first open', async () => {
+		vi.resetModules();
+		const FreshGuild = (await import('UI/Components/Guild/Guild.js')).default;
+		const asked = vi.fn();
+
+		FreshGuild._host = document.createElement('div');
+		document.body.innerHTML = '';
+		document.body.appendChild(FreshGuild._host);
+		FreshGuild._host.innerHTML = FreshGuild.render();
+		FreshGuild.init();
+		FreshGuild.onGuildInfoRequest = vi.fn();
+		FreshGuild.onRequestGuildEmblem = vi.fn();
+		FreshGuild.onRequestAccess = asked;
+		FreshGuild.ui.is = vi.fn(() => false);
+
+		FreshGuild.show();
+
+		expect(asked).toHaveBeenCalledTimes(1);
 	});
 });

@@ -663,23 +663,29 @@ function onGuildOwnInfo(pkt) {
 	GuildEngine.guild_id = pkt.GDID;
 
 	const wasMaster = Session.isGuildMaster;
+	// Whether the role we are comparing against was ever told to us, rather than
+	// just the value the session starts on.
+	const knewRole = Session.hasGuild;
 
 	Session.hasGuild = true;
 	Session.guildRight = pkt.right;
 	Session.isGuildMaster = !!pkt.isMaster;
 
-	// Which tabs open is per character and the server answers only when asked,
-	// so ask on every one of these - it is the first packet that arrives knowing
-	// who the player is.
-	GuildEngine.requestAccess();
-
-	// Only on a change. This packet is not rare: it also rides every emblem
-	// change and every member joining, and the repaint rebuilds the member rows,
-	// which would drop a guild master's queued grade edits under them.
+	// Only on a change. This packet is not rare - an emblem change sends it to the
+	// whole roster - and the repaint rebuilds the member rows, which would drop a
+	// guild master's queued grade edits under them.
 	// @see docs/reference/guild/member-view.md
 	if (Session.isGuildMaster !== wasMaster) {
+		// A real handover only: on the first of these there was no earlier role
+		// for the mask to have been answered under.
+		if (knewRole) {
+			Guild.invalidateAccess();
+		}
+
 		Guild.updateMasterView();
 	}
+
+	Guild.requestAccessIfUnknown();
 
 	if (pkt.GName) {
 		Session.guildName = pkt.GName;
