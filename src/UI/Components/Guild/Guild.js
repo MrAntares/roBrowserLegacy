@@ -41,6 +41,14 @@ import UIPreferences from 'Preferences/UI.js';
 const ACCESS_UNKNOWN = -1;
 
 /**
+ * The two menus whose answer carries the grade names, and which therefore drop
+ * whatever the members tab has queued
+ * @see docs/reference/guild/grade-change.md
+ */
+const TAB_MEMBERS = 1;
+const TAB_POSITIONS = 2;
+
+/**
  * The Info tab's cells, split by what an empty window shows in each
  * @see docs/reference/guild/member-view.md
  */
@@ -167,10 +175,33 @@ function _root(comp) {
 }
 
 /**
- * Helper: drop the queued grade changes
+ * Helper: drop the queued grade changes, and the marks that showed them
  */
 function _clearPendingPositions() {
 	_pendingPositions = {};
+
+	// Entering the map can clear a queue before the window has ever been built.
+	const root = _root(Guild);
+	if (!root) {
+		return;
+	}
+
+	for (const row of root.querySelectorAll('.content.members .MemberView.pending')) {
+		row.classList.remove('pending');
+	}
+}
+
+/**
+ * Helper: is a grade change waiting to be sent
+ *
+ * @return {boolean} true while the members tab holds an unsent edit
+ */
+function _hasPendingPositions() {
+	for (const _GID in _pendingPositions) {
+		return true;
+	}
+
+	return false;
 }
 
 /**
@@ -1159,6 +1190,13 @@ Guild.setMember = function setMember(member) {
 	}
 
 	view.setAttribute('data-index', i);
+
+	// A queued grade is otherwise invisible: the row shows the new value as if it
+	// were the server's, and Apply sits in the footer without saying which member
+	// it is waiting on.
+	// @see docs/reference/guild/grade-change.md
+	view.classList.toggle('pending', member.GID in _pendingPositions);
+
 	// The 0x0aa5 list carries no character name at all, and the client falls
 	// back to a placeholder rather than leaving the column blank.
 	const displayName = member.CharName || DB.getMessage(581, 'Nameless');
@@ -1204,6 +1242,10 @@ Guild.setMember = function setMember(member) {
 						evt.target.value = member.GPositionID;
 						return;
 					}
+
+					// Marked here rather than by a re-render: replacing the row
+					// would take the <select> away mid-event.
+					view.classList.add('pending');
 					_showApplyButton();
 				});
 
@@ -2056,7 +2098,14 @@ function onChangeTab(event) {
 		return false;
 	}
 
-	Guild.onGuildInfoRequest(tab);
+	// Fresh grade names and a fresh roster both drop the queue, and both answer a
+	// request this very gesture sends. Holding those two back while an edit waits
+	// is what lets it survive a tab - and leaves the rows still under a dropdown
+	// the user may have open. The other menus carry neither and go out as usual.
+	// @see docs/reference/guild/grade-change.md
+	if ((tab !== TAB_MEMBERS && tab !== TAB_POSITIONS) || !_hasPendingPositions()) {
+		Guild.onGuildInfoRequest(tab);
+	}
 
 	for (const btn of root.querySelectorAll('.tabs button')) {
 		btn.classList.remove('active');
@@ -2073,9 +2122,9 @@ function onChangeTab(event) {
 
 	_hideApplyButton();
 
-	// The positions tab holds its edits in its rows, so coming back to an edited
-	// one has to bring the way to apply them back too.
-	if (targetClass === 'positions' && _positionsDirty) {
+	// The positions tab holds its edits in its rows and the members tab in the
+	// queue, so coming back to either has to bring the way to apply them back too.
+	if ((targetClass === 'positions' && _positionsDirty) || (targetClass === 'members' && _hasPendingPositions())) {
 		_showApplyButton();
 	}
 

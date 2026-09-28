@@ -265,11 +265,13 @@ function wirePositions(memberList) {
 
 let sent;
 let sentPositions;
+let requestedMenus;
 const chat = [];
 
 beforeEach(() => {
 	sent = [];
 	sentPositions = [];
+	requestedMenus = [];
 	chat.length = 0;
 	mocks.chat = chat;
 	mocks.packetver.value = 20211103;
@@ -286,6 +288,7 @@ beforeEach(() => {
 
 	Guild.onChangeMemberPosRequest = list => sent.push(list);
 	Guild.onPositionUpdateRequest = list => sentPositions.push(list);
+	Guild.onGuildInfoRequest = type => requestedMenus.push(type);
 
 	// Only 0x166 feeds the grade list here: 0x160 never arrives unless the
 	// position tab was opened, and the dropdown has to work regardless.
@@ -1151,6 +1154,146 @@ describe('Guild position tab', () => {
 			clickApply();
 
 			expect(sent).toHaveLength(0);
+		});
+
+		/**
+		 * The members tab holds its edits in a queue rather than in its rows, and
+		 * fresh guild data drops that queue on purpose. Every refresh that used to
+		 * reach it was one this very gesture asked for, so the edit died on the way
+		 * out and the row went back to the server's grade with nothing said.
+		 */
+		describe('a queued grade survives a tab', () => {
+			beforeEach(() => {
+				// rathena answers menu 1 with the grade names and then the roster,
+				// and menu 2 with the grade names and then the grades. Both drop
+				// the queue by design, so a stub that only recorded the request
+				// would pass whether or not the request had been held back.
+				Guild.onGuildInfoRequest = type => {
+					requestedMenus.push(type);
+
+					if (type === 1) {
+						Guild.setPositionsName(POSITION_NAMES);
+						Guild.setMembers([member(MASTER), member(MARGARETHA), member(HOWARD)]);
+					} else if (type === 2) {
+						Guild.setPositionsName(POSITION_NAMES);
+						Guild.setPositions(POSITIONS, true);
+					}
+				};
+
+				clickTab('members');
+			});
+
+			it('holds back the two menus whose answer would drop it', () => {
+				changeGrade(MARGARETHA, 2);
+				requestedMenus.length = 0;
+
+				clickTab('positions');
+				clickTab('members');
+
+				expect(requestedMenus).toEqual([]);
+			});
+
+			it('still asks for the menus that would not', () => {
+				changeGrade(MARGARETHA, 2);
+				requestedMenus.length = 0;
+
+				clickTab('info');
+				clickTab('history');
+
+				expect(requestedMenus).toEqual([0, 4]);
+			});
+
+			it('asks for both again once the queue is empty', () => {
+				clickTab('positions');
+				requestedMenus.length = 0;
+
+				clickTab('members');
+
+				expect(requestedMenus).toEqual([1]);
+			});
+
+			it('is offered Apply again on the way back, and sends the edit', () => {
+				changeGrade(MARGARETHA, 2);
+
+				clickTab('info');
+				expect(applyIsOffered()).toBe(false);
+				clickTab('members');
+				expect(applyIsOffered()).toBe(true);
+
+				clickApply();
+
+				expect(wireEntries(sent[0])).toEqual([{ AID: MARGARETHA.AID, GID: MARGARETHA.GID, positionID: 2 }]);
+			});
+
+			it('keeps the dropdown on the grade the edit picked', () => {
+				changeGrade(MARGARETHA, 2);
+
+				clickTab('info');
+				clickTab('members');
+
+				expect(selectOf(MARGARETHA).value).toBe('2');
+			});
+		});
+
+		/**
+		 * Apply alone does not say which member is waiting, and the row shows the
+		 * picked grade as if the server had agreed to it. Declared deviation: the
+		 * client draws no such mark, and has no queue to mark.
+		 */
+		describe('an edited row is marked while its edit is unsent', () => {
+			beforeEach(() => {
+				Guild.onGuildInfoRequest = type => {
+					requestedMenus.push(type);
+
+					if (type === 1) {
+						Guild.setPositionsName(POSITION_NAMES);
+						Guild.setMembers([member(MASTER), member(MARGARETHA), member(HOWARD)]);
+					}
+				};
+
+				clickTab('members');
+			});
+
+			function rowOf(fixture) {
+				return selectOf(fixture).closest('tr');
+			}
+
+			it('marks the row the edit belongs to, and only that one', () => {
+				changeGrade(MARGARETHA, 2);
+
+				expect(rowOf(MARGARETHA).classList.contains('pending')).toBe(true);
+				expect(rowOf(HOWARD).classList.contains('pending')).toBe(false);
+			});
+
+			it('leaves a refused selection unmarked', () => {
+				// Grade 0 is the guild master's, which the dropdown never gives.
+				changeGrade(MARGARETHA, 0);
+
+				expect(rowOf(MARGARETHA).classList.contains('pending')).toBe(false);
+			});
+
+			it('survives the tab the edit survives', () => {
+				changeGrade(MARGARETHA, 2);
+
+				clickTab('info');
+				clickTab('members');
+
+				expect(rowOf(MARGARETHA).classList.contains('pending')).toBe(true);
+			});
+
+			it('is taken back by the acknowledgement', () => {
+				changeGrade(MARGARETHA, 2);
+				Guild.setMemberPositions([{ AID: MARGARETHA.AID, GID: MARGARETHA.GID, positionID: 2 }]);
+
+				expect(rowOf(MARGARETHA).classList.contains('pending')).toBe(false);
+			});
+
+			it('is taken back by closing the window', () => {
+				changeGrade(MARGARETHA, 2);
+				Guild.hide();
+
+				expect(rowOf(MARGARETHA).classList.contains('pending')).toBe(false);
+			});
 		});
 	});
 });

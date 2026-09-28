@@ -14,6 +14,13 @@ Nothing is sent on selection, and the whole roster is never sent.
 - **Flush on Apply, then clear.** Drop the queue whenever fresh guild data
   arrives (member list, grade names, the change acknowledgement) - the server
   is the truth and it has just overwritten what was pending.
+- **Do not ask for that data while something is queued.** Menus 1 and 2 are the
+  two whose answer carries grade names, and a tab click is what sends them. See
+  below.
+- **Closing the window is the cancel.** There is no reset button, in the client
+  or here, and `hide()` already drops the queue.
+- **Mark a row whose grade is queued**, or the only sign an edit exists is a
+  button in the footer. Declared deviation, below.
 - **Apply with an empty queue sends no packet at all.**
 - **Guard the selection, silently, leaving the dropdown on the known grade**:
   grade 0 refused, a row already at grade 0 refused, an unchanged grade
@@ -113,8 +120,43 @@ index at send time, so it is not stored server-side either. On the wire it is
 therefore always equal to the position id - which is why renumbering it
 client-side would look harmless right up until it was not.
 
+### The queue was destroyed by a refresh we asked for ourselves
+
+The rule above is right and it was nearly fatal, because of who was sending the
+data it drops on. Every tab click calls `onGuildInfoRequest` with the tab's own
+menu type, and rAthena answers **menu 1** with `clif_guild_positionnamelist` then
+`clif_guild_memberlist`, and **menu 2** with `clif_guild_positionnamelist` then
+`clif_guild_positioninfolist`. Both clearers - the roster and the grade names -
+hang off both menus.
+
+So a guild master who picked a grade and looked at the Positions tab lost the
+edit **on the way out**, to the menu-2 answer, not on the way back. The row went
+back to the server's grade, Apply was gone, and nothing had been sent or said.
+Every refresh in that story is one this client asked for: rAthena pushes neither
+list unprompted.
+
+**The fix is not to ask.** Menu 1 and menu 2 are held back while the queue is
+non-empty; the other four carry neither list and go out as before, so the Info,
+Skills, History and Notice tabs still refresh mid-edit. Nothing is ignored when
+it arrives - a genuine server push still drops the queue, by the rule above.
+Sending fewer requests also moves toward the client rather than away from it: it
+does not re-request on a tab click, as [member-view.md](member-view.md) notes for
+the skill byte.
+
+That leaves the rows standing still under an open `<select>`, which the dropdown
+path already had to protect by hand, and it makes Apply's return on the way back
+correct rather than decorative.
+
 ## Deviations
 
+- **An edited row is marked while its edit is unsent.** The client has no such
+  mark and no queue to mark: it sends on selection, so there is never a row whose
+  displayed grade the server has not agreed to. Here there is, for as long as the
+  master takes to press Apply, and the row shows the picked grade as though it had
+  been taken. The mark is a class on the row - a tinted background and an asterisk
+  before the name - dropped by the acknowledgement and by closing the window, the
+  same two moments that drop the queue itself. Passes on *less buggy*: without it
+  the only evidence an edit exists is a button in the footer, which names no row.
 - **No clamp at 50.** That is the 2022 client's hardcoded limit and rAthena's
   default, but `guild_exp_limit` is per-server config and goes up to 99.
   Refusing 70 on a server that accepts it would be our bug, not the server's.

@@ -497,6 +497,17 @@
 #Guild .content.members tr.online td {
 	background-color: #e4ffe2;
 }
+/* A grade picked but not yet sent. Declared deviation: the client has no mark
+ * for it, and without one the row reads as if the server had agreed.
+ * See docs/reference/guild/grade-change.md */
+#Guild .content.members tr.pending td {
+	background-color: #fff4d6;
+}
+#Guild .content.members tr.pending .name .value::before {
+	content: '*';
+	margin-right: 2px;
+	color: #b06a00;
+}
 
 /*
  * The note column belongs to the 0x0154 era: that list carries an intro, the
