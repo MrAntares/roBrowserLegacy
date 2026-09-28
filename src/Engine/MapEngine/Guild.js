@@ -309,6 +309,15 @@ class GuildEngine {
 	}
 
 	/**
+	 * Empty the guild window for the character now entering the map
+	 * @see docs/reference/guild/member-view.md
+	 */
+	static resetForNewCharacter() {
+		Session.isGuildMaster = false;
+		Guild.reset();
+	}
+
+	/**
 	 * Ask the server to create a guild
 	 *
 	 * @param {string} guild name

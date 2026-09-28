@@ -461,3 +461,28 @@ describe('a member info request that goes unanswered', () => {
 		expect(mocks.chat).not.toHaveBeenCalled();
 	});
 });
+
+/**
+ * A one-line delegate rather than the two statements inline in MapEngine.js: that
+ * module has no test file and building one means mocking ~50 imports, so the call
+ * site was the one uncovered hunk a coverage sweep found. It is reached from
+ * ZC_ACCEPT_ENTER.
+ */
+describe('entering the map as another character', () => {
+	it('empties the guild window and drops the flag', () => {
+		Session.isGuildMaster = true;
+
+		GuildEngine.resetForNewCharacter();
+
+		expect(Session.isGuildMaster).toBe(false);
+		expect(mocks.guild.reset).toHaveBeenCalled();
+	});
+});
+
+/**
+ * The guild window is a singleton that outlives the guild. All three exits
+ * already close it; closing is not emptying, so whoever opens it next would find
+ * the dead guild's roster, notice and access mask still in it.
+ *
+ * See docs/reference/guild/member-view.md
+ */
