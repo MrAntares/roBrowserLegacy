@@ -13543,6 +13543,20 @@ PACKET.CZ.CLOSE_UI_ENCHANT.prototype.build = function () {
 	return pkt_buf;
 };
 
+// 0xa82
+PACKET.ZC.ACK_BAN_GUILD_DELNAME = function PACKET_ZC_ACK_BAN_GUILD_DELNAME(fp, end) {
+	this.GID = fp.readULong();
+	this.reasonDesc = fp.readString(40);
+};
+PACKET.ZC.ACK_BAN_GUILD_DELNAME.size = 46;
+
+// 0xa83
+PACKET.ZC.ACK_LEAVE_GUILD_DELNAME = function PACKET_ZC_ACK_LEAVE_GUILD_DELNAME(fp, end) {
+	this.GID = fp.readULong();
+	this.reasonDesc = fp.readString(40);
+};
+PACKET.ZC.ACK_LEAVE_GUILD_DELNAME.size = 46;
+
 // 0xa84
 PACKET.ZC.GUILD_INFO3 = function PACKET_ZC_GUILD_INFO3(fp, end) {
 	this.GDID = fp.readLong();

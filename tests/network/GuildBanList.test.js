@@ -145,3 +145,50 @@ describe('guild expulsion list', () => {
 		});
 	});
 });
+
+/**
+ * The live departure notices of the same era. rAthena swaps both at
+ * PACKETVER_MAIN 20161019 / RE 20160921 for a character id and no name, so these
+ * two are what a modern server actually sends when somebody leaves or is thrown
+ * out - the list above being the Expel History tab's own packet, not these.
+ * @see docs/reference/guild/member-view.md
+ */
+describe('guild departure notices that carry a character id', () => {
+	function buildDeparture(GID, reason) {
+		const buf = new ArrayBuffer(4 + REASON_LENGTH);
+		const view = new DataView(buf);
+		view.setUint32(0, GID, true);
+		writeString(view, 4, reason, REASON_LENGTH);
+		return buf;
+	}
+
+	for (const [label, Struct] of [
+		['ZC_ACK_BAN_GUILD_DELNAME (0x0a82)', PACKET.ZC.ACK_BAN_GUILD_DELNAME],
+		['ZC_ACK_LEAVE_GUILD_DELNAME (0x0a83)', PACKET.ZC.ACK_LEAVE_GUILD_DELNAME]
+	]) {
+		describe(label, () => {
+			it('declares the size the server sends, header included', () => {
+				expect(Struct.size).toBe(2 + 4 + REASON_LENGTH);
+			});
+
+			it('reads the character id and the reason', () => {
+				const pkt = parse(Struct, buildDeparture(150002, 'Rekenber spy'));
+
+				expect(pkt.GID).toBe(150002);
+				expect(pkt.reasonDesc).toBe('Rekenber spy');
+			});
+
+			// The id is unsigned on the wire and rAthena's own column is unsigned.
+			// Read as signed, a high char id comes back negative and matches nobody.
+			it('reads a high character id unsigned', () => {
+				const pkt = parse(Struct, buildDeparture(0xf0000001, 'bye'));
+
+				expect(pkt.GID).toBe(0xf0000001);
+			});
+		});
+	}
+
+	it('gives the two opcodes their own structure, or one of them is dropped', () => {
+		expect(PACKET.ZC.ACK_BAN_GUILD_DELNAME).not.toBe(PACKET.ZC.ACK_LEAVE_GUILD_DELNAME);
+	});
+});

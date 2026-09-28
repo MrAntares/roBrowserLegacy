@@ -105,7 +105,9 @@ class GuildEngine {
 		Network.hookPacket(PACKET.ZC.UPDATE_CHARSTAT2, onGuildMemberStatus);
 		Network.hookPacket(PACKET.ZC.ACK_BAN_GUILD, onGuildMemberExpulsion);
 		Network.hookPacket(PACKET.ZC.ACK_BAN_GUILD_SSO, onGuildMemberExpulsion);
+		Network.hookPacket(PACKET.ZC.ACK_BAN_GUILD_DELNAME, onGuildMemberExpulsionByID);
 		Network.hookPacket(PACKET.ZC.ACK_LEAVE_GUILD, onGuildMemberLeave);
+		Network.hookPacket(PACKET.ZC.ACK_LEAVE_GUILD_DELNAME, onGuildMemberLeaveByID);
 		Network.hookPacket(PACKET.ZC.DELETE_RELATED_GUILD, onGuildAllianceDeleteAck);
 		Network.hookPacket(PACKET.ZC.ADD_RELATED_GUILD, onGuildAllianceAdd);
 		Network.hookPacket(PACKET.ZC.REQ_ALLY_GUILD, onGuildAskForAlliance);
@@ -1100,71 +1102,84 @@ function onGuildMemberStatus(pkt) {
 }
 
 /**
- * Event occured when a player got expel from the guild
+ * Announce a member's departure, and empty the window when it is ours
  *
- * @param {object} pkt - PACKET.ZC.ACK_BAN_GUILD_SSO
+ * The server sends nothing else that would take the window down, so this is
+ * where it happens.
+ *
+ * @param {string} charName - who left
+ * @param {string} reasonDesc - the reason the server gave
+ * @param {boolean} isSelf - whether the member who left is us
+ * @param {number} announceID - message for the departure line
+ * @param {number} reasonID - message for the reason line
  */
-function onGuildMemberExpulsion(pkt) {
-	// %s has been expelled from our guild.
-	// Expulsion Reason: %s
+function reportDeparture(charName, reasonDesc, isSelf, announceID, reasonID) {
 	ChatBox.addText(
-		DB.getMessage(370).replace('%s', pkt.charName),
+		DB.getMessage(announceID).replace('%s', charName),
 		ChatBox.TYPE.GUILD,
 		ChatBox.FILTER.GUILD,
 		'#FFFF00'
 	);
 	ChatBox.addText(
-		DB.getMessage(371).replace('%s', pkt.reasonDesc),
+		DB.getMessage(reasonID).replace('%s', reasonDesc),
 		ChatBox.TYPE.GUILD,
 		ChatBox.FILTER.GUILD,
 		'#FFFF00'
 	);
 
-	// Seems like the server doesn't send other informations
-	// to remove the UI
-	if (pkt.charName === Session.Entity.display.name) {
-		Guild.hide();
-		Session.hasGuild = false;
-		Session.guildName = '';
-		Session.isGuildMaster = false;
-		Session.guildPermission = 0;
-		Session.Entity.GUID = 0;
-		Guild.reset();
+	if (!isSelf) {
+		return;
 	}
+
+	Guild.hide();
+	Session.hasGuild = false;
+	Session.guildName = '';
+	Session.isGuildMaster = false;
+	Session.guildPermission = 0;
+	Session.Entity.GUID = 0;
+	Guild.reset();
 }
 
 /**
  * Event occured when a player got expel from the guild
+ *
+ * @param {object} pkt - PACKET.ZC.ACK_BAN_GUILD | PACKET.ZC.ACK_BAN_GUILD_SSO
+ */
+function onGuildMemberExpulsion(pkt) {
+	// %s has been expelled from our guild.
+	// Expulsion Reason: %s
+	reportDeparture(pkt.charName, pkt.reasonDesc, pkt.charName === Session.Entity.display.name, 370, 371);
+}
+
+/**
+ * Event occured when a player left the guild
  *
  * @param {object} pkt - PACKET.ZC.ACK_LEAVE_GUILD
  */
 function onGuildMemberLeave(pkt) {
 	// %s has withdrawn from the guild
 	// Secession Reason: %s
-	ChatBox.addText(
-		DB.getMessage(364).replace('%s', pkt.charName),
-		ChatBox.TYPE.GUILD,
-		ChatBox.FILTER.GUILD,
-		'#FFFF00'
-	);
-	ChatBox.addText(
-		DB.getMessage(365).replace('%s', pkt.reasonDesc),
-		ChatBox.TYPE.GUILD,
-		ChatBox.FILTER.GUILD,
-		'#FFFF00'
-	);
+	reportDeparture(pkt.charName, pkt.reasonDesc, pkt.charName === Session.Entity.display.name, 364, 365);
+}
 
-	// Seems like the server doesn't send other informations
-	// to remove the UI
-	if (pkt.charName === Session.Entity.display.name) {
-		Guild.hide();
-		Session.hasGuild = false;
-		Session.guildName = '';
-		Session.isGuildMaster = false;
-		Session.guildPermission = 0;
-		Session.Entity.GUID = 0;
-		Guild.reset();
-	}
+/**
+ * The same two departures, from the era that sends a character id and no name
+ *
+ * Session.GID is the character id; Session.Entity.GID is the account's, and
+ * matching on that one would never fire.
+ * @see docs/reference/guild/member-view.md
+ *
+ * @param {object} pkt - PACKET.ZC.ACK_BAN_GUILD_DELNAME
+ */
+function onGuildMemberExpulsionByID(pkt) {
+	reportDeparture(Guild.getMemberName(pkt.GID), pkt.reasonDesc, pkt.GID === Session.GID, 370, 371);
+}
+
+/**
+ * @param {object} pkt - PACKET.ZC.ACK_LEAVE_GUILD_DELNAME
+ */
+function onGuildMemberLeaveByID(pkt) {
+	reportDeparture(Guild.getMemberName(pkt.GID), pkt.reasonDesc, pkt.GID === Session.GID, 364, 365);
 }
 
 /**

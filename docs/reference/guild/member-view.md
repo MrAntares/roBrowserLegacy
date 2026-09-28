@@ -448,15 +448,24 @@ having been cut back to the house limit.
   behind it is read-only for a member with the send gated twice over. When the
   reply lands, a member left standing on a refused tab is moved to the first one.
 
-- **Being expelled from a guild, or leaving one, does not empty the window on any
-  packetver at or above 2016.** Not this note's subject and not introduced here,
-  but it is where the reset added for those two paths goes unused. rAthena swaps
-  both packets at `PACKETVER_MAIN 20161019` / `RE 20160921` for forms that carry a
-  **character id instead of a name**, and this port registers only the older
-  opcodes - so on a modern server the packet is read and dropped, the departure
-  chat line never prints, and the handler that would reset never runs. Below that
-  boundary both work. Closing it means registering the two newer opcodes and
-  matching on the id rather than the name.
+- **Being expelled from a guild, or leaving one, empties it on every packetver -
+  which took two more opcodes.** rAthena swaps both packets at
+  `PACKETVER_MAIN 20161019` / `RE 20160921` for forms that carry a **character id
+  instead of a name**: `ZC_ACK_LEAVE_GUILD_DELNAME` (`0x0a83`) and
+  `ZC_ACK_BAN_GUILD_DELNAME` (`0x0a82`), both `<CID>.L <reason>.40B`. This port
+  registered only the older opcodes, so on a modern server the packet was read and
+  dropped: no departure chat line, and the handler that resets never ran. Both are
+  registered now and both eras share one reporting path.
+
+  **The id to match is `Session.GID`, not `Session.Entity.GID`.** The first is the
+  character id, which is what the packet carries and what the member list is keyed
+  by; the second is set from the account id and would never equal it, so the
+  comparison would be false for the very character who left.
+
+  **The name comes back off the roster**, which is where the client reads it from
+  too - the packet has none. A roster generation that carries no name, and a member
+  already dropped from the list, both fall back to the same placeholder the member
+  list itself draws.
 
 ## See also
 

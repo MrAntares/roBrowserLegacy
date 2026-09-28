@@ -1300,6 +1300,31 @@ Guild.setMember = function setMember(member) {
 	}
 };
 
+/**
+ * The name the roster holds for a character id
+ *
+ * The departure packets of the id-only era carry no name, and the roster is
+ * where the client reads it back from.
+ * @see docs/reference/guild/member-view.md
+ *
+ * @param {number} GID - character id
+ * @return {string} the member's name, or the placeholder the list itself uses
+ */
+Guild.getMemberName = function getMemberName(GID) {
+	let name = '';
+
+	for (let i = 0, count = _members.length; i < count; ++i) {
+		if (_members[i].GID === GID) {
+			name = _members[i].CharName;
+			break;
+		}
+	}
+
+	// A roster generation that carries no name, or a member already dropped from
+	// it, both land here.
+	return name || DB.getMessage(581, 'Nameless');
+};
+
 Guild.updateMemberStatus = function updateMemberStatus(member) {
 	let i, count;
 	let online = 0;

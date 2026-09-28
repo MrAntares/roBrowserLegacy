@@ -625,4 +625,58 @@ describe('leaving a guild empties the window', () => {
 			expect(Session.hasGuild).toBe(true);
 		});
 	}
+
+	/**
+	 * rAthena swaps both packets at PACKETVER_MAIN 20161019 / RE 20160921 for forms
+	 * that carry a character id and no name. Registering only the older opcodes
+	 * left every departure on a modern server read and dropped: no chat line, and
+	 * a window that stayed on the guild we had just been thrown out of.
+	 * @see docs/reference/guild/member-view.md
+	 */
+	describe('on the era that sends a character id instead of a name', () => {
+		beforeEach(() => {
+			Session.GID = 150000;
+			mocks.guild.getMemberName = vi.fn(() => 'Eremes');
+		});
+
+		for (const [label, struct] of [
+			['expelled', PACKET.ZC.ACK_BAN_GUILD_DELNAME],
+			['left', PACKET.ZC.ACK_LEAVE_GUILD_DELNAME]
+		]) {
+			it(`empties the window when we are the one ${label}`, () => {
+				deliver(struct, { GID: 150000, reasonDesc: 'bye' });
+
+				expect(mocks.guild.reset).toHaveBeenCalled();
+				expect(Session.hasGuild).toBe(false);
+			});
+
+			it(`leaves it alone when somebody else ${label}`, () => {
+				deliver(struct, { GID: 150001, reasonDesc: 'bye' });
+
+				expect(mocks.guild.reset).not.toHaveBeenCalled();
+				expect(Session.hasGuild).toBe(true);
+			});
+		}
+
+		// Session.Entity.GID is the account's, and the two are different numbers.
+		// Matching on it would never fire on the character who actually left.
+		it('matches the character id, not the account one', () => {
+			Session.Entity.GID = 2000000;
+
+			deliver(PACKET.ZC.ACK_LEAVE_GUILD_DELNAME, { GID: 2000000, reasonDesc: 'bye' });
+
+			expect(mocks.guild.reset).not.toHaveBeenCalled();
+		});
+
+		// The packet has no name in it, and the roster is where the client reads
+		// one back from.
+		it('names the departing member from the roster', () => {
+			mocks.messages[364] = '%s has withdrawn from the guild';
+
+			deliver(PACKET.ZC.ACK_LEAVE_GUILD_DELNAME, { GID: 150001, reasonDesc: 'bye' });
+
+			expect(mocks.guild.getMemberName).toHaveBeenCalledWith(150001);
+			expect(mocks.chat.mock.calls[0][0]).toBe('Eremes has withdrawn from the guild');
+		});
+	});
 });
