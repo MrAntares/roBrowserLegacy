@@ -388,4 +388,35 @@ describe('Guild info tab', () => {
 			expect(info('.members .online').textContent).toBe('1');
 		});
 	});
+
+	// Handing leadership over sends basic info first and the belonging packet
+	// third, and only the third carries the role. Taking the flag from the name
+	// in basic info left the belonging handler comparing a value a sibling
+	// packet had already moved under it, so its "only on a change" guard never
+	// fired for the character being promoted: that client kept the member's
+	// Positions and Announcement panes, kept the member's tab mask, and never
+	// re-asked for its own. Demotion escaped it because the name only ever set
+	// the flag, never cleared it.
+	// @see docs/reference/guild/member-view.md
+	describe('who decides the guild-master flag', () => {
+		it('leaves it to the packet that carries it, even when basic info names us', () => {
+			mocks.session.isGuildMaster = false;
+
+			// masterName is our own character here - the shape that used to set it.
+			Guild.setGuildInformations(guildInfo({ masterName: 'Master' }));
+
+			expect(mocks.session.isGuildMaster).toBe(false);
+		});
+
+		it('still takes the rest of the session from basic info', () => {
+			mocks.session.hasGuild = false;
+			mocks.session.guildName = '';
+
+			Guild.setGuildInformations(guildInfo({ guildname: 'ClaudeGuild', GDID: 150000 }));
+
+			expect(mocks.session.hasGuild).toBe(true);
+			expect(mocks.session.guildName).toBe('ClaudeGuild');
+			expect(mocks.session.Entity.GUID).toBe(150000);
+		});
+	});
 });

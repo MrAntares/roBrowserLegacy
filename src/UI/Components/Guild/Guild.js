@@ -2470,14 +2470,20 @@ Guild.onRequestMemberExpel = function () {};
 Guild.onRequestDeleteRelation = function () {};
 Guild.onRequestAccess = function () {};
 
+/**
+ * Take from the guild's basic information what belongs to the session
+ *
+ * The guild-master flag is deliberately not set here. It is carried explicitly
+ * by the belonging packet, which the server sends after this one on a handover,
+ * and a second writer would leave that handler comparing a value already moved
+ * under it.
+ * @see docs/reference/guild/member-view.md
+ */
 Guild.updateSession = function (info) {
 	Session.hasGuild = true;
 	Session.guildName = info.guildname || '';
 	Session.Entity.GUID = info.GDID;
 	Session.Entity.GEmblemVer = info.emblemVersion;
-	if (Session.Entity.display.name === info.masterName) {
-		Session.isGuildMaster = true;
-	}
 };
 
 Guild.onRequestGuildEmblem = function () {};
