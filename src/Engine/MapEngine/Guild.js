@@ -974,6 +974,10 @@ function onGuildDestroy(pkt) {
 			Session.isGuildMaster = false;
 			Session.guildRight = 0;
 			Session.Entity.GUID = 0;
+			// After the flags, never before: the window is a singleton and reset
+			// repaints from them.
+			// @see docs/reference/guild/member-view.md
+			Guild.reset();
 			ChatBox.addText(DB.getMessage(400), ChatBox.TYPE.BLUE, ChatBox.FILTER.GUILD);
 			break;
 
@@ -1095,6 +1099,7 @@ function onGuildMemberExpulsion(pkt) {
 		Session.isGuildMaster = false;
 		Session.guildRight = 0;
 		Session.Entity.GUID = 0;
+		Guild.reset();
 	}
 }
 
@@ -1128,6 +1133,7 @@ function onGuildMemberLeave(pkt) {
 		Session.isGuildMaster = false;
 		Session.guildRight = 0;
 		Session.Entity.GUID = 0;
+		Guild.reset();
 	}
 }
 

@@ -51,7 +51,7 @@ vi.mock('UI/Components/ChatBox/ChatBox.js', () => ({
 }));
 
 vi.mock('UI/Components/Guild/Guild.js', () => ({ default: mocks.guild }));
-vi.mock('UI/Components/GuildCompanion/GuildCompanion.js', () => ({ default: {} }));
+vi.mock('UI/Components/GuildCompanion/GuildCompanion.js', () => ({ default: { closeDisband: vi.fn() } }));
 vi.mock('UI/UIManager.js', () => ({ default: { showPromptBox: vi.fn(), showMessageBox: vi.fn() } }));
 vi.mock('UI/Components/MiniMap/MiniMap.js', () => ({ default: { addGuildMemberMarker: vi.fn() } }));
 vi.mock('Core/Configs.js', () => ({ default: { get: (_k, d) => d } }));
@@ -486,3 +486,73 @@ describe('entering the map as another character', () => {
  *
  * See docs/reference/guild/member-view.md
  */
+describe('leaving a guild empties the window', () => {
+	beforeEach(() => {
+		Session.Entity.display = { name: 'PlantTester' };
+		Session.hasGuild = true;
+	});
+
+	it('empties it when the guild is disbanded', () => {
+		deliver(PACKET.ZC.ACK_DISORGANIZE_GUILD_RESULT, { reason: 0 });
+
+		expect(mocks.guild.reset).toHaveBeenCalled();
+		expect(Session.hasGuild).toBe(false);
+	});
+
+	// Reasons 1 and 2 are refusals: the guild is still there.
+	it('leaves it alone when the disband was refused', () => {
+		deliver(PACKET.ZC.ACK_DISORGANIZE_GUILD_RESULT, { reason: 2 });
+
+		expect(mocks.guild.reset).not.toHaveBeenCalled();
+		expect(Session.hasGuild).toBe(true);
+	});
+
+	// Ordering, not just occurrence: reset repaints, and the notice pane it
+	// repaints branches on the guild-master flag. Emptying the window before the
+	// flag is cleared leaves a departed master looking at their own edit boxes.
+	for (const [label, struct, fields] of [
+		['disbanded', PACKET.ZC.ACK_DISORGANIZE_GUILD_RESULT, { reason: 0 }],
+		['expelled', PACKET.ZC.ACK_BAN_GUILD, { charName: 'PlantTester', reasonDesc: 'bye' }],
+		['left', PACKET.ZC.ACK_LEAVE_GUILD, { charName: 'PlantTester', reasonDesc: 'bye' }]
+	]) {
+		it(`clears the flag before emptying, having been ${label}`, () => {
+			Session.isGuildMaster = true;
+			// The FIRST reset, not the last: a second call after the flags would
+			// otherwise paper over a first one before them.
+			const flagPerCall = [];
+			mocks.guild.reset.mockImplementation(() => {
+				flagPerCall.push(Session.isGuildMaster);
+			});
+
+			deliver(struct, fields);
+
+			expect(flagPerCall).toEqual([false]);
+		});
+	}
+
+	it('empties it when we are the one expelled', () => {
+		deliver(PACKET.ZC.ACK_BAN_GUILD, { charName: 'PlantTester', reasonDesc: 'bye' });
+
+		expect(mocks.guild.reset).toHaveBeenCalled();
+	});
+
+	it('empties it when we are the one who left', () => {
+		deliver(PACKET.ZC.ACK_LEAVE_GUILD, { charName: 'PlantTester', reasonDesc: 'bye' });
+
+		expect(mocks.guild.reset).toHaveBeenCalled();
+	});
+
+	// Both packets are sent to the whole roster, so the common case is somebody
+	// else's name. Emptying on those would clear the window on every departure.
+	for (const [label, struct] of [
+		['expelled', PACKET.ZC.ACK_BAN_GUILD],
+		['left', PACKET.ZC.ACK_LEAVE_GUILD]
+	]) {
+		it(`leaves it alone when somebody else ${label}`, () => {
+			deliver(struct, { charName: 'ClaudeTestB', reasonDesc: 'bye' });
+
+			expect(mocks.guild.reset).not.toHaveBeenCalled();
+			expect(Session.hasGuild).toBe(true);
+		});
+	}
+});
