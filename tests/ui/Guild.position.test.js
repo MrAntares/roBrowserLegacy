@@ -827,6 +827,12 @@ describe('Guild position tab', () => {
 			// client's own format rather than a choice made here.
 			expect(row.querySelector('.tax .value').textContent).toBe('20 %');
 
+			// Only the name can outrun its cell - the guild master's field was
+			// capped at 75px and text is not - so it is the only one offered on
+			// hover. `20 %` cannot clip, and a tooltip repeating it is noise.
+			expect(row.querySelector('.title .value').title).toBe('Officer');
+			expect(row.querySelector('.tax .value').title).toBe('');
+
 			expect(row.querySelector('.title input')).toBeNull();
 			expect(row.querySelector('.tax input')).toBeNull();
 		});

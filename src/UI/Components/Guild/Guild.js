@@ -194,13 +194,13 @@ function _hideApplyButton() {
 
 /**
  * Helper: put a value where the guild master gets a control
- *
  * @see docs/reference/guild/member-view.md
  *
  * @param {HTMLElement} cell - the cell to fill
  * @param {string} text - the value to show
+ * @param {boolean} [clips] - the cell ellipsises, so offer the value on hover
  */
-function _asValue(cell, text) {
+function _asValue(cell, text, clips) {
 	if (!cell) {
 		return;
 	}
@@ -208,7 +208,9 @@ function _asValue(cell, text) {
 	const value = document.createElement('span');
 	value.className = 'value';
 	value.textContent = text;
-	value.title = text;
+	if (clips) {
+		value.title = text;
+	}
 
 	cell.innerHTML = '';
 	cell.appendChild(value);
@@ -729,6 +731,7 @@ Guild.reset = function reset() {
 	_skills.length = 0;
 	_skpoints = 0;
 	_guildAccess = ACCESS_UNKNOWN;
+	_hasMemo = false;
 	_sentPayRates = {};
 	_resetPositionsTab();
 
@@ -1477,8 +1480,9 @@ Guild.updatePositionView = function updatePositionView() {
 			}
 		} else {
 			// The unit rides in the member's own string rather than beside the
-			// field, which is where the guild master's sits.
-			_asValue(view.querySelector('.title'), rank.posName);
+			// field, which is where the guild master's sits. Only the name can
+			// outgrow its cell.
+			_asValue(view.querySelector('.title'), rank.posName, true);
 			_asValue(view.querySelector('.tax'), `${rank.payRate} %`);
 		}
 

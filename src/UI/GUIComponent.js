@@ -70,6 +70,11 @@ const MouseMode = Object.freeze({
 });
 
 /**
+ * A clickable a component has marked as refusing the click
+ */
+const DENIED_SELECTOR = '.denied';
+
+/**
  * CSS properties that are unitless (don't need 'px')
  */
 const CSS_NUMBER = {
@@ -776,7 +781,8 @@ class GUIComponent {
 		// refusal cursor instead of the click one. CSS cannot answer this: the
 		// custom cursor forces `cursor: none` across the window, so `not-allowed`
 		// only shows when it is switched off.
-		const cursorFor = target => (target.closest('.denied') ? _Cursor?.ACTION?.NOWALK : _Cursor?.ACTION?.CLICK) ?? 0;
+		const cursorFor = target =>
+			(target.closest(DENIED_SELECTOR) ? _Cursor?.ACTION?.NOWALK : _Cursor?.ACTION?.CLICK) ?? 0;
 
 		container.addEventListener('mouseover', e => {
 			const target = e.target;
@@ -813,7 +819,7 @@ class GUIComponent {
 					_hovering = true;
 				}
 				// No press animation on a refusal - there is nothing being pressed.
-				if (target.closest('.denied')) {
+				if (target.closest(DENIED_SELECTOR)) {
 					_Cursor?.setType(_Cursor?.ACTION?.NOWALK ?? 0);
 				} else {
 					_Cursor?.setType(_Cursor?.ACTION?.CLICK ?? 0, true, 1);
