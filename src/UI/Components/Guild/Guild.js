@@ -754,18 +754,13 @@ Guild.reset = function reset() {
 	// clearing it by hand then repainting would do.
 	Guild.setNotice('', '');
 
-	// Back to a window that has never been opened. `show()` asks for the access
-	// mask only when no tab is active, so leaving one would strand a window that
-	// was closed through the change; the mask itself is asked for again from the
-	// packet that names the new character, which is the first moment the server
-	// can answer it correctly.
-	//
-	// The marks go too rather than being recomputed: against zero every tab but
-	// the first reads as refused, and marking them so would grey the strip on
-	// the way into the map, before the server has said anything.
+	// Back to a window that has never been opened. The marks are recomputed off
+	// the unknown mask rather than stripped by hand, so the class, the cursor and
+	// the tab order cannot drift apart.
 	for (const btn of root.querySelectorAll('.tabs button')) {
-		btn.classList.remove('active', 'denied');
+		btn.classList.remove('active');
 	}
+	updateTabAccess(root);
 	for (const content of root.querySelectorAll('.content')) {
 		content.style.display = 'none';
 	}
@@ -1788,7 +1783,7 @@ Guild.setNotice = function setNotice(subject, notice) {
 	_notice.subject = subject;
 	_notice.body = notice;
 	Guild.updateNoticeView();
-	_writeNotice(_root(this).querySelector('.content.notice'));
+	_writeNotice(_root(this)?.querySelector('.content.notice'));
 };
 
 /**
@@ -1814,13 +1809,15 @@ function _writeNotice(content) {
 /**
  * Draw the Notice tab for whoever is looking at it
  *
- * A member gets the text and no field: the server drops their notice without
- * answering it, so a field would take an edit nothing ever confirms or refuses.
- *
+ * A member gets the text and no field.
  * @see docs/reference/guild/member-view.md
  */
 Guild.updateNoticeView = function updateNoticeView() {
 	const root = _root(this);
+	if (!root) {
+		return;
+	}
+
 	const content = root.querySelector('.content.notice');
 	if (!content || !_noticeSubjectTemplate || !_noticeBodyTemplate) {
 		return;

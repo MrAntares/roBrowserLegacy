@@ -340,3 +340,30 @@ describe('Guild notice tab', () => {
 		});
 	});
 });
+
+/**
+ * Both entry points are reached from packets, and a packet can arrive before the
+ * window has ever been built - the component is only mounted when it is first
+ * opened, while entering the map is not.
+ */
+describe('Guild notice tab, before the window exists', () => {
+	beforeEach(() => {
+		document.body.innerHTML = '';
+		Guild._host = undefined;
+		Guild._shadow = undefined;
+	});
+
+	it('takes a notice without a window to put it in', () => {
+		expect(() => Guild.setNotice('Subject', 'Body')).not.toThrow();
+	});
+
+	it('redraws nothing rather than throwing', () => {
+		expect(() => Guild.updateNoticeView()).not.toThrow();
+	});
+
+	// The widest of the three: the flag's packet arrives on entering the map,
+	// which is before the window is ever opened.
+	it('takes a flag change without a window to repaint', () => {
+		expect(() => Guild.updateMasterView()).not.toThrow();
+	});
+});
