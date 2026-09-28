@@ -66,8 +66,8 @@ describe('Renderer/Entity/EntityDisplay', () => {
 		const display = await makeDisplay(1);
 		const img = {};
 
-		display.name = 'Tester';
-		display.guild_name = 'ClaudeGuild';
+		display.name = 'Kathryne';
+		display.guild_name = 'Valhalla';
 		display.setEmblem(img);
 		display.update(display.STYLE.DEFAULT);
 
@@ -81,8 +81,8 @@ describe('Renderer/Entity/EntityDisplay', () => {
 		const display = await makeDisplay(2);
 		const img = {};
 
-		display.name = 'Tester';
-		display.guild_name = 'ClaudeGuild';
+		display.name = 'Kathryne';
+		display.guild_name = 'Valhalla';
 		display.setEmblem(img);
 		display.update(display.STYLE.DEFAULT);
 
@@ -94,7 +94,7 @@ describe('Renderer/Entity/EntityDisplay', () => {
 		const display = await makeDisplay(1);
 		const img = {};
 
-		display.name = 'Tester';
+		display.name = 'Kathryne';
 		display.setEmblem(img);
 		display.update(display.STYLE.DEFAULT);
 
@@ -106,8 +106,8 @@ describe('Renderer/Entity/EntityDisplay', () => {
 		const display = await makeDisplay(2);
 		const gif = gifSheet();
 
-		display.name = 'Tester';
-		display.guild_name = 'ClaudeGuild';
+		display.name = 'Kathryne';
+		display.guild_name = 'Valhalla';
 		display.setEmblem({}, gif);
 		display.update(display.STYLE.DEFAULT);
 		expect(display.ctx.drawImage).toHaveBeenCalledWith(gif, 0, 0, 24, 24, 0, 12, 48, 48);
@@ -122,8 +122,8 @@ describe('Renderer/Entity/EntityDisplay', () => {
 	it('styles the canvas back to CSS pixels', async () => {
 		const display = await makeDisplay(2);
 
-		display.name = 'Tester';
-		display.guild_name = 'ClaudeGuild';
+		display.name = 'Kathryne';
+		display.guild_name = 'Valhalla';
 		display.setEmblem({});
 		display.update(display.STYLE.DEFAULT);
 		display.render(IDENTITY);

@@ -133,8 +133,8 @@ const PACKET = (await import('Network/PacketStructure.js')).default;
 const Configs = (await import('Core/Configs.js')).default;
 
 const MASTER = { AID: 2000000, GID: 150000, GPositionID: 0, CharName: 'Master' };
-const ALICE = { AID: 2000001, GID: 150001, GPositionID: 1, CharName: 'Alice' };
-const BOB = { AID: 2000002, GID: 150002, GPositionID: 1, CharName: 'Bob' };
+const MARGARETHA = { AID: 2000001, GID: 150001, GPositionID: 1, CharName: 'Margaretha' };
+const HOWARD = { AID: 2000002, GID: 150002, GPositionID: 1, CharName: 'Howard' };
 
 function member(fixture) {
 	return {
@@ -294,38 +294,38 @@ beforeEach(() => {
 		{ positionID: 1, posName: 'Member' },
 		{ positionID: 2, posName: 'Officer' }
 	]);
-	Guild.setMembers([member(MASTER), member(ALICE), member(BOB)]);
+	Guild.setMembers([member(MASTER), member(MARGARETHA), member(HOWARD)]);
 	showMembersTab();
 });
 
 describe('Guild member position', () => {
 	it('sends one entry for one edited member', () => {
-		changeGrade(ALICE, 2);
+		changeGrade(MARGARETHA, 2);
 		clickApply();
 
 		expect(sent).toHaveLength(1);
-		expect(wireEntries(sent[0])).toEqual([{ AID: ALICE.AID, GID: ALICE.GID, positionID: 2 }]);
+		expect(wireEntries(sent[0])).toEqual([{ AID: MARGARETHA.AID, GID: MARGARETHA.GID, positionID: 2 }]);
 	});
 
 	it('batches several edits into a single packet, untouched members excluded', () => {
-		changeGrade(ALICE, 2);
-		changeGrade(BOB, 2);
+		changeGrade(MARGARETHA, 2);
+		changeGrade(HOWARD, 2);
 		clickApply();
 
 		expect(sent).toHaveLength(1);
 		expect(wireEntries(sent[0])).toEqual([
-			{ AID: ALICE.AID, GID: ALICE.GID, positionID: 2 },
-			{ AID: BOB.AID, GID: BOB.GID, positionID: 2 }
+			{ AID: MARGARETHA.AID, GID: MARGARETHA.GID, positionID: 2 },
+			{ AID: HOWARD.AID, GID: HOWARD.GID, positionID: 2 }
 		]);
 	});
 
 	it('keeps one entry per member, last edit wins', () => {
-		changeGrade(ALICE, 2);
-		changeGrade(ALICE, 1);
-		changeGrade(ALICE, 2);
+		changeGrade(MARGARETHA, 2);
+		changeGrade(MARGARETHA, 1);
+		changeGrade(MARGARETHA, 2);
 		clickApply();
 
-		expect(wireEntries(sent[0])).toEqual([{ AID: ALICE.AID, GID: ALICE.GID, positionID: 2 }]);
+		expect(wireEntries(sent[0])).toEqual([{ AID: MARGARETHA.AID, GID: MARGARETHA.GID, positionID: 2 }]);
 	});
 
 	it('sends nothing when apply is pressed with no pending edit', () => {
@@ -335,7 +335,7 @@ describe('Guild member position', () => {
 	});
 
 	it('sends nothing twice in a row', () => {
-		changeGrade(ALICE, 2);
+		changeGrade(MARGARETHA, 2);
 		clickApply();
 		clickApply();
 
@@ -346,7 +346,7 @@ describe('Guild member position', () => {
 	// engine's teardown, which a close does not reach.
 	describe('pending edits are dropped by closing the window', () => {
 		it('through hide, not only through engine teardown', () => {
-			changeGrade(ALICE, 2);
+			changeGrade(MARGARETHA, 2);
 
 			Guild.hide();
 			clickApply();
@@ -357,8 +357,8 @@ describe('Guild member position', () => {
 
 	describe('pending edits are dropped by fresh guild data', () => {
 		it('on a member list', () => {
-			changeGrade(ALICE, 2);
-			Guild.setMembers([member(MASTER), member(ALICE), member(BOB)]);
+			changeGrade(MARGARETHA, 2);
+			Guild.setMembers([member(MASTER), member(MARGARETHA), member(HOWARD)]);
 			showMembersTab();
 			clickApply();
 
@@ -366,7 +366,7 @@ describe('Guild member position', () => {
 		});
 
 		it('on position names', () => {
-			changeGrade(ALICE, 2);
+			changeGrade(MARGARETHA, 2);
 			Guild.setPositionsName([{ positionID: 1, posName: 'Member' }]);
 			clickApply();
 
@@ -374,8 +374,8 @@ describe('Guild member position', () => {
 		});
 
 		it('on the position acknowledgement', () => {
-			changeGrade(ALICE, 2);
-			Guild.setMemberPositions([{ AID: ALICE.AID, GID: ALICE.GID, positionID: 2 }]);
+			changeGrade(MARGARETHA, 2);
+			Guild.setMemberPositions([{ AID: MARGARETHA.AID, GID: MARGARETHA.GID, positionID: 2 }]);
 			clickApply();
 
 			expect(sent).toHaveLength(0);
@@ -384,14 +384,14 @@ describe('Guild member position', () => {
 
 	describe('refused selections', () => {
 		it('ignores an unchanged grade', () => {
-			changeGrade(ALICE, 1);
+			changeGrade(MARGARETHA, 1);
 			clickApply();
 
 			expect(sent).toHaveLength(0);
 		});
 
 		it('ignores grade 0, the guild master grade', () => {
-			changeGrade(ALICE, 0);
+			changeGrade(MARGARETHA, 0);
 			clickApply();
 
 			expect(sent).toHaveLength(0);
@@ -409,13 +409,13 @@ describe('Guild member position', () => {
 		});
 
 		it('leaves the dropdown on the grade we know', () => {
-			const select = changeGrade(ALICE, 0);
+			const select = changeGrade(MARGARETHA, 0);
 
 			expect(select.value).toBe('1');
 		});
 
 		it('keeps grade 0 listed in the dropdown', () => {
-			expect(selectOf(ALICE).querySelector('option[value="0"]')).not.toBeNull();
+			expect(selectOf(MARGARETHA).querySelector('option[value="0"]')).not.toBeNull();
 		});
 	});
 
@@ -424,48 +424,48 @@ describe('Guild member position', () => {
 		// the guild master gets in its place did not, so the one player who can
 		// change a grade was the one who could not read it.
 		it('the dropdown carries the current grade name', () => {
-			expect(selectOf(ALICE).title).toBe('Member');
+			expect(selectOf(MARGARETHA).title).toBe('Member');
 		});
 
 		it('it follows an accepted change', () => {
-			changeGrade(ALICE, 2);
+			changeGrade(MARGARETHA, 2);
 
-			expect(selectOf(ALICE).title).toBe('Officer');
+			expect(selectOf(MARGARETHA).title).toBe('Officer');
 		});
 
 		it('a refused change leaves it on the grade the row still shows', () => {
-			changeGrade(ALICE, 0);
+			changeGrade(MARGARETHA, 0);
 
-			expect(selectOf(ALICE).title).toBe('Member');
+			expect(selectOf(MARGARETHA).title).toBe('Member');
 		});
 
 		it('it survives a single-row refresh', () => {
-			Guild.setMember({ ...member(ALICE), GPositionID: 2 });
+			Guild.setMember({ ...member(MARGARETHA), GPositionID: 2 });
 
-			expect(selectOf(ALICE).title).toBe('Officer');
+			expect(selectOf(MARGARETHA).title).toBe('Officer');
 		});
 	});
 
 	it('guards against the grade the row actually shows after a single-member refresh', () => {
 		// ZC.ACK_GUILD_MEMBER_INFO re-renders one row from a brand new object.
 		// The guard reads the member list back, so the list has to follow.
-		Guild.setMember({ ...member(ALICE), GPositionID: 2 });
+		Guild.setMember({ ...member(MARGARETHA), GPositionID: 2 });
 
-		expect(selectOf(ALICE).value).toBe('2');
+		expect(selectOf(MARGARETHA).value).toBe('2');
 
 		// 2 -> 1 is a real change and must be queued, not refused as unchanged.
-		changeGrade(ALICE, 1);
+		changeGrade(MARGARETHA, 1);
 		clickApply();
 
-		expect(wireEntries(sent[0])).toEqual([{ AID: ALICE.AID, GID: ALICE.GID, positionID: 1 }]);
+		expect(wireEntries(sent[0])).toEqual([{ AID: MARGARETHA.AID, GID: MARGARETHA.GID, positionID: 1 }]);
 	});
 
 	it('sends the selected grade when only 0x166 fed the list', () => {
 		// Regression: setPositionsName used to leave positionID unset, so the
 		// option value read back as NaN and reached the wire as grade 0.
-		expect(selectOf(ALICE).querySelector('option[value="undefined"]')).toBeNull();
+		expect(selectOf(MARGARETHA).querySelector('option[value="undefined"]')).toBeNull();
 
-		changeGrade(ALICE, 2);
+		changeGrade(MARGARETHA, 2);
 		clickApply();
 
 		expect(wireEntries(sent[0])[0].positionID).toBe(2);
@@ -480,10 +480,10 @@ describe('Guild member position', () => {
 			],
 			true
 		);
-		Guild.setMembers([member(MASTER), member(ALICE), member(BOB)]);
+		Guild.setMembers([member(MASTER), member(MARGARETHA), member(HOWARD)]);
 		showMembersTab();
 
-		changeGrade(ALICE, 2);
+		changeGrade(MARGARETHA, 2);
 		clickApply();
 
 		expect(wireEntries(sent[0])[0].positionID).toBe(2);
@@ -495,7 +495,7 @@ describe('Guild member position', () => {
 		}
 
 		function lastLoginOf(fixture) {
-			const index = fixture === ALICE ? 1 : 2;
+			const index = fixture === MARGARETHA ? 1 : 2;
 			return root().querySelector(`.MemberView[data-index="${index}"] .name .lastlogin`);
 		}
 
@@ -506,7 +506,7 @@ describe('Guild member position', () => {
 		});
 
 		it('shows the note column on the list that does carry one', () => {
-			Guild.setMembers([member(MASTER), member(ALICE)], true);
+			Guild.setMembers([member(MASTER), member(MARGARETHA)], true);
 
 			expect(membersContent().classList.contains('has-memo')).toBe(true);
 		});
@@ -515,9 +515,9 @@ describe('Guild member position', () => {
 			// Off by default - only 2022 draws an access date - so the deployment
 			// has to ask for it before there is anything to format.
 			Configs.set('guild', { showLastLogin: true });
-			Guild.setMembers([member(MASTER), { ...member(ALICE), LastLogin: 1758499200 }]);
+			Guild.setMembers([member(MASTER), { ...member(MARGARETHA), LastLogin: 1758499200 }]);
 
-			expect(lastLoginOf(ALICE).textContent).toContain('2025.09.22');
+			expect(lastLoginOf(MARGARETHA).textContent).toContain('2025.09.22');
 		});
 
 		it('follows the format the server asks for, two-digit year included', () => {
@@ -525,28 +525,28 @@ describe('Guild member position', () => {
 			// and the client hands whichever it has to strftime.
 			mocks.messages[3011] = '%y.%m.%d';
 			Configs.set('guild', { showLastLogin: true });
-			Guild.setMembers([member(MASTER), { ...member(ALICE), LastLogin: 1758499200 }]);
+			Guild.setMembers([member(MASTER), { ...member(MARGARETHA), LastLogin: 1758499200 }]);
 
-			expect(lastLoginOf(ALICE).textContent).toContain('25.09.22');
-			expect(lastLoginOf(ALICE).textContent).not.toContain('2025.09.22');
+			expect(lastLoginOf(MARGARETHA).textContent).toContain('25.09.22');
+			expect(lastLoginOf(MARGARETHA).textContent).not.toContain('2025.09.22');
 		});
 
 		it('leaves the last login empty when the list does not', () => {
-			Guild.setMembers([member(MASTER), member(ALICE)]);
+			Guild.setMembers([member(MASTER), member(MARGARETHA)]);
 
-			expect(lastLoginOf(ALICE).textContent).toBe('');
+			expect(lastLoginOf(MARGARETHA).textContent).toBe('');
 		});
 	});
 
 	describe('acknowledgement', () => {
 		it('applies the grades the server confirms', () => {
-			Guild.setMemberPositions([{ AID: ALICE.AID, GID: ALICE.GID, positionID: 2 }]);
+			Guild.setMemberPositions([{ AID: MARGARETHA.AID, GID: MARGARETHA.GID, positionID: 2 }]);
 
-			expect(selectOf(ALICE).value).toBe('2');
+			expect(selectOf(MARGARETHA).value).toBe('2');
 		});
 
 		it('reads a grade of 0 as the guild master moving', () => {
-			Guild.setMemberPositions([{ AID: ALICE.AID, GID: ALICE.GID, positionID: 0 }]);
+			Guild.setMemberPositions([{ AID: MARGARETHA.AID, GID: MARGARETHA.GID, positionID: 0 }]);
 
 			expect(mocks.session.isGuildMaster).toBe(false);
 		});
@@ -563,7 +563,7 @@ describe('Guild member position', () => {
 			cell.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true }));
 		}
 
-		const ALICE_ROW = 1;
+		const MARGARETHA_ROW = 1;
 
 		function entryLabelled(label) {
 			for (const call of mocks.contextMenu.addElement.mock.calls) {
@@ -575,7 +575,7 @@ describe('Guild member position', () => {
 		}
 
 		it('offers the entry to the guild master on someone else', () => {
-			openMenuOn(ALICE_ROW);
+			openMenuOn(MARGARETHA_ROW);
 
 			expect(entryLabelled('Assign Guild Leader')).not.toBeNull();
 		});
@@ -584,7 +584,7 @@ describe('Guild member position', () => {
 		// other case here right-clicks the name, so they pass under either
 		// selector and none of them notices if the band narrows back.
 		it('opens from any cell of the row, not just the name', () => {
-			const cell = root().querySelector(`.MemberView[data-index="${ALICE_ROW}"] td.position`);
+			const cell = root().querySelector(`.MemberView[data-index="${MARGARETHA_ROW}"] td.position`);
 			cell.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true }));
 
 			expect(entryLabelled('Assign Guild Leader')).not.toBeNull();
@@ -592,14 +592,14 @@ describe('Guild member position', () => {
 
 		it('hides the entry from a member who is not the guild master', () => {
 			mocks.session.isGuildMaster = false;
-			Guild.setMembers([member(MASTER), member(ALICE), member(BOB)]);
-			openMenuOn(ALICE_ROW);
+			Guild.setMembers([member(MASTER), member(MARGARETHA), member(HOWARD)]);
+			openMenuOn(MARGARETHA_ROW);
 
 			expect(entryLabelled('Assign Guild Leader')).toBeNull();
 		});
 
 		it('sends a single grade 0 entry once confirmed', () => {
-			openMenuOn(ALICE_ROW);
+			openMenuOn(MARGARETHA_ROW);
 			entryLabelled('Assign Guild Leader')();
 
 			expect(sent).toHaveLength(0);
@@ -607,20 +607,20 @@ describe('Guild member position', () => {
 			mocks.promptBox.mock.calls[0][3]();
 
 			expect(sent).toHaveLength(1);
-			expect(wireEntries(sent[0])).toEqual([{ AID: ALICE.AID, GID: ALICE.GID, positionID: 0 }]);
+			expect(wireEntries(sent[0])).toEqual([{ AID: MARGARETHA.AID, GID: MARGARETHA.GID, positionID: 0 }]);
 		});
 
 		it('names the member in the confirmation', () => {
-			openMenuOn(ALICE_ROW);
+			openMenuOn(MARGARETHA_ROW);
 			entryLabelled('Assign Guild Leader')();
 
-			expect(mocks.promptBox.mock.calls[0][0]).toContain('Alice');
+			expect(mocks.promptBox.mock.calls[0][0]).toContain('Margaretha');
 		});
 
 		it('drops the name rather than render an empty one', () => {
 			// 0x0aa5 member lists carry no CharName at all.
-			Guild.setMembers([member(MASTER), { ...member(ALICE), CharName: '' }]);
-			openMenuOn(ALICE_ROW);
+			Guild.setMembers([member(MASTER), { ...member(MARGARETHA), CharName: '' }]);
+			openMenuOn(MARGARETHA_ROW);
 			entryLabelled('Assign Guild Leader')();
 
 			expect(mocks.promptBox.mock.calls[0][0]).not.toContain('%s');
@@ -630,18 +630,18 @@ describe('Guild member position', () => {
 		it('fills both placeholders, the member and the grade we are left with', () => {
 			// The server swaps the two rows, so the outgoing master takes the
 			// grade the member holds right now.
-			openMenuOn(ALICE_ROW);
+			openMenuOn(MARGARETHA_ROW);
 			entryLabelled('Assign Guild Leader')();
 
 			const text = mocks.promptBox.mock.calls[0][0];
 
 			expect(text).not.toContain('%s');
-			expect(text).toContain('Alice');
+			expect(text).toContain('Margaretha');
 			expect(text).toContain('Member');
 		});
 
 		it('does not queue itself as a pending edit', () => {
-			openMenuOn(ALICE_ROW);
+			openMenuOn(MARGARETHA_ROW);
 			entryLabelled('Assign Guild Leader')();
 			mocks.promptBox.mock.calls[0][3]();
 			sent.length = 0;
@@ -1145,7 +1145,7 @@ describe('Guild position tab', () => {
 		// silence, so the row would show the new grade as if it had been taken.
 		it('sends no queued grade change from someone who is not the guild master', () => {
 			clickTab('members');
-			changeGrade(ALICE, 2);
+			changeGrade(MARGARETHA, 2);
 			mocks.session.isGuildMaster = false;
 
 			clickApply();

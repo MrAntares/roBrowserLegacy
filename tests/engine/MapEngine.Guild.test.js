@@ -385,11 +385,11 @@ describe('the invitation result names who was invited', () => {
 	// this side.
 	it('substitutes the invited name into a table that asks for one', () => {
 		mocks.messages[380] = '%s accepted your invitation.';
-		GuildEngine.requestPlayerInvitationByName('ClaudeTestB');
+		GuildEngine.requestPlayerInvitationByName('Seyren');
 
 		deliver(PACKET.ZC.ACK_REQ_JOIN_GUILD, { answer: 2 });
 
-		expect(mocks.chat.mock.calls[0][0]).toBe('ClaudeTestB accepted your invitation.');
+		expect(mocks.chat.mock.calls[0][0]).toBe('Seyren accepted your invitation.');
 	});
 
 	it('falls back to a placeholder when nobody was invited from this client', () => {
@@ -406,12 +406,12 @@ describe('the invitation result names who was invited', () => {
 	it('spends the name on one answer rather than keeping it for the next', () => {
 		mocks.messages[380] = '%s accepted your invitation.';
 		mocks.messages[581] = 'Nameless';
-		GuildEngine.requestPlayerInvitationByName('ClaudeTestB');
+		GuildEngine.requestPlayerInvitationByName('Seyren');
 
 		deliver(PACKET.ZC.ACK_REQ_JOIN_GUILD, { answer: 2 });
 		deliver(PACKET.ZC.ACK_REQ_JOIN_GUILD, { answer: 2 });
 
-		expect(mocks.chat.mock.calls[0][0]).toBe('ClaudeTestB accepted your invitation.');
+		expect(mocks.chat.mock.calls[0][0]).toBe('Seyren accepted your invitation.');
 		expect(mocks.chat.mock.calls[1][0]).toBe('Nameless accepted your invitation.');
 	});
 
@@ -516,7 +516,7 @@ describe('entering the map as another character', () => {
  */
 describe('leaving a guild empties the window', () => {
 	beforeEach(() => {
-		Session.Entity.display = { name: 'PlantTester' };
+		Session.Entity.display = { name: 'Eremes' };
 		Session.hasGuild = true;
 	});
 
@@ -540,8 +540,8 @@ describe('leaving a guild empties the window', () => {
 	// flag is cleared leaves a departed master looking at their own edit boxes.
 	for (const [label, struct, fields] of [
 		['disbanded', PACKET.ZC.ACK_DISORGANIZE_GUILD_RESULT, { reason: 0 }],
-		['expelled', PACKET.ZC.ACK_BAN_GUILD, { charName: 'PlantTester', reasonDesc: 'bye' }],
-		['left', PACKET.ZC.ACK_LEAVE_GUILD, { charName: 'PlantTester', reasonDesc: 'bye' }]
+		['expelled', PACKET.ZC.ACK_BAN_GUILD, { charName: 'Eremes', reasonDesc: 'bye' }],
+		['left', PACKET.ZC.ACK_LEAVE_GUILD, { charName: 'Eremes', reasonDesc: 'bye' }]
 	]) {
 		it(`clears the flag before emptying, having been ${label}`, () => {
 			Session.isGuildMaster = true;
@@ -559,13 +559,13 @@ describe('leaving a guild empties the window', () => {
 	}
 
 	it('empties it when we are the one expelled', () => {
-		deliver(PACKET.ZC.ACK_BAN_GUILD, { charName: 'PlantTester', reasonDesc: 'bye' });
+		deliver(PACKET.ZC.ACK_BAN_GUILD, { charName: 'Eremes', reasonDesc: 'bye' });
 
 		expect(mocks.guild.reset).toHaveBeenCalled();
 	});
 
 	it('empties it when we are the one who left', () => {
-		deliver(PACKET.ZC.ACK_LEAVE_GUILD, { charName: 'PlantTester', reasonDesc: 'bye' });
+		deliver(PACKET.ZC.ACK_LEAVE_GUILD, { charName: 'Eremes', reasonDesc: 'bye' });
 
 		expect(mocks.guild.reset).toHaveBeenCalled();
 	});
@@ -577,7 +577,7 @@ describe('leaving a guild empties the window', () => {
 		['left', PACKET.ZC.ACK_LEAVE_GUILD]
 	]) {
 		it(`leaves it alone when somebody else ${label}`, () => {
-			deliver(struct, { charName: 'ClaudeTestB', reasonDesc: 'bye' });
+			deliver(struct, { charName: 'Seyren', reasonDesc: 'bye' });
 
 			expect(mocks.guild.reset).not.toHaveBeenCalled();
 			expect(Session.hasGuild).toBe(true);

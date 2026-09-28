@@ -141,8 +141,8 @@ const POSITIONS = [
 // GPositionID comes from `i % 6`, so member(0) is the grade-0 row - the guild
 // master's own - and 1 and 2 are ordinary members.
 const MASTER = 0;
-const ALICE = 1;
-const BOB = 2;
+const MARGARETHA = 1;
+const HOWARD = 2;
 
 function root() {
 	return Guild.getRoot();
@@ -206,7 +206,7 @@ describe('guild window, tab order', () => {
 		mocks.session.isGuildMaster = true;
 		mount();
 		Guild.setPositionsName(POSITION_NAMES);
-		Guild.setMembers([member(MASTER), member(ALICE), member(BOB)]);
+		Guild.setMembers([member(MASTER), member(MARGARETHA), member(HOWARD)]);
 	});
 
 	// The measured complaint was "72 focusable elements, Tab walks into hidden
@@ -386,7 +386,7 @@ describe('guild window, tab order', () => {
 		mocks.session.isGuildMaster = false;
 		Guild.setAccess(0x57);
 		Guild.setPositions(POSITIONS, true);
-		Guild.setMembers([member(MASTER), member(ALICE), member(BOB)]);
+		Guild.setMembers([member(MASTER), member(MARGARETHA), member(HOWARD)]);
 		Guild.setNotice('Old guild', 'Old notice');
 
 		expect(root().querySelectorAll('.content.members tbody .MemberView').length).toBeGreaterThan(0);
@@ -411,7 +411,7 @@ describe('guild window, tab order', () => {
 	it('rebuilds the member rows when the owner flag moves', () => {
 		mocks.session.isGuildMaster = false;
 		Guild.setPositionsName(POSITION_NAMES);
-		Guild.setMembers([member(MASTER), member(ALICE), member(BOB)]);
+		Guild.setMembers([member(MASTER), member(MARGARETHA), member(HOWARD)]);
 		expect(root().querySelectorAll('.content.members select.changePosition')).toHaveLength(0);
 
 		mocks.session.isGuildMaster = true;
@@ -605,7 +605,7 @@ describe('guild window, the login-status checkbox', () => {
 		UIPreferences.guildMemberListSorted = true;
 		mount();
 		Guild.setPositionsName(POSITION_NAMES);
-		Guild.setMembers([member(MASTER), member(ALICE), member(BOB)]);
+		Guild.setMembers([member(MASTER), member(MARGARETHA), member(HOWARD)]);
 	});
 
 	function sortlogin() {
@@ -649,7 +649,7 @@ describe('guild window, the login-status checkbox', () => {
 		const sent = [];
 		Guild.onChangeMemberPosRequest = list => sent.push(list);
 
-		const select = root().querySelector(`.member_${member(ALICE).AID}_${member(ALICE).GID}`);
+		const select = root().querySelector(`.member_${member(MARGARETHA).AID}_${member(MARGARETHA).GID}`);
 		select.value = '2';
 		select.dispatchEvent(new Event('change'));
 
@@ -657,7 +657,7 @@ describe('guild window, the login-status checkbox', () => {
 		root().querySelector('.footer .btn_ok').dispatchEvent(new Event('click'));
 
 		expect(sent).toHaveLength(1);
-		expect(sent[0]).toEqual([{ AID: member(ALICE).AID, GID: member(ALICE).GID, positionID: 2 }]);
+		expect(sent[0]).toEqual([{ AID: member(MARGARETHA).AID, GID: member(MARGARETHA).GID, positionID: 2 }]);
 	});
 
 	// The preload is asynchronous, so the images can arrive after the checkbox
@@ -787,7 +787,7 @@ describe('guild window, the grade dropdown', () => {
 		mocks.session.isGuildMaster = true;
 		mount();
 		Guild.setPositionsName(POSITION_NAMES);
-		Guild.setMembers([member(MASTER), member(ALICE), member(BOB)]);
+		Guild.setMembers([member(MASTER), member(MARGARETHA), member(HOWARD)]);
 		showTab('members');
 	});
 
@@ -801,15 +801,14 @@ describe('guild window, the grade dropdown', () => {
 	});
 
 	it('is live on every other row', () => {
-		expect(selectOf(ALICE).disabled).toBe(false);
-		expect(selectOf(BOB).disabled).toBe(false);
+		expect(selectOf(MARGARETHA).disabled).toBe(false);
+		expect(selectOf(HOWARD).disabled).toBe(false);
 	});
 
-	// ROLLOUT decision, asm-derived: guard the combobox on newPos != 0 && oldPos
-	// != 0, but keep position 0 listed. Disabling the master's row must not turn
-	// into pruning the option list.
+	// The guard is on newPos != 0 && oldPos != 0, and position 0 stays listed.
+	// Disabling the master's row must not turn into pruning the option list.
 	it('still lists grade 0 on every row', () => {
-		for (const i of [MASTER, ALICE, BOB]) {
+		for (const i of [MASTER, MARGARETHA, HOWARD]) {
 			const values = [...selectOf(i).options].map(option => option.value);
 			expect(values).toEqual(['0', '1', '2']);
 		}
@@ -826,7 +825,7 @@ describe('guild window, the grade dropdown', () => {
 		mocks.session.isGuildMaster = false;
 		mount();
 		Guild.setPositionsName(POSITION_NAMES);
-		Guild.setMembers([member(MASTER), member(ALICE), member(BOB)]);
+		Guild.setMembers([member(MASTER), member(MARGARETHA), member(HOWARD)]);
 		showTab('members');
 
 		expect(root().querySelectorAll('.content.members .position select')).toHaveLength(0);

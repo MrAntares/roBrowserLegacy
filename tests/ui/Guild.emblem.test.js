@@ -44,7 +44,7 @@ const mocks = vi.hoisted(() => {
 			hasGuild: true,
 			isGuildMaster: true,
 			guildPermission: 0,
-			guildName: 'ClaudeGuild',
+			guildName: 'Valhalla',
 			Character: {},
 			Entity: { display: { name: 'Master' }, GUID: 1, GEmblemVer: 0 }
 		}
@@ -176,7 +176,7 @@ function guildInfo(overrides) {
 		honor: 0,
 		virtue: 0,
 		emblemVersion: 0,
-		guildname: 'ClaudeGuild',
+		guildname: 'Valhalla',
 		masterName: 'Master',
 		manageLand: '',
 		...overrides

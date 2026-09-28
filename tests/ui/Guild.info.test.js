@@ -147,7 +147,7 @@ function guildInfo(overrides) {
 		honor: 0,
 		virtue: 0,
 		emblemVersion: 0,
-		guildname: 'ClaudeGuild',
+		guildname: 'Valhalla',
 		masterName: 'Master',
 		manageLand: '',
 		...overrides
@@ -412,10 +412,10 @@ describe('Guild info tab', () => {
 			mocks.session.hasGuild = false;
 			mocks.session.guildName = '';
 
-			Guild.setGuildInformations(guildInfo({ guildname: 'ClaudeGuild', GDID: 150000 }));
+			Guild.setGuildInformations(guildInfo({ guildname: 'Valhalla', GDID: 150000 }));
 
 			expect(mocks.session.hasGuild).toBe(true);
-			expect(mocks.session.guildName).toBe('ClaudeGuild');
+			expect(mocks.session.guildName).toBe('Valhalla');
 			expect(mocks.session.Entity.GUID).toBe(150000);
 		});
 	});

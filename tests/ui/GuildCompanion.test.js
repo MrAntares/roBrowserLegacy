@@ -76,7 +76,7 @@ describe('GuildCompanion', () => {
 	beforeEach(() => {
 		mocks.messages = { ...SERVED };
 		mocks.messageBox.mockReset();
-		mocks.session.guildName = 'ClaudeGuild';
+		mocks.session.guildName = 'Valhalla';
 
 		GuildCompanion._host = document.createElement('div');
 		document.body.innerHTML = '';
@@ -167,7 +167,7 @@ describe('GuildCompanion', () => {
 
 		it('a name differing only by case is refused', () => {
 			GuildCompanion.openDisband();
-			input().value = 'claudeguild';
+			input().value = 'valhalla';
 			click('.btn_ok');
 
 			expect(GuildCompanion.onRequestBreakGuild).not.toHaveBeenCalled();
@@ -188,10 +188,10 @@ describe('GuildCompanion', () => {
 
 		it('the matching name is sent, untrimmed of nothing else', () => {
 			GuildCompanion.openDisband();
-			input().value = '  ClaudeGuild  ';
+			input().value = '  Valhalla  ';
 			click('.btn_ok');
 
-			expect(GuildCompanion.onRequestBreakGuild).toHaveBeenCalledWith('ClaudeGuild');
+			expect(GuildCompanion.onRequestBreakGuild).toHaveBeenCalledWith('Valhalla');
 			expect(mocks.messageBox).not.toHaveBeenCalled();
 		});
 
@@ -200,7 +200,7 @@ describe('GuildCompanion', () => {
 			// would leave a successful disband with no window to close and a
 			// failed one with no message.
 			GuildCompanion.openDisband();
-			input().value = 'ClaudeGuild';
+			input().value = 'Valhalla';
 			click('.btn_ok');
 
 			expect(GuildCompanion.remove).not.toHaveBeenCalled();
@@ -217,10 +217,10 @@ describe('GuildCompanion', () => {
 
 		it('Enter submits the same way the OK button does', () => {
 			GuildCompanion.openDisband();
-			input().value = 'ClaudeGuild';
+			input().value = 'Valhalla';
 			input().dispatchEvent(new KeyboardEvent('keydown', { which: 13, bubbles: true }));
 
-			expect(GuildCompanion.onRequestBreakGuild).toHaveBeenCalledWith('ClaudeGuild');
+			expect(GuildCompanion.onRequestBreakGuild).toHaveBeenCalledWith('Valhalla');
 		});
 	});
 

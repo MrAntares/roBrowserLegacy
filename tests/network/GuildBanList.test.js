@@ -25,8 +25,8 @@ function writeString(view, offset, str, length) {
 function makeEntries(n) {
 	return Array.from({ length: n }, (_, i) => ({
 		GID: 150000 + i,
-		charname: 'ClaudeTest' + i,
-		reason: 'Blibli ' + i
+		charname: 'Rekenber' + i,
+		reason: 'Rekenber spy ' + i
 	}));
 }
 
@@ -128,12 +128,12 @@ describe('guild expulsion list', () => {
 		// 40-byte reason is. Both fields are populated in every other case here,
 		// so only distinct lengths catch a swap.
 		it('reads the reason before the name', () => {
-			const buf = buildGen3([{ GID: 150002, charname: 'ClaudeTestB', reason: 'Blibli' }]);
+			const buf = buildGen3([{ GID: 150002, charname: 'Seyren', reason: 'Rekenber spy' }]);
 			const pkt = parse(PACKET.ZC.BAN_LIST3, buf);
 
 			expect(buf.byteLength).toBe(68);
-			expect(pkt.banList[0].reason).toBe('Blibli');
-			expect(pkt.banList[0].charname).toBe('ClaudeTestB');
+			expect(pkt.banList[0].reason).toBe('Rekenber spy');
+			expect(pkt.banList[0].charname).toBe('Seyren');
 		});
 
 		it('never reads past the end of the packet', () => {

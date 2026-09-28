@@ -86,7 +86,7 @@ const UIPreferences = (await import('Preferences/UI.js')).default;
 let Component;
 
 /** The friend list with one entry, reachable by index. */
-function withFriend(name = 'ClaudeTestB') {
+function withFriend(name = 'Seyren') {
 	Component.setFriends([{ Name: name, GID: 150001, AID: 2000001, State: 0 }]);
 }
 
@@ -111,14 +111,14 @@ describe('a friend logging in or out', () => {
 		Component.updateFriendState(0, 0);
 
 		expect(mocks.chat).toHaveBeenCalledTimes(1);
-		expect(mocks.chat.mock.calls[0][0]).toBe('ClaudeTestB has logged in.');
+		expect(mocks.chat.mock.calls[0][0]).toBe('Seyren has logged in.');
 	});
 
 	it('announces a friend going offline', () => {
 		Component.updateFriendState(0, 1);
 
 		expect(mocks.chat).toHaveBeenCalledTimes(1);
-		expect(mocks.chat.mock.calls[0][0]).toBe('ClaudeTestB has logged out.');
+		expect(mocks.chat.mock.calls[0][0]).toBe('Seyren has logged out.');
 	});
 
 	it('has text to fall back on when the message table has neither id', () => {
@@ -135,7 +135,7 @@ describe('a friend logging in or out', () => {
 
 		Component.updateFriendState(0, 0);
 
-		expect(mocks.chat.mock.calls[0][0]).toBe('ClaudeTestB est connecte.');
+		expect(mocks.chat.mock.calls[0][0]).toBe('Seyren est connecte.');
 	});
 });
 
