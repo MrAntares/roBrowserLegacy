@@ -41,6 +41,21 @@ import UIPreferences from 'Preferences/UI.js';
 const ACCESS_UNKNOWN = -1;
 
 /**
+ * The Info tab's cells, split by what an empty window shows in each
+ * @see docs/reference/guild/member-view.md
+ */
+const INFO_BLANK_CELLS = [
+	'.name .value',
+	'.level .value',
+	'.master .value',
+	'.avglevel .value',
+	'.territory .value',
+	'.exp .value',
+	'.members .online'
+];
+const INFO_ZERO_CELLS = ['.members .numMember', '.members .maxMember', '.tax .value'];
+
+/**
  * Flags to check access
  */
 const AccessTypeBit = {
@@ -170,6 +185,49 @@ function _resetPositionsTab() {
 	_clearPendingPositions();
 	_positionsDirty = false;
 	_positionsSelected = 0;
+}
+
+/**
+ * Helper: put the Info tab back to the values its markup ships
+ *
+ * The counters return to zero and the rest to blank, which is the state the
+ * window is built in.
+ * @see docs/reference/guild/member-view.md
+ *
+ * @param {HTMLElement} root - the window's shadow root
+ */
+function _clearInfoTab(root) {
+	const general = root.querySelector('.content.info');
+	if (!general) {
+		return;
+	}
+
+	for (const selector of INFO_BLANK_CELLS) {
+		const cell = general.querySelector(selector);
+		if (cell) {
+			cell.textContent = '';
+		}
+	}
+
+	for (const selector of INFO_ZERO_CELLS) {
+		const cell = general.querySelector(selector);
+		if (cell) {
+			cell.textContent = '0';
+		}
+	}
+
+	const exp = general.querySelector('.exp');
+	if (exp) {
+		exp.classList.remove('maxlevel');
+	}
+
+	const emblemContainer = general.querySelector('.emblem_container');
+	if (emblemContainer) {
+		emblemContainer.style.backgroundImage = '';
+	}
+
+	Guild.setRelations([]);
+	renderTendency(0, 0);
 }
 
 /**
@@ -742,6 +800,10 @@ Guild.reset = function reset() {
 	if (skillList) {
 		skillList.innerHTML = '';
 	}
+
+	// The tabs above hold rows and empty with them. The Info tab holds values
+	// written in place, and show() paints it before an answer can land.
+	_clearInfoTab(root);
 
 	// Stores the empty notice and redraws the pane, which is the whole of what
 	// clearing it by hand then repainting would do.

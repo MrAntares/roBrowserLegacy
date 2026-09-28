@@ -363,6 +363,21 @@ something a member could not use, never add an affordance the client lacks.
   unsent notice draft, the caret, a member's text selection. The Notice view
   compares the shape it has against the shape it wants and returns when they
   agree; the stored notice is written separately, by the packet that brings it.
+- **`reset()` has to empty the Info tab by hand, and the other tabs do not.**
+  Members, positions and history live in rows, so emptying their `tbody` empties
+  them; skills empty with their list, and the notice with an empty `setNotice`.
+  The Info tab is **values written in place** - name, master, level, average
+  level, territory, exp, tax, the counters, the emblem background and the two
+  relation lists - and nothing removes them by removing a container. Left alone,
+  they survived the character change: the window is a singleton, `show()` opens
+  the first tab straight away, and a second character opening Guild before their
+  own `ZC_GUILD_INFO` landed read the first one's guild name, master and emblem.
+
+  **Back to the markup, not to blank.** The counters ship at `0` and the rest
+  ship empty, so an emptied tab is the tab the window was built with rather than
+  a third state neither the markup nor the server produces. The relation lists go
+  through `setRelations([])`, which already empties both and is the one place that
+  knows where they live.
 
 ## The swap, in CSS
 

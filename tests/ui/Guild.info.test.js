@@ -419,4 +419,61 @@ describe('Guild info tab', () => {
 			expect(mocks.session.Entity.GUID).toBe(150000);
 		});
 	});
+
+	/**
+	 * The window is a singleton and outlives a character change. The rosters empty
+	 * with the rows they live in; this tab's values are written in place, and show()
+	 * paints it before a new answer can land - so a second character opening Guild
+	 * used to read the first one's guild.
+	 * @see docs/reference/guild/member-view.md
+	 */
+	describe('the tab a new character inherits', () => {
+		beforeEach(() => {
+			Guild.setGuildInformations(
+				guildInfo({ guildname: 'Valhalla', masterName: 'Master', level: 19, manageLand: 'prontera' })
+			);
+			Guild.setRelations([
+				{ relation: 0, GDID: 100, guildName: 'Ally' },
+				{ relation: 1, GDID: 200, guildName: 'Enemy' }
+			]);
+			Guild.setEmblem({ src: 'data:image/bmp;base64,AAAA' });
+		});
+
+		it('is filled to begin with, or the case below proves nothing', () => {
+			expect(info('.name .value').textContent).toBe('Valhalla');
+			expect(info('.master .value').textContent).toBe('Master');
+			expect(info('.emblem_container').style.backgroundImage).not.toBe('');
+			expect(info('.ally_list').children).toHaveLength(1);
+		});
+
+		it('keeps no name, master, level or territory', () => {
+			Guild.reset();
+
+			for (const selector of ['.name .value', '.master .value', '.level .value', '.territory .value']) {
+				expect(info(selector).textContent).toBe('');
+			}
+		});
+
+		it('keeps no emblem', () => {
+			Guild.reset();
+
+			expect(info('.emblem_container').style.backgroundImage).toBe('');
+		});
+
+		it('keeps no ally or antagonist', () => {
+			Guild.reset();
+
+			expect(info('.ally_list').children).toHaveLength(0);
+			expect(info('.hostile_list').children).toHaveLength(0);
+		});
+
+		it('puts the counters back to zero rather than blanking them', () => {
+			Guild.reset();
+
+			// The markup ships these three at 0, and an empty window is the markup.
+			for (const selector of ['.members .numMember', '.members .maxMember', '.tax .value']) {
+				expect(info(selector).textContent).toBe('0');
+			}
+		});
+	});
 });
