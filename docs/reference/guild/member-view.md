@@ -1,10 +1,13 @@
 # What a member sees
 
+Introduced by `07ffa446`, with the three gaps its review found closed by
+`6e236a4e` and the access mask's own trigger corrected afterwards.
+
 The guild window is built once and shown to two different people. Almost every
 tab has something on it that only the guild master may change, and for twenty
 commits the answer to that was to draw the control anyway and refuse it on
 contact. This note is the rule that replaced it, the evidence for it, and the
-two places this port deliberately goes further than the client.
+four places this port deliberately goes further than the client.
 
 ## The rule
 
@@ -110,14 +113,43 @@ functions. It gates only the per-row level-up button, as one of six conditions
 that park it off-screen (20220330 `fcn.005f5a60.c:42` and peers). **The client
 shows the count to everyone.**
 
+Those six are worth naming, because one of them is a server field and it decides
+what happens after a handover: the guild-master global, the row being on screen,
+the row being within the list's count, skill points being non-zero, the skill
+record being valid, and **the per-skill *can this be raised* byte the server
+sent**. That last is the final byte of each entry in `ZC_GUILD_SKILLINFO`, stored
+by the packet handler on all three builds, and the list itself is filtered on it
+too - so it is read twice over.
+
+The client refreshes it on Skills-window construction, which a tab click does by
+destroying and rebuilding the window. **Not only there, on the two modern
+builds**: their `ZC_UPDATE_GDID` handlers ask for skill info once as well, behind
+a latch that is set in three places and cleared in none - so opening the Skills
+tab even once burns it, and a handover can never re-request through it. ver12 has
+no such site at all. The conclusion is the same on all three, by two different
+routes.
+
+`range` and the entry's `name` are never read on any build; the displayed name
+comes from the client's own table.
+
 ## Deliberate deviations
 
-Both were taken knowing what the binary does, and both are one-way: they remove
-something, never add an affordance the client lacks.
+Each was taken knowing what the binary does, and each is one-way: they remove
+something a member could not use, never add an affordance the client lacks.
 
 1. **The skill-point readout is hidden from a member.** Every control that
    spends a point is already master-gated, so the count stands alone as a
-   number a member can do nothing with. Cited above as client-false.
+   number a member can do nothing with. Cited above as client-false: the binary
+   draws it for everyone on all three builds, straight-line, with the flag's
+   global absent from the whole function. **That is the only evidence this rests
+   on, and the deviation is a judgement call on top of it** - an earlier draft
+   also leaned on rAthena sending `upFlag` to the master alone, which is a
+   different fact about a different field and supports nothing here.
+   For the record, since an earlier review asked for it to be restated: the
+   Skills footer's `Use` button is shown to everyone, and **that was never argued
+   from rAthena anywhere in this tree.** The grounds in the source are the
+   client's own - it draws the button for everyone and gates only the level-up
+   arrow - so there was nothing to correct.
 2. **A tab the access mask refuses is marked, not left looking live.** The
    client draws all six cells and refuses the click inside the shared tail of
    every guild pane's command handler - not a method of the window class itself -
@@ -126,13 +158,13 @@ something, never add an affordance the client lacks.
    tab that is open (ver12 `fcn.004a76a0.asm:80`, 20220330
    `fcn.005f9040.asm:81`, mars26 `fcn.0084d0f0.asm:79-81`; the mask array is
    `{0, 1, 2, 4, 0x10, 0x80, 0x40}` indexed by tab). That is a silent no-op on a
-   control that looks exactly like its neighbours — the one shape the rest of
+   control that looks exactly like its neighbours - the one shape the rest of
    this note exists to remove. The tab strip reads the mask only to notice it has
    not arrived yet (`== -1`) and ask for it; the bit test lives in the command
    handler alone, and only tabs 1, 2, 4 and 5 are tested at all.
 
    Two channels say so instead: the label goes grey, and the **game cursor**
-   takes `NOWALK`, the client's own refusal shape. No wording — a cell you
+   takes `NOWALK`, the client's own refusal shape. No wording - a cell you
    cannot click, in a game, is explicit enough, and it is strictly better than
    one that invites the click and then does nothing.
 
@@ -144,13 +176,13 @@ something, never add an affordance the client lacks.
    **The cursor could not be done in CSS**, which is why `GUIComponent` learned
    the word `denied`: the custom cursor forces `cursor: none` across the whole
    window, so a `not-allowed` rule is invisible exactly when it matters. That
-   was measured, not inferred — a live read of all six tabs returned
+   was measured, not inferred - a live read of all six tabs returned
    `cursor: none` on every one of them. The CSS rule is kept for the
    custom-cursor-off case, the same reasoning as `#Guild .checkbox`.
 
    **Marking is only half of it.** The window outlives a character change, so
    logging in as the guild master, opening Announcement and then logging in as a
-   member reuses the same window with that tab still selected — a member left
+   member reuses the same window with that tab still selected - a member left
    standing on a pane the mask refuses. The mask's own handler sends them to the
    first tab, which carries no bit and is therefore always somewhere to go.
 
@@ -161,21 +193,124 @@ something, never add an affordance the client lacks.
    looking accepted. The text stays selectable, so copying the notice, which is
    the only thing a member wanted from it, still works.
 
+4. **A refused tab leaves the keyboard's reach as well as the mouse's.** It
+   carries `aria-disabled="true"` and `tabindex="-1"`, so Tab does not stop on it
+   and Enter cannot activate it. Marking the cell answered the mouse and nothing
+   else: the tab still took focus, still drew a focus ring, and still fired a
+   handler that returned early - the silent no-op this note exists to remove,
+   reached the one way nobody had tried.
+
+   **Passes on *more accessible***, which is the whole of its justification. The
+   client has no such notion; it removes a dead end the original could not
+   remove; it sends nothing. `disabled` is still not used - it would take the
+   tooltip and the element out of the accessibility tree together - and note that
+   the old argument against it, *"it draws a greyed control the client never
+   had"*, no longer applies now that the cell is greyed on purpose. The reason to
+   keep `aria-disabled` over `disabled` is the tooltip, not the greying.
+
+   Recomputed wherever the mask is, `reset()` included, so a tab refused for the
+   previous character does not stay out of the next one's reach.
+
 ## Rules for the code
+
+- **The yardstick, first, because one rule below was written without it.**
+  Packets sent, packets received, and the action each one triggers should match
+  the official client. Departing needs a reason, and the reason may be that we
+  found something better - cleaner, more accessible, or less buggy. Then it is a
+  *declared* deviation, listed in this note and in the PR.
+
+  Two halves, and they are not symmetric:
+
+  - **What we draw may diverge on timing.** The client is immediate-mode and
+    redraws from its globals every frame; we hold a retained DOM and have to
+    repaint at some moment it has no equivalent for. Forced, not chosen.
+  - **What we send may not diverge by accident.** An extra packet is not
+    cleaner, not more accessible and not less buggy. It is traffic no server
+    expects.
+
+  And the reason is never *"rAthena does X"* on its own. rAthena is one server
+  implementation; the target is the official client. Where a server's own
+  behaviour is what forces a decision, say which server and say so plainly.
 
 - **Repaint from `ZC_UPDATE_GDID` (`0x016c`), on a change and nothing else.** It
   is the only packet that carries who the player now is, and handing leadership
-  over moves the flag with the window already open. But it is **not rare**: five
-  server paths send it, including every emblem change and every member joining,
-  each to the whole online roster. Repainting unconditionally rebuilds the member
-  rows, and that drops a guild master's queued grade edits under them - so
-  compare the flag against its previous value first.
-- **Ask for the access mask from that same packet.** It is per character, the
-  server answers only when asked, and it never reaches a member unsolicited at
-  all. Asking on map entry instead is too early: the server has not set its own
-  guild-master flag by then, so a real guild master is answered `0x57` and gets a
-  wrongly greyed tab until something asks again. rAthena sends three packets to
-  every online member on a leadership change, in this order:
+  over moves the flag with the window already open. But it is **not rare**: on
+  rAthena five paths send it, and **two of the five reach the whole online
+  roster** - an emblem change and a leadership handover. The other three go to one
+  person: the invitee on accepting, the player on logging in, and the roster on a
+  guild's first load. Repainting unconditionally rebuilds the member rows, and
+  that drops a guild master's queued grade edits under them - so compare the flag
+  against its previous value first.
+
+  An earlier draft of this note said all five reach the roster and named *a member
+  joining* as an example. That one is self-only, so the example was the worst of
+  the five; the conclusion stands on the emblem path, which really is a broadcast.
+
+- **Nothing else may write `Session.isGuildMaster`.** The rule above compares the
+  flag against its previous value, so the comparison is only worth anything while
+  that value is this handler's to move. It was not: the guild's basic information
+  carries a `masterName`, and `updateSession` used to set the flag whenever that
+  name matched our own character.
+
+  On a handover rAthena sends basic info **first** and the belonging packet
+  **third** (`guild.cpp:2270-2276`: basicinfo, member list, belonginfo). So on the
+  client being *promoted*, the name set the flag three milliseconds before
+  `0x016c` arrived, `wasMaster` was already `true`, the change was invisible, and
+  the guard swallowed the whole repaint: that client kept the member's Positions
+  and Announcement panes, kept the member's tab mask, and never re-asked for its
+  own. The member rows and the emblem still flipped, because they are repainted by
+  the packets that arrive *after* the flag was quietly set - which is what made the
+  window inconsistent rather than simply stale.
+
+  **Demotion escaped it entirely**, which is why it survived review: the name only
+  ever set the flag, never cleared it, so `wasMaster` was still `true` when
+  `isMaster: 0` arrived and everything repainted correctly.
+
+  The fix is to leave the flag to the packet that carries it explicitly, rather
+  than to a string comparison in a sibling handler. One writer for a value another
+  handler's correctness depends on - a guard that compares state anyone may move is
+  not a guard. Found by watching a real handover on two clients; seven tests drove
+  `0x016c` directly and none could see it, because they mock the whole `Guild`
+  module and so replace the very function that was writing the flag.
+- **Ask for the access mask only when it cannot be known.** `_guildAccess`
+  carries `-1` for *not received*, which is the client's own sentinel for it, and
+  `-1` has every bit set - so nothing is refused while we wait, and a window that
+  has just been emptied does not grey its whole strip. Zero is the value that
+  refuses every tab, and leaving zero there after a character change is what was
+  reported as *"I can't click anything"*.
+
+  The ask itself is guarded on that sentinel, from two places: `show()`, which is
+  the client's own trigger, and `0x016c`, which is the first packet that knows who
+  the player is. One request per identity or role change, and none at all for the
+  four other things that ride `0x016c`.
+
+  **This is a declared deviation, and a rare one: the official client never sends
+  `CZ_REQ_GUILD_MENUINTERFACE` (`0x014d`) at all.** Its single send site in all
+  three builds is the `mask == -1` branch of the tab-strip builder, the function
+  all seven guild sub-window constructors call first - fire and forget, it does not
+  wait for the reply. The mask global is `0`-initialised in every image and the
+  `0x014e` handler is its only writer, and **no instruction in any of the three
+  images stores `-1`**, so the branch is dead in practice. Stated that precisely on
+  purpose: the handler copies whatever the server sent, so a server answering
+  `0x014e` with `0xffffffff` would make it live.
+
+  - ver12 `fcn.004a6f00.c:59-61`, global `data.00777778`, handler
+    `fcn.005a4310` - and the send is vtable slot `0x14`, message `0x76`
+  - 20220330 `fcn.005ecfd0.c:41-42`, `data.01110f8c`, handler `fcn.007d8ff0`
+  - mars26 `fcn.008406e0.c:41-42`, `data.013acb74`, handler `fcn.00bac180`
+  - both modern builds use slot `0x18` and message `0x69`, so neither the slot
+    nor the message number carries across the era boundary
+
+  We ask because the protocol offers no other channel: rAthena
+  sends the mask unsolicited **only to the guild master**, on request otherwise,
+  and to nobody on a handover. It passes on *less buggy*, and it is the same packet
+  from the same condition the client's own code tests.
+
+  **Asking on map entry instead is too early**, which is why the sentinel and not
+  a plain call in `reset()`: rAthena has not set its own guild-master flag by then,
+  so a real guild master is answered `0x57` and gets a wrongly greyed tab until
+  something asks again. It sends three packets to every online member on a
+  leadership change, in this order:
 
   | packet | what it does here |
   |---|---|
@@ -208,6 +343,17 @@ something, never add an affordance the client lacks.
 - **`tick` and `value` are the member's classes.** `checkbox` and the form
   elements are the master's, and the clickable-cursor list and the selection
   carve-out are both written against those names.
+- **`on` / `off` rides on both, deliberately.** One expression writes the state
+  class for either role, and the master's is read back by the positions Apply.
+  On a member's `tick` nothing reads it - no CSS rule matches either name, the
+  picture being an inline background image - so it is inert there rather than
+  wrong, and splitting the expression to drop it would buy a branch and nothing
+  else.
+- **`textarea.notice` in the Apply path is load-bearing, not over-specific.** The
+  member's pane puts a `div` in the textarea's place, carrying the same class, so
+  the tag qualifier is what makes the optional chain short-circuit into the
+  intended no-send. Loosening it to `.content.notice textarea` reads the same on
+  a master and starts reading a member's values back on a member.
 - **The markup ships the master's fields**, so the Notice pane is drawn once at
   `init()` rather than only when a notice arrives. A guild whose notice is empty
   gets no `ZC_GUILD_NOTICE` at all, and without that first draw a member would
@@ -218,23 +364,84 @@ something, never add an affordance the client lacks.
   compares the shape it has against the shape it wants and returns when they
   agree; the stored notice is written separately, by the packet that brings it.
 
+## The swap, in CSS
+
+Four facts the stylesheet depends on and no longer states itself, the source
+having been cut back to the house limit.
+
+- **The `td.title` / `td.tax` padding reset is class-qualified; the widths are
+  not.** Those two cells place their own contents, so they give up the shared
+  `th, td` padding - but three classes outrank that rule, so leaving the override
+  unqualified took the two *headings'* indent with it and left their labels flush
+  against the border while the other four kept theirs. Scoping the reset to `td`
+  restores them and moves no cell. The widths stay unqualified on purpose: there
+  is no `colgroup`, so the fixed layout takes them from the header row.
+- **`.checkbox` / `.tick` is `height: 16px`, which is the cell's content box** -
+  20 less its border and top padding. The tick bitmap is 12x12 in a 61x20 cell,
+  so before it filled the cell a click at the cell's centre landed on nothing.
+  Filling it makes the whole cell the target and, since the cursor list matches
+  the element under the pointer, makes it read as one.
+- **Only the grade name can outgrow its cell**, which is why it is the one value
+  rendered with a tooltip. The guild master's field was capped at 75px and text
+  is not, so the name can clip where `50 %` cannot. `_asValue`'s third argument
+  is that distinction, and it is passed at one call site only.
+- **A member's notice keeps the subject on one line and lets the body wrap.**
+  Each value carries the class of the field it stands in for, so the two rules
+  that place the fields place the values too and neither box moves on the swap;
+  what has to be restored by hand is only what the control did for free. The
+  subject stands in for a single-line input inside a 14px box, so wrapping it
+  would push text out of the box; the body inherits the textarea's wrap, line
+  breaks and scroll.
+
 ## Known gaps
 
-- **The emblem controls and the Disband button do not repaint on the flag.**
-  Both are set in `setGuildInformations`, which on a leadership change runs
-  before the flag moves, so a demoted guild master keeps a working file picker
-  and a Disband button until the next `0x01b6`. Both refuse - in the handler and
-  again on the server - so this is the *looks live, refuses on contact* form
-  rather than a hole. Pre-existing; named here rather than fixed, because the
-  fix wants the emblem block lifted out of `setGuildInformations` first.
-- **A member cannot reach the Notice tab at all on rAthena**, so the read-only
-  pane behind it is defence rather than the thing a member sees.
+- **Whether a member reaches the Notice tab at all is the server's call, and
+  `0x80` is the whole of it.** On rAthena they do not:
   `clif_guild_masterormember` sends `menuFlag 0xd7` to the master and `0x57` to
-  everyone else, and the tab's own bit is `0x80` - the only bit that differs.
-  Confirmed live by clicking all six as a grade-1 member: five opened, that one
-  did not. The pane still has to exist - the gate is one `menuFlag` from open,
-  no other emulator is bound by rAthena's value, and the send gate behind it is
-  what stops a forged Apply.
+  everyone else, and the Notice bit is the only one that differs - confirmed live
+  by clicking all six as a grade-1 member, five opened and that one did not. But
+  that is **one server's value, not a property of the window.** Nothing in the
+  protocol obliges a server to clear the bit, and the official client gives
+  everyone a real edit box there, so on a deployment that sets it the read-only
+  pane is simply **what a member sees** - the ordinary path, not a backstop. It is
+  built and maintained on that basis. The send gate behind it is a separate
+  guarantee and stays either way, because a hidden control is a layout fact and
+  only the handler is a promise.
+
+- **After a handover the new guild master's Skills tab shows no upgrade arrows**
+  until they leave the tab and come back. **The client does exactly the same
+  thing, for the same reason** - see the byte and its six conditions under
+  *Skills* above - so this is faithful rather than a gap. rAthena resends no skill
+  info on a handover, and the client refreshes that byte only when the Skills
+  window is constructed, which a tab click does by destroying and rebuilding it.
+  Ours re-requests on the same gesture, from `onChangeTab`. Fixing it would mean
+  adding a request at a moment the client sends none, so it is left alone.
+
+  The demotion direction *is* repainted, and has to be: the byte still says
+  raisable, so without a repaint a demoted master would keep working arrows.
+  `updateMasterView` hides them, and `onRequestSkillUp` refuses as well - a hidden
+  control is a layout fact, the handler is the guarantee.
+
+- **A member is never told which tabs they may open until they ask, and there is
+  a window before the answer.** The mask starts unknown, which permits every tab,
+  so between entering the game and the reply landing a member can open a tab their
+  mask will later refuse. On rAthena that is exactly one, the Notice tab. It is
+  the declared cost of the sentinel and it was chosen over the alternative: zero
+  refuses *every* tab, which is what the character-switch bug actually was. All
+  five surfaces agree inside that window - nothing marked, normal cursor, in the
+  tab order, click allowed - so it is not an interface that lies, and the pane
+  behind it is read-only for a member with the send gated twice over. When the
+  reply lands, a member left standing on a refused tab is moved to the first one.
+
+- **Being expelled from a guild, or leaving one, does not empty the window on any
+  packetver at or above 2016.** Not this note's subject and not introduced here,
+  but it is where the reset added for those two paths goes unused. rAthena swaps
+  both packets at `PACKETVER_MAIN 20161019` / `RE 20160921` for forms that carry a
+  **character id instead of a name**, and this port registers only the older
+  opcodes - so on a modern server the packet is read and dropped, the departure
+  chat line never prints, and the handler that would reset never runs. Below that
+  boundary both work. Closing it means registering the two newer opcodes and
+  matching on the id rather than the name.
 
 ## See also
 

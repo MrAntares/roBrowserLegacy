@@ -711,11 +711,7 @@ Guild.onRemove = function onRemove() {
 /**
  * Empty the window of the character who was here before
  *
- * The component is a singleton and outlives a character change, so everything
- * below would otherwise be inherited by whoever logs in next - a roster still
- * showing who was online an account ago, an access mask that opens tabs the new
- * character may not have, and a notice belonging to another guild.
- *
+ * The component is a singleton and outlives a character change.
  * @see docs/reference/guild/member-view.md
  */
 Guild.reset = function reset() {
@@ -1958,10 +1954,6 @@ function _tabLabel(btn) {
 
 /**
  * Mark the tabs this member's access mask refuses
- *
- * Only ever reached from the packet that carries the mask, so a tab is never
- * marked on the zero the window starts with.
- *
  * @see docs/reference/guild/member-view.md
  */
 function updateTabAccess(root) {
