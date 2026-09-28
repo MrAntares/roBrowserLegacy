@@ -83233,7 +83233,7 @@ var init_Texture = __esmMin((() => {
 *
 * @return {object} webgl context
 */
-function getContext(canvas, parameters) {
+function getContext$1(canvas, parameters) {
 	let gl = null;
 	let i;
 	if (!parameters) parameters = {
@@ -83403,7 +83403,7 @@ var init_WebGL = __esmMin((() => {
 	init_Texture();
 	init_Configs();
 	WebGL_default = {
-		getContext,
+		getContext: getContext$1,
 		compileShader,
 		createShaderProgram,
 		detectBadWebGL,
@@ -207126,6 +207126,69 @@ function RenderCanvas3D(isBlendModeOne) {
 	}
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 }
+/**
+* Convert a sprite frame (RGBA or palette-indexed) into canvas ImageData,
+* applying the layer color modulation.
+*/
+function fillImageData(imageData, frame, pal, color) {
+	let x, y, r, g, b, a, inRow, outRow;
+	const width = frame.width;
+	const height = frame.height;
+	const input = frame.data;
+	const outputWidth = width;
+	const output32 = new Uint32Array(imageData.data.buffer);
+	const r_mul = color[0], g_mul = color[1], b_mul = color[2], a_mul = color[3];
+	const isColorIdentity = r_mul === 1 && g_mul === 1 && b_mul === 1 && a_mul === 1;
+	if (frame.type === 1) {
+		/**
+		* OLD LOGIC: Per-channel RGBA modulation using byte array access.
+		*            4 loads + 4 stores + multiplications per pixel.
+		* NEW LOGIC: Reads and writes pixels as a single 32-bit integer.
+		*            Uses bitwise extraction and assembly with optional color modulation.
+		*            1 load + 1 store per pixel in the fast path.
+		* Reduces memory writes and bounds checks inside the inner loop.
+		*/
+		const input32 = new Uint32Array(input.buffer);
+		for (y = 0; y < height; ++y) {
+			outRow = y * outputWidth;
+			inRow = y * width;
+			for (x = 0; x < width; ++x) {
+				const pixel = input32[inRow + x];
+				if (pixel === 0) {
+					output32[outRow + x] = 0;
+					continue;
+				}
+				if (isColorIdentity) output32[outRow + x] = pixel;
+				else {
+					r = (pixel & 255) * r_mul;
+					g = (pixel >> 8 & 255) * g_mul;
+					b = (pixel >> 16 & 255) * b_mul;
+					a = (pixel >> 24 & 255) * a_mul;
+					output32[outRow + x] = a << 24 | b << 16 | g << 8 | r;
+				}
+			}
+		}
+	} else {
+		const pal32 = /* @__PURE__ */ new Uint32Array(256);
+		for (let i = 0; i < 256; i++) {
+			if (i === 0) {
+				pal32[i] = 0;
+				continue;
+			}
+			const pIdx = i * 4;
+			r = pal[pIdx + 0] * r_mul | 0;
+			g = pal[pIdx + 1] * g_mul | 0;
+			b = pal[pIdx + 2] * b_mul | 0;
+			a = 255 * a_mul | 0;
+			pal32[i] = a << 24 | b << 16 | g << 8 | r;
+		}
+		for (y = 0; y < height; ++y) {
+			outRow = y * outputWidth;
+			inRow = y * width;
+			for (x = 0; x < width; ++x) output32[outRow + x] = pal32[input[inRow + x]];
+		}
+	}
+}
 var mat4$22, RenderCanvas2D, _program$25, _buffer$18, _ctx$5, _gl$2, _groupId, _lastGroupId, _shadow, _angle, _depth, _disableDepthCorrection, _depthMask, _depthTest, _texture$4, _usepal, _pos$8, _matrix$7, _size$7, _offset, SpriteRenderer;
 var init_SpriteRenderer = __esmMin((() => {
 	init_WebGL();
@@ -207135,17 +207198,44 @@ var init_SpriteRenderer = __esmMin((() => {
 	init_SpriteRenderer$1();
 	mat4$22 = gl_matrix_default.mat4;
 	RenderCanvas2D = (function RenderCanvas2DClosure() {
-		let imageData;
-		const canvas = document.createElement("canvas");
-		const ctx = canvas.getContext("2d");
-		canvas.width = 20;
-		canvas.height = 20;
-		imageData = ctx.createImageData(canvas.width, canvas.height);
+		const _cache = /* @__PURE__ */ new WeakMap();
+		const MAX_COLORS_PER_PALETTE = 8;
+		function getFrameCanvas(frame, pal, color) {
+			let entry = _cache.get(frame);
+			if (!entry) {
+				entry = {
+					rgba: /* @__PURE__ */ new Map(),
+					byPalette: /* @__PURE__ */ new WeakMap()
+				};
+				_cache.set(frame, entry);
+			}
+			let byColor;
+			if (frame.type === 1 || !pal) byColor = entry.rgba;
+			else {
+				byColor = entry.byPalette.get(pal);
+				if (!byColor) {
+					byColor = /* @__PURE__ */ new Map();
+					entry.byPalette.set(pal, byColor);
+				}
+			}
+			const colorKey = `${color[0]},${color[1]},${color[2]},${color[3]}`;
+			let canvas = byColor.get(colorKey);
+			if (!canvas) {
+				if (byColor.size >= MAX_COLORS_PER_PALETTE) byColor.delete(byColor.keys().next().value);
+				canvas = document.createElement("canvas");
+				canvas.width = frame.width;
+				canvas.height = frame.height;
+				const ctx = canvas.getContext("2d");
+				const imageData = ctx.createImageData(frame.width, frame.height);
+				fillImageData(imageData, frame, pal, color);
+				ctx.putImageData(imageData, 0, 0);
+				byColor.set(colorKey, canvas);
+			}
+			return canvas;
+		}
 		return function() {
 			if (this.sprite.width <= 0 || this.sprite.height <= 0) return;
 			let scale_x, scale_y;
-			let x, y;
-			let r, g, b, a, inRow, outRow;
 			scale_x = 1;
 			scale_y = 1;
 			const _x = _pos$8[0] + this.offset[0];
@@ -207163,67 +207253,7 @@ var init_SpriteRenderer = __esmMin((() => {
 				scale_y *= -1;
 				_size$7[1] *= -1;
 			}
-			if (width > canvas.width || height > canvas.height) {
-				canvas.width = width;
-				canvas.height = height;
-				imageData = ctx.createImageData(width, height);
-			}
-			const input = frame.data;
-			const color = this.color;
-			const outputWidth = canvas.width;
-			const output32 = new Uint32Array(imageData.data.buffer);
-			const r_mul = color[0], g_mul = color[1], b_mul = color[2], a_mul = color[3];
-			const isColorIdentity = r_mul === 1 && g_mul === 1 && b_mul === 1 && a_mul === 1;
-			if (this.sprite.type === 1) {
-				/**
-				* OLD LOGIC: Per-channel RGBA modulation using byte array access.
-				*            4 loads + 4 stores + multiplications per pixel.
-				* NEW LOGIC: Reads and writes pixels as a single 32-bit integer.
-				*            Uses bitwise extraction and assembly with optional color modulation.
-				*            1 load + 1 store per pixel in the fast path.
-				* Reduces memory writes and bounds checks inside the inner loop.
-				*/
-				const input32 = new Uint32Array(input.buffer);
-				for (y = 0; y < height; ++y) {
-					outRow = y * outputWidth;
-					inRow = y * width;
-					for (x = 0; x < width; ++x) {
-						const pixel = input32[inRow + x];
-						if (pixel === 0) {
-							output32[outRow + x] = 0;
-							continue;
-						}
-						if (isColorIdentity) output32[outRow + x] = pixel;
-						else {
-							r = (pixel & 255) * r_mul;
-							g = (pixel >> 8 & 255) * g_mul;
-							b = (pixel >> 16 & 255) * b_mul;
-							a = (pixel >> 24 & 255) * a_mul;
-							output32[outRow + x] = a << 24 | b << 16 | g << 8 | r;
-						}
-					}
-				}
-			} else {
-				const pal32 = /* @__PURE__ */ new Uint32Array(256);
-				for (let i = 0; i < 256; i++) {
-					if (i === 0) {
-						pal32[i] = 0;
-						continue;
-					}
-					const pIdx = i * 4;
-					r = pal[pIdx + 0] * r_mul | 0;
-					g = pal[pIdx + 1] * g_mul | 0;
-					b = pal[pIdx + 2] * b_mul | 0;
-					a = 255 * a_mul | 0;
-					pal32[i] = a << 24 | b << 16 | g << 8 | r;
-				}
-				for (y = 0; y < height; ++y) {
-					outRow = y * outputWidth;
-					inRow = y * width;
-					for (x = 0; x < width; ++x) output32[outRow + x] = pal32[input[inRow + x]];
-				}
-			}
-			ctx.putImageData(imageData, 0, 0, 0, 0, width, height);
+			const canvas = getFrameCanvas(frame, pal, this.color);
 			_ctx$5.save();
 			_ctx$5.translate(_x | 0, _y | 0);
 			_ctx$5.rotate(this.angle / 180 * Math.PI);
@@ -208565,7 +208595,7 @@ var init_FlatColorTile$1 = __esmMin((() => {
 //#region src/Renderer/Effects/FlatColorTile.js
 function FlatColorTile_default(name, spec) {
 	let _program, _buffer;
-	if (_cache$1[name]) return _cache$1[name];
+	if (_cache[name]) return _cache[name];
 	if (spec.a === void 0) spec.a = .5;
 	[
 		spec.r,
@@ -208655,15 +208685,15 @@ function FlatColorTile_default(name, spec) {
 	}
 	FlatColorTile._uid = name;
 	FlatColorTile.renderBeforeEntities = true;
-	_cache$1[name] = FlatColorTile;
+	_cache[name] = FlatColorTile;
 	return FlatColorTile;
 }
-var _cache$1;
+var _cache;
 var init_FlatColorTile = __esmMin((() => {
 	init_WebGL();
 	init_FlatColorTile$2();
 	init_FlatColorTile$1();
-	_cache$1 = {};
+	_cache = {};
 }));
 //#endregion
 //#region node_modules/granny-ro-js/dist/granny-ro.wasm.esm.js
@@ -218713,6 +218743,28 @@ function _root$18() {
 	return ChatBox._shadow || ChatBox._host;
 }
 /**
+* Whether an Alt/Option keydown produces a different printable character than its key
+* (macOS Option layer, dead keys), i.e. the user is typing rather than using a hotkey.
+* @param {KeyboardEvent} event
+* @returns {boolean}
+*/
+function isComposedAltCharacter(event) {
+	if (event.ctrlKey || event.metaKey || !event.key) return false;
+	if (event.key === "Dead") return true;
+	if (event.key.length !== 1) return false;
+	const match = /^(?:Key|Digit)(.)$/.exec(event.code || "");
+	return !!match && event.key.toUpperCase() !== match[1];
+}
+/**
+* Move caret to the end of a contenteditable element.
+* Uses Selection.collapse(): WebKit ignores addRange() for ranges inside a shadow root, so the
+* removeAllRanges()+addRange() idiom left Safari with no caret and typing went nowhere.
+* @param {HTMLElement} el
+*/
+function setCaretToEnd$1(el) {
+	window.getSelection().collapse(el, el.childNodes.length);
+}
+/**
 * Extract plain chat text from the contenteditable input while preserving item links.
 */
 function extractChatMessage$1(inputEl) {
@@ -219121,6 +219173,10 @@ var init_ChatBox = __esmMin((() => {
 		});
 		const inputChatbox = root.querySelector(".input-chatbox");
 		if (Configs.get("restoreChatFocus", false) && inputChatbox) inputChatbox.addEventListener("blur", () => {
+			if (inputChatbox.dataset.escapeBlur) {
+				delete inputChatbox.dataset.escapeBlur;
+				return;
+			}
 			Events.setTimeout(() => {
 				const active = KEYS.getDeepActiveElement();
 				const movedInsideChatbox = active && root.querySelector("#chatbox").contains(active);
@@ -219130,20 +219186,10 @@ var init_ChatBox = __esmMin((() => {
 		});
 		if (inputChatbox) {
 			inputChatbox.addEventListener("click", function() {
-				const range = document.createRange();
-				const selection = window.getSelection();
-				range.selectNodeContents(this);
-				range.collapse(false);
-				selection.removeAllRanges();
-				selection.addRange(range);
+				setCaretToEnd$1(this);
 			});
 			inputChatbox.addEventListener("focus", function() {
-				const range = document.createRange();
-				const selection = window.getSelection();
-				range.selectNodeContents(this);
-				range.collapse(false);
-				selection.removeAllRanges();
-				selection.addRange(range);
+				setCaretToEnd$1(this);
 			});
 			inputChatbox.maxLength = MAX_LENGTH;
 			inputChatbox.addEventListener("input", (event) => {
@@ -219591,6 +219637,10 @@ var init_ChatBox = __esmMin((() => {
 						return true;
 					}
 					if (event.altKey || KEYS.ALT) {
+						if (isComposedAltCharacter(event)) {
+							event.stopImmediatePropagation();
+							return true;
+						}
 						if (!(event.which === KEYS.LEFT || event.which === KEYS.RIGHT || event.which === KEYS.UP || event.which === KEYS.DOWN || event.which === KEYS.BACKSPACE || event.which === KEYS.DELETE || event.which === KEYS.HOME || event.which === KEYS.END)) {
 							if (ChatBox.processBattleMode(event.which)) {
 								event.preventDefault();
@@ -219603,7 +219653,12 @@ var init_ChatBox = __esmMin((() => {
 						event.stopImmediatePropagation();
 						return true;
 					}
-					if (event.which === KEYS.ESCAPE || event.key === "Escape") return true;
+					if (event.which === KEYS.ESCAPE || event.key === "Escape") {
+						activeElement.dataset.escapeBlur = "1";
+						activeElement.blur();
+						event.stopImmediatePropagation();
+						return false;
+					}
 					event.stopImmediatePropagation();
 					return true;
 				}
@@ -219670,12 +219725,7 @@ var init_ChatBox = __esmMin((() => {
 					if (bmEl) bmEl.style.display = "none";
 				}
 				messageBox.focus();
-				const range = document.createRange();
-				const sel = window.getSelection();
-				range.selectNodeContents(messageBox);
-				range.collapse(false);
-				sel.removeAllRanges();
-				sel.addRange(range);
+				setCaretToEnd$1(messageBox);
 				event.stopImmediatePropagation();
 				return false;
 			}
@@ -224007,12 +224057,7 @@ var init_Friends = __esmMin((() => {
 * @param {HTMLElement} el
 */
 function setCaretToEnd(el) {
-	const range = document.createRange();
-	const sel = window.getSelection();
-	range.selectNodeContents(el);
-	range.collapse(false);
-	sel.removeAllRanges();
-	sel.addRange(range);
+	window.getSelection().collapse(el, el.childNodes.length);
 }
 /**
 * Extract plain chat text from input while preserving item links
@@ -308763,100 +308808,67 @@ var init_Client = __esmMin((() => {
 }));
 //#endregion
 //#region src/Audio/SoundManager.js
-/**
-* Move sound to cache.
-* ff we have a request to play the same sound again, get it back
-* Will avoid to re-create sound object at each request (re-usable object)
-*/
-function onSoundEnded() {
-	if (_sounds[this.filename]) {
-		const pos = _sounds[this.filename].instances.indexOf(this);
-		if (pos !== -1) {
-			_sounds[this.filename].instances.splice(pos, 1);
-			if (_sounds[this.filename].instances.length === 0) delete _sounds[this.filename];
-		}
-		addSoundToCache(this);
+function getContext() {
+	if (!_context) {
+		const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+		if (!AudioContextClass) return null;
+		_context = new AudioContextClass();
+		const resume = () => {
+			if (_context.state !== "running") _context.resume().catch(() => {});
+		};
+		[
+			"pointerdown",
+			"keydown",
+			"touchend"
+		].forEach((type) => {
+			window.addEventListener(type, resume, {
+				capture: true,
+				passive: true
+			});
+		});
 	}
+	return _context;
 }
 /**
-* Clear sound from dom on error
-*/
-function onSoundError() {
-	const entry = _sounds[this.filename];
-	if (entry) {
-		const pos = entry.instances.indexOf(this);
-		if (pos !== -1) {
-			entry.instances.splice(pos, 1);
-			if (entry.instances.length === 0) delete _sounds[this.filename];
-		}
-	}
-	this.remove();
-	mediaPlayerCount--;
-}
-/**
-* Add sound to cache and set associated vars
-*
-* @param {Audio} sound element
-*/
-function addSoundToCache(sound) {
-	if (sound.filename) {
-		if (!(sound.filename in _cache)) {
-			_cache[sound.filename] = /* @__PURE__ */ new Object();
-			_cache[sound.filename].instances = new Array();
-		}
-		if (_cache[sound.filename].instances.length < balancedMax(C_MAX_CACHED_SOUND_INSTANCES)) {
-			sound.currentTime = 0;
-			sound.cleanupHandle = setTimeout(() => {
-				cleanupCache(sound);
-			}, C_CACHE_CLEANUP_TIME);
-			_cache[sound.filename].instances.push(sound);
-		} else {
-			sound.remove();
-			mediaPlayerCount--;
-		}
-	}
-}
-/**
-* Remove sound from cache and return it
-* Check at the same time to remove sound not used since some times.
+* Load and decode a sound (once per filename)
 *
 * @param {string} filename
-* @param {Audio} sound element
+* @returns {Promise<AudioBuffer|null>}
 */
-function getSoundFromCache(filename) {
-	let out = null;
-	if (filename in _cache) {
-		if (_cache[filename].instances.length > 0) {
-			out = _cache[filename].instances.pop();
-			if (out.cleanupHandle) clearTimeout(out.cleanupHandle);
-		}
+function getBuffer(filename) {
+	if (!(filename in _buffers)) {
+		const context = getContext();
+		const promise = new Promise((resolve) => {
+			Client.loadFile(`data/wav/${filename}`, (url) => {
+				fetch(url).then((response) => response.arrayBuffer()).then((data) => new Promise((ok, fail) => context.decodeAudioData(data, ok, fail))).then(resolve).catch((err) => {
+					console.warn("Failed to load sound:", filename, err);
+					resolve(null);
+				});
+			}, () => resolve(null));
+		});
+		promise.then((buffer) => {
+			if (!buffer && _buffers[filename] === promise) delete _buffers[filename];
+		});
+		_buffers[filename] = promise;
 	}
-	return out;
+	return _buffers[filename];
 }
 /**
-* Remove sound from cache if it was sitting there for too long
+* Stop and disconnect playing instances
 *
-* @param {Audio} sound element
+* @param {Array} instances
 */
-function cleanupCache(sound) {
-	if (sound.filename && sound.filename in _cache && _cache[sound.filename].instances.length > 0) {
-		const pos = _cache[sound.filename].instances.indexOf(sound);
-		if (pos !== -1) {
-			_cache[sound.filename].instances.splice(pos, 1);
-			sound.remove();
-			mediaPlayerCount--;
-		}
+function stopInstances(instances) {
+	while (instances.length > 0) {
+		const instance = instances.shift();
+		instance.source.onended = null;
+		try {
+			instance.source.stop();
+		} catch {}
+		instance.gain.disconnect();
 	}
 }
-/**
-* Returns a balanced value for max audio instance number based on the currently existing HTML Media players in the DOM
-*
-* @param {CONST} max instance const value
-*/
-function balancedMax(maxConst) {
-	return Math.ceil(maxConst * (1 - mediaPlayerCount / C_MAX_MEDIA_PLAYERS));
-}
-var C_MAX_SOUND_INSTANCES, C_MAX_CACHED_SOUND_INSTANCES, C_MAX_MEDIA_PLAYERS, C_SAME_SOUND_DELAY, C_CACHE_CLEANUP_TIME, _sounds, _cache, mediaPlayerCount, _playGen, SoundManager;
+var C_MAX_SOUND_INSTANCES, C_SAME_SOUND_DELAY, _sounds, _buffers, _playGen, _fileGen, _context, SoundManager;
 var init_SoundManager = __esmMin((() => {
 	init_Client();
 	init_Audio();
@@ -308864,14 +308876,12 @@ var init_SoundManager = __esmMin((() => {
 	init_gl_matrix();
 	init_SessionStorage();
 	C_MAX_SOUND_INSTANCES = 10;
-	C_MAX_CACHED_SOUND_INSTANCES = 30;
-	C_MAX_MEDIA_PLAYERS = 800;
 	C_SAME_SOUND_DELAY = 100;
-	C_CACHE_CLEANUP_TIME = 3e4;
 	_sounds = {};
-	_cache = {};
-	mediaPlayerCount = 0;
+	_buffers = {};
 	_playGen = 0;
+	_fileGen = {};
+	_context = null;
 	SoundManager = class SoundManager {
 		/**
 		* @var {float} sound volume
@@ -308885,52 +308895,45 @@ var init_SoundManager = __esmMin((() => {
 		* @param {optional|number} vol (volume)
 		*/
 		static play(filename, vol) {
-			let volume;
-			if (vol) volume = vol * this.volume;
-			else volume = this.volume;
-			if (volume <= 0 || !Audio_default.Sound.play) return;
-			if (!(filename in _sounds)) {
-				_sounds[filename] = {};
-				_sounds[filename].instances = [];
-				_sounds[filename].lastTick = 0;
-			}
-			const sound = getSoundFromCache(filename);
-			if (sound) {
-				sound.volume = Math.min(volume, 1);
-				sound._volume = volume;
-				const playPromise = sound.play();
-				if (playPromise) playPromise.catch((err) => {
-					if (err.name === "NotSupportedError" || err.name === "AbortError") {
-						const idx = _sounds[filename]?.instances.indexOf(sound);
-						if (idx !== void 0 && idx !== -1) _sounds[filename].instances.splice(idx, 1);
-						sound.remove();
-						mediaPlayerCount--;
-						SoundManager.play(filename, vol);
-						return;
-					}
-					console.warn("Failed to play sound:", err);
-				});
-				_sounds[filename].instances.push(sound);
-				_sounds[filename].lastTick = Date.now();
-				return;
-			}
+			if (typeof vol !== "number" || !isFinite(vol) || vol <= 0) vol = 1;
+			if (vol * this.volume <= 0 || !Audio_default.Sound.play) return;
+			const context = getContext();
+			if (!context) return;
 			const myGen = _playGen;
-			Client.loadFile(`data/wav/${filename}`, (url) => {
-				if (myGen !== _playGen || !(filename in _sounds)) return;
-				if (_sounds[filename].lastTick > Date.now() - C_SAME_SOUND_DELAY || _sounds[filename].instances.length > balancedMax(C_MAX_SOUND_INSTANCES)) return;
-				const audio = document.createElement("audio");
-				mediaPlayerCount++;
-				audio.filename = filename;
-				audio.src = url;
-				audio.volume = Math.min(volume, 1);
-				audio._volume = volume;
-				audio.addEventListener("error", onSoundError, false);
-				audio.addEventListener("ended", onSoundEnded, false);
-				audio.play().catch((err) => {
-					if (err.name !== "AbortError") console.warn("Failed to play sound:", err);
-				});
-				_sounds[filename].instances.push(audio);
-				_sounds[filename].lastTick = Date.now();
+			const myFileGen = _fileGen[filename] || 0;
+			getBuffer(filename).then((buffer) => {
+				if (!buffer || myGen !== _playGen || myFileGen !== (_fileGen[filename] || 0)) return;
+				if (context.state !== "running") return;
+				const volume = vol * SoundManager.volume;
+				if (volume <= 0 || !Audio_default.Sound.play) return;
+				if (!(filename in _sounds)) _sounds[filename] = {
+					instances: [],
+					lastTick: 0
+				};
+				const entry = _sounds[filename];
+				if (entry.lastTick > Date.now() - C_SAME_SOUND_DELAY || entry.instances.length >= C_MAX_SOUND_INSTANCES) return;
+				const source = context.createBufferSource();
+				const gain = context.createGain();
+				source.buffer = buffer;
+				gain.gain.value = Math.min(volume, 1);
+				source.connect(gain);
+				gain.connect(context.destination);
+				const instance = {
+					source,
+					gain,
+					vol
+				};
+				source.onended = () => {
+					gain.disconnect();
+					const current = _sounds[filename];
+					if (current) {
+						const pos = current.instances.indexOf(instance);
+						if (pos !== -1) current.instances.splice(pos, 1);
+					}
+				};
+				entry.instances.push(instance);
+				entry.lastTick = Date.now();
+				source.start();
 			});
 		}
 		/**
@@ -308951,37 +308954,23 @@ var init_SoundManager = __esmMin((() => {
 		*/
 		static stop(filename) {
 			if (filename) {
+				_fileGen[filename] = (_fileGen[filename] || 0) + 1;
 				if (filename in _sounds) {
-					while (_sounds[filename].instances.length > 0) {
-						const s = _sounds[filename].instances.shift();
-						s.pause();
-						s.remove();
-						mediaPlayerCount--;
-					}
+					stopInstances(_sounds[filename].instances);
 					delete _sounds[filename];
 				}
 				return;
 			}
 			_playGen++;
 			Object.keys(_sounds).forEach((key) => {
-				while (_sounds[key].instances.length > 0) {
-					const s = _sounds[key].instances.shift();
-					s.pause();
-					s.remove();
-					mediaPlayerCount--;
-				}
+				stopInstances(_sounds[key].instances);
 				delete _sounds[key];
 			});
-			Object.keys(_cache).forEach((key) => {
-				_cache[key].instances.forEach((s) => {
-					if (s.cleanupHandle) clearTimeout(s.cleanupHandle);
-					s.remove();
-					mediaPlayerCount--;
-				});
-				delete _cache[key];
+			Object.keys(_buffers).forEach((key) => {
+				delete _buffers[key];
 			});
 			MemoryManager.search(/\.wav$/).forEach((key) => {
-				MemoryManager.remove(key);
+				MemoryManager.remove(null, key);
 			});
 		}
 		/**
@@ -308994,8 +308983,8 @@ var init_SoundManager = __esmMin((() => {
 			Audio_default.Sound.volume = this.volume;
 			Audio_default.save();
 			Object.keys(_sounds).forEach((key) => {
-				_sounds[key].instances.forEach((sound) => {
-					sound.volume = Math.min(sound._volume * this.volume, 1);
+				_sounds[key].instances.forEach((instance) => {
+					instance.gain.gain.value = Math.min(instance.vol * this.volume, 1);
 				});
 			});
 		}
