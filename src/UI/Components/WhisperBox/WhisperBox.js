@@ -290,12 +290,8 @@ WhisperBox.addText = function addText(nickname, text, color) {
  * @param {HTMLElement} el
  */
 function setCaretToEnd(el) {
-	const range = document.createRange();
-	const sel = window.getSelection();
-	range.selectNodeContents(el);
-	range.collapse(false);
-	sel.removeAllRanges();
-	sel.addRange(range);
+	// collapse(), not removeAllRanges()+addRange(): WebKit ignores addRange() inside a shadow root
+	window.getSelection().collapse(el, el.childNodes.length);
 }
 
 /**
