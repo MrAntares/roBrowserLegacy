@@ -14993,7 +14993,7 @@ PACKET.CZ.REQ_ADD_NEW_EMBLEM.prototype.build = function () {
 };
 PACKET.CZ.REQ_ADD_NEW_EMBLEM.size = 10;
 
-// 0xb1f, and 0xb47 after it - same layout, and both reorder the fields the
+// 0xb1f, and 0xb47 after it - same field order, and both reorder the fields the
 // 0x1b4 generation sent while widening the version from a short to a long.
 // They need one structure each: registering takes the id on the structure
 // itself, so a shared one keeps only the opcode it was registered under last
@@ -15001,9 +15001,16 @@ PACKET.CZ.REQ_ADD_NEW_EMBLEM.size = 10;
 PACKET.ZC.CHANGE_GUILD2 = function PACKET_ZC_CHANGE_GUILD2(fp, end) {
 	this.GDID = fp.readULong();
 	this.emblemVersion = fp.readULong();
-	this.AID = fp.readULong();
+
+	// Ten bytes from 20190306 and fourteen from 20190619: the account id was
+	// appended to the two leading fields, not slotted in among them. Read off the
+	// framed length rather than the version, which is what framed it in the first
+	// place.
+	if (end - fp.tell() >= 4) {
+		this.AID = fp.readULong();
+	}
 };
-PACKET.ZC.CHANGE_GUILD2.size = 14;
+PACKET.ZC.CHANGE_GUILD2.size = PACKETVER.value >= 20190619 ? 14 : 10;
 
 // 0xb47
 PACKET.ZC.CHANGE_GUILD3 = function PACKET_ZC_CHANGE_GUILD3(fp, end) {

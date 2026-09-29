@@ -173,6 +173,65 @@ their client refetches. It has three generations - `0x01b4`, then `0x0b1f`
 re 20190731 / zero 20190814) - and the two newer ones reorder the fields and
 widen the version from a short to a long.
 
+Those dates are rAthena's, the build each opcode is *sent* from. The lengths are
+the client's own, and the length table is what frames the packet here, so its
+dates are the ones the parse follows:
+
+| opcode | bytes | packetver | payload |
+| --- | --- | --- | --- |
+| `0x01b4` | 12 | every table, 2003 on | `AID.L GDID.L emblemVersion.W` |
+| `0x0b1f` | **10** | `20190306‥20190618` | `GDID.L emblemVersion.L` |
+| `0x0b1f` | 14 | `20190619+` | `GDID.L emblemVersion.L AID.L` |
+| `0x0b47` | 14 | `20190724+` | `GDID.L emblemVersion.L AID.L` |
+
+`0x0b1f` at two lengths is the reason the account id is read off the **framed
+length** rather than off the packetver: the table is what decided the framing, so
+asking it twice can only disagree with itself.
+
+The account id is **appended** at 20190619, not slotted in - so the short form is
+a clean prefix of the long one. That is **documented for the twin and inferred for
+this opcode**, and the inference is worth stating plainly because guessing a field
+order is what produced the `0x0a82` bug this same work had to fix:
+
+- `0x0b1e` (`CZ_REQ_GUILD_EMBLEM_IMG2`), the other direction of the same
+  exchange, exists in both forms at the **same** date boundary: `guild_id.L
+  emblem_id.L` at ten bytes from 20190227, plus a trailing unused long at
+  fourteen from 20190619. Hercules `src/map/packets_struct.h` and rAthena carry it
+  identically. So at that step the client appended a dword and left
+  `guild_id, emblem_id` leading and unchanged.
+- The long `0x0b1f` puts the account id **last**, which is what makes a ten-byte
+  `{GDID, emblemVersion}` a prefix rather than a different packet. A third
+  ordering would need the 2019 build to differ from both its neighbour opcode and
+  the era it leads into.
+
+The 14-byte order, by contrast, **is** settled from the clients themselves:
+
+| build | opcode | handler | what pins the fields |
+| --- | --- | --- | --- |
+| ver12 | `0x01b4` | `fcn.005a9710`, table `data.005be29c` | `mov eax, [esi+2]` feeds the actor lookup `fcn.004fc2a0`, which matches on `obj+0x214` - the account id - then `movsx ecx, word [esi+0xa]` and `mov ecx, [esi+6]` |
+| mars26 | `0x0b47` | `fcn.00bc63c0`, table `data.00b76880` | the case body pushes `[+6]`, `[+2]`, `[+10]`; `fcn.00911060` looks up by `[+10]` against `node+0x110`, and the assignment reads `emblemMap[[+2]] = [+6]` |
+| 2022 | `0x0b47` | `fcn.007f41c0` | same three offsets off the receive buffer; `fcn.0065add0` is the find-by-account-id walk (`actor+0x110`), and the map's direction is anchored by the `ZC_GUILD_INFO` (`0x0a84`) handler calling it with that packet's known guild id and emblem version |
+
+Reading the pushes takes care: they go right to left, so the first push in the
+listing is the **last** argument, not the first.
+
+And the reorder is a reorder, not an extension - provable inside a single build.
+mars26 still handles legacy `0x01b4`, feeding the *same* lookup from offset 2
+while `0x0b47` feeds it from offset 10. The account id moved from first to last
+and the version widened from 16 to 32 bits. Which is why the argument for the
+short form above rests on the 2019 boundary and its twin opcode, and not on this
+older transition.
+
+Negative results, recorded so nobody runs this search again: **no binary from the
+`20190306‥20190618` window exists** among the three, so none of them can speak to
+the short form, and `0x0b1f` is handled in none of them - mars26 routes it to the
+unknown-packet default. The 2022 build's own length table declares `0x0b1f` at 14
+while routing it nowhere, which is consistent with 10 belonging to a 2019-era
+table and nothing else. rAthena and Hercules are one lineage and both carry the
+comment *"20190605 re first versions with other packet size"* without ever
+implementing it. `dastgirp/Zeus`, an independent packet logger, has a flat ungated
+`len = 14`.
+
 All three are registered, **each against its own structure**: registering takes
 the opcode on the structure object itself, so two opcodes sharing one structure
 keep only the one registered last and the other is parsed and then dropped with
