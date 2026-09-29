@@ -159,7 +159,7 @@ SkillEffect[SK.BS_OVERTHRUST] = { effectId: 128 }; //Power-Thrust
 SkillEffect[SK.BS_MAXIMIZE] = { beginCastEffectId: 'maximize_power_sounds', effectId: 104 }; //Maximize Power
 // Hunter
 SkillEffect[SK.HT_SKIDTRAP] = { effectId: 69 }; //Skid Trap
-SkillEffect[SK.HT_LANDMINE] = {}; //Land Mine
+SkillEffect[SK.HT_LANDMINE] = { effectId: 'ef_ht_landmine' }; //Land Mine
 SkillEffect[SK.HT_ANKLESNARE] = { groundEffectId: 'ef_anklesnare' }; //Ankle Snare
 SkillEffect[SK.HT_SHOCKWAVE] = { effectId: 145, hitEffectId: 146 }; //Shockwave Trap
 SkillEffect[SK.HT_SANDMAN] = { hitEffectId: 139 }; //Sandman
@@ -330,7 +330,7 @@ SkillEffect[SK.SA_TAMINGMONSTER] = {}; //Beastly Hypnosis
 SkillEffect[SK.SA_QUESTION] = {}; //Questioning
 SkillEffect[SK.SA_GRAVITY] = {}; //Gravity
 SkillEffect[SK.SA_LEVELUP] = {}; //Leveling
-SkillEffect[SK.SA_INSTANTDEATH] = {}; //Suicide
+SkillEffect[SK.SA_INSTANTDEATH] = { effectId: 'ef_sa_instantdeath' }; //Suicide
 SkillEffect[SK.SA_FULLRECOVERY] = {}; //Rejuvenation
 SkillEffect[SK.SA_COMA] = {}; //Coma
 // Bard & Dancer
@@ -473,7 +473,7 @@ SkillEffect[SK.TK_DOWNKICK] = { effectId: 413 }; //Heel Drop
 SkillEffect[SK.TK_READYTURN] = {}; //Roundhouse Stance
 SkillEffect[SK.TK_TURNKICK] = { effectId: 414 }; //Roundhouse Kick
 SkillEffect[SK.TK_READYCOUNTER] = {}; //Counter Kick Stance
-SkillEffect[SK.TK_COUNTER] = { effectId: 415 }; //Counter Kick
+SkillEffect[SK.TK_COUNTER] = { effectId: 'ef_tk_counter' }; //Counter Kick
 SkillEffect[SK.TK_DODGE] = {}; //Tumbling
 SkillEffect[SK.TK_JUMPKICK] = { effectId: 439, hitEffectId: 457 }; //Flying Kick
 SkillEffect[SK.TK_SEVENWIND] = {/* 467 - 473 is done by entity */}; //Mild Wind
@@ -515,7 +515,7 @@ SkillEffect[SK.SL_KAAHI] = { effectId: 543 }; //Kaahi
 SkillEffect[SK.SL_KAUPE] = { effectId: 546 }; //Kaupe
 SkillEffect[SK.SL_KAITE] = { effectId: 419 }; //Kaite
 SkillEffect[SK.SL_STIN] = { effectId: 547 }; //Estin
-SkillEffect[SK.SL_STUN] = { effectId: 555 }; //Estun
+SkillEffect[SK.SL_STUN] = { effectId: [555, 'ef_sl_stun'] }; //Estun
 SkillEffect[SK.SL_SMA] = { effectId: 553, successEffectId: 425 }; //Esma
 SkillEffect[SK.SL_SWOO] = { effectId: 589, successEffectId: 420 }; //Eswoo
 SkillEffect[SK.SL_SKE] = { effectId: 427 }; //Eske
@@ -554,7 +554,7 @@ SkillEffect[SK.GS_TRIPLEACTION] = { effectId: 648 }; //Triple Action
 SkillEffect[SK.GS_BULLSEYE] = { effectId: 649 }; //Bulls Eye
 SkillEffect[SK.GS_MADNESSCANCEL] = { effectId: 625 }; //Madness Canceller
 SkillEffect[SK.GS_ADJUSTMENT] = { effectId: 626 }; //AdJustment
-SkillEffect[SK.GS_INCREASING] = { effectId: 456 }; //Increasing Accuracy
+SkillEffect[SK.GS_INCREASING] = { effectId: [456, 'ef_gs_increasing'], effectIdOnCaster: 'ef_gs_increasing_cast' }; //Increasing Accuracy
 SkillEffect[SK.GS_MAGICALBULLET] = { effectId: 644 }; //Magical Bullet
 SkillEffect[SK.GS_CRACKER] = {/*effect\\cracker.wav*/}; //Cracker
 SkillEffect[SK.GS_TRACKING] = { effectId: 646, hitEffectId: 647 }; //Tracking
@@ -661,7 +661,7 @@ SkillEffect[SK.RK_ENCHANTBLADE] = { effectId: 756 }; //Enchant Blade
 SkillEffect[SK.RK_SONICWAVE] = { effectId: 832 }; //Sonic Wave
 SkillEffect[SK.RK_DEATHBOUND] = {}; //Death Bound
 SkillEffect[SK.RK_HUNDREDSPEAR] = { effectId: 723 }; //Hundred Spear
-SkillEffect[SK.RK_WINDCUTTER] = {}; //Wind Cutter
+SkillEffect[SK.RK_WINDCUTTER] = { effectId: 'ef_rk_windcutter' }; //Wind Cutter
 SkillEffect[SK.RK_IGNITIONBREAK] = { effectIdOnCaster: 722 }; //Ignition Break
 SkillEffect[SK.RK_DRAGONBREATH] = { hitEffectId: 587 }; //Dragon Breath
 SkillEffect[SK.RK_DRAGONHOWLING] = { effectId: 731 }; //Dragon Howling
@@ -677,7 +677,10 @@ SkillEffect[SK.RK_ABUNDANCE] = {}; //Abundance
 SkillEffect[SK.RK_PHANTOMTHRUST] = {}; //Phantom Thrust
 // WL Warlock
 SkillEffect[SK.WL_WHITEIMPRISON] = { effectId: 802 }; //White Imprison
-SkillEffect[SK.WL_SOULEXPANSION] = {}; //Soul Expansion
+SkillEffect[SK.WL_SOULEXPANSION] = {
+	effectIdOnCaster: 'ef_wl_soulexpansion_cast',
+	hitEffectId: 'ef_wl_soulexpansion_hit'
+}; //Soul Expansion
 SkillEffect[SK.WL_FROSTMISTY] = { effectId: 726 }; //Frosty Misty
 SkillEffect[SK.WL_JACKFROST] = { successEffectIdOnCaster: 'ef_jackfrost', hitEffectId: 28 }; //Jack Frost
 SkillEffect[SK.WL_MARSHOFABYSS] = { effectId: 729 }; //Marsh of Abyss
@@ -686,20 +689,24 @@ SkillEffect[SK.WL_SIENNAEXECRATE] = { effectId: 'ef_siennaexecrate' }; //Sienna 
 SkillEffect[SK.WL_STASIS] = { effectId: 799 }; //Stasis
 SkillEffect[SK.WL_DRAINLIFE] = {}; //Drain Life
 SkillEffect[SK.WL_CRIMSONROCK] = { effectId: 727 }; //Crimson Rock
-SkillEffect[SK.WL_HELLINFERNO] = { groundEffectId: 728, effectId: 800 }; //Hell Inferno
-SkillEffect[SK.WL_COMET] = {}; //Comet
-SkillEffect[SK.WL_CHAINLIGHTNING] = {}; //Chain Lightning
+SkillEffect[SK.WL_HELLINFERNO] = {
+	groundEffectId: 728,
+	effectId: 'ef_wl_hellinferno',
+	effectIdOnCaster: 'ef_wl_hellinferno_cast'
+}; //Hell Inferno
+SkillEffect[SK.WL_COMET] = { effectId: 'ef_wl_comet', effectIdOnCaster: 'ef_wl_comet_cast' }; //Comet
+SkillEffect[SK.WL_CHAINLIGHTNING] = { effectIdOnCaster: 'ef_wl_chainlightning_cast' }; //Chain Lightning
 SkillEffect[SK.WL_CHAINLIGHTNING_ATK] = { effectId: 734 }; //Chain Lightning Attack
 SkillEffect[SK.WL_EARTHSTRAIN] = { groundEffectId: 732 }; //Earth Strain
 SkillEffect[SK.WL_TETRAVORTEX] = { effectId: 804, beginCastEffectId: 805 }; //Tetra Vortex
-SkillEffect[SK.WL_TETRAVORTEX_FIRE] = {}; //Tetra Vortex Fire
-SkillEffect[SK.WL_TETRAVORTEX_WATER] = {}; //Tetra Vortex Water
-SkillEffect[SK.WL_TETRAVORTEX_WIND] = {}; //Tetra Vortex Wind
+SkillEffect[SK.WL_TETRAVORTEX_FIRE] = { effectId: 'ef_wl_tetravortex_fire' }; //Tetra Vortex Fire
+SkillEffect[SK.WL_TETRAVORTEX_WATER] = { effectId: 'ef_wl_tetravortex_water' }; //Tetra Vortex Water
+SkillEffect[SK.WL_TETRAVORTEX_WIND] = { effectId: 'ef_wl_tetravortex_wind' }; //Tetra Vortex Wind
 SkillEffect[SK.WL_TETRAVORTEX_GROUND] = {}; //Tetra Vortex Earth
 SkillEffect[SK.WL_SUMMONFB] = {}; //Summon Fire Ball
 SkillEffect[SK.WL_SUMMONBL] = {}; //Summon Lightning Ball
 SkillEffect[SK.WL_SUMMONWB] = {}; //Summon Water Ball
-SkillEffect[SK.WL_SUMMON_ATK_FIRE] = {}; //Summon Attack Fire //CHECK Summon attack ID's dont appear to have a range.
+SkillEffect[SK.WL_SUMMON_ATK_FIRE] = { effectId: 'ef_wl_summon_atk_fire' }; //Summon Attack Fire
 SkillEffect[SK.WL_SUMMON_ATK_WIND] = {}; //Summon Attack Wind
 SkillEffect[SK.WL_SUMMON_ATK_WATER] = {}; //Summon Attack Water
 SkillEffect[SK.WL_SUMMON_ATK_GROUND] = {}; //Summon Attack Earth
@@ -708,21 +715,21 @@ SkillEffect[SK.WL_RELEASE] = { effectId: 751 }; //Release //CHECK Should it be l
 SkillEffect[SK.WL_READING_SB] = {}; //Reading Spellbook
 // GC Guillotine Cross
 SkillEffect[SK.GC_VENOMIMPRESS] = { effectId: 788 }; //Venom Impress
-SkillEffect[SK.GC_CROSSIMPACT] = {}; //Cross Impact
+SkillEffect[SK.GC_CROSSIMPACT] = { effectId: 'ef_gc_crossimpact' }; //Cross Impact
 SkillEffect[SK.GC_DARKILLUSION] = {}; //Dark Illusion
 SkillEffect[SK.GC_CREATENEWPOISON] = {}; //Create New Poison
 SkillEffect[SK.GC_ANTIDOTE] = {}; //Antidote
-SkillEffect[SK.GC_POISONINGWEAPON] = {}; //Poisoning Weapon
+SkillEffect[SK.GC_POISONINGWEAPON] = { effectId: 'ef_gc_poisoningweapon' }; //Poisoning Weapon
 SkillEffect[SK.GC_WEAPONBLOCKING] = {}; //Weapon Blocking
-SkillEffect[SK.GC_COUNTERSLASH] = {}; //Counter Slash
+SkillEffect[SK.GC_COUNTERSLASH] = { effectId: 'ef_gc_counterslash' }; //Counter Slash
 SkillEffect[SK.GC_WEAPONCRUSH] = {}; //Weapon Crush
 SkillEffect[SK.GC_VENOMPRESSURE] = {}; //Venom Pressure
-SkillEffect[SK.GC_POISONSMOKE] = { effectId: 924 }; //Poison Smoke
+SkillEffect[SK.GC_POISONSMOKE] = { effectId: 'ef_gc_poisonsmoke' }; //Poison Smoke
 SkillEffect[SK.GC_CLOAKINGEXCEED] = {}; //Cloaking Exceed
 SkillEffect[SK.GC_PHANTOMMENACE] = {}; //Phantom Menace
 SkillEffect[SK.GC_HALLUCINATIONWALK] = { effectId: 'ef_hallucinationwalk' }; //Hallucination Walk
 SkillEffect[SK.GC_ROLLINGCUTTER] = { effectId: 775 }; //Rolling Cutter
-SkillEffect[SK.GC_CROSSRIPPERSLASHER] = { effectId: 769 }; //Cross Ripper Slasher
+SkillEffect[SK.GC_CROSSRIPPERSLASHER] = { effectId: 'ef_gc_crossripperslasher' }; //Cross Ripper Slasher
 // AB Arch Bishop
 SkillEffect[SK.AB_JUDEX] = { effectId: 718, hitEffectId: 152 }; //Judex
 SkillEffect[SK.AB_ANCILLA] = { effectId: 'ef_ancilla' }; //Ancilla
@@ -743,10 +750,10 @@ SkillEffect[SK.AB_DUPLELIGHT] = { effectId: 'ef_duplelight' }; //Duple Light //C
 SkillEffect[SK.AB_DUPLELIGHT_MELEE] = {}; //Duple Light Melee
 SkillEffect[SK.AB_DUPLELIGHT_MAGIC] = {}; //Duple Light Magic
 SkillEffect[SK.AB_SILENTIUM] = {}; //Silentium //CHECk Marked magic attack as well. Hmmmm....
-SkillEffect[SK.AB_SECRAMENT] = {}; //Secrament
+SkillEffect[SK.AB_SECRAMENT] = { effectId: 'ef_ab_secrament' }; //Secrament
 // RA Ranger
 SkillEffect[SK.RA_ARROWSTORM] = { effectId: 746 }; //Arrow Storm
-SkillEffect[SK.RA_FEARBREEZE] = {}; //Fear Breeze
+SkillEffect[SK.RA_FEARBREEZE] = { effectId: 'ef_ra_fearbreeze' }; //Fear Breeze
 SkillEffect[SK.RA_AIMEDBOLT] = { effectId: 745, beforeHitEffectId: 'ef_arrow_projectile' }; //Aimed Bolt
 SkillEffect[SK.RA_DETONATOR] = { effectId: 750 }; //Detonator
 SkillEffect[SK.RA_ELECTRICSHOCKER] = {}; //Electric Shocker
@@ -767,10 +774,10 @@ SkillEffect[SK.RA_ICEBOUNDTRAP] = {}; //Icebound Trap
 // NC Mechanic
 SkillEffect[SK.NC_BOOSTKNUCKLE] = {}; //Boost Knuckle
 SkillEffect[SK.NC_PILEBUNKER] = {}; //Pile Bunker
-SkillEffect[SK.NC_VULCANARM] = {}; //Vulcan Arm
+SkillEffect[SK.NC_VULCANARM] = { effectId: 'ef_nc_vulcanarm' }; //Vulcan Arm
 SkillEffect[SK.NC_FLAMELAUNCHER] = { effectId: 787 }; //Flame Launcher
 SkillEffect[SK.NC_COLDSLOWER] = {}; //Cold Slower
-SkillEffect[SK.NC_ARMSCANNON] = {}; //Arm Cannon
+SkillEffect[SK.NC_ARMSCANNON] = { effectIdOnCaster: 'ef_nc_armscannon_cast' }; //Arm Cannon
 SkillEffect[SK.NC_ACCELERATION] = {}; //Acceleration
 SkillEffect[SK.NC_HOVERING] = {}; //Hovering
 SkillEffect[SK.NC_F_SIDESLIDE] = {}; //Front-Side Slide
@@ -783,17 +790,21 @@ SkillEffect[SK.NC_ANALYZE] = {}; //Analyze
 SkillEffect[SK.NC_MAGNETICFIELD] = { effectId: 781 }; //Magnetic Field
 SkillEffect[SK.NC_NEUTRALBARRIER] = {}; //Neutral Barrier
 SkillEffect[SK.NC_STEALTHFIELD] = {}; //Stealth Field
-SkillEffect[SK.NC_REPAIR] = { effectId: 785 }; //Repair
-SkillEffect[SK.NC_AXEBOOMERANG] = { effectId: 774 }; //Axe Boomerang
+SkillEffect[SK.NC_REPAIR] = { effectId: 'ef_nc_repair' }; //Repair
+SkillEffect[SK.NC_AXEBOOMERANG] = {
+	effectId: 'ef_nc_axeboomerang',
+	effectIdOnCaster: 'ef_nc_axeboomerang_cast',
+	hitEffectId: 'ef_nc_axeboomerang_hit'
+}; //Axe Boomerang
 SkillEffect[SK.NC_POWERSWING] = { effectId: 795 }; //Power Swing
-SkillEffect[SK.NC_AXETORNADO] = {}; //Axe Tornado
+SkillEffect[SK.NC_AXETORNADO] = { effectId: 'ef_nc_axetornado' }; //Axe Tornado
 SkillEffect[SK.NC_SILVERSNIPER] = {}; //FAW - Silver Sniper
 SkillEffect[SK.NC_MAGICDECOY] = {}; //FAW - Magic Decoy
 SkillEffect[SK.NC_DISJOINT] = {}; //FAW Removal
 // SC Shadow Chaser
-SkillEffect[SK.SC_FATALMENACE] = {}; //Fatal Menace
-SkillEffect[SK.SC_REPRODUCE] = {}; //Reproduce
-SkillEffect[SK.SC_AUTOSHADOWSPELL] = {}; //Auto Shadow Spell
+SkillEffect[SK.SC_FATALMENACE] = { effectId: 'ef_sc_fatalmenace', effectIdOnCaster: 'ef_sc_fatalmenace_cast' }; //Fatal Menace
+SkillEffect[SK.SC_REPRODUCE] = { effectId: 'ef_sc_reproduce' }; //Reproduce
+SkillEffect[SK.SC_AUTOSHADOWSPELL] = { effectId: 'ef_sc_autoshadowspell' }; //Auto Shadow Spell
 SkillEffect[SK.SC_SHADOWFORM] = {}; //Shadow Form
 SkillEffect[SK.SC_TRIANGLESHOT] = { beforeHitEffectId: 'ef_arrow_projectile' }; //Triangle Shot
 SkillEffect[SK.SC_BODYPAINT] = { effectId: 811 }; //Body Painting
@@ -813,8 +824,8 @@ SkillEffect[SK.SC_MAELSTROM] = { groundEffectId: 828 }; //Maelstrom
 SkillEffect[SK.SC_BLOODYLUST] = { groundEffectId: 829 }; //Bloody Lust
 SkillEffect[SK.SC_FEINTBOMB] = {}; //Feint Bomb
 // LG Royal Guard
-SkillEffect[SK.LG_CANNONSPEAR] = { effectId: 'ef_cannonspear' }; //Cannon Spear
-SkillEffect[SK.LG_BANISHINGPOINT] = { effectId: 'ef_banishingpoint' }; //Banishing Point
+SkillEffect[SK.LG_CANNONSPEAR] = { effectId: ['ef_cannonspear', 'ef_lg_cannonspear'] }; //Cannon Spear
+SkillEffect[SK.LG_BANISHINGPOINT] = { effectId: 'ef_banishingpoint', effectIdOnCaster: 'ef_lg_banishingpoint_cast' }; //Banishing Point
 SkillEffect[SK.LG_TRAMPLE] = { effectId: 'ef_trample' }; //Trample
 SkillEffect[SK.LG_SHIELDPRESS] = { beforeHitEffectId: 906 }; //Shield Press
 SkillEffect[SK.LG_REFLECTDAMAGE] = { effectId: 'ef_reflectdamage' }; //Reflect Damage
@@ -823,41 +834,62 @@ SkillEffect[SK.LG_FORCEOFVANGUARD] = {}; //Force of Vanguard
 SkillEffect[SK.LG_RAGEBURST] = { effectId: 'ef_rageburst' }; //Rage Burst
 SkillEffect[SK.LG_SHIELDSPELL] = { effectId: 'ef_shieldspell' }; //Shield Spell
 SkillEffect[SK.LG_EXEEDBREAK] = { effectId: 'ef_exceedbreak' }; //Exceed Break
-SkillEffect[SK.LG_OVERBRAND] = { effectId: 'ef_overbrand' }; //Over Brand
+SkillEffect[SK.LG_OVERBRAND] = {
+	effectId: 'ef_overbrand',
+	effectIdOnCaster: 'ef_lg_overbrand_cast',
+	hitEffectId: 'ef_lg_overbrand_hit'
+}; //Over Brand
 SkillEffect[SK.LG_PRESTIGE] = { effectId: 908 }; //Prestige
 SkillEffect[SK.LG_BANDING] = { effectId: 909 }; //Banding //CHECK Splash isnt needed right? Banding has its own UNIT ID.
 SkillEffect[SK.LG_MOONSLASHER] = { effectId: 'ef_moonslasher' }; //Moon Slasher
-SkillEffect[SK.LG_RAYOFGENESIS] = { effectId: 'ef_rayofgenesis' }; //Ray of Genesis
+SkillEffect[SK.LG_RAYOFGENESIS] = {
+	effectId: ['ef_rayofgenesis', 'ef_lg_rayofgenesis'],
+	effectIdOnCaster: 'ef_lg_rayofgenesis_cast',
+	hitEffectId: 'ef_lg_rayofgenesis_hit'
+}; //Ray of Genesis
 SkillEffect[SK.LG_PIETY] = { effectId: 'ef_piety' }; //Piety
-SkillEffect[SK.LG_EARTHDRIVE] = { effectId: 'ef_earthdrive' }; //Earth Drive
+SkillEffect[SK.LG_EARTHDRIVE] = { effectId: ['ef_earthdrive', 'ef_lg_earthdrive'] }; //Earth Drive
 SkillEffect[SK.LG_HESPERUSLIT] = { effectId: 'ef_hesperuslit' }; //Hesperus Lit
 SkillEffect[SK.LG_INSPIRATION] = { effectId: 910 }; //Inspiration
-SkillEffect[SK.LG_OVERBRAND_BRANDISH] = {}; //Overbrand Brandish
-SkillEffect[SK.LG_OVERBRAND_PLUSATK] = {}; //Overbrand Plus Attack
+SkillEffect[2519 /* LG_OVERBRAND_BRANDISH */] = {
+	effectIdOnCaster: 'ef_lg_overbrand_brandish_cast',
+	hitEffectId: 'ef_lg_overbrand_brandish_hit'
+}; //Overbrand Brandish
+SkillEffect[2520 /* LG_OVERBRAND_PLUSATK */] = {
+	effectIdOnCaster: 'ef_lg_overbrand_plusatk_cast',
+	hitEffectId: 'ef_lg_overbrand_plusatk_hit'
+}; //Overbrand Plus Attack
 // SR Sura
 SkillEffect[SK.SR_DRAGONCOMBO] = { effectId: 'ef_dragoncombo' }; //Dragon Combo
 SkillEffect[SK.SR_SKYNETBLOW] = { effectId: 'ef_skynetblow' }; //Sky Net Blow
 SkillEffect[SK.SR_EARTHSHAKER] = { effectId: 888 }; //Earth Shaker
-SkillEffect[SK.SR_FALLENEMPIRE] = { effectId: 'ef_fallenempire' }; //Fallen Empire
-SkillEffect[SK.SR_TIGERCANNON] = { effectId: 'ef_tigercannon' }; //Tiger Cannon
-SkillEffect[SK.SR_RAMPAGEBLASTER] = { effectId: 'ef_rampageblaster' }; //Rampage Blaster
+SkillEffect[SK.SR_FALLENEMPIRE] = {
+	effectId: ['ef_fallenempire', 'ef_sr_fallenempire'],
+	hitEffectId: 'ef_sr_fallenempire_hit'
+}; //Fallen Empire
+SkillEffect[SK.SR_TIGERCANNON] = { effectId: ['ef_tigercannon', 'ef_sr_tigercannon'] }; //Tiger Cannon
+SkillEffect[SK.SR_RAMPAGEBLASTER] = { effectId: ['ef_rampageblaster', 'ef_sr_rampageblaster'] }; //Rampage Blaster
 SkillEffect[SK.SR_CRESCENTELBOW] = { effectId: 'ef_crescentelbow' }; //Crescent Elbow
 SkillEffect[SK.SR_CURSEDCIRCLE] = { effectId: 'ef_cursedcircle' }; //Cursed Circle
-SkillEffect[SK.SR_LIGHTNINGWALK] = { effectId: 'ef_lightningwalk' }; //Lightning Walk
+SkillEffect[SK.SR_LIGHTNINGWALK] = { effectId: ['ef_lightningwalk', 'ef_sr_lightningwalk'] }; //Lightning Walk
 SkillEffect[SK.SR_KNUCKLEARROW] = { effectId: 'ef_knucklearrow' }; //Knuckle Arrow
 SkillEffect[SK.SR_WINDMILL] = { effectId: 'ef_windmill' }; //Windmill
 SkillEffect[SK.SR_RAISINGDRAGON] = { effectId: 'ef_raisingdragon' }; //Raising Dragon
 SkillEffect[SK.SR_ASSIMILATEPOWER] = {}; //Assimilate Power
 SkillEffect[SK.SR_POWERVELOCITY] = { effectId: 'ef_powervelocity' }; //Power Velocity
 SkillEffect[SK.SR_CRESCENTELBOW_AUTOSPELL] = {}; //Crescent Elbow Autospell
-SkillEffect[SK.SR_GATEOFHELL] = { effectId: 'ef_gateofhell' }; //Gate of Hell
+SkillEffect[SK.SR_GATEOFHELL] = { effectId: 'ef_gateofhell', effectIdOnCaster: 'ef_sr_gateofhell_cast' }; //Gate of Hell
 SkillEffect[SK.SR_GENTLETOUCH_QUIET] = {}; //Gentle Touch - Quiet
 SkillEffect[SK.SR_GENTLETOUCH_CURE] = {}; //Gentle Touch - Cure
 SkillEffect[SK.SR_GENTLETOUCH_ENERGYGAIN] = {}; //Gentle Touch - Energy Gain
 SkillEffect[SK.SR_GENTLETOUCH_CHANGE] = {}; //Gentle Touch - Change
 SkillEffect[SK.SR_GENTLETOUCH_REVITALIZE] = {}; //Gentle Touch - Revitalize
 //More from Sura but not following ID order
-SkillEffect[SK.SR_HOWLINGOFLION] = { effectId: 'ef_howlingoflion' }; //Howling of Lion
+SkillEffect[SK.SR_HOWLINGOFLION] = {
+	effectId: ['ef_howlingoflion', 'ef_sr_howlingoflion'],
+	effectIdOnCaster: 'ef_sr_howlingoflion_cast',
+	hitEffectId: 'ef_sr_howlingoflion_hit'
+}; //Howling of Lion
 SkillEffect[SK.SR_RIDEINLIGHTNING] = { effectId: 'ef_rideinlightning' }; //Ride In Lightening
 // WA Wanderer
 SkillEffect[SK.WA_SWING_DANCE] = { effectId: 'ef_swing_dance' }; //Swing Dance
@@ -868,12 +900,18 @@ SkillEffect[SK.MI_RUSH_WINDMILL] = { effectId: 'ef_rush_windmill' }; //Windmill 
 SkillEffect[SK.MI_ECHOSONG] = { effectId: 'ef_echo_song' }; //Echo Song
 SkillEffect[SK.MI_HARMONIZE] = { effectId: 'ef_harmonize' }; //Harmonize
 // WM Wanderer/Minstrel
-SkillEffect[SK.WM_METALICSOUND] = { effectId: 'ef_metalicsound' }; //Metallic Sound
+SkillEffect[SK.WM_METALICSOUND] = {
+	effectId: ['ef_metalicsound', 'ef_wm_metalicsound'],
+	hitEffectId: 'ef_wm_metalicsound_hit'
+}; //Metallic Sound
 SkillEffect[SK.WM_REVERBERATION] = { groundEffectId: 856 }; //Reverberation
 SkillEffect[SK.WM_REVERBERATION_MELEE] = { effectId: 860 }; //Reverberation Melee
-SkillEffect[SK.WM_REVERBERATION_MAGIC] = {}; //Reverberation Magic
+SkillEffect[SK.WM_REVERBERATION_MAGIC] = { hitEffectId: 'ef_wm_reverberation_magic_hit' }; //Reverberation Magic
 SkillEffect[SK.WM_DOMINION_IMPULSE] = { effectId: 863 }; //Dominion Impulse
-SkillEffect[SK.WM_SEVERE_RAINSTORM] = { effectId: 857 }; //Severe Rainstorm
+SkillEffect[SK.WM_SEVERE_RAINSTORM] = {
+	effectId: [857, 'ef_wm_severe_rainstorm'],
+	effectIdOnCaster: 'ef_wm_severe_rainstorm_cast'
+}; //Severe Rainstorm
 SkillEffect[SK.WM_POEMOFNETHERWORLD] = { groundEffectId: 860 }; //Poem of The Netherworld
 SkillEffect[SK.WM_VOICEOFSIREN] = { groundEffectId: 879 }; //Voice of Siren
 SkillEffect[SK.WM_DEADHILLHERE] = { effectId: 'ef_valley_of_death' }; //Valley of Death
@@ -884,21 +922,30 @@ SkillEffect[SK.WM_GLOOMYDAY] = { effectId: 847 /*848*/ }; //Gloomy Day
 SkillEffect[SK.WM_GREAT_ECHO] = { effectId: 'ef_great_echo' }; //Great Echo
 SkillEffect[SK.WM_SONG_OF_MANA] = { groundEffectId: 868, effectIdOnCaster: 865 }; //Song of Mana
 SkillEffect[SK.WM_DANCE_WITH_WUG] = { groundEffectId: 866, effectIdOnCaster: 867 }; //Dance With A Warg
-SkillEffect[SK.WM_SOUND_OF_DESTRUCTION] = { effectId: 'ef_sound_of_destruction' }; //Sound of Destruction
+SkillEffect[SK.WM_SOUND_OF_DESTRUCTION] = {
+	effectId: 'ef_sound_of_destruction',
+	effectIdOnCaster: 'ef_wm_sound_of_destruction_cast'
+}; //Sound of Destruction
 SkillEffect[SK.WM_SATURDAY_NIGHT_FEVER] = { groundEffectId: 870, effectIdOnCaster: 871 }; //Saturday Night Fever
 SkillEffect[SK.WM_LERADS_DEW] = { groundEffectId: 872, effectIdOnCaster: 871 }; //Lerad's Dew
 SkillEffect[SK.WM_MELODYOFSINK] = { groundEffectId: 874, effectIdOnCaster: 873 }; //Melody of Sink
 SkillEffect[SK.WM_BEYOND_OF_WARCRY] = { groundEffectId: 876, effectIdOnCaster: 875 }; //Warcry of Beyond
-SkillEffect[SK.WM_UNLIMITED_HUMMING_VOICE] = { groundEffectId: 878, effectIdOnCaster: 877 }; //Unlimited Humming Voice
-SkillEffect[SK.WM_SEVERE_RAINSTORM_MELEE] = {}; //Severe Rainstorm Melee
+SkillEffect[SK.WM_UNLIMITED_HUMMING_VOICE] = { groundEffectId: 878, effectId: 'ef_wm_unlimited_humming_voice' }; //Unlimited Humming Voice
+SkillEffect[SK.WM_SEVERE_RAINSTORM_MELEE] = {
+	effectId: 'ef_wm_severe_rainstorm_melee',
+	effectIdOnCaster: 'ef_wm_severe_rainstorm_melee_cast'
+}; //Severe Rainstorm Melee
 // SO Sorcerer
 SkillEffect[SK.SO_FIREWALK] = { groundEffectId: 920 }; //Fire Walk //CHECK Video and data shows each cell only hits once.
 SkillEffect[SK.SO_ELECTRICWALK] = { groundEffectId: 926 }; //Electric Walk
 SkillEffect[SK.SO_SPELLFIST] = {}; //Spell Fist
-SkillEffect[SK.SO_EARTHGRAVE] = { effectId: 927 }; //Earth Grave
-SkillEffect[SK.SO_DIAMONDDUST] = { effectId: 928 }; //Diamond Dust
-SkillEffect[SK.SO_POISON_BUSTER] = { effectId: 923 }; //Poison Buster
-SkillEffect[SK.SO_PSYCHIC_WAVE] = { effectId: 922 }; //Psychic Wave
+SkillEffect[SK.SO_EARTHGRAVE] = { effectId: 'ef_so_earthgrave', hitEffectId: 'ef_so_earthgrave_hit' }; //Earth Grave
+SkillEffect[SK.SO_DIAMONDDUST] = { effectId: [928, 'ef_so_diamonddust'], effectIdOnCaster: 'ef_so_diamonddust_cast' }; //Diamond Dust
+SkillEffect[SK.SO_POISON_BUSTER] = { effectId: 'ef_so_poison_buster' }; //Poison Buster
+SkillEffect[SK.SO_PSYCHIC_WAVE] = {
+	effectId: [922, 'ef_so_psychic_wave'],
+	effectIdOnCaster: 'ef_so_psychic_wave_cast'
+}; //Psychic Wave
 SkillEffect[SK.SO_CLOUD_KILL] = {}; //Cloud Kill
 SkillEffect[SK.SO_STRIKING] = {}; //Striking
 SkillEffect[SK.SO_WARMER] = { effectId: 929 }; //Warmer
@@ -912,19 +959,19 @@ SkillEffect[SK.SO_SUMMON_VENTUS] = {}; //Summon Wind Spirit Ventus
 SkillEffect[SK.SO_SUMMON_TERA] = {}; //Summon Earth Spirit Tera
 SkillEffect[SK.SO_EL_ACTION] = {}; //Elemental Action
 SkillEffect[SK.SO_EL_ANALYSIS] = {}; //Four Spirit Analysis
-SkillEffect[SK.SO_EL_CURE] = {}; //Spirit Recovery
+SkillEffect[SK.SO_EL_CURE] = { effectId: 'ef_so_el_cure' }; //Spirit Recovery
 SkillEffect[SK.SO_FIRE_INSIGNIA] = {}; //Fire Insignia
 SkillEffect[SK.SO_WATER_INSIGNIA] = {}; //Water Insignia
 SkillEffect[SK.SO_WIND_INSIGNIA] = {}; //Wind Insignia
 SkillEffect[SK.SO_EARTH_INSIGNIA] = {}; //Earth Insignia
 // GN Genetic
-SkillEffect[SK.GN_CART_TORNADO] = {}; //Cart Tornado
-SkillEffect[SK.GN_CARTCANNON] = {}; //Cart Cannon
-SkillEffect[SK.GN_CARTBOOST] = {}; //Cart Boost
+SkillEffect[SK.GN_CART_TORNADO] = { effectId: 'ef_gn_cart_tornado' }; //Cart Tornado
+SkillEffect[SK.GN_CARTCANNON] = { effectId: 'ef_gn_cartcannon', effectIdOnCaster: 'ef_gn_cartcannon_cast' }; //Cart Cannon
+SkillEffect[SK.GN_CARTBOOST] = { effectId: 'ef_gn_cartboost' }; //Cart Boost
 SkillEffect[SK.GN_THORNS_TRAP] = { effectId: 'ef_thorntrap' }; //Thorn Trap
 SkillEffect[SK.GN_BLOOD_SUCKER] = {}; //Blood Sucker //CHECK Data says its a magic attack. Hmmmm....
 SkillEffect[SK.GN_SPORE_EXPLOSION] = {}; //Spore Explosion //CHECK Data says its element is set to neutral. Need to confirm.
-SkillEffect[SK.GN_WALLOFTHORN] = { groundEffectId: 912 }; //Wall of Thorns
+SkillEffect[SK.GN_WALLOFTHORN] = { effectIdOnCaster: 'ef_gn_wallofthorn_cast' }; //Wall of Thorns
 SkillEffect[SK.GN_CRAZYWEED] = { effectId: 915 }; //Crazy Weed
 SkillEffect[SK.GN_CRAZYWEED_ATK] = {}; //Crazy Weed Attack
 SkillEffect[SK.GN_DEMONIC_FIRE] = { effectId: 916 }; //Demonic Fire
@@ -934,9 +981,9 @@ SkillEffect[SK.GN_FIRE_EXPANSION_TEAR_GAS] = {}; //Fire Expansion Tear Gas
 SkillEffect[SK.GN_FIRE_EXPANSION_ACID] = {}; //Fire Expansion Acid
 SkillEffect[SK.GN_HELLS_PLANT] = { effectId: 919 }; //Hell's Plant
 SkillEffect[SK.GN_HELLS_PLANT_ATK] = {}; //Hell's Plant Attack
-SkillEffect[SK.GN_MANDRAGORA] = {}; //Howling of Mandragora
+SkillEffect[SK.GN_MANDRAGORA] = { effectId: 'ef_gn_mandragora', effectIdOnCaster: 'ef_gn_mandragora_cast' }; //Howling of Mandragora
 SkillEffect[SK.GN_SLINGITEM] = {}; //Sling Item
-SkillEffect[SK.GN_CHANGEMATERIAL] = {}; //Change Material
+SkillEffect[SK.GN_CHANGEMATERIAL] = { effectId: 'ef_gn_changematerial' }; //Change Material
 SkillEffect[SK.GN_MIX_COOKING] = {}; //Mix Cooking
 SkillEffect[SK.GN_MAKEBOMB] = {}; //Create Bomb
 SkillEffect[SK.GN_S_PHARMACY] = {}; //Special Pharmacy
@@ -955,25 +1002,25 @@ SkillEffect[SK.RL_BANISHING_BUSTER] = {}; //Banishing Buster
 SkillEffect[SK.RL_B_TRAP] = {}; //Bind Trap
 SkillEffect[SK.RL_FLICKER] = {}; //Flicker
 SkillEffect[SK.RL_S_STORM] = { effectId: 'ef_s_storm' }; //Shatter Storm
-SkillEffect[SK.RL_E_CHAIN] = {}; //Eternal Chain
+SkillEffect[SK.RL_E_CHAIN] = { effectId: 'ef_rl_e_chain' }; //Eternal Chain
 SkillEffect[SK.RL_QD_SHOT] = {}; //Quick Draw Shot
 SkillEffect[SK.RL_C_MARKER] = { successEffectId: 'ef_c_marker1' }; //Crimson Marker
-SkillEffect[SK.RL_FIREDANCE] = {}; //Fire Dance
-SkillEffect[SK.RL_H_MINE] = {}; //Howling Mine
-SkillEffect[SK.RL_P_ALTER] = {}; //Platinum Alter
-SkillEffect[SK.RL_FALLEN_ANGEL] = {}; //Fallen Angel
+SkillEffect[SK.RL_FIREDANCE] = { effectId: 'ef_rl_firedance' }; //Fire Dance
+SkillEffect[SK.RL_H_MINE] = { effectId: 'ef_rl_h_mine' }; //Howling Mine
+SkillEffect[SK.RL_P_ALTER] = { effectId: 'ef_rl_p_alter' }; //Platinum Alter
+SkillEffect[SK.RL_FALLEN_ANGEL] = { effectId: 'ef_rl_fallen_angel' }; //Fallen Angel
 SkillEffect[SK.RL_R_TRIP] = {}; //Round Trip
-SkillEffect[SK.RL_D_TAIL] = {}; //Dragon Tail
-SkillEffect[SK.RL_FIRE_RAIN] = {}; //Fire Rain
-SkillEffect[SK.RL_HEAT_BARREL] = {}; //Heat Barrel
+SkillEffect[SK.RL_D_TAIL] = { effectId: 'ef_rl_d_tail' }; //Dragon Tail
+SkillEffect[SK.RL_FIRE_RAIN] = { effectId: 'ef_rl_fire_rain' }; //Fire Rain
+SkillEffect[SK.RL_HEAT_BARREL] = { effectId: 'ef_rl_heat_barrel' }; //Heat Barrel
 SkillEffect[SK.RL_AM_BLAST] = {}; //Anti-Material Blast
-SkillEffect[SK.RL_SLUGSHOT] = {}; //Slug Shot
+SkillEffect[SK.RL_SLUGSHOT] = { effectId: 'ef_rl_slugshot' }; //Slug Shot
 SkillEffect[SK.RL_HAMMER_OF_GOD] = {}; //Hammer of God
 SkillEffect[SK.RL_R_TRIP_PLUSATK] = {}; //Round Trip Plus Attack
 // Kagerou & Oboro
 SkillEffect[SK.KO_YAMIKUMO] = {}; //Shadow Hiding
-SkillEffect[SK.KO_JYUMONJIKIRI] = {}; //Cross Slash
-SkillEffect[SK.KO_SETSUDAN] = {}; //Soul Cutter
+SkillEffect[SK.KO_JYUMONJIKIRI] = { effectId: 'ef_ko_jyumonjikiri' }; //Cross Slash
+SkillEffect[SK.KO_SETSUDAN] = { effectId: 'ef_ko_setsudan' }; //Soul Cutter
 SkillEffect[SK.KO_BAKURETSU] = {}; //Kunai Explosion
 SkillEffect[SK.KO_HAPPOKUNAI] = {}; //Kunai Splash
 SkillEffect[SK.KO_MUCHANAGE] = {}; //Rapid Throw
@@ -1007,7 +1054,7 @@ SkillEffect[SK.ECLAGE_RECALL] = {}; //Return To Eclage
 // Copied Bard / Dancer Skills
 // EP 14.3 Part 2 3rd Job Skills
 SkillEffect[SK.GC_DARKCROW] = { effectId: 1040 }; //Dark Claw
-SkillEffect[SK.RA_UNLIMIT] = {}; //Unlimited
+SkillEffect[SK.RA_UNLIMIT] = { effectId: 'ef_ra_unlimit' }; //Unlimited
 SkillEffect[SK.GN_ILLUSIONDOPING] = { effectId: 1049 }; //Illusion Doping
 SkillEffect[SK.RK_DRAGONBREATH_WATER] = { hitEffectId: 'ef_dragonbreath_water' }; //Dragon Breath - Water
 SkillEffect[SK.RK_LUXANIMA] = { effectId: 1044 }; //Lux Anima
@@ -1021,35 +1068,35 @@ SkillEffect[SK.WL_TELEKINESIS_INTENSE] = { effectId: 1048 }; //Intense Telekines
 SkillEffect[SK.LG_KINGS_GRACE] = { effectId: 'ef_kings_grace' }; //King's Grace
 SkillEffect[SK.ALL_FULL_THROTTLE] = { effectId: 1042 }; //Full Throttle
 // Summoner
-SkillEffect[SK.SU_BITE] = {}; //Bite
+SkillEffect[SK.SU_BITE] = { effectId: 'ef_su_bite' }; //Bite
 SkillEffect[SK.SU_HIDE] = {}; //Hide
-SkillEffect[SK.SU_SCRATCH] = {}; //Scratch
+SkillEffect[SK.SU_SCRATCH] = { effectId: 'ef_su_scratch' }; //Scratch
 SkillEffect[SK.SU_STOOP] = {}; //Stoop
 SkillEffect[SK.SU_LOPE] = {}; //Lope
-SkillEffect[SK.SU_SV_STEMSPEAR] = {}; //Silvervine Stem Spear
+SkillEffect[SK.SU_SV_STEMSPEAR] = { effectId: 'ef_su_sv_stemspear' }; //Silvervine Stem Spear
 SkillEffect[SK.SU_CN_POWDERING] = {}; //Catnip Powdering
 SkillEffect[SK.SU_CN_METEOR] = {}; //Catnip Meteor
 SkillEffect[SK.SU_SV_ROOTTWIST] = {}; //Silvervine Root Twist
 SkillEffect[SK.SU_SV_ROOTTWIST_ATK] = {}; //Silver Vine Root Twist Attack
-SkillEffect[SK.SU_SCAROFTAROU] = {}; //Scar of Tarou
-SkillEffect[SK.SU_PICKYPECK] = {}; //Picky Peck
+SkillEffect[SK.SU_SCAROFTAROU] = { effectId: 'ef_su_scaroftarou' }; //Scar of Tarou
+SkillEffect[SK.SU_PICKYPECK] = { effectId: 'ef_su_pickypeck' }; //Picky Peck
 SkillEffect[SK.SU_PICKYPECK_DOUBLE_ATK] = {}; //Picky Peck Double Attack
-SkillEffect[SK.SU_ARCLOUSEDASH] = {}; //Arclouse Dash
+SkillEffect[SK.SU_ARCLOUSEDASH] = { effectId: 'ef_su_arclousedash' }; //Arclouse Dash
 SkillEffect[SK.SU_LUNATICCARROTBEAT] = {}; //Lunatic Carrot Beat
-SkillEffect[SK.SU_TUNABELLY] = {}; //Tuna Belly
+SkillEffect[SK.SU_TUNABELLY] = { effectId: 'ef_su_tunabelly' }; //Tuna Belly
 SkillEffect[SK.SU_TUNAPARTY] = {}; //Tuna Party
-SkillEffect[SK.SU_BUNCHOFSHRIMP] = {}; //Bunch of Shrimp
-SkillEffect[SK.SU_FRESHSHRIMP] = {}; //Fresh Shrimp
+SkillEffect[SK.SU_BUNCHOFSHRIMP] = { effectId: 'ef_su_bunchofshrimp' }; //Bunch of Shrimp
+SkillEffect[SK.SU_FRESHSHRIMP] = { effectId: 'ef_su_freshshrimp' }; //Fresh Shrimp
 // Unknown Unconfirmed Summoner Skills - Animations Show On These
-SkillEffect[SK.SU_POWEROFFLOCK] = {}; //Power of Flock
-SkillEffect[SK.SU_SVG_SPIRIT] = {}; //Spirit of Savage
-SkillEffect[SK.SU_HISS] = {}; //Hiss
-SkillEffect[SK.SU_NYANGGRASS] = {}; //Nyang Grass
-SkillEffect[SK.SU_GROOMING] = {}; //Grooming
+SkillEffect[SK.SU_POWEROFFLOCK] = { effectId: 'ef_su_powerofflock' }; //Power of Flock
+SkillEffect[SK.SU_SVG_SPIRIT] = { effectId: 'ef_su_svg_spirit' }; //Spirit of Savage
+SkillEffect[SK.SU_HISS] = { effectId: 'ef_su_hiss' }; //Hiss
+SkillEffect[SK.SU_NYANGGRASS] = { effectId: 'ef_su_nyanggrass' }; //Nyang Grass
+SkillEffect[SK.SU_GROOMING] = { effectId: 'ef_su_grooming' }; //Grooming
 SkillEffect[SK.SU_PURRING] = {}; //Purring
 SkillEffect[SK.SU_SHRIMPARTY] = {}; //Tasty Shrimp Party
 SkillEffect[SK.SU_MEOWMEOW] = {}; //Meow Meow
-SkillEffect[SK.SU_CHATTERING] = {}; //Chattering
+SkillEffect[SK.SU_CHATTERING] = { effectId: 'ef_su_chattering' }; //Chattering
 // Wedding Skills 3
 SkillEffect[SK.WE_CALLALLFAMILY] = {}; //Call All Family
 SkillEffect[SK.WE_ONEFOREVER] = {}; //One Forever
@@ -1184,5 +1231,21 @@ SkillEffect[SK.GD_REGENERATION] = {}; //Regeneration
 SkillEffect[SK.GD_RESTORE] = {}; //Restoration
 SkillEffect[SK.GD_EMERGENCYCALL] = {}; //Urgent Call
 SkillEffect[SK.GD_ITEMEMERGENCYCALL] = {}; //Item Emergency Call
+
+// Earlier classes: entries for skills that had none.
+SkillEffect[SK.SL_ASSASIN] = { effectId: 'ef_sl_assasin' }; //Spirit of the Assasin
+SkillEffect[SK.BS_ADRENALINE2] = { effectId: 'ef_bs_adrenaline2' }; //Advanced Adrenaline Rush
+SkillEffect[SK.SL_HUNTER] = { effectId: 'ef_sl_hunter' }; //Spirit of the Hunter
+SkillEffect[SK.SJ_FULLMOONKICK] = { effectId: 'ef_sj_fullmoonkick' }; //Full Moon Kick
+SkillEffect[SK.SJ_NEWMOONKICK] = { effectId: 'ef_sj_newmoonkick' }; //New Moon Kick
+SkillEffect[SK.SJ_FLASHKICK] = { effectId: 'ef_sj_flashkick' }; //Flash Kick
+SkillEffect[SK.SJ_FALLINGSTAR] = { effectId: 'ef_sj_fallingstar' }; //Falling Star
+SkillEffect[SK.SJ_DOCUMENT] = { effectId: 'ef_sj_document' }; //Document of Sun Moon and Star
+SkillEffect[SK.SJ_SOLARBURST] = { effectId: 'ef_sj_solarburst' }; //Solar Burst
+SkillEffect[SK.SJ_PROMINENCEKICK] = { effectId: 'ef_sj_prominencekick' }; //Prominence Kick
+SkillEffect[SK.SP_SOULGOLEM] = { effectId: 'ef_sp_soulgolem' }; //Golem's Soul
+SkillEffect[SK.SP_SOULCURSE] = { effectId: 'ef_sp_soulcurse' }; //Soul Curse
+SkillEffect[SK.SP_SOULREVOLVE] = { effectId: 'ef_sp_soulrevolve' }; //Soul Revolution
+SkillEffect[SK.NV_HELPANGEL] = { effectId: 'ef_nv_helpangel' }; //Help Angel
 
 export default SkillEffect;
