@@ -465,6 +465,24 @@ describe('a guild changing its emblem', () => {
 			expect(painted).toEqual(['info:data:shiny', 'window:data:shiny']);
 		});
 
+		// The web token arrives on its own schedule and a broadcast can land before
+		// it. That is a sixth way to end with nothing painted, and it used to be the
+		// one that kept the mark: the download never started, so no transport error
+		// ever released it, and the version stayed refused once the token turned up.
+		it('lets a version announced before the web token exists be asked for again', () => {
+			Session.WebToken = '';
+
+			deliver(PACKET.ZC.CHANGE_GUILD2, { GDID: guildId, emblemVersion: 7, AID: 1 });
+			expect(xhrs).toHaveLength(0);
+
+			Session.WebToken = 'token';
+			deliver(PACKET.ZC.CHANGE_GUILD2, { GDID: guildId, emblemVersion: 7, AID: 2 });
+
+			expect(xhrs).toHaveLength(1);
+			answer(0, 'late').onload();
+			expect(mocks.guild.setEmblem).toHaveBeenCalledTimes(1);
+		});
+
 		// The mark is the handler's record of what it asked for. An older fetch
 		// giving up must not hand back the mark a newer one is holding, or the
 		// burst it was there to stop comes through.

@@ -208,6 +208,11 @@ class GuildEngine {
 				!Session.WebToken ||
 				Session.WebToken === undefined
 			) {
+				// Nothing was painted, so this counts as giving up like any other: a
+				// broadcast can arrive before the web token does, and a caller holding
+				// a mark for this version has to be told, or that version is refused
+				// for good once the token turns up.
+				failed();
 				return;
 			}
 

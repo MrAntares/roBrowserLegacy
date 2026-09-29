@@ -241,10 +241,13 @@ arrives once per entity in range, not once per guild.
 
 **That mark means "asked for", never "have", and a fetch that gives up has to
 take it back.** It is set before the request, because the point of it is to stop
-a burst that arrives long before any download could answer. The download has five
+a burst that arrives long before any download could answer. The download has six
 ways to end with nothing painted - a non-200, a decode that throws, a gif the
-spritesheet pass refuses, a transport error, a timeout - and on every one of them
-the old code kept the mark. Every later broadcast of that version was then
+spritesheet pass refuses, a transport error, a timeout, and the web token not
+being there yet - and on every one of them the old code kept the mark. The last of
+those is the easiest to miss, because the download never starts at all: no
+transport error ever arrives to release the mark, so the version stays refused
+even once the token turns up. Every later broadcast of that version was then
 refused, so a web server that blinked froze that guild's emblem, on the map and
 in the window, until the guild changed it again. The request takes an `onFailure`
 alongside its callback and the handler clears its own mark from it: the mark is
