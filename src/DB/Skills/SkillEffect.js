@@ -1014,6 +1014,94 @@ SkillEffect[SK.RK_LUXANIMA] = { effectId: 1044 }; //Lux Anima
 SkillEffect[SK.NC_MAGMA_ERUPTION] = { effectId: 1050 }; //Magma Eruption
 SkillEffect[SK.WM_FRIGG_SONG] = { effectId: 'ef_frigg_song' }; //Frigg's Song
 SkillEffect[SK.SO_ELEMENTAL_SHIELD] = { effectId: 1046 }; //Elemental Shield
+SkillEffect[SK.EM_SPELL_ENCHANTING] = { effectId: 'ef_em_spell_enchanting' }; //Spell Enchanting
+SkillEffect[SK.EM_ACTIVITY_BURN] = { effectId: 'ef_em_activity_burn', effectIdOnCaster: 'ef_em_activity_burn_cast' }; //Activity Burn
+SkillEffect[SK.EM_INCREASING_ACTIVITY] = {
+	effectId: 'ef_em_increasing_activity',
+	effectIdOnCaster: 'ef_em_increasing_activity_cast'
+}; //Increasing Activity
+SkillEffect[SK.EM_DIAMOND_STORM] = {
+	effectId: 'ef_em_diamond_storm',
+	effectIdOnCaster: 'ef_em_diamond_storm_cast',
+	hitEffectId: 'ef_em_diamond_storm_hit'
+}; //Diamond Storm
+SkillEffect[SK.EM_LIGHTNING_LAND] = {
+	effectId: 'ef_em_lightning_land',
+	effectIdOnCaster: 'ef_em_lightning_land_cast',
+	hitEffectId: 'ef_em_lightning_land_hit'
+}; //Lightning Land
+SkillEffect[SK.EM_VENOM_SWAMP] = {
+	effectId: 'ef_em_venom_swamp',
+	effectIdOnCaster: 'ef_em_venom_swamp_cast',
+	hitEffectId: 'ef_em_venom_swamp_hit'
+}; //Venom Swamp
+SkillEffect[SK.EM_CONFLAGRATION] = {
+	effectId: 'ef_em_conflagration',
+	effectIdOnCaster: 'ef_em_conflagration_cast',
+	hitEffectId: 'ef_em_conflagration_hit'
+}; //Conflagration
+SkillEffect[SK.EM_TERRA_DRIVE] = {
+	effectId: 'ef_em_terra_drive',
+	effectIdOnCaster: 'ef_em_terra_drive_cast',
+	hitEffectId: 'ef_em_terra_drive_hit'
+}; //Terra Drive
+SkillEffect[SK.EM_SUMMON_ELEMENTAL_ARDOR] = {
+	effectId: 'ef_em_summon_elemental_ardor',
+	effectIdOnCaster: 'ef_em_summon_elemental_ardor_cast',
+	hitEffectId: 'ef_em_summon_elemental_ardor_hit'
+}; //Summon Elemental Ardor
+SkillEffect[SK.EM_SUMMON_ELEMENTAL_DILUVIO] = {
+	effectIdOnCaster: 'ef_em_summon_elemental_diluvio_cast',
+	hitEffectId: 'ef_em_summon_elemental_diluvio_hit'
+}; //Summon Elemental Diluvio
+SkillEffect[SK.EM_SUMMON_ELEMENTAL_PROCELLA] = {
+	effectId: 'ef_em_summon_elemental_procella',
+	effectIdOnCaster: 'ef_em_summon_elemental_procella_cast',
+	hitEffectId: 'ef_em_summon_elemental_procella_hit'
+}; //Summon Elemental Procella
+SkillEffect[SK.EM_SUMMON_ELEMENTAL_TERREMOTUS] = {
+	effectId: 'ef_em_summon_elemental_terremotus',
+	effectIdOnCaster: 'ef_em_summon_elemental_terremotus_cast',
+	hitEffectId: 'ef_em_summon_elemental_terremotus_hit'
+}; //Summon Elemental Terremotus
+SkillEffect[SK.EM_SUMMON_ELEMENTAL_SERPENS] = {
+	effectId: 'ef_em_summon_elemental_serpens',
+	effectIdOnCaster: 'ef_em_summon_elemental_serpens_cast',
+	hitEffectId: 'ef_em_summon_elemental_serpens_hit'
+}; //Summon Elemental Serpens
+SkillEffect[SK.EM_ELEMENTAL_BUSTER] = { effectIdOnCaster: 'ef_em_elemental_buster_cast' }; //Elemental Buster
+SkillEffect[SK.EM_ELEMENTAL_BUSTER_FIRE] = {
+	effectId: 'ef_em_elemental_buster_fire',
+	hitEffectId: 'ef_em_elemental_buster_fire_hit'
+}; //Elemental Buster Fire
+SkillEffect[SK.EM_ELEMENTAL_BUSTER_WATER] = {
+	effectId: 'ef_em_elemental_buster_water',
+	hitEffectId: 'ef_em_elemental_buster_water_hit'
+}; //Elemental Buster Water
+SkillEffect[SK.EM_ELEMENTAL_BUSTER_WIND] = {
+	effectId: 'ef_em_elemental_buster_wind',
+	hitEffectId: 'ef_em_elemental_buster_wind_hit'
+}; //Elemental Buster Wind
+SkillEffect[SK.EM_ELEMENTAL_BUSTER_GROUND] = {
+	effectId: 'ef_em_elemental_buster_ground',
+	hitEffectId: 'ef_em_elemental_buster_ground_hit'
+}; //Elemental Buster Ground
+SkillEffect[SK.EM_ELEMENTAL_BUSTER_POISON] = {
+	effectId: 'ef_em_elemental_buster_poison',
+	hitEffectId: 'ef_em_elemental_buster_poison_hit'
+}; //Elemental Buster Poison
+SkillEffect[6517 /* EM_PSYCHIC_STREAM */] = {
+	effectId: 'ef_em_psychic_stream',
+	effectIdOnCaster: 'ef_em_psychic_stream_cast',
+	hitEffectId: 'ef_em_psychic_stream_hit'
+}; //Psychic Stream
+SkillEffect[SK.EM_EL_FLAMETECHNIC] = { effectId: 'ef_em_el_flametechnic' }; //Flame Technic
+SkillEffect[SK.EM_EL_FLAMEARMOR] = { effectId: 'ef_em_el_flamearmor' }; //Flame Armor
+SkillEffect[SK.EM_EL_COLD_FORCE] = { effectId: 'ef_em_el_cold_force' }; //Cold Force
+SkillEffect[SK.EM_EL_GRACE_BREEZE] = { effectId: 'ef_em_el_grace_breeze' }; //Grace Breeze
+SkillEffect[SK.EM_EL_EARTH_CARE] = { effectId: 'ef_em_el_earth_care' }; //Earth Care
+SkillEffect[SK.EM_EL_DEEP_POISONING] = { effectId: 'ef_em_el_deep_poisoning' }; //Deep Poisoning
+SkillEffect[SK.EM_EL_DEADLY_POISON] = { effectId: 'ef_em_el_deadly_poison' }; //Deadly Poison
 SkillEffect[SK.SR_FLASHCOMBO] = { effectId: 1043 }; //Flash Combo
 SkillEffect[SK.SC_ESCAPE] = {}; //Emergency Escape
 SkillEffect[SK.AB_OFFERTORIUM] = { effectId: 1047 }; //Offertorium
