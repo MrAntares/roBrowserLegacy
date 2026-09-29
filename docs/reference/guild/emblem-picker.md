@@ -252,6 +252,47 @@ the handler's state, so releasing it belongs there and not inside the fetch.
 Success needs no such path - the stored version moves, and a repeat then takes
 the early return that repaints from cache.
 
+**Released per version, though, never in bulk.** Two versions can be in the air
+at once, and an older fetch giving up after a newer one succeeded would otherwise
+hand back a mark that is not its own - letting through the burst the mark exists
+to stop. A ledger like this has to be invalidated by the fact it mirrors.
+
+### Two downloads can answer in either order
+
+The version is what the client asks for; the POST carries only the guild id, so
+the answer is whatever the web tier holds at the moment it reads the row. Two
+broadcasts in quick succession therefore start two downloads that can decode in
+either order, and the older one landing last used to win outright: it repainted
+every entity of that guild with the stale image, and put the stored version back
+*down* to its own.
+
+Nothing came along to correct it. The mark was already on the newer version, so
+every later broadcast of that version was refused - the same freeze as a failed
+fetch, from the opposite cause. The emblem stayed wrong until the guild changed it
+again.
+
+So the version is checked **at commit time and not only at request time**: the
+download stores its image only if it still carries a newer version than the one
+stored. The request-time check remains what it was, a cache short-circuit; it
+cannot see a download that has not finished. Both decode paths - still image and
+gif - go through one commit, so the guard cannot be present in one and missing in
+the other.
+
+**Older is dropped, equal is not, and that distinction is the whole of it.** One
+version is routinely asked for several times over, by callers that each repaint
+something different - `ZC_UPDATE_GDID` repaints the player's own entity, the
+broadcast repaints the window, an entity coming into view repaints itself. They
+run concurrently and each passes its own callback. A guard written as *"commit
+only a strictly newer version"* therefore lets the first download through and
+drops the rest **including their callbacks**, so whichever surface they owned
+keeps the emblem it had.
+
+That is not theoretical: it is what the first version of this fix did, and it took
+uploading an emblem live to see it. Three downloads answered, all of them carrying
+the new image, and the window went on showing the one before. The test that pins it
+has two callers waiting on one version and asserts **both** callbacks run - counting
+downloads, or asserting on the stored image, passes either way.
+
 ## A refusal is invisible, and the window repaints anyway
 
 Nothing tells the client that the map server turned the change down. Of the four

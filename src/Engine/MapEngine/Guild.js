@@ -228,6 +228,39 @@ class GuildEngine {
 			xhr.responseType = 'blob';
 
 			xhr.timeout = 5000;
+
+			// A newer version can be asked for while this one is still downloading,
+			// and the two answers can land in either order. Storing the older image
+			// would repaint every entity with it and put the stored version back down,
+			// and nothing would come to correct it: the mark that holds the burst back
+			// already sits on the newer version, so every later broadcast of it is
+			// refused.
+			//
+			// Only an older version is dropped, never an equal one. One version is
+			// asked for by several callers at once - the guild info, the broadcast,
+			// an entity coming into view - and each passes a callback that repaints
+			// something different. Refusing the ones that land second would leave
+			// whichever surface they own showing the emblem before.
+			// @see docs/reference/guild/emblem-picker.md
+			const commit = (img, gifCanvas) => {
+				if (version < emblem.version) {
+					return;
+				}
+
+				if (version > emblem.version) {
+					emblem.version = version;
+					emblem.image = img;
+					emblem.gif = gifCanvas;
+				}
+
+				callback(emblem.image, emblem.gif);
+				EntityManager.forEach(entity => {
+					if (entity.GUID === guild_id) {
+						entity.setEntityGuildEmblem(emblem.image, emblem.gif);
+					}
+				});
+			};
+
 			xhr.onload = () => {
 				if (xhr.status !== 200) {
 					console.warn('Emblem download returned non-200 status:', xhr.status);
@@ -240,16 +273,7 @@ class GuildEngine {
 					if (!isGif) {
 						const img = new Image();
 						img.onload = () => {
-							emblem.version = version;
-							emblem.image = img;
-							emblem.gif = null;
-
-							callback(emblem.image, emblem.gif);
-							EntityManager.forEach(entity => {
-								if (entity.GUID === guild_id) {
-									entity.setEntityGuildEmblem(img);
-								}
-							});
+							commit(img, null);
 						};
 						img.decoding = 'async';
 						const blobUrl = URL.createObjectURL(xhr.response);
@@ -264,17 +288,7 @@ class GuildEngine {
 								const gifCanvas = this;
 								const img = new Image();
 								img.onload = () => {
-									emblem.version = version;
-									emblem.image = img;
-									emblem.gif = gifCanvas;
-
-									callback(emblem.image, emblem.gif);
-
-									EntityManager.forEach(entity => {
-										if (entity.GUID === guild_id) {
-											entity.setEntityGuildEmblem(img, gifCanvas);
-										}
-									});
+									commit(img, gifCanvas);
 								};
 								img.decoding = 'async';
 								const blobUrl = URL.createObjectURL(xhr.response);
@@ -848,8 +862,13 @@ function onGuildEmblemChanged(pkt) {
 		// The mark above means "asked for", not "have". A fetch that gave up
 		// leaves nothing painted, so holding the mark would refuse every later
 		// broadcast of that version and freeze the emblem until the next one.
+		// Only this version's own mark is released: a slower fetch for an older
+		// one must not hand back a newer version's, which is being waited on or
+		// already painted.
 		() => {
-			delete _emblemNotified[pkt.GDID];
+			if (_emblemNotified[pkt.GDID] === pkt.emblemVersion) {
+				delete _emblemNotified[pkt.GDID];
+			}
 		}
 	);
 }

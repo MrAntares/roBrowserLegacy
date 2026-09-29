@@ -65,6 +65,7 @@ vi.mock('Utils/Texture.js', () => ({ default: { load: vi.fn() } }));
 vi.mock('Utils/Inflate.js', () => ({ default: class {} }));
 
 const GuildEngine = (await import('Engine/MapEngine/Guild.js')).default;
+const Texture = (await import('Utils/Texture.js')).default;
 const PACKET = (await import('Network/PacketStructure.js')).default;
 const PACKETVER = (await import('Network/PacketVerManager.js')).default;
 const Session = (await import('Engine/SessionStorage.js')).default;
@@ -333,6 +334,154 @@ describe('a guild changing its emblem', () => {
 			deliver(PACKET.ZC.CHANGE_GUILD2, { GDID: 4002, emblemVersion: 7, AID: 3 });
 
 			expect(mocks.emblemRequests).toHaveLength(2);
+		});
+	});
+
+	// Two versions can be in the air at once - the guild changed its emblem twice,
+	// or an entity spawned while a broadcast was being answered - and the web tier
+	// answers whenever it answers. These cases drive the real download rather than
+	// the spy the rest of the file uses, because the order the images decode in is
+	// the whole subject.
+	describe('two downloads answering out of order', () => {
+		let xhrs;
+		let images;
+		let guildId;
+		let entity;
+		let requests;
+		// The emblem cache is module state keyed by guild and is never reset, so a
+		// guild downloaded for once carries its version into every later case.
+		let nextGuildId = 4100;
+
+		beforeEach(() => {
+			// The real method, not the recorder every other case installs - but still
+			// counted, so a broadcast refused before it asks can be told from one that
+			// asks and is answered out of the cache.
+			GuildEngine.requestGuildEmblem.mockRestore();
+			requests = vi.spyOn(GuildEngine, 'requestGuildEmblem');
+
+			xhrs = [];
+			images = [];
+
+			vi.stubGlobal(
+				'XMLHttpRequest',
+				class MockXHR {
+					open() {}
+					// Recorded and left hanging: each case answers them by hand.
+					send() {
+						xhrs.push(this);
+					}
+					getResponseHeader() {
+						return 'image/png';
+					}
+				}
+			);
+			vi.stubGlobal('FormData', class {
+				append() {}
+			});
+			vi.stubGlobal('Image', class MockImage {
+				constructor() {
+					images.push(this);
+				}
+			});
+			vi.stubGlobal('URL', {
+				createObjectURL: blob => 'blob:' + blob.tag,
+				revokeObjectURL: () => {}
+			});
+			Texture.load.mockImplementation((url, callback) => {
+				callback.call({ toDataURL: () => url.replace('blob:', 'data:') });
+			});
+
+			// Our own guild, so the window is told and the commit is observable.
+			guildId = ++nextGuildId;
+			Session.Entity = { GUID: guildId, GEmblemVer: 0 };
+			entity = { GUID: guildId, setEntityGuildEmblem: vi.fn() };
+			mocks.entities.push(entity);
+		});
+
+		/**
+		 * Answer one hanging request, tagging the image it carries
+		 *
+		 * @return {object} the image that answer produced, to decode when the case
+		 *   wants it - the cache holds a placeholder of its own, so counting images
+		 *   from the front finds the wrong one.
+		 */
+		function answer(index, tag) {
+			const xhr = xhrs[index];
+			xhr.status = 200;
+			xhr.response = { tag: tag };
+			xhr.onload();
+			return images[images.length - 1];
+		}
+
+		it('paints the newer emblem, not the one that answered last', () => {
+			deliver(PACKET.ZC.CHANGE_GUILD2, { GDID: guildId, emblemVersion: 7, AID: 1 });
+			deliver(PACKET.ZC.CHANGE_GUILD2, { GDID: guildId, emblemVersion: 8, AID: 1 });
+			expect(xhrs).toHaveLength(2);
+
+			const newer = answer(1, 'newer');
+			const older = answer(0, 'older');
+			newer.onload();
+			older.onload();
+
+			expect(mocks.guild.setEmblem).toHaveBeenCalledTimes(1);
+			expect(mocks.guild.setEmblem.mock.calls[0][0].src).toBe('data:newer');
+			expect(entity.setEntityGuildEmblem).toHaveBeenCalledTimes(1);
+			expect(entity.setEntityGuildEmblem.mock.calls[0][0].src).toBe('data:newer');
+		});
+
+		// Committing the older image also lowered the stored version, so the cache
+		// stopped agreeing with what is on screen.
+		it('leaves the stored version on the one it painted', () => {
+			deliver(PACKET.ZC.CHANGE_GUILD2, { GDID: guildId, emblemVersion: 7, AID: 1 });
+			deliver(PACKET.ZC.CHANGE_GUILD2, { GDID: guildId, emblemVersion: 8, AID: 1 });
+			const newer = answer(1, 'newer');
+			const older = answer(0, 'older');
+			newer.onload();
+			older.onload();
+
+			const painted = [];
+			GuildEngine.requestGuildEmblem(guildId, 8, image => painted.push(image));
+
+			expect(xhrs).toHaveLength(2);
+			expect(painted).toHaveLength(1);
+			expect(painted[0].src).toBe('data:newer');
+		});
+
+		// One version is asked for by several callers at once - the guild info, the
+		// broadcast, an entity coming into view - and each repaints something else:
+		// the window, the player's own entity, a passer-by. A guard that let only
+		// the first of them through left the rest of those surfaces on the emblem
+		// before, which is what the map and the window actually showed.
+		it('answers every caller waiting on the same version', () => {
+			const painted = [];
+
+			GuildEngine.requestGuildEmblem(guildId, 8, image => painted.push('info:' + image.src));
+			GuildEngine.requestGuildEmblem(guildId, 8, image => painted.push('window:' + image.src));
+			expect(xhrs).toHaveLength(2);
+
+			answer(0, 'shiny').onload();
+			answer(1, 'shiny').onload();
+
+			expect(painted).toEqual(['info:data:shiny', 'window:data:shiny']);
+		});
+
+		// The mark is the handler's record of what it asked for. An older fetch
+		// giving up must not hand back the mark a newer one is holding, or the
+		// burst it was there to stop comes through.
+		it('keeps the newer mark when the older fetch gives up', () => {
+			deliver(PACKET.ZC.CHANGE_GUILD2, { GDID: guildId, emblemVersion: 7, AID: 1 });
+			deliver(PACKET.ZC.CHANGE_GUILD2, { GDID: guildId, emblemVersion: 8, AID: 1 });
+
+			answer(1, 'newer').onload();
+			xhrs[0].onerror();
+
+			deliver(PACKET.ZC.CHANGE_GUILD2, { GDID: guildId, emblemVersion: 8, AID: 2 });
+
+			// Held back by the mark, so it never reaches the request at all. Counting
+			// downloads instead would pass either way: the cache answers a version it
+			// already holds without one.
+			expect(requests).toHaveBeenCalledTimes(2);
+			expect(mocks.guild.setEmblem).toHaveBeenCalledTimes(1);
 		});
 	});
 });
