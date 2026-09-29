@@ -998,6 +998,26 @@ SkillEffect[SK.OB_ZANGETSU] = {}; //Distorted Crescent
 SkillEffect[SK.OB_OBOROGENSOU] = {}; //Moonlight Fantasy
 SkillEffect[SK.OB_OBOROGENSOU_TRANSITION_ATK] = {}; //Moonlight Fantasy Transition Attack
 SkillEffect[SK.OB_AKAITSUKI] = {}; //Ominous Moonlight
+SkillEffect[SK.SKE_RISING_SUN] = { effectId: 'ef_ske_rising_sun' }; //Rising Sun
+SkillEffect[SK.SKE_NOON_BLAST] = { effectId: 'ef_ske_noon_blast' }; //Noon Blast
+SkillEffect[SK.SKE_SUNSET_BLAST] = { effectId: 'ef_ske_sunset_blast' }; //Sunset Blast
+SkillEffect[SK.SKE_MIDNIGHT_KICK] = { effectId: 'ef_ske_midnight_kick' }; //Midnight Kick
+SkillEffect[SK.SKE_DAWN_BREAK] = { effectId: 'ef_ske_dawn_break' }; //Dawn Break
+SkillEffect[SK.SKE_TWINKLING_GALAXY] = { effectId: 'ef_ske_twinkling_galaxy' }; //Twinkling Galaxy
+SkillEffect[SK.SKE_STAR_BURST] = { effectId: 'ef_ske_star_burst' }; //Star Burst
+SkillEffect[SK.SKE_STAR_CANNON] = { effectId: 'ef_ske_star_cannon' }; //Star Cannon
+SkillEffect[SK.SKE_ALL_IN_THE_SKY] = { effectId: 'ef_ske_all_in_the_sky' }; //All in the Sky
+SkillEffect[SK.SKE_ENCHANTING_SKY] = { effectId: 'ef_ske_enchanting_sky' }; //Enchanting Sky
+SkillEffect[5502 /* SKE_SKY_SUN */] = { effectId: 'ef_ske_sky_sun', hitEffectId: 'ef_ske_sky_sun_hit' }; //Sky Sun
+SkillEffect[5503 /* SKE_SKY_MOON */] = {
+	effectId: 'ef_ske_sky_moon',
+	effectIdOnCaster: 'ef_ske_sky_moon_cast',
+	hitEffectId: 'ef_ske_sky_moon_hit'
+}; //Sky Moon
+SkillEffect[5504 /* SKE_STAR_LIGHT_KICK */] = {
+	effectId: 'ef_ske_star_light_kick',
+	hitEffectId: 'ef_ske_star_light_kick_hit'
+}; //Star Light Kick
 // Eclage Skills
 SkillEffect[SK.ECL_SNOWFLIP] = {}; //Snow Flip
 SkillEffect[SK.ECL_PEONYMAMY] = {}; //Peony Mamy
