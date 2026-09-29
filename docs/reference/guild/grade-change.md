@@ -27,10 +27,11 @@ Nothing is sent on selection, and the whole roster is never sent.
   or here. Forgetting the queue is not enough: the row was moved to the picked
   grade when it was queued, so each entry also carries the grade to go back to,
   and the Positions tab is redrawn from `_positions`. See below.
-- **An acknowledgement can be short, and the rows it skipped end on server
-  truth.** The whole queue is put back first and the acknowledged entries are
-  then moved again, so nothing is left displaying a grade the server did not
-  answer for. See below.
+- **An acknowledgement can be short, and the rows it skipped go back to the grade
+  they were queued over** - as long as they were still queued. The whole queue is
+  put back first and the acknowledged entries are then moved again. Entries
+  already **sent** are a different matter: Apply forgets them, so a short
+  acknowledgement has nothing left to put them back with. Known gap, below.
 - **The grade to go back to is recorded once per row, on its first edit.** Last
   edit wins on what is sent, never on where cancelling lands - only the first
   edit of a row saw a value the server had agreed to.
@@ -257,6 +258,33 @@ correct rather than decorative.
 
 Guild-master delegation is a separate path: the client puts it on a context
 menu with a Yes/No confirm and a single-entry packet.
+
+## Known gaps
+
+### A grade the server never answers for stays on show
+
+Apply sends the queued grades and forgets them, so the rows keep the grades that
+have just gone out - that is the point, and the acknowledgement is what agrees to
+them. What has no answer is the grade the server **silently declines**. The row
+goes on showing it, and nothing in the queue is left to put it back.
+
+It cannot simply be closed, and it is worth writing down why rather than
+rediscovering it:
+
+- **There is no rejection packet.** `clif_guild_memberpositionchanged` is only
+  sent for a grade that actually moved. An entry that never comes back is
+  indistinguishable from one still in flight.
+- **One packet per member**, so a batch comes back as several one-entry
+  acknowledgements. "Put back anything missing from this acknowledgement" would
+  revert the rows whose own acknowledgement is a few milliseconds behind.
+- **Restoring on a timer would be a guess**, not something the server said.
+
+So the row is left alone, and the next roster repaints it from server truth -
+which is also what the original client does with it: it sends on selection, shows
+the new grade at once, and a change the server drops stays wrong there too until
+a member list arrives. Closing this would mean re-asking for the roster after
+every Apply, which is a deviation above the client and a request per edit; worth
+doing only if the case is ever seen in practice.
 
 ## See also
 
