@@ -1010,6 +1010,45 @@ SkillEffect[SK.GC_DARKCROW] = { effectId: 1040 }; //Dark Claw
 SkillEffect[SK.RA_UNLIMIT] = {}; //Unlimited
 SkillEffect[SK.GN_ILLUSIONDOPING] = { effectId: 1049 }; //Illusion Doping
 SkillEffect[SK.RK_DRAGONBREATH_WATER] = { hitEffectId: 'ef_dragonbreath_water' }; //Dragon Breath - Water
+SkillEffect[SK.WH_WIND_SIGN] = { effectId: 'ef_wh_wind_sign' }; //Wind Sign
+SkillEffect[SK.WH_HAWKRUSH] = { effectId: 'ef_wh_hawkrush' }; //Hawk Rush
+SkillEffect[SK.WH_CALAMITYGALE] = { effectIdOnCaster: 'ef_wh_calamitygale_cast' }; //Calamity Gale
+SkillEffect[SK.WH_HAWKBOOMERANG] = { effectId: 'ef_wh_hawkboomerang' }; //Hawk Boomerang
+SkillEffect[SK.WH_GALESTORM] = {
+	effectId: 'ef_wh_galestorm',
+	effectIdOnCaster: 'ef_wh_galestorm_cast',
+	hitEffectId: 'ef_wh_galestorm_hit'
+}; //Gale Storm
+SkillEffect[SK.WH_DEEPBLINDTRAP] = {
+	effectId: 'ef_wh_deepblindtrap',
+	effectIdOnCaster: 'ef_wh_deepblindtrap_cast',
+	hitEffectId: 'ef_wh_deepblindtrap_hit'
+}; //Deep Blind Trap
+SkillEffect[SK.WH_SOLIDTRAP] = {
+	effectId: 'ef_wh_solidtrap',
+	effectIdOnCaster: 'ef_wh_solidtrap_cast',
+	hitEffectId: 'ef_wh_solidtrap_hit'
+}; //Solid Trap
+SkillEffect[SK.WH_SWIFTTRAP] = {
+	effectId: 'ef_wh_swifttrap',
+	effectIdOnCaster: 'ef_wh_swifttrap_cast',
+	hitEffectId: 'ef_wh_swifttrap_hit'
+}; //Swift Trap
+SkillEffect[SK.WH_CRESCIVE_BOLT] = {
+	effectId: 'ef_wh_crescive_bolt',
+	effectIdOnCaster: 'ef_wh_crescive_bolt_cast',
+	hitEffectId: 'ef_wh_crescive_bolt_hit'
+}; //Crescive Bolt
+SkillEffect[SK.WH_FLAMETRAP] = {
+	effectId: 'ef_wh_flametrap',
+	effectIdOnCaster: 'ef_wh_flametrap_cast',
+	hitEffectId: 'ef_wh_flametrap_hit'
+}; //Flame Trap
+SkillEffect[6520 /* WH_WILD_WALK */] = {
+	effectId: 'ef_wh_wild_walk',
+	effectIdOnCaster: 'ef_wh_wild_walk_cast',
+	hitEffectId: 'ef_wh_wild_walk_hit'
+}; //Wild Walk
 SkillEffect[SK.RK_LUXANIMA] = { effectId: 1044 }; //Lux Anima
 SkillEffect[SK.NC_MAGMA_ERUPTION] = { effectId: 1050 }; //Magma Eruption
 SkillEffect[SK.WM_FRIGG_SONG] = { effectId: 'ef_frigg_song' }; //Frigg's Song
