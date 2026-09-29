@@ -1019,6 +1019,39 @@ SkillEffect[SK.SC_ESCAPE] = {}; //Emergency Escape
 SkillEffect[SK.AB_OFFERTORIUM] = { effectId: 1047 }; //Offertorium
 SkillEffect[SK.WL_TELEKINESIS_INTENSE] = { effectId: 1048 }; //Intense Telekinesis
 SkillEffect[SK.LG_KINGS_GRACE] = { effectId: 'ef_kings_grace' }; //King's Grace
+SkillEffect[SK.IG_GUARD_STANCE] = { effectId: 'ef_ig_guard_stance', effectIdOnCaster: 'ef_ig_guard_stance_cast' }; //Guard Stance
+SkillEffect[SK.IG_GUARDIAN_SHIELD] = { effectId: 'ef_ig_guardian_shield' }; //Guardian Shield
+SkillEffect[SK.IG_REBOUND_SHIELD] = { effectId: 'ef_ig_rebound_shield', effectIdOnCaster: 'ef_ig_rebound_shield_cast' }; //Rebound Shield
+SkillEffect[SK.IG_ATTACK_STANCE] = { effectId: 'ef_ig_attack_stance', effectIdOnCaster: 'ef_ig_attack_stance_cast' }; //Attack Stance
+SkillEffect[SK.IG_ULTIMATE_SACRIFICE] = { effectId: 'ef_ig_ultimate_sacrifice' }; //Ultimate Sacrifice
+SkillEffect[SK.IG_HOLY_SHIELD] = { effectId: 'ef_ig_holy_shield', effectIdOnCaster: 'ef_ig_holy_shield_cast' }; //Holy Shield
+SkillEffect[SK.IG_GRAND_JUDGEMENT] = {
+	effectId: 'ef_ig_grand_judgement',
+	effectIdOnCaster: 'ef_ig_grand_judgement_cast'
+}; //Grand Judgement
+SkillEffect[SK.IG_JUDGEMENT_CROSS] = {
+	effectId: 'ef_ig_judgement_cross',
+	effectIdOnCaster: 'ef_ig_judgement_cross_cast',
+	hitEffectId: 'ef_ig_judgement_cross_hit'
+}; //Judgement Cross
+SkillEffect[SK.IG_SHIELD_SHOOTING] = {
+	effectId: 'ef_ig_shield_shooting',
+	effectIdOnCaster: 'ef_ig_shield_shooting_cast',
+	hitEffectId: 'ef_ig_shield_shooting_hit'
+}; //Shield Shooting
+SkillEffect[SK.IG_OVERSLASH] = {
+	effectId: 'ef_ig_overslash',
+	effectIdOnCaster: 'ef_ig_overslash_cast',
+	hitEffectId: 'ef_ig_overslash_hit'
+}; //Overslash
+SkillEffect[SK.IG_CROSS_RAIN] = { effectId: 'ef_ig_cross_rain', effectIdOnCaster: 'ef_ig_cross_rain_cast' }; //Cross Rain
+SkillEffect[6503 /* IG_RADIANT_SPEAR */] = { effectIdOnCaster: 'ef_ig_radiant_spear_cast' }; //Radiant Spear
+SkillEffect[6504 /* IG_IMPERIAL_CROSS */] = { effectId: 'ef_ig_imperial_cross' }; //Imperial Cross
+SkillEffect[6505 /* IG_IMPERIAL_PRESSURE */] = {
+	effectId: 'ef_ig_imperial_pressure',
+	effectIdOnCaster: 'ef_ig_imperial_pressure_cast',
+	hitEffectId: 'ef_ig_imperial_pressure_hit'
+}; //Imperial Pressure
 SkillEffect[SK.ALL_FULL_THROTTLE] = { effectId: 1042 }; //Full Throttle
 // Summoner
 SkillEffect[SK.SU_BITE] = {}; //Bite
