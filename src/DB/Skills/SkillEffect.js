@@ -1017,6 +1017,33 @@ SkillEffect[SK.SO_ELEMENTAL_SHIELD] = { effectId: 1046 }; //Elemental Shield
 SkillEffect[SK.SR_FLASHCOMBO] = { effectId: 1043 }; //Flash Combo
 SkillEffect[SK.SC_ESCAPE] = {}; //Emergency Escape
 SkillEffect[SK.AB_OFFERTORIUM] = { effectId: 1047 }; //Offertorium
+SkillEffect[SK.CD_REPARATIO] = { effectId: 'ef_cd_reparatio', effectIdOnCaster: 'ef_cd_reparatio_cast' }; //Reparatio
+SkillEffect[SK.CD_MEDIALE_VOTUM] = { effectId: 'ef_cd_mediale_votum', effectIdOnCaster: 'ef_cd_mediale_votum_cast' }; //Mediale Votum
+SkillEffect[SK.CD_ARGUTUS_VITA] = { effectId: 'ef_cd_argutus_vita', effectIdOnCaster: 'ef_cd_argutus_vita_cast' }; //Argutus Vita
+SkillEffect[SK.CD_ARGUTUS_TELUM] = { effectId: 'ef_cd_argutus_telum', effectIdOnCaster: 'ef_cd_argutus_telum_cast' }; //Argutus Telum
+SkillEffect[SK.CD_ARBITRIUM] = {
+	effectId: 'ef_cd_arbitrium',
+	effectIdOnCaster: 'ef_cd_arbitrium_cast',
+	hitEffectId: 'ef_cd_arbitrium_hit'
+}; //Arbitrium
+SkillEffect[SK.CD_ARBITRIUM_ATK] = { effectId: 'ef_cd_arbitrium_atk' }; //Arbitrium Attack
+SkillEffect[SK.CD_PRESENS_ACIES] = { effectId: 'ef_cd_presens_acies', effectIdOnCaster: 'ef_cd_presens_acies_cast' }; //Presens Acies
+SkillEffect[SK.CD_EFFLIGO] = { effectId: 'ef_cd_effligo', hitEffectId: 'ef_cd_effligo_hit' }; //Effligo
+SkillEffect[SK.CD_COMPETENTIA] = { effectId: 'ef_cd_competentia', effectIdOnCaster: 'ef_cd_competentia_cast' }; //Competentia
+SkillEffect[SK.CD_PNEUMATICUS_PROCELLA] = {
+	effectId: 'ef_cd_pneumaticus_procella',
+	effectIdOnCaster: 'ef_cd_pneumaticus_procella_cast'
+}; //Pneumaticus Procella
+SkillEffect[SK.CD_DILECTIO_HEAL] = { effectId: 'ef_cd_dilectio_heal', effectIdOnCaster: 'ef_cd_dilectio_heal_cast' }; //Dilectio Heal
+SkillEffect[SK.CD_RELIGIO] = { effectId: 'ef_cd_religio', effectIdOnCaster: 'ef_cd_religio_cast' }; //Religio
+SkillEffect[SK.CD_BENEDICTUM] = { effectId: 'ef_cd_benedictum', effectIdOnCaster: 'ef_cd_benedictum_cast' }; //Benedictum
+SkillEffect[SK.CD_PETITIO] = { effectId: 'ef_cd_petitio' }; //Petitio
+SkillEffect[SK.CD_FRAMEN] = { effectId: 'ef_cd_framen' }; //Framen
+SkillEffect[6518 /* CD_DIVINUS_FLOS */] = {
+	effectId: 'ef_cd_divinus_flos',
+	effectIdOnCaster: 'ef_cd_divinus_flos_cast',
+	hitEffectId: 'ef_cd_divinus_flos_hit'
+}; //Divinus Flos
 SkillEffect[SK.WL_TELEKINESIS_INTENSE] = { effectId: 1048 }; //Intense Telekinesis
 SkillEffect[SK.LG_KINGS_GRACE] = { effectId: 'ef_kings_grace' }; //King's Grace
 SkillEffect[SK.ALL_FULL_THROTTLE] = { effectId: 1042 }; //Full Throttle
