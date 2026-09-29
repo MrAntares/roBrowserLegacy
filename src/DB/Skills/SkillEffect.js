@@ -1013,6 +1013,40 @@ SkillEffect[SK.RK_DRAGONBREATH_WATER] = { hitEffectId: 'ef_dragonbreath_water' }
 SkillEffect[SK.RK_LUXANIMA] = { effectId: 1044 }; //Lux Anima
 SkillEffect[SK.NC_MAGMA_ERUPTION] = { effectId: 1050 }; //Magma Eruption
 SkillEffect[SK.WM_FRIGG_SONG] = { effectId: 'ef_frigg_song' }; //Frigg's Song
+SkillEffect[SK.TR_MYSTIC_SYMPHONY] = {
+	effectId: 'ef_tr_mystic_symphony',
+	effectIdOnCaster: 'ef_tr_mystic_symphony_cast'
+}; //Mystic Symphony
+SkillEffect[SK.TR_KVASIR_SONATA] = { effectId: 'ef_tr_kvasir_sonata', effectIdOnCaster: 'ef_tr_kvasir_sonata_cast' }; //Kvasir Sonata
+SkillEffect[SK.TR_ROSEBLOSSOM] = { effectIdOnCaster: 'ef_tr_roseblossom_cast', hitEffectId: 'ef_tr_roseblossom_hit' }; //Rose Blossom
+SkillEffect[SK.TR_ROSEBLOSSOM_ATK] = { effectId: 'ef_tr_roseblossom_atk' }; //Rose Blossom Attack
+SkillEffect[SK.TR_RHYTHMSHOOTING] = {
+	effectIdOnCaster: 'ef_tr_rhythmshooting_cast',
+	hitEffectId: 'ef_tr_rhythmshooting_hit'
+}; //Rhythm Shooting
+SkillEffect[SK.TR_METALIC_FURY] = { effectId: 'ef_tr_metalic_fury' }; //Metallic Fury
+SkillEffect[SK.TR_SOUNDBLEND] = { effectId: 'ef_tr_soundblend', effectIdOnCaster: 'ef_tr_soundblend_cast' }; //Sound Blend
+SkillEffect[SK.TR_GEF_NOCTURN] = { effectId: 'ef_tr_gef_nocturn', effectIdOnCaster: 'ef_tr_gef_nocturn_cast' }; //Geffenia Nocturn
+SkillEffect[SK.TR_ROKI_CAPRICCIO] = { effectId: 'ef_tr_roki_capriccio', effectIdOnCaster: 'ef_tr_roki_capriccio_cast' }; //Roki Capriccio
+SkillEffect[SK.TR_AIN_RHAPSODY] = { effectId: 'ef_tr_ain_rhapsody', effectIdOnCaster: 'ef_tr_ain_rhapsody_cast' }; //Ain Rhapsody
+SkillEffect[SK.TR_MUSICAL_INTERLUDE] = {
+	effectId: 'ef_tr_musical_interlude',
+	effectIdOnCaster: 'ef_tr_musical_interlude_cast'
+}; //Musical Interlude
+SkillEffect[SK.TR_JAWAII_SERENADE] = {
+	effectId: 'ef_tr_jawaii_serenade',
+	effectIdOnCaster: 'ef_tr_jawaii_serenade_cast'
+}; //Jawaii Serenade
+SkillEffect[SK.TR_NIPELHEIM_REQUIEM] = {
+	effectId: 'ef_tr_nipelheim_requiem',
+	effectIdOnCaster: 'ef_tr_nipelheim_requiem_cast'
+}; //Nipelheim Requiem
+SkillEffect[SK.TR_PRON_MARCH] = { effectId: 'ef_tr_pron_march', effectIdOnCaster: 'ef_tr_pron_march_cast' }; //Pron March
+SkillEffect[6521 /* TR_RHYTHMICAL_WAVE */] = {
+	effectId: 'ef_tr_rhythmical_wave',
+	effectIdOnCaster: 'ef_tr_rhythmical_wave_cast',
+	hitEffectId: 'ef_tr_rhythmical_wave_hit'
+}; //Rhythmical Wave
 SkillEffect[SK.SO_ELEMENTAL_SHIELD] = { effectId: 1046 }; //Elemental Shield
 SkillEffect[SK.SR_FLASHCOMBO] = { effectId: 1043 }; //Flash Combo
 SkillEffect[SK.SC_ESCAPE] = {}; //Emergency Escape
