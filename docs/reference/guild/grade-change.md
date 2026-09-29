@@ -11,19 +11,26 @@ Nothing is sent on selection, and the whole roster is never sent.
 - **Send the delta, never the roster.** This is the bug the whole path exists
   to avoid - see below.
 - **Queue keyed by GID**, one entry per member, last edit wins.
-- **Flush on Apply, then clear.** Drop the queue whenever fresh guild data
+- **Flush on Apply, then forget.** Drop the queue whenever fresh guild data
   arrives (member list, grade names, the change acknowledgement) - the server
   is the truth and it has just overwritten what was pending.
+- **Every drop puts its rows back on the server's grade. Apply is the one that
+  does not**, the grades having just gone out on the wire. Two helpers, and the
+  restoring one is the plain name so no call site has to work out which it wants.
+  See below.
 - **Say so when a member list drops a queue.** That one can arrive unprompted,
   so the edit dies with nobody having touched anything. See below.
 - **Do not ask for that data while something is queued.** Menus 1 and 2 are the
   two whose answer carries grade names, and a tab click is what sends them. See
   below.
-- **Closing the window is the cancel, and a cancel restores.** There is no
-  reset button, in the client or here. Dropping the queue is not enough: the row
-  was moved to the picked grade when it was queued, so each entry also carries
-  the grade to go back to, and the Positions tab is redrawn from `_positions`.
-  See below.
+- **Closing the window is the cancel.** There is no reset button, in the client
+  or here. Forgetting the queue is not enough: the row was moved to the picked
+  grade when it was queued, so each entry also carries the grade to go back to,
+  and the Positions tab is redrawn from `_positions`. See below.
+- **An acknowledgement can be short, and the rows it skipped end on server
+  truth.** The whole queue is put back first and the acknowledged entries are
+  then moved again, so nothing is left displaying a grade the server did not
+  answer for. See below.
 - **The grade to go back to is recorded once per row, on its first edit.** Last
   edit wins on what is sent, never on where cancelling lands - only the first
   edit of a row saw a value the server had agreed to.
@@ -37,6 +44,10 @@ Nothing is sent on selection, and the whole roster is never sent.
   refused.
 - **Reveal the Apply button once something is queued** - selecting no longer
   sends, so the members tab would otherwise have no way to flush.
+- **Apply is offered by the tab on show, from one rule in one place.** The
+  positions tab holds its edits in its rows and the members tab in the queue, so
+  taking a queue back also takes the button with it - unless the other tab is up,
+  holding edits of its own.
 - **`ZC_ACK_REQ_CHANGE_MEMBERS` (0x156) carries `memberInfo[]` only** - not
   `AID` / `GID` / `positionID`. An acknowledged grade of 0 is the guild master
   moving, not a grade change.
@@ -50,6 +61,50 @@ Nothing is sent on selection, and the whole roster is never sent.
   cursor, which must not offer a click that cannot happen. See below.
 
 ## Why
+
+### A drop that does not restore strands the row it dropped
+
+Queueing moves the row to the picked grade, so the queue and the rows are two
+halves of one edit. Restoring was written for the cancel path and wired into that
+path alone, which left three other drops - a member list, the grade names, the
+acknowledgement - forgetting the queue while the row kept showing the grade
+nobody had agreed to. The selection guard then refused to pick that grade a
+second time, the row already reading as the value being asked for, so the edit
+could not even be made again.
+
+The reported case was the grade names, and the reply to it was that the
+hold-back above makes it unreachable: menus 1 and 2 are the only senders of
+`clif_guild_positionnamelist`, and both are held while the queue is non-empty. On
+rAthena that holds. It is still the wrong shape of answer - it leaves a rule that
+has to be re-derived at every call site, against a server that is free to send
+what it likes - and the acknowledgement had the same hole with nothing to hold it
+back at all (below).
+
+So **restoring is the default and carries the plain name**. The helper that only
+forgets is the one that has to say so, and it has exactly one caller: Apply,
+where the grades have just gone out and the row showing them is the point. The
+rest inherit the restore without asking for it:
+
+| drop | what it does now |
+| --- | --- |
+| a member list | the roster store is emptied first, so there is nothing to put back - the incoming rows *are* server truth |
+| the acknowledgement | puts every row back, then moves the acknowledged ones again |
+| the grade names | puts the rows back; the reported case, fixed by construction |
+| a role change | puts the rows back *before* rebuilding off the roster, so a queued grade is no longer promoted into that rebuild as though the server had sent it |
+| closing the window | unchanged - this is the path restoring was written for |
+| **Apply** | forgets only: the rows keep the grades just sent |
+
+### An acknowledgement can carry fewer entries than were sent
+
+`clif_guild_memberpositionchanged` goes out once per grade rAthena actually
+moved, so a batch can come back short - and the old code dropped the queue for
+the whole batch on the first one. Every entry the server had not answered for was
+then stranded on its queued grade with nothing left to send it.
+
+Putting the whole queue back and then re-applying what was acknowledged gets both
+halves right in one pass: the answered rows land on the answered grade, and the
+rest go back to what the server holds rather than keeping a grade it never
+mentioned.
 
 ### Sending the roster aborts the batch
 

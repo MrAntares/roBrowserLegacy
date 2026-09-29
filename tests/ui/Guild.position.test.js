@@ -492,6 +492,58 @@ describe('Guild member position', () => {
 
 			expect(sent).toHaveLength(0);
 		});
+
+		// Dropping a queue and putting its rows back used to be two different things,
+		// and only closing the window did both. Every other drop left the row on a
+		// grade nobody had agreed to, which the guard then refused to pick again.
+		it('puts the row back on the server grade when the grade names refresh', () => {
+			changeGrade(MARGARETHA, 2);
+			Guild.setPositionsName(POSITION_NAMES);
+
+			expect(selectOf(MARGARETHA).value).toBe('1');
+			expect(selectOf(MARGARETHA).closest('.MemberView').classList.contains('pending')).toBe(false);
+			expect(applyButton().style.display).toBe('none');
+		});
+
+		it('lets a grade dropped by that refresh be picked again', () => {
+			changeGrade(MARGARETHA, 2);
+			Guild.setPositionsName(POSITION_NAMES);
+
+			showMembersTab();
+			changeGrade(MARGARETHA, 2);
+			clickApply();
+
+			expect(sent).toHaveLength(1);
+			expect(wireEntries(sent[0])).toEqual([{ AID: MARGARETHA.AID, GID: MARGARETHA.GID, positionID: 2 }]);
+		});
+
+		// rAthena answers one entry per grade it actually moved, so a batch can come
+		// back short. The queue goes whole either way, and the entries it answered
+		// are not the ones left to strand.
+		it('puts a row the acknowledgement skipped back on the server grade', () => {
+			changeGrade(MARGARETHA, 2);
+			changeGrade(HOWARD, 2);
+
+			Guild.setMemberPositions([{ AID: MARGARETHA.AID, GID: MARGARETHA.GID, positionID: 2 }]);
+
+			expect(selectOf(MARGARETHA).value).toBe('2');
+			expect(selectOf(HOWARD).value).toBe('1');
+			expect(selectOf(HOWARD).closest('.MemberView').classList.contains('pending')).toBe(false);
+
+			showMembersTab();
+			clickApply();
+			expect(sent).toHaveLength(0);
+		});
+	});
+
+	// Apply is the one drop that must not put the rows back: the grades have just
+	// gone out, and the acknowledgement is what agrees to them.
+	it('leaves the sent grades on show once Apply has sent them', () => {
+		changeGrade(MARGARETHA, 2);
+		clickApply();
+
+		expect(selectOf(MARGARETHA).value).toBe('2');
+		expect(selectOf(MARGARETHA).closest('.MemberView').classList.contains('pending')).toBe(false);
 	});
 
 	describe('refused selections', () => {

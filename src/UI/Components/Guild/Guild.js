@@ -178,9 +178,14 @@ function _root(comp) {
 }
 
 /**
- * Helper: drop the queued grade changes, and the marks that showed them
+ * Helper: forget the queued grade changes, and the marks that showed them
+ *
+ * Leaves the rows on the grades they display, so this is only ever right where
+ * those grades have just been sent. Every other drop goes through
+ * _clearPendingPositions, which puts them back first.
+ * @see docs/reference/guild/grade-change.md
  */
-function _clearPendingPositions() {
+function _dropPendingPositions() {
 	_pendingPositions = {};
 
 	// Entering the map can clear a queue before the window has ever been built.
@@ -208,17 +213,20 @@ function _hasPendingPositions() {
 }
 
 /**
- * Helper: take back the queued grades, putting their rows on the server's
+ * Helper: drop the queued grades, putting their rows back on the server's
  *
- * Dropping the queue is not enough: the row was moved to the picked grade when
- * it was queued, so forgetting the queue would leave that grade on show as
+ * Forgetting the queue is not enough: the row was moved to the picked grade when
+ * it was queued, so dropping the queue alone would leave that grade on show as
  * though the server had agreed to it - and the grade guard would then refuse to
- * queue it a second time, the row already reading as the value asked for.
+ * queue it a second time, the row already reading as the value asked for. Every
+ * drop restores, so no call site has to work out whether it is the one that has
+ * to; Apply is the exception and says so.
  * @see docs/reference/guild/grade-change.md
  */
-function _cancelPendingPositions() {
+function _clearPendingPositions() {
 	// An unmounted component has no rows to put back, and setMember reads them.
-	if (_root(Guild)) {
+	const root = _root(Guild);
+	if (root) {
 		for (const GID in _pendingPositions) {
 			const pending = _pendingPositions[GID];
 
@@ -233,7 +241,13 @@ function _cancelPendingPositions() {
 		}
 	}
 
-	_clearPendingPositions();
+	_dropPendingPositions();
+
+	if (root) {
+		// Apply is the affordance for the edits just taken back, so it goes with
+		// them - unless the tab on show is the other one, holding edits of its own.
+		_refreshApplyButton(getActiveTab(root));
+	}
 }
 
 /**
@@ -245,7 +259,7 @@ function _cancelPendingPositions() {
  * @see docs/reference/guild/grade-change.md
  */
 function _resetPositionsTab() {
-	_cancelPendingPositions();
+	_clearPendingPositions();
 
 	// Cleared before the rebuild, not after: updatePositionView refuses to paint
 	// over an edit while this is up, and the edit is what has to go.
@@ -321,6 +335,23 @@ function _hideApplyButton() {
 	if (btnOk) {
 		btnOk.style.display = 'none';
 	}
+}
+
+/**
+ * Helper: offer Apply only while the tab on show has an edit to apply
+ *
+ * The positions tab holds its edits in its rows and the members tab in the
+ * queue, so which one is up decides whether there is anything left to send.
+ *
+ * @param {string} tab - class of the tab on show
+ */
+function _refreshApplyButton(tab) {
+	if ((tab === 'positions' && _positionsDirty) || (tab === 'members' && _hasPendingPositions())) {
+		_showApplyButton();
+		return;
+	}
+
+	_hideApplyButton();
 }
 
 /**
@@ -1519,7 +1550,10 @@ Guild.updateMemberPosition = function updateMemberPosition(AID, GID, positionID,
 /**
  * Apply the grades the server acknowledged
  *
- * The ack is server truth, so it also drops whatever was still queued.
+ * The ack is server truth, so it also drops whatever was still queued. Every row
+ * goes back to the server's grade first and the acknowledged ones are then moved
+ * again: an ack can carry fewer entries than were sent, and the rest have to end
+ * on what the server holds rather than on what it never answered.
  * @see docs/reference/guild/grade-change.md
  *
  * @param {Array} memberInfo - PACKET.ZC.ACK_REQ_CHANGE_MEMBERS entries
@@ -2221,13 +2255,8 @@ function onChangeTab(event) {
 		targetContent.style.display = 'block';
 	}
 
-	_hideApplyButton();
-
-	// The positions tab holds its edits in its rows and the members tab in the
-	// queue, so coming back to either has to bring the way to apply them back too.
-	if ((targetClass === 'positions' && _positionsDirty) || (targetClass === 'members' && _hasPendingPositions())) {
-		_showApplyButton();
-	}
+	// Coming back to either tab has to bring the way to apply its edits back too.
+	_refreshApplyButton(targetClass);
 
 	updateDisbandButton(root, targetClass);
 	updateSkillFooter(root, targetClass);
@@ -2451,7 +2480,9 @@ function onValidate() {
 			}
 
 			Guild.onChangeMemberPosRequest(list);
-			_clearPendingPositions();
+			// Forgotten rather than taken back: the rows keep the grades just sent,
+			// and the acknowledgement is what agrees to them.
+			_dropPendingPositions();
 			break;
 		}
 		case 'positions': {
