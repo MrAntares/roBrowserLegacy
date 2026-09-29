@@ -1006,6 +1006,19 @@ SkillEffect[SK.ECL_SEQUOIADUST] = {}; //Sequoia Dust
 SkillEffect[SK.ECLAGE_RECALL] = {}; //Return To Eclage
 // Copied Bard / Dancer Skills
 // EP 14.3 Part 2 3rd Job Skills
+SkillEffect[SK.SHC_SHADOW_EXCEED] = { effectIdOnCaster: 'ef_shc_shadow_exceed_cast' }; //Shadow Exceed
+SkillEffect[SK.SHC_DANCING_KNIFE] = { effectIdOnCaster: 'ef_shc_dancing_knife_cast' }; //Dancing Knife
+SkillEffect[SK.SHC_SAVAGE_IMPACT] = { effectId: 'ef_shc_savage_impact', hitEffectId: 'ef_shc_savage_impact_hit' }; //Savage Impact
+SkillEffect[SK.SHC_ETERNAL_SLASH] = { effectId: 'ef_shc_eternal_slash', hitEffectId: 'ef_shc_eternal_slash_hit' }; //Eternal Slash
+SkillEffect[SK.SHC_POTENT_VENOM] = { effectId: 'ef_shc_potent_venom' }; //Potent Venom
+SkillEffect[SK.SHC_SHADOW_STAB] = { effectId: 'ef_shc_shadow_stab' }; //Shadow Stab
+SkillEffect[SK.SHC_IMPACT_CRATER] = { effectId: 'ef_shc_impact_crater', hitEffectId: 'ef_shc_impact_crater_hit' }; //Impact Crater
+SkillEffect[SK.SHC_ENCHANTING_SHADOW] = { effectId: 'ef_shc_enchanting_shadow' }; //Enchanting Shadow
+SkillEffect[SK.SHC_FATAL_SHADOW_CROW] = {
+	effectId: 'ef_shc_fatal_shadow_crow',
+	hitEffectId: 'ef_shc_fatal_shadow_crow_hit'
+}; //Fatal Shadow Crow
+SkillEffect[6511 /* SHC_CROSS_SLASH */] = { effectId: 'ef_shc_cross_slash' }; //Cross Slash
 SkillEffect[SK.GC_DARKCROW] = { effectId: 1040 }; //Dark Claw
 SkillEffect[SK.RA_UNLIMIT] = {}; //Unlimited
 SkillEffect[SK.GN_ILLUSIONDOPING] = { effectId: 1049 }; //Illusion Doping
