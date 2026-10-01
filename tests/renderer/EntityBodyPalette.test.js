@@ -9,12 +9,12 @@ import AllMountTable from 'DB/Jobs/AllMountTable.js';
 // EntityView asks for, so the stub only needs to name the table entry.
 vi.mock('DB/DBManager.js', async () => {
 	const Pal = (await import('DB/Jobs/PalNameTable.js')).default;
-	return {
-		default: {
-			getCartPath: id => `cart${id}`,
-			getBodyPalPath: (id, pal, sex) => (id in Pal ? `${Pal[id]}_${sex}_${pal}.pal` : null)
-		}
+	const DB = {
+		getBodyPath: (id, sex, alt) => `body${id}_${alt}`,
+		getBodyPalPath: (id, pal, sex) => (id in Pal ? `${Pal[id]}_${sex}_${pal}.pal` : null)
 	};
+	// Anything else the view asks for is not under test.
+	return { default: new Proxy(DB, { get: (t, k) => (k in t ? t[k] : () => null) }) };
 });
 vi.mock('Core/Client.js', () => ({ default: { loadFile: vi.fn() } }));
 vi.mock('DB/Monsters/ShadowTable.js', () => ({ default: {} }));
@@ -60,5 +60,39 @@ describe('EntityView body palette', () => {
 			}
 		}
 		expect(missing).toEqual([]);
+	});
+
+	// PACKETVER is 20221005 here, so a body style value is read through
+	// getBodyVal: a Rune Knight's style draws the RUNE_KNIGHT_2ND costume body.
+	// Once that body loads, UpdateBodyStyle sets the dye again; so does this.
+	function styled(e, look) {
+		vi.useFakeTimers();
+		e.body = look;
+		vi.advanceTimersByTime(50);
+		vi.useRealTimers();
+		e.bodypalette = e._bodypalette;
+		return e;
+	}
+
+	it("uses the costume body's palette for a body style on foot", () => {
+		const rk = entity(JobId.RUNE_KNIGHT, 0);
+		rk.bodypalette = 3;
+		styled(rk, 1);
+		expect(rk.files.body.pal).toBe(`${PalNameTable[JobId.RUNE_KNIGHT_2ND]}_1_3.pal`);
+	});
+
+	it("uses the costume mount's palette for a body style on a mount", () => {
+		const rk = entity(JobId.RUNE_KNIGHT, JobId.RUNE_KNIGHT2);
+		rk.bodypalette = 3;
+		styled(rk, 1);
+		expect(MountTable[JobId.RUNE_KNIGHT_2ND]).toBe(JobId.RUNE_KNIGHT2_2ND);
+		expect(rk.files.body.pal).toBe(`${PalNameTable[JobId.RUNE_KNIGHT2_2ND]}_1_3.pal`);
+	});
+
+	it("goes back to the mount's own palette when the body style is removed", () => {
+		const rk = styled(entity(JobId.RUNE_KNIGHT, JobId.RUNE_KNIGHT2), 1);
+		rk.bodypalette = 3;
+		styled(rk, 0);
+		expect(rk.files.body.pal).toBe(`${PalNameTable[JobId.RUNE_KNIGHT2]}_1_3.pal`);
 	});
 });

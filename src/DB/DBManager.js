@@ -1307,7 +1307,11 @@ class DB {
 			return null;
 		}
 
-		return 'data/palette/\xb8\xf6/' + PaletteTable[id] + '_' + SexTable[sex] + '_' + pal + '.pal';
+		// A `costume_1` body's palettes carry the body's own `_1` after the
+		// palette number: costume_1/<job>_<sex>_<pal>_1.pal.
+		const costume = String(PaletteTable[id]).startsWith('costume_1/') ? '_1' : '';
+
+		return 'data/palette/\xb8\xf6/' + PaletteTable[id] + '_' + SexTable[sex] + '_' + pal + costume + '.pal';
 	}
 
 	/**
