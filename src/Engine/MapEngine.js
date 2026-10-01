@@ -571,7 +571,8 @@ function onConnectionAccepted(pkt) {
 	Session.hasParty = false;
 	Session.isPartyLeader = false;
 	Session.hasGuild = false;
-	Session.guildRight = 0;
+	Session.guildPermission = 0;
+	GuildEngine.resetForNewCharacter();
 
 	Session.homunId = 0;
 

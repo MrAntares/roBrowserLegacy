@@ -102,6 +102,21 @@ const CommandStore = {
 			return;
 		}
 	},
+	li: {
+		description: 'Toggles the chat announcements when a friend or a guild member connects or disconnects',
+		callback: function () {
+			// The client reports the state it is switching *to*, which reading the
+			// flag before flipping it gives.
+			const line = UIPreferences.li
+				? DB.getMessage(1045, 'Do not display online status of friends in Chat Window.  [/li OFF]')
+				: DB.getMessage(1044, 'Display online status of friends in Chat Window. [/li ON]');
+
+			this.addText(line, this.TYPE.INFO, this.FILTER.PUBLIC_LOG);
+			UIPreferences.li = !UIPreferences.li;
+			UIPreferences.save();
+			return;
+		}
+	},
 	aura: {
 		description: 'Minimizes the aura effect for level 99 and 175 characters',
 		callback: function () {

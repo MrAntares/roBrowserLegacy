@@ -25,6 +25,7 @@ import DB from 'DB/DBManager.js';
 import Camera from 'Renderer/Camera.js';
 import MiniMap from 'UI/Components/MiniMap/MiniMap.js';
 import Preferences from 'Core/Preferences.js';
+import UIPreferences from 'Preferences/UI.js';
 import MonsterTable from 'DB/Monsters/MonsterTable.js';
 import Client from 'Core/Client.js';
 import Renderer from 'Renderer/Renderer.js';
@@ -502,21 +503,28 @@ export function createPartyFriends(config) {
 
 		_friends[index].State = state;
 
+		// The list itself always follows; only the chat line is behind /li, the
+		// toggle these two strings are named for.
+		// @see docs/reference/guild/login-announcements.md
 		if (state) {
 			if (node) node.style.backgroundImage = '';
-			ChatBox.addText(
-				DB.getMessage(1042).replace('%s', _friends[index].Name),
-				ChatBox.TYPE.BLUE,
-				ChatBox.FILTER.PUBLIC_LOG
-			);
+			if (UIPreferences.li) {
+				ChatBox.addText(
+					DB.getMessage(1042, '%s has logged out.').replace('%s', _friends[index].Name),
+					ChatBox.TYPE.BLUE,
+					ChatBox.FILTER.PUBLIC_LOG
+				);
+			}
 			return;
 		}
 
-		ChatBox.addText(
-			DB.getMessage(1041).replace('%s', _friends[index].Name),
-			ChatBox.TYPE.BLUE,
-			ChatBox.FILTER.PUBLIC_LOG
-		);
+		if (UIPreferences.li) {
+			ChatBox.addText(
+				DB.getMessage(1041, '%s has logged in.').replace('%s', _friends[index].Name),
+				ChatBox.TYPE.BLUE,
+				ChatBox.FILTER.PUBLIC_LOG
+			);
+		}
 		Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/grp_online.bmp', function (url) {
 			if (node) node.style.backgroundImage = `url(${url})`;
 		});

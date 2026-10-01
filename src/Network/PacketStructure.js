@@ -6799,7 +6799,7 @@ PACKET.ZC.SHOW_IMAGE2.size = 67;
 PACKET.ZC.CHANGE_GUILD = function PACKET_ZC_CHANGE_GUILD(fp, end) {
 	this.AID = fp.readULong();
 	this.GDID = fp.readULong();
-	this.emblemVersion = fp.readShort();
+	this.emblemVersion = fp.readUShort();
 };
 PACKET.ZC.CHANGE_GUILD.size = 12;
 
@@ -13543,6 +13543,23 @@ PACKET.CZ.CLOSE_UI_ENCHANT.prototype.build = function () {
 	return pkt_buf;
 };
 
+// 0xa82
+// The reason comes FIRST here and second in 0xa83 below. The two packets are
+// otherwise identical, which is exactly why the order has to be read off the
+// wire rather than assumed to match its neighbour.
+PACKET.ZC.ACK_BAN_GUILD_DELNAME = function PACKET_ZC_ACK_BAN_GUILD_DELNAME(fp, end) {
+	this.reasonDesc = fp.readString(40);
+	this.GID = fp.readULong();
+};
+PACKET.ZC.ACK_BAN_GUILD_DELNAME.size = 46;
+
+// 0xa83
+PACKET.ZC.ACK_LEAVE_GUILD_DELNAME = function PACKET_ZC_ACK_LEAVE_GUILD_DELNAME(fp, end) {
+	this.GID = fp.readULong();
+	this.reasonDesc = fp.readString(40);
+};
+PACKET.ZC.ACK_LEAVE_GUILD_DELNAME.size = 46;
+
 // 0xa84
 PACKET.ZC.GUILD_INFO3 = function PACKET_ZC_GUILD_INFO3(fp, end) {
 	this.GDID = fp.readLong();
@@ -13563,6 +13580,22 @@ PACKET.ZC.GUILD_INFO3 = function PACKET_ZC_GUILD_INFO3(fp, end) {
 	this.masterName = this.masterAID; // TODO char_id to name
 };
 PACKET.ZC.GUILD_INFO3.size = 114 - 20; // - <master name>.24B + <master char id>.L
+
+// 0xa87
+PACKET.ZC.BAN_LIST2 = function PACKET_ZC_BAN_LIST2(fp, end) {
+	this.banList = (function () {
+		const count = ((end - fp.tell()) / 44) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
+			out[i] = {};
+			out[i].GID = fp.readULong();
+			out[i].reason = fp.readString(40);
+			out[i].charname = ''; // todo char_id to char_name
+		}
+		return out;
+	})();
+};
+PACKET.ZC.BAN_LIST2.size = -1;
 
 // 0xa89
 PACKET.ZC.STORE_ASSISTANT_ENTRY = function PACKET_ZC_STORE_ASSISTANT_ENTRY(fp, end) {
@@ -14943,6 +14976,50 @@ PACKET.ZC.ADD_ITEM_TO_CART4 = function PACKET_ZC_ADD_ITEM_TO_CART4(fp, end) {
 };
 PACKET.ZC.ADD_ITEM_TO_CART4.size = 58;
 
+// 0xb46
+PACKET.CZ.REQ_ADD_NEW_EMBLEM = function PACKET_CZ_REQ_ADD_NEW_EMBLEM() {
+	this.GDID = 0;
+	this.version = 0;
+};
+PACKET.CZ.REQ_ADD_NEW_EMBLEM.prototype.build = function () {
+	const pkt_len = 2 + 4 + 4;
+	const pkt_buf = new BinaryWriter(pkt_len);
+
+	pkt_buf.writeShort(0xb46);
+	pkt_buf.writeULong(this.GDID);
+	pkt_buf.writeULong(this.version);
+
+	return pkt_buf;
+};
+PACKET.CZ.REQ_ADD_NEW_EMBLEM.size = 10;
+
+// 0xb1f, and 0xb47 after it - same field order, and both reorder the fields the
+// 0x1b4 generation sent while widening the version from a short to a long.
+// They need one structure each: registering takes the id on the structure
+// itself, so a shared one keeps only the opcode it was registered under last
+// and the other never reaches its handler.
+PACKET.ZC.CHANGE_GUILD2 = function PACKET_ZC_CHANGE_GUILD2(fp, end) {
+	this.GDID = fp.readULong();
+	this.emblemVersion = fp.readULong();
+
+	// Ten bytes from 20190306 and fourteen from 20190619: the account id was
+	// appended to the two leading fields, not slotted in among them. Read off the
+	// framed length rather than the version, which is what framed it in the first
+	// place.
+	if (end - fp.tell() >= 4) {
+		this.AID = fp.readULong();
+	}
+};
+PACKET.ZC.CHANGE_GUILD2.size = PACKETVER.value >= 20190619 ? 14 : 10;
+
+// 0xb47
+PACKET.ZC.CHANGE_GUILD3 = function PACKET_ZC_CHANGE_GUILD3(fp, end) {
+	this.GDID = fp.readULong();
+	this.emblemVersion = fp.readULong();
+	this.AID = fp.readULong();
+};
+PACKET.ZC.CHANGE_GUILD3.size = 14;
+
 // 0xb4e
 PACKET.ZC.NPC_MARKET_PURCHASE_RESULT2 = function PACKET_ZC_NPC_MARKET_PURCHASE_RESULT2(fp, end) {
 	this.result = fp.readUShort();
@@ -15224,6 +15301,23 @@ PACKET.ZC.GUILD_INFO4 = function PACKET_ZC_GUILD_INFO4(fp, end) {
 	this.masterName = fp.readString(NAME_LENGTH);
 };
 PACKET.ZC.GUILD_INFO4.size = 118; // - <master name>.24B + <master char id>.L
+
+// 0xb7c
+PACKET.ZC.BAN_LIST3 = function PACKET_ZC_BAN_LIST3(fp, end) {
+	this.banList = (function () {
+		const count = ((end - fp.tell()) / 68) | 0;
+		const out = new Array(count);
+		for (let i = 0; i < count; ++i) {
+			out[i] = {};
+			out[i].GID = fp.readULong();
+			// The name comes after the reason here, not before it as in 0x163.
+			out[i].reason = fp.readString(40);
+			out[i].charname = fp.readString(NAME_LENGTH);
+		}
+		return out;
+	})();
+};
+PACKET.ZC.BAN_LIST3.size = -1;
 
 // 0xb7d
 PACKET.ZC.MEMBERMGR_INFO3 = function PACKET_ZC_MEMBERMGR_INFO3(fp, end) {

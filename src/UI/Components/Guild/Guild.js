@@ -18,6 +18,7 @@ import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import Camera from 'Renderer/Camera.js';
 import Renderer from 'Renderer/Renderer.js';
 import Client from 'Core/Client.js';
+import PACKETVER from 'Network/PacketVerManager.js';
 import UIManager from 'UI/UIManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
 import 'UI/Elements/Elements.js';
@@ -30,6 +31,37 @@ import SkillDescription from 'UI/Components/SkillDescription/SkillDescription.js
 import htmlText from './Guild.html?raw';
 import cssText from './Guild.css?raw';
 import WinStats from 'UI/Components/WinStats/WinStats.js';
+import Configs from 'Core/Configs.js';
+import UIPreferences from 'Preferences/UI.js';
+
+/**
+ * Access mask not received yet, which is the client's own sentinel for it
+ * @see docs/reference/guild/member-view.md
+ */
+const ACCESS_UNKNOWN = -1;
+
+/**
+ * The two menus whose answer carries the grade names, and which therefore drop
+ * whatever the members tab has queued
+ * @see docs/reference/guild/grade-change.md
+ */
+const TAB_MEMBERS = 1;
+const TAB_POSITIONS = 2;
+
+/**
+ * The Info tab's cells, split by what an empty window shows in each
+ * @see docs/reference/guild/member-view.md
+ */
+const INFO_BLANK_CELLS = [
+	'.name .value',
+	'.level .value',
+	'.master .value',
+	'.avglevel .value',
+	'.territory .value',
+	'.exp .value',
+	'.members .online'
+];
+const INFO_ZERO_CELLS = ['.members .numMember', '.members .maxMember', '.tax .value'];
 
 /**
  * Flags to check access
@@ -55,23 +87,412 @@ Guild.render = () => htmlText;
  */
 let _memberViewTemplate, _positionViewTemplate, _expelViewTemplate;
 
+// The Notice tab's two fields, kept so the pane can go back to them: delegation
+// makes a member the guild master with the window already open.
+let _noticeSubjectTemplate, _noticeBodyTemplate;
+
+// Last notice the server sent, so the pane can be redrawn without it.
+const _notice = { subject: '', body: '' };
+
 const _positions = [];
 const _members = [];
 const _skills = [];
 
+// Grade changes queued by the member dropdown, keyed by GID. Flushed on Apply.
+// @see docs/reference/guild/grade-change.md
+let _pendingPositions = {};
+
+// The position rows are their own edit buffer, so a server update must not
+// repaint over an edit already in them.
+let _positionsDirty = false;
+
+// Which row carries the highlight. Never written from a packet, so a refresh
+// leaves the bar where the guild master put it.
+let _positionsSelected = 0;
+
+// Tax rates sent by the last Apply, keyed by positionID, so the ack can be
+// compared against them.
+let _sentPayRates = {};
+
+// Only drawn from PACKETVER 20140205 on. Below that the bit is preserved but
+// never touched.
+const GUILD_PERM_STORAGE = 0x100;
+
+// The three permission columns of the Positions tab, by the bit each one holds.
+const PERMISSION_COLUMNS = {
+	invite: 0x01,
+	punish: 0x10,
+	storage: GUILD_PERM_STORAGE
+};
+
+function _hasStorageColumn() {
+	// Read it late, never cached: init() runs at import, and the packetver is
+	// only settled at login - and is the string 'auto' until then.
+	return parseInt(PACKETVER.value, 10) >= 20140205;
+}
+
+/**
+ * Helper: does the Info tab draw the tendency chart
+ *
+ * @return {boolean}
+ */
+function _showsTendency() {
+	return _config().showTendency === true;
+}
+
+/**
+ * Helper: does the Info tab draw the Tax Point line
+ *
+ * @return {boolean}
+ */
+function _showsTaxPoint() {
+	return _config().showTaxPoint === true;
+}
+
+// At max level the EXP figure is zeroed and the whole line turns red.
+// @see docs/reference/guild/info-tab-legacy.md
+const GUILD_LEVEL_MAX = 50;
+
+// The only emblem size the client accepts, in both formats it offers.
+// @see docs/reference/guild/emblem-picker.md
+const EMBLEM_SIDE = 24;
+
 let _btnIncSkillTemplate;
 let _skpoints = 0;
 let _btnLevelUp;
-let lArrow, rArrow;
 let _totalExp = 0;
-let _guildAccess = 0;
+// -1 = not received. Every bit set, so no tab is refused before the server has
+// answered. @see docs/reference/guild/member-view.md
+let _guildAccess = ACCESS_UNKNOWN;
+// An unknown mask means no answer yet, which is not the same as no question yet.
+// @see docs/reference/guild/member-view.md
+let _accessRequested = false;
 let _checkbox_off, _checkbox_on;
+let _hasMemo = false;
 
 /**
  * Helper: query inside shadow root
  */
 function _root(comp) {
 	return comp.getRoot();
+}
+
+/**
+ * Helper: forget the queued grade changes, and the marks that showed them
+ *
+ * Leaves the rows on the grades they display, so this is only ever right where
+ * those grades have just been sent. Every other drop goes through
+ * _clearPendingPositions, which puts them back first.
+ * @see docs/reference/guild/grade-change.md
+ */
+function _dropPendingPositions() {
+	_pendingPositions = {};
+
+	// Entering the map can clear a queue before the window has ever been built.
+	const root = _root(Guild);
+	if (!root) {
+		return;
+	}
+
+	for (const row of root.querySelectorAll('.content.members .MemberView.pending')) {
+		row.classList.remove('pending');
+	}
+}
+
+/**
+ * Helper: is a grade change waiting to be sent
+ *
+ * @return {boolean} true while the members tab holds an unsent edit
+ */
+function _hasPendingPositions() {
+	for (const _GID in _pendingPositions) {
+		return true;
+	}
+
+	return false;
+}
+
+/**
+ * Helper: drop the queued grades, putting their rows back on the server's
+ *
+ * Forgetting the queue is not enough: the row was moved to the picked grade when
+ * it was queued, so dropping the queue alone would leave that grade on show as
+ * though the server had agreed to it - and the grade guard would then refuse to
+ * queue it a second time, the row already reading as the value asked for. Every
+ * drop restores, so no call site has to work out whether it is the one that has
+ * to; Apply is the exception and says so.
+ * @see docs/reference/guild/grade-change.md
+ */
+function _clearPendingPositions() {
+	// An unmounted component has no rows to put back, and setMember reads them.
+	const root = _root(Guild);
+	if (root) {
+		for (const GID in _pendingPositions) {
+			const pending = _pendingPositions[GID];
+
+			for (let i = 0, count = _members.length; i < count; ++i) {
+				const member = _members[i];
+				if (member.AID === pending.AID && member.GID === pending.GID) {
+					member.GPositionID = pending.previousID;
+					Guild.setMember(member);
+					break;
+				}
+			}
+		}
+	}
+
+	_dropPendingPositions();
+
+	if (root) {
+		// Apply is the affordance for the edits just taken back, so it goes with
+		// them - unless the tab on show is the other one, holding edits of its own.
+		_refreshApplyButton(getActiveTab(root));
+	}
+}
+
+/**
+ * Helper: put the Positions tab back to what the server last sent
+ *
+ * Both the queued edits and the flag that keeps them are dropped together:
+ * keeping one without the other either applies edits the rows no longer show,
+ * or refuses every refresh for edits that are gone.
+ * @see docs/reference/guild/grade-change.md
+ */
+function _resetPositionsTab() {
+	_clearPendingPositions();
+
+	// Cleared before the rebuild, not after: updatePositionView refuses to paint
+	// over an edit while this is up, and the edit is what has to go.
+	_positionsDirty = false;
+	_positionsSelected = 0;
+
+	if (_root(Guild)) {
+		// Apply is the affordance for a pending change, so it goes with the change.
+		// Leaving it up offers a button that now sends nothing at all.
+		_hideApplyButton();
+		Guild.updatePositionView();
+	}
+}
+
+/**
+ * Helper: put the Info tab back to the values its markup ships
+ *
+ * The counters return to zero and the rest to blank, which is the state the
+ * window is built in.
+ * @see docs/reference/guild/member-view.md
+ *
+ * @param {HTMLElement} root - the window's shadow root
+ */
+function _clearInfoTab(root) {
+	const general = root.querySelector('.content.info');
+	if (!general) {
+		return;
+	}
+
+	for (const selector of INFO_BLANK_CELLS) {
+		const cell = general.querySelector(selector);
+		if (cell) {
+			cell.textContent = '';
+		}
+	}
+
+	for (const selector of INFO_ZERO_CELLS) {
+		const cell = general.querySelector(selector);
+		if (cell) {
+			cell.textContent = '0';
+		}
+	}
+
+	const exp = general.querySelector('.exp');
+	if (exp) {
+		exp.classList.remove('maxlevel');
+	}
+
+	const emblemContainer = general.querySelector('.emblem_container');
+	if (emblemContainer) {
+		emblemContainer.style.backgroundImage = '';
+	}
+
+	Guild.setRelations([]);
+	renderTendency(0, 0);
+}
+
+/**
+ * Helper: reveal the Apply button, the affordance for a pending change
+ */
+function _showApplyButton() {
+	const btnOk = _root(Guild).querySelector('.footer .btn_ok');
+	if (btnOk) {
+		btnOk.style.display = 'block';
+	}
+}
+
+/**
+ * Helper: take the Apply button back, there being nothing left to send
+ */
+function _hideApplyButton() {
+	const btnOk = _root(Guild).querySelector('.footer .btn_ok');
+	if (btnOk) {
+		btnOk.style.display = 'none';
+	}
+}
+
+/**
+ * Helper: offer Apply only while the tab on show has an edit to apply
+ *
+ * The positions tab holds its edits in its rows and the members tab in the
+ * queue, so which one is up decides whether there is anything left to send.
+ *
+ * @param {string} tab - class of the tab on show
+ */
+function _refreshApplyButton(tab) {
+	if ((tab === 'positions' && _positionsDirty) || (tab === 'members' && _hasPendingPositions())) {
+		_showApplyButton();
+		return;
+	}
+
+	_hideApplyButton();
+}
+
+/**
+ * Helper: put a value where the guild master gets a control
+ * @see docs/reference/guild/member-view.md
+ *
+ * @param {HTMLElement} cell - the cell to fill
+ * @param {string} text - the value to show
+ * @param {boolean} [clips] - the cell ellipsises, so offer the value on hover
+ */
+function _asValue(cell, text, clips) {
+	if (!cell) {
+		return;
+	}
+
+	const value = document.createElement('span');
+	value.className = 'value';
+	value.textContent = text;
+	if (clips) {
+		value.title = text;
+	}
+
+	cell.innerHTML = '';
+	cell.appendChild(value);
+}
+
+/**
+ * Helper: the last login date, built from the client's own format string
+ *
+ * Only the fields the shipped formats use are substituted, not all of strftime.
+ *
+ * @param {number} timestamp - seconds since epoch, as the member list sends it
+ * @return {string} the date, localtime, like the client shows it
+ */
+function _formatLastLogin(timestamp) {
+	const date = new Date(timestamp * 1000);
+	const pad = value => `${value}`.padStart(2, '0');
+
+	return DB.getMessage(3011, '%Y.%m.%d')
+		.replace('%Y', date.getFullYear())
+		.replace('%y', pad(date.getFullYear() % 100))
+		.replace('%m', pad(date.getMonth() + 1))
+		.replace('%d', pad(date.getDate()));
+}
+
+/**
+ * This window's deployment settings, under the `guild` config key.
+ *
+ * @property {string} memberListSort - 'never' | 'checkbox' | 'always'
+ * @property {boolean} showLastLogin - draw the access date under each member
+ * @property {boolean} showTendency - draw the legacy tendency chart
+ * @property {boolean} showTaxPoint - draw the legacy Tax Point line
+ */
+const GUILD_CONFIG = {
+	memberListSort: 'always',
+	// Off by default: only the 2022 client draws the access date, and its 8px
+	// of row height rides this same flag.
+	// @see docs/reference/guild/member-list-sort.md
+	showLastLogin: false,
+	// Both legacy, drawn by ver12 only, so off by default.
+	// @see docs/reference/guild/info-tab-legacy.md
+	showTendency: false,
+	showTaxPoint: false
+};
+
+/**
+ * Helper: this window's settings, with the defaults above filled in
+ *
+ * Configs.get does not merge, so a server naming `guild` at all would
+ * otherwise drop every key it does not itself set.
+ *
+ * @return {object}
+ */
+function _config() {
+	return { ...GUILD_CONFIG, ...Configs.get('guild', {}) };
+}
+
+/**
+ * Helper: does the member list get ordered by login status right now
+ *
+ * 'never' | 'checkbox' | 'always', one per client generation.
+ * @see docs/reference/guild/member-list-sort.md
+ *
+ * @return {boolean}
+ */
+function _sortsByLogin() {
+	const mode = _config().memberListSort;
+
+	if (mode === 'always') {
+		return true;
+	}
+	if (mode === 'never') {
+		return false;
+	}
+	return !!UIPreferences.guildMemberListSorted;
+}
+
+/**
+ * Helper: lay the rows out in a given order without rebuilding any of them
+ *
+ * Rows are moved, so each keeps its listeners, its canvas and its data-index.
+ * `_members` stays in the order the server sent - only the table is sorted.
+ * @see docs/reference/guild/member-list-sort.md
+ *
+ * @param {ShadowRoot|Element} root
+ * @param {Array} ordered - the members in the order the rows should appear
+ */
+function reorderMemberRows(root, ordered) {
+	const list = root.querySelector('.content.members tbody');
+	if (!list) {
+		return;
+	}
+
+	const rowAt = {};
+	for (const row of list.querySelectorAll('.MemberView')) {
+		rowAt[row.getAttribute('data-index')] = row;
+	}
+
+	const indexOf = {};
+	for (let i = 0, count = _members.length; i < count; ++i) {
+		indexOf[`${_members[i].AID}_${_members[i].GID}`] = i;
+	}
+
+	for (let i = 0, count = ordered.length; i < count; ++i) {
+		const row = rowAt[indexOf[`${ordered[i].AID}_${ordered[i].GID}`]];
+		if (row) {
+			list.appendChild(row);
+		}
+	}
+}
+
+/**
+ * Helper: the roster, online first
+ *
+ * Stable, so members sharing a status keep the order the server sent them in.
+ *
+ * @param {Array} members
+ * @return {Array} a sorted copy
+ */
+function _orderByLogin(members) {
+	return members.slice().sort((a, b) => (b.CurrentState ? 1 : 0) - (a.CurrentState ? 1 : 0));
 }
 
 /**
@@ -119,6 +540,12 @@ Guild.init = function init() {
 				onChangeTab.call(btn, e);
 			}
 		});
+
+		// Every cell clips its label, so the tooltip is owed from the first paint
+		// rather than from whenever the access mask turns up.
+		for (const btn of tabsContainer.querySelectorAll('button')) {
+			btn.title = _tabLabel(btn);
+		}
 	}
 
 	// Preload checkbox images
@@ -131,17 +558,14 @@ Guild.init = function init() {
 	const posBody = root.querySelector('.content.positions tbody');
 	if (posBody) {
 		posBody.addEventListener('mousedown', e => {
-			const input = e.target.closest('input');
-			if (input && !Session.isGuildMaster) {
-				e.preventDefault();
-			}
-
 			const tr = e.target.closest('tr');
 			if (tr) {
-				for (const row of posBody.querySelectorAll('tr')) {
+				const rows = [...posBody.querySelectorAll('tr')];
+				for (const row of rows) {
 					row.classList.remove('active');
 				}
 				tr.classList.add('active');
+				_positionsSelected = rows.indexOf(tr);
 			}
 		});
 
@@ -149,10 +573,8 @@ Guild.init = function init() {
 			'focus',
 			e => {
 				if (e.target.matches('input')) {
-					const btnOk = root.querySelector('.footer .btn_ok');
-					if (btnOk) {
-						btnOk.style.display = 'block';
-					}
+					_positionsDirty = true;
+					_showApplyButton();
 					e.target.select();
 				}
 			},
@@ -160,16 +582,16 @@ Guild.init = function init() {
 		);
 
 		posBody.addEventListener('click', e => {
-			const btn = e.target.closest('ui-button');
-			if (btn && Session.isGuildMaster) {
-				btn.className = btn.className.replace(/\b(on|off)\b/g, '').trim();
-				const isOn = !btn.classList.contains('on');
-				btn.classList.add(isOn ? 'on' : 'off');
-				btn.style.backgroundImage = `url(${isOn ? _checkbox_on : _checkbox_off})`;
-				const btnOk = root.querySelector('.footer .btn_ok');
-				if (btnOk) {
-					btnOk.style.display = 'block';
-				}
+			const box = e.target.closest('.checkbox');
+			if (box && Session.isGuildMaster) {
+				// Read the state before clearing it, or the test below never sees
+				// an `on` and the box only ever ticks.
+				const isOn = !box.classList.contains('on');
+				box.className = box.className.replace(/\b(on|off)\b/g, '').trim();
+				box.classList.add(isOn ? 'on' : 'off');
+				box.style.backgroundImage = `url(${isOn ? _checkbox_on : _checkbox_off})`;
+				_positionsDirty = true;
+				_showApplyButton();
 			}
 		});
 	}
@@ -204,24 +626,31 @@ Guild.init = function init() {
 	// Members
 	const membersBody = root.querySelector('.content.members tbody');
 	if (membersBody) {
+		const selectRow = tr => {
+			for (const row of membersBody.querySelectorAll('tr')) {
+				row.classList.remove('active');
+			}
+			tr.classList.add('active');
+		};
+
 		membersBody.addEventListener('mousedown', e => {
 			const tr = e.target.closest('tr');
 			if (tr) {
-				for (const row of membersBody.querySelectorAll('tr')) {
-					row.classList.remove('active');
-				}
-				tr.classList.add('active');
+				selectRow(tr);
 			}
 		});
 
 		membersBody.addEventListener('contextmenu', e => {
-			const td = e.target.closest('td.name');
-			if (!td) {
+			// The client hit-tests the whole row band, not one column.
+			const tr = e.target.closest('tr');
+			const member = tr && _members[tr.getAttribute('data-index')];
+			if (!member) {
 				return;
 			}
-			const tr = td.parentNode;
-			const index = tr.getAttribute('data-index');
-			const member = _members[index];
+			// Move the highlight from this path too rather than leaning on
+			// mousedown having fired first - the row the menu acts on is the row
+			// that has to look selected.
+			selectRow(tr);
 			const isSelf = member.AID === Session.AID && member.GID === Session.GID;
 
 			ContextMenu.remove();
@@ -248,7 +677,26 @@ Guild.init = function init() {
 				});
 			}
 
-			if (Session.guildRight & 0x10 && !isSelf) {
+			if (Session.isGuildMaster && !isSelf) {
+				ContextMenu.addElement(DB.getMessage(2923, 'Assign Guild Leader'), () => {
+					// The message takes two placeholders: the member taking over,
+					// and the grade we are left with. The server swaps the two
+					// rows, so that is the grade the member holds right now.
+					const grade = _positions[member.GPositionID];
+					const text = DB.getMessage(
+						2924,
+						'Are you sure you want to assign %s as guild leader? After assigning your position will become %s'
+					)
+						.replace('%s', member.CharName || DB.getMessage(581, 'Nameless'))
+						.replace('%s', grade && grade.posName ? grade.posName : '');
+
+					UIManager.showPromptBox(text, 'ok', 'cancel', () => {
+						Guild.onChangeMemberPosRequest([{ AID: member.AID, GID: member.GID, positionID: 0 }]);
+					});
+				});
+			}
+
+			if (Session.guildPermission & 0x10 && !isSelf) {
 				ContextMenu.addElement(DB.getMessage(509), () => {
 					InputBox.append();
 					InputBox.setType('text');
@@ -305,8 +753,10 @@ Guild.init = function init() {
 			onRequestSkillInfo.call(target);
 		}
 	});
+	// The client's hit band for the selection is the whole row, not the
+	// highlight rect - it rejects x < 40 and has no right bound at all.
 	container.addEventListener('mousedown', e => {
-		const target = e.target.closest('.selectable');
+		const target = e.target.closest('.skill');
 		if (target && target.closest('.content.skills')) {
 			onSkillFocus.call(target);
 		}
@@ -329,43 +779,61 @@ Guild.init = function init() {
 	// Notice
 	const noticeContent = root.querySelector('.content.notice');
 	if (noticeContent) {
+		_noticeSubjectTemplate = noticeContent.querySelector('.subject')?.cloneNode(true);
+		_noticeBodyTemplate = noticeContent.querySelector('textarea.notice')?.cloneNode(true);
+
+		// The markup ships the fields, so the pane is the guild master's until it
+		// is told otherwise. Draw it for whoever is here before that can be seen.
+		Guild.updateNoticeView();
+
 		noticeContent.addEventListener(
 			'focus',
 			e => {
-				if (e.target.matches('textarea, input')) {
-					const btnOk = root.querySelector('.footer .btn_ok');
-					if (btnOk) {
-						btnOk.style.display = 'block';
-					}
+				if (Session.isGuildMaster && e.target.matches('textarea, input')) {
+					_showApplyButton();
 				}
 			},
 			true
 		);
 	}
 
-	// Upload emblem
-	const emblemInput = root.querySelector('.content.info .emblem_edit input');
+	// Upload emblem: the Edit button, the emblem itself and a drop on it all
+	// reach the same picker and the same validation.
+	// @see docs/reference/guild/emblem-picker.md
+	const emblemInput = root.querySelector('.content.info .emblem_pick input');
 	if (emblemInput) {
 		emblemInput.addEventListener('change', function () {
-			const file = this.files[0];
-			if (!file) {
-				return;
-			}
+			submitEmblem(this.files[0]);
+			// So picking the same file again after a refusal still fires change
+			this.value = '';
+		});
+	}
 
-			const isBmp = /^image\/(bmp|x-bmp|x-ms-bmp|x-windows-bmp)$/.test(file.type) || /\.bmp$/i.test(file.name);
-			const isGif = file.type === 'image/gif' || /\.gif$/i.test(file.name);
+	const emblemEdit = root.querySelector('.content.info .emblem_edit');
+	if (emblemEdit && emblemInput) {
+		emblemEdit.addEventListener('click', () => emblemInput.click());
+	}
 
-			if ((isBmp && file.size <= 1783) || (isGif && file.size <= 50000)) {
-				const reader = new FileReader();
-				reader.onload = e => {
-					Guild.onSendEmblem(new Uint8Array(e.target.result));
-				};
-				reader.readAsArrayBuffer(this.files[0]);
-			} else {
-				console.warn(
-					'[Warning] Incorrect emblem file type. Only BMP, 24bit or lower is accepted or GIFs max size 50Kb or lower.'
-				);
+	const emblemDrop = root.querySelector('.emblem_drop');
+	const guildWindow = root.querySelector('#Guild');
+	if (emblemDrop && guildWindow) {
+		// preventDefault unconditionally, on the window and on the overlay, or a
+		// drop the gate refuses would make the browser navigate away from the game
+		guildWindow.addEventListener('dragenter', e => {
+			e.preventDefault();
+			if (_acceptsEmblemDrop(root, e.dataTransfer)) {
+				emblemDrop.classList.add('dragover');
 			}
+		});
+		guildWindow.addEventListener('dragover', e => e.preventDefault());
+		guildWindow.addEventListener('drop', e => e.preventDefault());
+
+		// Once up, the overlay covers the window, so it owns every later event
+		// and leaving it is leaving the window - no flicker over the children.
+		emblemDrop.addEventListener('dragleave', () => emblemDrop.classList.remove('dragover'));
+		emblemDrop.addEventListener('drop', e => {
+			emblemDrop.classList.remove('dragover');
+			submitEmblem(e.dataTransfer.files[0]);
 		});
 	}
 
@@ -375,15 +843,21 @@ Guild.init = function init() {
 		footerOk.addEventListener('click', () => onValidate());
 	}
 
+	// The Skills tab's cast button: send the selected skill at its level. The
+	// client's second button here is not reproduced - it dispatches to the same
+	// handler as the titlebar close this window already has.
+	const footerUse = root.querySelector('.footer .btn_use');
+	if (footerUse) {
+		footerUse.addEventListener('click', () => {
+			const selected = root.querySelector('.content.skills .skill.selected');
+			if (selected) {
+				Guild.useSkillID(parseInt(selected.getAttribute('data-index'), 10));
+			}
+		});
+	}
+
 	this.draggable('.titlebar');
 	this.ui.hide();
-
-	Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/arw_right.bmp`, data => {
-		rArrow = `url(${data})`;
-	});
-	Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/arw_left.bmp`, data => {
-		lArrow = `url(${data})`;
-	});
 
 	renderTendency(0, 0);
 };
@@ -393,6 +867,63 @@ Guild.init = function init() {
  */
 Guild.onRemove = function onRemove() {
 	Renderer.stop(renderMemberFaces);
+	_resetPositionsTab();
+};
+
+/**
+ * Empty the window of the character who was here before
+ *
+ * The component is a singleton and outlives a character change.
+ * @see docs/reference/guild/member-view.md
+ */
+Guild.reset = function reset() {
+	// Entering the map can happen before the window has ever been built, and an
+	// unmounted component has no root to empty.
+	const root = _root(this);
+	if (!root) {
+		return;
+	}
+
+	_members.length = 0;
+	_positions.length = 0;
+	_skills.length = 0;
+	_skpoints = 0;
+	_guildAccess = ACCESS_UNKNOWN;
+	_accessRequested = false;
+	_hasMemo = false;
+	_sentPayRates = {};
+	_resetPositionsTab();
+
+	for (const selector of ['.content.members tbody', '.content.positions tbody', '.content.history tbody']) {
+		const container = root.querySelector(selector);
+		if (container) {
+			container.innerHTML = '';
+		}
+	}
+
+	const skillList = root.querySelector('.content.skills .skill_list');
+	if (skillList) {
+		skillList.innerHTML = '';
+	}
+
+	// The tabs above hold rows and empty with them. The Info tab holds values
+	// written in place, and show() paints it before an answer can land.
+	_clearInfoTab(root);
+
+	// Stores the empty notice and redraws the pane, which is the whole of what
+	// clearing it by hand then repainting would do.
+	Guild.setNotice('', '');
+
+	// Back to a window that has never been opened. The marks are recomputed off
+	// the unknown mask rather than stripped by hand, so the class, the cursor and
+	// the tab order cannot drift apart.
+	for (const btn of root.querySelectorAll('.tabs button')) {
+		btn.classList.remove('active');
+	}
+	updateTabAccess(root);
+	for (const content of root.querySelectorAll('.content')) {
+		content.style.display = 'none';
+	}
 };
 
 Guild.onShortCut = function onShortCut(key) {
@@ -433,13 +964,16 @@ Guild.show = function show() {
 	this.ui.show();
 	const root = _root(this);
 
+	updateInfoOptions(root);
+
 	if (!root.querySelector('.tabs .active')) {
 		const infoBtn = root.querySelector('.tabs .info');
 		if (infoBtn) {
 			infoBtn.click();
 		}
-		Guild.onRequestAccess();
 	}
+
+	Guild.requestAccessIfUnknown();
 
 	const membersContent = root.querySelector('.content.members');
 	if (membersContent && membersContent.style.display !== 'none') {
@@ -450,6 +984,11 @@ Guild.show = function show() {
 Guild.hide = function hide() {
 	this.ui.hide();
 	Renderer.stop(renderMemberFaces);
+
+	// Closing the window drops the unsent edits. onRemove is the engine's
+	// teardown and never runs on a close, so it cannot be the only place this
+	// happens.
+	_resetPositionsTab();
 };
 
 Guild.setGuildInformations = function setGuildInformations(info) {
@@ -466,27 +1005,99 @@ Guild.setGuildInformations = function setGuildInformations(info) {
 	general.querySelector('.members .maxMember').textContent = info.maxUserNum;
 	general.querySelector('.avglevel .value').textContent = info.userAverageLevel;
 	general.querySelector('.territory .value').textContent = info.manageLand;
-	general.querySelector('.exp .value').textContent = info.exp;
 	general.querySelector('.tax .value').textContent = info.point;
+
+	const atMaxLevel = info.level >= GUILD_LEVEL_MAX;
+	general.querySelector('.exp .value').textContent = atMaxLevel ? 0 : info.exp;
+	general.querySelector('.exp').classList.toggle('maxlevel', atMaxLevel);
 
 	Guild.updateSession(info);
 	Guild.onRequestGuildEmblem(info.GDID, info.emblemVersion, Guild.setEmblem.bind(this));
 
-	const emblemEdit = general.querySelector('.emblem_edit');
-	if (emblemEdit) {
-		emblemEdit.style.display = Session.isGuildMaster ? '' : 'none';
-	}
-
+	updateEmblemControls(root);
 	updateDisbandButton(root, getActiveTab(root));
+	updateSkillFooter(root, getActiveTab(root));
+	updateMemberSort(root, getActiveTab(root));
 
 	WinStats.getUI().update('guildname', info.guildname);
 
-	renderTendency(info.honor, info.virtue);
+	updateInfoOptions(root);
+	if (_showsTendency()) {
+		renderTendency(info.honor, info.virtue);
+	}
 };
+
+/**
+ * Reflect the two legacy switches onto the tab
+ *
+ * Called on open and on every tab change, not only when a guild-info packet
+ * lands: they decide whether those elements are drawn at all, so waiting for a
+ * packet would draw them and take them away.
+ * @see docs/reference/guild/info-tab-legacy.md
+ */
+function updateInfoOptions(root) {
+	const infoContent = root.querySelector('.content.info');
+	if (infoContent) {
+		infoContent.classList.toggle('shows_tendency', _showsTendency());
+		infoContent.classList.toggle('shows_taxpoint', _showsTaxPoint());
+	}
+}
+
+/**
+ * Is this drag something the emblem would take, from someone allowed to set it
+ * @see docs/reference/guild/emblem-picker.md
+ */
+function _acceptsEmblemDrop(root, transfer) {
+	const carriesAFile = transfer && Array.prototype.indexOf.call(transfer.types, 'Files') !== -1;
+	return carriesAFile && Session.isGuildMaster && getActiveTab(root) === 'info';
+}
+
+/**
+ * A BMP or GIF of exactly 24x24, small enough for the server to store
+ * @see docs/reference/guild/emblem-picker.md
+ */
+function isEmblem(data) {
+	const view = new DataView(data.buffer);
+
+	// "BM"
+	if (data[0] === 0x42 && data[1] === 0x4d && data.length >= 26 && data.length <= 1783) {
+		// A top-down bitmap stores its height negated
+		return view.getInt32(18, true) === EMBLEM_SIDE && Math.abs(view.getInt32(22, true)) === EMBLEM_SIDE;
+	}
+
+	// "GIF", whose logical screen is the emblem's own size
+	if (data[0] === 0x47 && data[1] === 0x49 && data[2] === 0x46 && data.length >= 10 && data.length <= 50000) {
+		return view.getUint16(6, true) === EMBLEM_SIDE && view.getUint16(8, true) === EMBLEM_SIDE;
+	}
+
+	return false;
+}
+
+/**
+ * Send a picked emblem, or refuse it with the client's own message - the one
+ * path behind all three ways of picking one
+ * @see docs/reference/guild/emblem-picker.md
+ */
+function submitEmblem(file) {
+	if (!file || !Session.isGuildMaster) {
+		return;
+	}
+
+	const reader = new FileReader();
+	reader.onload = e => {
+		const data = new Uint8Array(e.target.result);
+		if (isEmblem(data)) {
+			Guild.onSendEmblem(data);
+		} else {
+			UIManager.showMessageBox(DB.getMessage(3587, 'This file cannot be registered.'), 'ok');
+		}
+	};
+	reader.readAsArrayBuffer(file);
+}
 
 Guild.setEmblem = function setEmblem(image) {
 	const root = _root(this);
-	const el = root.querySelector('.content.info .emblem_container');
+	const el = root ? root.querySelector('.content.info .emblem_container') : null;
 	if (el) {
 		el.style.backgroundImage = `url(${image.src})`;
 	}
@@ -532,13 +1143,42 @@ Guild.removeRelation = function removeRelation(guildId, relation) {
 	}
 };
 
-Guild.setMembers = function setMembers(members) {
+Guild.setMembers = function setMembers(members, hasMemo) {
 	let online = 0;
 	const count = members.length;
 	_members.length = 0;
 	_totalExp = 0;
 
+	// The roster is server truth and has just overwritten whatever was queued. It
+	// does not only arrive when asked for - a member leaving the guild is enough,
+	// and that push lands on the guild master before anyone else - so an edit can
+	// die without its author having touched a thing. Hence a word for it.
+	// @see docs/reference/guild/grade-change.md
+	if (_hasPendingPositions()) {
+		ChatBox.addText(
+			'The guild member list changed. The grade waiting to be applied was dropped.',
+			ChatBox.TYPE.ERROR,
+			ChatBox.FILTER.GUILD
+		);
+	}
+
+	_clearPendingPositions();
+
 	const root = _root(this);
+
+	// The 0x0154 list carries a note and no last login, the later ones the
+	// other way round. Show the column the wire actually feeds, which is what
+	// the client of each era does.
+	_hasMemo = !!hasMemo;
+	const membersContent = root.querySelector('.content.members');
+	if (membersContent) {
+		membersContent.classList.toggle('has-memo', _hasMemo);
+		// The access date is the whole reason 2022's rows are 8px taller than
+		// every other client's, so the line and the height move together. A row
+		// without the date and with 2022's height is a shape no client draws.
+		membersContent.classList.toggle('has-lastlogin', !_hasMemo && _config().showLastLogin);
+	}
+
 	const tbody = root.querySelector('.content.members tbody');
 	if (tbody) {
 		tbody.innerHTML = '';
@@ -558,12 +1198,52 @@ Guild.setMembers = function setMembers(members) {
 		onlineEl.textContent = online;
 	}
 
+	const ordered = _sortsByLogin() ? _orderByLogin(members) : members;
+
+	// _members is the store the grade guard and the context menu read back,
+	// so it keeps the order the server sent. Only the table is sorted.
 	for (let i = 0; i < count; ++i) {
 		this.setMember(members[i]);
 	}
 
+	reorderMemberRows(root, ordered);
+
 	renderMemberFaces(Renderer.tick + 1000);
 };
+
+/**
+ * The entity behind a member row's 30x30 cell - a head, deliberately
+ *
+ * `sex` and `job` go to the private fields on purpose: their setters each start
+ * an asynchronous body load that cannot be taken back afterwards.
+ * @see docs/reference/guild/member-portrait.md
+ *
+ * @param {object} [entity] - the member's existing entity, if they have one
+ * @param {{sex: number, job: number, head: number, headPalette: number}} look
+ * @return {object} the entity to store back on the member
+ */
+function memberPortrait(entity, look) {
+	if (!entity) {
+		entity = new Entity();
+		// Before anything reads entity.ACTION: EntityAction builds that table from
+		// objecttype at construction time, and the default is TYPE_UNKNOWN.
+		entity.objecttype = Entity.TYPE_PC;
+		entity.files.shadow.spr = null;
+	}
+
+	entity._sex = look.sex;
+	entity._job = look.job;
+	entity._effectiveJob = look.job;
+	entity.head = look.head;
+	entity.headpalette = look.headPalette;
+
+	entity.direction = 4;
+	entity.headDir = 0;
+	entity.action = entity.ACTION.IDLE;
+	entity.animation = { tick: 0, frame: 0, repeat: true, play: true, next: false, delay: 0, save: false };
+
+	return entity;
+}
 
 Guild.setMember = function setMember(member) {
 	let i, count;
@@ -579,6 +1259,10 @@ Guild.setMember = function setMember(member) {
 
 	if (i < count) {
 		view = root.querySelector(`.MemberView[data-index="${i}"]`);
+
+		// The row is rendered from this object and read back from the list, by
+		// the grade guard and by the context menu. Keep the two in step.
+		_members[i] = member;
 	} else {
 		view = _memberViewTemplate.cloneNode(true);
 		const tbody = root.querySelector('.content.members tbody');
@@ -593,16 +1277,41 @@ Guild.setMember = function setMember(member) {
 	}
 
 	view.setAttribute('data-index', i);
+
+	// A queued grade is otherwise invisible: the row shows the new value as if it
+	// were the server's, and Apply sits in the footer without saying which member
+	// it is waiting on.
+	// @see docs/reference/guild/grade-change.md
+	view.classList.toggle('pending', member.GID in _pendingPositions);
+
+	// The 0x0aa5 list carries no character name at all, and the client falls
+	// back to a placeholder rather than leaving the column blank.
+	const displayName = member.CharName || DB.getMessage(581, 'Nameless');
+
 	const nameValue = view.querySelector('.name .value');
 	if (nameValue) {
-		nameValue.textContent = member.CharName;
-		nameValue.title = member.CharName;
+		nameValue.textContent = displayName;
+		nameValue.title = displayName;
+	}
+
+	// The client draws this line unconditionally, so hiding it is a deployment's
+	// choice rather than client behaviour - it is not the member sort checkbox,
+	// which reorders the list and never touches this.
+	const lastLogin = view.querySelector('.name .lastlogin');
+	if (lastLogin) {
+		lastLogin.textContent =
+			member.LastLogin && _config().showLastLogin
+				? DB.getMessage(3012, 'Last login: %s').replace('%s', _formatLastLogin(member.LastLogin))
+				: '';
 	}
 
 	if (_positions[member.GPositionID]) {
 		const positionCell = view.querySelector('.position');
 		if (Session.isGuildMaster) {
-			let selectHTML = `<select class="changePosition member_${member.AID}_${member.GID}">`;
+			// Disabled rather than dropped, so the column width does not move.
+			// @see docs/reference/guild/grade-change.md
+			const own = !member.GPositionID ? ' disabled' : '';
+			let selectHTML = `<select class="changePosition member_${member.AID}_${member.GID}"${own}>`;
 			_positions.forEach((position, key) => {
 				selectHTML +=
 					`<option value="${position.positionID}" ${key === member.GPositionID ? 'selected' : ''}>` +
@@ -614,8 +1323,27 @@ Guild.setMember = function setMember(member) {
 			const selectEl = positionCell.querySelector(`.member_${member.AID}_${member.GID}`);
 			if (selectEl) {
 				selectEl.addEventListener('change', evt => {
-					Guild.updateMemberPosition(member.AID, member.GID, parseInt(evt.target.value, 10), true);
+					const positionID = parseInt(evt.target.value, 10);
+					if (!Guild.updateMemberPosition(member.AID, member.GID, positionID, true)) {
+						// Refused selection, keep the dropdown on the grade we know.
+						evt.target.value = member.GPositionID;
+						return;
+					}
+
+					// Marked here rather than by a re-render: replacing the row
+					// would take the <select> away mid-event.
+					view.classList.add('pending');
+					_showApplyButton();
 				});
+
+				// The column is too narrow for most grade names, and a closed
+				// select has no ellipsis to hover. Registered after the handler
+				// above, so a refused selection reverts first.
+				const showFullGrade = () => {
+					selectEl.title = selectEl.options[selectEl.selectedIndex].textContent;
+				};
+				showFullGrade();
+				selectEl.addEventListener('change', showFullGrade);
 			}
 		} else {
 			positionCell.textContent = _positions[member.GPositionID].posName;
@@ -646,22 +1374,42 @@ Guild.setMember = function setMember(member) {
 		taxCell.title = member.MemberExp;
 	}
 
-	if (!member.entity) {
-		member.entity = new Entity();
-		member.entity.direction = 4;
-		member.entity.objecttype = Entity.TYPE_PC;
-		member.entity.files.shadow.spr = null;
-	}
-	member.entity.sex = member.Sex;
-	member.entity._job = member.Job;
-	member.entity._effectiveJob = member.Job;
-	member.entity.head = member.HeadType;
-	member.entity.headpalette = member.HeadPalette;
+	member.entity = memberPortrait(member.entity, {
+		sex: member.Sex,
+		job: member.Job,
+		head: member.HeadType,
+		headPalette: member.HeadPalette
+	});
 
 	const numMember = root.querySelector('.content.info .members .numMember');
 	if (numMember) {
 		numMember.textContent = _members.length;
 	}
+};
+
+/**
+ * The name the roster holds for a character id
+ *
+ * The departure packets of the id-only era carry no name, and the roster is
+ * where the client reads it back from.
+ * @see docs/reference/guild/member-view.md
+ *
+ * @param {number} GID - character id
+ * @return {string} the member's name, or the placeholder the list itself uses
+ */
+Guild.getMemberName = function getMemberName(GID) {
+	let name = '';
+
+	for (let i = 0, count = _members.length; i < count; ++i) {
+		if (_members[i].GID === GID) {
+			name = _members[i].CharName;
+			break;
+		}
+	}
+
+	// A roster generation that carries no name, or a member already dropped from
+	// it, both land here.
+	return name || DB.getMessage(581, 'Nameless');
 };
 
 Guild.updateMemberStatus = function updateMemberStatus(member) {
@@ -690,17 +1438,30 @@ Guild.updateMemberStatus = function updateMemberStatus(member) {
 		}
 	}
 
-	if ('sex' in member) {
-		_members[i].entity.sex = member.sex;
+	// Only the online notice carries a real look - a logout sends zeroes, which
+	// would rewrite the member as female, hairstyle 0.
+	// @see docs/reference/guild/member-portrait.md
+	const current = _members[i];
+	if (member.status) {
+		if ('sex' in member) {
+			current.Sex = member.sex;
+		}
+		if ('head' in member) {
+			current.HeadType = member.head;
+		}
+		if ('headPalette' in member) {
+			current.HeadPalette = member.headPalette;
+		}
 	}
 
-	if ('head' in member) {
-		_members[i].entity.head = member.head;
-	}
-
-	if ('headPalette' in member) {
-		_members[i].entity.headpalette = member.headPalette;
-	}
+	// Rebuilt from the roster entry, through the same builder the roster uses, so a
+	// login cannot leave one member's portrait in a different shape from the rest.
+	current.entity = memberPortrait(current.entity, {
+		sex: current.Sex,
+		job: current.Job,
+		head: current.HeadType,
+		headPalette: current.HeadPalette
+	});
 
 	for (i = 0, count = _members.length; i < count; ++i) {
 		online += _members[i].CurrentState ? 1 : 0;
@@ -710,30 +1471,113 @@ Guild.updateMemberStatus = function updateMemberStatus(member) {
 		onlineEl.textContent = online;
 	}
 
-	const nameValue = view?.querySelector('.name .value');
+	// A login changes the sort key, so the list has to settle again - without
+	// this the row just turns green where it already sits.
+	// @see docs/reference/guild/member-list-sort.md
+	if (_sortsByLogin()) {
+		reorderMemberRows(root, _orderByLogin(_members));
+		renderMemberFaces(Renderer.tick + 1000);
+	}
+
+	// Behind the same toggle as the friend notices, which is what /li writes.
+	// @see docs/reference/guild/login-announcements.md
+	if (!UIPreferences.li) {
+		return;
+	}
+
+	// The name comes from the roster, not from the row: `i` is spent counting the
+	// online members above, and `view` is null whenever the row is not in the DOM.
 	ChatBox.addText(
-		DB.getMessage(485 + (member.status ? 0 : 1)).replace('%s', nameValue ? nameValue.textContent : ''),
+		DB.getMessage(
+			member.status ? 485 : 486,
+			member.status ? 'Guild Member %s has connected.' : 'Guild Member %s has disconnected.'
+		).replace('%s', current.CharName || DB.getMessage(581, 'Nameless')),
 		ChatBox.TYPE.BLUE,
 		ChatBox.FILTER.GUILD
 	);
 };
 
+/**
+ * Move a member to another grade
+ *
+ * From the dropdown the change is only queued, never sent on selection.
+ * @see docs/reference/guild/grade-change.md
+ *
+ * @param {number} AID - account id
+ * @param {number} GID - character id
+ * @param {number} positionID - grade to move the member to
+ * @param {boolean} fromDropdown - true when the grade dropdown is the source
+ * @return {boolean} false when the member is unknown or the selection refused
+ */
 Guild.updateMemberPosition = function updateMemberPosition(AID, GID, positionID, fromDropdown) {
 	for (let i = 0, count = _members.length; i < count; ++i) {
 		if (_members[i].AID === AID && _members[i].GID === GID) {
+			const currentID = _members[i].GPositionID;
+
+			// Grade 0 is the guild master. It is neither given nor taken from the
+			// dropdown, delegation is a path of its own. An unchanged grade and a
+			// value that did not parse are refused the same way, silently.
+			if (fromDropdown && (!positionID || !currentID || positionID === currentID)) {
+				return false;
+			}
+
 			_members[i].GPositionID = positionID;
 
-			// The dropdown already displays the new position, re-rendering the row
-			// here would replace the <select> while its change event is dispatching.
-			if (!fromDropdown) {
+			if (fromDropdown) {
+				// The grade to go back to is the server's, so the first edit of a row
+				// records it and a later one leaves it where it was: last edit wins on
+				// what is sent, never on what cancelling returns to.
+				const queued = _pendingPositions[GID];
+				_pendingPositions[GID] = {
+					AID: AID,
+					GID: GID,
+					positionID: positionID,
+					previousID: queued ? queued.previousID : currentID
+				};
+			} else {
+				// The dropdown already displays the new position, re-rendering the row
+				// here would replace the <select> while its change event is dispatching.
 				Guild.setMember(_members[i]);
 			}
-			break;
+
+			return true;
 		}
 	}
 
-	if (fromDropdown) {
-		onValidate();
+	return false;
+};
+
+/**
+ * Apply the grades the server acknowledged
+ *
+ * The ack is server truth, so it also drops whatever was still queued. Every row
+ * goes back to the server's grade first and the acknowledged ones are then moved
+ * again: an ack can carry fewer entries than were sent, and the rest have to end
+ * on what the server holds rather than on what it never answered.
+ * @see docs/reference/guild/grade-change.md
+ *
+ * @param {Array} memberInfo - PACKET.ZC.ACK_REQ_CHANGE_MEMBERS entries
+ */
+Guild.setMemberPositions = function setMemberPositions(memberInfo) {
+	_clearPendingPositions();
+
+	if (!memberInfo) {
+		return;
+	}
+
+	for (let i = 0, count = memberInfo.length; i < count; ++i) {
+		const entry = memberInfo[i];
+
+		// A grade of 0 acknowledges a new guild master, not a grade change. Who
+		// holds the role is read off the belonging packet and nowhere else: it is
+		// the only one that can tell a handover from a repeat, and a role written
+		// here would consume that difference before it arrives.
+		// @see docs/reference/guild/grade-change.md
+		if (!entry.positionID) {
+			continue;
+		}
+
+		Guild.updateMemberPosition(entry.AID, entry.GID, entry.positionID, false);
 	}
 };
 
@@ -759,6 +1603,21 @@ Guild.setPositions = function setPositions(positions, erase) {
 		if (rank.posName) {
 			_positions[rank.positionID].posName = rank.posName;
 		}
+
+		// The server caps the rate and says nothing, so report the number it
+		// kept rather than guessing at the limit.
+		// @see docs/reference/guild/grade-change.md
+		const sent = _sentPayRates[rank.positionID];
+		if (sent !== undefined && rank.payRate !== undefined && sent !== rank.payRate) {
+			ChatBox.addText(
+				// The table's own text has the cap written into it rather than a
+				// placeholder, so take either form and put the real number in.
+				DB.getMessage(3486, "You can't enter value more than 50%.").replace(/%[ds]|\d+/, rank.payRate),
+				ChatBox.TYPE.ERROR,
+				ChatBox.FILTER.GUILD
+			);
+		}
+		delete _sentPayRates[rank.positionID];
 	}
 
 	Guild.updatePositionView();
@@ -767,6 +1626,8 @@ Guild.setPositions = function setPositions(positions, erase) {
 Guild.setPositionsName = function setPositionsName(positions) {
 	let rank;
 
+	_clearPendingPositions();
+
 	for (let i = 0, count = positions.length; i < count; ++i) {
 		rank = positions[i];
 
@@ -774,6 +1635,9 @@ Guild.setPositionsName = function setPositionsName(positions) {
 			_positions[rank.positionID] = {};
 		}
 
+		// The grade dropdown carries this as its option value, and this packet
+		// can be the only one to ever feed a grade.
+		_positions[rank.positionID].positionID = rank.positionID;
 		_positions[rank.positionID].posName = rank.posName;
 	}
 
@@ -786,42 +1650,81 @@ Guild.updatePositionView = function updatePositionView() {
 	if (!container) {
 		return;
 	}
+
+	// A member is shown the grades, not controls over them.
+	// @see docs/reference/guild/member-view.md
+	const isMaster = Session.isGuildMaster;
+
+	// 0x166 rides in with every member list, and rebuilding here would drop the
+	// edits the rows are holding. The guild master's changes stand until Apply.
+	if (_positionsDirty) {
+		if (isMaster) {
+			return;
+		}
+
+		// Demoted while editing. The rows are the server's again, and leaving the
+		// flag up would keep Apply over cells that no longer hold an edit.
+		_positionsDirty = false;
+		_hideApplyButton();
+	}
+
+	const positionsContent = container.closest('.content.positions');
+	positionsContent?.classList.toggle('has-storage', _hasStorageColumn());
+
 	container.innerHTML = '';
 
+	// _positions is keyed by positionID and the server may skip one, so it can
+	// have holes. Rows carry the id they render rather than their place in it.
 	const count = _positions.length;
+	let rendered = 0;
 	for (let i = 0; i < count; ++i) {
-		const view = _positionViewTemplate.cloneNode(true);
 		const rank = _positions[i];
+		if (!rank) {
+			continue;
+		}
 
-		if (i === 0) {
+		const view = _positionViewTemplate.cloneNode(true);
+		view.dataset.positionId = rank.positionID;
+
+		if (rendered === _positionsSelected) {
 			view.classList.add('active');
 		}
+		++rendered;
 
 		const idCell = view.querySelector('.id');
 		if (idCell) {
 			idCell.textContent = rank.positionID;
 		}
-		const titleInput = view.querySelector('.title input');
-		if (titleInput) {
-			titleInput.value = rank.posName;
-		}
-		const taxInput = view.querySelector('.tax input');
-		if (taxInput) {
-			taxInput.value = rank.payRate;
+		if (isMaster) {
+			const titleInput = view.querySelector('.title input');
+			if (titleInput) {
+				titleInput.value = rank.posName;
+			}
+			const taxInput = view.querySelector('.tax input');
+			if (taxInput) {
+				taxInput.value = rank.payRate;
+			}
+		} else {
+			// The unit rides in the member's own string rather than beside the
+			// field, which is where the guild master's sits. Only the name can
+			// outgrow its cell.
+			_asValue(view.querySelector('.title'), rank.posName, true);
+			_asValue(view.querySelector('.tax'), `${rank.payRate} %`);
 		}
 
-		const inviteBtn = view.querySelector('.invite ui-button');
-		if (inviteBtn) {
-			inviteBtn.style.backgroundImage = `url(${rank.right & 0x01 ? _checkbox_on : _checkbox_off})`;
-			inviteBtn.className = inviteBtn.className.replace(/\b(on|off)\b/g, '').trim();
-			inviteBtn.classList.add(rank.right & 0x01 ? 'on' : 'off');
-		}
+		for (const column in PERMISSION_COLUMNS) {
+			const box = view.querySelector(`.${column} .checkbox`);
+			if (!box) {
+				continue;
+			}
 
-		const punishBtn = view.querySelector('.punish ui-button');
-		if (punishBtn) {
-			punishBtn.style.backgroundImage = `url(${rank.right & 0x10 ? _checkbox_on : _checkbox_off})`;
-			punishBtn.className = punishBtn.className.replace(/\b(on|off)\b/g, '').trim();
-			punishBtn.classList.add(rank.right & 0x10 ? 'on' : 'off');
+			const on = rank.right & PERMISSION_COLUMNS[column];
+			box.style.backgroundImage = `url(${on ? _checkbox_on : _checkbox_off})`;
+
+			// A member's tick is the image alone. `checkbox` is what puts an element
+			// on the clickable-cursor list, so carrying it would offer the click the
+			// handler then refuses.
+			box.className = `${isMaster ? 'checkbox' : 'tick'} ${on ? 'on' : 'off'}`;
 		}
 
 		container.appendChild(view);
@@ -836,9 +1739,9 @@ Guild.setSkills = function setSkills(skills) {
 	}
 
 	_skills.length = 0;
-	const table = root.querySelector('.content.skills .skill_list table');
-	if (table) {
-		table.innerHTML = '';
+	const list = root.querySelector('.content.skills .skill_list');
+	if (list) {
+		list.innerHTML = '';
 	}
 
 	for (let i = 0, count = skills.length; i < count; ++i) {
@@ -865,52 +1768,31 @@ Guild.addSkill = function addSkill(skill) {
 	});
 	const className = !skill.level ? 'disabled' : skill.type ? 'active' : 'passive';
 
-	const tr = document.createElement('tr');
+	// The client draws the highlight as one 164x28 rect with the name, Lv and Sp
+	// inside it, so .selectable is that rect rather than a pair of cells.
+	const tr = document.createElement('div');
 	tr.className = `skill id${skill.SKID} ${className}`;
 	tr.setAttribute('data-index', skill.SKID);
 	tr.setAttribute('draggable', 'true');
 	tr.innerHTML =
-		'<td class="icon"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" width="24" height="24" /></td>' +
-		'<td class="levelupcontainer"></td>' +
-		'<td class=selectable>' +
-		`<div class="name">${_escapeHTML(sk.SkillName)}<br/>` +
-		'<span class="level">' +
-		(sk.bSeperateLv
-			? `<button class="currentDown"></button>Lv : <span class="current">${skill.level}</span> / <span class="max">${skill.level}</span><button class="currentUp"></button>`
-			: `Lv : <span class="current">${skill.level}</span>`) +
-		'</span></div></td>' +
-		'<td class="selectable type">' +
+		'<div class="icon"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" width="24" height="24" /></div>' +
+		'<div class="levelupcontainer"></div>' +
+		'<div class="selectable">' +
+		`<div class="name">${_escapeHTML(sk.SkillName)}</div>` +
+		'<div class="levelline">' +
+		`<div class="level">Lv : <span class="current">${skill.level}</span></div>` +
 		`<div class="consume">${skill.type ? `Sp : <span class="spcost">${skill.spcost}</span>` : 'Passive'}</div>` +
-		'</td>';
+		'</div></div>';
 
-	if (!skill.upgradable || !_skpoints) {
+	if (!skill.upgradable || !_skpoints || !Session.isGuildMaster) {
 		levelup.style.display = 'none';
 	}
 
 	tr.querySelector('.levelupcontainer').appendChild(levelup);
 
-	const currentUp = tr.querySelector('.level .currentUp');
-	if (currentUp) {
-		if (rArrow) {
-			currentUp.style.backgroundImage = rArrow;
-		}
-		currentUp.addEventListener('click', () => {
-			skillLevelSelectUp(skill);
-		});
-	}
-	const currentDown = tr.querySelector('.level .currentDown');
-	if (currentDown) {
-		if (lArrow) {
-			currentDown.style.backgroundImage = lArrow;
-		}
-		currentDown.addEventListener('click', () => {
-			skillLevelSelectDown(skill);
-		});
-	}
-
-	const table = root.querySelector('.content.skills .skill_list table');
-	if (table) {
-		table.appendChild(tr);
+	const list = root.querySelector('.content.skills .skill_list');
+	if (list) {
+		list.appendChild(tr);
 	}
 
 	// Process data attributes on the levelup button for GUIComponent
@@ -952,14 +1834,8 @@ Guild.updateSkill = function updateSkill(skill) {
 		return;
 	}
 
-	for (const el of element.querySelectorAll('.level .current, .level .max')) {
+	for (const el of element.querySelectorAll('.level .current')) {
 		el.textContent = skill.level;
-	}
-	if (skill.selectedLevel) {
-		const current = element.querySelector('.level .current');
-		if (current) {
-			current.textContent = skill.selectedLevel;
-		}
 	}
 	const spcost = element.querySelector('.spcost');
 	if (spcost) {
@@ -971,7 +1847,7 @@ Guild.updateSkill = function updateSkill(skill) {
 
 	const levelupEl = element.querySelector('.levelup');
 	if (levelupEl) {
-		levelupEl.style.display = skill.upgradable && _skpoints ? '' : 'none';
+		levelupEl.style.display = skill.upgradable && _skpoints && Session.isGuildMaster ? '' : 'none';
 	}
 
 	this.onUpdateSkill(skill.SKID, skill.level);
@@ -983,7 +1859,7 @@ Guild.useSkillID = function useSkillID(id, level) {
 		return;
 	}
 
-	Guild.useSkill(skill, level ? level : skill.selectedLevel);
+	Guild.useSkill(skill, level ? level : skill.level);
 };
 
 Guild.useSkill = function useSkill(skill, level) {
@@ -1012,15 +1888,28 @@ Guild.setPoints = function setPoints(amount) {
 	}
 
 	_skpoints = amount;
+	updateSkillArrows(root);
+};
+
+/**
+ * Show the level-up arrow on each skill the player may actually raise
+ *
+ * @see docs/reference/guild/member-view.md
+ */
+function updateSkillArrows(root) {
+	if (!root) {
+		return;
+	}
+
 	const count = _skills.length;
 
 	for (let i = 0; i < count; ++i) {
 		const levelupEl = root.querySelector(`.skill.id${_skills[i].SKID} .levelup`);
 		if (levelupEl) {
-			levelupEl.style.display = _skills[i].upgradable && amount ? '' : 'none';
+			levelupEl.style.display = _skills[i].upgradable && _skpoints && Session.isGuildMaster ? '' : 'none';
 		}
 	}
-};
+}
 
 Guild.onLevelUp = function onLevelUp() {
 	if (_btnLevelUp) {
@@ -1041,6 +1930,10 @@ function getSkillById(id) {
 }
 
 function onRequestSkillUp() {
+	if (!Session.isGuildMaster) {
+		return;
+	}
+
 	const index = this.parentNode.parentNode.getAttribute('data-index');
 	Guild.onIncreaseSkill(parseInt(index, 10));
 }
@@ -1073,17 +1966,11 @@ function onRequestSkillInfo() {
 }
 
 function onSkillFocus() {
-	let main = this.parentElement;
-
-	if (!main.classList.contains('skill')) {
-		main = main.parentElement;
-	}
-
 	const root = _root(Guild);
 	for (const el of root.querySelectorAll('.skill')) {
 		el.classList.remove('selected');
 	}
-	main.classList.add('selected');
+	this.classList.add('selected');
 }
 
 function onSkillDragStart(event) {
@@ -1116,45 +2003,117 @@ function onSkillDragEnd() {
 	delete window._OBJ_DRAG_;
 }
 
-function skillLevelSelectUp(skill) {
-	const level = skill.selectedLevel ? skill.selectedLevel : skill.level;
-	if (level < skill.level) {
-		skill.selectedLevel = level + 1;
-		const root = _root(Guild);
-		const element = root.querySelector(`.skill.id${skill.SKID}`);
-		if (element) {
-			const current = element.querySelector('.level .current');
-			if (current) {
-				current.textContent = skill.selectedLevel;
-			}
-		}
-	}
-}
-
-function skillLevelSelectDown(skill) {
-	const level = skill.selectedLevel ? skill.selectedLevel : skill.level;
-	if (level > 1) {
-		skill.selectedLevel = level - 1;
-		const root = _root(Guild);
-		const element = root.querySelector(`.skill.id${skill.SKID}`);
-		if (element) {
-			const current = element.querySelector('.level .current');
-			if (current) {
-				current.textContent = skill.selectedLevel;
-			}
-		}
-	}
-}
-
 Guild.setNotice = function setNotice(subject, notice) {
-	const root = _root(this);
-	const subjectInput = root.querySelector('.content.notice .subject');
-	if (subjectInput) {
-		subjectInput.value = subject;
+	_notice.subject = subject;
+	_notice.body = notice;
+	Guild.updateNoticeView();
+	_writeNotice(_root(this)?.querySelector('.content.notice'));
+};
+
+/**
+ * Helper: put the stored notice into whichever pair the pane is holding
+ */
+function _writeNotice(content) {
+	const subject = content?.querySelector('.subject');
+	const body = content?.querySelector('.notice');
+	if (!subject || !body) {
+		return;
 	}
-	const noticeTextarea = root.querySelector('.content.notice textarea.notice');
-	if (noticeTextarea) {
-		noticeTextarea.value = notice;
+
+	if (Session.isGuildMaster) {
+		subject.value = _notice.subject;
+		body.value = _notice.body;
+		return;
+	}
+
+	subject.textContent = _notice.subject;
+	body.textContent = _notice.body;
+}
+
+/**
+ * Draw the Notice tab for whoever is looking at it
+ *
+ * A member gets the text and no field.
+ * @see docs/reference/guild/member-view.md
+ */
+Guild.updateNoticeView = function updateNoticeView() {
+	const root = _root(this);
+	if (!root) {
+		return;
+	}
+
+	const content = root.querySelector('.content.notice');
+	if (!content || !_noticeSubjectTemplate || !_noticeBodyTemplate) {
+		return;
+	}
+
+	// Either form carries the class the geometry is written against, so the pane
+	// does not move when the two swap.
+	const subjectSlot = content.querySelector('.subject');
+	const bodySlot = content.querySelector('.notice');
+	if (!subjectSlot || !bodySlot) {
+		return;
+	}
+
+	// Only the role changing swaps the pair. Rebuilding a pane that is already
+	// the right shape would take the guild master's unsent draft with it, and a
+	// member's selection.
+	const isMaster = Session.isGuildMaster;
+	if (isMaster === (subjectSlot.tagName === 'INPUT')) {
+		return;
+	}
+
+	const fill = (slot, template) => {
+		let next;
+		if (isMaster) {
+			next = template.cloneNode(true);
+		} else {
+			next = document.createElement('div');
+			next.className = `${template.className} value`;
+		}
+		slot.replaceWith(next);
+	};
+
+	fill(subjectSlot, _noticeSubjectTemplate);
+	fill(bodySlot, _noticeBodyTemplate);
+	_writeNotice(content);
+
+	// Apply is revealed by touching a field, so losing the fields has to take it
+	// back with them.
+	if (!isMaster) {
+		_hideApplyButton();
+	}
+};
+
+/**
+ * Redraw everything the guild-master flag decides
+ *
+ * Reached from the flag's own packet, which can arrive before the window exists.
+ * @see docs/reference/guild/member-view.md
+ */
+Guild.updateMasterView = function updateMasterView() {
+	const root = _root(this);
+	if (!root) {
+		return;
+	}
+
+	Guild.updatePositionView();
+	Guild.updateNoticeView();
+	updateSkillFooter(root, getActiveTab(root));
+	updateSkillArrows(root);
+	updateEmblemControls(root);
+	updateDisbandButton(root, getActiveTab(root));
+
+	// The role just changed, so a grade queued under the old one has nothing left
+	// to mean. Dropped here rather than by the rebuild below, which would report
+	// it as a roster the server pushed.
+	_clearPendingPositions();
+
+	// The roster arrives before the flag on a handover, so the grade cells were
+	// built for the wrong person. Rebuilt from a copy: setMembers empties the
+	// store first.
+	if (_members.length) {
+		Guild.setMembers([..._members], _hasMemo);
 	}
 };
 
@@ -1170,7 +2129,9 @@ Guild.setExpelList = function setExpelList(list) {
 		const element = _expelViewTemplate.cloneNode(true);
 		const nameCell = element.querySelector('.name');
 		if (nameCell) {
-			nameCell.textContent = list[i].charname;
+			// The 0x0a87 list carries a char id and no name, the same way the
+			// 0x0aa5 member list does, so it falls back the same way.
+			nameCell.textContent = list[i].charname || DB.getMessage(581, 'Nameless');
 		}
 		const reasonCell = element.querySelector('.reason');
 		if (reasonCell) {
@@ -1182,7 +2143,87 @@ Guild.setExpelList = function setExpelList(list) {
 
 Guild.setAccess = function setAccess(access) {
 	_guildAccess = access;
+	// Answered, or deliberately forgotten. Either way the question may be asked
+	// again, which is what lets a new role get a mask of its own.
+	_accessRequested = false;
+	updateTabAccess(_root(this));
 };
+
+/**
+ * Ask which tabs this character may open, once
+ *
+ * The mask changes with who the player is, not with what the guild does.
+ * @see docs/reference/guild/member-view.md
+ */
+Guild.requestAccessIfUnknown = function requestAccessIfUnknown() {
+	// The server answers a guildless player too, and caching that answer would
+	// then stand in for the guild they join next.
+	if (_guildAccess !== ACCESS_UNKNOWN || _accessRequested || !Session.hasGuild) {
+		return;
+	}
+
+	_accessRequested = true;
+	Guild.onRequestAccess();
+};
+
+/**
+ * Forget the mask, the role having changed under it
+ *
+ * Through setAccess, so the marks cannot outlive the mask that earned them.
+ * @see docs/reference/guild/member-view.md
+ */
+Guild.invalidateAccess = function invalidateAccess() {
+	Guild.setAccess(ACCESS_UNKNOWN);
+};
+
+/**
+ * Helper: a tab's label in full, which its 64px cell ellipsises
+ *
+ * Read through the message id rather than off the element: the label is only
+ * the markup's English fallback until `ui-text` upgrades.
+ */
+function _tabLabel(btn) {
+	const text = btn.querySelector('ui-text');
+	if (!text) {
+		return btn.textContent.trim();
+	}
+
+	return DB.getMessage(parseInt(text.getAttribute('msg'), 10), text.textContent.trim());
+}
+
+/**
+ * Mark the tabs this member's access mask refuses
+ * @see docs/reference/guild/member-view.md
+ */
+function updateTabAccess(root) {
+	if (!root) {
+		return;
+	}
+
+	for (const btn of root.querySelectorAll('.tabs button')) {
+		// Tab 0 has no bit and is always open, which is the same test onChangeTab
+		// makes before it refuses.
+		const tab = parseInt(btn.getAttribute('data-flag'), 10);
+		const denied = !!tab && !(_guildAccess & AccessTypeBit[tab]);
+
+		btn.classList.toggle('denied', denied);
+
+		// A refused tab is out of the keyboard's reach too, or Enter lands on it
+		// and does nothing.
+		btn.setAttribute('aria-disabled', denied ? 'true' : 'false');
+		btn.tabIndex = denied ? -1 : 0;
+
+		// Refreshed rather than left as init wrote it: the message table can land
+		// after the window is built.
+		btn.title = _tabLabel(btn);
+	}
+
+	// A refused tab that is the open one has to be left, not only marked. The
+	// first carries no bit and is always somewhere to go.
+	if (root.querySelector('.tabs button.active.denied')) {
+		onChangeTab.call(root.querySelector('.tabs button'));
+	}
+}
 
 function onChangeTab(event) {
 	const tab = parseInt(this.getAttribute('data-flag'), 10);
@@ -1192,7 +2233,14 @@ function onChangeTab(event) {
 		return false;
 	}
 
-	Guild.onGuildInfoRequest(tab);
+	// Fresh grade names and a fresh roster both drop the queue, and both answer a
+	// request this very gesture sends. Holding those two back while an edit waits
+	// is what lets it survive a tab - and leaves the rows still under a dropdown
+	// the user may have open. The other menus carry neither and go out as usual.
+	// @see docs/reference/guild/grade-change.md
+	if ((tab !== TAB_MEMBERS && tab !== TAB_POSITIONS) || !_hasPendingPositions()) {
+		Guild.onGuildInfoRequest(tab);
+	}
 
 	for (const btn of root.querySelectorAll('.tabs button')) {
 		btn.classList.remove('active');
@@ -1207,12 +2255,13 @@ function onChangeTab(event) {
 		targetContent.style.display = 'block';
 	}
 
-	const btnOk = root.querySelector('.footer .btn_ok');
-	if (btnOk) {
-		btnOk.style.display = 'none';
-	}
+	// Coming back to either tab has to bring the way to apply its edits back too.
+	_refreshApplyButton(targetClass);
 
 	updateDisbandButton(root, targetClass);
+	updateSkillFooter(root, targetClass);
+	updateMemberSort(root, targetClass);
+	updateInfoOptions(root);
 
 	if (targetClass === 'members') {
 		Renderer.render(renderMemberFaces);
@@ -1225,6 +2274,29 @@ function onChangeTab(event) {
 	return false;
 }
 
+/**
+ * Where the tendency marker sits, in canvas-local pixels
+ *
+ * Truncates rather than rounds, which is a real one-pixel difference here.
+ * @see docs/reference/guild/info-tab-legacy.md
+ *
+ * @param {number} honor - ZC_GUILD_INFO honor, [-100, 100]
+ * @param {number} virtue - ZC_GUILD_INFO virtue, [-100, 100]
+ * @return {{x: number, y: number}} top-left of the 2x2 marker
+ */
+function tendencyMarker(honor, virtue) {
+	return {
+		x: 44 + Math.trunc((honor || 0) * 0.42),
+		y: 44 - Math.trunc((virtue || 0) * 0.42)
+	};
+}
+
+/**
+ * The ver12 chart, at the client's own rects translated into the canvas
+ *
+ * The four colours are the same ones the rest of this window uses.
+ * @see docs/reference/guild/info-tab-legacy.md
+ */
 function renderTendency(honor, virtue) {
 	const root = _root(Guild);
 	const canvas = root.querySelector('.content.info .tendency canvas');
@@ -1233,22 +2305,66 @@ function renderTendency(honor, virtue) {
 	}
 	const ctx = canvas.getContext('2d');
 
-	ctx.fillStyle = '#cecfce';
-	ctx.fillRect(0, 0, canvas.width, canvas.height);
+	ctx.fillStyle = '#c8c8c8';
+	ctx.fillRect(0, 0, 90, 90);
 
-	ctx.fillStyle = '#739eef';
-	ctx.fillRect(1, 1, canvas.width - 2, canvas.height - 2);
+	ctx.fillStyle = '#709fed';
+	ctx.fillRect(1, 1, 88, 88);
 
-	ctx.fillStyle = '#4261a5';
-	ctx.fillRect(canvas.width / 2 - 1, 1, 2, canvas.height - 2);
-	ctx.fillRect(1, canvas.height / 2 - 1, canvas.width - 2, 2);
+	ctx.fillStyle = '#4262a5';
+	ctx.fillRect(44, 1, 2, 88);
+	ctx.fillRect(1, 44, 88, 2);
 
+	const marker = tendencyMarker(honor, virtue);
 	ctx.fillStyle = '#ffffff';
-	ctx.fillRect(canvas.width / 2 - 1, canvas.height / 2 - 1, 2, 2);
+	ctx.fillRect(marker.x, marker.y, 2, 2);
+}
+
+// Cancels the centring RenderCanvas2D applies, so the entity's origin lands
+// exactly where asked. @see docs/reference/guild/member-portrait.md
+const CELL_SHIFT = 0.5 * 35;
+
+/** Side of the scratch canvas the portrait is drawn into before being cropped. */
+const PORTRAIT_BOX = 96;
+
+/**
+ * Bounds of everything non-transparent, or null if nothing was drawn.
+ *
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {number} side
+ */
+function opaqueBounds(ctx, side) {
+	const data = ctx.getImageData(0, 0, side, side).data;
+	let top = -1,
+		bottom = -1,
+		left = side,
+		right = -1;
+
+	for (let y = 0; y < side; ++y) {
+		const row = y * side;
+		for (let x = 0; x < side; ++x) {
+			if (data[(row + x) * 4 + 3] > 8) {
+				if (top < 0) {
+					top = y;
+				}
+				bottom = y;
+				if (x < left) {
+					left = x;
+				}
+				if (x > right) {
+					right = x;
+				}
+			}
+		}
+	}
+
+	return top < 0 ? null : { top, bottom, left, right };
 }
 
 const renderMemberFaces = (function renderMemberFacesClosure() {
 	let lastTick = 0;
+	let scratch = null;
+	let scratchCtx = null;
 
 	return function renderMemberFace(tick) {
 		if (tick < lastTick + 1000) {
@@ -1257,22 +2373,65 @@ const renderMemberFaces = (function renderMemberFacesClosure() {
 
 		lastTick = tick;
 		const root = _root(Guild);
-		const canvases = root.querySelectorAll('.content.members canvas');
+
+		if (!scratch) {
+			scratch = document.createElement('canvas');
+			scratch.width = scratch.height = PORTRAIT_BOX;
+			scratchCtx = scratch.getContext('2d');
+		}
+
+		// Each member's OWN canvas, resolved through the index the row carries,
+		// never through its position - the two orders differ once sorted.
+		// @see docs/reference/guild/member-portrait.md
+		const canvasFor = {};
+		for (const row of root.querySelectorAll('.content.members .MemberView')) {
+			canvasFor[row.getAttribute('data-index')] = row.querySelector('canvas');
+		}
+
 		Camera.direction = 4;
 
 		for (let i = 0, count = _members.length; i < count; ++i) {
-			if (!canvases[i]) {
+			const canvas = canvasFor[i];
+			if (!canvas) {
 				continue;
 			}
-			const ctx = canvases[i].getContext('2d');
-			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+			const ctx = canvas.getContext('2d');
+			const cellW = canvas.width;
+			const cellH = canvas.height;
+			ctx.clearRect(0, 0, cellW, cellH);
 
 			if (!_members[i].CurrentState) {
 				continue;
 			}
 
-			SpriteRenderer.bind2DContext(ctx, 15, 45);
+			// Draw into a box big enough for the whole sprite, then crop to what
+			// was drawn. No fixed offset can be right for every job and hairstyle.
+			scratchCtx.clearRect(0, 0, PORTRAIT_BOX, PORTRAIT_BOX);
+			SpriteRenderer.bind2DContext(scratchCtx, PORTRAIT_BOX / 2, PORTRAIT_BOX / 2 + CELL_SHIFT);
 			_members[i].entity.renderEntity();
+
+			const box = opaqueBounds(scratchCtx, PORTRAIT_BOX);
+			if (!box) {
+				continue;
+			}
+
+			// Centre the drawing in the cell, and keep the top when it is too tall -
+			// the head is at the top of anything that overflows.
+			const boxH = box.bottom - box.top + 1;
+			const sx = box.left + (box.right - box.left + 1 - cellW) / 2;
+			const sy = boxH > cellH ? box.top : box.top + (boxH - cellH) / 2;
+
+			ctx.drawImage(
+				scratch,
+				Math.min(Math.max(Math.round(sx), 0), PORTRAIT_BOX - cellW),
+				Math.min(Math.max(Math.round(sy), 0), PORTRAIT_BOX - cellH),
+				cellW,
+				cellH,
+				0,
+				0,
+				cellW,
+				cellH
+			);
 		}
 	};
 })();
@@ -1296,51 +2455,89 @@ function onValidate() {
 		}
 	}
 
+	// Every branch below sends a packet the server drops from anyone else without
+	// a word, and their tabs hold values rather than fields.
+	// @see docs/reference/guild/member-view.md
+	if (!Session.isGuildMaster) {
+		_hideApplyButton();
+		return;
+	}
+
 	switch (activeTab) {
 		case 'members': {
 			const list = [];
-			_members.forEach(member => {
-				list.push({
-					AID: member.AID,
-					GID: member.GID,
-					positionID: member.GPositionID
-				});
-			});
+			// Built field by field: the queue also carries the grade to go back to on
+			// a cancel, which is ours and has no place on the wire.
+			for (const GID in _pendingPositions) {
+				const pending = _pendingPositions[GID];
+				list.push({ AID: pending.AID, GID: pending.GID, positionID: pending.positionID });
+			}
+
+			// Nothing queued, nothing to apply. Sending the whole roster here is
+			// what the server reads as a guild master transfer.
+			if (!list.length) {
+				return;
+			}
+
 			Guild.onChangeMemberPosRequest(list);
+			// Forgotten rather than taken back: the rows keep the grades just sent,
+			// and the acknowledgement is what agrees to them.
+			_dropPendingPositions();
 			break;
 		}
 		case 'positions': {
 			const positionList = [];
 			const positions = root.querySelectorAll('.PositionView');
 
-			for (let i = 0, count = _positions.length; i < count; ++i) {
-				const position = positions[i];
-				if (!position) {
+			for (const position of positions) {
+				// The row says which position it renders. Pairing it with the store by
+				// its place in the table breaks the moment the server skips an id.
+				const rank = _positions[parseInt(position.dataset.positionId, 10)];
+
+				// 0x160 carries the mode and nothing else does. Until it lands there
+				// is nothing to preserve and nothing to compare against, and sending
+				// would push a zeroed mode over the server's own.
+				if (!rank || rank.right === undefined) {
 					continue;
 				}
 
 				const posName = position.querySelector('.title input')?.value || '';
-				const payRate = parseInt(position.querySelector('.tax input')?.value || '0', 10);
-				let right = 0;
 
-				const inviteBtn = position.querySelector('.invite ui-button');
-				if (inviteBtn && inviteBtn.classList.contains('on')) {
+				// Two characters, so 0-99. Deliberately no tighter clamp: the
+				// real limit is per-server config and the server caps it.
+				// @see docs/reference/guild/grade-change.md
+				const typed = parseInt(position.querySelector('.tax input')?.value, 10) || 0;
+				const payRate = Math.min(99, Math.max(0, typed));
+
+				// Keep every bit the tab has no column for. Rebuilding the mode
+				// from zero is what used to drop the guild storage right on a
+				// packetver too old to draw it.
+				const owned = _hasStorageColumn() ? 0x01 | 0x10 | GUILD_PERM_STORAGE : 0x01 | 0x10;
+				let right = rank.right & ~owned;
+
+				const inviteBox = position.querySelector('.invite .checkbox');
+				if (inviteBox && inviteBox.classList.contains('on')) {
 					right |= 0x01;
 				}
 
-				const punishBtn = position.querySelector('.punish ui-button');
-				if (punishBtn && punishBtn.classList.contains('on')) {
+				const punishBox = position.querySelector('.punish .checkbox');
+				if (punishBox && punishBox.classList.contains('on')) {
 					right |= 0x10;
 				}
 
-				if (
-					_positions[i].right !== right ||
-					_positions[i].posName !== posName ||
-					_positions[i].payRate !== payRate
-				) {
+				const storageBox = position.querySelector('.storage .checkbox');
+				if (_hasStorageColumn() && storageBox && storageBox.classList.contains('on')) {
+					right |= GUILD_PERM_STORAGE;
+				}
+
+				if (rank.right !== right || rank.posName !== posName || rank.payRate !== payRate) {
 					positionList.push({
-						positionID: _positions[i].positionID,
-						ranking: _positions[i].ranking,
+						positionID: rank.positionID,
+						// Echoed, never recomputed: the entry is fixed-width so the slot
+						// has to be filled, and the server derives rank from the entry
+						// order and never reads this.
+						// @see docs/reference/guild/grade-change.md
+						ranking: rank.ranking,
 						right: right,
 						posName: posName,
 						payRate: payRate
@@ -1348,26 +2545,55 @@ function onValidate() {
 				}
 			}
 
-			Guild.onPositionUpdateRequest(positionList);
+			// Applied or not, the rows go back to being the server's to repaint.
+			if (positionList.length) {
+				_sentPayRates = {};
+				for (const entry of positionList) {
+					_sentPayRates[entry.positionID] = entry.payRate;
+				}
+				Guild.onPositionUpdateRequest(positionList);
+			}
+			_positionsDirty = false;
 			break;
 		}
 		case 'notice': {
-			const subject = root.querySelector('.content.notice input')?.value || '';
-			const content = root.querySelector('.content.notice textarea')?.value || '';
+			const subject = root.querySelector('.content.notice .subject')?.value || '';
+			const content = root.querySelector('.content.notice textarea.notice')?.value || '';
 			Guild.onNoticeUpdateRequest(subject, content);
 			break;
 		}
 	}
 
-	const btnOk = root.querySelector('.footer .btn_ok');
-	if (btnOk) {
-		btnOk.style.display = 'none';
-	}
+	_hideApplyButton();
 }
 
 function getActiveTab(root) {
 	const btn = root ? root.querySelector('.tabs button.active') : null;
 	return btn ? btn.className.replace(/\s*active\s*/g, '').trim() : '';
+}
+
+/**
+ * Show or hide the two ways into the emblem picker
+ * @see docs/reference/guild/emblem-picker.md
+ */
+function updateEmblemControls(root) {
+	const general = root ? root.querySelector('.content.info') : null;
+	if (!general) {
+		return;
+	}
+
+	// Only the guild master edits the emblem, so neither the button nor the
+	// emblem-as-picker is offered to anyone else.
+	const emblemDisplay = Session.isGuildMaster ? '' : 'none';
+	const emblemEdit = general.querySelector('.emblem_edit');
+	if (emblemEdit) {
+		emblemEdit.style.display = emblemDisplay;
+	}
+
+	const emblemPick = general.querySelector('.emblem_pick');
+	if (emblemPick) {
+		emblemPick.style.display = emblemDisplay;
+	}
 }
 
 function updateDisbandButton(root, activeTab) {
@@ -1390,6 +2616,67 @@ function updateDisbandButton(root, activeTab) {
 	}
 }
 
+// The client has no inner footer on this tab: it draws the readout and its
+// buttons at window coordinates that land on the bottom bar, so they live in
+// the frame's footer and follow the tab instead of the pane.
+function updateSkillFooter(root, activeTab) {
+	if (!root) {
+		return;
+	}
+
+	const onSkills = activeTab === 'skills';
+
+	for (const el of root.querySelectorAll('.footer .btn_use')) {
+		el.style.display = onSkills ? 'block' : 'none';
+	}
+
+	// Deliberate deviation: the client shows the count to everyone. Nothing a
+	// member can reach spends a point, so the readout follows the controls.
+	// @see docs/reference/guild/member-view.md
+	for (const el of root.querySelectorAll('.footer .skpoints')) {
+		el.style.display = onSkills && Session.isGuildMaster ? 'block' : 'none';
+	}
+}
+
+// 2022's own control for the sort, offered only when the deployment asks for
+// that era's behaviour.
+// @see docs/reference/guild/member-list-sort.md
+function updateMemberSort(root, activeTab) {
+	if (!root) {
+		return;
+	}
+
+	const box = root.querySelector('.footer .sortlogin');
+	if (!box) {
+		return;
+	}
+
+	const offered = _config().memberListSort === 'checkbox';
+	box.style.display = offered && activeTab === 'members' ? 'block' : 'none';
+
+	// Repainted on every visit rather than once at bind: the checkbox images
+	// are preloaded asynchronously and may not have arrived the first time.
+	const btn = box.querySelector('ui-button');
+	const uri = UIPreferences.guildMemberListSorted ? _checkbox_on : _checkbox_off;
+	if (btn && uri) {
+		btn.style.backgroundImage = `url(${uri})`;
+	}
+
+	if (!box.dataset.bound) {
+		box.dataset.bound = '1';
+		box.addEventListener('click', () => {
+			UIPreferences.guildMemberListSorted = !UIPreferences.guildMemberListSorted;
+			UIPreferences.save();
+
+			// Move the rows rather than rebuild the list: setMembers drops the
+			// queued grade changes, and the sort is a display order, not new
+			// guild data.
+			reorderMemberRows(root, _sortsByLogin() ? _orderByLogin(_members) : _members);
+			updateMemberSort(root, 'members');
+		});
+	}
+}
+
 Guild.promptCreateGuild = function promptCreateGuild() {
 	GuildCompanion.toggleCreate();
 };
@@ -1399,7 +2686,12 @@ Guild.promptDisbandGuild = function promptDisbandGuild() {
 		return;
 	}
 
-	UIManager.showMessageBox('If you are using a guild storage, all items inside it will disappear.', 'ok', () => {
+	// OK-only, and the answer is discarded - the client opens the name window
+	// either way.
+	// @see docs/reference/guild/create-disband-dialogs.md
+	const warning = DB.getMessage(2564, 'If you are using a guild storage, all items inside it will disappear.');
+
+	UIManager.showMessageBox(warning, 'ok', () => {
 		GuildCompanion.openDisband();
 	});
 };
@@ -1416,14 +2708,20 @@ Guild.onRequestMemberExpel = function () {};
 Guild.onRequestDeleteRelation = function () {};
 Guild.onRequestAccess = function () {};
 
+/**
+ * Take from the guild's basic information what belongs to the session
+ *
+ * The guild-master flag is deliberately not set here. It is carried explicitly
+ * by the belonging packet, which the server sends after this one on a handover,
+ * and a second writer would leave that handler comparing a value already moved
+ * under it.
+ * @see docs/reference/guild/member-view.md
+ */
 Guild.updateSession = function (info) {
 	Session.hasGuild = true;
 	Session.guildName = info.guildname || '';
 	Session.Entity.GUID = info.GDID;
 	Session.Entity.GEmblemVer = info.emblemVersion;
-	if (Session.Entity.display.name === info.masterName) {
-		Session.isGuildMaster = true;
-	}
 };
 
 Guild.onRequestGuildEmblem = function () {};

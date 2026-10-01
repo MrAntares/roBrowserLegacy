@@ -14,11 +14,33 @@ let _mode = 'create';
 GuildCompanion.onRequestCreateGuild = function onRequestCreateGuild() {};
 GuildCompanion.onRequestBreakGuild = function onRequestBreakGuild() {};
 
+/**
+ * The caption and the field label, all that differs between the two modes
+ *
+ * That is also all the client varies - one window, one mode flag.
+ * @see docs/reference/guild/create-disband-dialogs.md
+ */
+const MODE_STRINGS = {
+	create: { title: [2076, 'Create Guild'], label: [2077, 'Guild Name'] },
+	disband: { title: [2088, 'Disband the Guild'], label: [2089, 'Enter Guild Name'] }
+};
+
+/**
+ * Helper: query inside shadow root
+ */
+function _root() {
+	return GuildCompanion.getRoot();
+}
+
 GuildCompanion.init = function init() {
-	const root = this._shadow;
-	this.draggable(root.querySelector('.companion .titlebar'));
+	const root = _root();
 	const nameWin = root.querySelector('.win.namebox');
 	const input = root.querySelector('.guildname');
+
+	// Both panes drag: open('disband') hides the companion one, and binding the
+	// handle only there left the name window pinned wherever center() put it.
+	this.draggable(root.querySelector('.companion .titlebar'));
+	this.draggable(root.querySelector('.namebox .titlebar'));
 
 	const closeAll = () => {
 		GuildCompanion.remove();
@@ -38,11 +60,17 @@ GuildCompanion.init = function init() {
 		const name = input.value.trim();
 
 		if (!name.length) {
-			input.focus();
+			// The client raises this rather than doing nothing.
+			UIManager.showMessageBox(DB.getMessage(2080, 'You must enter the name of your guild.'), 'ok', () => {
+				input.focus();
+			});
 			return;
 		}
 
 		if (_mode === 'disband') {
+			// Load-bearing: the server answers a wrong key with no packet at
+			// all, so without this the dialog waits forever.
+			// @see docs/reference/guild/create-disband-dialogs.md
 			if (Session.guildName && name !== Session.guildName) {
 				UIManager.showMessageBox(DB.getMessage(401, 'You have failed to disband the guild.'), 'ok', () => {
 					input.value = '';
@@ -50,6 +78,7 @@ GuildCompanion.init = function init() {
 				});
 				return;
 			}
+
 			GuildCompanion.onRequestBreakGuild(name);
 			return;
 		}
@@ -88,24 +117,23 @@ function open(mode) {
 		GuildCompanion.append();
 	}
 
-	const root = GuildCompanion._shadow;
+	const root = _root();
 	const companion = root.querySelector('.win.companion');
 	const nameWin = root.querySelector('.win.namebox');
 	const input = root.querySelector('.guildname');
+	const strings = MODE_STRINGS[mode] || MODE_STRINGS.create;
+
+	root.querySelector('.name_title').textContent = DB.getMessage(strings.title[0], strings.title[1]);
+	root.querySelector('.name_label').textContent = DB.getMessage(strings.label[0], strings.label[1]);
+	input.value = '';
 
 	if (mode === 'disband') {
 		companion.classList.add('hidden');
 		nameWin.classList.add('visible');
-		root.querySelector('.name_title').textContent = 'Disband the Guild';
-		root.querySelector('.name_label').textContent = 'Enter Guild Name';
-		input.value = '';
 		input.focus();
 	} else {
 		companion.classList.remove('hidden');
 		nameWin.classList.remove('visible');
-		root.querySelector('.name_title').textContent = 'Create Guild';
-		root.querySelector('.name_label').textContent = 'Guild Name';
-		input.value = '';
 	}
 
 	center();

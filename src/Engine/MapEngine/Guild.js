@@ -27,6 +27,7 @@ import UIManager from 'UI/UIManager.js';
 import Configs from 'Core/Configs.js';
 import MiniMap from 'UI/Components/MiniMap/MiniMap.js';
 import ShortCut from 'UI/Components/ShortCut/ShortCut.js';
+import UIPreferences from 'Preferences/UI.js';
 
 /**
  * @var {Object} emblem list
@@ -37,6 +38,24 @@ const _emblems = {};
  * @var {boolean} shortcut bar asked for guild skills before guild info arrived
  */
 let _pendingGuildSkillRequest = false;
+
+/**
+ * @var {number} timer waiting on the answer to a member info request
+ */
+let _memberInfoTimer = 0;
+
+/**
+ * @var {Object} last emblem version each guild announced, keyed by guild id
+ */
+const _emblemNotified = {};
+
+/**
+ * @var {string} who we last invited, so the answer can name them
+ *
+ * The ack is a flag byte, so the name can only come from this side.
+ * @see docs/reference/guild/invitation-ack.md
+ */
+let _lastInvited = '';
 
 /**
  * Engine namespace
@@ -62,6 +81,7 @@ class GuildEngine {
 		Network.hookPacket(PACKET.ZC.MEMBERMGR_INFO2, onGuildMembers);
 		Network.hookPacket(PACKET.ZC.MEMBERMGR_INFO3, onGuildMembers);
 		Network.hookPacket(PACKET.ZC.ACK_GUILD_MEMBER_INFO, onGuildMemberUpdate);
+		Network.hookPacket(PACKET.ZC.ACK_OPEN_MEMBER_INFO, onGuildMemberInfo);
 		Network.hookPacket(PACKET.ZC.POSITION_INFO, onGuildPositions);
 		Network.hookPacket(PACKET.ZC.POSITION_ID_NAME_INFO, onGuildPositionsName);
 		Network.hookPacket(PACKET.ZC.ACK_CHANGE_GUILD_POSITIONINFO, onGuildPositions);
@@ -73,6 +93,11 @@ class GuildEngine {
 		Network.hookPacket(PACKET.ZC.UPDATE_GDID, onGuildOwnInfo);
 		Network.hookPacket(PACKET.ZC.UPDATE_GDID2, onGuildOwnInfo);
 		Network.hookPacket(PACKET.ZC.BAN_LIST, onGuildExpelList);
+		Network.hookPacket(PACKET.ZC.BAN_LIST2, onGuildExpelList);
+		Network.hookPacket(PACKET.ZC.BAN_LIST3, onGuildExpelList);
+		Network.hookPacket(PACKET.ZC.CHANGE_GUILD, onGuildEmblemChanged);
+		Network.hookPacket(PACKET.ZC.CHANGE_GUILD2, onGuildEmblemChanged);
+		Network.hookPacket(PACKET.ZC.CHANGE_GUILD3, onGuildEmblemChanged);
 		Network.hookPacket(PACKET.ZC.ACK_DISORGANIZE_GUILD_RESULT, onGuildDestroy);
 		Network.hookPacket(PACKET.ZC.REQ_JOIN_GUILD, onGuildInviteRequest);
 		Network.hookPacket(PACKET.ZC.ACK_REQ_JOIN_GUILD, onGuildInviteResult);
@@ -80,7 +105,9 @@ class GuildEngine {
 		Network.hookPacket(PACKET.ZC.UPDATE_CHARSTAT2, onGuildMemberStatus);
 		Network.hookPacket(PACKET.ZC.ACK_BAN_GUILD, onGuildMemberExpulsion);
 		Network.hookPacket(PACKET.ZC.ACK_BAN_GUILD_SSO, onGuildMemberExpulsion);
+		Network.hookPacket(PACKET.ZC.ACK_BAN_GUILD_DELNAME, onGuildMemberExpulsionByID);
 		Network.hookPacket(PACKET.ZC.ACK_LEAVE_GUILD, onGuildMemberLeave);
+		Network.hookPacket(PACKET.ZC.ACK_LEAVE_GUILD_DELNAME, onGuildMemberLeaveByID);
 		Network.hookPacket(PACKET.ZC.DELETE_RELATED_GUILD, onGuildAllianceDeleteAck);
 		Network.hookPacket(PACKET.ZC.ADD_RELATED_GUILD, onGuildAllianceAdd);
 		Network.hookPacket(PACKET.ZC.REQ_ALLY_GUILD, onGuildAskForAlliance);
@@ -139,8 +166,11 @@ class GuildEngine {
 	 * @param {number} guild id
 	 * @param {number} version
 	 * @param {function} callback
+	 * @param {function} [onFailure] - the fetch gave up, and nothing was repainted
 	 */
-	static requestGuildEmblem(guild_id, version, callback) {
+	static requestGuildEmblem(guild_id, version, callback, onFailure) {
+		const failed = onFailure || function () {};
+
 		// Guild does not exist
 		if (!_emblems[guild_id]) {
 			_emblems[guild_id] = {
@@ -178,6 +208,11 @@ class GuildEngine {
 				!Session.WebToken ||
 				Session.WebToken === undefined
 			) {
+				// Nothing was painted, so this counts as giving up like any other: a
+				// broadcast can arrive before the web token does, and a caller holding
+				// a mark for this version has to be told, or that version is refused
+				// for good once the token turns up.
+				failed();
 				return;
 			}
 
@@ -198,9 +233,43 @@ class GuildEngine {
 			xhr.responseType = 'blob';
 
 			xhr.timeout = 5000;
+
+			// A newer version can be asked for while this one is still downloading,
+			// and the two answers can land in either order. Storing the older image
+			// would repaint every entity with it and put the stored version back down,
+			// and nothing would come to correct it: the mark that holds the burst back
+			// already sits on the newer version, so every later broadcast of it is
+			// refused.
+			//
+			// Only an older version is dropped, never an equal one. One version is
+			// asked for by several callers at once - the guild info, the broadcast,
+			// an entity coming into view - and each passes a callback that repaints
+			// something different. Refusing the ones that land second would leave
+			// whichever surface they own showing the emblem before.
+			// @see docs/reference/guild/emblem-picker.md
+			const commit = (img, gifCanvas) => {
+				if (version < emblem.version) {
+					return;
+				}
+
+				if (version > emblem.version) {
+					emblem.version = version;
+					emblem.image = img;
+					emblem.gif = gifCanvas;
+				}
+
+				callback(emblem.image, emblem.gif);
+				EntityManager.forEach(entity => {
+					if (entity.GUID === guild_id) {
+						entity.setEntityGuildEmblem(emblem.image, emblem.gif);
+					}
+				});
+			};
+
 			xhr.onload = () => {
 				if (xhr.status !== 200) {
 					console.warn('Emblem download returned non-200 status:', xhr.status);
+					failed();
 					return;
 				}
 				try {
@@ -209,16 +278,7 @@ class GuildEngine {
 					if (!isGif) {
 						const img = new Image();
 						img.onload = () => {
-							emblem.version = version;
-							emblem.image = img;
-							emblem.gif = null;
-
-							callback(emblem.image, emblem.gif);
-							EntityManager.forEach(entity => {
-								if (entity.GUID === guild_id) {
-									entity.setEntityGuildEmblem(img);
-								}
-							});
+							commit(img, null);
 						};
 						img.decoding = 'async';
 						const blobUrl = URL.createObjectURL(xhr.response);
@@ -233,17 +293,7 @@ class GuildEngine {
 								const gifCanvas = this;
 								const img = new Image();
 								img.onload = () => {
-									emblem.version = version;
-									emblem.image = img;
-									emblem.gif = gifCanvas;
-
-									callback(emblem.image, emblem.gif);
-
-									EntityManager.forEach(entity => {
-										if (entity.GUID === guild_id) {
-											entity.setEntityGuildEmblem(img, gifCanvas);
-										}
-									});
+									commit(img, gifCanvas);
 								};
 								img.decoding = 'async';
 								const blobUrl = URL.createObjectURL(xhr.response);
@@ -252,18 +302,24 @@ class GuildEngine {
 									img.src = this.toDataURL();
 									URL.revokeObjectURL(blobUrl);
 								});
+							} else {
+								console.warn('Emblem gif could not be decoded');
+								failed();
 							}
 						});
 					}
 				} catch (e) {
 					console.error('Error processing guild emblem:', e);
+					failed();
 				}
 			}; // End xhr.onload
 			xhr.onerror = () => {
 				console.warn('Emblem download failed: web-server unreachable');
+				failed();
 			};
 			xhr.ontimeout = () => {
 				console.warn('Emblem download timed out');
+				failed();
 			};
 
 			xhr.send(formData);
@@ -281,6 +337,22 @@ class GuildEngine {
 	 */
 	static requestAccess() {
 		Network.sendPacket(new PACKET.CZ.REQ_GUILD_MENUINTERFACE());
+	}
+
+	/**
+	 * Empty the guild window for the character now entering the map
+	 * @see docs/reference/guild/member-view.md
+	 */
+	static resetForNewCharacter() {
+		Session.isGuildMaster = false;
+
+		// A request the character before this one made, still waiting on its own
+		// silence, would otherwise report itself in the new one's guild chat.
+		// @see docs/reference/guild/member-info-request.md
+		clearTimeout(_memberInfoTimer);
+		_memberInfoTimer = 0;
+
+		Guild.reset();
 	}
 
 	/**
@@ -353,6 +425,9 @@ class GuildEngine {
 	 * @param {number} target account id
 	 */
 	static requestPlayerInvitation(AID) {
+		const entity = EntityManager.get(AID);
+		_lastInvited = entity ? entity.display.name : '';
+
 		const pkt = new PACKET.CZ.REQ_JOIN_GUILD();
 		pkt.AID = AID;
 		pkt.MyAID = Session.AID;
@@ -380,6 +455,8 @@ class GuildEngine {
 			);
 			return;
 		}
+
+		_lastInvited = name;
 
 		const pkt = new PACKET.CZ.REQ_JOIN_GUILD2();
 		pkt.name = name;
@@ -457,6 +534,18 @@ class GuildEngine {
 		pkt.AID = AID;
 
 		Network.sendPacket(pkt);
+
+		// Not every server answers this one. Name the reason rather than leave
+		// the click looking like nothing happened.
+		// @see docs/reference/guild/member-info-request.md
+		clearTimeout(_memberInfoTimer);
+		_memberInfoTimer = setTimeout(() => {
+			ChatBox.addText(
+				`${DB.getMessage(129, 'View Information')} : the server did not answer.`,
+				ChatBox.TYPE.ERROR,
+				ChatBox.FILTER.GUILD
+			);
+		}, 3000);
 	}
 
 	/**
@@ -478,6 +567,7 @@ class GuildEngine {
 	 * Note: it's a hacky way that do not compress the emblem.
 	 *
 	 * @param {Uint8Array} file
+	 * @see docs/reference/guild/emblem-picker.md
 	 */
 	static sendEmblem(data) {
 		if (PACKETVER.value >= 20170315) {
@@ -514,6 +604,16 @@ class GuildEngine {
 				try {
 					const response = JSON.parse(xhr.responseText);
 					console.log('Emblem uploaded successfully, version:', response.version);
+
+					// The web server only writes the image; it never tells the map
+					// server, and the server only listens for this from 20190724.
+					// @see docs/reference/guild/emblem-picker.md
+					if (PACKETVER.value >= 20190724) {
+						const pkt = new PACKET.CZ.REQ_ADD_NEW_EMBLEM();
+						pkt.GDID = Session.Entity.GUID;
+						pkt.version = response.version;
+						Network.sendPacket(pkt);
+					}
 
 					GuildEngine.requestGuildEmblem(Session.Entity.GUID, response.version, (image, _gif) => {
 						Guild.setEmblem(image);
@@ -609,9 +709,30 @@ function onGuildOwnInfo(pkt) {
 
 	GuildEngine.guild_id = pkt.GDID;
 
+	const wasMaster = Session.isGuildMaster;
+	// Whether the role we are comparing against was ever told to us, rather than
+	// just the value the session starts on.
+	const knewRole = Session.hasGuild;
+
 	Session.hasGuild = true;
-	Session.guildRight = pkt.right;
+	Session.guildPermission = pkt.right;
 	Session.isGuildMaster = !!pkt.isMaster;
+
+	// Only on a change. This packet is not rare - an emblem change sends it to the
+	// whole roster - and the repaint rebuilds the member rows, which would drop a
+	// guild master's queued grade edits under them.
+	// @see docs/reference/guild/member-view.md
+	if (Session.isGuildMaster !== wasMaster) {
+		// A real handover only: on the first of these there was no earlier role
+		// for the mask to have been answered under.
+		if (knewRole) {
+			Guild.invalidateAccess();
+		}
+
+		Guild.updateMasterView();
+	}
+
+	Guild.requestAccessIfUnknown();
 
 	if (pkt.GName) {
 		Session.guildName = pkt.GName;
@@ -704,12 +825,68 @@ const onGuildEmblem = (function onGuildEmblemClosure() {
 })();
 
 /**
+ * A guild changed its emblem - fetch the new one for everyone wearing it
+ *
+ * Sent to everyone in range, so it arrives for other guilds too. The request
+ * repaints every entity of that guild.
+ * @see docs/reference/guild/emblem-picker.md
+ *
+ * @param {object} pkt - PACKET.ZC.CHANGE_GUILD | PACKET.ZC.CHANGE_GUILD2
+ */
+function onGuildEmblemChanged(pkt) {
+	if (!pkt.GDID || !pkt.emblemVersion) {
+		return;
+	}
+
+	// The server sends this once per entity of that guild in range, so the same
+	// version arrives many times over. The request only stops repeating once the
+	// image has decoded, which is far too late to hold off a burst.
+	if (_emblemNotified[pkt.GDID] === pkt.emblemVersion) {
+		return;
+	}
+	_emblemNotified[pkt.GDID] = pkt.emblemVersion;
+
+	const isOwnGuild = pkt.GDID === Session.Entity.GUID;
+	if (isOwnGuild) {
+		Session.Entity.GEmblemVer = pkt.emblemVersion;
+	}
+
+	// The fetch repaints the entities on the map by itself. An open window is a
+	// separate surface and has to be told, or it keeps the old emblem until
+	// something else happens to rebuild the Info tab. Our own guild only: another
+	// guild's emblem arriving would otherwise land in our own tab.
+	// @see docs/reference/guild/emblem-picker.md
+	GuildEngine.requestGuildEmblem(
+		pkt.GDID,
+		pkt.emblemVersion,
+		image => {
+			if (isOwnGuild) {
+				Guild.setEmblem(image);
+			}
+		},
+		// The mark above means "asked for", not "have". A fetch that gave up
+		// leaves nothing painted, so holding the mark would refuse every later
+		// broadcast of that version and freeze the emblem until the next one.
+		// Only this version's own mark is released: a slower fetch for an older
+		// one must not hand back a newer version's, which is being waited on or
+		// already painted.
+		() => {
+			if (_emblemNotified[pkt.GDID] === pkt.emblemVersion) {
+				delete _emblemNotified[pkt.GDID];
+			}
+		}
+	);
+}
+
+/**
  * Get guild members informations
  *
  * @param {object} pkt - PACKET.ZC.MEMBERMGR_INFO
  */
 function onGuildMembers(pkt) {
-	Guild.setMembers(pkt.memberInfo);
+	// Only the oldest list carries a note, and only the later ones a last
+	// login. The column shown follows the packet.
+	Guild.setMembers(pkt.memberInfo, pkt instanceof PACKET.ZC.MEMBERMGR_INFO);
 }
 
 /**
@@ -741,6 +918,18 @@ function onGuildPositionsName(pkt) {
 }
 
 /**
+ * A server did answer the member info request
+ *
+ * There is no window to show it in yet, but the answer is what tells us the
+ * request is supported, so the timer waiting on it has to be called off.
+ *
+ * @param {object} pkt - PACKET.ZC.ACK_OPEN_MEMBER_INFO
+ */
+function onGuildMemberInfo() {
+	clearTimeout(_memberInfoTimer);
+}
+
+/**
  * Update a guild member
  *
  * @param {object} pkt - PACKET.ZC.ACK_GUILD_MEMBER_INFO
@@ -750,12 +939,12 @@ function onGuildMemberUpdate(pkt) {
 }
 
 /**
- * Update member rank
+ * Update member ranks
  *
  * @param {object} pkt - PACKET.ZC.ACK_REQ_CHANGE_MEMBERS
  */
 function onGuildMemberPositionUpdate(pkt) {
-	Guild.updateMemberPosition(pkt.AID, pkt.GID, pkt.positionID);
+	Guild.setMemberPositions(pkt.memberInfo);
 }
 
 /**
@@ -774,8 +963,13 @@ function onGuildSkillList(pkt) {
  * @param {object} pkt - PACKET.ZC.GUILD_NOTICE
  */
 function onGuildNotice(pkt) {
-	ChatBox.addText('[ ' + pkt.subject + ' ]', ChatBox.TYPE.GUILD, ChatBox.FILTER.GUILD, '#FFFF63');
-	ChatBox.addText('[ ' + pkt.notice + ' ]', ChatBox.TYPE.GUILD, ChatBox.FILTER.GUILD, '#FFFF63');
+	// The window keeps the notice either way - only the chat echo is the
+	// player's to silence, behind the same /li flag as the login lines.
+	// @see docs/reference/guild/login-announcements.md
+	if (UIPreferences.li) {
+		ChatBox.addText('[ ' + pkt.subject + ' ]', ChatBox.TYPE.GUILD, ChatBox.FILTER.GUILD, '#FFFF63');
+		ChatBox.addText('[ ' + pkt.notice + ' ]', ChatBox.TYPE.GUILD, ChatBox.FILTER.GUILD, '#FFFF63');
+	}
 
 	Guild.setNotice(pkt.subject, pkt.notice);
 }
@@ -841,8 +1035,12 @@ function onGuildDestroy(pkt) {
 			Session.hasGuild = false;
 			Session.guildName = '';
 			Session.isGuildMaster = false;
-			Session.guildRight = 0;
+			Session.guildPermission = 0;
 			Session.Entity.GUID = 0;
+			// After the flags, never before: the window is a singleton and reset
+			// repaints from them.
+			// @see docs/reference/guild/member-view.md
+			Guild.reset();
 			ChatBox.addText(DB.getMessage(400), ChatBox.TYPE.BLUE, ChatBox.FILTER.GUILD);
 			break;
 
@@ -878,6 +1076,29 @@ function onGuildInviteRequest(pkt) {
 }
 
 /**
+ * One line of the invitation result, with the invited character's name
+ * substituted if the message table asked for one.
+ *
+ * A no-op on the stock tables, none of whose strings carry a `%s`.
+ * @see docs/reference/guild/invitation-ack.md
+ *
+ * @param {number} id - message table id
+ * @param {string} defaultText - used when the table has no such id
+ * @param {number} type - ChatBox.TYPE
+ */
+function addInviteResult(id, defaultText, type) {
+	// No-op on a string without one, which is every stock table.
+	const text = DB.getMessage(id, defaultText).replace('%s', _lastInvited || DB.getMessage(581, 'Nameless'));
+
+	// The name answers one ack and is then spent. The server drops some invites
+	// without replying at all, so a name kept past its own answer would end up
+	// on somebody else's.
+	_lastInvited = '';
+
+	ChatBox.addText(text, type, ChatBox.FILTER.GUILD);
+}
+
+/**
  * Result from a guild invitation
  *
  * @param {object} pkt - PACKET.ZC.ACK_REQ_JOIN_GUILD
@@ -885,19 +1106,19 @@ function onGuildInviteRequest(pkt) {
 function onGuildInviteResult(pkt) {
 	switch (pkt.answer) {
 		case 0: // Already in guild.
-			ChatBox.addText(DB.getMessage(378), ChatBox.TYPE.ERROR, ChatBox.FILTER.GUILD);
+			addInviteResult(378, 'He/She is already in a Guild.', ChatBox.TYPE.ERROR);
 			break;
 
 		case 1: // Offer rejected.
-			ChatBox.addText(DB.getMessage(379), ChatBox.TYPE.ERROR, ChatBox.FILTER.GUILD);
+			addInviteResult(379, 'You have refused the guild invitation.', ChatBox.TYPE.ERROR);
 			break;
 
 		case 2: // Offer accepted.
-			ChatBox.addText(DB.getMessage(380), ChatBox.TYPE.BLUE, ChatBox.FILTER.GUILD);
+			addInviteResult(380, 'You have accepted the guild invitation.', ChatBox.TYPE.BLUE);
 			break;
 
 		case 3: // Guild full.
-			ChatBox.addText(DB.getMessage(381), ChatBox.TYPE.ERROR, ChatBox.FILTER.GUILD);
+			addInviteResult(381, 'Your Guild is full.', ChatBox.TYPE.ERROR);
 			break;
 	}
 }
@@ -912,69 +1133,84 @@ function onGuildMemberStatus(pkt) {
 }
 
 /**
- * Event occured when a player got expel from the guild
+ * Announce a member's departure, and empty the window when it is ours
  *
- * @param {object} pkt - PACKET.ZC.ACK_BAN_GUILD_SSO
+ * The server sends nothing else that would take the window down, so this is
+ * where it happens.
+ *
+ * @param {string} charName - who left
+ * @param {string} reasonDesc - the reason the server gave
+ * @param {boolean} isSelf - whether the member who left is us
+ * @param {number} announceID - message for the departure line
+ * @param {number} reasonID - message for the reason line
  */
-function onGuildMemberExpulsion(pkt) {
-	// %s has been expelled from our guild.
-	// Expulsion Reason: %s
+function reportDeparture(charName, reasonDesc, isSelf, announceID, reasonID) {
 	ChatBox.addText(
-		DB.getMessage(370).replace('%s', pkt.charName),
+		DB.getMessage(announceID).replace('%s', charName),
 		ChatBox.TYPE.GUILD,
 		ChatBox.FILTER.GUILD,
 		'#FFFF00'
 	);
 	ChatBox.addText(
-		DB.getMessage(371).replace('%s', pkt.reasonDesc),
+		DB.getMessage(reasonID).replace('%s', reasonDesc),
 		ChatBox.TYPE.GUILD,
 		ChatBox.FILTER.GUILD,
 		'#FFFF00'
 	);
 
-	// Seems like the server doesn't send other informations
-	// to remove the UI
-	if (pkt.charName === Session.Entity.display.name) {
-		Guild.hide();
-		Session.hasGuild = false;
-		Session.guildName = '';
-		Session.isGuildMaster = false;
-		Session.guildRight = 0;
-		Session.Entity.GUID = 0;
+	if (!isSelf) {
+		return;
 	}
+
+	Guild.hide();
+	Session.hasGuild = false;
+	Session.guildName = '';
+	Session.isGuildMaster = false;
+	Session.guildPermission = 0;
+	Session.Entity.GUID = 0;
+	Guild.reset();
 }
 
 /**
  * Event occured when a player got expel from the guild
+ *
+ * @param {object} pkt - PACKET.ZC.ACK_BAN_GUILD | PACKET.ZC.ACK_BAN_GUILD_SSO
+ */
+function onGuildMemberExpulsion(pkt) {
+	// %s has been expelled from our guild.
+	// Expulsion Reason: %s
+	reportDeparture(pkt.charName, pkt.reasonDesc, pkt.charName === Session.Entity.display.name, 370, 371);
+}
+
+/**
+ * Event occured when a player left the guild
  *
  * @param {object} pkt - PACKET.ZC.ACK_LEAVE_GUILD
  */
 function onGuildMemberLeave(pkt) {
 	// %s has withdrawn from the guild
 	// Secession Reason: %s
-	ChatBox.addText(
-		DB.getMessage(364).replace('%s', pkt.charName),
-		ChatBox.TYPE.GUILD,
-		ChatBox.FILTER.GUILD,
-		'#FFFF00'
-	);
-	ChatBox.addText(
-		DB.getMessage(365).replace('%s', pkt.reasonDesc),
-		ChatBox.TYPE.GUILD,
-		ChatBox.FILTER.GUILD,
-		'#FFFF00'
-	);
+	reportDeparture(pkt.charName, pkt.reasonDesc, pkt.charName === Session.Entity.display.name, 364, 365);
+}
 
-	// Seems like the server doesn't send other informations
-	// to remove the UI
-	if (pkt.charName === Session.Entity.display.name) {
-		Guild.hide();
-		Session.hasGuild = false;
-		Session.guildName = '';
-		Session.isGuildMaster = false;
-		Session.guildRight = 0;
-		Session.Entity.GUID = 0;
-	}
+/**
+ * The same two departures, from the era that sends a character id and no name
+ *
+ * Session.GID is the character id; Session.Entity.GID is the account's, and
+ * matching on that one would never fire.
+ * @see docs/reference/guild/member-view.md
+ *
+ * @param {object} pkt - PACKET.ZC.ACK_BAN_GUILD_DELNAME
+ */
+function onGuildMemberExpulsionByID(pkt) {
+	reportDeparture(Guild.getMemberName(pkt.GID), pkt.reasonDesc, pkt.GID === Session.GID, 370, 371);
+}
+
+/**
+ * @param {object} pkt - PACKET.ZC.ACK_LEAVE_GUILD_DELNAME
+ */
+function onGuildMemberLeaveByID(pkt) {
+	reportDeparture(Guild.getMemberName(pkt.GID), pkt.reasonDesc, pkt.GID === Session.GID, 364, 365);
 }
 
 /**

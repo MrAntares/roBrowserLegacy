@@ -1,0 +1,1465 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+const mocks = vi.hoisted(() => {
+	class MockGUIComponent {
+		constructor() {
+			this._host = document.createElement('div');
+			this.ui = {
+				show: vi.fn(),
+				hide: vi.fn(),
+				is: vi.fn(() => true)
+			};
+		}
+
+		getRoot() {
+			return this._host;
+		}
+
+		draggable() {}
+
+		focus() {}
+
+		parseHTML() {}
+	}
+
+	class MockEntity {
+		constructor() {
+			this.files = { shadow: {}, body: { spr: null }, head: {} };
+			this.ACTION = { IDLE: 0 };
+		}
+
+		renderEntity() {}
+	}
+	MockEntity.TYPE_PC = 0;
+
+	return {
+		MockGUIComponent,
+		MockEntity,
+		// Stands in for msgstringtable: what a server actually ships wins over
+		// the fallback baked into the call.
+		messages: {},
+		chat: [],
+		// The guild storage right, and its column, start at 20140205.
+		packetver: { value: 20211103 },
+		contextMenu: { remove: vi.fn(), append: vi.fn(), addElement: vi.fn() },
+		promptBox: vi.fn(),
+		session: {
+			AID: 2000000,
+			GID: 150000,
+			hasGuild: true,
+			isGuildMaster: true,
+			guildPermission: 0,
+			guildName: '',
+			Character: {},
+			Entity: { display: { name: 'Master' }, GUID: 1, GEmblemVer: 0 }
+		}
+	};
+});
+
+vi.mock('DB/DBManager.js', () => ({
+	default: {
+		INTERFACE_PATH: '',
+		getMessage: (id, defaultText) =>
+			id in mocks.messages ? mocks.messages[id] : defaultText !== undefined ? defaultText : `NO MSG ${id}`
+	}
+}));
+vi.mock('DB/Skills/SkillInfo.js', () => ({ default: {} }));
+vi.mock('DB/Monsters/MonsterTable.js', () => ({ default: {} }));
+vi.mock('Controls/KeyEventHandler.js', () => ({ default: {} }));
+vi.mock('Engine/SessionStorage.js', () => ({ default: mocks.session }));
+vi.mock('Renderer/Entity/Entity.js', () => ({ default: mocks.MockEntity }));
+vi.mock('Renderer/SpriteRenderer.js', () => ({ default: { bind2DContext: vi.fn() } }));
+vi.mock('Renderer/Camera.js', () => ({ default: {} }));
+vi.mock('Renderer/Renderer.js', () => ({
+	default: { width: 1200, height: 800, tick: 0, render: vi.fn(), stop: vi.fn() }
+}));
+vi.mock('Core/Client.js', () => ({
+	default: {
+		loadFile(_path, callback) {
+			callback?.('');
+		},
+		loadFiles(_paths, callback) {
+			// Distinguishable, so the painted checkbox can be told from the class.
+			callback?.('checkbox_0.bmp', 'checkbox_1.bmp');
+		}
+	}
+}));
+vi.mock('Network/PacketVerManager.js', () => ({ default: mocks.packetver }));
+vi.mock('UI/GUIComponent.js', () => ({ default: mocks.MockGUIComponent }));
+vi.mock('UI/UIManager.js', () => ({
+	default: {
+		addComponent(component) {
+			const root = component.getRoot();
+			document.body.appendChild(root);
+			root.innerHTML = component.render();
+			component.init();
+			return component;
+		},
+		showPromptBox: mocks.promptBox,
+		showMessageBox: vi.fn()
+	}
+}));
+vi.mock('UI/Elements/Elements.js', () => ({}));
+vi.mock('UI/Components/ContextMenu/ContextMenu.js', () => ({ default: mocks.contextMenu }));
+vi.mock('UI/Components/ChatBox/ChatBox.js', () => ({
+	default: {
+		addText: text => mocks.chat.push(text),
+		TYPE: { BLUE: 1, ERROR: 64 },
+		FILTER: { GUILD: 1 }
+	}
+}));
+vi.mock('UI/Components/InputBox/InputBox.js', () => ({
+	default: { append: vi.fn(), setType: vi.fn(), remove: vi.fn(), ui: { find: () => ({ text: vi.fn() }) } }
+}));
+vi.mock('UI/Components/GuildCompanion/GuildCompanion.js', () => ({ default: { openDisband: vi.fn() } }));
+vi.mock('UI/Components/SkillTargetSelection/SkillTargetSelection.js', () => ({ default: {} }));
+vi.mock('UI/Components/SkillDescription/SkillDescription.js', () => ({ default: {} }));
+vi.mock('UI/Components/WinStats/WinStats.js', () => ({ default: { getUI: () => ({ update: vi.fn() }) } }));
+
+// jsdom ships no 2d context, and the component paints its tendency graph on init.
+HTMLCanvasElement.prototype.getContext = function () {
+	return {
+		canvas: this,
+		fillStyle: '',
+		fillRect() {},
+		clearRect() {},
+		drawImage() {},
+		getImageData: (_x, _y, w, h) => ({ data: new Uint8ClampedArray(w * h * 4).fill(255) }),
+	};
+};
+
+const Guild = (await import('UI/Components/Guild/Guild.js')).default;
+const PACKET = (await import('Network/PacketStructure.js')).default;
+const Configs = (await import('Core/Configs.js')).default;
+
+const MASTER = { AID: 2000000, GID: 150000, GPositionID: 0, CharName: 'Master' };
+const MARGARETHA = { AID: 2000001, GID: 150001, GPositionID: 1, CharName: 'Margaretha' };
+const HOWARD = { AID: 2000002, GID: 150002, GPositionID: 1, CharName: 'Howard' };
+
+function member(fixture) {
+	return {
+		AID: fixture.AID,
+		GID: fixture.GID,
+		GPositionID: fixture.GPositionID,
+		CharName: fixture.CharName,
+		HeadType: 1,
+		HeadPalette: 0,
+		Sex: 1,
+		Job: 1,
+		Level: 99,
+		MemberExp: 0,
+		CurrentState: 1,
+		Memo: ''
+	};
+}
+
+function root() {
+	return Guild.getRoot();
+}
+
+/**
+ * onValidate reads the visible tab, so only the members one may be displayed.
+ */
+function showMembersTab() {
+	for (const content of root().querySelectorAll('.content')) {
+		content.style.display = 'none';
+	}
+	root().querySelector('.content.members').style.display = 'block';
+}
+
+/**
+ * onValidate reads the visible tab, so only the positions one may be displayed.
+ */
+function showPositionsTab() {
+	for (const content of root().querySelectorAll('.content')) {
+		content.style.display = 'none';
+	}
+	root().querySelector('.content.positions').style.display = 'block';
+}
+
+function positionRows() {
+	return root().querySelectorAll('.content.positions tbody .PositionView');
+}
+
+/**
+ * The `ui-button` half of the selector is what lets the behavioural cases below
+ * run against the tree before the checkbox stopped being a button, so they fail
+ * on the logic they are about rather than on a missing element.
+ */
+function checkboxOf(positionID, column) {
+	return positionRows()[positionID].querySelector(`.${column} .checkbox, .${column} ui-button`);
+}
+
+function clickCheckbox(positionID, column) {
+	const box = checkboxOf(positionID, column);
+	box.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+	return box;
+}
+
+function selectOf(fixture) {
+	return root().querySelector(`.member_${fixture.AID}_${fixture.GID}`);
+}
+
+function changeGrade(fixture, positionID) {
+	const select = selectOf(fixture);
+	select.value = String(positionID);
+	select.dispatchEvent(new Event('change'));
+	return select;
+}
+
+function applyButton() {
+	return root().querySelector('.footer .btn_ok');
+}
+
+function clickApply() {
+	applyButton().dispatchEvent(new Event('click'));
+}
+
+/**
+ * Run the captured entries through the real packet builder and read the wire
+ * back, so the assertions are on bytes and not on the intermediate array.
+ */
+function wireEntries(memberInfo) {
+	const pkt = new PACKET.CZ.REQ_CHANGE_MEMBERPOS();
+	pkt.memberInfo = memberInfo;
+
+	const view = new DataView(pkt.build().buffer);
+	expect(view.getUint16(0, true)).toBe(0x155);
+	expect(view.getUint16(2, true)).toBe(4 + memberInfo.length * 12);
+
+	const out = [];
+	for (let offset = 4; offset < view.byteLength; offset += 12) {
+		out.push({
+			AID: view.getInt32(offset, true),
+			GID: view.getInt32(offset + 4, true),
+			positionID: view.getInt32(offset + 8, true)
+		});
+	}
+	return out;
+}
+
+/**
+ * The same, for the positions packet. The server walks it in fixed 40-byte
+ * strides, so a field dropped or reordered here does not shorten an entry, it
+ * misreads every entry after the first.
+ */
+function wirePositions(memberList) {
+	const pkt = new PACKET.CZ.REG_CHANGE_GUILD_POSITIONINFO();
+	pkt.memberList = memberList;
+
+	const view = new DataView(pkt.build().buffer);
+	expect(view.getUint16(0, true)).toBe(0x161);
+	expect(view.getUint16(2, true)).toBe(4 + memberList.length * 40);
+
+	const out = [];
+	for (let offset = 4; offset < view.byteLength; offset += 40) {
+		out.push({
+			positionID: view.getInt32(offset, true),
+			right: view.getInt32(offset + 4, true),
+			ranking: view.getInt32(offset + 8, true),
+			payRate: view.getInt32(offset + 12, true)
+		});
+	}
+	return out;
+}
+
+let sent;
+let sentPositions;
+let requestedMenus;
+const chat = [];
+
+beforeEach(() => {
+	sent = [];
+	sentPositions = [];
+	requestedMenus = [];
+	chat.length = 0;
+	mocks.chat = chat;
+	mocks.packetver.value = 20211103;
+	// Closing the window drops whatever the positions tab had queued, so every
+	// case starts on a table the server is still allowed to repaint.
+	Guild.onRemove();
+	mocks.session.isGuildMaster = true;
+	mocks.session.guildPermission = 0;
+	mocks.contextMenu.addElement.mockClear();
+	mocks.promptBox.mockClear();
+	for (const id in mocks.messages) {
+		delete mocks.messages[id];
+	}
+
+	Guild.onChangeMemberPosRequest = list => sent.push(list);
+	Guild.onPositionUpdateRequest = list => sentPositions.push(list);
+	Guild.onGuildInfoRequest = type => requestedMenus.push(type);
+
+	// Only 0x166 feeds the grade list here: 0x160 never arrives unless the
+	// position tab was opened, and the dropdown has to work regardless.
+	Guild.setPositionsName([
+		{ positionID: 0, posName: 'Guild Master' },
+		{ positionID: 1, posName: 'Member' },
+		{ positionID: 2, posName: 'Officer' }
+	]);
+	Guild.setMembers([member(MASTER), member(MARGARETHA), member(HOWARD)]);
+	showMembersTab();
+});
+
+describe('Guild member position', () => {
+	it('sends one entry for one edited member', () => {
+		changeGrade(MARGARETHA, 2);
+		clickApply();
+
+		expect(sent).toHaveLength(1);
+		expect(wireEntries(sent[0])).toEqual([{ AID: MARGARETHA.AID, GID: MARGARETHA.GID, positionID: 2 }]);
+	});
+
+	it('batches several edits into a single packet, untouched members excluded', () => {
+		changeGrade(MARGARETHA, 2);
+		changeGrade(HOWARD, 2);
+		clickApply();
+
+		expect(sent).toHaveLength(1);
+		expect(wireEntries(sent[0])).toEqual([
+			{ AID: MARGARETHA.AID, GID: MARGARETHA.GID, positionID: 2 },
+			{ AID: HOWARD.AID, GID: HOWARD.GID, positionID: 2 }
+		]);
+	});
+
+	it('keeps one entry per member, last edit wins', () => {
+		changeGrade(MARGARETHA, 2);
+		changeGrade(MARGARETHA, 1);
+		changeGrade(MARGARETHA, 2);
+		clickApply();
+
+		expect(wireEntries(sent[0])).toEqual([{ AID: MARGARETHA.AID, GID: MARGARETHA.GID, positionID: 2 }]);
+	});
+
+	it('sends nothing when apply is pressed with no pending edit', () => {
+		clickApply();
+
+		expect(sent).toHaveLength(0);
+	});
+
+	it('sends nothing twice in a row', () => {
+		changeGrade(MARGARETHA, 2);
+		clickApply();
+		clickApply();
+
+		expect(sent).toHaveLength(1);
+	});
+
+	// Closing the window drops them, and that had never fired: onRemove is the
+	// engine's teardown, which a close does not reach.
+	describe('pending edits are dropped by closing the window', () => {
+		it('through hide, not only through engine teardown', () => {
+			changeGrade(MARGARETHA, 2);
+
+			Guild.hide();
+			clickApply();
+
+			expect(sent).toHaveLength(0);
+		});
+
+		it('takes the Apply button back with the edit', () => {
+			changeGrade(MARGARETHA, 2);
+			expect(applyButton().style.display).toBe('block');
+
+			Guild.hide();
+
+			expect(applyButton().style.display).toBe('none');
+		});
+
+		it('puts the row back on the grade the server sent', () => {
+			// Queueing moved the row to the picked grade, so dropping the queue on its
+			// own would leave that grade on show as though it had been agreed to.
+			changeGrade(MARGARETHA, 2);
+			Guild.hide();
+
+			expect(selectOf(MARGARETHA).value).toBe('1');
+			expect(selectOf(MARGARETHA).closest('.MemberView').classList.contains('pending')).toBe(false);
+		});
+
+		it('lets the cancelled grade be picked again', () => {
+			// The selection guard refuses a grade the row already reads, so a row left
+			// on its cancelled value cannot be edited back to it.
+			changeGrade(MARGARETHA, 2);
+			Guild.hide();
+
+			showMembersTab();
+			changeGrade(MARGARETHA, 2);
+			clickApply();
+
+			expect(sent).toHaveLength(1);
+			expect(wireEntries(sent[0])).toEqual([{ AID: MARGARETHA.AID, GID: MARGARETHA.GID, positionID: 2 }]);
+		});
+
+		it('goes back to the server grade, not to the one edited over', () => {
+			// Last edit wins on what is sent. It does not win on where cancelling
+			// lands: only the first edit of a row saw the server's own value.
+			changeGrade(MARGARETHA, 2);
+			changeGrade(MARGARETHA, 1);
+			Guild.hide();
+
+			expect(selectOf(MARGARETHA).value).toBe('1');
+		});
+
+		it('rebuilds the positions rows the server last sent', () => {
+			// The positions tab has no queue - its rows are the edit buffer - so the
+			// only way to take an edit back is to draw the table again.
+			Guild.setPositions(POSITIONS, true);
+			showPositionsTab();
+
+			const tax = positionRows()[1].querySelector('.tax input');
+			tax.dispatchEvent(new Event('focus'));
+			tax.value = '42';
+			// Grade 1 holds invite and not punish, so the tick added here is the one
+			// the rebuild has to take away, and the one it has to keep.
+			clickCheckbox(1, 'punish');
+
+			Guild.hide();
+
+			expect(positionRows()[1].querySelector('.tax input').value).toBe('10');
+			expect(checkboxOf(1, 'punish').classList.contains('on')).toBe(false);
+			expect(checkboxOf(1, 'invite').classList.contains('on')).toBe(true);
+		});
+	});
+
+	describe('a queue dropped by the server is reported', () => {
+		it('says so when a member list lands on an unsent edit', () => {
+			// rAthena pushes the roster unprompted - a member leaving the guild is
+			// enough, and that push reaches the guild master first - so the edit can
+			// die without its author having touched anything.
+			changeGrade(MARGARETHA, 2);
+			Guild.setMembers([member(MASTER), member(MARGARETHA), member(HOWARD)]);
+
+			expect(chat).toHaveLength(1);
+			expect(chat[0]).toMatch(/grade waiting to be applied/);
+		});
+
+		it('stays quiet when there was nothing queued', () => {
+			Guild.setMembers([member(MASTER), member(MARGARETHA), member(HOWARD)]);
+
+			expect(chat).toHaveLength(0);
+		});
+
+		it('stays quiet on the acknowledgement, which answers our own send', () => {
+			changeGrade(MARGARETHA, 2);
+			Guild.setMemberPositions([{ AID: MARGARETHA.AID, GID: MARGARETHA.GID, positionID: 2 }]);
+
+			expect(chat).toHaveLength(0);
+		});
+
+		it('stays quiet when the window is closed, the edit being taken back', () => {
+			changeGrade(MARGARETHA, 2);
+			Guild.hide();
+
+			expect(chat).toHaveLength(0);
+		});
+
+		it('stays quiet on the role rebuild, the edit having lost its meaning', () => {
+			// updateMasterView redraws through setMembers off a copy of the roster.
+			// That is us, not a push, and the role it follows has just changed.
+			changeGrade(MARGARETHA, 2);
+			Guild.updateMasterView();
+
+			expect(chat).toHaveLength(0);
+
+			showMembersTab();
+			clickApply();
+			expect(sent).toHaveLength(0);
+		});
+	});
+
+	describe('pending edits are dropped by fresh guild data', () => {
+		it('on a member list', () => {
+			changeGrade(MARGARETHA, 2);
+			Guild.setMembers([member(MASTER), member(MARGARETHA), member(HOWARD)]);
+			showMembersTab();
+			clickApply();
+
+			expect(sent).toHaveLength(0);
+		});
+
+		it('on position names', () => {
+			changeGrade(MARGARETHA, 2);
+			Guild.setPositionsName([{ positionID: 1, posName: 'Member' }]);
+			clickApply();
+
+			expect(sent).toHaveLength(0);
+		});
+
+		it('on the position acknowledgement', () => {
+			changeGrade(MARGARETHA, 2);
+			Guild.setMemberPositions([{ AID: MARGARETHA.AID, GID: MARGARETHA.GID, positionID: 2 }]);
+			clickApply();
+
+			expect(sent).toHaveLength(0);
+		});
+
+		// Dropping a queue and putting its rows back used to be two different things,
+		// and only closing the window did both. Every other drop left the row on a
+		// grade nobody had agreed to, which the guard then refused to pick again.
+		it('puts the row back on the server grade when the grade names refresh', () => {
+			changeGrade(MARGARETHA, 2);
+			Guild.setPositionsName(POSITION_NAMES);
+
+			expect(selectOf(MARGARETHA).value).toBe('1');
+			expect(selectOf(MARGARETHA).closest('.MemberView').classList.contains('pending')).toBe(false);
+			expect(applyButton().style.display).toBe('none');
+		});
+
+		it('lets a grade dropped by that refresh be picked again', () => {
+			changeGrade(MARGARETHA, 2);
+			Guild.setPositionsName(POSITION_NAMES);
+
+			showMembersTab();
+			changeGrade(MARGARETHA, 2);
+			clickApply();
+
+			expect(sent).toHaveLength(1);
+			expect(wireEntries(sent[0])).toEqual([{ AID: MARGARETHA.AID, GID: MARGARETHA.GID, positionID: 2 }]);
+		});
+
+		// rAthena answers one entry per grade it actually moved, so a batch can come
+		// back short. The queue goes whole either way, and the entries it answered
+		// are not the ones left to strand.
+		it('puts a row the acknowledgement skipped back on the server grade', () => {
+			changeGrade(MARGARETHA, 2);
+			changeGrade(HOWARD, 2);
+
+			Guild.setMemberPositions([{ AID: MARGARETHA.AID, GID: MARGARETHA.GID, positionID: 2 }]);
+
+			expect(selectOf(MARGARETHA).value).toBe('2');
+			expect(selectOf(HOWARD).value).toBe('1');
+			expect(selectOf(HOWARD).closest('.MemberView').classList.contains('pending')).toBe(false);
+
+			showMembersTab();
+			clickApply();
+			expect(sent).toHaveLength(0);
+		});
+	});
+
+	// Apply is the one drop that must not put the rows back: the grades have just
+	// gone out, and the acknowledgement is what agrees to them.
+	it('leaves the sent grades on show once Apply has sent them', () => {
+		changeGrade(MARGARETHA, 2);
+		clickApply();
+
+		expect(selectOf(MARGARETHA).value).toBe('2');
+		expect(selectOf(MARGARETHA).closest('.MemberView').classList.contains('pending')).toBe(false);
+	});
+
+	describe('refused selections', () => {
+		it('ignores an unchanged grade', () => {
+			changeGrade(MARGARETHA, 1);
+			clickApply();
+
+			expect(sent).toHaveLength(0);
+		});
+
+		it('ignores grade 0, the guild master grade', () => {
+			changeGrade(MARGARETHA, 0);
+			clickApply();
+
+			expect(sent).toHaveLength(0);
+		});
+
+		it('refuses to move a row that sits at grade 0, the guild master own row', () => {
+			// The dropdown is rendered on every row, the guard is what protects
+			// grade 0 - exactly like the native client.
+			expect(Guild.updateMemberPosition(MASTER.AID, MASTER.GID, 2, true)).toBe(false);
+
+			changeGrade(MASTER, 2);
+			clickApply();
+
+			expect(sent).toHaveLength(0);
+		});
+
+		it('leaves the dropdown on the grade we know', () => {
+			const select = changeGrade(MARGARETHA, 0);
+
+			expect(select.value).toBe('1');
+		});
+
+		it('keeps grade 0 listed in the dropdown', () => {
+			expect(selectOf(MARGARETHA).querySelector('option[value="0"]')).not.toBeNull();
+		});
+	});
+
+	describe('reading a grade name the column is too narrow for', () => {
+		// The cell a member sees carries its full text in a title; the dropdown
+		// the guild master gets in its place did not, so the one player who can
+		// change a grade was the one who could not read it.
+		it('the dropdown carries the current grade name', () => {
+			expect(selectOf(MARGARETHA).title).toBe('Member');
+		});
+
+		it('it follows an accepted change', () => {
+			changeGrade(MARGARETHA, 2);
+
+			expect(selectOf(MARGARETHA).title).toBe('Officer');
+		});
+
+		it('a refused change leaves it on the grade the row still shows', () => {
+			changeGrade(MARGARETHA, 0);
+
+			expect(selectOf(MARGARETHA).title).toBe('Member');
+		});
+
+		it('it survives a single-row refresh', () => {
+			Guild.setMember({ ...member(MARGARETHA), GPositionID: 2 });
+
+			expect(selectOf(MARGARETHA).title).toBe('Officer');
+		});
+	});
+
+	it('guards against the grade the row actually shows after a single-member refresh', () => {
+		// ZC.ACK_GUILD_MEMBER_INFO re-renders one row from a brand new object.
+		// The guard reads the member list back, so the list has to follow.
+		Guild.setMember({ ...member(MARGARETHA), GPositionID: 2 });
+
+		expect(selectOf(MARGARETHA).value).toBe('2');
+
+		// 2 -> 1 is a real change and must be queued, not refused as unchanged.
+		changeGrade(MARGARETHA, 1);
+		clickApply();
+
+		expect(wireEntries(sent[0])).toEqual([{ AID: MARGARETHA.AID, GID: MARGARETHA.GID, positionID: 1 }]);
+	});
+
+	it('sends the selected grade when only 0x166 fed the list', () => {
+		// Regression: setPositionsName used to leave positionID unset, so the
+		// option value read back as NaN and reached the wire as grade 0.
+		expect(selectOf(MARGARETHA).querySelector('option[value="undefined"]')).toBeNull();
+
+		changeGrade(MARGARETHA, 2);
+		clickApply();
+
+		expect(wireEntries(sent[0])[0].positionID).toBe(2);
+	});
+
+	it('still works when 0x160 fed the list instead', () => {
+		Guild.setPositions(
+			[
+				{ positionID: 0, right: 0, ranking: 0, payRate: 0, posName: 'Guild Master' },
+				{ positionID: 1, right: 0, ranking: 0, payRate: 0, posName: 'Member' },
+				{ positionID: 2, right: 0, ranking: 0, payRate: 0, posName: 'Officer' }
+			],
+			true
+		);
+		Guild.setMembers([member(MASTER), member(MARGARETHA), member(HOWARD)]);
+		showMembersTab();
+
+		changeGrade(MARGARETHA, 2);
+		clickApply();
+
+		expect(wireEntries(sent[0])[0].positionID).toBe(2);
+	});
+
+	describe('columns follow the packet', () => {
+		function membersContent() {
+			return root().querySelector('.content.members');
+		}
+
+		function lastLoginOf(fixture) {
+			const index = fixture === MARGARETHA ? 1 : 2;
+			return root().querySelector(`.MemberView[data-index="${index}"] .name .lastlogin`);
+		}
+
+		it('hides the note column on a list that carries no note', () => {
+			// 0x0aa5 / 0x0b7d: no memo on the wire, and the official client
+			// dropped the column along with the field.
+			expect(membersContent().classList.contains('has-memo')).toBe(false);
+		});
+
+		it('shows the note column on the list that does carry one', () => {
+			Guild.setMembers([member(MASTER), member(MARGARETHA)], true);
+
+			expect(membersContent().classList.contains('has-memo')).toBe(true);
+		});
+
+		it('renders the last login when the list carries it', () => {
+			// Off by default - only 2022 draws an access date - so the deployment
+			// has to ask for it before there is anything to format.
+			Configs.set('guild', { showLastLogin: true });
+			Guild.setMembers([member(MASTER), { ...member(MARGARETHA), LastLogin: 1758499200 }]);
+
+			expect(lastLoginOf(MARGARETHA).textContent).toContain('2025.09.22');
+		});
+
+		it('follows the format the server asks for, two-digit year included', () => {
+			// The compiled default is %Y.%m.%d but the iRO table ships %y.%m.%d,
+			// and the client hands whichever it has to strftime.
+			mocks.messages[3011] = '%y.%m.%d';
+			Configs.set('guild', { showLastLogin: true });
+			Guild.setMembers([member(MASTER), { ...member(MARGARETHA), LastLogin: 1758499200 }]);
+
+			expect(lastLoginOf(MARGARETHA).textContent).toContain('25.09.22');
+			expect(lastLoginOf(MARGARETHA).textContent).not.toContain('2025.09.22');
+		});
+
+		it('leaves the last login empty when the list does not', () => {
+			Guild.setMembers([member(MASTER), member(MARGARETHA)]);
+
+			expect(lastLoginOf(MARGARETHA).textContent).toBe('');
+		});
+	});
+
+	describe('acknowledgement', () => {
+		it('applies the grades the server confirms', () => {
+			Guild.setMemberPositions([{ AID: MARGARETHA.AID, GID: MARGARETHA.GID, positionID: 2 }]);
+
+			expect(selectOf(MARGARETHA).value).toBe('2');
+		});
+
+		it('skips a grade of 0, and leaves the role to the packet that owns it', () => {
+			// A grade of 0 is the guild master moving, not a grade change. Writing the
+			// role here would spend the transition the belonging packet is watching
+			// for, and the tab permissions would never be asked for again.
+			const before = selectOf(MARGARETHA).value;
+			Guild.setMemberPositions([{ AID: MARGARETHA.AID, GID: MARGARETHA.GID, positionID: 0 }]);
+
+			expect(mocks.session.isGuildMaster).toBe(true);
+			expect(selectOf(MARGARETHA).value).toBe(before);
+		});
+
+		it('tolerates a packet with no entry', () => {
+			expect(() => Guild.setMemberPositions(undefined)).not.toThrow();
+		});
+	});
+
+	describe('delegation', () => {
+		// Rows carry their index in the member list, in arrival order.
+		function openMenuOn(index) {
+			const cell = root().querySelector(`.MemberView[data-index="${index}"] td.name`);
+			cell.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true }));
+		}
+
+		const MARGARETHA_ROW = 1;
+
+		function entryLabelled(label) {
+			for (const call of mocks.contextMenu.addElement.mock.calls) {
+				if (call[0] === label) {
+					return call[1];
+				}
+			}
+			return null;
+		}
+
+		it('offers the entry to the guild master on someone else', () => {
+			openMenuOn(MARGARETHA_ROW);
+
+			expect(entryLabelled('Assign Guild Leader')).not.toBeNull();
+		});
+
+		// The client hit-tests the whole row band, not the name cell. Every
+		// other case here right-clicks the name, so they pass under either
+		// selector and none of them notices if the band narrows back.
+		it('opens from any cell of the row, not just the name', () => {
+			const cell = root().querySelector(`.MemberView[data-index="${MARGARETHA_ROW}"] td.position`);
+			cell.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true }));
+
+			expect(entryLabelled('Assign Guild Leader')).not.toBeNull();
+		});
+
+		it('hides the entry from a member who is not the guild master', () => {
+			mocks.session.isGuildMaster = false;
+			Guild.setMembers([member(MASTER), member(MARGARETHA), member(HOWARD)]);
+			openMenuOn(MARGARETHA_ROW);
+
+			expect(entryLabelled('Assign Guild Leader')).toBeNull();
+		});
+
+		it('sends a single grade 0 entry once confirmed', () => {
+			openMenuOn(MARGARETHA_ROW);
+			entryLabelled('Assign Guild Leader')();
+
+			expect(sent).toHaveLength(0);
+
+			mocks.promptBox.mock.calls[0][3]();
+
+			expect(sent).toHaveLength(1);
+			expect(wireEntries(sent[0])).toEqual([{ AID: MARGARETHA.AID, GID: MARGARETHA.GID, positionID: 0 }]);
+		});
+
+		it('names the member in the confirmation', () => {
+			openMenuOn(MARGARETHA_ROW);
+			entryLabelled('Assign Guild Leader')();
+
+			expect(mocks.promptBox.mock.calls[0][0]).toContain('Margaretha');
+		});
+
+		it('drops the name rather than render an empty one', () => {
+			// 0x0aa5 member lists carry no CharName at all.
+			Guild.setMembers([member(MASTER), { ...member(MARGARETHA), CharName: '' }]);
+			openMenuOn(MARGARETHA_ROW);
+			entryLabelled('Assign Guild Leader')();
+
+			expect(mocks.promptBox.mock.calls[0][0]).not.toContain('%s');
+			expect(mocks.promptBox.mock.calls[0][0]).toContain('Nameless');
+		});
+
+		it('fills both placeholders, the member and the grade we are left with', () => {
+			// The server swaps the two rows, so the outgoing master takes the
+			// grade the member holds right now.
+			openMenuOn(MARGARETHA_ROW);
+			entryLabelled('Assign Guild Leader')();
+
+			const text = mocks.promptBox.mock.calls[0][0];
+
+			expect(text).not.toContain('%s');
+			expect(text).toContain('Margaretha');
+			expect(text).toContain('Member');
+		});
+
+		it('does not queue itself as a pending edit', () => {
+			openMenuOn(MARGARETHA_ROW);
+			entryLabelled('Assign Guild Leader')();
+			mocks.promptBox.mock.calls[0][3]();
+			sent.length = 0;
+
+			showMembersTab();
+			clickApply();
+
+			expect(sent).toHaveLength(0);
+		});
+	});
+});
+
+// 0x111 is rathena's GUILD_PERM_DEFAULT - invite | expel | storage. Storage is
+// the bit this tab has no column for, and must not destroy.
+const POSITIONS = [
+	{ positionID: 0, right: 0x111, ranking: 0, payRate: 50, posName: 'Guild Master' },
+	{ positionID: 1, right: 0x001, ranking: 1, payRate: 10, posName: 'Member' },
+	{ positionID: 2, right: 0x011, ranking: 2, payRate: 20, posName: 'Officer' }
+];
+
+const POSITION_NAMES = [
+	{ positionID: 0, posName: 'Guild Master' },
+	{ positionID: 1, posName: 'Member' },
+	{ positionID: 2, posName: 'Officer' }
+];
+
+describe('Guild position tab', () => {
+	describe('the permission checkbox', () => {
+		it('is not a button, which would repaint over its own state', () => {
+			Guild.setPositions(POSITIONS, true);
+			showPositionsTab();
+
+			for (const column of ['invite', 'punish']) {
+				expect(positionRows()[0].querySelector(`.${column} ui-button`)).toBeNull();
+				expect(positionRows()[0].querySelector(`.${column} .checkbox`)).not.toBeNull();
+			}
+		});
+
+		it('draws the storage column on a packetver that has the right', () => {
+			Guild.setPositions(POSITIONS, true);
+
+			// The class is what the stylesheet keys the sixth column and Title's
+			// width off. It is decided at render, never at init: init runs at
+			// import, long before the packetver is settled.
+			expect(root().querySelector('.content.positions').classList.contains('has-storage')).toBe(true);
+			expect(root().querySelector('.content.positions th.storage')).not.toBeNull();
+		});
+
+		it('drops the column again on an older packetver, and on "auto"', () => {
+			for (const value of [20130101, 'auto']) {
+				mocks.packetver.value = value;
+				Guild.onRemove();
+				Guild.setPositions(POSITIONS, true);
+
+				expect(root().querySelector('.content.positions').classList.contains('has-storage')).toBe(false);
+			}
+		});
+
+		it('paints the permissions the packet carried', () => {
+			Guild.setPositions(POSITIONS, true);
+			showPositionsTab();
+
+			expect(checkboxOf(0, 'invite').classList.contains('on')).toBe(true);
+			expect(checkboxOf(0, 'punish').classList.contains('on')).toBe(true);
+			expect(checkboxOf(1, 'invite').classList.contains('on')).toBe(true);
+			expect(checkboxOf(1, 'punish').classList.contains('on')).toBe(false);
+
+			expect(checkboxOf(0, 'invite').style.backgroundImage).toContain('checkbox_1.bmp');
+			expect(checkboxOf(1, 'punish').style.backgroundImage).toContain('checkbox_0.bmp');
+		});
+
+		it('unticks as readily as it ticks', () => {
+			Guild.setPositions(POSITIONS, true);
+			showPositionsTab();
+
+			clickCheckbox(0, 'invite');
+			expect(checkboxOf(0, 'invite').classList.contains('on')).toBe(false);
+			expect(checkboxOf(0, 'invite').style.backgroundImage).toContain('checkbox_0.bmp');
+
+			clickCheckbox(0, 'invite');
+			expect(checkboxOf(0, 'invite').classList.contains('on')).toBe(true);
+			expect(checkboxOf(0, 'invite').style.backgroundImage).toContain('checkbox_1.bmp');
+		});
+
+		it('stays where the guild master left it when the name list arrives', () => {
+			Guild.setPositions(POSITIONS, true);
+			showPositionsTab();
+			clickCheckbox(1, 'punish');
+
+			// 0x166 rides in with the member list on every Members tab opening.
+			Guild.setPositionsName(POSITION_NAMES);
+
+			expect(checkboxOf(1, 'punish').classList.contains('on')).toBe(true);
+		});
+
+		it('leaves the highlight where the guild master put it', () => {
+			Guild.setPositions(POSITIONS, true);
+			showPositionsTab();
+
+			positionRows()[2].dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+			expect(positionRows()[2].classList.contains('active')).toBe(true);
+
+			// A refresh must not drag the bar back to the guild master's row. The
+			// client only moves it from a click or from building the window.
+			Guild.setPositions(POSITIONS, true);
+
+			expect(positionRows()[2].classList.contains('active')).toBe(true);
+			expect(positionRows()[0].classList.contains('active')).toBe(false);
+		});
+
+		it('starts on the first row, and goes back there with the window', () => {
+			Guild.setPositions(POSITIONS, true);
+			showPositionsTab();
+			positionRows()[2].dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+
+			Guild.onRemove();
+			Guild.setPositions(POSITIONS, true);
+
+			expect(positionRows()[0].classList.contains('active')).toBe(true);
+		});
+
+		it('takes no edit from a member who is not the guild master', () => {
+			mocks.session.isGuildMaster = false;
+			Guild.setPositions(POSITIONS, true);
+			showPositionsTab();
+
+			const box = positionRows()[1].querySelector('.punish .tick');
+			box.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+			expect(box.classList.contains('on')).toBe(false);
+		});
+
+		// What the cursor does cannot be read here - jsdom has no layout and no hit
+		// testing, and the cursor is drawn on a canvas. What is pinned is the
+		// markup the cursor reads: a member's mark carries no class that puts it on
+		// the clickable list, so there is no click left to offer and withdraw.
+		it('shows a member the mark without the widget behind it', () => {
+			mocks.session.isGuildMaster = false;
+			Guild.setPositions(POSITIONS, true);
+
+			// Still drawn, and still showing the grades as they stand.
+			expect(positionRows()).toHaveLength(3);
+			expect(positionRows()[1].querySelector('.invite .tick').classList.contains('on')).toBe(true);
+			expect(positionRows()[1].querySelector('.punish .tick').classList.contains('on')).toBe(false);
+
+			expect(root().querySelectorAll('.content.positions tbody .checkbox')).toHaveLength(0);
+		});
+
+		it('gives the guild master the widgets back', () => {
+			mocks.session.isGuildMaster = false;
+			Guild.setPositions(POSITIONS, true);
+
+			mocks.session.isGuildMaster = true;
+			Guild.setPositions(POSITIONS, true);
+
+			expect(root().querySelectorAll('.content.positions tbody .tick')).toHaveLength(0);
+			expect(checkboxOf(1, 'invite').classList.contains('on')).toBe(true);
+		});
+	});
+
+	describe('the tax and title fields', () => {
+		it('keep an unsaved edit when the name list arrives', () => {
+			Guild.setPositions(POSITIONS, true);
+			showPositionsTab();
+
+			const tax = positionRows()[1].querySelector('.tax input');
+			tax.dispatchEvent(new Event('focus'));
+			tax.value = '42';
+
+			Guild.setPositionsName(POSITION_NAMES);
+
+			expect(positionRows()[1].querySelector('.tax input').value).toBe('42');
+		});
+
+		it('gives a member the value where the guild master gets a field', () => {
+			mocks.session.isGuildMaster = false;
+			Guild.setPositions(POSITIONS, true);
+
+			const row = positionRows()[2];
+			expect(row.querySelector('.title .value').textContent).toBe('Officer');
+
+			// The unit rides in the member's own string, one space, which is the
+			// client's own format rather than a choice made here.
+			expect(row.querySelector('.tax .value').textContent).toBe('20 %');
+
+			// Only the name can outrun its cell - the guild master's field was
+			// capped at 75px and text is not - so it is the only one offered on
+			// hover. `20 %` cannot clip, and a tooltip repeating it is noise.
+			expect(row.querySelector('.title .value').title).toBe('Officer');
+			expect(row.querySelector('.tax .value').title).toBe('');
+
+			expect(row.querySelector('.title input')).toBeNull();
+			expect(row.querySelector('.tax input')).toBeNull();
+		});
+
+		it('gives the guild master the fields back', () => {
+			mocks.session.isGuildMaster = false;
+			Guild.setPositions(POSITIONS, true);
+
+			mocks.session.isGuildMaster = true;
+			Guild.setPositions(POSITIONS, true);
+
+			const row = positionRows()[2];
+			expect(row.querySelector('.title input').value).toBe('Officer');
+			expect(row.querySelector('.tax input').value).toBe('20');
+			expect(row.querySelectorAll('.value')).toHaveLength(0);
+		});
+	});
+
+	describe('applying', () => {
+		it('leaves the bits the tab has no column for alone', () => {
+			Guild.setPositions(POSITIONS, true);
+			showPositionsTab();
+
+			clickCheckbox(0, 'invite');
+			clickApply();
+
+			expect(sentPositions).toHaveLength(1);
+			expect(sentPositions[0]).toHaveLength(1);
+			expect(sentPositions[0][0]).toMatchObject({ positionID: 0, right: 0x110 });
+		});
+
+		it('sends the whole mode a grant rebuilds, storage included', () => {
+			Guild.setPositions(POSITIONS, true);
+			showPositionsTab();
+
+			clickCheckbox(1, 'punish');
+			clickApply();
+
+			expect(sentPositions[0][0]).toMatchObject({ positionID: 1, right: 0x011 });
+		});
+
+		it('carries the edited tax and title', () => {
+			Guild.setPositions(POSITIONS, true);
+			showPositionsTab();
+
+			const row = positionRows()[2];
+			row.querySelector('.tax input').dispatchEvent(new Event('focus'));
+			row.querySelector('.tax input').value = '42';
+			row.querySelector('.title input').value = 'Veteran';
+			clickApply();
+
+			expect(sentPositions[0][0]).toMatchObject({ positionID: 2, payRate: 42, posName: 'Veteran' });
+		});
+
+		it('keeps the tax inside the range the server can store', () => {
+			// rathena caps to guild_exp_limit, per-server, ceiling 99. The native
+			// edit takes two characters, which is that same ceiling.
+			Guild.setPositions(POSITIONS, true);
+			showPositionsTab();
+
+			const input = positionRows()[1].querySelector('.tax input');
+			expect(input.getAttribute('maxlength')).toBe('2');
+
+			input.dispatchEvent(new Event('focus'));
+			input.value = '900';
+			clickApply();
+
+			expect(sentPositions[0][0]).toMatchObject({ positionID: 1, payRate: 99 });
+		});
+
+		it('does not send a tax of NaN when the field is not a number', () => {
+			Guild.setPositions(POSITIONS, true);
+			showPositionsTab();
+
+			const input = positionRows()[1].querySelector('.tax input');
+			input.dispatchEvent(new Event('focus'));
+			input.value = 'ab';
+			clickApply();
+
+			expect(sentPositions[0][0]).toMatchObject({ positionID: 1, payRate: 0 });
+		});
+
+		it('says so when the server keeps a different tax', () => {
+			// rathena caps to guild_exp_limit and answers with what it stored.
+			//
+			// The cap has to differ from the number written into the message, or the
+			// assertion cannot tell a substitution from the raw string: the table's
+			// own text carries a literal limit rather than a placeholder, and the
+			// default limit happens to be the same 50 a server would answer with.
+			mocks.messages[3486] = "You can't enter value more than 50%.";
+
+			Guild.setPositions(POSITIONS, true);
+			showPositionsTab();
+
+			const input = positionRows()[1].querySelector('.tax input');
+			input.dispatchEvent(new Event('focus'));
+			input.value = '99';
+			clickApply();
+			expect(sentPositions[0][0]).toMatchObject({ positionID: 1, payRate: 99 });
+
+			chat.length = 0;
+			Guild.setPositions([{ ...POSITIONS[1], payRate: 30 }], false);
+
+			expect(chat).toHaveLength(1);
+			// The number shown is the server's, not the one baked into the string.
+			expect(chat[0]).toContain('30');
+			expect(chat[0]).not.toContain('50');
+			expect(chat[0]).not.toContain('%d');
+		});
+
+		it('stays quiet when the server kept what was sent', () => {
+			Guild.setPositions(POSITIONS, true);
+			showPositionsTab();
+
+			const input = positionRows()[1].querySelector('.tax input');
+			input.dispatchEvent(new Event('focus'));
+			input.value = '40';
+			clickApply();
+
+			chat.length = 0;
+			Guild.setPositions([{ ...POSITIONS[1], payRate: 40 }], false);
+
+			expect(chat).toHaveLength(0);
+		});
+
+		it('sends nothing when nothing was edited', () => {
+			Guild.setPositions(POSITIONS, true);
+			showPositionsTab();
+
+			clickApply();
+
+			expect(sentPositions).toHaveLength(0);
+		});
+
+		it('grants the guild storage right from its own column', () => {
+			Guild.setPositions(POSITIONS, true);
+			showPositionsTab();
+
+			// Officer holds invite|expel; give it the storeroom too.
+			expect(checkboxOf(2, 'storage').classList.contains('on')).toBe(false);
+			clickCheckbox(2, 'storage');
+			clickApply();
+
+			expect(sentPositions[0][0]).toMatchObject({ positionID: 2, right: 0x111 });
+		});
+
+		it('revokes it again, which nothing else in the tab can do', () => {
+			Guild.setPositions(POSITIONS, true);
+			showPositionsTab();
+
+			expect(checkboxOf(0, 'storage').classList.contains('on')).toBe(true);
+			clickCheckbox(0, 'storage');
+			clickApply();
+
+			expect(sentPositions[0][0]).toMatchObject({ positionID: 0, right: 0x011 });
+		});
+
+		it('leaves the bit alone on a packetver that has no column for it', () => {
+			// Before 20140205 rathena does not define GUILD_PERM_STORAGE at all,
+			// so the tab must neither show the right nor rewrite it.
+			mocks.packetver.value = 20130101;
+			Guild.setPositions(POSITIONS, true);
+			showPositionsTab();
+
+			clickCheckbox(0, 'invite');
+			clickApply();
+
+			expect(sentPositions[0][0]).toMatchObject({ positionID: 0, right: 0x110 });
+		});
+
+		it('survives a list the server sent with a gap in it', () => {
+			// setPositions truncates the store's length to the entry count while
+			// keying it by positionID, so a skipped id leaves a hole inside the
+			// range. Rendering used to dereference it and throw.
+			const sparse = [
+				{ positionID: 0, right: 0x111, ranking: 0, payRate: 50, posName: 'Guild Master' },
+				{ positionID: 1, right: 0x001, ranking: 1, payRate: 10, posName: 'Member' },
+				{ positionID: 4, right: 0x011, ranking: 4, payRate: 20, posName: 'Position 4' }
+			];
+
+			Guild.setPositions([], true);
+			expect(() => Guild.setPositions(sparse, true)).not.toThrow();
+			showPositionsTab();
+
+			// Ids 2 and 3 are holes: erase truncates the length to the entry
+			// count, then writing index 4 grows it back past them. Only the ids
+			// the server sent get a row, and Apply must pair each row with its
+			// own entry rather than with row N.
+			expect([...positionRows()].map(r => r.dataset.positionId)).toEqual(['0', '1', '4']);
+
+			// Row 2, not row 1: row 1's id is also 1, so pairing by row ordinal and
+			// pairing by id agree there and the assertion holds either way. Only a
+			// row past a hole tells them apart.
+			clickCheckbox(2, 'punish');
+			clickApply();
+
+			expect(sentPositions[0][0]).toMatchObject({ positionID: 4, right: 0x001 });
+		});
+
+		it('does not push a mode it never received', () => {
+			// Only 0x166 has landed: the names are known, the rights are not, and
+			// rebuilding a mode from zero here would revoke every permission.
+			Guild.setPositions([], true);
+			Guild.setPositionsName(POSITION_NAMES);
+			showPositionsTab();
+			clickCheckbox(1, 'invite');
+			clickApply();
+
+			expect(sentPositions).toHaveLength(0);
+		});
+	});
+
+	// The field the server steps over is still the field the server counts on
+	// being there, so the one instruction about it - echo it, never recompute -
+	// is worth holding rather than only writing down.
+	describe('what the positions packet puts on the wire', () => {
+		it('carries the ranking it was given, in the slot the stride expects', () => {
+			Guild.setPositions(POSITIONS, true);
+			showPositionsTab();
+
+			clickCheckbox(1, 'invite');
+			clickApply();
+
+			expect(wirePositions(sentPositions[0])).toEqual([
+				{ positionID: 1, right: 0x000, ranking: 1, payRate: 10 }
+			]);
+		});
+	});
+
+	/**
+	 * The tab holds its edits in its own rows, so leaving and coming back has to
+	 * bring the way to apply them back too - and Apply having run has to take it
+	 * away again.
+	 */
+	describe('Apply follows whether the tab has unsent edits', () => {
+		// The display helpers above cannot serve here: it is onChangeTab that
+		// decides, and only a real click runs it.
+		function clickTab(name) {
+			root()
+				.querySelector(`.tabs button.${name}`)
+				.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+		}
+
+		function applyIsOffered() {
+			return applyButton().style.display !== 'none';
+		}
+
+		beforeEach(() => {
+			// 0xd7 is what the server sends a guild master; onChangeTab refuses
+			// the switch, silently, without the positions bit.
+			Guild.setAccess(0xd7);
+			Guild.setPositions(POSITIONS, true);
+
+			// onChangeTab returns early on the tab already marked active, and the
+			// mount is shared, so landing on positions takes a real transition.
+			clickTab('info');
+			clickTab('positions');
+		});
+
+		it('is offered again on returning to an edited tab', () => {
+			clickCheckbox(1, 'invite');
+
+			clickTab('info');
+			expect(applyIsOffered()).toBe(false);
+			clickTab('positions');
+
+			expect(applyIsOffered()).toBe(true);
+		});
+
+		it('stops being offered once the edits have gone out', () => {
+			clickCheckbox(1, 'invite');
+			clickApply();
+			expect(sentPositions).toHaveLength(1);
+
+			clickTab('info');
+			clickTab('positions');
+
+			expect(applyIsOffered()).toBe(false);
+		});
+
+		// Handing leadership over mid-edit is the one moment the rows can be
+		// holding changes their owner is no longer allowed to send. Keeping them
+		// would leave Apply standing over cells that are values again, and reading
+		// those back sends an empty name and a zeroed mode for every grade.
+		it('drops a demoted guild master edits they can no longer send', () => {
+			clickCheckbox(1, 'invite');
+			expect(applyIsOffered()).toBe(true);
+
+			mocks.session.isGuildMaster = false;
+			Guild.updateMasterView();
+
+			expect(positionRows()[1].querySelector('.invite .tick').classList.contains('on')).toBe(true);
+			expect(applyIsOffered()).toBe(false);
+
+			clickApply();
+			expect(sentPositions).toHaveLength(0);
+		});
+
+		it('sends nothing at all when the sender is not the guild master', () => {
+			clickCheckbox(1, 'invite');
+			mocks.session.isGuildMaster = false;
+
+			clickApply();
+
+			expect(sentPositions).toHaveLength(0);
+		});
+
+		// The grade queue is the other half of the same Apply button, and it was
+		// the one case left ungated: the server drops it from a member in
+		// silence, so the row would show the new grade as if it had been taken.
+		it('sends no queued grade change from someone who is not the guild master', () => {
+			clickTab('members');
+			changeGrade(MARGARETHA, 2);
+			mocks.session.isGuildMaster = false;
+
+			clickApply();
+
+			expect(sent).toHaveLength(0);
+		});
+
+		/**
+		 * The members tab holds its edits in a queue rather than in its rows, and
+		 * fresh guild data drops that queue on purpose. Every refresh that used to
+		 * reach it was one this very gesture asked for, so the edit died on the way
+		 * out and the row went back to the server's grade with nothing said.
+		 */
+		describe('a queued grade survives a tab', () => {
+			beforeEach(() => {
+				// rathena answers menu 1 with the grade names and then the roster,
+				// and menu 2 with the grade names and then the grades. Both drop
+				// the queue by design, so a stub that only recorded the request
+				// would pass whether or not the request had been held back.
+				Guild.onGuildInfoRequest = type => {
+					requestedMenus.push(type);
+
+					if (type === 1) {
+						Guild.setPositionsName(POSITION_NAMES);
+						Guild.setMembers([member(MASTER), member(MARGARETHA), member(HOWARD)]);
+					} else if (type === 2) {
+						Guild.setPositionsName(POSITION_NAMES);
+						Guild.setPositions(POSITIONS, true);
+					}
+				};
+
+				clickTab('members');
+			});
+
+			it('holds back the two menus whose answer would drop it', () => {
+				changeGrade(MARGARETHA, 2);
+				requestedMenus.length = 0;
+
+				clickTab('positions');
+				clickTab('members');
+
+				expect(requestedMenus).toEqual([]);
+			});
+
+			it('still asks for the menus that would not', () => {
+				changeGrade(MARGARETHA, 2);
+				requestedMenus.length = 0;
+
+				clickTab('info');
+				clickTab('history');
+
+				expect(requestedMenus).toEqual([0, 4]);
+			});
+
+			it('asks for both again once the queue is empty', () => {
+				clickTab('positions');
+				requestedMenus.length = 0;
+
+				clickTab('members');
+
+				expect(requestedMenus).toEqual([1]);
+			});
+
+			it('is offered Apply again on the way back, and sends the edit', () => {
+				changeGrade(MARGARETHA, 2);
+
+				clickTab('info');
+				expect(applyIsOffered()).toBe(false);
+				clickTab('members');
+				expect(applyIsOffered()).toBe(true);
+
+				clickApply();
+
+				expect(wireEntries(sent[0])).toEqual([{ AID: MARGARETHA.AID, GID: MARGARETHA.GID, positionID: 2 }]);
+			});
+
+			it('keeps the dropdown on the grade the edit picked', () => {
+				changeGrade(MARGARETHA, 2);
+
+				clickTab('info');
+				clickTab('members');
+
+				expect(selectOf(MARGARETHA).value).toBe('2');
+			});
+		});
+
+		/**
+		 * Apply alone does not say which member is waiting, and the row shows the
+		 * picked grade as if the server had agreed to it. Declared deviation: the
+		 * client draws no such mark, and has no queue to mark.
+		 */
+		describe('an edited row is marked while its edit is unsent', () => {
+			beforeEach(() => {
+				Guild.onGuildInfoRequest = type => {
+					requestedMenus.push(type);
+
+					if (type === 1) {
+						Guild.setPositionsName(POSITION_NAMES);
+						Guild.setMembers([member(MASTER), member(MARGARETHA), member(HOWARD)]);
+					}
+				};
+
+				clickTab('members');
+			});
+
+			function rowOf(fixture) {
+				return selectOf(fixture).closest('tr');
+			}
+
+			it('marks the row the edit belongs to, and only that one', () => {
+				changeGrade(MARGARETHA, 2);
+
+				expect(rowOf(MARGARETHA).classList.contains('pending')).toBe(true);
+				expect(rowOf(HOWARD).classList.contains('pending')).toBe(false);
+			});
+
+			it('leaves a refused selection unmarked', () => {
+				// Grade 0 is the guild master's, which the dropdown never gives.
+				changeGrade(MARGARETHA, 0);
+
+				expect(rowOf(MARGARETHA).classList.contains('pending')).toBe(false);
+			});
+
+			it('survives the tab the edit survives', () => {
+				changeGrade(MARGARETHA, 2);
+
+				clickTab('info');
+				clickTab('members');
+
+				expect(rowOf(MARGARETHA).classList.contains('pending')).toBe(true);
+			});
+
+			it('is taken back by the acknowledgement', () => {
+				changeGrade(MARGARETHA, 2);
+				Guild.setMemberPositions([{ AID: MARGARETHA.AID, GID: MARGARETHA.GID, positionID: 2 }]);
+
+				expect(rowOf(MARGARETHA).classList.contains('pending')).toBe(false);
+			});
+
+			it('is taken back by closing the window', () => {
+				changeGrade(MARGARETHA, 2);
+				Guild.hide();
+
+				expect(rowOf(MARGARETHA).classList.contains('pending')).toBe(false);
+			});
+		});
+	});
+});

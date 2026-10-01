@@ -13,11 +13,16 @@
 
 	<div class="tabs">
 		<!--
-		--><button data-flag="0" class="info"><ui-text msg="340">Guild Info</ui-text></button><!--
-		--><button data-flag="1" class="members"><ui-text msg="341">Guildsmen Info</ui-text></button><!--
-		--><button data-flag="2" class="positions"><ui-text msg="342">Position</ui-text></button><!--
-		--><button data-flag="3" class="skills"><ui-text msg="343">Guild Skill</ui-text></button><!--
-		--><button data-flag="4" class="history"><ui-text msg="344">Expel History</ui-text></button><!--
+		--><button data-flag="0" class="info"><ui-text msg="340">Guild Info</ui-text></button
+		><!--
+		--><button data-flag="1" class="members"><ui-text msg="341">Guildsmen Info</ui-text></button
+		><!--
+		--><button data-flag="2" class="positions"><ui-text msg="342">Position</ui-text></button
+		><!--
+		--><button data-flag="3" class="skills"><ui-text msg="343">Guild Skill</ui-text></button
+		><!--
+		--><button data-flag="4" class="history"><ui-text msg="344">Expel History</ui-text></button
+		><!--
 		--><button data-flag="6" class="notice"><ui-text msg="345">Guild Notice</ui-text></button>
 	</div>
 
@@ -29,13 +34,16 @@
 			<div class="master"><ui-text msg="330">Guild Master</ui-text> : <span class="value"></span></div>
 			<div class="members">
 				<ui-text msg="331">Guildsmen</ui-text> : <span class="numMember">0</span> /
-				<span class="maxMember">0</span> <ui-button bg="basic_interface/grp_online.bmp"></ui-button>
+				<span class="maxMember">0</span>
+				<span class="online-icon" data-background="basic_interface/grp_online.bmp"></span>
 				<span class="online"></span>
 			</div>
 			<div class="avglevel"><ui-text msg="332">Avg.lvl of Guildsmen</ui-text> : <span class="value"></span></div>
 			<div class="territory"><ui-text msg="333">Territory</ui-text> : <span class="value"></span></div>
 			<div class="tendency">
-				<div class="title"><ui-text msg="334">Tendency</ui-text> : <span class="value"></span></div>
+				<!-- Label only, with no value and no separator. The chart is the
+				     value. See docs/reference/guild/info-tab-legacy.md -->
+				<div class="title"><ui-text msg="334">Tendency</ui-text></div>
 				<div class="righteous">R</div>
 				<div class="wiked">W</div>
 				<div class="vulgar">V</div>
@@ -44,10 +52,13 @@
 			</div>
 			<div class="exp"><ui-text msg="335">EXP</ui-text> : <span class="value"></span></div>
 			<div class="emblem"><ui-text msg="336">Emblem</ui-text></div>
-			<div class="emblem_container"></div>
-			<ui-button class="emblem_edit" bg="btn_edit.bmp" hover="btn_edit_a.bmp" down="btn_edit_b.bmp">
-				<input type="file" />
-			</ui-button>
+			<!-- The emblem is the picker: one file input, opened by clicking the
+			     emblem, by the Edit button or by a drop.
+			     See docs/reference/guild/emblem-picker.md -->
+			<div class="emblem_container">
+				<label class="emblem_pick"><input type="file" accept=".bmp,.gif,image/bmp,image/gif" /></label>
+			</div>
+			<ui-button class="emblem_edit" bg="btn_edit.bmp" hover="btn_edit_a.bmp" down="btn_edit_b.bmp"></ui-button>
 
 			<div class="tax"><ui-text msg="337">Tax Point</ui-text> : <span class="value">0</span></div>
 			<div class="ally"><ui-text msg="338">Alliance</ui-text></div>
@@ -66,8 +77,8 @@
 						<th class="job"><ui-text msg="504">Job</ui-text></th>
 						<th class="level"><ui-text msg="408">Level</ui-text></th>
 						<th class="note"><ui-text msg="505">Note</ui-text></th>
-						<th class="devotion"><ui-text msg="506">Devotion</ui-text></th>
-						<th class="tax"><ui-text msg="507">Tax Point</ui-text></th>
+						<th class="devotion"><ui-text msg="506">Tax</ui-text></th>
+						<th class="tax"><ui-text msg="507">Contribution</ui-text></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -75,6 +86,7 @@
 						<td class="name">
 							<canvas width="30" height="30"></canvas>
 							<span class="value"></span>
+							<span class="lastlogin"></span>
 						</td>
 						<td class="position"></td>
 						<td class="job"></td>
@@ -96,6 +108,7 @@
 						<th class="title"><ui-text msg="511">Position Title</ui-text></th>
 						<th class="invite"><ui-text msg="512">Invitation</ui-text></th>
 						<th class="punish"><ui-text msg="513">Punish</ui-text></th>
+						<th class="storage"><ui-text msg="2499">Storage</ui-text></th>
 						<th class="tax"><ui-text msg="514">Tax</ui-text></th>
 					</tr>
 				</thead>
@@ -106,12 +119,15 @@
 							<input type="text" value="" />
 						</td>
 						<td class="invite">
-							<ui-button bg="checkbox_0.bmp" class="off"></ui-button>
+							<div class="checkbox off"></div>
 						</td>
 						<td class="punish">
-							<ui-button bg="checkbox_0.bmp" class="off"></ui-button>
+							<div class="checkbox off"></div>
 						</td>
-						<td class="tax"><input type="text" value="0" /> %</td>
+						<td class="storage">
+							<div class="checkbox off"></div>
+						</td>
+						<td class="tax"><input type="text" value="0" maxlength="2" /> %</td>
 					</tr>
 				</tbody>
 			</table>
@@ -120,31 +136,12 @@
 		<!-- SKILLS TAB -->
 		<div class="content skills">
 			<div class="skill_list">
-				<table>
-					<!-- Just to get reference, will be removed -->
-					<ui-button
-						class="btn levelup"
-						bg="basic_interface/skill_up_a.bmp"
-						hover="basic_interface/skill_up_b.bmp"
-						down="basic_interface/skill_up_c.bmp"
-					></ui-button>
-				</table>
-			</div>
-
-			<div class="footer">
-				<ui-image src="basic_interface/btnbar_mid2.bmp"></ui-image>
-				<div class="text">Skill Points: <span class="skpoints_count">0</span></div>
+				<!-- Just to get reference, will be removed -->
 				<ui-button
-					class="btn apply"
-					bg="btn_apply.bmp"
-					hover="btn_apply_a.bmp"
-					down="btn_apply_b.bmp"
-				></ui-button>
-				<ui-button
-					class="btn reset"
-					bg="btn_reset.bmp"
-					hover="btn_reset_a.bmp"
-					down="btn_reset_b.bmp"
+					class="btn levelup"
+					bg="basic_interface/skill_up_a.bmp"
+					hover="basic_interface/skill_up_b.bmp"
+					down="basic_interface/skill_up_c.bmp"
 				></ui-button>
 			</div>
 		</div>
@@ -179,7 +176,25 @@
 
 	<div class="footer">
 		<ui-image src="basic_interface/btnbar_mid2.bmp"></ui-image>
-		<button class="btn_disband" type="button">Disband</button>
+		<ui-button
+			class="btn_disband"
+			bg="btn_disband.bmp"
+			hover="btn_disband_a.bmp"
+			down="btn_disband_b.bmp"
+		></ui-button>
 		<ui-button class="btn_ok" bg="btn_ok.bmp" hover="btn_ok_a.bmp" down="btn_ok_b.bmp"></ui-button>
+		<div class="text skpoints">Skill Points: <span class="skpoints_count">0</span></div>
+		<div class="sortlogin">
+			<ui-button bg="checkbox_1.bmp"></ui-button><ui-text msg="2864">Show guild member login status</ui-text>
+		</div>
+		<!-- The client draws btn_close beside this one at x=92. It is left out on
+		     purpose, not missing: it carries the same command id as the titlebar's
+		     close button, so it is a duplicate. See Guild.js. -->
+		<ui-button class="btn btn_use" bg="btn_use.bmp" hover="btn_use_a.bmp" down="btn_use_b.bmp"></ui-button>
 	</div>
+
+	<!-- The whole window becomes the drop target while a file is dragged over
+	     it, the emblem alone being a 24x24 target.
+	     See docs/reference/guild/emblem-picker.md -->
+	<div class="emblem_drop"><ui-text msg="336">Emblem</ui-text></div>
 </div>
