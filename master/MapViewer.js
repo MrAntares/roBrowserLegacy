@@ -77833,17 +77833,20 @@ var init_PacketLength = __esmMin((() => {
 }));
 //#endregion
 //#region \0vite/preload-helper.js
-var scriptRel, assetsURL, seen, __vitePreload;
+var scriptRel, assetsURL, seen, isCssPreloadUrl, __vitePreload;
 var init_preload_helper = __esmMin((() => {
 	scriptRel = "modulepreload";
 	assetsURL = function(dep, importerUrl) {
 		return new URL(dep, importerUrl).href;
 	};
 	seen = {};
+	isCssPreloadUrl = function isCssPreloadUrl(url) {
+		return url.pathname.endsWith(".css");
+	};
 	__vitePreload = function preload(baseModule, deps, importerUrl) {
 		let promise = Promise.resolve();
 		if (deps && deps.length > 0) {
-			const links = document.getElementsByTagName("link");
+			let preloadedHrefs;
 			const cspNonceMeta = document.querySelector("meta[property=csp-nonce]");
 			const cspNonce = cspNonceMeta?.nonce || cspNonceMeta?.getAttribute("nonce");
 			function allSettled(promises) {
@@ -77856,28 +77859,37 @@ var init_preload_helper = __esmMin((() => {
 				}))));
 			}
 			function importMetaResolve(specifier) {
-				if (import.meta.resolve) return import.meta.resolve(specifier);
+				if (import.meta.resolve) return new URL(import.meta.resolve(specifier));
 				return new URL(
 					specifier,
 					/** #__KEEP__ */
 					import.meta.url
-				).href;
+				);
 			}
-			promise = allSettled(deps.map((dep) => {
-				dep = assetsURL(dep, importerUrl);
-				dep = importMetaResolve(dep);
-				if (dep in seen) return;
-				seen[dep] = true;
-				const isCss = dep.endsWith(".css");
-				for (let i = links.length - 1; i >= 0; i--) {
-					const link = links[i];
-					if (link.href === dep && (!isCss || link.rel === "stylesheet")) return;
+			promise = allSettled(deps.map((depString) => {
+				depString = assetsURL(depString, importerUrl);
+				const dep = importMetaResolve(depString);
+				if (dep.href in seen) return;
+				seen[dep.href] = true;
+				const isCss = isCssPreloadUrl(dep);
+				if (preloadedHrefs === void 0) {
+					preloadedHrefs = {
+						all: /* @__PURE__ */ new Set(),
+						styles: /* @__PURE__ */ new Set()
+					};
+					const links = document.getElementsByTagName("link");
+					for (let i = links.length - 1; i >= 0; i--) {
+						const link = links[i];
+						preloadedHrefs.all.add(link.href);
+						if (link.rel === "stylesheet") preloadedHrefs.styles.add(link.href);
+					}
 				}
+				if ((isCss ? preloadedHrefs.styles : preloadedHrefs.all).has(dep.href)) return;
 				const link = document.createElement("link");
 				link.rel = isCss ? "stylesheet" : scriptRel;
 				if (!isCss) link.as = "script";
 				link.crossOrigin = "";
-				link.href = dep;
+				link.href = dep.href;
 				if (cspNonce) link.setAttribute("nonce", cspNonce);
 				document.head.appendChild(link);
 				if (isCss) return new Promise((res, rej) => {
@@ -78025,7 +78037,11 @@ var init_Preferences$1 = __esmMin((() => {
 var UI_default;
 var init_UI = __esmMin((() => {
 	init_Preferences$1();
-	UI_default = Preferences.get("UI", { windowmagnet: true }, 1);
+	UI_default = Preferences.get("UI", {
+		windowmagnet: true,
+		guildMemberListSorted: true,
+		li: true
+	}, 1);
 }));
 //#endregion
 //#region src/Engine/SessionStorage.js
@@ -78065,7 +78081,7 @@ var init_SessionStorage = __esmMin((() => {
 		hasParty: false,
 		isPartyLeader: false,
 		hasGuild: false,
-		guildRight: 0,
+		guildPermission: 0,
 		guildName: "",
 		isGuildMaster: false,
 		Playing: false,
@@ -161672,7 +161688,7 @@ var init_PacketStructure = __esmMin((() => {
 	PACKET.ZC.CHANGE_GUILD = function PACKET_ZC_CHANGE_GUILD(fp, end) {
 		this.AID = fp.readULong();
 		this.GDID = fp.readULong();
-		this.emblemVersion = fp.readShort();
+		this.emblemVersion = fp.readUShort();
 	};
 	PACKET.ZC.CHANGE_GUILD.size = 12;
 	PACKET.SC.BILLING_INFO = function PACKET_SC_BILLING_INFO(fp, end) {
@@ -167100,6 +167116,16 @@ var init_PacketStructure = __esmMin((() => {
 		pkt_buf.writeShort(2976);
 		return pkt_buf;
 	};
+	PACKET.ZC.ACK_BAN_GUILD_DELNAME = function PACKET_ZC_ACK_BAN_GUILD_DELNAME(fp, end) {
+		this.reasonDesc = fp.readString(40);
+		this.GID = fp.readULong();
+	};
+	PACKET.ZC.ACK_BAN_GUILD_DELNAME.size = 46;
+	PACKET.ZC.ACK_LEAVE_GUILD_DELNAME = function PACKET_ZC_ACK_LEAVE_GUILD_DELNAME(fp, end) {
+		this.GID = fp.readULong();
+		this.reasonDesc = fp.readString(40);
+	};
+	PACKET.ZC.ACK_LEAVE_GUILD_DELNAME.size = 46;
 	PACKET.ZC.GUILD_INFO3 = function PACKET_ZC_GUILD_INFO3(fp, end) {
 		this.GDID = fp.readLong();
 		this.level = fp.readLong();
@@ -167119,6 +167145,20 @@ var init_PacketStructure = __esmMin((() => {
 		this.masterName = this.masterAID;
 	};
 	PACKET.ZC.GUILD_INFO3.size = 94;
+	PACKET.ZC.BAN_LIST2 = function PACKET_ZC_BAN_LIST2(fp, end) {
+		this.banList = (function() {
+			const count = (end - fp.tell()) / 44 | 0;
+			const out = new Array(count);
+			for (let i = 0; i < count; ++i) {
+				out[i] = {};
+				out[i].GID = fp.readULong();
+				out[i].reason = fp.readString(40);
+				out[i].charname = "";
+			}
+			return out;
+		})();
+	};
+	PACKET.ZC.BAN_LIST2.size = -1;
 	PACKET.ZC.STORE_ASSISTANT_ENTRY = function PACKET_ZC_STORE_ASSISTANT_ENTRY(fp, end) {
 		this.GID = fp.readULong();
 		this.job = fp.readShort();
@@ -168276,6 +168316,30 @@ var init_PacketStructure = __esmMin((() => {
 		this.grade = fp.readUChar();
 	};
 	PACKET.ZC.ADD_ITEM_TO_CART4.size = 58;
+	PACKET.CZ.REQ_ADD_NEW_EMBLEM = function PACKET_CZ_REQ_ADD_NEW_EMBLEM() {
+		this.GDID = 0;
+		this.version = 0;
+	};
+	PACKET.CZ.REQ_ADD_NEW_EMBLEM.prototype.build = function() {
+		const pkt_buf = new BinaryWriter(10);
+		pkt_buf.writeShort(2886);
+		pkt_buf.writeULong(this.GDID);
+		pkt_buf.writeULong(this.version);
+		return pkt_buf;
+	};
+	PACKET.CZ.REQ_ADD_NEW_EMBLEM.size = 10;
+	PACKET.ZC.CHANGE_GUILD2 = function PACKET_ZC_CHANGE_GUILD2(fp, end) {
+		this.GDID = fp.readULong();
+		this.emblemVersion = fp.readULong();
+		if (end - fp.tell() >= 4) this.AID = fp.readULong();
+	};
+	PACKET.ZC.CHANGE_GUILD2.size = PacketVerManager_default.value >= 20190619 ? 14 : 10;
+	PACKET.ZC.CHANGE_GUILD3 = function PACKET_ZC_CHANGE_GUILD3(fp, end) {
+		this.GDID = fp.readULong();
+		this.emblemVersion = fp.readULong();
+		this.AID = fp.readULong();
+	};
+	PACKET.ZC.CHANGE_GUILD3.size = 14;
 	PACKET.ZC.NPC_MARKET_PURCHASE_RESULT2 = function PACKET_ZC_NPC_MARKET_PURCHASE_RESULT2(fp, end) {
 		this.result = fp.readUShort();
 		this.itemList = (function() {
@@ -168504,6 +168568,20 @@ var init_PacketStructure = __esmMin((() => {
 		this.masterName = fp.readString(NAME_LENGTH);
 	};
 	PACKET.ZC.GUILD_INFO4.size = 118;
+	PACKET.ZC.BAN_LIST3 = function PACKET_ZC_BAN_LIST3(fp, end) {
+		this.banList = (function() {
+			const count = (end - fp.tell()) / 68 | 0;
+			const out = new Array(count);
+			for (let i = 0; i < count; ++i) {
+				out[i] = {};
+				out[i].GID = fp.readULong();
+				out[i].reason = fp.readString(40);
+				out[i].charname = fp.readString(NAME_LENGTH);
+			}
+			return out;
+		})();
+	};
+	PACKET.ZC.BAN_LIST3.size = -1;
 	PACKET.ZC.MEMBERMGR_INFO3 = function PACKET_ZC_MEMBERMGR_INFO3(fp, end) {
 		this.memberInfo = (function() {
 			const count = (end - fp.tell()) / 58 | 0;
@@ -202992,7 +203070,10 @@ var init_PacketRegister = __esmMin((() => {
 		2670: PACKET.CZ.REQ_SEND_RODEX2,
 		2672: PACKET.CZ.RANDOM_COMBINE_ITEM_UI_CLOSE,
 		2685: PACKET.ZC.ACK_RODEX_LIST2,
+		2690: PACKET.ZC.ACK_BAN_GUILD_DELNAME,
+		2691: PACKET.ZC.ACK_LEAVE_GUILD_DELNAME,
 		2692: PACKET.ZC.GUILD_INFO3,
+		2695: PACKET.ZC.BAN_LIST2,
 		2697: PACKET.ZC.STORE_ASSISTANT_ENTRY,
 		2698: PACKET.ZC.STORE_ASSISTANT_DISAPPEAR,
 		2709: PACKET.ZC.CONFIG_NOTIFY2,
@@ -203099,7 +203180,10 @@ var init_PacketRegister = __esmMin((() => {
 		2935: PACKET.ZC.PC_PURCHASE_ITEMLIST2,
 		2936: PACKET.ZC.NPC_BARTER_MARKET_ITEMINFO,
 		2937: PACKET.ZC.NPC_EXPANDED_BARTER_MARKET_ITEMINFO,
+		2847: PACKET.ZC.CHANGE_GUILD2,
+		2887: PACKET.ZC.CHANGE_GUILD3,
 		2939: PACKET.ZC.GUILD_INFO4,
+		2940: PACKET.ZC.BAN_LIST3,
 		2941: PACKET.ZC.MEMBERMGR_INFO3,
 		2927: PACKET.HC.ACCEPT_MAKECHAR,
 		2957: PACKET.ZC.REPUTE_INFO,
@@ -218923,7 +219007,7 @@ var init_ChatBoxSettings = __esmMin((() => {
 /**
 * Helper: query inside shadow root
 */
-function _root$18() {
+function _root$19() {
 	return ChatBox._shadow || ChatBox._host;
 }
 /**
@@ -218967,7 +219051,7 @@ function extractChatMessage$1(inputEl) {
 */
 function flushMessageBuffer() {
 	if (_messageBuffer.length === 0) return;
-	const root = _root$18();
+	const root = _root$19();
 	const messages = _messageBuffer.slice();
 	_messageBuffer = [];
 	const messagesByTab = {};
@@ -219096,7 +219180,7 @@ function stopPropagation$12(event) {
 */
 function onPrivateMessageUserSelection(name) {
 	return function onPrivateMessageUserSelectionClosure() {
-		const nickBox = _root$18().querySelector(".input .username");
+		const nickBox = _root$19().querySelector(".input .username");
 		if (nickBox) nickBox.value = name;
 	};
 }
@@ -219105,7 +219189,7 @@ function onPrivateMessageUserSelection(name) {
 */
 function onChangeTargetMessage(type) {
 	return function onChangeTargetMessageClosure() {
-		const $input = _root$18().querySelector(".input-chatbox");
+		const $input = _root$19().querySelector(".input-chatbox");
 		if ($input) {
 			$input.classList.remove("guild", "party", "clan");
 			if (type & ChatBox.TYPE.PARTY) $input.classList.add("party");
@@ -219151,7 +219235,7 @@ function getScrollLineHeightPx(element) {
 	return 14;
 }
 function makeResizableDiv() {
-	const root = _root$18();
+	const root = _root$19();
 	const resizer = root.querySelector(".event_add_cursor");
 	if (!resizer) return;
 	let originalHeight = 0;
@@ -219294,7 +219378,7 @@ var init_ChatBox = __esmMin((() => {
 	* Initialize UI
 	*/
 	ChatBox.init = function init() {
-		const root = _root$18();
+		const root = _root$19();
 		if (!ContextMenu_default.__loaded) ContextMenu_default.prepare();
 		_heightIndex = _preferences$41.height - 1;
 		ChatBox.updateHeight();
@@ -219625,7 +219709,7 @@ var init_ChatBox = __esmMin((() => {
 	* Clean up the box
 	*/
 	ChatBox.clean = function Clean() {
-		const root = _root$18();
+		const root = _root$19();
 		root.querySelectorAll(".content").forEach((content) => {
 			const matches = content.innerHTML.match(/(blob:[^"]+)/g);
 			if (matches) for (let i = 0, count = matches.length; i < count; ++i) window.URL.revokeObjectURL(matches[i]);
@@ -219639,13 +219723,13 @@ var init_ChatBox = __esmMin((() => {
 		_historyNickName.clear();
 	};
 	ChatBox.toggleChatBattleOption = function toggleChatBattleOption() {
-		const onInput = _root$18().querySelector(".header tr td div.on input");
+		const onInput = _root$19().querySelector(".header tr td div.on input");
 		const tabName = onInput ? onInput.value : "";
 		ChatBoxSettings_default.toggle();
 		ChatBoxSettings_default.updateTab(this.activeTab, tabName);
 	};
 	ChatBox.removeTab = function removeTab() {
-		const root = _root$18();
+		const root = _root$19();
 		const tabEl = root.querySelector(`table.header tr td.tab[data-tab="${this.activeTab}"]`);
 		if (tabEl) tabEl.remove();
 		const contentEl = root.querySelector(`.body .content[data-content="${this.activeTab}"]`);
@@ -219661,7 +219745,7 @@ var init_ChatBox = __esmMin((() => {
 		ChatBoxSettings_default.updateTab(this.activeTab, tabName);
 	};
 	ChatBox.addNewTab = function addNewTab(name, settings) {
-		const root = _root$18();
+		const root = _root$19();
 		if (!name) name = "New Tab";
 		if (!settings) settings = [
 			ChatBox.FILTER.PUBLIC_LOG,
@@ -219718,7 +219802,7 @@ var init_ChatBox = __esmMin((() => {
 		return tabID;
 	};
 	ChatBox.switchTab = function switchTab(tabID) {
-		const root = _root$18();
+		const root = _root$19();
 		root.querySelectorAll("table.header tr td.tab div").forEach((el) => el.classList.remove("on"));
 		root.querySelectorAll(".body .content").forEach((el) => el.classList.remove("active"));
 		this.activeTab = tabID;
@@ -219737,7 +219821,7 @@ var init_ChatBox = __esmMin((() => {
 	* Once append to HTML
 	*/
 	ChatBox.onAppend = function OnAppend() {
-		const root = _root$18();
+		const root = _root$19();
 		const inputEl = root.querySelector(".input");
 		if (inputEl) inputEl.style.display = "none";
 		const bmEl = root.querySelector(".battlemode");
@@ -219768,7 +219852,7 @@ var init_ChatBox = __esmMin((() => {
 	* @return {boolean} found a shortcut ?
 	*/
 	ChatBox.processBattleMode = function processBattleMode(keyId) {
-		const bmEl = _root$18().querySelector(".battlemode");
+		const bmEl = _root$19().querySelector(".battlemode");
 		if (bmEl && bmEl.style.display !== "none" || KEYS.ALT || KEYS.SHIFT || KEYS.CTRL || keyId >= KEYS.F1 && keyId <= KEYS.F24 || KEYS.INSERT) return BattleMode.process(keyId);
 		return false;
 	};
@@ -219776,7 +219860,7 @@ var init_ChatBox = __esmMin((() => {
 	* Key Event Handler
 	*/
 	ChatBox.onKeyDown = function OnKeyDown(event) {
-		const root = _root$18();
+		const root = _root$19();
 		const messageBox = root.querySelector(".input-chatbox");
 		const nickBox = root.querySelector(".input .username");
 		const onInput = root.querySelector(".header tr td div.on input");
@@ -219895,6 +219979,7 @@ var init_ChatBox = __esmMin((() => {
 				}
 				break;
 			case KEYS.ENTER: {
+				if (activeElement && activeElement.tagName === "BUTTON" && !root.contains(activeElement)) return true;
 				if (document.activeElement.className === "message input-chatbox" && document.activeElement !== messageBox) return true;
 				if (document.querySelector("#NpcMenu, #NpcBox")) return true;
 				if (activeElement === messageBox) {
@@ -219918,7 +220003,7 @@ var init_ChatBox = __esmMin((() => {
 		return false;
 	};
 	ChatBox.toggleChat = function toggleChat() {
-		const messageBox = _root$18().querySelector(".input-chatbox");
+		const messageBox = _root$19().querySelector(".input-chatbox");
 		const activeElement = KEYS.getDeepActiveElement();
 		if (activeElement.tagName === "INPUT" && activeElement !== messageBox) return true;
 		if (document.querySelector("#NpcMenu, #NpcBox")) return true;
@@ -219929,7 +220014,7 @@ var init_ChatBox = __esmMin((() => {
 	* Process ChatBox message
 	*/
 	ChatBox.submit = function Submit() {
-		const root = _root$18();
+		const root = _root$19();
 		const inputEl = root.querySelector(".input");
 		const $user = root.querySelector(".input .username");
 		const $text = root.querySelector(".input-chatbox");
@@ -219995,7 +220080,7 @@ var init_ChatBox = __esmMin((() => {
 	* Change chatbox's height
 	*/
 	ChatBox.updateHeight = function changeHeight(AlwaysVisible) {
-		const root = _root$18();
+		const root = _root$19();
 		const HeightList = [
 			0,
 			0,
@@ -220051,7 +220136,7 @@ var init_ChatBox = __esmMin((() => {
 	* Save chat from current tab into a file.
 	*/
 	ChatBox.saveCurrentTabChat = function saveCurrentTabChat() {
-		const root = _root$18();
+		const root = _root$19();
 		let data;
 		const tzoffset = (/* @__PURE__ */ new Date()).getTimezoneOffset() * 6e4;
 		let localISOTime = new Date(Date.now() - tzoffset).toISOString().slice(0, -1);
@@ -220066,7 +220151,7 @@ var init_ChatBox = __esmMin((() => {
 		ChatBox.addText(`Chat History [${ChatBox.tabs[ChatBox.activeTab].name}] ${date} can be saved by <a style="color:#F88" download="ChatHistory [${ChatBox.tabs[ChatBox.activeTab].name}] (${date.replace("/", "-")}).html" href="${url}" target="_blank">clicking here</a>.`, ChatBox.TYPE.PUBLIC, ChatBox.FILTER.PUBLIC_LOG, null, true);
 	};
 	ChatBox.applyFontScale = function applyFontScale() {
-		const root = _root$18();
+		const root = _root$19();
 		const scale = clampChatFontScale(_preferences$41.fontScale || 1);
 		const baseFont = 12;
 		const baseLineHeight = 14;
@@ -220087,7 +220172,7 @@ var init_ChatBox = __esmMin((() => {
 		if (message) message.style.lineHeight = `${inputLineHeight}px`;
 	};
 	ChatBox._setupItemLinkHandler = function _setupItemLinkHandler() {
-		const root = _root$18();
+		const root = _root$19();
 		if (!root) return;
 		root.addEventListener("click", (event) => {
 			const link = event.target.closest(".item-link");
@@ -220118,7 +220203,7 @@ var init_ChatBox = __esmMin((() => {
 		ItemInfo.setItem(item);
 	});
 	ChatBox.insertText = function(text) {
-		const input = _root$18().querySelector(".input-chatbox");
+		const input = _root$19().querySelector(".input-chatbox");
 		if (!input) return;
 		input.appendChild(document.createTextNode(text));
 		input.focus();
@@ -224532,14 +224617,14 @@ var init_WhisperBox = __esmMin((() => {
 /**
 * Helper: query inside shadow root
 */
-function _root$17() {
+function _root$18() {
 	return PartyHelper._shadow || PartyHelper._host;
 }
 /**
 * Validate and process form data
 */
 function onValidate$1() {
-	const root = _root$17();
+	const root = _root$18();
 	const PartyFriends = UIManager.getComponent("PartyFriends");
 	switch (_type$6) {
 		case PartyHelper.Type.CREATE: {
@@ -224602,7 +224687,7 @@ var init_PartyHelper = __esmMin((() => {
 	* Initialize component event listeners
 	*/
 	PartyHelper.init = function init() {
-		const root = _root$17();
+		const root = _root$18();
 		const baseBtn = root.querySelector(".base");
 		if (baseBtn) baseBtn.addEventListener("mousedown", (e) => {
 			e.stopImmediatePropagation();
@@ -224638,7 +224723,7 @@ var init_PartyHelper = __esmMin((() => {
 				off.classList.remove("off");
 				off.classList.add("on");
 				const prefs = WhisperBox.preferences;
-				const rootEl = _root$17();
+				const rootEl = _root$18();
 				const strangerOn = rootEl.querySelector(".open1to1Stranger .on");
 				const friendOn = rootEl.querySelector(".open1to1Friend .on");
 				const alarmOn = rootEl.querySelector(".alarm1to1 .on");
@@ -224701,7 +224786,7 @@ var init_PartyHelper = __esmMin((() => {
 	*/
 	PartyHelper.onAppend = function onAppend() {
 		const base = UIManager.getComponent("PartyFriends");
-		const root = _root$17();
+		const root = _root$18();
 		const partyContent = root.querySelector(".party-content");
 		const friendContent = root.querySelector(".friend-content");
 		if (partyContent) partyContent.style.display = "none";
@@ -224718,7 +224803,7 @@ var init_PartyHelper = __esmMin((() => {
 	* Cleanup on window removal
 	*/
 	PartyHelper.onRemove = function onRemove() {
-		const root = _root$17();
+		const root = _root$18();
 		const partyContent = root.querySelector(".party-content");
 		const friendContent = root.querySelector(".friend-content");
 		if (partyContent) partyContent.style.display = "none";
@@ -224732,7 +224817,7 @@ var init_PartyHelper = __esmMin((() => {
 	* @param {number} type
 	*/
 	PartyHelper.setType = function setType(type) {
-		const root = _root$17();
+		const root = _root$18();
 		root.querySelectorAll(".content").forEach((el) => el.classList.remove("disabled"));
 		const footer = root.querySelector(".footer");
 		if (footer) footer.style.display = "block";
@@ -224817,7 +224902,7 @@ var init_PartyHelper = __esmMin((() => {
 	* @param {boolean} editable
 	*/
 	PartyHelper.setOptions = function setOptions(options, editable) {
-		const root = _root$17();
+		const root = _root$18();
 		function swap(off) {
 			const on = off.parentNode.querySelector(".on");
 			const tmp = on.style.backgroundImage;
@@ -224848,7 +224933,7 @@ var init_PartyHelper = __esmMin((() => {
 	* @param {object} options
 	*/
 	PartyHelper.setFriendOptions = function setFriendOptions(options) {
-		const root = _root$17();
+		const root = _root$18();
 		function swap(off) {
 			const on = off.parentNode.querySelector(".on");
 			on.className = "off";
@@ -225233,7 +225318,7 @@ var init_Rodex$2 = __esmMin((() => {
 /**
 * Helper: query inside shadow root
 */
-function _root$16() {
+function _root$17() {
 	return Rodex._shadow || Rodex._host;
 }
 function onClickClose$2(e) {
@@ -225283,7 +225368,7 @@ function onClickTab(e) {
 	Rodex.page = 0;
 	const element = e.currentTarget;
 	const id = element.id.replace("tab_", "");
-	const root = _root$16();
+	const root = _root$17();
 	root.querySelectorAll(".nav-item.active").forEach((el) => el.classList.remove("active"));
 	element.classList.add("active");
 	if (id >= 0 && id <= 2) {
@@ -225294,7 +225379,7 @@ function onClickTab(e) {
 function onClickSearchTitle(e) {
 	e.stopImmediatePropagation();
 	Rodex.searchType = 1;
-	const root = _root$16();
+	const root = _root$17();
 	Client.loadFile(DB.INTERFACE_PATH + "basic_interface/rodexsystem/renewal/checkbox_search_off.bmp", (data) => {
 		const el = root.querySelector(".search-sender");
 		if (el) el.style.backgroundImage = `url(${data})`;
@@ -225307,7 +225392,7 @@ function onClickSearchTitle(e) {
 function onClickSearchSender(e) {
 	e.stopImmediatePropagation();
 	Rodex.searchType = 2;
-	const root = _root$16();
+	const root = _root$17();
 	Client.loadFile(DB.INTERFACE_PATH + "basic_interface/rodexsystem/renewal/checkbox_search_on.bmp", (data) => {
 		const el = root.querySelector(".search-sender");
 		if (el) el.style.backgroundImage = `url(${data})`;
@@ -225319,7 +225404,7 @@ function onClickSearchSender(e) {
 }
 function onClickSearchButton(e) {
 	e.stopImmediatePropagation();
-	const root = _root$16();
+	const root = _root$17();
 	const search = root.querySelector(".search").value;
 	root.querySelectorAll(".nav-item.active").forEach((el) => el.classList.remove("active"));
 	root.querySelector("#tab_3").classList.add("active");
@@ -225395,7 +225480,7 @@ var init_Rodex$1 = __esmMin((() => {
 	* Apply preferences once append to body
 	*/
 	Rodex.onAppend = function OnAppend() {
-		const root = _root$16();
+		const root = _root$17();
 		this._host.style.top = `${Math.min(Math.max(0, _preferences$37.y), Renderer.height - this._host.offsetHeight)}px`;
 		this._host.style.left = `${Math.min(Math.max(0, _preferences$37.x), Renderer.width - this._host.offsetWidth)}px`;
 		this.draggable(root.querySelector(".titlebar"));
@@ -225442,7 +225527,7 @@ var init_Rodex$1 = __esmMin((() => {
 		this.focus();
 	};
 	Rodex.createRodexList = function createRodexList(tabID = 0, search = false, term = "") {
-		const root = _root$16();
+		const root = _root$17();
 		const content = root.querySelector(".mail-list");
 		content.innerHTML = "";
 		let mail_list = [];
@@ -225512,7 +225597,7 @@ var init_Rodex$1 = __esmMin((() => {
 		}
 	};
 	Rodex.updateDeletedMailContent = function updateDeletedMailContent(openType, MailID) {
-		const root = _root$16();
+		const root = _root$17();
 		const mailEl = root.querySelector(`#mail_${MailID}`);
 		if (mailEl) {
 			mailEl.textContent = DB.getMessage(2907);
@@ -225545,7 +225630,7 @@ var init_Rodex$1 = __esmMin((() => {
 /**
 * Helper: query inside shadow root
 */
-function _root$15(comp) {
+function _root$16(comp) {
 	return comp._shadow || comp._host;
 }
 /**
@@ -225636,7 +225721,7 @@ var init_PartyMemberExternal = __esmMin((() => {
 	*/
 	PartyMemberExternal.init = function init() {
 		const self = this;
-		const root = _root$15(this);
+		const root = _root$16(this);
 		root.addEventListener("mousedown", (event) => {
 			self._lastPos = {
 				top: self._host.offsetTop,
@@ -225729,7 +225814,7 @@ var init_PartyMemberExternal = __esmMin((() => {
 	* @param {object} player
 	*/
 	PartyMemberExternal.update = function update(player) {
-		const root = _root$15(this);
+		const root = _root$16(this);
 		if (!root) return;
 		const level = player.baseLevel || player.level || player.Level || 0;
 		const jobID = player.class_ || player.job || player.Job || 0;
@@ -225781,7 +225866,7 @@ var init_PartyMemberExternal = __esmMin((() => {
 	* @param {number} maxhp
 	*/
 	PartyMemberExternal.updateMemberLife = function updateMemberLife(hp, maxhp) {
-		const root = _root$15(this);
+		const root = _root$16(this);
 		if (root) updateCanvasLife(root, hp, maxhp);
 	};
 	PartyMemberExternal_default = UIManager.addComponent(PartyMemberExternal);
@@ -225803,11 +225888,11 @@ var init_Mail$2 = __esmMin((() => {
 /**
 * Helper: query inside shadow root
 */
-function _root$14() {
+function _root$15() {
 	return Mail._shadow || Mail._host;
 }
 function updatePageMailItems() {
-	const root = _root$14();
+	const root = _root$15();
 	const nextBtn = root.querySelector(".next");
 	if (nextBtn) nextBtn.addEventListener("click", (e) => {
 		e.stopImmediatePropagation();
@@ -225832,7 +225917,7 @@ function updatePageMailItems() {
 * Create messages window size
 */
 function onWindowMailbox() {
-	const root = _root$14();
+	const root = _root$15();
 	Mail.parseMailrefreshinbox();
 	const sendBtn = root.querySelector("#create_mail_send");
 	if (sendBtn) sendBtn.disabled = false;
@@ -225860,7 +225945,7 @@ function onWindowMailbox() {
 	if (title) title.textContent = DB.getMessage(1025);
 }
 function createMailList() {
-	const root = _root$14();
+	const root = _root$15();
 	const content = root.querySelector(".list_item_mail");
 	root.querySelectorAll(".item_mail").forEach((el) => el.remove());
 	if (Mail.list.length == 0) return;
@@ -225915,7 +226000,7 @@ function createMailList() {
 	adjustButtons();
 }
 function adjustButtons() {
-	const root = _root$14();
+	const root = _root$15();
 	if (Mail.list.length == 0) return;
 	const mailLength = Mail.list.mailList.length;
 	if (!(Mail.page > mailLength / Mail.pageSize - 1)) addEventNextAndPrevAdd("next");
@@ -225928,7 +226013,7 @@ function adjustButtons() {
 	if (prevSpan) prevSpan.disabled = mailLength <= Mail.pageSize || Mail.page == 0;
 }
 function addEventNextAndPrevAdd(eventName) {
-	const root = _root$14();
+	const root = _root$15();
 	const overlay = root.querySelector(`.prev_next .overlay_${eventName}`);
 	const text = root.querySelector(`.prev_next .${eventName} span`);
 	if (text) text.classList.add("event_add_cursor");
@@ -225944,7 +226029,7 @@ function addEventNextAndPrevAdd(eventName) {
 	}
 }
 function addEventNextAndPrevRemove(eventName) {
-	const root = _root$14();
+	const root = _root$15();
 	const overlay = root.querySelector(`.prev_next .overlay_${eventName}`);
 	const text = root.querySelector(`.prev_next .${eventName} span`);
 	if (overlay) overlay.style.display = "none";
@@ -225956,7 +226041,7 @@ function offCreateMessagesOnWindowMailbox(event) {
 	removeCreateAllItem();
 }
 function sendCreateMessagesMail(event) {
-	const root = _root$14();
+	const root = _root$15();
 	event.stopImmediatePropagation();
 	const zenyOk = root.querySelector("#zeny_ok");
 	if (zenyOk && window.getComputedStyle(zenyOk).display !== "none") {
@@ -225991,7 +226076,7 @@ function openWindowCreateMessages(event) {
 * Open Create messages window size
 */
 function onWindowCreateMessages() {
-	const root = _root$14();
+	const root = _root$15();
 	removeCreateAllItem();
 	offWindowListMail();
 	Client.loadFile(DB.INTERFACE_PATH + "basic_interface/maillist2_bg.bmp", (url) => {
@@ -226002,7 +226087,7 @@ function onWindowCreateMessages() {
 	if (title) title.textContent = DB.getMessage(1026);
 }
 function offWindowListMail() {
-	const root = _root$14();
+	const root = _root$15();
 	const prevNext = root.querySelector(".prev_next");
 	if (prevNext) prevNext.style.display = "none";
 	const blockMail = root.querySelector(".block_mail");
@@ -226013,7 +226098,7 @@ function offWindowListMail() {
 	if (textarea) textarea.focus();
 }
 function onAddZenyInput(event) {
-	const root = _root$14();
+	const root = _root$15();
 	event.stopImmediatePropagation();
 	const zenyAmt = root.querySelector("#zeny_amt");
 	if (zenyAmt) zenyAmt.style.display = "none";
@@ -226028,7 +226113,7 @@ function onAddZenyInput(event) {
 	Mail.parseMailWinopen(2);
 }
 function onValidZenyInput(event) {
-	const root = _root$14();
+	const root = _root$15();
 	event.stopImmediatePropagation();
 	const zenyAmt = root.querySelector("#zeny_amt");
 	if (zenyAmt) zenyAmt.style.display = "inline-block";
@@ -226090,7 +226175,7 @@ function onDrop$11(event) {
 * Show item name when mouse is over
 */
 function onItemOver$13() {
-	const root = _root$14();
+	const root = _root$15();
 	const idx = parseInt(this.getAttribute("data-index"), 10);
 	const item = Mail.getItemByIndex(idx);
 	if (!item) return;
@@ -226106,7 +226191,7 @@ function onItemOver$13() {
 * Hide the item name
 */
 function onItemOut$14() {
-	const overlay = _root$14().querySelector(".container_item .overlay");
+	const overlay = _root$15().querySelector(".container_item .overlay");
 	if (overlay) overlay.style.display = "none";
 }
 /**
@@ -226252,7 +226337,7 @@ var init_Mail$1 = __esmMin((() => {
 	* Apply preferences once append to body
 	*/
 	Mail.onAppend = function OnAppend() {
-		const root = _root$14();
+		const root = _root$15();
 		const closeBtn = root.querySelector(".close");
 		if (closeBtn) closeBtn.addEventListener("click", this.onClosePressed.bind(this));
 		const inboxBtn = root.querySelector("#inbox");
@@ -226313,7 +226398,7 @@ var init_Mail$1 = __esmMin((() => {
 	* Add item to inventory
 	*/
 	Mail.addItemSub = function AddItemSub(Index) {
-		const root = _root$14();
+		const root = _root$15();
 		const item = _preferences$36.item_add_email;
 		if (item.index !== Index) return false;
 		if (item.WearState && item.type !== ItemType_default.AMMO && item.type !== ItemType_default.CARD) return false;
@@ -226334,14 +226419,14 @@ var init_Mail$1 = __esmMin((() => {
 	* Send from mail to inventory - Remove item
 	*/
 	Mail.removeItem = function removeItem() {
-		const item = _root$14().querySelector(".item");
+		const item = _root$15().querySelector(".item");
 		if (item) item.remove();
 	};
 	/**
 	* Send from mail to inventory - Remove zenys
 	*/
 	Mail.removeZeny = function removeZeny() {
-		const input = _root$14().querySelector(".input_zeny_amt");
+		const input = _root$15().querySelector(".input_zeny_amt");
 		if (input) input.value = "0";
 	};
 	/**
@@ -226363,7 +226448,7 @@ var init_Mail$1 = __esmMin((() => {
 	* Extend Mail window size
 	*/
 	Mail.resize = function Resize(width, height) {
-		const root = _root$14();
+		const root = _root$15();
 		width = Math.min(Math.max(width, 6), 9);
 		height = Math.min(Math.max(height, 2), 6);
 		const mailEl = root.querySelector("#Mail");
@@ -226415,7 +226500,7 @@ var init_Mail$1 = __esmMin((() => {
 	* Responder to a mail.
 	*/
 	Mail.replyNewMail = function replyNewMail(fromName) {
-		const root = _root$14();
+		const root = _root$15();
 		onWindowCreateMessages();
 		const textTo = root.querySelector(".text_to");
 		if (textTo) textTo.value = fromName.replace(/^(\$|\%)/, "").replace(/\t/g, "");
@@ -226424,7 +226509,7 @@ var init_Mail$1 = __esmMin((() => {
 	* Responder to a mail from friends.
 	*/
 	Mail.replyNewMailFriends = async function replyNewMailFriends(fromName) {
-		const root = _root$14();
+		const root = _root$15();
 		Mail.append();
 		sleep(1).then(() => {
 			onWindowCreateMessages();
@@ -226449,7 +226534,7 @@ var init_Mail$1 = __esmMin((() => {
 		});
 	};
 	Mail.clearFieldsItemZeny = function clearFieldsItemZeny() {
-		const root = _root$14();
+		const root = _root$15();
 		const item = root.querySelector(".item");
 		if (item) item.remove();
 		const zenyInput = root.querySelector(".input_zeny_amt");
@@ -226813,10 +226898,10 @@ function createPartyFriends(config) {
 		_friends[index].State = state;
 		if (state) {
 			if (node) node.style.backgroundImage = "";
-			ChatBox_default.addText(DB.getMessage(1042).replace("%s", _friends[index].Name), ChatBox_default.TYPE.BLUE, ChatBox_default.FILTER.PUBLIC_LOG);
+			if (UI_default.li) ChatBox_default.addText(DB.getMessage(1042, "%s has logged out.").replace("%s", _friends[index].Name), ChatBox_default.TYPE.BLUE, ChatBox_default.FILTER.PUBLIC_LOG);
 			return;
 		}
-		ChatBox_default.addText(DB.getMessage(1041).replace("%s", _friends[index].Name), ChatBox_default.TYPE.BLUE, ChatBox_default.FILTER.PUBLIC_LOG);
+		if (UI_default.li) ChatBox_default.addText(DB.getMessage(1041, "%s has logged in.").replace("%s", _friends[index].Name), ChatBox_default.TYPE.BLUE, ChatBox_default.FILTER.PUBLIC_LOG);
 		Client.loadFile(DB.INTERFACE_PATH + "basic_interface/grp_online.bmp", function(url) {
 			if (node) node.style.backgroundImage = `url(${url})`;
 		});
@@ -227912,6 +227997,7 @@ var init_PartyFriendsCommon = __esmMin((() => {
 	init_Camera();
 	init_MiniMap();
 	init_Preferences$1();
+	init_UI();
 	init_MonsterTable();
 	init_Client();
 	init_Renderer();
@@ -227997,36 +228083,40 @@ var init_PartyFriends = __esmMin((() => {
 //#region src/UI/Components/GuildCompanion/GuildCompanion.html?raw
 var GuildCompanion_default$2;
 var init_GuildCompanion$2 = __esmMin((() => {
-	GuildCompanion_default$2 = "<div id=\"GuildCompanion\">\r\n	<div class=\"win companion\">\r\n		<div class=\"titlebar\">\r\n			<ui-image src=\"basic_interface/titlebar_mid.bmp\"></ui-image>\r\n			<span class=\"title\">Guild Companion</span>\r\n			<div class=\"right\">\r\n				<ui-button\r\n					class=\"base btn_x\"\r\n					bg=\"basic_interface/sys_close_off.bmp\"\r\n					hover=\"basic_interface/sys_close_on.bmp\"\r\n				></ui-button>\r\n			</div>\r\n			<div class=\"clear\"></div>\r\n		</div>\r\n		<div class=\"body\">\r\n			<div class=\"msg\">Join a guild or start your own!</div>\r\n			<div class=\"btns\">\r\n				<button class=\"btn btn_create\" type=\"button\">create guild</button>\r\n				<button class=\"btn btn_close\" type=\"button\">OK</button>\r\n			</div>\r\n		</div>\r\n	</div>\r\n	<div class=\"win namebox\">\r\n		<div class=\"titlebar\">\r\n			<ui-image src=\"basic_interface/titlebar_mid.bmp\"></ui-image>\r\n			<span class=\"title name_title\">Create Guild</span>\r\n			<div class=\"right\">\r\n				<ui-button\r\n					class=\"base btn_x2\"\r\n					bg=\"basic_interface/sys_close_off.bmp\"\r\n					hover=\"basic_interface/sys_close_on.bmp\"\r\n				></ui-button>\r\n			</div>\r\n			<div class=\"clear\"></div>\r\n		</div>\r\n		<div class=\"body\">\r\n			<div class=\"label name_label\">Guild Name</div>\r\n			<input type=\"text\" class=\"guildname\" maxlength=\"23\" />\r\n			<div class=\"btns\">\r\n				<button class=\"btn btn_ok\" type=\"button\">OK</button>\r\n				<button class=\"btn btn_cancel\" type=\"button\">cancel</button>\r\n			</div>\r\n		</div>\r\n	</div>\r\n</div>\r\n";
+	GuildCompanion_default$2 = "<div id=\"GuildCompanion\">\r\n	<!-- The \"you have no guild yet\" pane. Its client counterpart, UIGuildTipWnd,\r\n	     is a scrollable tip list fed from client data rather than a two-button\r\n	     prompt, so this pane is a web affordance. It takes the client's caption\r\n	     for that window and the button bitmaps the client ships for it, under\r\n	     유저인터페이스\\guild_helper. -->\r\n	<div class=\"win companion\">\r\n		<div class=\"titlebar\">\r\n			<ui-image src=\"basic_interface/titlebar_mid.bmp\"></ui-image>\r\n			<span class=\"title\"><ui-text msg=\"2078\">Guild System</ui-text></span>\r\n			<div class=\"right\">\r\n				<ui-button\r\n					class=\"base btn_x\"\r\n					bg=\"basic_interface/sys_close_off.bmp\"\r\n					hover=\"basic_interface/sys_close_on.bmp\"\r\n				></ui-button>\r\n			</div>\r\n			<div class=\"clear\"></div>\r\n		</div>\r\n		<div class=\"body\">\r\n			<!-- No table id says this, so it is kept as a literal on purpose\r\n			     rather than forced onto an id that means something else. -->\r\n			<div class=\"msg\">Join a guild or start your own!</div>\r\n			<div class=\"btns\">\r\n				<ui-button\r\n					class=\"btn btn_create\"\r\n					bg=\"guild_helper/create_guild.bmp\"\r\n					hover=\"guild_helper/create_guild_a.bmp\"\r\n					down=\"guild_helper/create_guild_b.bmp\"\r\n				></ui-button>\r\n				<ui-button\r\n					class=\"btn btn_close\"\r\n					bg=\"guild_helper/btn_ok.bmp\"\r\n					hover=\"guild_helper/btn_ok_a.bmp\"\r\n					down=\"guild_helper/btn_ok_b.bmp\"\r\n				></ui-button>\r\n			</div>\r\n		</div>\r\n	</div>\r\n\r\n	<!-- One window for both create and disband, which is what the client does.\r\n	     The caption and the label are the only difference, so open() fills them\r\n	     and the markup carries neither.\r\n	     See docs/reference/guild/create-disband-dialogs.md -->\r\n	<div class=\"win namebox\">\r\n		<div class=\"titlebar\">\r\n			<ui-image src=\"basic_interface/titlebar_mid.bmp\"></ui-image>\r\n			<span class=\"title name_title\"></span>\r\n			<div class=\"right\">\r\n				<ui-button\r\n					class=\"base btn_x2\"\r\n					bg=\"basic_interface/sys_close_off.bmp\"\r\n					hover=\"basic_interface/sys_close_on.bmp\"\r\n				></ui-button>\r\n			</div>\r\n			<div class=\"clear\"></div>\r\n		</div>\r\n		<div class=\"body\">\r\n			<div class=\"label name_label\"></div>\r\n			<input type=\"text\" class=\"guildname\" maxlength=\"23\" />\r\n			<div class=\"btns\">\r\n				<ui-button class=\"btn btn_ok\" bg=\"btn_ok.bmp\" hover=\"btn_ok_a.bmp\" down=\"btn_ok_b.bmp\"></ui-button>\r\n				<ui-button\r\n					class=\"btn btn_cancel\"\r\n					bg=\"btn_cancel.bmp\"\r\n					hover=\"btn_cancel_a.bmp\"\r\n					down=\"btn_cancel_b.bmp\"\r\n				></ui-button>\r\n			</div>\r\n		</div>\r\n	</div>\r\n</div>\r\n";
 }));
 //#endregion
 //#region src/UI/Components/GuildCompanion/GuildCompanion.css?raw
 var GuildCompanion_default$1;
 var init_GuildCompanion$1 = __esmMin((() => {
-	GuildCompanion_default$1 = ":host {\r\n	top: 160px;\r\n	left: 260px;\r\n	z-index: 100;\r\n}\r\n\r\n#GuildCompanion {\r\n	position: relative;\r\n	font-family: Arial, sans-serif;\r\n	font-size: 12px;\r\n	white-space: nowrap;\r\n}\r\n\r\n#GuildCompanion .win {\r\n	display: inline-block;\r\n	vertical-align: top;\r\n	background-color: white;\r\n	border: 1px solid #a5a5a5;\r\n	border-radius: 3px;\r\n	margin-right: 6px;\r\n}\r\n\r\n#GuildCompanion .win.namebox {\r\n	display: none;\r\n}\r\n#GuildCompanion .win.namebox.visible {\r\n	display: inline-block;\r\n}\r\n\r\n#GuildCompanion .win.companion.hidden {\r\n	display: none;\r\n}\r\n\r\n#GuildCompanion .titlebar {\r\n	height: 17px;\r\n	line-height: 17px;\r\n	background-color: white;\r\n	background-repeat: repeat-x;\r\n	border-radius: 3px 3px 0 0;\r\n	font-size: 11px;\r\n	font-weight: bold;\r\n	padding-left: 6px;\r\n}\r\n#GuildCompanion .titlebar .title {\r\n	vertical-align: middle;\r\n}\r\n#GuildCompanion .titlebar .base {\r\n	width: 11px;\r\n	height: 11px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	vertical-align: middle;\r\n}\r\n#GuildCompanion .titlebar .right {\r\n	float: right;\r\n	margin-right: 3px;\r\n}\r\n#GuildCompanion .titlebar .clear {\r\n	clear: both;\r\n}\r\n\r\n#GuildCompanion .body {\r\n	padding: 10px 12px 8px 12px;\r\n}\r\n\r\n#GuildCompanion .companion .msg {\r\n	margin-bottom: 12px;\r\n}\r\n\r\n#GuildCompanion .namebox .label {\r\n	margin-bottom: 4px;\r\n}\r\n#GuildCompanion .namebox input {\r\n	border: 1px solid #c1c6c2;\r\n	background-color: #efefef;\r\n	width: 150px;\r\n	height: 16px;\r\n	margin-bottom: 12px;\r\n}\r\n\r\n#GuildCompanion .btns {\r\n	text-align: center;\r\n}\r\n#GuildCompanion .namebox .btns {\r\n	text-align: right;\r\n}\r\n\r\n#GuildCompanion .btn {\r\n	font-family: Arial, sans-serif;\r\n	font-size: 11px;\r\n	padding: 2px 10px;\r\n	margin: 0 3px;\r\n	cursor: pointer;\r\n}\r\n";
+	GuildCompanion_default$1 = ":host {\r\n	z-index: 100;\r\n}\r\n\r\n#GuildCompanion {\r\n	position: relative;\r\n	font-size: 12px;\r\n	white-space: nowrap;\r\n}\r\n\r\n/* The two panes are never shown together - open() hides one and shows the\r\n * other - so they stack rather than sit side by side. The 1px frame edge is an\r\n * inset shadow instead of a border: a shadow takes part in no layout, which is\r\n * what lets the namebox below carry the client's own coordinates unshifted. */\r\n#GuildCompanion .win {\r\n	display: block;\r\n	position: relative;\r\n	background-color: white;\r\n	box-shadow: inset 0 0 0 1px #a5a5a5;\r\n	border-radius: 3px;\r\n}\r\n\r\n#GuildCompanion .win.namebox {\r\n	display: none;\r\n}\r\n#GuildCompanion .win.namebox.visible {\r\n	display: block;\r\n}\r\n\r\n#GuildCompanion .win.companion.hidden {\r\n	display: none;\r\n}\r\n\r\n#GuildCompanion .titlebar {\r\n	height: 17px;\r\n	line-height: 17px;\r\n	background-color: white;\r\n	background-repeat: repeat-x;\r\n	border-radius: 3px 3px 0 0;\r\n	font-size: 11px;\r\n	font-weight: bold;\r\n	padding-left: 6px;\r\n}\r\n#GuildCompanion .titlebar .title {\r\n	vertical-align: middle;\r\n}\r\n#GuildCompanion .titlebar .base {\r\n	display: inline-block;\r\n	width: 11px;\r\n	height: 11px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	vertical-align: middle;\r\n	cursor: pointer;\r\n}\r\n#GuildCompanion .titlebar .right {\r\n	float: right;\r\n	margin-right: 3px;\r\n}\r\n#GuildCompanion .titlebar .clear {\r\n	clear: both;\r\n}\r\n\r\n#GuildCompanion .btn {\r\n	display: inline-block;\r\n	height: 20px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	cursor: pointer;\r\n}\r\n\r\n/* ---- The \"no guild yet\" pane -------------------------------------------\r\n * No decoded geometry: the client's counterpart is a tip list, not this. Only\r\n * the bitmaps and the caption come from the client. */\r\n\r\n#GuildCompanion .companion .body {\r\n	padding: 10px 12px 8px 12px;\r\n}\r\n#GuildCompanion .companion .msg {\r\n	margin-bottom: 12px;\r\n}\r\n#GuildCompanion .companion .btns {\r\n	text-align: center;\r\n}\r\n#GuildCompanion .companion .btn_create {\r\n	width: 71px;\r\n	margin-right: 6px;\r\n}\r\n#GuildCompanion .companion .btn_close {\r\n	width: 42px;\r\n}\r\n\r\n/* ---- Create / disband, on the client's box -----------------------------\r\n * One window for both modes, at the client's own geometry: 150x100, edit\r\n * 124x20 at (13, 42), OK and Cancel at (58, 76) and (104, 76). Children are\r\n * absolute so each number appears once.\r\n * See docs/reference/guild/create-disband-dialogs.md */\r\n#GuildCompanion .namebox {\r\n	width: 150px;\r\n	height: 100px;\r\n	/* The client's label has no box and is clipped by the window DC. An\r\n	 * absolute box has no such edge, and a localised label overran the frame. */\r\n	overflow: hidden;\r\n}\r\n/* An anchor, not a box - there is nothing to centre the label in, so left/top\r\n * with no width and no text-align.\r\n *\r\n * 13 rather than the client's 16, deliberately: flush with the field's left\r\n * edge rather than with the text inside it, which reads as an indent.\r\n * See docs/reference/guild/create-disband-dialogs.md */\r\n#GuildCompanion .namebox .label {\r\n	position: absolute;\r\n	left: 13px;\r\n	top: 23px;\r\n}\r\n#GuildCompanion .namebox input {\r\n	position: absolute;\r\n	left: 13px;\r\n	top: 42px;\r\n	width: 124px;\r\n	height: 20px;\r\n	box-sizing: border-box;\r\n	padding: 0 2px;\r\n	border: 1px solid #c1c6c2;\r\n	/* The client's own near-white on this edit widget. */\r\n	background-color: #e6e6e6;\r\n	/* The UA's `font` shorthand on form controls drops the inherited family and\r\n	 * resets font-size-adjust, so an input opts out of the x-height\r\n	 * normalisation the rest of the window runs under. */\r\n	font-family: inherit;\r\n	font-size: 12px;\r\n	font-size-adjust: inherit;\r\n	/* The 18px content band, stated rather than left to the UA: without it the\r\n	 * value sits wherever the engine's default input line-height puts it, which\r\n	 * is not the same on every browser. */\r\n	line-height: 18px;\r\n}\r\n#GuildCompanion .namebox .btn {\r\n	position: absolute;\r\n	top: 76px;\r\n	width: 42px;\r\n}\r\n#GuildCompanion .namebox .btn_ok {\r\n	left: 58px;\r\n}\r\n#GuildCompanion .namebox .btn_cancel {\r\n	left: 104px;\r\n}\r\n";
 }));
 //#endregion
 //#region src/UI/Components/GuildCompanion/GuildCompanion.js
+/**
+* Helper: query inside shadow root
+*/
+function _root$14() {
+	return GuildCompanion.getRoot();
+}
 function open(mode) {
 	_mode = mode;
 	if (!GuildCompanion.__active) GuildCompanion.append();
-	const root = GuildCompanion._shadow;
+	const root = _root$14();
 	const companion = root.querySelector(".win.companion");
 	const nameWin = root.querySelector(".win.namebox");
 	const input = root.querySelector(".guildname");
+	const strings = MODE_STRINGS[mode] || MODE_STRINGS.create;
+	root.querySelector(".name_title").textContent = DB.getMessage(strings.title[0], strings.title[1]);
+	root.querySelector(".name_label").textContent = DB.getMessage(strings.label[0], strings.label[1]);
+	input.value = "";
 	if (mode === "disband") {
 		companion.classList.add("hidden");
 		nameWin.classList.add("visible");
-		root.querySelector(".name_title").textContent = "Disband the Guild";
-		root.querySelector(".name_label").textContent = "Enter Guild Name";
-		input.value = "";
 		input.focus();
 	} else {
 		companion.classList.remove("hidden");
 		nameWin.classList.remove("visible");
-		root.querySelector(".name_title").textContent = "Create Guild";
-		root.querySelector(".name_label").textContent = "Guild Name";
-		input.value = "";
 	}
 	center();
 }
@@ -228039,7 +228129,7 @@ function center() {
 	host.style.left = `${Math.max(0, Math.round((w - rect.width) / 2))}px`;
 	host.style.top = `${Math.max(0, Math.round((h - rect.height) / 2))}px`;
 }
-var GuildCompanion, _mode, GuildCompanion_default;
+var GuildCompanion, _mode, MODE_STRINGS, GuildCompanion_default;
 var init_GuildCompanion = __esmMin((() => {
 	init_Renderer();
 	init_SessionStorage();
@@ -228055,11 +228145,22 @@ var init_GuildCompanion = __esmMin((() => {
 	_mode = "create";
 	GuildCompanion.onRequestCreateGuild = function onRequestCreateGuild() {};
 	GuildCompanion.onRequestBreakGuild = function onRequestBreakGuild() {};
+	MODE_STRINGS = {
+		create: {
+			title: [2076, "Create Guild"],
+			label: [2077, "Guild Name"]
+		},
+		disband: {
+			title: [2088, "Disband the Guild"],
+			label: [2089, "Enter Guild Name"]
+		}
+	};
 	GuildCompanion.init = function init() {
-		const root = this._shadow;
-		this.draggable(root.querySelector(".companion .titlebar"));
+		const root = _root$14();
 		const nameWin = root.querySelector(".win.namebox");
 		const input = root.querySelector(".guildname");
+		this.draggable(root.querySelector(".companion .titlebar"));
+		this.draggable(root.querySelector(".namebox .titlebar"));
 		const closeAll = () => {
 			GuildCompanion.remove();
 		};
@@ -228074,7 +228175,9 @@ var init_GuildCompanion = __esmMin((() => {
 		const submit = () => {
 			const name = input.value.trim();
 			if (!name.length) {
-				input.focus();
+				UIManager.showMessageBox(DB.getMessage(2080, "You must enter the name of your guild."), "ok", () => {
+					input.focus();
+				});
 				return;
 			}
 			if (_mode === "disband") {
@@ -228230,13 +228333,13 @@ var init_SkillDescription = __esmMin((() => {
 //#region src/UI/Components/Guild/Guild.html?raw
 var Guild_default$2;
 var init_Guild$3 = __esmMin((() => {
-	Guild_default$2 = "<div id=\"Guild\">\r\n	<div class=\"titlebar\">\r\n		<ui-image src=\"basic_interface/titlebar_mid.bmp\"></ui-image>\r\n		<div class=\"right\">\r\n			<ui-button\r\n				class=\"base close\"\r\n				bg=\"basic_interface/sys_close_off.bmp\"\r\n				hover=\"basic_interface/sys_close_on.bmp\"\r\n			></ui-button>\r\n		</div>\r\n		<div class=\"clear\"></div>\r\n	</div>\r\n\r\n	<div class=\"tabs\">\r\n		<!--\r\n		--><button data-flag=\"0\" class=\"info\"><ui-text msg=\"340\">Guild Info</ui-text></button><!--\r\n		--><button data-flag=\"1\" class=\"members\"><ui-text msg=\"341\">Guildsmen Info</ui-text></button><!--\r\n		--><button data-flag=\"2\" class=\"positions\"><ui-text msg=\"342\">Position</ui-text></button><!--\r\n		--><button data-flag=\"3\" class=\"skills\"><ui-text msg=\"343\">Guild Skill</ui-text></button><!--\r\n		--><button data-flag=\"4\" class=\"history\"><ui-text msg=\"344\">Expel History</ui-text></button><!--\r\n		--><button data-flag=\"6\" class=\"notice\"><ui-text msg=\"345\">Guild Notice</ui-text></button>\r\n	</div>\r\n\r\n	<div class=\"panel\">\r\n		<!-- INFO TAB -->\r\n		<div class=\"content info\">\r\n			<div class=\"name\"><ui-text msg=\"328\">Guild Name</ui-text> : <span class=\"value\"></span></div>\r\n			<div class=\"level\"><ui-text msg=\"329\">Guild lvl</ui-text> : <span class=\"value\"></span></div>\r\n			<div class=\"master\"><ui-text msg=\"330\">Guild Master</ui-text> : <span class=\"value\"></span></div>\r\n			<div class=\"members\">\r\n				<ui-text msg=\"331\">Guildsmen</ui-text> : <span class=\"numMember\">0</span> /\r\n				<span class=\"maxMember\">0</span> <ui-button bg=\"basic_interface/grp_online.bmp\"></ui-button>\r\n				<span class=\"online\"></span>\r\n			</div>\r\n			<div class=\"avglevel\"><ui-text msg=\"332\">Avg.lvl of Guildsmen</ui-text> : <span class=\"value\"></span></div>\r\n			<div class=\"territory\"><ui-text msg=\"333\">Territory</ui-text> : <span class=\"value\"></span></div>\r\n			<div class=\"tendency\">\r\n				<div class=\"title\"><ui-text msg=\"334\">Tendency</ui-text> : <span class=\"value\"></span></div>\r\n				<div class=\"righteous\">R</div>\r\n				<div class=\"wiked\">W</div>\r\n				<div class=\"vulgar\">V</div>\r\n				<div class=\"famed\">F</div>\r\n				<canvas width=\"90\" height=\"90\"></canvas>\r\n			</div>\r\n			<div class=\"exp\"><ui-text msg=\"335\">EXP</ui-text> : <span class=\"value\"></span></div>\r\n			<div class=\"emblem\"><ui-text msg=\"336\">Emblem</ui-text></div>\r\n			<div class=\"emblem_container\"></div>\r\n			<ui-button class=\"emblem_edit\" bg=\"btn_edit.bmp\" hover=\"btn_edit_a.bmp\" down=\"btn_edit_b.bmp\">\r\n				<input type=\"file\" />\r\n			</ui-button>\r\n\r\n			<div class=\"tax\"><ui-text msg=\"337\">Tax Point</ui-text> : <span class=\"value\">0</span></div>\r\n			<div class=\"ally\"><ui-text msg=\"338\">Alliance</ui-text></div>\r\n			<div class=\"ally_list\"></div>\r\n			<div class=\"hostile\"><ui-text msg=\"339\">Antagonist</ui-text></div>\r\n			<div class=\"hostile_list\"></div>\r\n		</div>\r\n\r\n		<!-- MEMBERS TAB -->\r\n		<div class=\"content members\">\r\n			<table>\r\n				<thead>\r\n					<tr>\r\n						<th class=\"name\"><ui-text msg=\"407\">Name</ui-text></th>\r\n						<th class=\"position\"><ui-text msg=\"503\">Position</ui-text></th>\r\n						<th class=\"job\"><ui-text msg=\"504\">Job</ui-text></th>\r\n						<th class=\"level\"><ui-text msg=\"408\">Level</ui-text></th>\r\n						<th class=\"note\"><ui-text msg=\"505\">Note</ui-text></th>\r\n						<th class=\"devotion\"><ui-text msg=\"506\">Devotion</ui-text></th>\r\n						<th class=\"tax\"><ui-text msg=\"507\">Tax Point</ui-text></th>\r\n					</tr>\r\n				</thead>\r\n				<tbody>\r\n					<tr class=\"MemberView\">\r\n						<td class=\"name\">\r\n							<canvas width=\"30\" height=\"30\"></canvas>\r\n							<span class=\"value\"></span>\r\n						</td>\r\n						<td class=\"position\"></td>\r\n						<td class=\"job\"></td>\r\n						<td class=\"level\"></td>\r\n						<td class=\"note\"></td>\r\n						<td class=\"devotion\"></td>\r\n						<td class=\"tax\"></td>\r\n					</tr>\r\n				</tbody>\r\n			</table>\r\n		</div>\r\n\r\n		<!-- POSITIONS TAB -->\r\n		<div class=\"content positions\">\r\n			<table>\r\n				<thead>\r\n					<tr>\r\n						<th class=\"id\"><ui-text msg=\"510\">Rank</ui-text></th>\r\n						<th class=\"title\"><ui-text msg=\"511\">Position Title</ui-text></th>\r\n						<th class=\"invite\"><ui-text msg=\"512\">Invitation</ui-text></th>\r\n						<th class=\"punish\"><ui-text msg=\"513\">Punish</ui-text></th>\r\n						<th class=\"tax\"><ui-text msg=\"514\">Tax</ui-text></th>\r\n					</tr>\r\n				</thead>\r\n				<tbody>\r\n					<tr class=\"PositionView\">\r\n						<td class=\"id\"></td>\r\n						<td class=\"title\">\r\n							<input type=\"text\" value=\"\" />\r\n						</td>\r\n						<td class=\"invite\">\r\n							<ui-button bg=\"checkbox_0.bmp\" class=\"off\"></ui-button>\r\n						</td>\r\n						<td class=\"punish\">\r\n							<ui-button bg=\"checkbox_0.bmp\" class=\"off\"></ui-button>\r\n						</td>\r\n						<td class=\"tax\"><input type=\"text\" value=\"0\" /> %</td>\r\n					</tr>\r\n				</tbody>\r\n			</table>\r\n		</div>\r\n\r\n		<!-- SKILLS TAB -->\r\n		<div class=\"content skills\">\r\n			<div class=\"skill_list\">\r\n				<table>\r\n					<!-- Just to get reference, will be removed -->\r\n					<ui-button\r\n						class=\"btn levelup\"\r\n						bg=\"basic_interface/skill_up_a.bmp\"\r\n						hover=\"basic_interface/skill_up_b.bmp\"\r\n						down=\"basic_interface/skill_up_c.bmp\"\r\n					></ui-button>\r\n				</table>\r\n			</div>\r\n\r\n			<div class=\"footer\">\r\n				<ui-image src=\"basic_interface/btnbar_mid2.bmp\"></ui-image>\r\n				<div class=\"text\">Skill Points: <span class=\"skpoints_count\">0</span></div>\r\n				<ui-button\r\n					class=\"btn apply\"\r\n					bg=\"btn_apply.bmp\"\r\n					hover=\"btn_apply_a.bmp\"\r\n					down=\"btn_apply_b.bmp\"\r\n				></ui-button>\r\n				<ui-button\r\n					class=\"btn reset\"\r\n					bg=\"btn_reset.bmp\"\r\n					hover=\"btn_reset_a.bmp\"\r\n					down=\"btn_reset_b.bmp\"\r\n				></ui-button>\r\n			</div>\r\n		</div>\r\n\r\n		<!-- HISTORY BAN TAB -->\r\n		<div class=\"content history\">\r\n			<table>\r\n				<thead>\r\n					<tr>\r\n						<th class=\"name\"><ui-text msg=\"407\">Name</ui-text></th>\r\n						<th class=\"reason\"><ui-text msg=\"462\">The Reason of Expulsion</ui-text></th>\r\n					</tr>\r\n				</thead>\r\n				<tbody>\r\n					<tr class=\"ExpelView\">\r\n						<td class=\"name\"></td>\r\n						<td class=\"reason\"></td>\r\n					</tr>\r\n				</tbody>\r\n			</table>\r\n		</div>\r\n\r\n		<!-- NOTICE TAB -->\r\n		<div class=\"content notice\">\r\n			<div class=\"subjectTitle\"><ui-text msg=\"515\">Title</ui-text></div>\r\n			<input type=\"text\" class=\"subject\" />\r\n\r\n			<div class=\"noticeTitle\"><ui-text msg=\"516\">Contents</ui-text></div>\r\n			<textarea class=\"notice\"></textarea>\r\n		</div>\r\n	</div>\r\n\r\n	<div class=\"footer\">\r\n		<ui-image src=\"basic_interface/btnbar_mid2.bmp\"></ui-image>\r\n		<button class=\"btn_disband\" type=\"button\">Disband</button>\r\n		<ui-button class=\"btn_ok\" bg=\"btn_ok.bmp\" hover=\"btn_ok_a.bmp\" down=\"btn_ok_b.bmp\"></ui-button>\r\n	</div>\r\n</div>\r\n";
+	Guild_default$2 = "<div id=\"Guild\">\r\n	<div class=\"titlebar\">\r\n		<ui-image src=\"basic_interface/titlebar_mid.bmp\"></ui-image>\r\n		<div class=\"right\">\r\n			<ui-button\r\n				class=\"base close\"\r\n				bg=\"basic_interface/sys_close_off.bmp\"\r\n				hover=\"basic_interface/sys_close_on.bmp\"\r\n			></ui-button>\r\n		</div>\r\n		<div class=\"clear\"></div>\r\n	</div>\r\n\r\n	<div class=\"tabs\">\r\n		<!--\r\n		--><button data-flag=\"0\" class=\"info\"><ui-text msg=\"340\">Guild Info</ui-text></button\r\n		><!--\r\n		--><button data-flag=\"1\" class=\"members\"><ui-text msg=\"341\">Guildsmen Info</ui-text></button\r\n		><!--\r\n		--><button data-flag=\"2\" class=\"positions\"><ui-text msg=\"342\">Position</ui-text></button\r\n		><!--\r\n		--><button data-flag=\"3\" class=\"skills\"><ui-text msg=\"343\">Guild Skill</ui-text></button\r\n		><!--\r\n		--><button data-flag=\"4\" class=\"history\"><ui-text msg=\"344\">Expel History</ui-text></button\r\n		><!--\r\n		--><button data-flag=\"6\" class=\"notice\"><ui-text msg=\"345\">Guild Notice</ui-text></button>\r\n	</div>\r\n\r\n	<div class=\"panel\">\r\n		<!-- INFO TAB -->\r\n		<div class=\"content info\">\r\n			<div class=\"name\"><ui-text msg=\"328\">Guild Name</ui-text> : <span class=\"value\"></span></div>\r\n			<div class=\"level\"><ui-text msg=\"329\">Guild lvl</ui-text> : <span class=\"value\"></span></div>\r\n			<div class=\"master\"><ui-text msg=\"330\">Guild Master</ui-text> : <span class=\"value\"></span></div>\r\n			<div class=\"members\">\r\n				<ui-text msg=\"331\">Guildsmen</ui-text> : <span class=\"numMember\">0</span> /\r\n				<span class=\"maxMember\">0</span>\r\n				<span class=\"online-icon\" data-background=\"basic_interface/grp_online.bmp\"></span>\r\n				<span class=\"online\"></span>\r\n			</div>\r\n			<div class=\"avglevel\"><ui-text msg=\"332\">Avg.lvl of Guildsmen</ui-text> : <span class=\"value\"></span></div>\r\n			<div class=\"territory\"><ui-text msg=\"333\">Territory</ui-text> : <span class=\"value\"></span></div>\r\n			<div class=\"tendency\">\r\n				<!-- Label only, with no value and no separator. The chart is the\r\n				     value. See docs/reference/guild/info-tab-legacy.md -->\r\n				<div class=\"title\"><ui-text msg=\"334\">Tendency</ui-text></div>\r\n				<div class=\"righteous\">R</div>\r\n				<div class=\"wiked\">W</div>\r\n				<div class=\"vulgar\">V</div>\r\n				<div class=\"famed\">F</div>\r\n				<canvas width=\"90\" height=\"90\"></canvas>\r\n			</div>\r\n			<div class=\"exp\"><ui-text msg=\"335\">EXP</ui-text> : <span class=\"value\"></span></div>\r\n			<div class=\"emblem\"><ui-text msg=\"336\">Emblem</ui-text></div>\r\n			<!-- The emblem is the picker: one file input, opened by clicking the\r\n			     emblem, by the Edit button or by a drop.\r\n			     See docs/reference/guild/emblem-picker.md -->\r\n			<div class=\"emblem_container\">\r\n				<label class=\"emblem_pick\"><input type=\"file\" accept=\".bmp,.gif,image/bmp,image/gif\" /></label>\r\n			</div>\r\n			<ui-button class=\"emblem_edit\" bg=\"btn_edit.bmp\" hover=\"btn_edit_a.bmp\" down=\"btn_edit_b.bmp\"></ui-button>\r\n\r\n			<div class=\"tax\"><ui-text msg=\"337\">Tax Point</ui-text> : <span class=\"value\">0</span></div>\r\n			<div class=\"ally\"><ui-text msg=\"338\">Alliance</ui-text></div>\r\n			<div class=\"ally_list\"></div>\r\n			<div class=\"hostile\"><ui-text msg=\"339\">Antagonist</ui-text></div>\r\n			<div class=\"hostile_list\"></div>\r\n		</div>\r\n\r\n		<!-- MEMBERS TAB -->\r\n		<div class=\"content members\">\r\n			<table>\r\n				<thead>\r\n					<tr>\r\n						<th class=\"name\"><ui-text msg=\"407\">Name</ui-text></th>\r\n						<th class=\"position\"><ui-text msg=\"503\">Position</ui-text></th>\r\n						<th class=\"job\"><ui-text msg=\"504\">Job</ui-text></th>\r\n						<th class=\"level\"><ui-text msg=\"408\">Level</ui-text></th>\r\n						<th class=\"note\"><ui-text msg=\"505\">Note</ui-text></th>\r\n						<th class=\"devotion\"><ui-text msg=\"506\">Tax</ui-text></th>\r\n						<th class=\"tax\"><ui-text msg=\"507\">Contribution</ui-text></th>\r\n					</tr>\r\n				</thead>\r\n				<tbody>\r\n					<tr class=\"MemberView\">\r\n						<td class=\"name\">\r\n							<canvas width=\"30\" height=\"30\"></canvas>\r\n							<span class=\"value\"></span>\r\n							<span class=\"lastlogin\"></span>\r\n						</td>\r\n						<td class=\"position\"></td>\r\n						<td class=\"job\"></td>\r\n						<td class=\"level\"></td>\r\n						<td class=\"note\"></td>\r\n						<td class=\"devotion\"></td>\r\n						<td class=\"tax\"></td>\r\n					</tr>\r\n				</tbody>\r\n			</table>\r\n		</div>\r\n\r\n		<!-- POSITIONS TAB -->\r\n		<div class=\"content positions\">\r\n			<table>\r\n				<thead>\r\n					<tr>\r\n						<th class=\"id\"><ui-text msg=\"510\">Rank</ui-text></th>\r\n						<th class=\"title\"><ui-text msg=\"511\">Position Title</ui-text></th>\r\n						<th class=\"invite\"><ui-text msg=\"512\">Invitation</ui-text></th>\r\n						<th class=\"punish\"><ui-text msg=\"513\">Punish</ui-text></th>\r\n						<th class=\"storage\"><ui-text msg=\"2499\">Storage</ui-text></th>\r\n						<th class=\"tax\"><ui-text msg=\"514\">Tax</ui-text></th>\r\n					</tr>\r\n				</thead>\r\n				<tbody>\r\n					<tr class=\"PositionView\">\r\n						<td class=\"id\"></td>\r\n						<td class=\"title\">\r\n							<input type=\"text\" value=\"\" />\r\n						</td>\r\n						<td class=\"invite\">\r\n							<div class=\"checkbox off\"></div>\r\n						</td>\r\n						<td class=\"punish\">\r\n							<div class=\"checkbox off\"></div>\r\n						</td>\r\n						<td class=\"storage\">\r\n							<div class=\"checkbox off\"></div>\r\n						</td>\r\n						<td class=\"tax\"><input type=\"text\" value=\"0\" maxlength=\"2\" /> %</td>\r\n					</tr>\r\n				</tbody>\r\n			</table>\r\n		</div>\r\n\r\n		<!-- SKILLS TAB -->\r\n		<div class=\"content skills\">\r\n			<div class=\"skill_list\">\r\n				<!-- Just to get reference, will be removed -->\r\n				<ui-button\r\n					class=\"btn levelup\"\r\n					bg=\"basic_interface/skill_up_a.bmp\"\r\n					hover=\"basic_interface/skill_up_b.bmp\"\r\n					down=\"basic_interface/skill_up_c.bmp\"\r\n				></ui-button>\r\n			</div>\r\n		</div>\r\n\r\n		<!-- HISTORY BAN TAB -->\r\n		<div class=\"content history\">\r\n			<table>\r\n				<thead>\r\n					<tr>\r\n						<th class=\"name\"><ui-text msg=\"407\">Name</ui-text></th>\r\n						<th class=\"reason\"><ui-text msg=\"462\">The Reason of Expulsion</ui-text></th>\r\n					</tr>\r\n				</thead>\r\n				<tbody>\r\n					<tr class=\"ExpelView\">\r\n						<td class=\"name\"></td>\r\n						<td class=\"reason\"></td>\r\n					</tr>\r\n				</tbody>\r\n			</table>\r\n		</div>\r\n\r\n		<!-- NOTICE TAB -->\r\n		<div class=\"content notice\">\r\n			<div class=\"subjectTitle\"><ui-text msg=\"515\">Title</ui-text></div>\r\n			<input type=\"text\" class=\"subject\" />\r\n\r\n			<div class=\"noticeTitle\"><ui-text msg=\"516\">Contents</ui-text></div>\r\n			<textarea class=\"notice\"></textarea>\r\n		</div>\r\n	</div>\r\n\r\n	<div class=\"footer\">\r\n		<ui-image src=\"basic_interface/btnbar_mid2.bmp\"></ui-image>\r\n		<ui-button\r\n			class=\"btn_disband\"\r\n			bg=\"btn_disband.bmp\"\r\n			hover=\"btn_disband_a.bmp\"\r\n			down=\"btn_disband_b.bmp\"\r\n		></ui-button>\r\n		<ui-button class=\"btn_ok\" bg=\"btn_ok.bmp\" hover=\"btn_ok_a.bmp\" down=\"btn_ok_b.bmp\"></ui-button>\r\n		<div class=\"text skpoints\">Skill Points: <span class=\"skpoints_count\">0</span></div>\r\n		<div class=\"sortlogin\">\r\n			<ui-button bg=\"checkbox_1.bmp\"></ui-button><ui-text msg=\"2864\">Show guild member login status</ui-text>\r\n		</div>\r\n		<!-- The client draws btn_close beside this one at x=92. It is left out on\r\n		     purpose, not missing: it carries the same command id as the titlebar's\r\n		     close button, so it is a duplicate. See Guild.js. -->\r\n		<ui-button class=\"btn btn_use\" bg=\"btn_use.bmp\" hover=\"btn_use_a.bmp\" down=\"btn_use_b.bmp\"></ui-button>\r\n	</div>\r\n\r\n	<!-- The whole window becomes the drop target while a file is dragged over\r\n	     it, the emblem alone being a 24x24 target.\r\n	     See docs/reference/guild/emblem-picker.md -->\r\n	<div class=\"emblem_drop\"><ui-text msg=\"336\">Emblem</ui-text></div>\r\n</div>\r\n";
 }));
 //#endregion
 //#region src/UI/Components/Guild/Guild.css?raw
 var Guild_default$1;
 var init_Guild$2 = __esmMin((() => {
-	Guild_default$1 = ":host {\r\n	top: 100px;\r\n	left: 100px;\r\n	width: 400px;\r\n	height: 317px;\r\n}\r\n\r\n#Guild {\r\n	position: absolute;\r\n}\r\n\r\n#Guild .titlebar {\r\n	width: 100%;\r\n	height: 17px;\r\n	background-color: white;\r\n	background-repeat: repeat-x;\r\n	border-radius: 3px 3px 0px 0px;\r\n	font-size: 11px;\r\n	font-weight: bold;\r\n}\r\n#Guild .titlebar .base {\r\n	width: 11px;\r\n	height: 11px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	vertical-align: middle;\r\n}\r\n#Guild .titlebar .right {\r\n	float: right;\r\n	margin-right: 3px;\r\n}\r\n#Guild .titlebar .clear {\r\n	clear: both;\r\n}\r\n\r\n#Guild .panel {\r\n	background-color: white;\r\n	padding-right: 2px;\r\n}\r\n#Guild .content {\r\n	position: relative;\r\n	box-sizing: border-box;\r\n	overflow-y: auto;\r\n	padding: 2px;\r\n	border-top: 1px solid #c6c6c6;\r\n	height: 250px;\r\n}\r\n\r\n#Guild .tabs {\r\n	height: 23px;\r\n	background-color: #b5b6b5;\r\n	white-space: nowrap;\r\n}\r\n#Guild .tabs button.active {\r\n	background-color: #fff;\r\n}\r\n#Guild .tabs button {\r\n	width: 64px;\r\n	height: 23px;\r\n	margin-left: 1px;\r\n	margin-right: 1px;\r\n	margin-top: 1px;\r\n	padding: 0;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n	background-color: #cecece;\r\n	border: 0px;\r\n	padding: 3px;\r\n}\r\n#Guild .footer {\r\n	width: 100%;\r\n	height: 27px;\r\n	background-repeat: repeat-x;\r\n	background-color: transparent;\r\n	position: relative;\r\n	border-radius: 0px 0px 3px 3px;\r\n}\r\n#Guild .footer .btn_ok {\r\n	display: none;\r\n	position: absolute;\r\n	bottom: 4px;\r\n	right: 4px;\r\n	width: 42px;\r\n	height: 20px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n}\r\n\r\n#Guild .content.members,\r\n#Guild .content.positions,\r\n#Guild .content.skills,\r\n#Guild .content.history,\r\n#Guild .content.notice {\r\n	display: none;\r\n}\r\n\r\n/*\r\n * Guild Info CSS\r\n */\r\n#Guild .content.info .exp,\r\n#Guild .content.info .emblem,\r\n#Guild .content.info .tax,\r\n#Guild .content.info .ally,\r\n#Guild .content.info .ally_list,\r\n#Guild .content.info .hostile,\r\n#Guild .content.info .hostile_list {\r\n	position: absolute;\r\n	left: 201px;\r\n}\r\n\r\n#Guild .content.info .name {\r\n	position: absolute;\r\n	left: 9px;\r\n	top: 13px;\r\n}\r\n#Guild .content.info .level {\r\n	position: absolute;\r\n	left: 9px;\r\n	top: 28px;\r\n}\r\n#Guild .content.info .master {\r\n	position: absolute;\r\n	left: 9px;\r\n	top: 45px;\r\n}\r\n#Guild .content.info .members {\r\n	position: absolute;\r\n	left: 9px;\r\n	top: 61px;\r\n}\r\n#Guild .content.info .avglevel {\r\n	position: absolute;\r\n	left: 9px;\r\n	top: 77px;\r\n}\r\n#Guild .content.info .territory {\r\n	position: absolute;\r\n	left: 9px;\r\n	top: 93px;\r\n}\r\n#Guild .content.info .tendency {\r\n	position: absolute;\r\n	left: 9px;\r\n	top: 114px;\r\n}\r\n#Guild .content.info .tendency .title {\r\n	position: absolute;\r\n	top: 0px;\r\n	left: 0px;\r\n}\r\n#Guild .content.info .tendency .righteous {\r\n	position: absolute;\r\n	left: 50px;\r\n	top: 16px;\r\n	text-align: center;\r\n}\r\n#Guild .content.info .tendency .wiked {\r\n	position: absolute;\r\n	left: 50px;\r\n	top: 120px;\r\n	text-align: center;\r\n}\r\n#Guild .content.info .tendency .vulgar {\r\n	position: absolute;\r\n	left: 0px;\r\n	top: 68px;\r\n}\r\n#Guild .content.info .tendency .famed {\r\n	position: absolute;\r\n	left: 102px;\r\n	top: 68px;\r\n}\r\n#Guild .content.info .tendency canvas {\r\n	position: absolute;\r\n	top: 30px;\r\n	left: 10px;\r\n}\r\n\r\n#Guild .content.info .members ui-button {\r\n	margin-left: 5px;\r\n	vertical-align: -4px;\r\n	border: none;\r\n	width: 15px;\r\n	height: 15px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n}\r\n\r\n#Guild .content.info .exp {\r\n	position: absolute;\r\n	left: 201px;\r\n	top: 13px;\r\n}\r\n#Guild .content.info .emblem {\r\n	position: absolute;\r\n	left: 201px;\r\n	top: 37px;\r\n}\r\n#Guild .content.info .tax {\r\n	position: absolute;\r\n	left: 201px;\r\n	top: 61px;\r\n}\r\n#Guild .content.info .ally {\r\n	position: absolute;\r\n	left: 201px;\r\n	top: 103px;\r\n}\r\n#Guild .content.info .ally_list {\r\n	position: absolute;\r\n	left: 201px;\r\n	top: 118px;\r\n	white-space: pre;\r\n	width: 168px;\r\n	height: 48px;\r\n	background: #cecece;\r\n}\r\n#Guild .content.info .hostile {\r\n	position: absolute;\r\n	left: 201px;\r\n	top: 177px;\r\n}\r\n#Guild .content.info .hostile_list {\r\n	position: absolute;\r\n	left: 201px;\r\n	top: 193px;\r\n	white-space: pre;\r\n	width: 168px;\r\n	height: 48px;\r\n	background: #cecece;\r\n}\r\n\r\n#Guild .content.info .ally_list div,\r\n#Guild .content.info .hostile_list div {\r\n	padding: 2px;\r\n}\r\n#Guild .content.info .ally_list div.active,\r\n#Guild .content.info .hostile_list div.active {\r\n	background-color: #739eef;\r\n	padding: 2px;\r\n}\r\n\r\n#Guild .content.info .emblem_container {\r\n	width: 24px;\r\n	height: 24px;\r\n	position: absolute;\r\n	top: 29px;\r\n	left: 300px;\r\n	background-color: #709ce7;\r\n	background-repeat: no-repeat;\r\n}\r\n#Guild .content.info .emblem_edit {\r\n	position: absolute;\r\n	top: 30px;\r\n	left: 330px;\r\n	width: 42px;\r\n	height: 20px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	overflow: hidden;\r\n}\r\n#Guild .content.info .emblem_edit input {\r\n	opacity: 0;\r\n}\r\n\r\n/*\r\n * Guild Members\r\n */\r\n#Guild .content.members table {\r\n	border-spacing: 0;\r\n	border-collapse: collapse;\r\n}\r\n#Guild .content.members tbody tr {\r\n	border-left: 1px solid #c2c2c2;\r\n	border-right: 1px solid #c2c2c2;\r\n}\r\n#Guild .content.members td {\r\n	border-bottom: 1px solid #c2c2c2;\r\n}\r\n#Guild .content.members tr.active td {\r\n	background-color: #739eef !important;\r\n}\r\n#Guild .content.members th {\r\n	border: 1px solid #c2c2c2;\r\n}\r\n#Guild .content.members td,\r\n#Guild .content.members th {\r\n	text-align: left;\r\n	font-weight: normal;\r\n	padding-left: 2px;\r\n	height: 35px;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n}\r\n#Guild .content.members tr.online td {\r\n	background-color: #efe;\r\n}\r\n#Guild .content.members tr canvas {\r\n	display: inline;\r\n}\r\n#Guild .content.members .name {\r\n	width: 85px;\r\n	max-width: 85px;\r\n	text-overflow: ellipsis;\r\n	overflow: hidden;\r\n}\r\n#Guild .content.members .name canvas {\r\n	vertical-align: -11px;\r\n}\r\n#Guild .content.members .position {\r\n	width: 70px;\r\n	max-width: 70px;\r\n	text-overflow: ellipsis;\r\n	overflow: hidden;\r\n}\r\n#Guild .content.members .position select {\r\n	width: 65px;\r\n	max-width: 65px;\r\n	text-overflow: ellipsis;\r\n	overflow: hidden;\r\n}\r\n#Guild .content.members .job {\r\n	width: 43px;\r\n	max-width: 43px;\r\n	text-overflow: ellipsis;\r\n	overflow: hidden;\r\n}\r\n#Guild .content.members .level {\r\n	width: 30px;\r\n}\r\n#Guild .content.members .note {\r\n	width: 41px;\r\n}\r\n#Guild .content.members .devotion {\r\n	width: 42px;\r\n}\r\n#Guild .content.members .tax {\r\n	width: 63px;\r\n	max-width: 63px;\r\n	text-overflow: ellipsis;\r\n	overflow: hidden;\r\n}\r\n\r\n/*\r\n * Guild Positions\r\n */\r\n#Guild .content.positions table {\r\n	border-spacing: 0;\r\n	border-collapse: collapse;\r\n}\r\n#Guild .content.positions tr.active {\r\n	border: none;\r\n}\r\n#Guild .content.positions tr.active td {\r\n	background-color: #739eef;\r\n}\r\n#Guild .content.positions th,\r\n#Guild .content.positions td {\r\n	height: 20px;\r\n	font-weight: normal;\r\n	text-align: left;\r\n	padding: 2px 2px 0px 3px;\r\n	border: 1px solid #c2c2c2;\r\n}\r\n#Guild .content.positions .id {\r\n	width: 57px;\r\n}\r\n#Guild .content.positions .title {\r\n	width: 158px;\r\n	padding: 0px;\r\n}\r\n#Guild .content.positions .invite {\r\n	width: 68px;\r\n}\r\n#Guild .content.positions .punish {\r\n	width: 68px;\r\n}\r\n#Guild .content.positions .tax {\r\n	width: 68px;\r\n	padding: 0;\r\n}\r\n#Guild .content.positions input {\r\n	border: none;\r\n	background-color: white;\r\n	padding: 0;\r\n	height: 18px;\r\n}\r\n#Guild .content.positions .title input {\r\n	padding-left: 2px;\r\n	width: 140px;\r\n	margin-left: 4px;\r\n}\r\n#Guild .content.positions .tax input {\r\n	width: 28px;\r\n	padding-left: 2px;\r\n	margin-left: 3px;\r\n}\r\n#Guild .content.positions ui-button {\r\n	border: none;\r\n	width: 10px;\r\n	height: 10px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n}\r\n\r\n/*\r\n * Guild Skills\r\n */\r\n#Guild .content.skills {\r\n	overflow-y: hidden;\r\n}\r\n#Guild .content.skills .skill_list {\r\n	overflow-y: auto;\r\n	padding: 5px;\r\n	border-top: 1px solid #c6c6c6;\r\n	width: 394px;\r\n	height: 215px;\r\n}\r\n#Guild .content.skills .skill_list table {\r\n	border: none;\r\n	border-spacing: 0px;\r\n	padding-top: 5px;\r\n	width: 100%;\r\n}\r\n#Guild .content.skills .skill_list td,\r\n#Guild .content.skills .skill_list .name {\r\n	padding: 0px;\r\n}\r\n\r\n#Guild .content.skills .levelup {\r\n	border: 0;\r\n	width: 24px;\r\n	height: 24px;\r\n	padding: 0;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n}\r\n#Guild .content.skills td.type {\r\n	vertical-align: bottom;\r\n}\r\n\r\n#Guild .content.skills .skill_list .icon {\r\n	padding-left: 15px;\r\n}\r\n#Guild .content.skills .skill_list .levelupcontainer {\r\n	padding-left: 5px;\r\n	padding-right: 5px;\r\n	width: 24px;\r\n}\r\n#Guild .content.skills .skill_list div.name {\r\n	line-height: 12px;\r\n	white-space: nowrap;\r\n	padding-left: 5px;\r\n	white-space: nowrap;\r\n	width: 120px;\r\n	padding-top: 4px;\r\n	height: 28px;\r\n}\r\n#Guild .content.skills .disabled .icon,\r\n#Guild .content.skills .disabled .name {\r\n	opacity: 0.5;\r\n}\r\n#Guild .content.skills .disabled .consume,\r\n#Guild .content.skills .disabled .level {\r\n	display: none;\r\n}\r\n#Guild .content.skills .currentDown,\r\n#Guild .content.skills .currentUp {\r\n	width: 11px;\r\n	height: 11px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	vertical-align: middle;\r\n}\r\n\r\n#Guild .content.skills .selected.disabled .selectable {\r\n	background-color: #b5b5b5;\r\n}\r\n#Guild .content.skills .selected.passive .selectable {\r\n	background-color: #73d5ee;\r\n}\r\n#Guild .content.skills .selected.active .selectable {\r\n	background-color: #739cee;\r\n}\r\n\r\n#Guild .content.skills .footer {\r\n	width: 100%;\r\n	height: 27px;\r\n	background-repeat: repeat-x;\r\n	background-color: transparent;\r\n	position: relative;\r\n}\r\n#Guild .content.skills .footer .text {\r\n	padding-top: 7px;\r\n	margin-left: 10px;\r\n}\r\n\r\n#Guild .footer .btn_disband {\r\n	display: none;\r\n	position: absolute;\r\n	bottom: 4px;\r\n	right: 4px;\r\n	padding: 2px 10px;\r\n	font-family: Arial, sans-serif;\r\n	font-size: 11px;\r\n	cursor: pointer;\r\n}\r\n\r\n#Guild .content.skills .footer .btn {\r\n	position: absolute;\r\n	top: 5px;\r\n	border: 0;\r\n	width: 42px;\r\n	height: 20px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	display: none;\r\n}\r\n#Guild .content.skills .footer .apply {\r\n	right: 70px;\r\n}\r\n#Guild .content.skills .footer .reset {\r\n	right: 20px;\r\n}\r\n\r\n/*\r\n * Guild History\r\n */\r\n#Guild .content.history table {\r\n	border-spacing: 0;\r\n	border-collapse: collapse;\r\n}\r\n#Guild .content.history th,\r\n#Guild .content.history td {\r\n	font-weight: normal;\r\n	text-align: left;\r\n	padding: 5px 5px 0px 5px;\r\n	border: 1px solid #c2c2c2;\r\n}\r\n#Guild .content.history .name {\r\n	width: 90px;\r\n}\r\n#Guild .content.history .reason {\r\n	width: 275px;\r\n}\r\n\r\n/*\r\n * Guild Notice\r\n */\r\n#Guild .notice .subjectTitle {\r\n	position: absolute;\r\n	top: 13px;\r\n	left: 9px;\r\n}\r\n#Guild .notice .subject {\r\n	position: absolute;\r\n	top: 11px;\r\n	left: 50px;\r\n	padding-left: 5px;\r\n	height: 14px;\r\n	border: none;\r\n	width: 333px;\r\n	background-color: #eee;\r\n}\r\n#Guild .notice .noticeTitle {\r\n	position: absolute;\r\n	top: 36px;\r\n	left: 9px;\r\n}\r\n#Guild .notice .notice {\r\n	position: absolute;\r\n	top: 52px;\r\n	left: 9px;\r\n	padding-left: 5px;\r\n	margin: 0px;\r\n	width: 372px;\r\n	height: 168px;\r\n	background-color: #eee;\r\n	border: none;\r\n	resize: none;\r\n}\r\n";
+	Guild_default$1 = ":host {\r\n	top: 100px;\r\n	left: 100px;\r\n	width: 400px;\r\n	height: 317px;\r\n}\r\n\r\n/* The size the client gives this window: UIWindow::SetSize(400, 317), from a\r\n * pair of read-only globals shared by all six tabs. Without a width here the\r\n * frame is shrink-to-fit, so anything that widens a pane - a scrollbar's\r\n * gutter, a longer list, a different tab - moves the frame and drags the\r\n * floated close button with it. */\r\n#Guild {\r\n	position: absolute;\r\n	width: 400px;\r\n	height: 317px;\r\n}\r\n\r\n/* Dropping a file to change the emblem is a web addition, so there is no client\r\n * state to copy. Hidden until a file is actually dragged over the window, and\r\n * only for the guild master on the tab the emblem lives on.\r\n * See docs/reference/guild/emblem-picker.md */\r\n#Guild .emblem_drop {\r\n	display: none;\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n	width: 100%;\r\n	height: 100%;\r\n	z-index: 10;\r\n	align-items: center;\r\n	justify-content: center;\r\n	border: 2px dashed #707070;\r\n	border-radius: 3px;\r\n	background-color: rgba(255, 255, 255, 0.75);\r\n	box-sizing: border-box;\r\n	font-size: 12px;\r\n	font-weight: bold;\r\n}\r\n#Guild .emblem_drop.dragover {\r\n	display: flex;\r\n}\r\n\r\n#Guild .titlebar {\r\n	width: 100%;\r\n	height: 17px;\r\n	background-color: white;\r\n	background-repeat: repeat-x;\r\n	border-radius: 3px 3px 0px 0px;\r\n	font-size: 11px;\r\n	font-weight: bold;\r\n}\r\n#Guild .titlebar .base {\r\n	width: 11px;\r\n	height: 11px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	/* Top, not middle: the client puts this at a literal y, and a baseline\r\n	 * alignment lands it on a fraction of a pixel instead. */\r\n	vertical-align: top;\r\n}\r\n/* SetPos(W - 14, 3) with sys_close_off.bmp at 11x11 - so (386, 3). The 3px\r\n * right margin puts the 11px button's left edge on 386 in a 400 frame. */\r\n#Guild .titlebar .right {\r\n	float: right;\r\n	margin-right: 3px;\r\n	margin-top: 3px;\r\n	line-height: 0;\r\n}\r\n#Guild .titlebar .clear {\r\n	clear: both;\r\n}\r\n\r\n/* The client's content pane is (1, 41, 398, 276) painted over (0, 41, 400, 276),\r\n * so the only edges it leaves are the 1px verticals at x=0 and x=399 - there is\r\n * no horizontal rule under the tabs. The bottom 29 of that 276 are overpainted\r\n * by the button bar, which is a sibling of this box, so the strips this panel\r\n * has to draw are exactly its own height.\r\n *\r\n * A shadow rather than a border on purpose: every band in this window is a\r\n * border-box width that already includes its own separator, and the totals are\r\n * pinned (members 370 in a 375 band, positions a hard 376, skills a hard 398).\r\n * A border would not grow this box, it would take those 2px out of .content and\r\n * walk every measured separator inward. An inset shadow paints in the same\r\n * place and takes part in no layout at all. */\r\n#Guild .panel {\r\n	background-color: white;\r\n	padding-right: 2px;\r\n	box-shadow:\r\n		inset 1px 0 #c8c8c8,\r\n		inset -1px 0 #c8c8c8;\r\n}\r\n#Guild .content {\r\n	position: relative;\r\n	box-sizing: border-box;\r\n	overflow-y: auto;\r\n	padding: 2px;\r\n	height: 247px;\r\n}\r\n\r\n/* The client's tab band is 24px, y 17..41, with the 23px cells sitting 1px\r\n * inside it. At 23 the cells overhang the band and the panel's white shows\r\n * through the 2px gutters between them. */\r\n#Guild .tabs {\r\n	height: 24px;\r\n	background-color: #b4b4b4;\r\n	white-space: nowrap;\r\n}\r\n#Guild .tabs button.active {\r\n	background-color: #fff;\r\n}\r\n/* A tab this member's access mask refuses - a declared deviation. `not-allowed`\r\n * covers only the custom cursor being off; the game cursor is set in\r\n * GUIComponent. See docs/reference/guild/member-view.md */\r\n#Guild .tabs button.denied {\r\n	color: #8c8c8c;\r\n	cursor: not-allowed;\r\n}\r\n/* The client paints a 64x23 cell at x = 1 + 66k and puts a 62x15 label box\r\n * inside it at (3 + 66k, 22) - so the label is inset 2px left and 4px top, and\r\n * is 62 wide, not 58. The margins below already reproduce the 66px pitch; the\r\n * asymmetric padding is what lands the text box on the client's own rect.\r\n *\r\n * Font size 12 is the client's too. A label that does not fit gets ellipsised\r\n * rather than widened, which is also what the client does - it measures the\r\n * string and appends a literal \"...\" while it exceeds 62px - so the clipped\r\n * \"Guild Notice\" is faithful behaviour, not a layout bug. Widening the button\r\n * would be the bug: it feeds straight back into the frame's width. */\r\n#Guild .tabs button {\r\n	width: 64px;\r\n	height: 23px;\r\n	margin-left: 1px;\r\n	margin-right: 1px;\r\n	margin-top: 1px;\r\n	padding: 4px 0 0 2px;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n	background-color: #c8c8c8;\r\n	border: 0px;\r\n	font-family: inherit;\r\n	font-size: 12px;\r\n	/* The UA's `font` shorthand on form controls resets font-size-adjust, so a\r\n	 * button opts out of the x-height normalisation every other element in the\r\n	 * window runs under and its labels end up a different apparent size. */\r\n	font-size-adjust: inherit;\r\n	/* The client draws the label at the top-left of the box with no alignment\r\n	 * flag. A button centres by default, which makes each label start at a\r\n	 * different x depending on how long it is. */\r\n	text-align: left;\r\n}\r\n/* btnbar_mid2.bmp is 29 tall, so the client's bar covers y 288..317. */\r\n#Guild .footer {\r\n	width: 100%;\r\n	height: 29px;\r\n	background-repeat: repeat-x;\r\n	background-color: transparent;\r\n	position: relative;\r\n	border-radius: 0px 0px 3px 3px;\r\n}\r\n/* SetPos(W - 61, H - 23) = (339, 294), inside a bar that starts at 288.\r\n *\r\n * Deliberately 1px above the client. The bar is 29 tall and the button 20, so\r\n * dead centre is 4.5 and the client's own 6 leaves 6 above against 3 below. The\r\n * client is not self-consistent here either - it puts btn_disBand at 292 and\r\n * btn_use at 293 in the same bar - so 5 both centres this button as closely as\r\n * an integer allows and lands it on the same line as `.footer .btn`. */\r\n#Guild .footer .btn_ok {\r\n	display: none;\r\n	position: absolute;\r\n	top: 5px;\r\n	left: 339px;\r\n	width: 42px;\r\n	height: 20px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n}\r\n\r\n#Guild .content.members,\r\n#Guild .content.positions,\r\n#Guild .content.skills,\r\n#Guild .content.history,\r\n#Guild .content.notice {\r\n	display: none;\r\n}\r\n\r\n/*\r\n * Guild Info CSS\r\n */\r\n/* The client's Info tab is a fixed layout drawn at literal coordinates and it\r\n * never scrolls - the modern clients' lowest element is the antagonist box at\r\n * 229..277, well clear of the bar at 288, and ver12's tendency label at 281 is\r\n * simply painted past it onto the same surface. So the pane is not a scroll\r\n * container at all: `visible` rather than the `hidden` this used to carry,\r\n * which would clip that label instead of letting it through. */\r\n#Guild .content.info {\r\n	overflow-y: visible;\r\n}\r\n#Guild .content.info .exp,\r\n#Guild .content.info .emblem,\r\n#Guild .content.info .tax,\r\n#Guild .content.info .ally,\r\n#Guild .content.info .ally_list,\r\n#Guild .content.info .hostile,\r\n#Guild .content.info .hostile_list {\r\n	position: absolute;\r\n	/* The client's right column is at x=200, not 201. */\r\n	left: 200px;\r\n}\r\n\r\n#Guild .content.info .name {\r\n	position: absolute;\r\n	left: 8px;\r\n	top: 8px;\r\n}\r\n#Guild .content.info .level {\r\n	position: absolute;\r\n	left: 8px;\r\n	top: 24px;\r\n}\r\n#Guild .content.info .master {\r\n	position: absolute;\r\n	left: 8px;\r\n	top: 40px;\r\n}\r\n#Guild .content.info .members {\r\n	position: absolute;\r\n	left: 8px;\r\n	top: 56px;\r\n}\r\n#Guild .content.info .avglevel {\r\n	position: absolute;\r\n	left: 8px;\r\n	top: 72px;\r\n}\r\n#Guild .content.info .territory {\r\n	position: absolute;\r\n	left: 8px;\r\n	top: 88px;\r\n}\r\n/* Both legacy, drawn by ver12 only, so off unless the deployment asks through\r\n * guild.showTendency and guild.showTaxPoint.\r\n * See docs/reference/guild/info-tab-legacy.md */\r\n#Guild .content.info .tendency,\r\n#Guild .content.info .tax {\r\n	display: none;\r\n}\r\n#Guild .content.info.shows_tendency .tendency,\r\n#Guild .content.info.shows_taxpoint .tax {\r\n	display: block;\r\n}\r\n/* The client puts the label at (8, 161) and hangs the chart off it, the last\r\n * of its bottom labels landing at y=281. That is past this pane's 288 once the\r\n * glyph box is counted, but the client has no pane edge there - it fills one\r\n * surface from y=41 to the window's full 317 and paints the chart over it. So\r\n * the block keeps the client's coordinates and is allowed out of the pane\r\n * instead of being nudged up to fit. `visible` on both axes, so this is not a\r\n * scroll container and cannot raise a bar for the overflow. */\r\n#Guild .content.info .tendency {\r\n	position: absolute;\r\n	left: 8px;\r\n	top: 120px;\r\n	/* Over the button bar, which follows in the DOM and would otherwise cover\r\n	 * the bottom label. The client draws its chrome first and every label\r\n	 * after, so this is the client's own order. */\r\n	z-index: 1;\r\n}\r\n/* The .tendency box is absolutely positioned with no width and only absolutely\r\n * positioned children, so it shrink-to-fits to zero and the label wraps after\r\n * the first word. */\r\n#Guild .content.info .tendency .title {\r\n	position: absolute;\r\n	top: 0px;\r\n	left: 0px;\r\n	white-space: nowrap;\r\n}\r\n/* Four labels, not three: the client draws R at (63, 176), V at (11, 227),\r\n * W at (64, 281) and F at (116, 227) - a full compass. Horizontal is honor,\r\n * V at -100 and F at +100; vertical is virtue, R at +100 and W at -100. */\r\n#Guild .content.info .tendency .righteous {\r\n	position: absolute;\r\n	left: 55px;\r\n	top: 15px;\r\n}\r\n#Guild .content.info .tendency .wiked {\r\n	position: absolute;\r\n	left: 56px;\r\n	top: 120px;\r\n}\r\n#Guild .content.info .tendency .vulgar {\r\n	position: absolute;\r\n	left: 3px;\r\n	top: 66px;\r\n}\r\n#Guild .content.info .tendency .famed {\r\n	position: absolute;\r\n	left: 108px;\r\n	top: 66px;\r\n}\r\n/* Frame at (23, 188), 90x90. */\r\n#Guild .content.info .tendency canvas {\r\n	position: absolute;\r\n	top: 27px;\r\n	left: 15px;\r\n}\r\n\r\n/* The client blits grp_online.bmp at (128, 95) - it is an image, not a widget,\r\n * with no hover and nothing to click. A ui-button here loaded the right bitmap\r\n * but also put the game cursor into its \"click\" state over a decoration. */\r\n#Guild .content.info .members .online-icon {\r\n	display: inline-block;\r\n	margin-left: 5px;\r\n	vertical-align: -4px;\r\n	width: 15px;\r\n	height: 15px;\r\n	background-repeat: no-repeat;\r\n}\r\n\r\n#Guild .content.info .exp {\r\n	position: absolute;\r\n	left: 200px;\r\n	top: 8px;\r\n}\r\n/* At max guild level 2022 and mars26 paint this line red. Label and value are\r\n * one string in a single draw call there, so the colour takes the whole line\r\n * and not just the figure. ver12 blanks the figure instead and stays black. */\r\n#Guild .content.info .exp.maxlevel {\r\n	color: #ff0000;\r\n}\r\n#Guild .content.info .emblem {\r\n	position: absolute;\r\n	left: 200px;\r\n	top: 32px;\r\n}\r\n/* (200, 97) - the one right-column slot only ver12 fills, between Emblem at 73\r\n * and Alliance at 139. It had been sitting 5px low at 102, which nothing caught\r\n * because the modern clients draw nothing here to compare against. */\r\n#Guild .content.info .tax {\r\n	position: absolute;\r\n	left: 200px;\r\n	top: 56px;\r\n}\r\n#Guild .content.info .ally {\r\n	position: absolute;\r\n	left: 200px;\r\n	top: 98px;\r\n}\r\n/* 168x48 holds exactly three of the client's 16px rows, which is also where\r\n * its draw loop hard-stops. Clipped rather than scrolled - no guild tab in any\r\n * client puts a bar here. */\r\n#Guild .content.info .ally_list {\r\n	position: absolute;\r\n	left: 200px;\r\n	top: 114px;\r\n	white-space: pre;\r\n	width: 168px;\r\n	height: 48px;\r\n	overflow: hidden;\r\n	background: #c8c8c8;\r\n}\r\n#Guild .content.info .hostile {\r\n	position: absolute;\r\n	left: 200px;\r\n	top: 172px;\r\n}\r\n#Guild .content.info .hostile_list {\r\n	position: absolute;\r\n	left: 200px;\r\n	top: 188px;\r\n	white-space: pre;\r\n	width: 168px;\r\n	height: 48px;\r\n	overflow: hidden;\r\n	background: #c8c8c8;\r\n}\r\n\r\n/* The client's rows are a 16px pitch starting 2px inside the box, with their\r\n * text at x=204 - four past the box's own 200 - and a selection band only 80\r\n * wide, which is the width of its hit test rather than of the box. Ours were\r\n * a 2px padding on a 12px/1.2 line, so an 18.4px pitch at x=202 with the\r\n * highlight running the full 168. */\r\n#Guild .content.info .ally_list div,\r\n#Guild .content.info .hostile_list div {\r\n	height: 16px;\r\n	line-height: 16px;\r\n	padding: 0 0 0 4px;\r\n	box-sizing: border-box;\r\n}\r\n#Guild .content.info .ally_list div.active,\r\n#Guild .content.info .hostile_list div.active {\r\n	background-color: #709fed;\r\n	width: 80px;\r\n}\r\n\r\n/* The client draws the emblem at (300, 65) in a 26x26 frame at (299, 64), and\r\n * puts the edit button at (W - w - 8, 69) = (350, 69) - w being btn_edit.bmp's\r\n * own 42x20. The pane's padding box starts at y=41, so a faithful top is the\r\n * client's y minus 41: 24 here and 28 on the button.\r\n *\r\n * The two tops below are deliberately 3px and 1px past that, and this is the one\r\n * place in this window where the port lays out better than the binary instead of\r\n * reproducing it. The client aligns nothing in this row - the \"Emblem\" label,\r\n * the 24px icon and the 20px button land on three different vertical centres,\r\n * 80.2 / 77 / 79, which reads as a row sagging to the right. Moving the icon and\r\n * the button puts all three on 80. The label itself does not move: it belongs to\r\n * the left column's rhythm (.emblem 32, .tax 56, .ally 98) and shifting it would\r\n * break that. */\r\n#Guild .content.info .emblem_container {\r\n	width: 24px;\r\n	height: 24px;\r\n	position: absolute;\r\n	top: 27px;\r\n	left: 300px;\r\n	background-color: #709fed;\r\n	background-repeat: no-repeat;\r\n	/* The client fills a 26x26 frame at (299, 64) before blitting the 24x24\r\n	 * emblem at (300, 65), so the fill shows as a 1px ring. A shadow rather than\r\n	 * a border, to leave the box at the emblem's own size. */\r\n	box-shadow: 0 0 0 1px #709fed;\r\n}\r\n/* The emblem doubles as the picker's label, so clicking it opens the file\r\n * dialog and the cursor reads it as clickable. Hidden for anyone but the guild\r\n * master. See docs/reference/guild/emblem-picker.md */\r\n#Guild .content.info .emblem_pick {\r\n	display: block;\r\n	height: 100%;\r\n}\r\n#Guild .content.info .emblem_pick input {\r\n	display: none;\r\n}\r\n/* 29 rather than the client's 28 - see the emblem_container note above. */\r\n#Guild .content.info .emblem_edit {\r\n	position: absolute;\r\n	top: 29px;\r\n	left: 350px;\r\n	width: 42px;\r\n	height: 20px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	overflow: hidden;\r\n}\r\n\r\n/*\r\n * Guild Members\r\n */\r\n/* Alone among the tabs, this one insets its bar a further pixel - SetPos(W-16)\r\n * against the W-15 that Positions, Skills and Expel History all use. Offsetting\r\n * the bar rather than narrowing the pane keeps the column separators where they\r\n * were measured. !important because Scrollbar.js writes right: 0px inline when\r\n * it attaches, which no selector outranks. */\r\n#Guild .content.members > .ro-custom-scrollbar {\r\n	right: 1px !important;\r\n}\r\n/* The client's list frame starts at x=5 and its row band at x=6; the pane's own\r\n * 2px padding puts us at 2, so 3px of margin makes up the difference. */\r\n#Guild .content.members table {\r\n	border-spacing: 0;\r\n	border-collapse: collapse;\r\n	margin-left: 3px;\r\n}\r\n/* #c8c8c8 is the client's own separator colour - palette (14, 6) of\r\n * colorchip.bmp, the same entry its pane fills and list frames read. Every grid\r\n * line in this window uses it. */\r\n#Guild .content.members tbody tr {\r\n	border-left: 1px solid #c8c8c8;\r\n	border-right: 1px solid #c8c8c8;\r\n}\r\n#Guild .content.members td {\r\n	border-bottom: 1px solid #c8c8c8;\r\n}\r\n#Guild .content.members tr.active td {\r\n	background-color: #709fed !important;\r\n}\r\n#Guild .content.members th {\r\n	border: 1px solid #c8c8c8;\r\n}\r\n#Guild .content.members td,\r\n#Guild .content.members th {\r\n	/* The widths below are the client's own column widths, so they have to\r\n	 * cover the padding too rather than sit on top of it - and, since each\r\n	 * carries its own separator, the 1px border as well. The client draws five\r\n	 * 1px lines down the full height of the list at x = 104/170/224/264/304,\r\n	 * which is what makes its 375px band hold six columns summing to 370. */\r\n	box-sizing: border-box;\r\n	border-right: 1px solid #c8c8c8;\r\n	text-align: left;\r\n	font-weight: normal;\r\n	padding-left: 2px;\r\n	height: 35px;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n}\r\n#Guild .content.members tr.online td {\r\n	background-color: #e4ffe2;\r\n}\r\n/* A grade picked but not yet sent. Declared deviation: the client has no mark\r\n * for it, and without one the row reads as if the server had agreed.\r\n * See docs/reference/guild/grade-change.md */\r\n#Guild .content.members tr.pending td {\r\n	background-color: #fff4d6;\r\n}\r\n#Guild .content.members tr.pending .name .value::before {\r\n	content: '*';\r\n	margin-right: 2px;\r\n	color: #b06a00;\r\n}\r\n\r\n/*\r\n * The note column belongs to the 0x0154 era: that list carries an intro, the\r\n * later ones do not, and the official client dropped the column along with the\r\n * field. Hidden by default, restored when the wire feeds it, and the remaining\r\n * columns take the width back.\r\n */\r\n#Guild .content.members .note {\r\n	display: none;\r\n}\r\n#Guild .content.members.has-memo .note {\r\n	display: table-cell;\r\n}\r\n/* The last login is a second line of the row rather than a cell - the client\r\n * draws it across the row, under everything. It is taken out of the flow so\r\n * the name column keeps its width while the line gets the whole row. */\r\n#Guild .content.members .name .lastlogin {\r\n	position: absolute;\r\n	left: 4px;\r\n	bottom: 1px;\r\n	width: 340px;\r\n	font-size: 11px;\r\n	line-height: 12px;\r\n	color: #404040;\r\n}\r\n#Guild .content.members.has-memo .name .lastlogin {\r\n	display: none;\r\n}\r\n#Guild .content.members tr canvas {\r\n	display: inline;\r\n}\r\n/* The name has to clip on its own, because the cell cannot: it is the\r\n * positioning context for the line above, which has to overflow it. */\r\n#Guild .content.members .name {\r\n	position: relative;\r\n	width: 99px;\r\n	max-width: 99px;\r\n	overflow: visible;\r\n}\r\n#Guild .content.members .name .value {\r\n	display: inline-block;\r\n	max-width: 63px;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n	vertical-align: middle;\r\n}\r\n#Guild .content.members .name canvas {\r\n	vertical-align: -11px;\r\n}\r\n#Guild .content.members .position {\r\n	width: 66px;\r\n	max-width: 66px;\r\n	text-overflow: ellipsis;\r\n	overflow: hidden;\r\n}\r\n#Guild .content.members .position select {\r\n	width: 61px;\r\n	max-width: 61px;\r\n	text-overflow: ellipsis;\r\n	overflow: hidden;\r\n}\r\n#Guild .content.members .job {\r\n	width: 54px;\r\n	max-width: 54px;\r\n	text-overflow: ellipsis;\r\n	overflow: hidden;\r\n}\r\n#Guild .content.members .level {\r\n	width: 40px;\r\n}\r\n#Guild .content.members .note {\r\n	width: 41px;\r\n}\r\n#Guild .content.members .devotion {\r\n	width: 40px;\r\n}\r\n/* The client's own 76, plus 1px for the list frame's right border - the last\r\n * column has no separator of its own, it closes against the frame at x=381.\r\n * This column used to carry 8 extra pixels to make up for a band that started\r\n * at x=2; the band starts at 6 now, so the compensation is gone. */\r\n#Guild .content.members .tax {\r\n	width: 77px;\r\n	max-width: 77px;\r\n	text-overflow: ellipsis;\r\n	overflow: hidden;\r\n}\r\n\r\n/* Showing the note means fitting seven columns in the same row, so the columns\r\n * widened above go back to what they were. */\r\n#Guild .content.members.has-memo .name {\r\n	width: 85px;\r\n	max-width: 85px;\r\n}\r\n#Guild .content.members.has-memo .name .value {\r\n	max-width: 50px;\r\n}\r\n#Guild .content.members.has-memo .position {\r\n	width: 68px;\r\n	max-width: 68px;\r\n}\r\n#Guild .content.members.has-memo .position select {\r\n	width: 63px;\r\n	max-width: 63px;\r\n}\r\n#Guild .content.members.has-memo .job {\r\n	width: 43px;\r\n	max-width: 43px;\r\n}\r\n#Guild .content.members.has-memo .level {\r\n	width: 30px;\r\n}\r\n#Guild .content.members.has-memo .devotion {\r\n	width: 42px;\r\n}\r\n#Guild .content.members.has-memo .tax {\r\n	width: 62px;\r\n	max-width: 62px;\r\n}\r\n\r\n/* Three row pitches, one per client, and the heights below are pitches: the\r\n * separator is inside the cell rather than a gap between rows.\r\n *\r\n *   ver12   34 + 1 = 35   one line, no access date\r\n *   mars26  35 + 1 = 36   one line, no access date\r\n *   2022    43 + 1 = 44   two lines - it is the only client that draws an\r\n *                         access date, and it pays 8px of row height for it\r\n *\r\n * mars26 is the baseline as the newest. The memo-era packet carries a note and\r\n * no date at all, which is the ver12 generation, so it selects ver12's pitch. */\r\n#Guild .content.members tbody td {\r\n	height: 36px;\r\n	vertical-align: middle;\r\n	padding-top: 0;\r\n}\r\n#Guild .content.members.has-memo tbody td {\r\n	height: 35px;\r\n}\r\n#Guild .content.members.has-lastlogin tbody td {\r\n	height: 44px;\r\n	vertical-align: top;\r\n	padding-top: 3px;\r\n}\r\n\r\n/*\r\n * Guild Positions\r\n */\r\n/* Same band as the member list: the client's list frame starts at x=5, and the\r\n * pane's own 2px padding puts us at 2. */\r\n#Guild .content.positions table {\r\n	border-spacing: 0;\r\n	border-collapse: collapse;\r\n	margin-left: 3px;\r\n	/* Fixed plus an explicit width, so the column widths below are the ones that\r\n	 * get used. `table-layout: fixed` on its own does nothing here - with\r\n	 * `width: auto` the fixed algorithm has no width to distribute and browsers\r\n	 * fall back to the auto one, which let the title input's intrinsic width\r\n	 * push every column wider and run the band past the client's right edge. */\r\n	table-layout: fixed;\r\n	width: 376px;\r\n}\r\n#Guild .content.positions tr.active {\r\n	border: none;\r\n}\r\n#Guild .content.positions tr.active td {\r\n	background-color: #709fed;\r\n}\r\n#Guild .content.positions th,\r\n#Guild .content.positions td {\r\n	box-sizing: border-box;\r\n	height: 20px;\r\n	font-weight: normal;\r\n	text-align: left;\r\n	padding: 2px 2px 0px 3px;\r\n	border: 1px solid #c8c8c8;\r\n}\r\n/* ver12's five-column layout - 50/142/60/60/60, a band of x 5..381. 2022 and\r\n * mars26 add Storage and cut Title from 142 to 100, and their band then runs to\r\n * x=400, under the scrollbar that starts at 385 - the client paints its own Tax\r\n * cell beneath its own bar. We take the sixth column but not that regression:\r\n * Title gives up the width instead, so the band still closes at 381 whichever\r\n * layout is up. Each width carries +1px for its own separator; the last closes\r\n * against the frame. */\r\n#Guild .content.positions .id {\r\n	width: 50px;\r\n}\r\n#Guild .content.positions .title {\r\n	width: 143px;\r\n}\r\n#Guild .content.positions .invite {\r\n	width: 61px;\r\n}\r\n#Guild .content.positions .punish {\r\n	width: 61px;\r\n}\r\n#Guild .content.positions .tax {\r\n	width: 61px;\r\n}\r\n/* These two place their own contents, so they give up the shared padding - on\r\n * the cell only, or it takes the heading's indent with it.\r\n * See docs/reference/guild/member-view.md */\r\n#Guild .content.positions td.title,\r\n#Guild .content.positions td.tax {\r\n	padding: 0;\r\n}\r\n/* The guild storage right only exists from PACKETVER 20140205, and ver12 has no\r\n * column for it. Off, the five widths above sum to the band's 376; on, Title\r\n * pays for the sixth so the sum does not move. */\r\n#Guild .content.positions .storage {\r\n	display: none;\r\n	width: 61px;\r\n}\r\n#Guild .content.positions.has-storage .storage {\r\n	display: table-cell;\r\n}\r\n#Guild .content.positions.has-storage .title {\r\n	width: 82px;\r\n}\r\n#Guild .content.positions.has-storage .title input {\r\n	width: 75px;\r\n}\r\n#Guild .content.positions input {\r\n	border: none;\r\n	background-color: white;\r\n	padding: 0;\r\n	height: 18px;\r\n}\r\n#Guild .content.positions .title input {\r\n	padding-left: 2px;\r\n	width: 136px;\r\n	margin-left: 4px;\r\n}\r\n#Guild .content.positions .tax input {\r\n	width: 28px;\r\n	padding-left: 2px;\r\n	margin-left: 3px;\r\n}\r\n/* A plain element rather than a ui-button: that one reloads its `bg` on every\r\n * hover and press, which paints the unticked image back over a ticked box. The\r\n * client's checkbox is 12x12 at x 160 / 221, y 66 + 19r.\r\n *\r\n * The bitmap is smaller than the cell - checkbox_0/1.bmp are 10x10 - and the\r\n * client does not stretch it: the blit takes its extent from the surface, never\r\n * from the widget, so the 12x12 size never reaches it. It goes out at x = 0 and\r\n * y = (cellH - bmpH) / 2, i.e. flush left and vertically centred. `left center`\r\n * rather than a hard `0 1px` because that division is the rule, and a skin\r\n * shipping a different checkbox size has to keep working. */\r\n/* The tick is 12x12 in a 61x20 cell, so a click at the cell's centre used to\r\n * land on nothing. Filling the cell makes the whole of it the target and, since\r\n * the cursor list matches the element under the pointer, makes it read as one\r\n * too. `.tick` is the same box without the class, a member's mark being an image\r\n * and nothing else. See docs/reference/guild/member-view.md */\r\n#Guild .content.positions .checkbox,\r\n#Guild .content.positions .tick {\r\n	display: block;\r\n	border: none;\r\n	width: 100%;\r\n	height: 16px;\r\n	background-repeat: no-repeat;\r\n	background-position: left top;\r\n	background-color: transparent;\r\n}\r\n\r\n/* The inset the field carried, on the text that replaces it. Only the name can\r\n * outrun its cell. See docs/reference/guild/member-view.md */\r\n#Guild .content.positions .title .value,\r\n#Guild .content.positions .tax .value {\r\n	display: block;\r\n	padding: 2px 0 0 6px;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n}\r\n/* The tax field insets by 5, not 6. */\r\n#Guild .content.positions .tax .value {\r\n	padding-left: 5px;\r\n}\r\n\r\n/*\r\n * Guild Skills\r\n */\r\n/* The scrolling element on this tab is .skill_list, not the pane, so the bar\r\n * lands on .skill_list's right edge. Dropping the pane's right padding and\r\n * widening the list to 396 puts that edge at 398, which is where the bar has to\r\n * start from to sit at the client's x=385. */\r\n/* No padding, so .skill_list can be the pane: the client's skill area runs from\r\n * y=41 down to the bar at 288 with nothing between them, and its scrollbar is\r\n * SetPos(385, 41) by 247 tall - which is that same span. */\r\n#Guild .content.skills {\r\n	overflow-y: hidden;\r\n	padding: 0;\r\n}\r\n/* border-box, so the 5px padding stays inside the 394. Without it this box is\r\n * 404 wide and overflows the pane, which is what pushed the Skills tab to the\r\n * frame's 400px ceiling before the frame was pinned. The custom scrollbar\r\n * happens to set box-sizing itself when it attaches, so the overflow only\r\n * showed between first paint and that attach. */\r\n#Guild .content.skills .skill_list {\r\n	box-sizing: border-box;\r\n	overflow-y: auto;\r\n	padding: 0;\r\n	width: 398px;\r\n	height: 247px;\r\n}\r\n\r\n/* The client has no grid here - it paints each row straight onto the window at\r\n * fixed offsets, so every x below is a gap or a box size rather than a\r\n * coordinate, and the row itself stays in flow. Reading the row left to right:\r\n * icon at 44, level-up + at 78, and the selection highlight at 104 by 164x28\r\n * with the name, Lv and Sp all drawn inside it. */\r\n#Guild .content.skills .skill {\r\n	display: flex;\r\n	box-sizing: border-box;\r\n	/* Row pitch 34 on 2022 and mars26 (ver12 uses 32). The 2px is the\r\n	 * highlight's own y: the client draws it at 34i+43 and the pane starts at\r\n	 * 41, so it sits two below the row's top. */\r\n	height: 34px;\r\n	padding: 2px 0 0 44px;\r\n}\r\n#Guild .content.skills .skill .icon,\r\n#Guild .content.skills .skill .levelupcontainer {\r\n	flex: none;\r\n	width: 24px;\r\n	height: 24px;\r\n	/* the icon and the + are at 34i+45, two below the highlight */\r\n	margin-top: 2px;\r\n}\r\n/* 44 + 24 + 10 = 78 */\r\n#Guild .content.skills .skill .levelupcontainer {\r\n	margin-left: 10px;\r\n}\r\n#Guild .content.skills .levelup {\r\n	border: 0;\r\n	width: 24px;\r\n	height: 24px;\r\n	padding: 0;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n}\r\n/* The highlight rect itself, so the .selected rules below can just colour it.\r\n * 78 + 24 + 2 = 104, and the 8px inset puts the name on the client's 112. */\r\n#Guild .content.skills .skill .selectable {\r\n	flex: none;\r\n	box-sizing: border-box;\r\n	width: 164px;\r\n	height: 28px;\r\n	margin-left: 2px;\r\n	padding: 3px 0 0 8px;\r\n}\r\n#Guild .content.skills .skill .name,\r\n#Guild .content.skills .skill .level,\r\n#Guild .content.skills .skill .consume {\r\n	height: 12px;\r\n	line-height: 12px;\r\n	white-space: nowrap;\r\n}\r\n/* The second line, which the client draws 12 below the name at 34i+58 */\r\n#Guild .content.skills .skill .levelline {\r\n	display: flex;\r\n}\r\n#Guild .content.skills .skill .level {\r\n	box-sizing: border-box;\r\n	/* 112 + 100 = 212, where Sp starts */\r\n	width: 100px;\r\n	/* Lv is drawn at 113, one right of the name's 112 */\r\n	padding-left: 1px;\r\n}\r\n/* The client greys the name at level 0 and leaves the icon alone; it also skips\r\n * the Lv and Sp lines entirely rather than drawing them empty. */\r\n#Guild .content.skills .disabled .name {\r\n	color: #787878;\r\n}\r\n#Guild .content.skills .disabled .consume,\r\n#Guild .content.skills .disabled .level {\r\n	display: none;\r\n}\r\n\r\n#Guild .content.skills .selected.disabled .selectable {\r\n	background-color: #b5b5b5;\r\n}\r\n#Guild .content.skills .selected.passive .selectable {\r\n	background-color: #73d5ee;\r\n}\r\n#Guild .content.skills .selected.active .selectable {\r\n	background-color: #739cee;\r\n}\r\n\r\n/* The client has no inner footer on this tab - it paints the skill list straight\r\n * onto the window and puts these three at window coordinates that land on the\r\n * bottom bar: the two buttons at (46, 293) and (92, 293), the readout at\r\n * (W - 100, H - 20) = (300, 297). They live in the frame's footer for that\r\n * reason, and are shown only while the Skills tab is up. */\r\n/* 240x12 at (12, 299). 2022 only, so whether this shows at all is the\r\n * `guild.memberListSort` deployment setting.\r\n * See docs/reference/guild/member-list-sort.md */\r\n#Guild .footer .sortlogin {\r\n	display: none;\r\n	position: absolute;\r\n	top: 11px;\r\n	left: 12px;\r\n	width: 240px;\r\n	height: 12px;\r\n	font-size: 11px;\r\n	line-height: 12px;\r\n}\r\n#Guild .footer .sortlogin ui-button {\r\n	width: 12px;\r\n	height: 12px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	vertical-align: top;\r\n	margin-right: 4px;\r\n}\r\n#Guild .footer .skpoints {\r\n	display: none;\r\n	position: absolute;\r\n	top: 9px;\r\n	left: 300px;\r\n	white-space: nowrap;\r\n}\r\n\r\n/* SetPos(W - w - 15, H - h - 5) with btn_disBand.bmp at 64x20, so (321, 292).\r\n *\r\n * Deliberately 1px below the client, for the same reason btn_ok sits 1px above\r\n * it: the client scatters this bar's three buttons over 292 / 293 / 294, and\r\n * `top: 5` puts all three on one line at 293 - the closest an integer gets to\r\n * centring a 20px button in a 29px bar. */\r\n#Guild .footer .btn_disband {\r\n	display: none;\r\n	position: absolute;\r\n	width: 64px;\r\n	height: 20px;\r\n	top: 5px;\r\n	right: 15px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	cursor: pointer;\r\n}\r\n\r\n#Guild .footer .btn {\r\n	position: absolute;\r\n	top: 5px;\r\n	border: 0;\r\n	width: 42px;\r\n	height: 20px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	display: none;\r\n}\r\n/* The client puts two controls here, at y = H - 24 = 293: btn_use at 46, which\r\n * casts the selected skill, and btn_close at 92, which dismisses the window.\r\n * btn_close is in the client and is not ported, on purpose - it is assigned the\r\n * same command id as the titlebar's close button, so it is a duplicate of a\r\n * control this window already draws. See the note in Guild.js. */\r\n#Guild .footer .btn_use {\r\n	left: 46px;\r\n}\r\n\r\n/*\r\n * Guild History\r\n */\r\n#Guild .content.history table {\r\n	border-spacing: 0;\r\n	border-collapse: collapse;\r\n}\r\n#Guild .content.history th,\r\n#Guild .content.history td {\r\n	font-weight: normal;\r\n	text-align: left;\r\n	padding: 5px 5px 0px 5px;\r\n	border: 1px solid #c8c8c8;\r\n}\r\n#Guild .content.history .name {\r\n	width: 90px;\r\n}\r\n#Guild .content.history .reason {\r\n	width: 275px;\r\n}\r\n\r\n/*\r\n * Guild Notice\r\n */\r\n#Guild .notice .subjectTitle {\r\n	position: absolute;\r\n	top: 13px;\r\n	left: 9px;\r\n}\r\n/* border-box and 331 so the field closes on x=381, the same right edge as the\r\n * textarea below it and as the member list's band. Content-box at 333 plus the\r\n * 5px padding put it at 390 - nine pixels past the textarea, and past the band\r\n * into the gutter the scrollbar reserves. */\r\n#Guild .notice .subject {\r\n	position: absolute;\r\n	top: 11px;\r\n	left: 50px;\r\n	padding-left: 5px;\r\n	height: 14px;\r\n	border: none;\r\n	box-sizing: border-box;\r\n	width: 331px;\r\n	background-color: #eee;\r\n}\r\n#Guild .notice .noticeTitle {\r\n	position: absolute;\r\n	top: 36px;\r\n	left: 9px;\r\n}\r\n#Guild .notice .notice {\r\n	position: absolute;\r\n	top: 52px;\r\n	left: 9px;\r\n	padding-left: 5px;\r\n	margin: 0px;\r\n	width: 372px;\r\n	height: 168px;\r\n	background-color: #eee;\r\n	border: none;\r\n	resize: none;\r\n}\r\n/* A member gets the notice as text, carrying the field's own class so neither\r\n * box moves on the swap. See docs/reference/guild/member-view.md */\r\n#Guild .notice .value {\r\n	box-sizing: border-box;\r\n	overflow: hidden;\r\n	white-space: nowrap;\r\n}\r\n#Guild .notice .notice.value {\r\n	overflow-y: auto;\r\n	white-space: pre-wrap;\r\n	word-break: break-word;\r\n}\r\n\r\n/* Text selection, re-enabled where the browser gave it to us for free.\r\n *\r\n * Common.css suppresses selection globally - `* { -moz-user-select: none }`\r\n * (:9-11) and `body { user-select: none }` (:64-65), which is inherited across\r\n * the shadow boundary. That is deliberate: it stops a drag fighting the game\r\n * canvas. But it lands on the form controls too, so the guild master cannot\r\n * double-click a word in the Notice they are typing, and nobody can copy a\r\n * member's name to paste into a whisper.\r\n *\r\n * Scoped here rather than carved out of Common.css, which ~30 components share.\r\n * All four typed fields are listed, not just the two that were reported: a\r\n * field you type into has to be selectable, and the notice subject and the tax\r\n * cell are the same kind of control as the two beside them. The values a member\r\n * gets in place of those fields are listed too - copying a grade name is the\r\n * whole of what is left to them there, and the notice pair already matches by\r\n * carrying its field's class.\r\n *\r\n * No `cursor: text` to go with it. The member name is not in GUIComponent's\r\n * clickable-cursor list, and giving it a text caret would fight the row's own\r\n * context-menu affordance. */\r\n#Guild .content.members .name .value,\r\n#Guild .content.positions .title input,\r\n#Guild .content.positions .tax input,\r\n#Guild .content.positions .title .value,\r\n#Guild .content.positions .tax .value,\r\n#Guild .notice .subject,\r\n#Guild .notice .notice {\r\n	-webkit-user-select: text;\r\n	user-select: text;\r\n}\r\n\r\n/* Keyboard focus, made visible again.\r\n *\r\n * Common.css:2 kills the outline on every :focus so the client's chrome is not\r\n * ringed by the browser. Correct for a mouse, but it also means a keyboard user\r\n * tabbing through this window has no idea where they are.\r\n *\r\n * `:focus-visible` throughout, not `:focus`, so all of this is keyboard-only:\r\n * clicking a control paints nothing and the window looks exactly as the client\r\n * does under a mouse, which is why Common.css suppressed the outline to begin\r\n * with.\r\n *\r\n * The tab strip gets weight rather than a ring. The six cells already use\r\n * background to mean *active* (#fff against the inactive #c8c8c8), so focus\r\n * needs a different channel or the two states blur together. Measured before\r\n * choosing it: five of the six labels are unaffected, and the sixth\r\n * (\"Announcement\") is already ellipsised by 19px at normal weight - the client\r\n * truncates its own labels the same way - so bold costs 6px more of a label\r\n * that is clipped either way, and introduces no new clipping. */\r\n#Guild .tabs button:focus-visible {\r\n	font-weight: bold;\r\n}\r\n\r\n/* The editable fields shift to one shared colour when focused, and their resting\r\n * colours are left exactly as they ship - #eee on the Notice pair, white on the\r\n * Positions inputs. #f7f7f7 sits between the two, so the focused field reads as\r\n * different from its neighbours either way: a shade up from the Notice grey, a\r\n * shade down from the Positions white. Nine tones in both directions.\r\n *\r\n * No outline. A ring is the conventional answer and it was tried, but it is the\r\n * most browser-looking mark available in a window that is otherwise the client's\r\n * pixels, and a fill change is enough once the resting colours are left alone. */\r\n#Guild .content input:focus-visible,\r\n#Guild .content select:focus-visible,\r\n#Guild .content textarea:focus-visible {\r\n	background-color: #f7f7f7;\r\n}\r\n\r\n/* The permission checkboxes are bare <div>s - they were a <ui-button> until that\r\n * element's own repaint started fighting the checked/unchecked bitmap - so they\r\n * are the one control in this window that never told the pointer it was\r\n * actionable. GUIComponent's CLICKABLE_SELECTOR now lists `.checkbox`, which is\r\n * what drives the in-game cursor; this rule covers the case where the custom\r\n * cursor is off and the real CSS one is showing. */\r\n#Guild .checkbox {\r\n	cursor: pointer;\r\n}\r\n";
 }));
 //#endregion
 //#region src/UI/Components/WinStats/WinStats/WinStats.html?raw
@@ -228646,11 +228749,244 @@ var init_WinStats = __esmMin((() => {
 }));
 //#endregion
 //#region src/UI/Components/Guild/Guild.js
+function _hasStorageColumn() {
+	return parseInt(PacketVerManager_default.value, 10) >= 20140205;
+}
+/**
+* Helper: does the Info tab draw the tendency chart
+*
+* @return {boolean}
+*/
+function _showsTendency() {
+	return _config().showTendency === true;
+}
+/**
+* Helper: does the Info tab draw the Tax Point line
+*
+* @return {boolean}
+*/
+function _showsTaxPoint() {
+	return _config().showTaxPoint === true;
+}
 /**
 * Helper: query inside shadow root
 */
 function _root$13(comp) {
 	return comp.getRoot();
+}
+/**
+* Helper: forget the queued grade changes, and the marks that showed them
+*
+* Leaves the rows on the grades they display, so this is only ever right where
+* those grades have just been sent. Every other drop goes through
+* _clearPendingPositions, which puts them back first.
+* @see docs/reference/guild/grade-change.md
+*/
+function _dropPendingPositions() {
+	_pendingPositions = {};
+	const root = _root$13(Guild);
+	if (!root) return;
+	for (const row of root.querySelectorAll(".content.members .MemberView.pending")) row.classList.remove("pending");
+}
+/**
+* Helper: is a grade change waiting to be sent
+*
+* @return {boolean} true while the members tab holds an unsent edit
+*/
+function _hasPendingPositions() {
+	for (const _GID in _pendingPositions) return true;
+	return false;
+}
+/**
+* Helper: drop the queued grades, putting their rows back on the server's
+*
+* Forgetting the queue is not enough: the row was moved to the picked grade when
+* it was queued, so dropping the queue alone would leave that grade on show as
+* though the server had agreed to it - and the grade guard would then refuse to
+* queue it a second time, the row already reading as the value asked for. Every
+* drop restores, so no call site has to work out whether it is the one that has
+* to; Apply is the exception and says so.
+* @see docs/reference/guild/grade-change.md
+*/
+function _clearPendingPositions() {
+	const root = _root$13(Guild);
+	if (root) for (const GID in _pendingPositions) {
+		const pending = _pendingPositions[GID];
+		for (let i = 0, count = _members.length; i < count; ++i) {
+			const member = _members[i];
+			if (member.AID === pending.AID && member.GID === pending.GID) {
+				member.GPositionID = pending.previousID;
+				Guild.setMember(member);
+				break;
+			}
+		}
+	}
+	_dropPendingPositions();
+	if (root) _refreshApplyButton(getActiveTab(root));
+}
+/**
+* Helper: put the Positions tab back to what the server last sent
+*
+* Both the queued edits and the flag that keeps them are dropped together:
+* keeping one without the other either applies edits the rows no longer show,
+* or refuses every refresh for edits that are gone.
+* @see docs/reference/guild/grade-change.md
+*/
+function _resetPositionsTab() {
+	_clearPendingPositions();
+	_positionsDirty = false;
+	_positionsSelected = 0;
+	if (_root$13(Guild)) {
+		_hideApplyButton();
+		Guild.updatePositionView();
+	}
+}
+/**
+* Helper: put the Info tab back to the values its markup ships
+*
+* The counters return to zero and the rest to blank, which is the state the
+* window is built in.
+* @see docs/reference/guild/member-view.md
+*
+* @param {HTMLElement} root - the window's shadow root
+*/
+function _clearInfoTab(root) {
+	const general = root.querySelector(".content.info");
+	if (!general) return;
+	for (const selector of INFO_BLANK_CELLS) {
+		const cell = general.querySelector(selector);
+		if (cell) cell.textContent = "";
+	}
+	for (const selector of INFO_ZERO_CELLS) {
+		const cell = general.querySelector(selector);
+		if (cell) cell.textContent = "0";
+	}
+	const exp = general.querySelector(".exp");
+	if (exp) exp.classList.remove("maxlevel");
+	const emblemContainer = general.querySelector(".emblem_container");
+	if (emblemContainer) emblemContainer.style.backgroundImage = "";
+	Guild.setRelations([]);
+	renderTendency(0, 0);
+}
+/**
+* Helper: reveal the Apply button, the affordance for a pending change
+*/
+function _showApplyButton() {
+	const btnOk = _root$13(Guild).querySelector(".footer .btn_ok");
+	if (btnOk) btnOk.style.display = "block";
+}
+/**
+* Helper: take the Apply button back, there being nothing left to send
+*/
+function _hideApplyButton() {
+	const btnOk = _root$13(Guild).querySelector(".footer .btn_ok");
+	if (btnOk) btnOk.style.display = "none";
+}
+/**
+* Helper: offer Apply only while the tab on show has an edit to apply
+*
+* The positions tab holds its edits in its rows and the members tab in the
+* queue, so which one is up decides whether there is anything left to send.
+*
+* @param {string} tab - class of the tab on show
+*/
+function _refreshApplyButton(tab) {
+	if (tab === "positions" && _positionsDirty || tab === "members" && _hasPendingPositions()) {
+		_showApplyButton();
+		return;
+	}
+	_hideApplyButton();
+}
+/**
+* Helper: put a value where the guild master gets a control
+* @see docs/reference/guild/member-view.md
+*
+* @param {HTMLElement} cell - the cell to fill
+* @param {string} text - the value to show
+* @param {boolean} [clips] - the cell ellipsises, so offer the value on hover
+*/
+function _asValue(cell, text, clips) {
+	if (!cell) return;
+	const value = document.createElement("span");
+	value.className = "value";
+	value.textContent = text;
+	if (clips) value.title = text;
+	cell.innerHTML = "";
+	cell.appendChild(value);
+}
+/**
+* Helper: the last login date, built from the client's own format string
+*
+* Only the fields the shipped formats use are substituted, not all of strftime.
+*
+* @param {number} timestamp - seconds since epoch, as the member list sends it
+* @return {string} the date, localtime, like the client shows it
+*/
+function _formatLastLogin(timestamp) {
+	const date = /* @__PURE__ */ new Date(timestamp * 1e3);
+	const pad = (value) => `${value}`.padStart(2, "0");
+	return DB.getMessage(3011, "%Y.%m.%d").replace("%Y", date.getFullYear()).replace("%y", pad(date.getFullYear() % 100)).replace("%m", pad(date.getMonth() + 1)).replace("%d", pad(date.getDate()));
+}
+/**
+* Helper: this window's settings, with the defaults above filled in
+*
+* Configs.get does not merge, so a server naming `guild` at all would
+* otherwise drop every key it does not itself set.
+*
+* @return {object}
+*/
+function _config() {
+	return {
+		...GUILD_CONFIG,
+		...Configs.get("guild", {})
+	};
+}
+/**
+* Helper: does the member list get ordered by login status right now
+*
+* 'never' | 'checkbox' | 'always', one per client generation.
+* @see docs/reference/guild/member-list-sort.md
+*
+* @return {boolean}
+*/
+function _sortsByLogin() {
+	const mode = _config().memberListSort;
+	if (mode === "always") return true;
+	if (mode === "never") return false;
+	return !!UI_default.guildMemberListSorted;
+}
+/**
+* Helper: lay the rows out in a given order without rebuilding any of them
+*
+* Rows are moved, so each keeps its listeners, its canvas and its data-index.
+* `_members` stays in the order the server sent - only the table is sorted.
+* @see docs/reference/guild/member-list-sort.md
+*
+* @param {ShadowRoot|Element} root
+* @param {Array} ordered - the members in the order the rows should appear
+*/
+function reorderMemberRows(root, ordered) {
+	const list = root.querySelector(".content.members tbody");
+	if (!list) return;
+	const rowAt = {};
+	for (const row of list.querySelectorAll(".MemberView")) rowAt[row.getAttribute("data-index")] = row;
+	const indexOf = {};
+	for (let i = 0, count = _members.length; i < count; ++i) indexOf[`${_members[i].AID}_${_members[i].GID}`] = i;
+	for (let i = 0, count = ordered.length; i < count; ++i) {
+		const row = rowAt[indexOf[`${ordered[i].AID}_${ordered[i].GID}`]];
+		if (row) list.appendChild(row);
+	}
+}
+/**
+* Helper: the roster, online first
+*
+* Stable, so members sharing a status keep the order the server sent them in.
+*
+* @param {Array} members
+* @return {Array} a sorted copy
+*/
+function _orderByLogin(members) {
+	return members.slice().sort((a, b) => (b.CurrentState ? 1 : 0) - (a.CurrentState ? 1 : 0));
 }
 /**
 * Helper: escape HTML
@@ -228660,12 +228996,109 @@ function _escapeHTML$3(text) {
 	div.textContent = text;
 	return div.innerHTML;
 }
+/**
+* Reflect the two legacy switches onto the tab
+*
+* Called on open and on every tab change, not only when a guild-info packet
+* lands: they decide whether those elements are drawn at all, so waiting for a
+* packet would draw them and take them away.
+* @see docs/reference/guild/info-tab-legacy.md
+*/
+function updateInfoOptions(root) {
+	const infoContent = root.querySelector(".content.info");
+	if (infoContent) {
+		infoContent.classList.toggle("shows_tendency", _showsTendency());
+		infoContent.classList.toggle("shows_taxpoint", _showsTaxPoint());
+	}
+}
+/**
+* Is this drag something the emblem would take, from someone allowed to set it
+* @see docs/reference/guild/emblem-picker.md
+*/
+function _acceptsEmblemDrop(root, transfer) {
+	return transfer && Array.prototype.indexOf.call(transfer.types, "Files") !== -1 && SessionStorage_default.isGuildMaster && getActiveTab(root) === "info";
+}
+/**
+* A BMP or GIF of exactly 24x24, small enough for the server to store
+* @see docs/reference/guild/emblem-picker.md
+*/
+function isEmblem(data) {
+	const view = new DataView(data.buffer);
+	if (data[0] === 66 && data[1] === 77 && data.length >= 26 && data.length <= 1783) return view.getInt32(18, true) === EMBLEM_SIDE && Math.abs(view.getInt32(22, true)) === EMBLEM_SIDE;
+	if (data[0] === 71 && data[1] === 73 && data[2] === 70 && data.length >= 10 && data.length <= 5e4) return view.getUint16(6, true) === EMBLEM_SIDE && view.getUint16(8, true) === EMBLEM_SIDE;
+	return false;
+}
+/**
+* Send a picked emblem, or refuse it with the client's own message - the one
+* path behind all three ways of picking one
+* @see docs/reference/guild/emblem-picker.md
+*/
+function submitEmblem(file) {
+	if (!file || !SessionStorage_default.isGuildMaster) return;
+	const reader = new FileReader();
+	reader.onload = (e) => {
+		const data = new Uint8Array(e.target.result);
+		if (isEmblem(data)) Guild.onSendEmblem(data);
+		else UIManager.showMessageBox(DB.getMessage(3587, "This file cannot be registered."), "ok");
+	};
+	reader.readAsArrayBuffer(file);
+}
+/**
+* The entity behind a member row's 30x30 cell - a head, deliberately
+*
+* `sex` and `job` go to the private fields on purpose: their setters each start
+* an asynchronous body load that cannot be taken back afterwards.
+* @see docs/reference/guild/member-portrait.md
+*
+* @param {object} [entity] - the member's existing entity, if they have one
+* @param {{sex: number, job: number, head: number, headPalette: number}} look
+* @return {object} the entity to store back on the member
+*/
+function memberPortrait(entity, look) {
+	if (!entity) {
+		entity = new Entity();
+		entity.objecttype = Entity.TYPE_PC;
+		entity.files.shadow.spr = null;
+	}
+	entity._sex = look.sex;
+	entity._job = look.job;
+	entity._effectiveJob = look.job;
+	entity.head = look.head;
+	entity.headpalette = look.headPalette;
+	entity.direction = 4;
+	entity.headDir = 0;
+	entity.action = entity.ACTION.IDLE;
+	entity.animation = {
+		tick: 0,
+		frame: 0,
+		repeat: true,
+		play: true,
+		next: false,
+		delay: 0,
+		save: false
+	};
+	return entity;
+}
+/**
+* Show the level-up arrow on each skill the player may actually raise
+*
+* @see docs/reference/guild/member-view.md
+*/
+function updateSkillArrows(root) {
+	if (!root) return;
+	const count = _skills.length;
+	for (let i = 0; i < count; ++i) {
+		const levelupEl = root.querySelector(`.skill.id${_skills[i].SKID} .levelup`);
+		if (levelupEl) levelupEl.style.display = _skills[i].upgradable && _skpoints && SessionStorage_default.isGuildMaster ? "" : "none";
+	}
+}
 function getSkillById(id) {
 	const count = _skills.length;
 	for (let i = 0; i < count; ++i) if (_skills[i].SKID === id) return _skills[i];
 	return null;
 }
 function onRequestSkillUp() {
+	if (!SessionStorage_default.isGuildMaster) return;
 	const index = this.parentNode.parentNode.getAttribute("data-index");
 	Guild.onIncreaseSkill(parseInt(index, 10));
 }
@@ -228686,11 +229119,9 @@ function onRequestSkillInfo() {
 	SkillDescription_default.setSkill(skill.SKID);
 }
 function onSkillFocus() {
-	let main = this.parentElement;
-	if (!main.classList.contains("skill")) main = main.parentElement;
 	const root = _root$13(Guild);
 	for (const el of root.querySelectorAll(".skill")) el.classList.remove("selected");
-	main.classList.add("selected");
+	this.classList.add("selected");
 }
 function onSkillDragStart(event) {
 	const skill = getSkillById(parseInt(this.getAttribute("data-index"), 10));
@@ -228711,59 +229142,129 @@ function onSkillDragStart(event) {
 function onSkillDragEnd() {
 	delete window._OBJ_DRAG_;
 }
-function skillLevelSelectUp(skill) {
-	const level = skill.selectedLevel ? skill.selectedLevel : skill.level;
-	if (level < skill.level) {
-		skill.selectedLevel = level + 1;
-		const element = _root$13(Guild).querySelector(`.skill.id${skill.SKID}`);
-		if (element) {
-			const current = element.querySelector(".level .current");
-			if (current) current.textContent = skill.selectedLevel;
-		}
+/**
+* Helper: put the stored notice into whichever pair the pane is holding
+*/
+function _writeNotice(content) {
+	const subject = content?.querySelector(".subject");
+	const body = content?.querySelector(".notice");
+	if (!subject || !body) return;
+	if (SessionStorage_default.isGuildMaster) {
+		subject.value = _notice.subject;
+		body.value = _notice.body;
+		return;
 	}
+	subject.textContent = _notice.subject;
+	body.textContent = _notice.body;
 }
-function skillLevelSelectDown(skill) {
-	const level = skill.selectedLevel ? skill.selectedLevel : skill.level;
-	if (level > 1) {
-		skill.selectedLevel = level - 1;
-		const element = _root$13(Guild).querySelector(`.skill.id${skill.SKID}`);
-		if (element) {
-			const current = element.querySelector(".level .current");
-			if (current) current.textContent = skill.selectedLevel;
-		}
+/**
+* Helper: a tab's label in full, which its 64px cell ellipsises
+*
+* Read through the message id rather than off the element: the label is only
+* the markup's English fallback until `ui-text` upgrades.
+*/
+function _tabLabel(btn) {
+	const text = btn.querySelector("ui-text");
+	if (!text) return btn.textContent.trim();
+	return DB.getMessage(parseInt(text.getAttribute("msg"), 10), text.textContent.trim());
+}
+/**
+* Mark the tabs this member's access mask refuses
+* @see docs/reference/guild/member-view.md
+*/
+function updateTabAccess(root) {
+	if (!root) return;
+	for (const btn of root.querySelectorAll(".tabs button")) {
+		const tab = parseInt(btn.getAttribute("data-flag"), 10);
+		const denied = !!tab && !(_guildAccess & AccessTypeBit[tab]);
+		btn.classList.toggle("denied", denied);
+		btn.setAttribute("aria-disabled", denied ? "true" : "false");
+		btn.tabIndex = denied ? -1 : 0;
+		btn.title = _tabLabel(btn);
 	}
+	if (root.querySelector(".tabs button.active.denied")) onChangeTab.call(root.querySelector(".tabs button"));
 }
 function onChangeTab(event) {
 	const tab = parseInt(this.getAttribute("data-flag"), 10);
 	const root = _root$13(Guild);
 	if (this.classList.contains("active") || tab && !(_guildAccess & AccessTypeBit[tab])) return false;
-	Guild.onGuildInfoRequest(tab);
+	if (tab !== TAB_MEMBERS && tab !== TAB_POSITIONS || !_hasPendingPositions()) Guild.onGuildInfoRequest(tab);
 	for (const btn of root.querySelectorAll(".tabs button")) btn.classList.remove("active");
 	for (const content of root.querySelectorAll(".content")) content.style.display = "none";
 	const targetClass = this.className.replace(/\s*active\s*/g, "").trim();
 	const targetContent = root.querySelector(`.content.${targetClass}`);
 	if (targetContent) targetContent.style.display = "block";
-	const btnOk = root.querySelector(".footer .btn_ok");
-	if (btnOk) btnOk.style.display = "none";
+	_refreshApplyButton(targetClass);
 	updateDisbandButton(root, targetClass);
+	updateSkillFooter(root, targetClass);
+	updateMemberSort(root, targetClass);
+	updateInfoOptions(root);
 	if (targetClass === "members") Renderer.render(renderMemberFaces);
 	else Renderer.stop(renderMemberFaces);
 	this.classList.add("active");
 	return false;
 }
+/**
+* Where the tendency marker sits, in canvas-local pixels
+*
+* Truncates rather than rounds, which is a real one-pixel difference here.
+* @see docs/reference/guild/info-tab-legacy.md
+*
+* @param {number} honor - ZC_GUILD_INFO honor, [-100, 100]
+* @param {number} virtue - ZC_GUILD_INFO virtue, [-100, 100]
+* @return {{x: number, y: number}} top-left of the 2x2 marker
+*/
+function tendencyMarker(honor, virtue) {
+	return {
+		x: 44 + Math.trunc((honor || 0) * .42),
+		y: 44 - Math.trunc((virtue || 0) * .42)
+	};
+}
+/**
+* The ver12 chart, at the client's own rects translated into the canvas
+*
+* The four colours are the same ones the rest of this window uses.
+* @see docs/reference/guild/info-tab-legacy.md
+*/
 function renderTendency(honor, virtue) {
 	const canvas = _root$13(Guild).querySelector(".content.info .tendency canvas");
 	if (!canvas) return;
 	const ctx = canvas.getContext("2d");
-	ctx.fillStyle = "#cecfce";
-	ctx.fillRect(0, 0, canvas.width, canvas.height);
-	ctx.fillStyle = "#739eef";
-	ctx.fillRect(1, 1, canvas.width - 2, canvas.height - 2);
-	ctx.fillStyle = "#4261a5";
-	ctx.fillRect(canvas.width / 2 - 1, 1, 2, canvas.height - 2);
-	ctx.fillRect(1, canvas.height / 2 - 1, canvas.width - 2, 2);
+	ctx.fillStyle = "#c8c8c8";
+	ctx.fillRect(0, 0, 90, 90);
+	ctx.fillStyle = "#709fed";
+	ctx.fillRect(1, 1, 88, 88);
+	ctx.fillStyle = "#4262a5";
+	ctx.fillRect(44, 1, 2, 88);
+	ctx.fillRect(1, 44, 88, 2);
+	const marker = tendencyMarker(honor, virtue);
 	ctx.fillStyle = "#ffffff";
-	ctx.fillRect(canvas.width / 2 - 1, canvas.height / 2 - 1, 2, 2);
+	ctx.fillRect(marker.x, marker.y, 2, 2);
+}
+/**
+* Bounds of everything non-transparent, or null if nothing was drawn.
+*
+* @param {CanvasRenderingContext2D} ctx
+* @param {number} side
+*/
+function opaqueBounds(ctx, side) {
+	const data = ctx.getImageData(0, 0, side, side).data;
+	let top = -1, bottom = -1, left = side, right = -1;
+	for (let y = 0; y < side; ++y) {
+		const row = y * side;
+		for (let x = 0; x < side; ++x) if (data[(row + x) * 4 + 3] > 8) {
+			if (top < 0) top = y;
+			bottom = y;
+			if (x < left) left = x;
+			if (x > right) right = x;
+		}
+	}
+	return top < 0 ? null : {
+		top,
+		bottom,
+		left,
+		right
+	};
 }
 function onValidate() {
 	const root = _root$13(Guild);
@@ -228776,56 +229277,84 @@ function onValidate() {
 		activeTab = cls;
 		break;
 	}
+	if (!SessionStorage_default.isGuildMaster) {
+		_hideApplyButton();
+		return;
+	}
 	switch (activeTab) {
 		case "members": {
 			const list = [];
-			_members.forEach((member) => {
+			for (const GID in _pendingPositions) {
+				const pending = _pendingPositions[GID];
 				list.push({
-					AID: member.AID,
-					GID: member.GID,
-					positionID: member.GPositionID
+					AID: pending.AID,
+					GID: pending.GID,
+					positionID: pending.positionID
 				});
-			});
+			}
+			if (!list.length) return;
 			Guild.onChangeMemberPosRequest(list);
+			_dropPendingPositions();
 			break;
 		}
 		case "positions": {
 			const positionList = [];
 			const positions = root.querySelectorAll(".PositionView");
-			for (let i = 0, count = _positions.length; i < count; ++i) {
-				const position = positions[i];
-				if (!position) continue;
+			for (const position of positions) {
+				const rank = _positions[parseInt(position.dataset.positionId, 10)];
+				if (!rank || rank.right === void 0) continue;
 				const posName = position.querySelector(".title input")?.value || "";
-				const payRate = parseInt(position.querySelector(".tax input")?.value || "0", 10);
-				let right = 0;
-				const inviteBtn = position.querySelector(".invite ui-button");
-				if (inviteBtn && inviteBtn.classList.contains("on")) right |= 1;
-				const punishBtn = position.querySelector(".punish ui-button");
-				if (punishBtn && punishBtn.classList.contains("on")) right |= 16;
-				if (_positions[i].right !== right || _positions[i].posName !== posName || _positions[i].payRate !== payRate) positionList.push({
-					positionID: _positions[i].positionID,
-					ranking: _positions[i].ranking,
+				const typed = parseInt(position.querySelector(".tax input")?.value, 10) || 0;
+				const payRate = Math.min(99, Math.max(0, typed));
+				const owned = _hasStorageColumn() ? 273 : 17;
+				let right = rank.right & ~owned;
+				const inviteBox = position.querySelector(".invite .checkbox");
+				if (inviteBox && inviteBox.classList.contains("on")) right |= 1;
+				const punishBox = position.querySelector(".punish .checkbox");
+				if (punishBox && punishBox.classList.contains("on")) right |= 16;
+				const storageBox = position.querySelector(".storage .checkbox");
+				if (_hasStorageColumn() && storageBox && storageBox.classList.contains("on")) right |= GUILD_PERM_STORAGE;
+				if (rank.right !== right || rank.posName !== posName || rank.payRate !== payRate) positionList.push({
+					positionID: rank.positionID,
+					ranking: rank.ranking,
 					right,
 					posName,
 					payRate
 				});
 			}
-			Guild.onPositionUpdateRequest(positionList);
+			if (positionList.length) {
+				_sentPayRates = {};
+				for (const entry of positionList) _sentPayRates[entry.positionID] = entry.payRate;
+				Guild.onPositionUpdateRequest(positionList);
+			}
+			_positionsDirty = false;
 			break;
 		}
 		case "notice": {
-			const subject = root.querySelector(".content.notice input")?.value || "";
-			const content = root.querySelector(".content.notice textarea")?.value || "";
+			const subject = root.querySelector(".content.notice .subject")?.value || "";
+			const content = root.querySelector(".content.notice textarea.notice")?.value || "";
 			Guild.onNoticeUpdateRequest(subject, content);
 			break;
 		}
 	}
-	const btnOk = root.querySelector(".footer .btn_ok");
-	if (btnOk) btnOk.style.display = "none";
+	_hideApplyButton();
 }
 function getActiveTab(root) {
 	const btn = root ? root.querySelector(".tabs button.active") : null;
 	return btn ? btn.className.replace(/\s*active\s*/g, "").trim() : "";
+}
+/**
+* Show or hide the two ways into the emblem picker
+* @see docs/reference/guild/emblem-picker.md
+*/
+function updateEmblemControls(root) {
+	const general = root ? root.querySelector(".content.info") : null;
+	if (!general) return;
+	const emblemDisplay = SessionStorage_default.isGuildMaster ? "" : "none";
+	const emblemEdit = general.querySelector(".emblem_edit");
+	if (emblemEdit) emblemEdit.style.display = emblemDisplay;
+	const emblemPick = general.querySelector(".emblem_pick");
+	if (emblemPick) emblemPick.style.display = emblemDisplay;
 }
 function updateDisbandButton(root, activeTab) {
 	if (!root) return;
@@ -228839,7 +229368,32 @@ function updateDisbandButton(root, activeTab) {
 		});
 	}
 }
-var AccessTypeBit, Guild, _memberViewTemplate, _positionViewTemplate, _expelViewTemplate, _positions, _members, _skills, _btnIncSkillTemplate, _skpoints, _btnLevelUp, lArrow, rArrow, _totalExp, _guildAccess, _checkbox_off, _checkbox_on, renderMemberFaces, Guild_default;
+function updateSkillFooter(root, activeTab) {
+	if (!root) return;
+	const onSkills = activeTab === "skills";
+	for (const el of root.querySelectorAll(".footer .btn_use")) el.style.display = onSkills ? "block" : "none";
+	for (const el of root.querySelectorAll(".footer .skpoints")) el.style.display = onSkills && SessionStorage_default.isGuildMaster ? "block" : "none";
+}
+function updateMemberSort(root, activeTab) {
+	if (!root) return;
+	const box = root.querySelector(".footer .sortlogin");
+	if (!box) return;
+	const offered = _config().memberListSort === "checkbox";
+	box.style.display = offered && activeTab === "members" ? "block" : "none";
+	const btn = box.querySelector("ui-button");
+	const uri = UI_default.guildMemberListSorted ? _checkbox_on : _checkbox_off;
+	if (btn && uri) btn.style.backgroundImage = `url(${uri})`;
+	if (!box.dataset.bound) {
+		box.dataset.bound = "1";
+		box.addEventListener("click", () => {
+			UI_default.guildMemberListSorted = !UI_default.guildMemberListSorted;
+			UI_default.save();
+			reorderMemberRows(root, _sortsByLogin() ? _orderByLogin(_members) : _members);
+			updateMemberSort(root, "members");
+		});
+	}
+}
+var ACCESS_UNKNOWN, TAB_MEMBERS, TAB_POSITIONS, INFO_BLANK_CELLS, INFO_ZERO_CELLS, AccessTypeBit, Guild, _memberViewTemplate, _positionViewTemplate, _expelViewTemplate, _noticeSubjectTemplate, _noticeBodyTemplate, _notice, _positions, _members, _skills, _pendingPositions, _positionsDirty, _positionsSelected, _sentPayRates, GUILD_PERM_STORAGE, PERMISSION_COLUMNS, GUILD_LEVEL_MAX, EMBLEM_SIDE, _btnIncSkillTemplate, _skpoints, _btnLevelUp, _totalExp, _guildAccess, _accessRequested, _checkbox_off, _checkbox_on, _hasMemo, GUILD_CONFIG, PORTRAIT_BOX, renderMemberFaces, Guild_default;
 var init_Guild$1 = __esmMin((() => {
 	init_DBManager();
 	init_SkillInfo();
@@ -228851,6 +229405,7 @@ var init_Guild$1 = __esmMin((() => {
 	init_Camera();
 	init_Renderer();
 	init_Client();
+	init_PacketVerManager();
 	init_UIManager();
 	init_GUIComponent();
 	init_Elements();
@@ -228863,6 +229418,25 @@ var init_Guild$1 = __esmMin((() => {
 	init_Guild$3();
 	init_Guild$2();
 	init_WinStats();
+	init_Configs();
+	init_UI();
+	ACCESS_UNKNOWN = -1;
+	TAB_MEMBERS = 1;
+	TAB_POSITIONS = 2;
+	INFO_BLANK_CELLS = [
+		".name .value",
+		".level .value",
+		".master .value",
+		".avglevel .value",
+		".territory .value",
+		".exp .value",
+		".members .online"
+	];
+	INFO_ZERO_CELLS = [
+		".members .numMember",
+		".members .maxMember",
+		".tax .value"
+	];
 	AccessTypeBit = {
 		0: 0,
 		1: 1,
@@ -228874,12 +229448,36 @@ var init_Guild$1 = __esmMin((() => {
 	};
 	Guild = new GUIComponent("Guild", Guild_default$1);
 	Guild.render = () => Guild_default$2;
+	_notice = {
+		subject: "",
+		body: ""
+	};
 	_positions = [];
 	_members = [];
 	_skills = [];
+	_pendingPositions = {};
+	_positionsDirty = false;
+	_positionsSelected = 0;
+	_sentPayRates = {};
+	GUILD_PERM_STORAGE = 256;
+	PERMISSION_COLUMNS = {
+		invite: 1,
+		punish: 16,
+		storage: GUILD_PERM_STORAGE
+	};
+	GUILD_LEVEL_MAX = 50;
+	EMBLEM_SIDE = 24;
 	_skpoints = 0;
 	_totalExp = 0;
-	_guildAccess = 0;
+	_guildAccess = ACCESS_UNKNOWN;
+	_accessRequested = false;
+	_hasMemo = false;
+	GUILD_CONFIG = {
+		memberListSort: "always",
+		showLastLogin: false,
+		showTendency: false,
+		showTaxPoint: false
+	};
 	/**
 	* Initialize component
 	*/
@@ -228897,10 +229495,13 @@ var init_Guild$1 = __esmMin((() => {
 			closeBtn.addEventListener("click", () => Guild.toggle());
 		}
 		const tabsContainer = root.querySelector(".tabs");
-		if (tabsContainer) tabsContainer.addEventListener("click", (e) => {
-			const btn = e.target.closest("button");
-			if (btn) onChangeTab.call(btn, e);
-		});
+		if (tabsContainer) {
+			tabsContainer.addEventListener("click", (e) => {
+				const btn = e.target.closest("button");
+				if (btn) onChangeTab.call(btn, e);
+			});
+			for (const btn of tabsContainer.querySelectorAll("button")) btn.title = _tabLabel(btn);
+		}
 		Client.loadFiles([`${DB.INTERFACE_PATH}checkbox_0.bmp`, `${DB.INTERFACE_PATH}checkbox_1.bmp`], (off, on) => {
 			_checkbox_off = off;
 			_checkbox_on = on;
@@ -228908,29 +229509,30 @@ var init_Guild$1 = __esmMin((() => {
 		const posBody = root.querySelector(".content.positions tbody");
 		if (posBody) {
 			posBody.addEventListener("mousedown", (e) => {
-				if (e.target.closest("input") && !SessionStorage_default.isGuildMaster) e.preventDefault();
 				const tr = e.target.closest("tr");
 				if (tr) {
-					for (const row of posBody.querySelectorAll("tr")) row.classList.remove("active");
+					const rows = [...posBody.querySelectorAll("tr")];
+					for (const row of rows) row.classList.remove("active");
 					tr.classList.add("active");
+					_positionsSelected = rows.indexOf(tr);
 				}
 			});
 			posBody.addEventListener("focus", (e) => {
 				if (e.target.matches("input")) {
-					const btnOk = root.querySelector(".footer .btn_ok");
-					if (btnOk) btnOk.style.display = "block";
+					_positionsDirty = true;
+					_showApplyButton();
 					e.target.select();
 				}
 			}, true);
 			posBody.addEventListener("click", (e) => {
-				const btn = e.target.closest("ui-button");
-				if (btn && SessionStorage_default.isGuildMaster) {
-					btn.className = btn.className.replace(/\b(on|off)\b/g, "").trim();
-					const isOn = !btn.classList.contains("on");
-					btn.classList.add(isOn ? "on" : "off");
-					btn.style.backgroundImage = `url(${isOn ? _checkbox_on : _checkbox_off})`;
-					const btnOk = root.querySelector(".footer .btn_ok");
-					if (btnOk) btnOk.style.display = "block";
+				const box = e.target.closest(".checkbox");
+				if (box && SessionStorage_default.isGuildMaster) {
+					const isOn = !box.classList.contains("on");
+					box.className = box.className.replace(/\b(on|off)\b/g, "").trim();
+					box.classList.add(isOn ? "on" : "off");
+					box.style.backgroundImage = `url(${isOn ? _checkbox_on : _checkbox_off})`;
+					_positionsDirty = true;
+					_showApplyButton();
 				}
 			});
 		}
@@ -228953,18 +229555,19 @@ var init_Guild$1 = __esmMin((() => {
 		}
 		const membersBody = root.querySelector(".content.members tbody");
 		if (membersBody) {
+			const selectRow = (tr) => {
+				for (const row of membersBody.querySelectorAll("tr")) row.classList.remove("active");
+				tr.classList.add("active");
+			};
 			membersBody.addEventListener("mousedown", (e) => {
 				const tr = e.target.closest("tr");
-				if (tr) {
-					for (const row of membersBody.querySelectorAll("tr")) row.classList.remove("active");
-					tr.classList.add("active");
-				}
+				if (tr) selectRow(tr);
 			});
 			membersBody.addEventListener("contextmenu", (e) => {
-				const td = e.target.closest("td.name");
-				if (!td) return;
-				const index = td.parentNode.getAttribute("data-index");
-				const member = _members[index];
+				const tr = e.target.closest("tr");
+				const member = tr && _members[tr.getAttribute("data-index")];
+				if (!member) return;
+				selectRow(tr);
 				const isSelf = member.AID === SessionStorage_default.AID && member.GID === SessionStorage_default.GID;
 				ContextMenu_default.remove();
 				ContextMenu_default.append();
@@ -228982,7 +229585,18 @@ var init_Guild$1 = __esmMin((() => {
 						Guild.onRequestLeave(member.AID, member.GID, reason);
 					};
 				});
-				if (SessionStorage_default.guildRight & 16 && !isSelf) ContextMenu_default.addElement(DB.getMessage(509), () => {
+				if (SessionStorage_default.isGuildMaster && !isSelf) ContextMenu_default.addElement(DB.getMessage(2923, "Assign Guild Leader"), () => {
+					const grade = _positions[member.GPositionID];
+					const text = DB.getMessage(2924, "Are you sure you want to assign %s as guild leader? After assigning your position will become %s").replace("%s", member.CharName || DB.getMessage(581, "Nameless")).replace("%s", grade && grade.posName ? grade.posName : "");
+					UIManager.showPromptBox(text, "ok", "cancel", () => {
+						Guild.onChangeMemberPosRequest([{
+							AID: member.AID,
+							GID: member.GID,
+							positionID: 0
+						}]);
+					});
+				});
+				if (SessionStorage_default.guildPermission & 16 && !isSelf) ContextMenu_default.addElement(DB.getMessage(509), () => {
 					InputBox_default.append();
 					InputBox_default.setType("text");
 					const textEl = (_root$13(InputBox_default) || InputBox_default.ui?.[0])?.querySelector?.(".text");
@@ -229023,7 +229637,7 @@ var init_Guild$1 = __esmMin((() => {
 			if (target) onRequestSkillInfo.call(target);
 		});
 		container.addEventListener("mousedown", (e) => {
-			const target = e.target.closest(".selectable");
+			const target = e.target.closest(".skill");
 			if (target && target.closest(".content.skills")) onSkillFocus.call(target);
 		});
 		container.addEventListener("dragstart", (e) => {
@@ -229035,36 +229649,45 @@ var init_Guild$1 = __esmMin((() => {
 			if (target && target.closest(".content.skills")) onSkillDragEnd.call(target);
 		});
 		const noticeContent = root.querySelector(".content.notice");
-		if (noticeContent) noticeContent.addEventListener("focus", (e) => {
-			if (e.target.matches("textarea, input")) {
-				const btnOk = root.querySelector(".footer .btn_ok");
-				if (btnOk) btnOk.style.display = "block";
-			}
-		}, true);
-		const emblemInput = root.querySelector(".content.info .emblem_edit input");
+		if (noticeContent) {
+			_noticeSubjectTemplate = noticeContent.querySelector(".subject")?.cloneNode(true);
+			_noticeBodyTemplate = noticeContent.querySelector("textarea.notice")?.cloneNode(true);
+			Guild.updateNoticeView();
+			noticeContent.addEventListener("focus", (e) => {
+				if (SessionStorage_default.isGuildMaster && e.target.matches("textarea, input")) _showApplyButton();
+			}, true);
+		}
+		const emblemInput = root.querySelector(".content.info .emblem_pick input");
 		if (emblemInput) emblemInput.addEventListener("change", function() {
-			const file = this.files[0];
-			if (!file) return;
-			const isBmp = /^image\/(bmp|x-bmp|x-ms-bmp|x-windows-bmp)$/.test(file.type) || /\.bmp$/i.test(file.name);
-			const isGif = file.type === "image/gif" || /\.gif$/i.test(file.name);
-			if (isBmp && file.size <= 1783 || isGif && file.size <= 5e4) {
-				const reader = new FileReader();
-				reader.onload = (e) => {
-					Guild.onSendEmblem(new Uint8Array(e.target.result));
-				};
-				reader.readAsArrayBuffer(this.files[0]);
-			} else console.warn("[Warning] Incorrect emblem file type. Only BMP, 24bit or lower is accepted or GIFs max size 50Kb or lower.");
+			submitEmblem(this.files[0]);
+			this.value = "";
 		});
+		const emblemEdit = root.querySelector(".content.info .emblem_edit");
+		if (emblemEdit && emblemInput) emblemEdit.addEventListener("click", () => emblemInput.click());
+		const emblemDrop = root.querySelector(".emblem_drop");
+		const guildWindow = root.querySelector("#Guild");
+		if (emblemDrop && guildWindow) {
+			guildWindow.addEventListener("dragenter", (e) => {
+				e.preventDefault();
+				if (_acceptsEmblemDrop(root, e.dataTransfer)) emblemDrop.classList.add("dragover");
+			});
+			guildWindow.addEventListener("dragover", (e) => e.preventDefault());
+			guildWindow.addEventListener("drop", (e) => e.preventDefault());
+			emblemDrop.addEventListener("dragleave", () => emblemDrop.classList.remove("dragover"));
+			emblemDrop.addEventListener("drop", (e) => {
+				emblemDrop.classList.remove("dragover");
+				submitEmblem(e.dataTransfer.files[0]);
+			});
+		}
 		const footerOk = root.querySelector(".footer .btn_ok");
 		if (footerOk) footerOk.addEventListener("click", () => onValidate());
+		const footerUse = root.querySelector(".footer .btn_use");
+		if (footerUse) footerUse.addEventListener("click", () => {
+			const selected = root.querySelector(".content.skills .skill.selected");
+			if (selected) Guild.useSkillID(parseInt(selected.getAttribute("data-index"), 10));
+		});
 		this.draggable(".titlebar");
 		this.ui.hide();
-		Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/arw_right.bmp`, (data) => {
-			rArrow = `url(${data})`;
-		});
-		Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/arw_left.bmp`, (data) => {
-			lArrow = `url(${data})`;
-		});
 		renderTendency(0, 0);
 	};
 	/**
@@ -229072,6 +229695,41 @@ var init_Guild$1 = __esmMin((() => {
 	*/
 	Guild.onRemove = function onRemove() {
 		Renderer.stop(renderMemberFaces);
+		_resetPositionsTab();
+	};
+	/**
+	* Empty the window of the character who was here before
+	*
+	* The component is a singleton and outlives a character change.
+	* @see docs/reference/guild/member-view.md
+	*/
+	Guild.reset = function reset() {
+		const root = _root$13(this);
+		if (!root) return;
+		_members.length = 0;
+		_positions.length = 0;
+		_skills.length = 0;
+		_skpoints = 0;
+		_guildAccess = ACCESS_UNKNOWN;
+		_accessRequested = false;
+		_hasMemo = false;
+		_sentPayRates = {};
+		_resetPositionsTab();
+		for (const selector of [
+			".content.members tbody",
+			".content.positions tbody",
+			".content.history tbody"
+		]) {
+			const container = root.querySelector(selector);
+			if (container) container.innerHTML = "";
+		}
+		const skillList = root.querySelector(".content.skills .skill_list");
+		if (skillList) skillList.innerHTML = "";
+		_clearInfoTab(root);
+		Guild.setNotice("", "");
+		for (const btn of root.querySelectorAll(".tabs button")) btn.classList.remove("active");
+		updateTabAccess(root);
+		for (const content of root.querySelectorAll(".content")) content.style.display = "none";
 	};
 	Guild.onShortCut = function onShortCut(key) {
 		if (key.cmd === "TOGGLE") this.toggle();
@@ -229094,17 +229752,19 @@ var init_Guild$1 = __esmMin((() => {
 		if (this.ui.is(":visible")) return;
 		this.ui.show();
 		const root = _root$13(this);
+		updateInfoOptions(root);
 		if (!root.querySelector(".tabs .active")) {
 			const infoBtn = root.querySelector(".tabs .info");
 			if (infoBtn) infoBtn.click();
-			Guild.onRequestAccess();
 		}
+		Guild.requestAccessIfUnknown();
 		const membersContent = root.querySelector(".content.members");
 		if (membersContent && membersContent.style.display !== "none") Renderer.render(renderMemberFaces);
 	};
 	Guild.hide = function hide() {
 		this.ui.hide();
 		Renderer.stop(renderMemberFaces);
+		_resetPositionsTab();
 	};
 	Guild.setGuildInformations = function setGuildInformations(info) {
 		const root = _root$13(this);
@@ -229117,18 +229777,23 @@ var init_Guild$1 = __esmMin((() => {
 		general.querySelector(".members .maxMember").textContent = info.maxUserNum;
 		general.querySelector(".avglevel .value").textContent = info.userAverageLevel;
 		general.querySelector(".territory .value").textContent = info.manageLand;
-		general.querySelector(".exp .value").textContent = info.exp;
 		general.querySelector(".tax .value").textContent = info.point;
+		const atMaxLevel = info.level >= GUILD_LEVEL_MAX;
+		general.querySelector(".exp .value").textContent = atMaxLevel ? 0 : info.exp;
+		general.querySelector(".exp").classList.toggle("maxlevel", atMaxLevel);
 		Guild.updateSession(info);
 		Guild.onRequestGuildEmblem(info.GDID, info.emblemVersion, Guild.setEmblem.bind(this));
-		const emblemEdit = general.querySelector(".emblem_edit");
-		if (emblemEdit) emblemEdit.style.display = SessionStorage_default.isGuildMaster ? "" : "none";
+		updateEmblemControls(root);
 		updateDisbandButton(root, getActiveTab(root));
+		updateSkillFooter(root, getActiveTab(root));
+		updateMemberSort(root, getActiveTab(root));
 		WinStatsController.getUI().update("guildname", info.guildname);
-		renderTendency(info.honor, info.virtue);
+		updateInfoOptions(root);
+		if (_showsTendency()) renderTendency(info.honor, info.virtue);
 	};
 	Guild.setEmblem = function setEmblem(image) {
-		const el = _root$13(this).querySelector(".content.info .emblem_container");
+		const root = _root$13(this);
+		const el = root ? root.querySelector(".content.info .emblem_container") : null;
 		if (el) el.style.backgroundImage = `url(${image.src})`;
 	};
 	Guild.setRelations = function setRelations(guilds) {
@@ -229153,12 +229818,20 @@ var init_Guild$1 = __esmMin((() => {
 		const el = list.querySelector(`div[data-guild-id="${guildId}"]`);
 		if (el) el.remove();
 	};
-	Guild.setMembers = function setMembers(members) {
+	Guild.setMembers = function setMembers(members, hasMemo) {
 		let online = 0;
 		const count = members.length;
 		_members.length = 0;
 		_totalExp = 0;
+		if (_hasPendingPositions()) ChatBox_default.addText("The guild member list changed. The grade waiting to be applied was dropped.", ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.GUILD);
+		_clearPendingPositions();
 		const root = _root$13(this);
+		_hasMemo = !!hasMemo;
+		const membersContent = root.querySelector(".content.members");
+		if (membersContent) {
+			membersContent.classList.toggle("has-memo", _hasMemo);
+			membersContent.classList.toggle("has-lastlogin", !_hasMemo && _config().showLastLogin);
+		}
 		const tbody = root.querySelector(".content.members tbody");
 		if (tbody) tbody.innerHTML = "";
 		for (let i = 0; i < count; ++i) {
@@ -229169,7 +229842,9 @@ var init_Guild$1 = __esmMin((() => {
 		if (numMember) numMember.textContent = count;
 		const onlineEl = root.querySelector(".content.info .members .online");
 		if (onlineEl) onlineEl.textContent = online;
+		const ordered = _sortsByLogin() ? _orderByLogin(members) : members;
 		for (let i = 0; i < count; ++i) this.setMember(members[i]);
+		reorderMemberRows(root, ordered);
 		renderMemberFaces(Renderer.tick + 1e3);
 	};
 	Guild.setMember = function setMember(member) {
@@ -229177,8 +229852,10 @@ var init_Guild$1 = __esmMin((() => {
 		const root = _root$13(this);
 		for (i = 0, count = _members.length; i < count; ++i) if (_members[i].AID === member.AID && _members[i].GID === member.GID) break;
 		let view;
-		if (i < count) view = root.querySelector(`.MemberView[data-index="${i}"]`);
-		else {
+		if (i < count) {
+			view = root.querySelector(`.MemberView[data-index="${i}"]`);
+			_members[i] = member;
+		} else {
 			view = _memberViewTemplate.cloneNode(true);
 			const tbody = root.querySelector(".content.members tbody");
 			if (tbody) tbody.appendChild(view);
@@ -229186,24 +229863,42 @@ var init_Guild$1 = __esmMin((() => {
 		}
 		if (member.CurrentState) view.classList.add("online");
 		view.setAttribute("data-index", i);
+		view.classList.toggle("pending", member.GID in _pendingPositions);
+		const displayName = member.CharName || DB.getMessage(581, "Nameless");
 		const nameValue = view.querySelector(".name .value");
 		if (nameValue) {
-			nameValue.textContent = member.CharName;
-			nameValue.title = member.CharName;
+			nameValue.textContent = displayName;
+			nameValue.title = displayName;
 		}
+		const lastLogin = view.querySelector(".name .lastlogin");
+		if (lastLogin) lastLogin.textContent = member.LastLogin && _config().showLastLogin ? DB.getMessage(3012, "Last login: %s").replace("%s", _formatLastLogin(member.LastLogin)) : "";
 		if (_positions[member.GPositionID]) {
 			const positionCell = view.querySelector(".position");
 			if (SessionStorage_default.isGuildMaster) {
-				let selectHTML = `<select class="changePosition member_${member.AID}_${member.GID}">`;
+				const own = !member.GPositionID ? " disabled" : "";
+				let selectHTML = `<select class="changePosition member_${member.AID}_${member.GID}"${own}>`;
 				_positions.forEach((position, key) => {
 					selectHTML += `<option value="${position.positionID}" ${key === member.GPositionID ? "selected" : ""}>${_escapeHTML$3(position.posName)}</option>`;
 				});
 				selectHTML += "</select>";
 				positionCell.innerHTML = selectHTML;
 				const selectEl = positionCell.querySelector(`.member_${member.AID}_${member.GID}`);
-				if (selectEl) selectEl.addEventListener("change", (evt) => {
-					Guild.updateMemberPosition(member.AID, member.GID, parseInt(evt.target.value, 10), true);
-				});
+				if (selectEl) {
+					selectEl.addEventListener("change", (evt) => {
+						const positionID = parseInt(evt.target.value, 10);
+						if (!Guild.updateMemberPosition(member.AID, member.GID, positionID, true)) {
+							evt.target.value = member.GPositionID;
+							return;
+						}
+						view.classList.add("pending");
+						_showApplyButton();
+					});
+					const showFullGrade = () => {
+						selectEl.title = selectEl.options[selectEl.selectedIndex].textContent;
+					};
+					showFullGrade();
+					selectEl.addEventListener("change", showFullGrade);
+				}
 			} else {
 				positionCell.textContent = _positions[member.GPositionID].posName;
 				positionCell.title = _positions[member.GPositionID].posName;
@@ -229225,19 +229920,32 @@ var init_Guild$1 = __esmMin((() => {
 			taxCell.textContent = member.MemberExp;
 			taxCell.title = member.MemberExp;
 		}
-		if (!member.entity) {
-			member.entity = new Entity();
-			member.entity.direction = 4;
-			member.entity.objecttype = Entity.TYPE_PC;
-			member.entity.files.shadow.spr = null;
-		}
-		member.entity.sex = member.Sex;
-		member.entity._job = member.Job;
-		member.entity._effectiveJob = member.Job;
-		member.entity.head = member.HeadType;
-		member.entity.headpalette = member.HeadPalette;
+		member.entity = memberPortrait(member.entity, {
+			sex: member.Sex,
+			job: member.Job,
+			head: member.HeadType,
+			headPalette: member.HeadPalette
+		});
 		const numMember = root.querySelector(".content.info .members .numMember");
 		if (numMember) numMember.textContent = _members.length;
+	};
+	/**
+	* The name the roster holds for a character id
+	*
+	* The departure packets of the id-only era carry no name, and the roster is
+	* where the client reads it back from.
+	* @see docs/reference/guild/member-view.md
+	*
+	* @param {number} GID - character id
+	* @return {string} the member's name, or the placeholder the list itself uses
+	*/
+	Guild.getMemberName = function getMemberName(GID) {
+		let name = "";
+		for (let i = 0, count = _members.length; i < count; ++i) if (_members[i].GID === GID) {
+			name = _members[i].CharName;
+			break;
+		}
+		return name || DB.getMessage(581, "Nameless");
 	};
 	Guild.updateMemberStatus = function updateMemberStatus(member) {
 		let i, count;
@@ -229251,22 +229959,77 @@ var init_Guild$1 = __esmMin((() => {
 			if (_members[i].CurrentState) view.classList.add("online");
 			else view.classList.remove("online");
 		}
-		if ("sex" in member) _members[i].entity.sex = member.sex;
-		if ("head" in member) _members[i].entity.head = member.head;
-		if ("headPalette" in member) _members[i].entity.headpalette = member.headPalette;
+		const current = _members[i];
+		if (member.status) {
+			if ("sex" in member) current.Sex = member.sex;
+			if ("head" in member) current.HeadType = member.head;
+			if ("headPalette" in member) current.HeadPalette = member.headPalette;
+		}
+		current.entity = memberPortrait(current.entity, {
+			sex: current.Sex,
+			job: current.Job,
+			head: current.HeadType,
+			headPalette: current.HeadPalette
+		});
 		for (i = 0, count = _members.length; i < count; ++i) online += _members[i].CurrentState ? 1 : 0;
 		const onlineEl = root.querySelector(".content.info .members .online");
 		if (onlineEl) onlineEl.textContent = online;
-		const nameValue = view?.querySelector(".name .value");
-		ChatBox_default.addText(DB.getMessage(485 + (member.status ? 0 : 1)).replace("%s", nameValue ? nameValue.textContent : ""), ChatBox_default.TYPE.BLUE, ChatBox_default.FILTER.GUILD);
+		if (_sortsByLogin()) {
+			reorderMemberRows(root, _orderByLogin(_members));
+			renderMemberFaces(Renderer.tick + 1e3);
+		}
+		if (!UI_default.li) return;
+		ChatBox_default.addText(DB.getMessage(member.status ? 485 : 486, member.status ? "Guild Member %s has connected." : "Guild Member %s has disconnected.").replace("%s", current.CharName || DB.getMessage(581, "Nameless")), ChatBox_default.TYPE.BLUE, ChatBox_default.FILTER.GUILD);
 	};
+	/**
+	* Move a member to another grade
+	*
+	* From the dropdown the change is only queued, never sent on selection.
+	* @see docs/reference/guild/grade-change.md
+	*
+	* @param {number} AID - account id
+	* @param {number} GID - character id
+	* @param {number} positionID - grade to move the member to
+	* @param {boolean} fromDropdown - true when the grade dropdown is the source
+	* @return {boolean} false when the member is unknown or the selection refused
+	*/
 	Guild.updateMemberPosition = function updateMemberPosition(AID, GID, positionID, fromDropdown) {
 		for (let i = 0, count = _members.length; i < count; ++i) if (_members[i].AID === AID && _members[i].GID === GID) {
+			const currentID = _members[i].GPositionID;
+			if (fromDropdown && (!positionID || !currentID || positionID === currentID)) return false;
 			_members[i].GPositionID = positionID;
-			if (!fromDropdown) Guild.setMember(_members[i]);
-			break;
+			if (fromDropdown) {
+				const queued = _pendingPositions[GID];
+				_pendingPositions[GID] = {
+					AID,
+					GID,
+					positionID,
+					previousID: queued ? queued.previousID : currentID
+				};
+			} else Guild.setMember(_members[i]);
+			return true;
 		}
-		if (fromDropdown) onValidate();
+		return false;
+	};
+	/**
+	* Apply the grades the server acknowledged
+	*
+	* The ack is server truth, so it also drops whatever was still queued. Every row
+	* goes back to the server's grade first and the acknowledged ones are then moved
+	* again: an ack can carry fewer entries than were sent, and the rest have to end
+	* on what the server holds rather than on what it never answered.
+	* @see docs/reference/guild/grade-change.md
+	*
+	* @param {Array} memberInfo - PACKET.ZC.ACK_REQ_CHANGE_MEMBERS entries
+	*/
+	Guild.setMemberPositions = function setMemberPositions(memberInfo) {
+		_clearPendingPositions();
+		if (!memberInfo) return;
+		for (let i = 0, count = memberInfo.length; i < count; ++i) {
+			const entry = memberInfo[i];
+			if (!entry.positionID) continue;
+			Guild.updateMemberPosition(entry.AID, entry.GID, entry.positionID, false);
+		}
 	};
 	Guild.setPositions = function setPositions(positions, erase) {
 		let rank;
@@ -229279,14 +230042,19 @@ var init_Guild$1 = __esmMin((() => {
 			_positions[rank.positionID].ranking = rank.ranking;
 			_positions[rank.positionID].payRate = rank.payRate;
 			if (rank.posName) _positions[rank.positionID].posName = rank.posName;
+			const sent = _sentPayRates[rank.positionID];
+			if (sent !== void 0 && rank.payRate !== void 0 && sent !== rank.payRate) ChatBox_default.addText(DB.getMessage(3486, "You can't enter value more than 50%.").replace(/%[ds]|\d+/, rank.payRate), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.GUILD);
+			delete _sentPayRates[rank.positionID];
 		}
 		Guild.updatePositionView();
 	};
 	Guild.setPositionsName = function setPositionsName(positions) {
 		let rank;
+		_clearPendingPositions();
 		for (let i = 0, count = positions.length; i < count; ++i) {
 			rank = positions[i];
 			if (!(rank.positionID in _positions)) _positions[rank.positionID] = {};
+			_positions[rank.positionID].positionID = rank.positionID;
 			_positions[rank.positionID].posName = rank.posName;
 		}
 		Guild.updatePositionView();
@@ -229294,29 +230062,40 @@ var init_Guild$1 = __esmMin((() => {
 	Guild.updatePositionView = function updatePositionView() {
 		const container = _root$13(this).querySelector(".content.positions tbody");
 		if (!container) return;
+		const isMaster = SessionStorage_default.isGuildMaster;
+		if (_positionsDirty) {
+			if (isMaster) return;
+			_positionsDirty = false;
+			_hideApplyButton();
+		}
+		container.closest(".content.positions")?.classList.toggle("has-storage", _hasStorageColumn());
 		container.innerHTML = "";
 		const count = _positions.length;
+		let rendered = 0;
 		for (let i = 0; i < count; ++i) {
-			const view = _positionViewTemplate.cloneNode(true);
 			const rank = _positions[i];
-			if (i === 0) view.classList.add("active");
+			if (!rank) continue;
+			const view = _positionViewTemplate.cloneNode(true);
+			view.dataset.positionId = rank.positionID;
+			if (rendered === _positionsSelected) view.classList.add("active");
+			++rendered;
 			const idCell = view.querySelector(".id");
 			if (idCell) idCell.textContent = rank.positionID;
-			const titleInput = view.querySelector(".title input");
-			if (titleInput) titleInput.value = rank.posName;
-			const taxInput = view.querySelector(".tax input");
-			if (taxInput) taxInput.value = rank.payRate;
-			const inviteBtn = view.querySelector(".invite ui-button");
-			if (inviteBtn) {
-				inviteBtn.style.backgroundImage = `url(${rank.right & 1 ? _checkbox_on : _checkbox_off})`;
-				inviteBtn.className = inviteBtn.className.replace(/\b(on|off)\b/g, "").trim();
-				inviteBtn.classList.add(rank.right & 1 ? "on" : "off");
+			if (isMaster) {
+				const titleInput = view.querySelector(".title input");
+				if (titleInput) titleInput.value = rank.posName;
+				const taxInput = view.querySelector(".tax input");
+				if (taxInput) taxInput.value = rank.payRate;
+			} else {
+				_asValue(view.querySelector(".title"), rank.posName, true);
+				_asValue(view.querySelector(".tax"), `${rank.payRate} %`);
 			}
-			const punishBtn = view.querySelector(".punish ui-button");
-			if (punishBtn) {
-				punishBtn.style.backgroundImage = `url(${rank.right & 16 ? _checkbox_on : _checkbox_off})`;
-				punishBtn.className = punishBtn.className.replace(/\b(on|off)\b/g, "").trim();
-				punishBtn.classList.add(rank.right & 16 ? "on" : "off");
+			for (const column in PERMISSION_COLUMNS) {
+				const box = view.querySelector(`.${column} .checkbox`);
+				if (!box) continue;
+				const on = rank.right & PERMISSION_COLUMNS[column];
+				box.style.backgroundImage = `url(${on ? _checkbox_on : _checkbox_off})`;
+				box.className = `${isMaster ? "checkbox" : "tick"} ${on ? "on" : "off"}`;
 			}
 			container.appendChild(view);
 		}
@@ -229325,8 +230104,8 @@ var init_Guild$1 = __esmMin((() => {
 		const root = _root$13(this);
 		for (let i = 0, count = _skills.length; i < count; ++i) this.onUpdateSkill(_skills[i].SKID, 0);
 		_skills.length = 0;
-		const table = root.querySelector(".content.skills .skill_list table");
-		if (table) table.innerHTML = "";
+		const list = root.querySelector(".content.skills .skill_list");
+		if (list) list.innerHTML = "";
 		for (let i = 0, count = skills.length; i < count; ++i) this.addSkill(skills[i]);
 	};
 	Guild.addSkill = function addSkill(skill) {
@@ -229342,29 +230121,15 @@ var init_Guild$1 = __esmMin((() => {
 			onRequestSkillUp.call(this);
 		});
 		const className = !skill.level ? "disabled" : skill.type ? "active" : "passive";
-		const tr = document.createElement("tr");
+		const tr = document.createElement("div");
 		tr.className = `skill id${skill.SKID} ${className}`;
 		tr.setAttribute("data-index", skill.SKID);
 		tr.setAttribute("draggable", "true");
-		tr.innerHTML = `<td class="icon"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" width="24" height="24" /></td><td class="levelupcontainer"></td><td class=selectable><div class="name">${_escapeHTML$3(sk.SkillName)}<br/><span class="level">` + (sk.bSeperateLv ? `<button class="currentDown"></button>Lv : <span class="current">${skill.level}</span> / <span class="max">${skill.level}</span><button class="currentUp"></button>` : `Lv : <span class="current">${skill.level}</span>`) + `</span></div></td><td class="selectable type"><div class="consume">${skill.type ? `Sp : <span class="spcost">${skill.spcost}</span>` : "Passive"}</div></td>`;
-		if (!skill.upgradable || !_skpoints) levelup.style.display = "none";
+		tr.innerHTML = `<div class="icon"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" width="24" height="24" /></div><div class="levelupcontainer"></div><div class="selectable"><div class="name">${_escapeHTML$3(sk.SkillName)}</div><div class="levelline"><div class="level">Lv : <span class="current">${skill.level}</span></div><div class="consume">${skill.type ? `Sp : <span class="spcost">${skill.spcost}</span>` : "Passive"}</div></div></div>`;
+		if (!skill.upgradable || !_skpoints || !SessionStorage_default.isGuildMaster) levelup.style.display = "none";
 		tr.querySelector(".levelupcontainer").appendChild(levelup);
-		const currentUp = tr.querySelector(".level .currentUp");
-		if (currentUp) {
-			if (rArrow) currentUp.style.backgroundImage = rArrow;
-			currentUp.addEventListener("click", () => {
-				skillLevelSelectUp(skill);
-			});
-		}
-		const currentDown = tr.querySelector(".level .currentDown");
-		if (currentDown) {
-			if (lArrow) currentDown.style.backgroundImage = lArrow;
-			currentDown.addEventListener("click", () => {
-				skillLevelSelectDown(skill);
-			});
-		}
-		const table = root.querySelector(".content.skills .skill_list table");
-		if (table) table.appendChild(tr);
+		const list = root.querySelector(".content.skills .skill_list");
+		if (list) list.appendChild(tr);
 		this.parseHTML.call(levelup);
 		Client.loadFile(`${DB.INTERFACE_PATH}item/${sk.Name}.bmp`, (data) => {
 			const img = tr.querySelector(".icon img");
@@ -229384,23 +230149,19 @@ var init_Guild$1 = __esmMin((() => {
 		if (Number.isInteger(skill.type)) target.type = skill.type;
 		const element = _root$13(this).querySelector(`.skill.id${skill.SKID}`);
 		if (!element) return;
-		for (const el of element.querySelectorAll(".level .current, .level .max")) el.textContent = skill.level;
-		if (skill.selectedLevel) {
-			const current = element.querySelector(".level .current");
-			if (current) current.textContent = skill.selectedLevel;
-		}
+		for (const el of element.querySelectorAll(".level .current")) el.textContent = skill.level;
 		const spcost = element.querySelector(".spcost");
 		if (spcost) spcost.textContent = skill.spcost;
 		element.classList.remove("active", "passive", "disabled");
 		element.classList.add(!skill.level ? "disabled" : skill.type ? "active" : "passive");
 		const levelupEl = element.querySelector(".levelup");
-		if (levelupEl) levelupEl.style.display = skill.upgradable && _skpoints ? "" : "none";
+		if (levelupEl) levelupEl.style.display = skill.upgradable && _skpoints && SessionStorage_default.isGuildMaster ? "" : "none";
 		this.onUpdateSkill(skill.SKID, skill.level);
 	};
 	Guild.useSkillID = function useSkillID(id, level) {
 		const skill = getSkillById(id);
 		if (!skill || !skill.level || !skill.type) return;
-		Guild.useSkill(skill, level ? level : skill.selectedLevel);
+		Guild.useSkill(skill, level ? level : skill.level);
 	};
 	Guild.useSkill = function useSkill(skill, level) {
 		if (skill.type & SkillTargetSelection_default.TYPE.SELF) this.onUseSkill(skill.SKID, level ? level : skill.level);
@@ -229419,21 +230180,64 @@ var init_Guild$1 = __esmMin((() => {
 			return;
 		}
 		_skpoints = amount;
-		const count = _skills.length;
-		for (let i = 0; i < count; ++i) {
-			const levelupEl = root.querySelector(`.skill.id${_skills[i].SKID} .levelup`);
-			if (levelupEl) levelupEl.style.display = _skills[i].upgradable && amount ? "" : "none";
-		}
+		updateSkillArrows(root);
 	};
 	Guild.onLevelUp = function onLevelUp() {
 		if (_btnLevelUp) document.body.appendChild(_btnLevelUp);
 	};
 	Guild.setNotice = function setNotice(subject, notice) {
+		_notice.subject = subject;
+		_notice.body = notice;
+		Guild.updateNoticeView();
+		_writeNotice(_root$13(this)?.querySelector(".content.notice"));
+	};
+	/**
+	* Draw the Notice tab for whoever is looking at it
+	*
+	* A member gets the text and no field.
+	* @see docs/reference/guild/member-view.md
+	*/
+	Guild.updateNoticeView = function updateNoticeView() {
 		const root = _root$13(this);
-		const subjectInput = root.querySelector(".content.notice .subject");
-		if (subjectInput) subjectInput.value = subject;
-		const noticeTextarea = root.querySelector(".content.notice textarea.notice");
-		if (noticeTextarea) noticeTextarea.value = notice;
+		if (!root) return;
+		const content = root.querySelector(".content.notice");
+		if (!content || !_noticeSubjectTemplate || !_noticeBodyTemplate) return;
+		const subjectSlot = content.querySelector(".subject");
+		const bodySlot = content.querySelector(".notice");
+		if (!subjectSlot || !bodySlot) return;
+		const isMaster = SessionStorage_default.isGuildMaster;
+		if (isMaster === (subjectSlot.tagName === "INPUT")) return;
+		const fill = (slot, template) => {
+			let next;
+			if (isMaster) next = template.cloneNode(true);
+			else {
+				next = document.createElement("div");
+				next.className = `${template.className} value`;
+			}
+			slot.replaceWith(next);
+		};
+		fill(subjectSlot, _noticeSubjectTemplate);
+		fill(bodySlot, _noticeBodyTemplate);
+		_writeNotice(content);
+		if (!isMaster) _hideApplyButton();
+	};
+	/**
+	* Redraw everything the guild-master flag decides
+	*
+	* Reached from the flag's own packet, which can arrive before the window exists.
+	* @see docs/reference/guild/member-view.md
+	*/
+	Guild.updateMasterView = function updateMasterView() {
+		const root = _root$13(this);
+		if (!root) return;
+		Guild.updatePositionView();
+		Guild.updateNoticeView();
+		updateSkillFooter(root, getActiveTab(root));
+		updateSkillArrows(root);
+		updateEmblemControls(root);
+		updateDisbandButton(root, getActiveTab(root));
+		_clearPendingPositions();
+		if (_members.length) Guild.setMembers([..._members], _hasMemo);
 	};
 	Guild.setExpelList = function setExpelList(list) {
 		const container = _root$13(this).querySelector(".content.history tbody");
@@ -229442,7 +230246,7 @@ var init_Guild$1 = __esmMin((() => {
 		for (let i = 0, count = list.length; i < count; ++i) {
 			const element = _expelViewTemplate.cloneNode(true);
 			const nameCell = element.querySelector(".name");
-			if (nameCell) nameCell.textContent = list[i].charname;
+			if (nameCell) nameCell.textContent = list[i].charname || DB.getMessage(581, "Nameless");
 			const reasonCell = element.querySelector(".reason");
 			if (reasonCell) reasonCell.textContent = list[i].reason;
 			container.appendChild(element);
@@ -229450,21 +230254,63 @@ var init_Guild$1 = __esmMin((() => {
 	};
 	Guild.setAccess = function setAccess(access) {
 		_guildAccess = access;
+		_accessRequested = false;
+		updateTabAccess(_root$13(this));
 	};
+	/**
+	* Ask which tabs this character may open, once
+	*
+	* The mask changes with who the player is, not with what the guild does.
+	* @see docs/reference/guild/member-view.md
+	*/
+	Guild.requestAccessIfUnknown = function requestAccessIfUnknown() {
+		if (_guildAccess !== ACCESS_UNKNOWN || _accessRequested || !SessionStorage_default.hasGuild) return;
+		_accessRequested = true;
+		Guild.onRequestAccess();
+	};
+	/**
+	* Forget the mask, the role having changed under it
+	*
+	* Through setAccess, so the marks cannot outlive the mask that earned them.
+	* @see docs/reference/guild/member-view.md
+	*/
+	Guild.invalidateAccess = function invalidateAccess() {
+		Guild.setAccess(ACCESS_UNKNOWN);
+	};
+	PORTRAIT_BOX = 96;
 	renderMemberFaces = (function renderMemberFacesClosure() {
 		let lastTick = 0;
+		let scratch = null;
+		let scratchCtx = null;
 		return function renderMemberFace(tick) {
 			if (tick < lastTick + 1e3) return;
 			lastTick = tick;
-			const canvases = _root$13(Guild).querySelectorAll(".content.members canvas");
+			const root = _root$13(Guild);
+			if (!scratch) {
+				scratch = document.createElement("canvas");
+				scratch.width = scratch.height = PORTRAIT_BOX;
+				scratchCtx = scratch.getContext("2d");
+			}
+			const canvasFor = {};
+			for (const row of root.querySelectorAll(".content.members .MemberView")) canvasFor[row.getAttribute("data-index")] = row.querySelector("canvas");
 			Camera.direction = 4;
 			for (let i = 0, count = _members.length; i < count; ++i) {
-				if (!canvases[i]) continue;
-				const ctx = canvases[i].getContext("2d");
-				ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+				const canvas = canvasFor[i];
+				if (!canvas) continue;
+				const ctx = canvas.getContext("2d");
+				const cellW = canvas.width;
+				const cellH = canvas.height;
+				ctx.clearRect(0, 0, cellW, cellH);
 				if (!_members[i].CurrentState) continue;
-				SpriteRenderer.bind2DContext(ctx, 15, 45);
+				scratchCtx.clearRect(0, 0, PORTRAIT_BOX, PORTRAIT_BOX);
+				SpriteRenderer.bind2DContext(scratchCtx, PORTRAIT_BOX / 2, 65.5);
 				_members[i].entity.renderEntity();
+				const box = opaqueBounds(scratchCtx, PORTRAIT_BOX);
+				if (!box) continue;
+				const boxH = box.bottom - box.top + 1;
+				const sx = box.left + (box.right - box.left + 1 - cellW) / 2;
+				const sy = boxH > cellH ? box.top : box.top + (boxH - cellH) / 2;
+				ctx.drawImage(scratch, Math.min(Math.max(Math.round(sx), 0), PORTRAIT_BOX - cellW), Math.min(Math.max(Math.round(sy), 0), PORTRAIT_BOX - cellH), cellW, cellH, 0, 0, cellW, cellH);
 			}
 		};
 	})();
@@ -229473,7 +230319,8 @@ var init_Guild$1 = __esmMin((() => {
 	};
 	Guild.promptDisbandGuild = function promptDisbandGuild() {
 		if (!SessionStorage_default.isGuildMaster) return;
-		UIManager.showMessageBox("If you are using a guild storage, all items inside it will disappear.", "ok", () => {
+		const warning = DB.getMessage(2564, "If you are using a guild storage, all items inside it will disappear.");
+		UIManager.showMessageBox(warning, "ok", () => {
 			GuildCompanion_default.openDisband();
 		});
 	};
@@ -229488,12 +230335,20 @@ var init_Guild$1 = __esmMin((() => {
 	Guild.onRequestMemberExpel = function() {};
 	Guild.onRequestDeleteRelation = function() {};
 	Guild.onRequestAccess = function() {};
+	/**
+	* Take from the guild's basic information what belongs to the session
+	*
+	* The guild-master flag is deliberately not set here. It is carried explicitly
+	* by the belonging packet, which the server sends after this one on a handover,
+	* and a second writer would leave that handler comparing a value already moved
+	* under it.
+	* @see docs/reference/guild/member-view.md
+	*/
 	Guild.updateSession = function(info) {
 		SessionStorage_default.hasGuild = true;
 		SessionStorage_default.guildName = info.guildname || "";
 		SessionStorage_default.Entity.GUID = info.GDID;
 		SessionStorage_default.Entity.GEmblemVer = info.emblemVersion;
-		if (SessionStorage_default.Entity.display.name === info.masterName) SessionStorage_default.isGuildMaster = true;
 	};
 	Guild.onRequestGuildEmblem = function() {};
 	Guild.onSendEmblem = function() {};
@@ -246222,9 +247077,16 @@ function onGuildAccess(pkt) {
 function onGuildOwnInfo(pkt) {
 	if (pkt.GDID === void 0) return;
 	GuildEngine.guild_id = pkt.GDID;
+	const wasMaster = SessionStorage_default.isGuildMaster;
+	const knewRole = SessionStorage_default.hasGuild;
 	SessionStorage_default.hasGuild = true;
-	SessionStorage_default.guildRight = pkt.right;
+	SessionStorage_default.guildPermission = pkt.right;
 	SessionStorage_default.isGuildMaster = !!pkt.isMaster;
+	if (SessionStorage_default.isGuildMaster !== wasMaster) {
+		if (knewRole) Guild_default.invalidateAccess();
+		Guild_default.updateMasterView();
+	}
+	Guild_default.requestAccessIfUnknown();
 	if (pkt.GName) SessionStorage_default.guildName = pkt.GName;
 	SessionStorage_default.Entity.GUID = pkt.GDID;
 	SessionStorage_default.Entity.GEmblemVer = pkt.emblemVersion;
@@ -246245,12 +247107,33 @@ function onGuildRelation(pkt) {
 	Guild_default.setRelations(pkt.relatedGuildList);
 }
 /**
+* A guild changed its emblem - fetch the new one for everyone wearing it
+*
+* Sent to everyone in range, so it arrives for other guilds too. The request
+* repaints every entity of that guild.
+* @see docs/reference/guild/emblem-picker.md
+*
+* @param {object} pkt - PACKET.ZC.CHANGE_GUILD | PACKET.ZC.CHANGE_GUILD2
+*/
+function onGuildEmblemChanged(pkt) {
+	if (!pkt.GDID || !pkt.emblemVersion) return;
+	if (_emblemNotified[pkt.GDID] === pkt.emblemVersion) return;
+	_emblemNotified[pkt.GDID] = pkt.emblemVersion;
+	const isOwnGuild = pkt.GDID === SessionStorage_default.Entity.GUID;
+	if (isOwnGuild) SessionStorage_default.Entity.GEmblemVer = pkt.emblemVersion;
+	GuildEngine.requestGuildEmblem(pkt.GDID, pkt.emblemVersion, (image) => {
+		if (isOwnGuild) Guild_default.setEmblem(image);
+	}, () => {
+		if (_emblemNotified[pkt.GDID] === pkt.emblemVersion) delete _emblemNotified[pkt.GDID];
+	});
+}
+/**
 * Get guild members informations
 *
 * @param {object} pkt - PACKET.ZC.MEMBERMGR_INFO
 */
 function onGuildMembers(pkt) {
-	Guild_default.setMembers(pkt.memberInfo);
+	Guild_default.setMembers(pkt.memberInfo, pkt instanceof PACKET.ZC.MEMBERMGR_INFO);
 }
 /**
 * Update guild positions
@@ -246275,6 +247158,17 @@ function onGuildPositionsName(pkt) {
 	Guild_default.setPositionsName(pkt.memberList);
 }
 /**
+* A server did answer the member info request
+*
+* There is no window to show it in yet, but the answer is what tells us the
+* request is supported, so the timer waiting on it has to be called off.
+*
+* @param {object} pkt - PACKET.ZC.ACK_OPEN_MEMBER_INFO
+*/
+function onGuildMemberInfo() {
+	clearTimeout(_memberInfoTimer);
+}
+/**
 * Update a guild member
 *
 * @param {object} pkt - PACKET.ZC.ACK_GUILD_MEMBER_INFO
@@ -246283,12 +247177,12 @@ function onGuildMemberUpdate(pkt) {
 	Guild_default.setMember(pkt.Info);
 }
 /**
-* Update member rank
+* Update member ranks
 *
 * @param {object} pkt - PACKET.ZC.ACK_REQ_CHANGE_MEMBERS
 */
 function onGuildMemberPositionUpdate(pkt) {
-	Guild_default.updateMemberPosition(pkt.AID, pkt.GID, pkt.positionID);
+	Guild_default.setMemberPositions(pkt.memberInfo);
 }
 /**
 * List of guild skills
@@ -246305,8 +247199,10 @@ function onGuildSkillList(pkt) {
 * @param {object} pkt - PACKET.ZC.GUILD_NOTICE
 */
 function onGuildNotice(pkt) {
-	ChatBox_default.addText("[ " + pkt.subject + " ]", ChatBox_default.TYPE.GUILD, ChatBox_default.FILTER.GUILD, "#FFFF63");
-	ChatBox_default.addText("[ " + pkt.notice + " ]", ChatBox_default.TYPE.GUILD, ChatBox_default.FILTER.GUILD, "#FFFF63");
+	if (UI_default.li) {
+		ChatBox_default.addText("[ " + pkt.subject + " ]", ChatBox_default.TYPE.GUILD, ChatBox_default.FILTER.GUILD, "#FFFF63");
+		ChatBox_default.addText("[ " + pkt.notice + " ]", ChatBox_default.TYPE.GUILD, ChatBox_default.FILTER.GUILD, "#FFFF63");
+	}
 	Guild_default.setNotice(pkt.subject, pkt.notice);
 }
 /**
@@ -246361,8 +247257,9 @@ function onGuildDestroy(pkt) {
 			SessionStorage_default.hasGuild = false;
 			SessionStorage_default.guildName = "";
 			SessionStorage_default.isGuildMaster = false;
-			SessionStorage_default.guildRight = 0;
+			SessionStorage_default.guildPermission = 0;
 			SessionStorage_default.Entity.GUID = 0;
+			Guild_default.reset();
 			ChatBox_default.addText(DB.getMessage(400), ChatBox_default.TYPE.BLUE, ChatBox_default.FILTER.GUILD);
 			break;
 		case 1:
@@ -246389,6 +247286,22 @@ function onGuildInviteRequest(pkt) {
 	UIManager.showPromptBox("(" + pkt.guildName + ") " + DB.getMessage(377), "ok", "cancel", answer(1), answer(0));
 }
 /**
+* One line of the invitation result, with the invited character's name
+* substituted if the message table asked for one.
+*
+* A no-op on the stock tables, none of whose strings carry a `%s`.
+* @see docs/reference/guild/invitation-ack.md
+*
+* @param {number} id - message table id
+* @param {string} defaultText - used when the table has no such id
+* @param {number} type - ChatBox.TYPE
+*/
+function addInviteResult(id, defaultText, type) {
+	const text = DB.getMessage(id, defaultText).replace("%s", _lastInvited || DB.getMessage(581, "Nameless"));
+	_lastInvited = "";
+	ChatBox_default.addText(text, type, ChatBox_default.FILTER.GUILD);
+}
+/**
 * Result from a guild invitation
 *
 * @param {object} pkt - PACKET.ZC.ACK_REQ_JOIN_GUILD
@@ -246396,15 +247309,15 @@ function onGuildInviteRequest(pkt) {
 function onGuildInviteResult(pkt) {
 	switch (pkt.answer) {
 		case 0:
-			ChatBox_default.addText(DB.getMessage(378), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.GUILD);
+			addInviteResult(378, "He/She is already in a Guild.", ChatBox_default.TYPE.ERROR);
 			break;
 		case 1:
-			ChatBox_default.addText(DB.getMessage(379), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.GUILD);
+			addInviteResult(379, "You have refused the guild invitation.", ChatBox_default.TYPE.ERROR);
 			break;
 		case 2:
-			ChatBox_default.addText(DB.getMessage(380), ChatBox_default.TYPE.BLUE, ChatBox_default.FILTER.GUILD);
+			addInviteResult(380, "You have accepted the guild invitation.", ChatBox_default.TYPE.BLUE);
 			break;
-		case 3: ChatBox_default.addText(DB.getMessage(381), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.GUILD);
+		case 3: addInviteResult(381, "Your Guild is full.", ChatBox_default.TYPE.ERROR);
 	}
 }
 /**
@@ -246416,38 +247329,62 @@ function onGuildMemberStatus(pkt) {
 	Guild_default.updateMemberStatus(pkt);
 }
 /**
-* Event occured when a player got expel from the guild
+* Announce a member's departure, and empty the window when it is ours
 *
-* @param {object} pkt - PACKET.ZC.ACK_BAN_GUILD_SSO
+* The server sends nothing else that would take the window down, so this is
+* where it happens.
+*
+* @param {string} charName - who left
+* @param {string} reasonDesc - the reason the server gave
+* @param {boolean} isSelf - whether the member who left is us
+* @param {number} announceID - message for the departure line
+* @param {number} reasonID - message for the reason line
 */
-function onGuildMemberExpulsion(pkt) {
-	ChatBox_default.addText(DB.getMessage(370).replace("%s", pkt.charName), ChatBox_default.TYPE.GUILD, ChatBox_default.FILTER.GUILD, "#FFFF00");
-	ChatBox_default.addText(DB.getMessage(371).replace("%s", pkt.reasonDesc), ChatBox_default.TYPE.GUILD, ChatBox_default.FILTER.GUILD, "#FFFF00");
-	if (pkt.charName === SessionStorage_default.Entity.display.name) {
-		Guild_default.hide();
-		SessionStorage_default.hasGuild = false;
-		SessionStorage_default.guildName = "";
-		SessionStorage_default.isGuildMaster = false;
-		SessionStorage_default.guildRight = 0;
-		SessionStorage_default.Entity.GUID = 0;
-	}
+function reportDeparture(charName, reasonDesc, isSelf, announceID, reasonID) {
+	ChatBox_default.addText(DB.getMessage(announceID).replace("%s", charName), ChatBox_default.TYPE.GUILD, ChatBox_default.FILTER.GUILD, "#FFFF00");
+	ChatBox_default.addText(DB.getMessage(reasonID).replace("%s", reasonDesc), ChatBox_default.TYPE.GUILD, ChatBox_default.FILTER.GUILD, "#FFFF00");
+	if (!isSelf) return;
+	Guild_default.hide();
+	SessionStorage_default.hasGuild = false;
+	SessionStorage_default.guildName = "";
+	SessionStorage_default.isGuildMaster = false;
+	SessionStorage_default.guildPermission = 0;
+	SessionStorage_default.Entity.GUID = 0;
+	Guild_default.reset();
 }
 /**
 * Event occured when a player got expel from the guild
 *
+* @param {object} pkt - PACKET.ZC.ACK_BAN_GUILD | PACKET.ZC.ACK_BAN_GUILD_SSO
+*/
+function onGuildMemberExpulsion(pkt) {
+	reportDeparture(pkt.charName, pkt.reasonDesc, pkt.charName === SessionStorage_default.Entity.display.name, 370, 371);
+}
+/**
+* Event occured when a player left the guild
+*
 * @param {object} pkt - PACKET.ZC.ACK_LEAVE_GUILD
 */
 function onGuildMemberLeave(pkt) {
-	ChatBox_default.addText(DB.getMessage(364).replace("%s", pkt.charName), ChatBox_default.TYPE.GUILD, ChatBox_default.FILTER.GUILD, "#FFFF00");
-	ChatBox_default.addText(DB.getMessage(365).replace("%s", pkt.reasonDesc), ChatBox_default.TYPE.GUILD, ChatBox_default.FILTER.GUILD, "#FFFF00");
-	if (pkt.charName === SessionStorage_default.Entity.display.name) {
-		Guild_default.hide();
-		SessionStorage_default.hasGuild = false;
-		SessionStorage_default.guildName = "";
-		SessionStorage_default.isGuildMaster = false;
-		SessionStorage_default.guildRight = 0;
-		SessionStorage_default.Entity.GUID = 0;
-	}
+	reportDeparture(pkt.charName, pkt.reasonDesc, pkt.charName === SessionStorage_default.Entity.display.name, 364, 365);
+}
+/**
+* The same two departures, from the era that sends a character id and no name
+*
+* Session.GID is the character id; Session.Entity.GID is the account's, and
+* matching on that one would never fire.
+* @see docs/reference/guild/member-view.md
+*
+* @param {object} pkt - PACKET.ZC.ACK_BAN_GUILD_DELNAME
+*/
+function onGuildMemberExpulsionByID(pkt) {
+	reportDeparture(Guild_default.getMemberName(pkt.GID), pkt.reasonDesc, pkt.GID === SessionStorage_default.GID, 370, 371);
+}
+/**
+* @param {object} pkt - PACKET.ZC.ACK_LEAVE_GUILD_DELNAME
+*/
+function onGuildMemberLeaveByID(pkt) {
+	reportDeparture(Guild_default.getMemberName(pkt.GID), pkt.reasonDesc, pkt.GID === SessionStorage_default.GID, 364, 365);
 }
 /**
 * Remove guild relation
@@ -246527,7 +247464,7 @@ function onGuildHostilityResult(pkt) {
 	}
 }
 function onGuildCastleInfo(pkt) {}
-var _emblems, _pendingGuildSkillRequest, GuildEngine, onGuildEmblem;
+var _emblems, _pendingGuildSkillRequest, _memberInfoTimer, _emblemNotified, _lastInvited, GuildEngine, onGuildEmblem;
 var init_Guild = __esmMin((() => {
 	init_DBManager();
 	init_Inflate();
@@ -246545,8 +247482,12 @@ var init_Guild = __esmMin((() => {
 	init_Configs();
 	init_MiniMap();
 	init_ShortCut();
+	init_UI();
 	_emblems = {};
 	_pendingGuildSkillRequest = false;
+	_memberInfoTimer = 0;
+	_emblemNotified = {};
+	_lastInvited = "";
 	GuildEngine = class GuildEngine {
 		/**
 		* @var {number} our guild id
@@ -246568,6 +247509,7 @@ var init_Guild = __esmMin((() => {
 			Network.hookPacket(PACKET.ZC.MEMBERMGR_INFO2, onGuildMembers);
 			Network.hookPacket(PACKET.ZC.MEMBERMGR_INFO3, onGuildMembers);
 			Network.hookPacket(PACKET.ZC.ACK_GUILD_MEMBER_INFO, onGuildMemberUpdate);
+			Network.hookPacket(PACKET.ZC.ACK_OPEN_MEMBER_INFO, onGuildMemberInfo);
 			Network.hookPacket(PACKET.ZC.POSITION_INFO, onGuildPositions);
 			Network.hookPacket(PACKET.ZC.POSITION_ID_NAME_INFO, onGuildPositionsName);
 			Network.hookPacket(PACKET.ZC.ACK_CHANGE_GUILD_POSITIONINFO, onGuildPositions);
@@ -246579,6 +247521,11 @@ var init_Guild = __esmMin((() => {
 			Network.hookPacket(PACKET.ZC.UPDATE_GDID, onGuildOwnInfo);
 			Network.hookPacket(PACKET.ZC.UPDATE_GDID2, onGuildOwnInfo);
 			Network.hookPacket(PACKET.ZC.BAN_LIST, onGuildExpelList);
+			Network.hookPacket(PACKET.ZC.BAN_LIST2, onGuildExpelList);
+			Network.hookPacket(PACKET.ZC.BAN_LIST3, onGuildExpelList);
+			Network.hookPacket(PACKET.ZC.CHANGE_GUILD, onGuildEmblemChanged);
+			Network.hookPacket(PACKET.ZC.CHANGE_GUILD2, onGuildEmblemChanged);
+			Network.hookPacket(PACKET.ZC.CHANGE_GUILD3, onGuildEmblemChanged);
 			Network.hookPacket(PACKET.ZC.ACK_DISORGANIZE_GUILD_RESULT, onGuildDestroy);
 			Network.hookPacket(PACKET.ZC.REQ_JOIN_GUILD, onGuildInviteRequest);
 			Network.hookPacket(PACKET.ZC.ACK_REQ_JOIN_GUILD, onGuildInviteResult);
@@ -246586,7 +247533,9 @@ var init_Guild = __esmMin((() => {
 			Network.hookPacket(PACKET.ZC.UPDATE_CHARSTAT2, onGuildMemberStatus);
 			Network.hookPacket(PACKET.ZC.ACK_BAN_GUILD, onGuildMemberExpulsion);
 			Network.hookPacket(PACKET.ZC.ACK_BAN_GUILD_SSO, onGuildMemberExpulsion);
+			Network.hookPacket(PACKET.ZC.ACK_BAN_GUILD_DELNAME, onGuildMemberExpulsionByID);
 			Network.hookPacket(PACKET.ZC.ACK_LEAVE_GUILD, onGuildMemberLeave);
+			Network.hookPacket(PACKET.ZC.ACK_LEAVE_GUILD_DELNAME, onGuildMemberLeaveByID);
 			Network.hookPacket(PACKET.ZC.DELETE_RELATED_GUILD, onGuildAllianceDeleteAck);
 			Network.hookPacket(PACKET.ZC.ADD_RELATED_GUILD, onGuildAllianceAdd);
 			Network.hookPacket(PACKET.ZC.REQ_ALLY_GUILD, onGuildAskForAlliance);
@@ -246634,8 +247583,10 @@ var init_Guild = __esmMin((() => {
 		* @param {number} guild id
 		* @param {number} version
 		* @param {function} callback
+		* @param {function} [onFailure] - the fetch gave up, and nothing was repainted
 		*/
-		static requestGuildEmblem(guild_id, version, callback) {
+		static requestGuildEmblem(guild_id, version, callback, onFailure) {
+			const failed = onFailure || function() {};
 			if (!_emblems[guild_id]) _emblems[guild_id] = {
 				version: -1,
 				image: new Image(),
@@ -246652,7 +247603,10 @@ var init_Guild = __esmMin((() => {
 				return;
 			}
 			if (PacketVerManager_default.value >= 20170315) {
-				if (!guild_id || typeof guild_id === "undefined" || !SessionStorage_default.AID || SessionStorage_default.AID === 0 || !SessionStorage_default.ServerName || SessionStorage_default.ServerName === void 0 || !SessionStorage_default.WebToken || SessionStorage_default.WebToken === void 0) return;
+				if (!guild_id || typeof guild_id === "undefined" || !SessionStorage_default.AID || SessionStorage_default.AID === 0 || !SessionStorage_default.ServerName || SessionStorage_default.ServerName === void 0 || !SessionStorage_default.WebToken || SessionStorage_default.WebToken === void 0) {
+					failed();
+					return;
+				}
 				const formData = new FormData();
 				formData.append("GDID", guild_id);
 				formData.append("WorldName", SessionStorage_default.ServerName);
@@ -246664,22 +247618,29 @@ var init_Guild = __esmMin((() => {
 				xhr.open("POST", webserverAddress + "/emblem/download", true);
 				xhr.responseType = "blob";
 				xhr.timeout = 5e3;
+				const commit = (img, gifCanvas) => {
+					if (version < emblem.version) return;
+					if (version > emblem.version) {
+						emblem.version = version;
+						emblem.image = img;
+						emblem.gif = gifCanvas;
+					}
+					callback(emblem.image, emblem.gif);
+					EntityManager.forEach((entity) => {
+						if (entity.GUID === guild_id) entity.setEntityGuildEmblem(emblem.image, emblem.gif);
+					});
+				};
 				xhr.onload = () => {
 					if (xhr.status !== 200) {
 						console.warn("Emblem download returned non-200 status:", xhr.status);
+						failed();
 						return;
 					}
 					try {
 						if (!(xhr.getResponseHeader("Content-Type") === "image/gif")) {
 							const img = new Image();
 							img.onload = () => {
-								emblem.version = version;
-								emblem.image = img;
-								emblem.gif = null;
-								callback(emblem.image, emblem.gif);
-								EntityManager.forEach((entity) => {
-									if (entity.GUID === guild_id) entity.setEntityGuildEmblem(img);
-								});
+								commit(img, null);
 							};
 							img.decoding = "async";
 							const blobUrl = URL.createObjectURL(xhr.response);
@@ -246692,13 +247653,7 @@ var init_Guild = __esmMin((() => {
 								const gifCanvas = this;
 								const img = new Image();
 								img.onload = () => {
-									emblem.version = version;
-									emblem.image = img;
-									emblem.gif = gifCanvas;
-									callback(emblem.image, emblem.gif);
-									EntityManager.forEach((entity) => {
-										if (entity.GUID === guild_id) entity.setEntityGuildEmblem(img, gifCanvas);
-									});
+									commit(img, gifCanvas);
 								};
 								img.decoding = "async";
 								const blobUrl = URL.createObjectURL(xhr.response);
@@ -246706,17 +247661,23 @@ var init_Guild = __esmMin((() => {
 									img.src = this.toDataURL();
 									URL.revokeObjectURL(blobUrl);
 								});
+							} else {
+								console.warn("Emblem gif could not be decoded");
+								failed();
 							}
 						});
 					} catch (e) {
 						console.error("Error processing guild emblem:", e);
+						failed();
 					}
 				};
 				xhr.onerror = () => {
 					console.warn("Emblem download failed: web-server unreachable");
+					failed();
 				};
 				xhr.ontimeout = () => {
 					console.warn("Emblem download timed out");
+					failed();
 				};
 				xhr.send(formData);
 			} else {
@@ -246731,6 +247692,16 @@ var init_Guild = __esmMin((() => {
 		*/
 		static requestAccess() {
 			Network.sendPacket(new PACKET.CZ.REQ_GUILD_MENUINTERFACE());
+		}
+		/**
+		* Empty the guild window for the character now entering the map
+		* @see docs/reference/guild/member-view.md
+		*/
+		static resetForNewCharacter() {
+			SessionStorage_default.isGuildMaster = false;
+			clearTimeout(_memberInfoTimer);
+			_memberInfoTimer = 0;
+			Guild_default.reset();
 		}
 		/**
 		* Ask the server to create a guild
@@ -246792,6 +247763,8 @@ var init_Guild = __esmMin((() => {
 		* @param {number} target account id
 		*/
 		static requestPlayerInvitation(AID) {
+			const entity = EntityManager.get(AID);
+			_lastInvited = entity ? entity.display.name : "";
 			const pkt = new PACKET.CZ.REQ_JOIN_GUILD();
 			pkt.AID = AID;
 			pkt.MyAID = SessionStorage_default.AID;
@@ -246813,6 +247786,7 @@ var init_Guild = __esmMin((() => {
 				ChatBox_default.addText("Guild invite by name requires client 2012-01-31 or newer.", ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
 				return;
 			}
+			_lastInvited = name;
 			const pkt = new PACKET.CZ.REQ_JOIN_GUILD2();
 			pkt.name = name;
 			Network.sendPacket(pkt);
@@ -246878,6 +247852,10 @@ var init_Guild = __esmMin((() => {
 			const pkt = new PACKET.CZ.REQ_OPEN_MEMBER_INFO();
 			pkt.AID = AID;
 			Network.sendPacket(pkt);
+			clearTimeout(_memberInfoTimer);
+			_memberInfoTimer = setTimeout(() => {
+				ChatBox_default.addText(`${DB.getMessage(129, "View Information")} : the server did not answer.`, ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.GUILD);
+			}, 3e3);
 		}
 		/**
 		* Request to delete an ally or antagonist
@@ -246896,6 +247874,7 @@ var init_Guild = __esmMin((() => {
 		* Note: it's a hacky way that do not compress the emblem.
 		*
 		* @param {Uint8Array} file
+		* @see docs/reference/guild/emblem-picker.md
 		*/
 		static sendEmblem(data) {
 			if (PacketVerManager_default.value >= 20170315) {
@@ -246930,6 +247909,12 @@ var init_Guild = __esmMin((() => {
 					try {
 						const response = JSON.parse(xhr.responseText);
 						console.log("Emblem uploaded successfully, version:", response.version);
+						if (PacketVerManager_default.value >= 20190724) {
+							const pkt = new PACKET.CZ.REQ_ADD_NEW_EMBLEM();
+							pkt.GDID = SessionStorage_default.Entity.GUID;
+							pkt.version = response.version;
+							Network.sendPacket(pkt);
+						}
 						GuildEngine.requestGuildEmblem(SessionStorage_default.Entity.GUID, response.version, (image, _gif) => {
 							Guild_default.setEmblem(image);
 						});
@@ -249578,6 +250563,15 @@ var init_ProcessCommand = __esmMin((() => {
 				this.addText(DB.getMessage(317 + Map_default.miss), this.TYPE.INFO, this.FILTER.PUBLIC_LOG);
 				Map_default.miss = !Map_default.miss;
 				Map_default.save();
+			}
+		},
+		li: {
+			description: "Toggles the chat announcements when a friend or a guild member connects or disconnects",
+			callback: function() {
+				const line = UI_default.li ? DB.getMessage(1045, "Do not display online status of friends in Chat Window.  [/li OFF]") : DB.getMessage(1044, "Display online status of friends in Chat Window. [/li ON]");
+				this.addText(line, this.TYPE.INFO, this.FILTER.PUBLIC_LOG);
+				UI_default.li = !UI_default.li;
+				UI_default.save();
 			}
 		},
 		aura: {
@@ -301018,7 +302012,7 @@ var init_EntityControl = __esmMin((() => {
 						Trade_default.reqExchange(entity.GID, entity.display.name);
 					});
 					if (SessionStorage_default.hasGuild) {
-						if (SessionStorage_default.guildRight & 1 && !this.GUID) ContextMenu_default.addElement(DB.getMessage(382).replace("%s", this.display.name), () => {
+						if (SessionStorage_default.guildPermission & 1 && !this.GUID) ContextMenu_default.addElement(DB.getMessage(382).replace("%s", this.display.name), () => {
 							GuildEngine.requestPlayerInvitation(entity.GID);
 						});
 						if (SessionStorage_default.isGuildMaster && this.GUID && SessionStorage_default.Entity.GUID !== this.GUID) {
@@ -301655,6 +302649,7 @@ var init_EntityDisplay = __esmMin((() => {
 			this.title_name = "";
 			this.emblem = null;
 			this.gifEmblem = null;
+			this.emblemY = 0;
 			this.display = false;
 			this.canvas = document.createElement("canvas");
 			this.canvas.className = "entity-display";
@@ -301693,14 +302688,15 @@ var init_EntityDisplay = __esmMin((() => {
 		/**
 		* Update the display
 		* @param {string} color
+		* @see docs/reference/guild/nameplate-emblem.md
 		*/
 		update(style) {
 			style = style || this.STYLE.DEFAULT;
 			const lines = new Array(2);
 			const fontSize = 12 * dpr;
 			const ctx = this.ctx;
-			const start_x = (this.emblem && (style === this.STYLE.DEFAULT || style === this.STYLE.ADMIN || style === this.STYLE.MOB || style === this.STYLE.NPC) ? 26 : 0) + 5;
-			const paddingTop = 5;
+			const start_x = ((this.emblem && (style === this.STYLE.DEFAULT || style === this.STYLE.ADMIN || style === this.STYLE.MOB || style === this.STYLE.NPC) ? 26 : 0) + 5) * dpr;
+			const paddingTop = 5 * dpr;
 			lines[0] = this.fakename ? this.fakename.split("#")[0] : this.name.split("#")[0];
 			lines[1] = "";
 			if (this.party_name.length && (style === this.STYLE.DEFAULT || style === this.STYLE.ADMIN || style === this.STYLE.MOB || style === this.STYLE.NPC)) lines[0] += " (" + this.party_name + ")";
@@ -301710,16 +302706,18 @@ var init_EntityDisplay = __esmMin((() => {
 			} else if (this.guild_rank.length && (style === this.STYLE.DEFAULT || style === this.STYLE.ADMIN || style === this.STYLE.MOB || style === this.STYLE.NPC)) lines[1] = this.guild_rank;
 			if (Map_default.showname && this.title_name.length && (style === this.STYLE.DEFAULT || style === this.STYLE.ADMIN || style === this.STYLE.MOB || style === this.STYLE.NPC)) lines[0] = "[" + this.title_name + "] " + lines[0];
 			ctx.font = (Map_default.showname ? "bold " : "") + fontSize + "px Arial";
-			const width = Math.max(ctx.measureText(lines[0]).width, ctx.measureText(lines[1]).width) + start_x + 5;
+			const width = Math.max(ctx.measureText(lines[0]).width, ctx.measureText(lines[1]).width) + start_x + 5 * dpr;
 			const height = fontSize * 3 * (lines[1].length ? 2 : 1) + paddingTop;
 			ctx.canvas.width = width;
 			ctx.canvas.height = height;
+			const plateHeight = Math.max((fontSize + 2 * dpr) * (lines[1].length ? 2 : 1) + 6 * dpr, 24 * dpr);
+			this.emblemY = (plateHeight - 24 * dpr) / 2 + paddingTop - 4 * dpr;
 			if (this.emblem && (style === this.STYLE.DEFAULT || style === this.STYLE.ADMIN || style === this.STYLE.MOB || style === this.STYLE.NPC)) {
 				if (this.gifEmblem) {
 					const fw = this.gifEmblem.frameWidth;
 					const fh = this.gifEmblem.frameHeight;
-					ctx.drawImage(this.gifEmblem, 0, 0, fw, fh, 0, paddingTop, 24, 24);
-				} else ctx.drawImage(this.emblem, 0, paddingTop, 24, 24);
+					ctx.drawImage(this.gifEmblem, 0, 0, fw, fh, 0, this.emblemY, 24 * dpr, 24 * dpr);
+				} else ctx.drawImage(this.emblem, 0, this.emblemY, 24 * dpr, 24 * dpr);
 			}
 			let color = "white";
 			switch (style) {
@@ -301747,7 +302745,7 @@ var init_EntityDisplay = __esmMin((() => {
 				multiShadow(ctx, lines[1], start_x, fontSize * 1.2 + paddingTop, 1, 0, 0);
 				ctx.fillStyle = color;
 				ctx.strokeStyle = "black";
-				ctx.strokeText(lines[0], start_x, 5);
+				ctx.strokeText(lines[0], start_x, 0 + paddingTop);
 				ctx.fillText(lines[0], start_x, paddingTop);
 				ctx.strokeText(lines[1], start_x, fontSize * 1.2 + paddingTop);
 				ctx.fillText(lines[1], start_x, fontSize * 1.2 + paddingTop);
@@ -301769,10 +302767,10 @@ var init_EntityDisplay = __esmMin((() => {
 		}
 		/**
 		* Rendering GUI
+		* @see docs/reference/guild/nameplate-emblem.md
 		*/
 		render(matrix) {
 			if (this.gifEmblem) {
-				const paddingTop = 5;
 				const now = Date.now();
 				const currentFrameIndex = this.gifEmblem.currentFrame || 0;
 				const frameDelay = this.gifEmblem.frameDelays ? this.gifEmblem.frameDelays[currentFrameIndex] : 100;
@@ -301787,9 +302785,9 @@ var init_EntityDisplay = __esmMin((() => {
 					const row = Math.floor(this.gifEmblem.currentFrame / fpr);
 					this.ctx.save();
 					this.ctx.setTransform(1, 0, 0, 1, 0, 0);
-					this.ctx.clearRect(0, paddingTop * dpr, 24 * dpr, 24 * dpr);
+					this.ctx.clearRect(0, this.emblemY, 24 * dpr, 24 * dpr);
 					this.ctx.restore();
-					this.ctx.drawImage(this.gifEmblem, col * fw, row * fh, fw, fh, 0, paddingTop, 24, 24);
+					this.ctx.drawImage(this.gifEmblem, col * fw, row * fh, fw, fh, 0, this.emblemY, 24 * dpr, 24 * dpr);
 				}
 			}
 			const canvas = this.canvas;
@@ -307349,7 +308347,7 @@ function _ensureDeps() {
 	if (!_depsPromise) _depsPromise = _loadHeavyDeps();
 	return _depsPromise;
 }
-var _Cursor, _DB, _Client, _Renderer, _EntityManager, _ScrollBar, _depsPromise, _snapCache, MouseMode, CSS_NUMBER, GUIComponent;
+var _Cursor, _DB, _Client, _Renderer, _EntityManager, _ScrollBar, _depsPromise, _snapCache, MouseMode, DENIED_SELECTOR, CSS_NUMBER, GUIComponent;
 var init_GUIComponent = __esmMin((() => {
 	init_Common$1();
 	init_MouseEventHandler();
@@ -307371,6 +308369,7 @@ var init_GUIComponent = __esmMin((() => {
 		STOP: 1,
 		FREEZE: 2
 	});
+	DENIED_SELECTOR = ".denied";
 	CSS_NUMBER = {
 		zIndex: true,
 		opacity: true,
@@ -307839,6 +308838,7 @@ var init_GUIComponent = __esmMin((() => {
 				"label",
 				"select",
 				"textarea",
+				".checkbox",
 				".item-link",
 				".draggable",
 				".ro-custom-scrollbar",
@@ -307846,6 +308846,7 @@ var init_GUIComponent = __esmMin((() => {
 			].join(",");
 			let _hovering = false;
 			let _savedType = _Cursor?.ACTION?.DEFAULT ?? 0;
+			const cursorFor = (target) => (target.closest(DENIED_SELECTOR) ? _Cursor?.ACTION?.NOWALK : _Cursor?.ACTION?.CLICK) ?? 0;
 			container.addEventListener("mouseover", (e) => {
 				const target = e.target;
 				if (target.closest && target.closest(CLICKABLE_SELECTOR)) {
@@ -307853,7 +308854,8 @@ var init_GUIComponent = __esmMin((() => {
 						_savedType = _Cursor?.getActualType() ?? 0;
 						_hovering = true;
 					}
-					if ((_Cursor?.getActualType() ?? 0) !== (_Cursor?.ACTION?.CLICK ?? 0)) _Cursor?.setType(_Cursor?.ACTION?.CLICK ?? 0);
+					const wanted = cursorFor(target);
+					if ((_Cursor?.getActualType() ?? 0) !== wanted) _Cursor?.setType(wanted);
 				}
 			});
 			container.addEventListener("mouseout", (e) => {
@@ -307870,13 +308872,15 @@ var init_GUIComponent = __esmMin((() => {
 						_savedType = _Cursor?.getActualType() ?? 0;
 						_hovering = true;
 					}
-					_Cursor?.setType(_Cursor?.ACTION?.CLICK ?? 0, true, 1);
+					if (target.closest(DENIED_SELECTOR)) _Cursor?.setType(_Cursor?.ACTION?.NOWALK ?? 0);
+					else _Cursor?.setType(_Cursor?.ACTION?.CLICK ?? 0, true, 1);
 				}
 			});
 			container.addEventListener("mouseup", (e) => {
 				const target = e.target;
 				if (target.closest && target.closest(CLICKABLE_SELECTOR)) {
-					if ((_Cursor?.getActualType() ?? 0) !== (_Cursor?.ACTION?.CLICK ?? 0)) _Cursor?.setType(_Cursor?.ACTION?.CLICK ?? 0);
+					const wanted = cursorFor(target);
+					if ((_Cursor?.getActualType() ?? 0) !== wanted) _Cursor?.setType(wanted);
 					return;
 				}
 				if (_hovering) {
@@ -307919,7 +308923,14 @@ var init_GUIComponent = __esmMin((() => {
 						}
 					}
 				});
-				element.addEventListener("mousedown", () => this.focus());
+				element.addEventListener("mousedown", () => {
+					this.focus();
+					const host = this._host;
+					if (host && !host.contains(document.activeElement)) {
+						host.tabIndex = -1;
+						host.focus({ preventScroll: true });
+					}
+				});
 			}
 			if (this.mouseMode !== GUIComponent.MouseMode.CROSS) element.addEventListener("touchstart", (e) => e.stopImmediatePropagation());
 			this._setupShadowCursorEvents();
@@ -330682,7 +331693,8 @@ function onConnectionAccepted$2(pkt) {
 	SessionStorage_default.hasParty = false;
 	SessionStorage_default.isPartyLeader = false;
 	SessionStorage_default.hasGuild = false;
-	SessionStorage_default.guildRight = 0;
+	SessionStorage_default.guildPermission = 0;
+	GuildEngine.resetForNewCharacter();
 	SessionStorage_default.homunId = 0;
 	SessionStorage_default.mapState = {
 		property: 0,
