@@ -39,6 +39,9 @@
  *	- successEffectIdOnCaster: 	Triggers on the caster when a skill yealds a "successful" result.
  *								Can be used for non-damaging skills that has an effect by a chance
  *
+ *	- ez2:						When set to false, effects from the client's ez2streffect.bson are not added to this skill.
+ *								Use it for skills mapped by hand, so the same art does not play twice.
+ *
  *	- hideCastBar:				When set to true hides the cast bar when casting.
  *	- hideCastAura:			When set to true hides the elemental magic circle when casting.
  *

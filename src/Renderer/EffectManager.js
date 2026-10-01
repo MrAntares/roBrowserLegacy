@@ -828,11 +828,14 @@ class EffectManager {
 				? SkillEffect[skillId].effectIdOnCaster
 				: [SkillEffect[skillId].effectIdOnCaster];
 
+			// A ground skill's position is the target cell; the caster's effect belongs on the caster
+			const casterPosition = EntityManager.get(srcAID) ? undefined : position;
+
 			effects.forEach(effectId => {
 				EF_Init_Par = {
 					effectId: effectId,
 					ownerAID: srcAID,
-					position: position,
+					position: casterPosition,
 					startTick: tick,
 					otherAID: destAID
 				};

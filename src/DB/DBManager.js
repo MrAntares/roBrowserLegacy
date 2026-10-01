@@ -4552,7 +4552,8 @@ function mergeEz2Effects(EffectTable, SkillEffect) {
 		count++;
 
 		// Pass 6: SkillEffect Mapping with differentiated fields
-		if (skillId) {
+		// An entry marked `ez2: false` is mapped by hand and keeps exactly what it lists.
+		if (skillId && !(SkillEffect[skillId] && SkillEffect[skillId].ez2 === false)) {
 			const skillEntry = SkillEffect[skillId] || (SkillEffect[skillId] = {});
 			const field = meta.field;
 
