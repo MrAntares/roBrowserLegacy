@@ -36,6 +36,7 @@ import WorldMap from './Map/WorldMap.js';
 import SKID from './Skills/SkillConst.js';
 import SkillInfo from './Skills/SkillInfo.js';
 import SkillTreeView from './Skills/SkillTreeView.js';
+import { resetSkillTree, keepBuiltInSkills } from './Skills/SkillTreeMerge.js';
 import JobHitSoundTable from './Jobs/JobHitSoundTable.js';
 import WeaponTrailTable from './Items/WeaponTrailTable.js';
 import TownInfo from './TownInfo.js';
@@ -6613,7 +6614,10 @@ function loadSkillTreeView(filename, callback, onEnd) {
 }
 
 function loadSkillTreeViewData(filename, callback, onEnd) {
-	const builtInTree = {};
+	// Start from the built-in layout every time, so a second client loaded
+	// after a server switch never inherits the first one's placements.
+	resetSkillTree(SkillTreeView);
+	const fileJobs = new Set();
 	Client.loadFile(
 		filename,
 		async function (file) {
@@ -6690,11 +6694,9 @@ function loadSkillTreeViewData(filename, callback, onEnd) {
 						beforeJob: beforeJob
 					};
 
-					// Keep the built-in layout so skills this file leaves out
-					// can be put back once it has been read (see below).
-					if (SkillTreeView[jobId] && !(jobId in builtInTree)) {
-						builtInTree[jobId] = SkillTreeView[jobId];
-					}
+					// Remember the job, so skills this file leaves out can be
+					// put back once it has been read (see below).
+					fileJobs.add(jobId);
 					SkillTreeView[jobId] = entry;
 					return 1;
 				};
@@ -6771,7 +6773,7 @@ function loadSkillTreeViewData(filename, callback, onEnd) {
 				// fall to the Etc tab, where it cannot be learned. Keep the
 				// built-in position for any skill the file does not place, or
 				// the next free slot when the file has taken that one.
-				keepBuiltInSkills(builtInTree);
+				keepBuiltInSkills(SkillTreeView, fileJobs);
 			} catch (error) {
 				console.error('[loadSkillTreeView] Error: ', error);
 			} finally {
@@ -6782,42 +6784,6 @@ function loadSkillTreeViewData(filename, callback, onEnd) {
 		},
 		onEnd
 	);
-}
-
-/**
- * Put back the built-in SkillTreeView positions of skills a loaded
- * skilltreeview.lub leaves out, keeping every position the file set.
- *
- * @param {object} builtInTree - jobId -> the built-in entry the file replaced
- */
-function keepBuiltInSkills(builtInTree) {
-	for (const [jobId, builtIn] of Object.entries(builtInTree)) {
-		const entry = SkillTreeView[jobId];
-		if (!entry) {
-			continue;
-		}
-		const skillOf = key => /^\d+$/.test(key);
-		const taken = new Set(
-			Object.keys(entry)
-				.filter(skillOf)
-				.map(key => entry[key])
-		);
-		let next = Math.max(-1, ...taken) + 1;
-		for (const [skillId, pos] of Object.entries(builtIn)) {
-			if (!skillOf(skillId) || skillId in entry) {
-				continue;
-			}
-			let slot = pos;
-			if (taken.has(slot)) {
-				while (taken.has(next)) {
-					next++;
-				}
-				slot = next;
-			}
-			entry[skillId] = slot;
-			taken.add(slot);
-		}
-	}
 }
 
 /**
