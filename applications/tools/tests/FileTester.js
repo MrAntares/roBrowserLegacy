@@ -668,7 +668,7 @@ class FileTester {
 			doneBanner, doneText, ext } = ctx;
 
 		let settled = false;
-		const finish = (data, error) => {
+		const finish = async (data, error) => {
 			// FileManager can report a load failure through MemoryManager's
 			// error channel. Always settle the slot so one missing/invalid file
 			// cannot leave the whole batch waiting forever.
@@ -695,7 +695,7 @@ class FileTester {
 					throw new Error(error || 'File returned no data');
 				}
 
-				callback(data, list[i]);
+				await callback(data, list[i]);
 			} catch (e) {
 				noErrors.style.display = 'none';
 				ctx.incErrors();

@@ -255,6 +255,9 @@ class Node {
 
 		// Find position
 		mat4.copy(this.matrix, _matrix);
+		if (this.baseMatrix) {
+			mat4.multiply(this.matrix, this.matrix, this.baseMatrix);
+		}
 		mat4.translate(this.matrix, this.matrix, this.pos);
 
 		// Dynamic or static model
@@ -298,6 +301,9 @@ class Node {
 		}
 
 		for (i = 0, count = nodes.length; i < count; ++i) {
+			if (this.absoluteTransform) {
+				break;
+			}
 			if (nodes[i].parentname === this.name && this.name !== this.parentname) {
 				nodes[i].calcBoundingBox(this.matrix);
 			}
@@ -426,6 +432,9 @@ class Node {
 		// Calculate node transform matrix with animation
 		const nodeMatrix = mat4.create();
 		mat4.identity(nodeMatrix);
+		if (this.baseMatrix) {
+			mat4.multiply(nodeMatrix, nodeMatrix, this.baseMatrix);
+		}
 
 		// Position animation
 		const animPos = getPositionAtFrame(this.posKeyframes, frame, animLen);
@@ -916,8 +925,9 @@ class RSM {
 		}
 
 		const rootNodeCount = fp.readLong();
+		const rootNodeNames = new Array(rootNodeCount);
 		for (i = 0; i < rootNodeCount; i++) {
-			readString();
+			rootNodeNames[i] = readString();
 		}
 
 		const nodeCount = fp.readLong();
@@ -955,11 +965,7 @@ class RSM {
 				const x = fp.readFloat();
 				const y = fp.readFloat();
 				const z = fp.readFloat();
-				vertices[j] = [
-					x * transform[0] + y * transform[3] + z * transform[6] + transform[9],
-					x * transform[1] + y * transform[4] + z * transform[7] + transform[10],
-					x * transform[2] + y * transform[5] + z * transform[8] + transform[11]
-				];
+				vertices[j] = [x, y, z];
 			}
 
 			const tvertexCount = fp.readLong();
@@ -1068,6 +1074,20 @@ class RSM {
 			node.posKeyframes = positionKeyFrames;
 			node.scaleKeyFrames = scaleKeyFrames;
 			node.textureKeyFrameGroup = [];
+			node.absoluteTransform = true;
+			node.baseMatrix = mat4.create();
+			node.baseMatrix[0] = transform[0];
+			node.baseMatrix[1] = transform[1];
+			node.baseMatrix[2] = transform[2];
+			node.baseMatrix[4] = transform[3];
+			node.baseMatrix[5] = transform[4];
+			node.baseMatrix[6] = transform[5];
+			node.baseMatrix[8] = transform[6];
+			node.baseMatrix[9] = transform[7];
+			node.baseMatrix[10] = transform[8];
+			node.baseMatrix[12] = transform[9];
+			node.baseMatrix[13] = transform[10];
+			node.baseMatrix[14] = transform[11];
 			nodes[i] = node;
 		}
 
@@ -1084,7 +1104,10 @@ class RSM {
 
 		this.textures = allTextures;
 		this.nodes = nodes;
-		this.main_node = nodes[0] || null;
+		if (nodes.length === 0) {
+			throw new Error('RSM::load() - Model contains no nodes');
+		}
+		this.main_node = rootNodeNames.map(name => nodes.find(node => node.name === name)).find(Boolean) || nodes[0];
 		this.posKeyframes = [];
 		this.volumebox = [];
 		this.instances = [];
