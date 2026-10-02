@@ -84855,7 +84855,7 @@ var init_JobNameTable = __esmMin((() => {
 	JobNameTable[JobConst_default.IMPERIAL_GUARD_RIDING] = "imperial_guard_riding";
 	JobNameTable[JobConst_default.BIOLO_RIDING] = "biolo_riding";
 	JobNameTable[JobConst_default.ABYSS_CHASER_RIDING] = "abyss_chaser_riding";
-	JobNameTable[JobConst_default.ELEMENTAL_MASTER_RIDING] = "elemental_master_riding";
+	JobNameTable[JobConst_default.ELEMENTAL_MASTER_RIDING] = "elemetal_master_riding";
 	JobNameTable[JobConst_default.INQUISITOR_RIDING] = "inquisitor_riding";
 	JobNameTable[JobConst_default.TROUBADOUR_RIDING] = "troubadour_riding";
 	JobNameTable[JobConst_default.TROUVERE_RIDING] = "trouvere_riding";
@@ -85123,6 +85123,19 @@ var init_PalNameTable = __esmMin((() => {
 	PalNameTable[JobConst_default.INQUISITOR] = JobNameTable[JobConst_default.INQUISITOR];
 	PalNameTable[JobConst_default.TROUBADOUR] = JobNameTable[JobConst_default.TROUBADOUR];
 	PalNameTable[JobConst_default.TROUVERE] = JobNameTable[JobConst_default.TROUVERE];
+	PalNameTable[JobConst_default.DRAGON_KNIGHT_RIDING] = JobNameTable[JobConst_default.DRAGON_KNIGHT_RIDING];
+	PalNameTable[JobConst_default.MEISTER_RIDING] = JobNameTable[JobConst_default.MEISTER_RIDING];
+	PalNameTable[JobConst_default.SHADOW_CROSS_RIDING] = JobNameTable[JobConst_default.SHADOW_CROSS_RIDING];
+	PalNameTable[JobConst_default.ARCH_MAGE_RIDING] = JobNameTable[JobConst_default.ARCH_MAGE_RIDING];
+	PalNameTable[JobConst_default.CARDINAL_RIDING] = JobNameTable[JobConst_default.CARDINAL_RIDING];
+	PalNameTable[JobConst_default.WINDHAWK_RIDING] = JobNameTable[JobConst_default.WINDHAWK_RIDING];
+	PalNameTable[JobConst_default.IMPERIAL_GUARD_RIDING] = JobNameTable[JobConst_default.IMPERIAL_GUARD_RIDING];
+	PalNameTable[JobConst_default.BIOLO_RIDING] = JobNameTable[JobConst_default.BIOLO_RIDING];
+	PalNameTable[JobConst_default.ABYSS_CHASER_RIDING] = JobNameTable[JobConst_default.ABYSS_CHASER_RIDING];
+	PalNameTable[JobConst_default.ELEMENTAL_MASTER_RIDING] = JobNameTable[JobConst_default.ELEMENTAL_MASTER_RIDING];
+	PalNameTable[JobConst_default.INQUISITOR_RIDING] = JobNameTable[JobConst_default.INQUISITOR_RIDING];
+	PalNameTable[JobConst_default.TROUBADOUR_RIDING] = JobNameTable[JobConst_default.TROUBADOUR_RIDING];
+	PalNameTable[JobConst_default.TROUVERE_RIDING] = JobNameTable[JobConst_default.TROUVERE_RIDING];
 	PalNameTable[JobConst_default.WINDHAWK2] = JobNameTable[JobConst_default.WINDHAWK2];
 	PalNameTable[JobConst_default.MEISTER2] = JobNameTable[JobConst_default.MEISTER2];
 	PalNameTable[JobConst_default.DRAGON_KNIGHT2] = JobNameTable[JobConst_default.DRAGON_KNIGHT2];
@@ -304688,7 +304701,8 @@ var init_DBManager = __esmMin((() => {
 		*/
 		static getBodyPalPath(id, pal, sex) {
 			if (id === 0 || !(id in PalNameTable)) return null;
-			return "data/palette/¸ö/" + PalNameTable[id] + "_" + SexTable[sex] + "_" + pal + ".pal";
+			const costume = String(PalNameTable[id]).startsWith("costume_1/") ? "_1" : "";
+			return "data/palette/¸ö/" + PalNameTable[id] + "_" + SexTable[sex] + "_" + pal + costume + ".pal";
 		}
 		/**
 		* @return {string} path to head sprite/action
@@ -309372,6 +309386,7 @@ function UpdateBody(job) {
 	let baseJob;
 	const transformationSeq = this._transformationSeq || 0;
 	if (job < 0) return;
+	this._bodyStyleJob = null;
 	const isTransformation = hasTransformation.call(this);
 	for (baseJob in MountTable) if (MountTable[baseJob] === job) {
 		this.costume = job;
@@ -309604,6 +309619,8 @@ function UpdateBodyStyle(look) {
 			}
 		}
 		path = this.isAdmin ? DB.getAdminPath(this._sex) : DB.getBodyPath(job, this._sex, look, cashMountCostume);
+		const styled = !this.isAdmin && PacketVerManager_default.value > 20141022 && look > 0 && look !== job && !cashMountCostume;
+		this._bodyStyleJob = styled ? look : null;
 		Entity = this.constructor;
 		Client.loadFile(path + ".act");
 		Client.loadFile(path + ".spr", function() {
@@ -309627,7 +309644,8 @@ function UpdateBodyPalette(pal) {
 		return;
 	}
 	if (this._job === -1) return;
-	this.files.body.pal = DB.getBodyPalPath(this._job, this._bodypalette, this._sex);
+	const job = this._bodyStyleJob && !hasTransformation.call(this) ? this._bodyStyleJob : getEffectiveJob.call(this);
+	this.files.body.pal = DB.getBodyPalPath(job, this._bodypalette, this._sex);
 }
 /**
 * Update head
