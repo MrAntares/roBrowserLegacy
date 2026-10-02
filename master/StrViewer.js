@@ -107450,7 +107450,36 @@ var init_SkillConst = __esmMin((() => {
 		ITEM_BANANA_BOMB: 11006,
 		SCRIPT_999: 11999,
 		EFST_DRESS_UP: 12e3,
-		EFST_999: 12999
+		EFST_999: 12999,
+		SS_FOUR_CHARM: 5499,
+		NW_WILD_SHOT: 5500,
+		NW_MIDNIGHT_FALLEN: 5501,
+		SKE_SKY_SUN: 5502,
+		SKE_SKY_MOON: 5503,
+		SKE_STAR_LIGHT_KICK: 5504,
+		HN_OVERCOMING_CRISIS: 5505,
+		SH_CHUL_HO_BATTERING: 5506,
+		SH_HYUN_ROK_SPIRIT_POWER: 5507,
+		DK_DRAGONIC_PIERCE: 6502,
+		IG_RADIANT_SPEAR: 6503,
+		IG_IMPERIAL_CROSS: 6504,
+		IG_IMPERIAL_PRESSURE: 6505,
+		MT_RUSH_STRIKE: 6506,
+		MT_POWERFUL_SWING: 6507,
+		MT_ENERGY_CANNONADE: 6508,
+		BO_MYSTERY_POWDER: 6509,
+		BO_DUST_EXPLOSION: 6510,
+		SHC_CROSS_SLASH: 6511,
+		ABC_HIT_AND_SLIDING: 6512,
+		ABC_CHASING_BREAK: 6513,
+		ABC_CHASING_SHOT: 6514,
+		ABC_ABYSS_FLAME: 6515,
+		AG_ENERGY_CONVERSION: 6516,
+		EM_PSYCHIC_STREAM: 6517,
+		CD_DIVINUS_FLOS: 6518,
+		IQ_BLAZING_FLAME_BLAST: 6519,
+		WH_WILD_WALK: 6520,
+		TR_RHYTHMICAL_WAVE: 6521
 	};
 }));
 //#endregion
@@ -138207,7 +138236,8 @@ var init_SkillTreeView = __esmMin((() => {
 		[SkillConst_default.DK_MADNESS_CRUSHER]: 19,
 		[SkillConst_default.DK_SERVANT_W_DEMOL]: 22,
 		[SkillConst_default.DK_VIGOR]: 24,
-		[SkillConst_default.DK_DRAGONIC_AURA]: 26
+		[SkillConst_default.DK_DRAGONIC_AURA]: 26,
+		[SkillConst_default.DK_DRAGONIC_PIERCE]: 28
 	};
 	SkillTreeView[JobConst_default.ARCH_MAGE] = {
 		list: 4,
@@ -138229,7 +138259,8 @@ var init_SkillTreeView = __esmMin((() => {
 		[SkillConst_default.AG_CRYSTAL_IMPACT]: 18,
 		[SkillConst_default.AG_DESTRUCTIVE_HURRICANE]: 19,
 		[SkillConst_default.AG_VIOLENT_QUAKE]: 20,
-		[SkillConst_default.AG_ASTRAL_STRIKE]: 22
+		[SkillConst_default.AG_ASTRAL_STRIKE]: 22,
+		[SkillConst_default.AG_ENERGY_CONVERSION]: 28
 	};
 	SkillTreeView[JobConst_default.INQUISITOR] = {
 		list: 4,
@@ -138250,7 +138281,8 @@ var init_SkillTreeView = __esmMin((() => {
 		[SkillConst_default.IQ_MASSIVE_F_BLASTER]: 27,
 		[SkillConst_default.IQ_THIRD_PUNISH]: 31,
 		[SkillConst_default.IQ_THIRD_CONSECRATION]: 32,
-		[SkillConst_default.IQ_THIRD_FLAME_BOMB]: 33
+		[SkillConst_default.IQ_THIRD_FLAME_BOMB]: 33,
+		[SkillConst_default.IQ_BLAZING_FLAME_BLAST]: 35
 	};
 	SkillTreeView[JobConst_default.IMPERIAL_GUARD] = {
 		list: 4,
@@ -138267,7 +138299,10 @@ var init_SkillTreeView = __esmMin((() => {
 		[SkillConst_default.IG_HOLY_SHIELD]: 19,
 		[SkillConst_default.IG_GRAND_JUDGEMENT]: 22,
 		[SkillConst_default.IG_ULTIMATE_SACRIFICE]: 25,
-		[SkillConst_default.IG_JUDGEMENT_CROSS]: 26
+		[SkillConst_default.IG_JUDGEMENT_CROSS]: 26,
+		[SkillConst_default.IG_RADIANT_SPEAR]: 28,
+		[SkillConst_default.IG_IMPERIAL_CROSS]: 29,
+		[SkillConst_default.IG_IMPERIAL_PRESSURE]: 30
 	};
 	SkillTreeView[JobConst_default.SHADOW_CROSS] = {
 		list: 4,
@@ -138281,7 +138316,8 @@ var init_SkillTreeView = __esmMin((() => {
 		[SkillConst_default.SHC_POTENT_VENOM]: 19,
 		[SkillConst_default.SHC_SHADOW_STAB]: 22,
 		[SkillConst_default.SHC_SHADOW_EXCEED]: 25,
-		[SkillConst_default.SHC_FATAL_SHADOW_CROW]: 30
+		[SkillConst_default.SHC_FATAL_SHADOW_CROW]: 30,
+		[SkillConst_default.SHC_CROSS_SLASH]: 35
 	};
 	SkillTreeView[JobConst_default.CARDINAL] = {
 		list: 4,
@@ -138301,7 +138337,8 @@ var init_SkillTreeView = __esmMin((() => {
 		[SkillConst_default.CD_ARGUTUS_TELUM]: 22,
 		[SkillConst_default.CD_ARGUTUS_VITA]: 23,
 		[SkillConst_default.CD_PNEUMATICUS_PROCELLA]: 25,
-		[SkillConst_default.CD_COMPETENTIA]: 29
+		[SkillConst_default.CD_COMPETENTIA]: 29,
+		[SkillConst_default.CD_DIVINUS_FLOS]: 35
 	};
 	SkillTreeView[JobConst_default.BIOLO] = {
 		list: 4,
@@ -138320,7 +138357,9 @@ var init_SkillTreeView = __esmMin((() => {
 		[SkillConst_default.BO_WOODENWARRIOR]: 18,
 		[SkillConst_default.BO_WOODEN_FAIRY]: 19,
 		[SkillConst_default.BO_RESEARCHREPORT]: 24,
-		[SkillConst_default.BO_HELLTREE]: 25
+		[SkillConst_default.BO_HELLTREE]: 25,
+		[SkillConst_default.BO_MYSTERY_POWDER]: 28,
+		[SkillConst_default.BO_DUST_EXPLOSION]: 29
 	};
 	SkillTreeView[JobConst_default.WINDHAWK] = {
 		list: 4,
@@ -138337,7 +138376,8 @@ var init_SkillTreeView = __esmMin((() => {
 		[SkillConst_default.WH_FLAMETRAP]: 17,
 		[SkillConst_default.WH_SWIFTTRAP]: 18,
 		[SkillConst_default.WH_CALAMITYGALE]: 21,
-		[SkillConst_default.WH_HAWKBOOMERANG]: 26
+		[SkillConst_default.WH_HAWKBOOMERANG]: 26,
+		[SkillConst_default.WH_WILD_WALK]: 28
 	};
 	SkillTreeView[JobConst_default.TROUBADOUR] = {
 		list: 4,
@@ -138356,7 +138396,8 @@ var init_SkillTreeView = __esmMin((() => {
 		[SkillConst_default.TR_MYSTIC_SYMPHONY]: 22,
 		[SkillConst_default.TR_ROKI_CAPRICCIO]: 24,
 		[SkillConst_default.TR_NIPELHEIM_REQUIEM]: 25,
-		[SkillConst_default.TR_KVASIR_SONATA]: 31
+		[SkillConst_default.TR_KVASIR_SONATA]: 31,
+		[SkillConst_default.TR_RHYTHMICAL_WAVE]: 35
 	};
 	SkillTreeView[JobConst_default.TROUVERE] = {
 		list: 4,
@@ -138375,7 +138416,8 @@ var init_SkillTreeView = __esmMin((() => {
 		[SkillConst_default.TR_MYSTIC_SYMPHONY]: 22,
 		[SkillConst_default.TR_ROKI_CAPRICCIO]: 24,
 		[SkillConst_default.TR_NIPELHEIM_REQUIEM]: 25,
-		[SkillConst_default.TR_KVASIR_SONATA]: 31
+		[SkillConst_default.TR_KVASIR_SONATA]: 31,
+		[SkillConst_default.TR_RHYTHMICAL_WAVE]: 35
 	};
 	SkillTreeView[JobConst_default.ABYSS_CHASER] = {
 		list: 4,
@@ -138391,7 +138433,11 @@ var init_SkillTreeView = __esmMin((() => {
 		[SkillConst_default.ABC_FRENZY_SHOT]: 17,
 		[SkillConst_default.ABC_ABYSS_SQUARE]: 19,
 		[SkillConst_default.ABC_ABYSS_SLAYER]: 23,
-		[SkillConst_default.ABC_ABYSS_STRIKE]: 26
+		[SkillConst_default.ABC_ABYSS_STRIKE]: 26,
+		[SkillConst_default.ABC_HIT_AND_SLIDING]: 28,
+		[SkillConst_default.ABC_CHASING_BREAK]: 29,
+		[SkillConst_default.ABC_CHASING_SHOT]: 30,
+		[SkillConst_default.ABC_ABYSS_FLAME]: 31
 	};
 	SkillTreeView[JobConst_default.MEISTER] = {
 		list: 4,
@@ -138409,7 +138455,10 @@ var init_SkillTreeView = __esmMin((() => {
 		[SkillConst_default.MT_SUMMON_ABR_DUAL_CANNON]: 19,
 		[SkillConst_default.MT_TRIPLE_LASER]: 20,
 		[SkillConst_default.MT_SUMMON_ABR_MOTHER_NET]: 26,
-		[SkillConst_default.MT_SUMMON_ABR_INFINITY]: 33
+		[SkillConst_default.MT_SUMMON_ABR_INFINITY]: 33,
+		[SkillConst_default.MT_RUSH_STRIKE]: 35,
+		[SkillConst_default.MT_POWERFUL_SWING]: 36,
+		[SkillConst_default.MT_ENERGY_CANNONADE]: 37
 	};
 	SkillTreeView[JobConst_default.ELEMENTAL_MASTER] = {
 		list: 4,
@@ -138430,7 +138479,8 @@ var init_SkillTreeView = __esmMin((() => {
 		[SkillConst_default.EM_INCREASING_ACTIVITY]: 24,
 		[SkillConst_default.EM_SUMMON_ELEMENTAL_SERPENS]: 26,
 		[SkillConst_default.EM_SUMMON_ELEMENTAL_TERREMOTUS]: 27,
-		[SkillConst_default.EM_ELEMENTAL_BUSTER]: 33
+		[SkillConst_default.EM_ELEMENTAL_BUSTER]: 33,
+		[SkillConst_default.EM_PSYCHIC_STREAM]: 35
 	};
 	SkillTreeView[JobConst_default.SKY_EMPEROR] = {
 		list: 3,
@@ -138447,7 +138497,10 @@ var init_SkillTreeView = __esmMin((() => {
 		[SkillConst_default.SKE_DAWN_BREAK]: 24,
 		[SkillConst_default.SKE_STAR_CANNON]: 26,
 		[SkillConst_default.SKE_ALL_IN_THE_SKY]: 30,
-		[SkillConst_default.SKE_ENCHANTING_SKY]: 32
+		[SkillConst_default.SKE_ENCHANTING_SKY]: 32,
+		[SkillConst_default.SKE_SKY_SUN]: 35,
+		[SkillConst_default.SKE_SKY_MOON]: 36,
+		[SkillConst_default.SKE_STAR_LIGHT_KICK]: 37
 	};
 	SkillTreeView[JobConst_default.SOUL_ASCETIC] = {
 		list: 3,
@@ -138487,7 +138540,9 @@ var init_SkillTreeView = __esmMin((() => {
 		[SkillConst_default.NW_HASTY_FIRE_IN_THE_HOLE]: 19,
 		[SkillConst_default.NW_GRENADES_DROPPING]: 26,
 		[SkillConst_default.NW_AUTO_FIRING_LAUNCHER]: 27,
-		[SkillConst_default.NW_MISSION_BOMBARD]: 33
+		[SkillConst_default.NW_MISSION_BOMBARD]: 33,
+		[SkillConst_default.NW_WILD_SHOT]: 35,
+		[SkillConst_default.NW_MIDNIGHT_FALLEN]: 36
 	};
 	SkillTreeView[JobConst_default.HYPER_NOVICE] = {
 		list: 3,
@@ -138505,7 +138560,8 @@ var init_SkillTreeView = __esmMin((() => {
 		[SkillConst_default.HN_GROUND_GRAVITATION]: 17,
 		[SkillConst_default.HN_NAPALM_VULCAN_STRIKE]: 18,
 		[SkillConst_default.HN_BREAKINGLIMIT]: 21,
-		[SkillConst_default.HN_RULEBREAK]: 24
+		[SkillConst_default.HN_RULEBREAK]: 24,
+		[SkillConst_default.HN_OVERCOMING_CRISIS]: 28
 	};
 	SkillTreeView[JobConst_default.SPIRIT_HANDLER] = {
 		list: 2,
@@ -138525,7 +138581,9 @@ var init_SkillTreeView = __esmMin((() => {
 		[SkillConst_default.SH_COMMUNE_WITH_KI_SUL]: 31,
 		[SkillConst_default.SH_COMMUNE_WITH_HYUN_ROK]: 33,
 		[SkillConst_default.SH_TEMPORARY_COMMUNION]: 37,
-		[SkillConst_default.SH_BLESSING_OF_MYSTICAL_CREATURES]: 39
+		[SkillConst_default.SH_BLESSING_OF_MYSTICAL_CREATURES]: 39,
+		[SkillConst_default.SH_CHUL_HO_BATTERING]: 42,
+		[SkillConst_default.SH_HYUN_ROK_SPIRIT_POWER]: 43
 	};
 	SkillTreeView[JobConst_default.SHIRANUI] = {
 		list: 3,
@@ -138549,7 +138607,8 @@ var init_SkillTreeView = __esmMin((() => {
 		[SkillConst_default.SS_HITOUAKUMU]: 30,
 		[SkillConst_default.SS_KAGEAKUMU]: 32,
 		[SkillConst_default.SS_ANTENPOU]: 34,
-		[SkillConst_default.SS_ANKOKURYUUAKUMU]: 41
+		[SkillConst_default.SS_ANKOKURYUUAKUMU]: 41,
+		[SkillConst_default.SS_FOUR_CHARM]: 42
 	};
 	SkillTreeView[JobConst_default.SHINKIRO] = {
 		list: 3,
@@ -138573,7 +138632,8 @@ var init_SkillTreeView = __esmMin((() => {
 		[SkillConst_default.SS_HITOUAKUMU]: 30,
 		[SkillConst_default.SS_KAGEAKUMU]: 32,
 		[SkillConst_default.SS_ANTENPOU]: 34,
-		[SkillConst_default.SS_ANKOKURYUUAKUMU]: 41
+		[SkillConst_default.SS_ANKOKURYUUAKUMU]: 41,
+		[SkillConst_default.SS_FOUR_CHARM]: 42
 	};
 	duplicateEntry$2(JobConst_default.NOVICE, JobConst_default.NOVICE_B);
 	duplicateEntry$2(JobConst_default.SWORDMAN, JobConst_default.SWORDMAN_B);
@@ -138681,6 +138741,53 @@ var init_SkillTreeView = __esmMin((() => {
 	duplicateEntry$2(JobConst_default.DRAGON_KNIGHT, JobConst_default.DRAGON_KNIGHT2);
 	duplicateEntry$2(JobConst_default.IMPERIAL_GUARD, JobConst_default.IMPERIAL_GUARD2);
 	duplicateEntry$2(JobConst_default.SKY_EMPEROR, JobConst_default.SKY_EMPEROR2);
+}));
+//#endregion
+//#region src/DB/Skills/SkillTreeMerge.js
+/**
+* Put the tree back to the built-in layout, dropping every job and position a
+* previously loaded client file added.
+*
+* @param {object} tree - SkillTreeView, changed in place
+* @param {object} [builtIn] - the layout to restore
+*/
+function resetSkillTree(tree, builtIn = BuiltInSkillTreeView) {
+	for (const jobId of Object.keys(tree)) if (!(jobId in builtIn)) delete tree[jobId];
+	for (const [jobId, entry] of Object.entries(builtIn)) tree[jobId] = { ...entry };
+}
+/**
+* For each job a client file defined, put back the built-in position of any
+* skill the file leaves out, or the next free slot when the file has taken
+* that one. Positions the file set are never moved.
+*
+* @param {object} tree - SkillTreeView after the file was read, changed in place
+* @param {Iterable} jobIds - the jobs the file defined
+* @param {object} [builtIn] - the built-in layout
+*/
+function keepBuiltInSkills(tree, jobIds, builtIn = BuiltInSkillTreeView) {
+	for (const jobId of jobIds) {
+		const entry = tree[jobId];
+		const base = builtIn[jobId];
+		if (!entry || !base) continue;
+		const taken = new Set(Object.keys(entry).filter(isSkill).map((key) => entry[key]));
+		let next = Math.max(-1, ...taken) + 1;
+		for (const [skillId, pos] of Object.entries(base)) {
+			if (!isSkill(skillId) || skillId in entry) continue;
+			let slot = pos;
+			if (taken.has(slot)) {
+				while (taken.has(next)) next++;
+				slot = next;
+			}
+			entry[skillId] = slot;
+			taken.add(slot);
+		}
+	}
+}
+var isSkill, BuiltInSkillTreeView;
+var init_SkillTreeMerge = __esmMin((() => {
+	init_SkillTreeView();
+	isSkill = (key) => /^\d+$/.test(key);
+	BuiltInSkillTreeView = Object.freeze(Object.fromEntries(Object.entries(SkillTreeView).map(([jobId, entry]) => [jobId, Object.freeze({ ...entry })])));
 }));
 //#endregion
 //#region src/DB/Jobs/JobHitSoundTable.js
@@ -303313,6 +303420,8 @@ function loadSkillTreeView(filename, callback, onEnd) {
 	}, onEnd);
 }
 function loadSkillTreeViewData(filename, callback, onEnd) {
+	resetSkillTree(SkillTreeView);
+	const fileJobs = /* @__PURE__ */ new Set();
 	Client.loadFile(filename, async function(file) {
 		try {
 			console.log("Loading file \"" + filename + "\"...");
@@ -303334,10 +303443,12 @@ function loadSkillTreeViewData(filename, callback, onEnd) {
 					list = 1;
 					console.error(`[loadSkillTreeViewData] Failed to find inherith list job: (${jobId})`);
 				}
-				SkillTreeView[jobId] = {
+				const entry = {
 					list,
 					beforeJob
 				};
+				fileJobs.add(jobId);
+				SkillTreeView[jobId] = entry;
 				return 1;
 			};
 			ctx.AddSkillToJob = function(jobId, pos, skillId) {
@@ -303399,6 +303510,7 @@ function loadSkillTreeViewData(filename, callback, onEnd) {
 						
 						main_skillTreeView()    
 					`);
+			keepBuiltInSkills(SkillTreeView, fileJobs);
 		} catch (error) {
 			console.error("[loadSkillTreeView] Error: ", error);
 		} finally {
@@ -304024,6 +304136,7 @@ var init_DBManager = __esmMin((() => {
 	init_SkillConst();
 	init_SkillInfo();
 	init_SkillTreeView();
+	init_SkillTreeMerge();
 	init_JobHitSoundTable();
 	init_WeaponTrailTable();
 	init_TownInfo();
