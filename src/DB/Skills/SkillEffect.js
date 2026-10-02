@@ -1046,6 +1046,39 @@ SkillEffect[6519 /* IQ_BLAZING_FLAME_BLAST */] = {
 	hitEffectId: 'ef_iq_blazing_flame_blast_hit'
 }; //Blazing Flame Blast
 SkillEffect[SK.SC_ESCAPE] = {}; //Emergency Escape
+SkillEffect[SK.ABC_ABYSS_DAGGER] = { effectId: 'ef_abc_abyss_dagger', hitEffectId: 'ef_abc_abyss_dagger_hit' }; //Abyss Dagger
+SkillEffect[SK.ABC_UNLUCKY_RUSH] = {
+	effectId: 'ef_abc_unlucky_rush',
+	effectIdOnCaster: 'ef_abc_unlucky_rush_cast',
+	hitEffectId: 'ef_abc_unlucky_rush_hit'
+}; //Unlucky Rush
+SkillEffect[SK.ABC_CHAIN_REACTION_SHOT] = {
+	effectId: 'ef_abc_chain_reaction_shot',
+	effectIdOnCaster: 'ef_abc_chain_reaction_shot_cast',
+	hitEffectId: 'ef_abc_chain_reaction_shot_hit'
+}; //Chain Reaction Shot
+SkillEffect[SK.ABC_FROM_THE_ABYSS] = { hitEffectId: 'ef_abc_from_the_abyss_hit' }; //From The Abyss
+SkillEffect[SK.ABC_ABYSS_SLAYER] = { effectId: 'ef_abc_abyss_slayer', effectIdOnCaster: 'ef_abc_abyss_slayer_cast' }; //Abyss Slayer
+SkillEffect[SK.ABC_ABYSS_STRIKE] = {
+	effectId: 'ef_abc_abyss_strike',
+	effectIdOnCaster: 'ef_abc_abyss_strike_cast',
+	hitEffectId: 'ef_abc_abyss_strike_hit'
+}; //Omega Abyss Strike
+SkillEffect[SK.ABC_DEFT_STAB] = { effectId: 'ef_abc_deft_stab' }; //Deft Stab
+SkillEffect[SK.ABC_ABYSS_SQUARE] = { effectId: 'ef_abc_abyss_square', hitEffectId: 'ef_abc_abyss_square_hit' }; //Abyss Square
+SkillEffect[SK.ABC_FRENZY_SHOT] = { effectId: 'ef_abc_frenzy_shot', hitEffectId: 'ef_abc_frenzy_shot_hit' }; //Frenzy Shot
+SkillEffect[SK.ABC_CHAIN_REACTION_SHOT_ATK] = { effectId: 'ef_abc_chain_reaction_shot_atk' }; //Chain Reaction Shot Attack
+SkillEffect[SK.ABC_FROM_THE_ABYSS_ATK] = { effectId: 'ef_abc_from_the_abyss_atk' }; //From The Abyss Attack
+SkillEffect[6513 /* ABC_CHASING_BREAK */] = { effectId: 'ef_abc_chasing_break' }; //Chasing Break
+SkillEffect[6514 /* ABC_CHASING_SHOT */] = {
+	effectIdOnCaster: 'ef_abc_chasing_shot_cast',
+	hitEffectId: 'ef_abc_chasing_shot_hit'
+}; //Chasing Shot
+SkillEffect[6515 /* ABC_ABYSS_FLAME */] = {
+	effectId: 'ef_abc_abyss_flame',
+	effectIdOnCaster: 'ef_abc_abyss_flame_cast',
+	hitEffectId: 'ef_abc_abyss_flame_hit'
+}; //Abyss Flame
 SkillEffect[SK.AB_OFFERTORIUM] = { effectId: 1047 }; //Offertorium
 SkillEffect[SK.WL_TELEKINESIS_INTENSE] = { effectId: 1048 }; //Intense Telekinesis
 SkillEffect[SK.AG_DEADLY_PROJECTION] = {
