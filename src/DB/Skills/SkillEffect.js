@@ -1025,6 +1025,34 @@ SkillEffect[SK.GN_ILLUSIONDOPING] = { effectId: 1049 }; //Illusion Doping
 SkillEffect[SK.RK_DRAGONBREATH_WATER] = { hitEffectId: 'ef_dragonbreath_water' }; //Dragon Breath - Water
 SkillEffect[SK.RK_LUXANIMA] = { effectId: 1044 }; //Lux Anima
 SkillEffect[SK.NC_MAGMA_ERUPTION] = { effectId: 1050 }; //Magma Eruption
+SkillEffect[SK.MT_AXE_STOMP] = { effectId: 'ef_mt_axe_stomp', hitEffectId: 'ef_mt_axe_stomp_hit' }; //Axe Stomp
+SkillEffect[SK.MT_RUSH_QUAKE] = { effectId: 'ef_mt_rush_quake', hitEffectId: 'ef_mt_rush_quake_hit' }; //Rush Quake
+SkillEffect[SK.MT_A_MACHINE] = {
+	effectId: 'ef_mt_a_machine',
+	effectIdOnCaster: 'ef_mt_a_machine_cast',
+	hitEffectId: 'ef_mt_a_machine_hit'
+}; //Attack Machine
+SkillEffect[SK.MT_D_MACHINE] = { effectId: 'ef_mt_d_machine', effectIdOnCaster: 'ef_mt_d_machine_cast' }; //Defense Machine
+SkillEffect[SK.MT_SUMMON_ABR_BATTLE_WARIOR] = { effectId: 'ef_mt_summon_abr_battle_warior' }; //ABR Battle Warior
+SkillEffect[SK.MT_SUMMON_ABR_DUAL_CANNON] = { effectId: 'ef_mt_summon_abr_dual_cannon' }; //ABR Dual Cannon
+SkillEffect[SK.MT_SUMMON_ABR_INFINITY] = {
+	effectId: 'ef_mt_summon_abr_infinity',
+	effectIdOnCaster: 'ef_mt_summon_abr_infinity_cast',
+	hitEffectId: 'ef_mt_summon_abr_infinity_hit'
+}; //ABR Infinity
+SkillEffect[SK.MT_SPARK_BLASTER] = { effectId: 'ef_mt_spark_blaster' }; //Spark Blaster
+SkillEffect[SK.MT_TRIPLE_LASER] = { effectId: 'ef_mt_triple_laser' }; //Triple Laser
+SkillEffect[SK.MT_MIGHTY_SMASH] = { effectId: 'ef_mt_mighty_smash' }; //Mighty Smash
+SkillEffect[6506 /* MT_RUSH_STRIKE */] = { effectId: 'ef_mt_rush_strike' }; //Rush Strike
+SkillEffect[6507 /* MT_POWERFUL_SWING */] = {
+	effectId: 'ef_mt_powerful_swing',
+	hitEffectId: 'ef_mt_powerful_swing_hit'
+}; //Powerful Swing
+SkillEffect[6508 /* MT_ENERGY_CANNONADE */] = {
+	effectId: 'ef_mt_energy_cannonade',
+	effectIdOnCaster: 'ef_mt_energy_cannonade_cast',
+	hitEffectId: 'ef_mt_energy_cannonade_hit'
+}; //Energy Cannonade
 SkillEffect[SK.WM_FRIGG_SONG] = { effectId: 'ef_frigg_song' }; //Frigg's Song
 SkillEffect[SK.SO_ELEMENTAL_SHIELD] = { effectId: 1046 }; //Elemental Shield
 SkillEffect[SK.SR_FLASHCOMBO] = { effectId: 1043 }; //Flash Combo
