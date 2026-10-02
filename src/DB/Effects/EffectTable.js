@@ -21273,5 +21273,1417 @@ export default {
 			wav: 'effect/',
 			attachedEntity: true
 		}
+	],
+
+	// Earlier classes: art from the client data for skills that had none.
+	// Land Mine (HT_LANDMINE), from the client's own effect folders.
+	ef_ht_landmine: [
+		{
+			type: 'STR',
+			file: 'landmine',
+			texturePath: ''
+		}
+	],
+
+	// Suicide (SA_INSTANTDEATH), from the client's own effect folders.
+	ef_sa_instantdeath: [
+		{
+			type: 'STR',
+			file: 'suicide',
+			texturePath: ''
+		}
+	],
+
+	// Counter Kick (TK_COUNTER), from the client's own effect folders.
+	ef_tk_counter: [
+		{
+			type: 'STR',
+			file: 'new_counter_slash/new_counter_slash/new_counter_slash',
+			texturePath: 'new_counter_slash/new_counter_slash/'
+		},
+		{
+			type: 'STR',
+			file: 'new_counter_slash/new_counter_slash_bottom/new_counter_slash_bottom',
+			texturePath: 'new_counter_slash/new_counter_slash_bottom/',
+			renderBeforeEntities: true
+		}
+	],
+
+	// Spirit of the Assasin (SL_ASSASIN), from the client's own effect folders.
+	ef_sl_assasin: [
+		{
+			type: 'STR',
+			file: 'assasin_poisonreact',
+			texturePath: ''
+		},
+		{
+			type: 'STR',
+			file: 'assasin_poisonreact_1st',
+			texturePath: ''
+		}
+	],
+
+	// Advanced Adrenaline Rush (BS_ADRENALINE2), from the client's own effect folders.
+	ef_bs_adrenaline2: [
+		{
+			type: 'STR',
+			file: 'adrenaline',
+			texturePath: ''
+		}
+	],
+
+	// Spirit of the Hunter (SL_HUNTER), from the client's own effect folders.
+	ef_sl_hunter: [
+		{
+			type: 'STR',
+			file: 'hunter_loud',
+			texturePath: ''
+		},
+		{
+			type: 'STR',
+			file: 'hunter_poison',
+			texturePath: ''
+		},
+		{
+			type: 'STR',
+			file: 'hunter_shockwave_blue',
+			texturePath: ''
+		}
+	],
+
+	// Estun (SL_STUN), from the client's own effect folders.
+	ef_sl_stun: [
+		{
+			type: 'STR',
+			file: 'stun',
+			texturePath: '',
+			wav: 'effect/_stun'
+		}
+	],
+
+	// Increasing Accuracy (GS_INCREASING), from the client's own effect folders.
+	ef_gs_increasing: [
+		{
+			type: 'STR',
+			file: 'increasing_activity/increasing_activity/increasing_activity',
+			texturePath: 'increasing_activity/increasing_activity/',
+			min: 'increasing_activity/increasing_activity/min_increasing_activity'
+		}
+	],
+
+	// Increasing Accuracy (GS_INCREASING), from the client's own effect folders.
+	ef_gs_increasing_cast: [
+		{
+			type: 'STR',
+			file: 'increasing_activity/increasing_activity_cast/increasing_activity_cast',
+			texturePath: 'increasing_activity/increasing_activity_cast/',
+			min: 'increasing_activity/increasing_activity_cast/min_increasing_activity_cast'
+		},
+		{
+			type: 'STR',
+			file: 'increasing_activity/increasing_activity_cast_bottom/increasing_activity_cast_bottom',
+			texturePath: 'increasing_activity/increasing_activity_cast_bottom/',
+			min: 'increasing_activity/increasing_activity_cast_bottom/min_increasing_activity_cast_bottom',
+			renderBeforeEntities: true
+		}
+	],
+
+	// Wind Cutter (RK_WINDCUTTER), from the client's own effect folders.
+	ef_rk_windcutter: [
+		{
+			type: 'STR',
+			file: 'new_windcutter/new_windcutter/new_windcutter',
+			texturePath: 'new_windcutter/new_windcutter/'
+		}
+	],
+
+	// Soul Expansion (WL_SOULEXPANSION), from the client's own effect folders.
+	ef_wl_soulexpansion_cast: [
+		{
+			type: 'STR',
+			file: 'new_soulexpansion/new_soulexpansion_cast/new_soulexpansion_cast',
+			texturePath: 'new_soulexpansion/new_soulexpansion_cast/'
+		},
+		{
+			type: 'STR',
+			file: 'new_soulexpansion/new_soulexpansion_cast_bottom/new_soulexpansion_cast_bottom',
+			texturePath: 'new_soulexpansion/new_soulexpansion_cast_bottom/',
+			renderBeforeEntities: true
+		}
+	],
+
+	// Soul Expansion (WL_SOULEXPANSION), from the client's own effect folders.
+	ef_wl_soulexpansion_hit: [
+		{
+			type: 'STR',
+			file: 'new_soulexpansion/new_soulexpansion_hit/new_soulexpansion_hit',
+			texturePath: 'new_soulexpansion/new_soulexpansion_hit/'
+		},
+		{
+			type: 'STR',
+			file: 'new_soulexpansion/new_soulexpansion_hit_bottom/new_soulexpansion_hit_bottom',
+			texturePath: 'new_soulexpansion/new_soulexpansion_hit_bottom/',
+			renderBeforeEntities: true
+		}
+	],
+
+	// Hell Inferno (WL_HELLINFERNO), from the client's own effect folders.
+	ef_wl_hellinferno: [
+		{
+			type: 'STR',
+			file: 'new_hellinferno/new_hellinferno/new_hellinferno',
+			texturePath: 'new_hellinferno/new_hellinferno/'
+		},
+		{
+			type: 'STR',
+			file: 'new_hellinferno/new_hellinferno_bottom/new_hellinferno_bottom',
+			texturePath: 'new_hellinferno/new_hellinferno_bottom/',
+			renderBeforeEntities: true
+		}
+	],
+
+	// Hell Inferno (WL_HELLINFERNO), from the client's own effect folders.
+	ef_wl_hellinferno_cast: [
+		{
+			type: 'STR',
+			file: 'new_hellinferno/new_hellinferno_cast_bottom/new_hellinferno_cast_bottom',
+			texturePath: 'new_hellinferno/new_hellinferno_cast_bottom/',
+			renderBeforeEntities: true
+		}
+	],
+
+	// Comet (WL_COMET), from the client's own effect folders.
+	ef_wl_comet: [
+		{
+			type: 'STR',
+			file: 'new_comet/new_comet/new_comet',
+			texturePath: 'new_comet/new_comet/'
+		},
+		{
+			type: 'STR',
+			file: 'new_comet/new_comet_bottom/new_comet_bottom',
+			texturePath: 'new_comet/new_comet_bottom/',
+			renderBeforeEntities: true
+		}
+	],
+
+	// Comet (WL_COMET), from the client's own effect folders.
+	ef_wl_comet_cast: [
+		{
+			type: 'STR',
+			file: 'new_comet/new_comet_cast/new_comet_cast',
+			texturePath: 'new_comet/new_comet_cast/'
+		},
+		{
+			type: 'STR',
+			file: 'new_comet/new_comet_cast_bottom/new_comet_cast_bottom',
+			texturePath: 'new_comet/new_comet_cast_bottom/',
+			renderBeforeEntities: true
+		}
+	],
+
+	// Chain Lightning (WL_CHAINLIGHTNING), from the client's own effect folders.
+	ef_wl_chainlightning_cast: [
+		{
+			type: 'STR',
+			file: 'new_chainlightning/new_chainlightning_cast/new_chainlightning_cast',
+			texturePath: 'new_chainlightning/new_chainlightning_cast/'
+		},
+		{
+			type: 'STR',
+			file: 'new_chainlightning/new_chainlightning_cast_bottom/new_chainlightning_cast_bottom',
+			texturePath: 'new_chainlightning/new_chainlightning_cast_bottom/',
+			renderBeforeEntities: true
+		}
+	],
+
+	// Tetra Vortex Fire (WL_TETRAVORTEX_FIRE), from the client's own effect folders.
+	ef_wl_tetravortex_fire: [
+		{
+			type: 'STR',
+			file: 'mineffect/new_tetravortex/new_tetravortex_fire/new_tetravortex_fire',
+			texturePath: 'mineffect/new_tetravortex/new_tetravortex_fire/'
+		}
+	],
+
+	// Tetra Vortex Water (WL_TETRAVORTEX_WATER), from the client's own effect folders.
+	ef_wl_tetravortex_water: [
+		{
+			type: 'STR',
+			file: 'mineffect/new_tetravortex/new_tetravortex_water/new_tetravortex_water',
+			texturePath: 'mineffect/new_tetravortex/new_tetravortex_water/'
+		}
+	],
+
+	// Tetra Vortex Wind (WL_TETRAVORTEX_WIND), from the client's own effect folders.
+	ef_wl_tetravortex_wind: [
+		{
+			type: 'STR',
+			file: 'mineffect/new_tetravortex/new_tetravortex_wind/new_tetravortex_wind',
+			texturePath: 'mineffect/new_tetravortex/new_tetravortex_wind/'
+		}
+	],
+
+	// Summon Attack Fire (WL_SUMMON_ATK_FIRE), from the client's own effect folders.
+	ef_wl_summon_atk_fire: [
+		{
+			type: 'STR',
+			file: 'fire',
+			texturePath: ''
+		}
+	],
+
+	// Cross Impact (GC_CROSSIMPACT), from the client's own effect folders.
+	ef_gc_crossimpact: [
+		{
+			type: 'STR',
+			file: 'new_crossimpact/new_crossimpact/new_crossimpact',
+			texturePath: 'new_crossimpact/new_crossimpact/'
+		}
+	],
+
+	// Poisoning Weapon (GC_POISONINGWEAPON), from the client's own effect folders.
+	ef_gc_poisoningweapon: [
+		{
+			type: 'STR',
+			file: 'poison',
+			texturePath: ''
+		}
+	],
+
+	// Counter Slash (GC_COUNTERSLASH), from the client's own effect folders.
+	ef_gc_counterslash: [
+		{
+			type: 'STR',
+			file: 'new_counter_slash/new_counter_slash/new_counter_slash',
+			texturePath: 'new_counter_slash/new_counter_slash/'
+		},
+		{
+			type: 'STR',
+			file: 'new_counter_slash/new_counter_slash_bottom/new_counter_slash_bottom',
+			texturePath: 'new_counter_slash/new_counter_slash_bottom/',
+			renderBeforeEntities: true
+		}
+	],
+
+	// Poison Smoke (GC_POISONSMOKE), from the client's own effect folders.
+	ef_gc_poisonsmoke: [
+		{
+			type: 'STR',
+			file: 'new_poisonsmoke/new_poisonsmoke/new_poisonsmoke_%d',
+			rand: [1, 2],
+			texturePath: 'new_poisonsmoke/new_poisonsmoke/'
+		}
+	],
+
+	// Cross Ripper Slasher (GC_CROSSRIPPERSLASHER), from the client's own effect folders.
+	ef_gc_crossripperslasher: [
+		{
+			type: 'STR',
+			file: 'new_crossripperslasher/new_crossripperslasher/new_crossripperslasher',
+			texturePath: 'new_crossripperslasher/new_crossripperslasher/'
+		}
+	],
+
+	// Secrament (AB_SECRAMENT), from the client's own effect folders.
+	ef_ab_secrament: [
+		{
+			type: 'STR',
+			file: 'new_secrament/new_secrament/new_secrament',
+			texturePath: 'new_secrament/new_secrament/'
+		}
+	],
+
+	// Fear Breeze (RA_FEARBREEZE), from the client's own effect folders.
+	ef_ra_fearbreeze: [
+		{
+			type: 'STR',
+			file: 'new_fearbreeze/new_fearbreeze',
+			texturePath: 'new_fearbreeze/'
+		}
+	],
+
+	// Vulcan Arm (NC_VULCANARM), from the client's own effect folders.
+	ef_nc_vulcanarm: [
+		{
+			type: 'STR',
+			file: 'new_vulcanarm/new_vulcanarm/new_vulcanarm',
+			texturePath: 'new_vulcanarm/new_vulcanarm/'
+		},
+		{
+			type: 'STR',
+			file: 'new_vulcanarm/new_vulcanarm_bottom/new_vulcanarm_bottom',
+			texturePath: 'new_vulcanarm/new_vulcanarm_bottom/',
+			renderBeforeEntities: true
+		}
+	],
+
+	// Arm Cannon (NC_ARMSCANNON), from the client's own effect folders.
+	ef_nc_armscannon_cast: [
+		{
+			type: 'STR',
+			file: 'new_armscannon/new_armscannon_cast/new_armscannon_cast',
+			texturePath: 'new_armscannon/new_armscannon_cast/'
+		},
+		{
+			type: 'STR',
+			file: 'new_armscannon/new_armscannon_cast_bottom/new_armscannon_cast_bottom',
+			texturePath: 'new_armscannon/new_armscannon_cast_bottom/',
+			renderBeforeEntities: true
+		}
+	],
+
+	// Repair (NC_REPAIR), from the client's own effect folders.
+	ef_nc_repair: [
+		{
+			type: 'STR',
+			file: 'repair weapon',
+			texturePath: ''
+		},
+		{
+			type: 'STR',
+			file: 'repairweapon',
+			texturePath: ''
+		}
+	],
+
+	// Axe Boomerang (NC_AXEBOOMERANG), from the client's own effect folders.
+	ef_nc_axeboomerang: [
+		{
+			type: 'STR',
+			file: 'new_axeboomerang/new_axeboomerang/new_axeboomerang',
+			texturePath: 'new_axeboomerang/new_axeboomerang/'
+		}
+	],
+
+	// Axe Boomerang (NC_AXEBOOMERANG), from the client's own effect folders.
+	ef_nc_axeboomerang_cast: [
+		{
+			type: 'STR',
+			file: 'new_axeboomerang/new_axeboomerang_cast/new_axeboomerang_cast',
+			texturePath: 'new_axeboomerang/new_axeboomerang_cast/'
+		},
+		{
+			type: 'STR',
+			file: 'new_axeboomerang/new_axeboomerang_cast_bottom/new_axeboomerang_cast_bottom',
+			texturePath: 'new_axeboomerang/new_axeboomerang_cast_bottom/',
+			renderBeforeEntities: true
+		}
+	],
+
+	// Axe Boomerang (NC_AXEBOOMERANG), from the client's own effect folders.
+	ef_nc_axeboomerang_hit: [
+		{
+			type: 'STR',
+			file: 'new_axeboomerang/new_axeboomerang_hit/new_axeboomerang_hit',
+			texturePath: 'new_axeboomerang/new_axeboomerang_hit/'
+		}
+	],
+
+	// Axe Tornado (NC_AXETORNADO), from the client's own effect folders.
+	ef_nc_axetornado: [
+		{
+			type: 'STR',
+			file: 'new_axetornado/new_axetornado/new_axetornado',
+			texturePath: 'new_axetornado/new_axetornado/'
+		},
+		{
+			type: 'STR',
+			file: 'new_axetornado/new_axetornado_bottom/new_axetornado_bottom',
+			texturePath: 'new_axetornado/new_axetornado_bottom/',
+			renderBeforeEntities: true
+		}
+	],
+
+	// Fatal Menace (SC_FATALMENACE), from the client's own effect folders.
+	ef_sc_fatalmenace: [
+		{
+			type: 'STR',
+			file: 'new_fatal_menace/new_fatal_menace/new_fatal_menace',
+			texturePath: 'new_fatal_menace/new_fatal_menace/'
+		},
+		{
+			type: 'STR',
+			file: 'new_fatal_menace/new_fatal_menace_bottom/new_fatal_menace_bottom',
+			texturePath: 'new_fatal_menace/new_fatal_menace_bottom/',
+			renderBeforeEntities: true
+		}
+	],
+
+	// Fatal Menace (SC_FATALMENACE), from the client's own effect folders.
+	ef_sc_fatalmenace_cast: [
+		{
+			type: 'STR',
+			file: 'new_fatal_menace/new_fatal_menace_cast/new_fatal_menace_cast',
+			texturePath: 'new_fatal_menace/new_fatal_menace_cast/'
+		},
+		{
+			type: 'STR',
+			file: 'new_fatal_menace/new_fatal_menace_cast_bottom/new_fatal_menace_cast_bottom',
+			texturePath: 'new_fatal_menace/new_fatal_menace_cast_bottom/',
+			renderBeforeEntities: true
+		}
+	],
+
+	// Reproduce (SC_REPRODUCE), from the client's own effect folders.
+	ef_sc_reproduce: [
+		{
+			type: 'STR',
+			file: 'new_reproduce/new_reproduce/new_reproduce',
+			texturePath: 'new_reproduce/new_reproduce/',
+			wav: 'effect/reproduce'
+		},
+		{
+			type: 'STR',
+			file: 'new_reproduce/new_reproduce_bottom/new_reproduce_bottom',
+			texturePath: 'new_reproduce/new_reproduce_bottom/',
+			renderBeforeEntities: true
+		}
+	],
+
+	// Auto Shadow Spell (SC_AUTOSHADOWSPELL), from the client's own effect folders.
+	ef_sc_autoshadowspell: [
+		{
+			type: 'STR',
+			file: 'new_autoshadowspell/new_autoshadowspell/new_autoshadowspell',
+			texturePath: 'new_autoshadowspell/new_autoshadowspell/'
+		},
+		{
+			type: 'STR',
+			file: 'new_autoshadowspell/new_autoshadowspell_bottom/new_autoshadowspell_bottom',
+			texturePath: 'new_autoshadowspell/new_autoshadowspell_bottom/',
+			renderBeforeEntities: true
+		}
+	],
+
+	// Cannon Spear (LG_CANNONSPEAR), from the client's own effect folders.
+	ef_lg_cannonspear: [
+		{
+			type: 'STR',
+			file: 'new_cannon_spear/new_cannon_spear_bottom/new_cannon_spear_bottom',
+			texturePath: 'new_cannon_spear/new_cannon_spear_bottom/',
+			renderBeforeEntities: true,
+			wav: 'effect/lg_cannonspear'
+		}
+	],
+
+	// Banishing Point (LG_BANISHINGPOINT), from the client's own effect folders.
+	ef_lg_banishingpoint_cast: [
+		{
+			type: 'STR',
+			file: 'new_banishingpoint/new_banishingpoint_cast/new_banishingpoint_cast',
+			texturePath: 'new_banishingpoint/new_banishingpoint_cast/',
+			wav: 'effect/lg_banishingpoint'
+		},
+		{
+			type: 'STR',
+			file: 'new_banishingpoint/new_banishingpoint_cast_bottom/new_banishingpoint_cast_bottom',
+			texturePath: 'new_banishingpoint/new_banishingpoint_cast_bottom/',
+			renderBeforeEntities: true
+		}
+	],
+
+	// Over Brand (LG_OVERBRAND), from the client's own effect folders.
+	ef_lg_overbrand_cast: [
+		{
+			type: 'STR',
+			file: 'new_overbrand/new_overbrand_cast/new_overbrand_cast',
+			texturePath: 'new_overbrand/new_overbrand_cast/',
+			wav: 'effect/lg_overbrand'
+		},
+		{
+			type: 'STR',
+			file: 'new_overbrand/new_overbrand_cast_bottom/new_overbrand_cast_bottom',
+			texturePath: 'new_overbrand/new_overbrand_cast_bottom/',
+			renderBeforeEntities: true
+		}
+	],
+
+	// Over Brand (LG_OVERBRAND), from the client's own effect folders.
+	ef_lg_overbrand_hit: [
+		{
+			type: 'STR',
+			file: 'new_overbrand/new_overbrand_hit/new_overbrand_hit',
+			texturePath: 'new_overbrand/new_overbrand_hit/'
+		}
+	],
+
+	// Ray of Genesis (LG_RAYOFGENESIS), from the client's own effect folders.
+	ef_lg_rayofgenesis: [
+		{
+			type: 'STR',
+			file: 'new_rayofgenesis/new_rayofgenesis/new_rayofgenesis',
+			texturePath: 'new_rayofgenesis/new_rayofgenesis/',
+			wav: 'effect/lg_rayofgenesis'
+		}
+	],
+
+	// Ray of Genesis (LG_RAYOFGENESIS), from the client's own effect folders.
+	ef_lg_rayofgenesis_cast: [
+		{
+			type: 'STR',
+			file: 'new_rayofgenesis/new_rayofgenesis_cast/new_rayofgenesis_cast',
+			texturePath: 'new_rayofgenesis/new_rayofgenesis_cast/'
+		},
+		{
+			type: 'STR',
+			file: 'new_rayofgenesis/new_rayofgenesis_cast_bottom/new_rayofgenesis_cast_bottom',
+			texturePath: 'new_rayofgenesis/new_rayofgenesis_cast_bottom/',
+			renderBeforeEntities: true
+		}
+	],
+
+	// Ray of Genesis (LG_RAYOFGENESIS), from the client's own effect folders.
+	ef_lg_rayofgenesis_hit: [
+		{
+			type: 'STR',
+			file: 'new_rayofgenesis/new_rayofgenesis_hit/new_rayofgenesis_hit',
+			texturePath: 'new_rayofgenesis/new_rayofgenesis_hit/'
+		}
+	],
+
+	// Earth Drive (LG_EARTHDRIVE), from the client's own effect folders.
+	ef_lg_earthdrive: [
+		{
+			type: 'STR',
+			file: 'new_earthdrive/new_earthdrive/new_earthdrive',
+			texturePath: 'new_earthdrive/new_earthdrive/',
+			wav: 'effect/lg_earthdrive'
+		},
+		{
+			type: 'STR',
+			file: 'new_earthdrive/new_earthdrive_bottom/new_earthdrive_bottom',
+			texturePath: 'new_earthdrive/new_earthdrive_bottom/',
+			renderBeforeEntities: true
+		}
+	],
+
+	// Overbrand Brandish (LG_OVERBRAND_BRANDISH), from the client's own effect folders.
+	ef_lg_overbrand_brandish_cast: [
+		{
+			type: 'STR',
+			file: 'new_overbrand/new_overbrand_cast/new_overbrand_cast',
+			texturePath: 'new_overbrand/new_overbrand_cast/'
+		},
+		{
+			type: 'STR',
+			file: 'new_overbrand/new_overbrand_cast_bottom/new_overbrand_cast_bottom',
+			texturePath: 'new_overbrand/new_overbrand_cast_bottom/',
+			renderBeforeEntities: true
+		}
+	],
+
+	// Overbrand Brandish (LG_OVERBRAND_BRANDISH), from the client's own effect folders.
+	ef_lg_overbrand_brandish_hit: [
+		{
+			type: 'STR',
+			file: 'new_overbrand/new_overbrand_hit/new_overbrand_hit',
+			texturePath: 'new_overbrand/new_overbrand_hit/'
+		}
+	],
+
+	// Overbrand Plus Attack (LG_OVERBRAND_PLUSATK), from the client's own effect folders.
+	ef_lg_overbrand_plusatk_cast: [
+		{
+			type: 'STR',
+			file: 'new_overbrand/new_overbrand_cast/new_overbrand_cast',
+			texturePath: 'new_overbrand/new_overbrand_cast/'
+		},
+		{
+			type: 'STR',
+			file: 'new_overbrand/new_overbrand_cast_bottom/new_overbrand_cast_bottom',
+			texturePath: 'new_overbrand/new_overbrand_cast_bottom/',
+			renderBeforeEntities: true
+		}
+	],
+
+	// Overbrand Plus Attack (LG_OVERBRAND_PLUSATK), from the client's own effect folders.
+	ef_lg_overbrand_plusatk_hit: [
+		{
+			type: 'STR',
+			file: 'new_overbrand/new_overbrand_hit/new_overbrand_hit',
+			texturePath: 'new_overbrand/new_overbrand_hit/'
+		}
+	],
+
+	// Fallen Empire (SR_FALLENEMPIRE), from the client's own effect folders.
+	ef_sr_fallenempire: [
+		{
+			type: 'STR',
+			file: 'new_fallenempire/new_fallenempire/new_fallenempire',
+			texturePath: 'new_fallenempire/new_fallenempire/',
+			wav: 'effect/sr_fallenempire'
+		},
+		{
+			type: 'STR',
+			file: 'new_fallenempire/new_fallenempire_bottom/new_fallenempire_bottom',
+			texturePath: 'new_fallenempire/new_fallenempire_bottom/',
+			renderBeforeEntities: true
+		}
+	],
+
+	// Fallen Empire (SR_FALLENEMPIRE), from the client's own effect folders.
+	ef_sr_fallenempire_hit: [
+		{
+			type: 'STR',
+			file: 'new_fallenempire/new_fallenempire_hit/new_fallenempire_hit',
+			texturePath: 'new_fallenempire/new_fallenempire_hit/'
+		}
+	],
+
+	// Tiger Cannon (SR_TIGERCANNON), from the client's own effect folders.
+	ef_sr_tigercannon: [
+		{
+			type: 'STR',
+			file: 'new_tigercannon/new_tigercannon',
+			texturePath: 'new_tigercannon/',
+			wav: 'effect/sr_tigercannon'
+		}
+	],
+
+	// Rampage Blaster (SR_RAMPAGEBLASTER), from the client's own effect folders.
+	ef_sr_rampageblaster: [
+		{
+			type: 'STR',
+			file: 'new_rampageblaster/new_rampageblaster/new_rampageblaster',
+			texturePath: 'new_rampageblaster/new_rampageblaster/',
+			wav: 'effect/sr_rampageblaster'
+		},
+		{
+			type: 'STR',
+			file: 'new_rampageblaster/new_rampageblaster_bottom/new_rampageblaster_bottom',
+			texturePath: 'new_rampageblaster/new_rampageblaster_bottom/',
+			renderBeforeEntities: true
+		}
+	],
+
+	// Lightning Walk (SR_LIGHTNINGWALK), from the client's own effect folders.
+	ef_sr_lightningwalk: [
+		{
+			type: 'STR',
+			file: 'lightning',
+			texturePath: '',
+			wav: 'effect/sr_lightningwalk'
+		}
+	],
+
+	// Gate of Hell (SR_GATEOFHELL), from the client's own effect folders.
+	ef_sr_gateofhell_cast: [
+		{
+			type: 'STR',
+			file: 'new_gateofhell/new_gateofhell_cast/new_gateofhell_cast',
+			texturePath: 'new_gateofhell/new_gateofhell_cast/',
+			wav: 'effect/sr_gateofhell'
+		}
+	],
+
+	// Howling of Lion (SR_HOWLINGOFLION), from the client's own effect folders.
+	ef_sr_howlingoflion: [
+		{
+			type: 'STR',
+			file: 'new_howlingoflion/new_howlingoflion/new_howlingoflion',
+			texturePath: 'new_howlingoflion/new_howlingoflion/',
+			wav: 'effect/sr_howlingoflion'
+		},
+		{
+			type: 'STR',
+			file: 'new_howlingoflion/new_howlingoflion_bottom/new_howlingoflion_bottom',
+			texturePath: 'new_howlingoflion/new_howlingoflion_bottom/',
+			renderBeforeEntities: true
+		}
+	],
+
+	// Howling of Lion (SR_HOWLINGOFLION), from the client's own effect folders.
+	ef_sr_howlingoflion_cast: [
+		{
+			type: 'STR',
+			file: 'new_howlingoflion/new_howlingoflion_cast/new_howlingoflion_cast',
+			texturePath: 'new_howlingoflion/new_howlingoflion_cast/'
+		},
+		{
+			type: 'STR',
+			file: 'new_howlingoflion/new_howlingoflion_cast_bottom/new_howlingoflion_cast_bottom',
+			texturePath: 'new_howlingoflion/new_howlingoflion_cast_bottom/',
+			renderBeforeEntities: true
+		}
+	],
+
+	// Howling of Lion (SR_HOWLINGOFLION), from the client's own effect folders.
+	ef_sr_howlingoflion_hit: [
+		{
+			type: 'STR',
+			file: 'new_howlingoflion/new_howlingoflion_hit/new_howlingoflion_hit',
+			texturePath: 'new_howlingoflion/new_howlingoflion_hit/'
+		}
+	],
+
+	// Metallic Sound (WM_METALICSOUND), from the client's own effect folders.
+	ef_wm_metalicsound: [
+		{
+			type: 'STR',
+			file: 'new_metalicsound/new_metalicsound/new_metalicsound',
+			texturePath: 'new_metalicsound/new_metalicsound/'
+		},
+		{
+			type: 'STR',
+			file: 'new_metalicsound/new_metalicsound_bottom/new_metalicsound_bottom',
+			texturePath: 'new_metalicsound/new_metalicsound_bottom/',
+			renderBeforeEntities: true
+		}
+	],
+
+	// Metallic Sound (WM_METALICSOUND), from the client's own effect folders.
+	ef_wm_metalicsound_hit: [
+		{
+			type: 'STR',
+			file: 'new_metalicsound/new_metalicsound_hit/new_metalicsound_hit',
+			texturePath: 'new_metalicsound/new_metalicsound_hit/'
+		}
+	],
+
+	// Reverberation Magic (WM_REVERBERATION_MAGIC), from the client's own effect folders.
+	ef_wm_reverberation_magic_hit: [
+		{
+			type: 'STR',
+			file: 'new_reverberation/new_reverberation_hit/new_reverberation_hit',
+			texturePath: 'new_reverberation/new_reverberation_hit/'
+		}
+	],
+
+	// Severe Rainstorm (WM_SEVERE_RAINSTORM), from the client's own effect folders.
+	ef_wm_severe_rainstorm: [
+		{
+			type: 'STR',
+			file: 'new_severerainstorm/new_severerainstorm/new_severerainstorm',
+			texturePath: 'new_severerainstorm/new_severerainstorm/'
+		}
+	],
+
+	// Severe Rainstorm (WM_SEVERE_RAINSTORM), from the client's own effect folders.
+	ef_wm_severe_rainstorm_cast: [
+		{
+			type: 'STR',
+			file: 'new_severerainstorm/new_severerainstorm_cast/new_severerainstorm_cast',
+			texturePath: 'new_severerainstorm/new_severerainstorm_cast/'
+		}
+	],
+
+	// Sound of Destruction (WM_SOUND_OF_DESTRUCTION), from the client's own effect folders.
+	ef_wm_sound_of_destruction_cast: [
+		{
+			type: 'STR',
+			file: 'new_soundofdestruction/new_soundofdestruction_cast/new_soundofdestruction_cast',
+			texturePath: 'new_soundofdestruction/new_soundofdestruction_cast/'
+		},
+		{
+			type: 'STR',
+			file: 'new_soundofdestruction/new_soundofdestruction_cast_bottom/new_soundofdestruction_cast_bottom',
+			texturePath: 'new_soundofdestruction/new_soundofdestruction_cast_bottom/',
+			renderBeforeEntities: true
+		}
+	],
+
+	// Unlimited Humming Voice (WM_UNLIMITED_HUMMING_VOICE), from the client's own effect folders.
+	ef_wm_unlimited_humming_voice: [
+		{
+			type: 'STR',
+			file: 'new_unlimit/new_unlimit/new_unlimit',
+			texturePath: 'new_unlimit/new_unlimit/'
+		},
+		{
+			type: 'STR',
+			file: 'new_unlimit/new_unlimit_bottom/new_unlimit_bottom',
+			texturePath: 'new_unlimit/new_unlimit_bottom/',
+			renderBeforeEntities: true
+		}
+	],
+
+	// Severe Rainstorm Melee (WM_SEVERE_RAINSTORM_MELEE), from the client's own effect folders.
+	ef_wm_severe_rainstorm_melee: [
+		{
+			type: 'STR',
+			file: 'new_severerainstorm/new_severerainstorm/new_severerainstorm',
+			texturePath: 'new_severerainstorm/new_severerainstorm/'
+		}
+	],
+
+	// Severe Rainstorm Melee (WM_SEVERE_RAINSTORM_MELEE), from the client's own effect folders.
+	ef_wm_severe_rainstorm_melee_cast: [
+		{
+			type: 'STR',
+			file: 'new_severerainstorm/new_severerainstorm_cast/new_severerainstorm_cast',
+			texturePath: 'new_severerainstorm/new_severerainstorm_cast/'
+		}
+	],
+
+	// Earth Grave (SO_EARTHGRAVE), from the client's own effect folders.
+	ef_so_earthgrave: [
+		{
+			type: 'STR',
+			file: 'new_earthgrave/new_earthgrave/new_earthgrave',
+			texturePath: 'new_earthgrave/new_earthgrave/'
+		},
+		{
+			type: 'STR',
+			file: 'new_earthgrave/new_earthgrave_bottom/new_earthgrave_bottom',
+			texturePath: 'new_earthgrave/new_earthgrave_bottom/',
+			renderBeforeEntities: true
+		}
+	],
+
+	// Earth Grave (SO_EARTHGRAVE), from the client's own effect folders.
+	ef_so_earthgrave_hit: [
+		{
+			type: 'STR',
+			file: 'new_earthgrave/new_earthgrave_hit/new_earthgrave_hit',
+			texturePath: 'new_earthgrave/new_earthgrave_hit/'
+		}
+	],
+
+	// Diamond Dust (SO_DIAMONDDUST), from the client's own effect folders.
+	ef_so_diamonddust: [
+		{
+			type: 'STR',
+			file: 'new_diamonddust/new_diamonddust/new_diamonddust',
+			texturePath: 'new_diamonddust/new_diamonddust/'
+		},
+		{
+			type: 'STR',
+			file: 'new_diamonddust/new_diamonddust_bottom/new_diamonddust_bottom',
+			texturePath: 'new_diamonddust/new_diamonddust_bottom/',
+			renderBeforeEntities: true
+		}
+	],
+
+	// Diamond Dust (SO_DIAMONDDUST), from the client's own effect folders.
+	ef_so_diamonddust_cast: [
+		{
+			type: 'STR',
+			file: 'new_diamonddust/new_diamonddust_cast/new_diamonddust_cast',
+			texturePath: 'new_diamonddust/new_diamonddust_cast/'
+		}
+	],
+
+	// Poison Buster (SO_POISON_BUSTER), from the client's own effect folders.
+	ef_so_poison_buster: [
+		{
+			type: 'STR',
+			file: 'poison',
+			texturePath: ''
+		}
+	],
+
+	// Psychic Wave (SO_PSYCHIC_WAVE), from the client's own effect folders.
+	ef_so_psychic_wave: [
+		{
+			type: 'STR',
+			file: 'new_psychicwave/new_psychicwave/new_psychicwave',
+			texturePath: 'new_psychicwave/new_psychicwave/'
+		},
+		{
+			type: 'STR',
+			file: 'new_psychicwave/new_psychicwave_bottom/new_psychicwave_bottom',
+			texturePath: 'new_psychicwave/new_psychicwave_bottom/',
+			renderBeforeEntities: true
+		}
+	],
+
+	// Psychic Wave (SO_PSYCHIC_WAVE), from the client's own effect folders.
+	ef_so_psychic_wave_cast: [
+		{
+			type: 'STR',
+			file: 'new_psychicwave/new_psychicwave_cast/new_psychicwave_cast',
+			texturePath: 'new_psychicwave/new_psychicwave_cast/'
+		}
+	],
+
+	// Spirit Recovery (SO_EL_CURE), from the client's own effect folders.
+	ef_so_el_cure: [
+		{
+			type: 'STR',
+			file: 'cure',
+			texturePath: ''
+		}
+	],
+
+	// Cart Tornado (GN_CART_TORNADO), from the client's own effect folders.
+	ef_gn_cart_tornado: [
+		{
+			type: 'STR',
+			file: 'new_cart_tornado/new_cart_tornado/new_cart_tornado',
+			texturePath: 'new_cart_tornado/new_cart_tornado/'
+		},
+		{
+			type: 'STR',
+			file: 'new_cart_tornado/new_cart_tornado_bottom/new_cart_tornado_bottom',
+			texturePath: 'new_cart_tornado/new_cart_tornado_bottom/',
+			renderBeforeEntities: true
+		}
+	],
+
+	// Cart Cannon (GN_CARTCANNON), from the client's own effect folders.
+	ef_gn_cartcannon: [
+		{
+			type: 'STR',
+			file: 'new_cart_cannon/new_cart_cannon/new_cart_cannon',
+			texturePath: 'new_cart_cannon/new_cart_cannon/'
+		}
+	],
+
+	// Cart Cannon (GN_CARTCANNON), from the client's own effect folders.
+	ef_gn_cartcannon_cast: [
+		{
+			type: 'STR',
+			file: 'new_cart_cannon/new_cart_cannon_cast/new_cart_cannon_cast',
+			texturePath: 'new_cart_cannon/new_cart_cannon_cast/'
+		},
+		{
+			type: 'STR',
+			file: 'new_cart_cannon/new_cart_cannon_cast_bottom/new_cart_cannon_cast_bottom',
+			texturePath: 'new_cart_cannon/new_cart_cannon_cast_bottom/',
+			renderBeforeEntities: true
+		}
+	],
+
+	// Cart Boost (GN_CARTBOOST), from the client's own effect folders.
+	ef_gn_cartboost: [
+		{
+			type: 'STR',
+			file: 'new_cartboost/new_cartboost/new_cartboost',
+			texturePath: 'new_cartboost/new_cartboost/'
+		},
+		{
+			type: 'STR',
+			file: 'new_cartboost/new_cartboost_bottom/new_cartboost_bottom',
+			texturePath: 'new_cartboost/new_cartboost_bottom/',
+			renderBeforeEntities: true
+		}
+	],
+
+	// Wall of Thorns (GN_WALLOFTHORN), from the client's own effect folders.
+	ef_gn_wallofthorn_cast: [
+		{
+			type: 'STR',
+			file: 'new_wallofthorn/new_wallofthorn_cast/new_wallofthorn_cast',
+			texturePath: 'new_wallofthorn/new_wallofthorn_cast/'
+		},
+		{
+			type: 'STR',
+			file: 'new_wallofthorn/new_wallofthorn_cast_bottom/new_wallofthorn_cast_bottom',
+			texturePath: 'new_wallofthorn/new_wallofthorn_cast_bottom/',
+			renderBeforeEntities: true
+		}
+	],
+
+	// Howling of Mandragora (GN_MANDRAGORA), from the client's own effect folders.
+	ef_gn_mandragora: [
+		{
+			type: 'STR',
+			file: 'new_mandragora/new_mandragora/new_mandragora',
+			texturePath: 'new_mandragora/new_mandragora/'
+		},
+		{
+			type: 'STR',
+			file: 'new_mandragora/new_mandragora_bottom/new_mandragora_bottom',
+			texturePath: 'new_mandragora/new_mandragora_bottom/',
+			renderBeforeEntities: true
+		}
+	],
+
+	// Howling of Mandragora (GN_MANDRAGORA), from the client's own effect folders.
+	ef_gn_mandragora_cast: [
+		{
+			type: 'STR',
+			file: 'new_mandragora/new_mandragora_cast/new_mandragora_cast',
+			texturePath: 'new_mandragora/new_mandragora_cast/'
+		}
+	],
+
+	// Change Material (GN_CHANGEMATERIAL), from the client's own effect folders.
+	ef_gn_changematerial: [
+		{
+			type: 'STR',
+			file: 'changematerial_fa',
+			texturePath: ''
+		},
+		{
+			type: 'STR',
+			file: 'changematerial_su',
+			texturePath: ''
+		}
+	],
+
+	// Eternal Chain (RL_E_CHAIN), from the client's own effect folders.
+	ef_rl_e_chain: [
+		{
+			type: 'STR',
+			file: 'rl_e_chain/eternal',
+			texturePath: 'rl_e_chain/'
+		}
+	],
+
+	// Fire Dance (RL_FIREDANCE), from the client's own effect folders.
+	ef_rl_firedance: [
+		{
+			type: 'STR',
+			file: 'rl_fire_dance/firedance',
+			texturePath: 'rl_fire_dance/'
+		}
+	],
+
+	// Howling Mine (RL_H_MINE), from the client's own effect folders.
+	ef_rl_h_mine: [
+		{
+			type: 'STR',
+			file: 'rl_h_mine/mine',
+			texturePath: 'rl_h_mine/',
+			wav: 'effect/rl_h_mine'
+		}
+	],
+
+	// Platinum Alter (RL_P_ALTER), from the client's own effect folders.
+	ef_rl_p_alter: [
+		{
+			type: 'STR',
+			file: 'rl_p_alter/platinum',
+			texturePath: 'rl_p_alter/'
+		}
+	],
+
+	// Fallen Angel (RL_FALLEN_ANGEL), from the client's own effect folders.
+	ef_rl_fallen_angel: [
+		{
+			type: 'STR',
+			file: 'rl_fallen_angel/penne',
+			texturePath: 'rl_fallen_angel/'
+		}
+	],
+
+	// Dragon Tail (RL_D_TAIL), from the client's own effect folders.
+	ef_rl_d_tail: [
+		{
+			type: 'STR',
+			file: 'rl_d_tail/dtdt',
+			texturePath: 'rl_d_tail/',
+			wav: 'effect/rl_d_tail'
+		}
+	],
+
+	// Fire Rain (RL_FIRE_RAIN), from the client's own effect folders.
+	ef_rl_fire_rain: [
+		{
+			type: 'STR',
+			file: 'rl_fire_rain/fire_rain',
+			texturePath: 'rl_fire_rain/',
+			wav: 'effect/rl_fire_rain'
+		}
+	],
+
+	// Heat Barrel (RL_HEAT_BARREL), from the client's own effect folders.
+	ef_rl_heat_barrel: [
+		{
+			type: 'STR',
+			file: 'rl_heat_barrel/htb',
+			texturePath: 'rl_heat_barrel/'
+		}
+	],
+
+	// Slug Shot (RL_SLUGSHOT), from the client's own effect folders.
+	ef_rl_slugshot: [
+		{
+			type: 'STR',
+			file: 'rl_slugshot/slug',
+			texturePath: 'rl_slugshot/',
+			wav: 'effect/rl_slugshot'
+		}
+	],
+
+	// Full Moon Kick (SJ_FULLMOONKICK), from the client's own effect folders.
+	ef_sj_fullmoonkick: [
+		{
+			type: 'STR',
+			file: 'fullmoon_kick/fullmoon_kick',
+			texturePath: 'fullmoon_kick/'
+		}
+	],
+
+	// New Moon Kick (SJ_NEWMOONKICK), from the client's own effect folders.
+	ef_sj_newmoonkick: [
+		{
+			type: 'STR',
+			file: 'newmoon_kick/newmoon_kick',
+			texturePath: 'newmoon_kick/'
+		}
+	],
+
+	// Flash Kick (SJ_FLASHKICK), from the client's own effect folders.
+	ef_sj_flashkick: [
+		{
+			type: 'STR',
+			file: 'flash_kick/flash_kick',
+			texturePath: 'flash_kick/'
+		}
+	],
+
+	// Falling Star (SJ_FALLINGSTAR), from the client's own effect folders.
+	ef_sj_fallingstar: [
+		{
+			type: 'STR',
+			file: 'falling_star/falling_star',
+			texturePath: 'falling_star/'
+		}
+	],
+
+	// Document of Sun Moon and Star (SJ_DOCUMENT), from the client's own effect folders.
+	ef_sj_document: [
+		{
+			type: 'STR',
+			file: 'sj_document/sj_document',
+			texturePath: 'sj_document/'
+		}
+	],
+
+	// Solar Burst (SJ_SOLARBURST), from the client's own effect folders.
+	ef_sj_solarburst: [
+		{
+			type: 'STR',
+			file: 'solar_burst/solar_burst',
+			texturePath: 'solar_burst/'
+		}
+	],
+
+	// Prominence Kick (SJ_PROMINENCEKICK), from the client's own effect folders.
+	ef_sj_prominencekick: [
+		{
+			type: 'STR',
+			file: 'prominence_kick/prominence_kick',
+			texturePath: 'prominence_kick/'
+		}
+	],
+
+	// Golem's Soul (SP_SOULGOLEM), from the client's own effect folders.
+	ef_sp_soulgolem: [
+		{
+			type: 'STR',
+			file: 'soul_golem/soul_golem',
+			texturePath: 'soul_golem/'
+		}
+	],
+
+	// Soul Curse (SP_SOULCURSE), from the client's own effect folders.
+	ef_sp_soulcurse: [
+		{
+			type: 'STR',
+			file: 'soul_curse/soul_curse',
+			texturePath: 'soul_curse/'
+		}
+	],
+
+	// Soul Revolution (SP_SOULREVOLVE), from the client's own effect folders.
+	ef_sp_soulrevolve: [
+		{
+			type: 'STR',
+			file: 'soul_revolve/soul_revolve',
+			texturePath: 'soul_revolve/'
+		}
+	],
+
+	// Cross Slash (KO_JYUMONJIKIRI), from the client's own effect folders.
+	ef_ko_jyumonjikiri: [
+		{
+			type: 'STR',
+			file: 'jyumonjikiri',
+			texturePath: ''
+		}
+	],
+
+	// Soul Cutter (KO_SETSUDAN), from the client's own effect folders.
+	ef_ko_setsudan: [
+		{
+			type: 'STR',
+			file: 'setsudan',
+			texturePath: ''
+		}
+	],
+
+	// Unlimited (RA_UNLIMIT), from the client's own effect folders.
+	ef_ra_unlimit: [
+		{
+			type: 'STR',
+			file: 'new_unlimit/new_unlimit/new_unlimit',
+			texturePath: 'new_unlimit/new_unlimit/',
+			wav: 'ra_unlimit'
+		},
+		{
+			type: 'STR',
+			file: 'new_unlimit/new_unlimit_bottom/new_unlimit_bottom',
+			texturePath: 'new_unlimit/new_unlimit_bottom/',
+			renderBeforeEntities: true
+		}
+	],
+
+	// Bite (SU_BITE), from the client's own effect folders.
+	ef_su_bite: [
+		{
+			type: 'STR',
+			file: 'su_bite/su_bite',
+			texturePath: 'su_bite/'
+		}
+	],
+
+	// Scratch (SU_SCRATCH), from the client's own effect folders.
+	ef_su_scratch: [
+		{
+			type: 'STR',
+			file: 'su_scratch/su_scratch',
+			texturePath: 'su_scratch/',
+			wav: 'effect/su_scratch'
+		}
+	],
+
+	// Silvervine Stem Spear (SU_SV_STEMSPEAR), from the client's own effect folders.
+	ef_su_sv_stemspear: [
+		{
+			type: 'STR',
+			file: 'su_sv_stemspear/su_sv_stemspear',
+			texturePath: 'su_sv_stemspear/'
+		}
+	],
+
+	// Scar of Tarou (SU_SCAROFTAROU), from the client's own effect folders.
+	ef_su_scaroftarou: [
+		{
+			type: 'STR',
+			file: 'su_scaroftarou/su_scaroftarou',
+			texturePath: 'su_scaroftarou/',
+			wav: 'effect/su_scaroftarou'
+		}
+	],
+
+	// Picky Peck (SU_PICKYPECK), from the client's own effect folders.
+	ef_su_pickypeck: [
+		{
+			type: 'STR',
+			file: 'su_pickypeck/su_pickypeck',
+			texturePath: 'su_pickypeck/',
+			wav: 'effect/su_pickypeck'
+		}
+	],
+
+	// Arclouse Dash (SU_ARCLOUSEDASH), from the client's own effect folders.
+	ef_su_arclousedash: [
+		{
+			type: 'STR',
+			file: 'su_arclousedash/su_arclousedash',
+			texturePath: 'su_arclousedash/'
+		}
+	],
+
+	// Tuna Belly (SU_TUNABELLY), from the client's own effect folders.
+	ef_su_tunabelly: [
+		{
+			type: 'STR',
+			file: 'su_tunabelly/su_scratch',
+			texturePath: 'su_tunabelly/',
+			wav: 'effect/su_tunabelly'
+		},
+		{
+			type: 'STR',
+			file: 'su_tunabelly/su_tunabelly',
+			texturePath: 'su_tunabelly/'
+		}
+	],
+
+	// Bunch of Shrimp (SU_BUNCHOFSHRIMP), from the client's own effect folders.
+	ef_su_bunchofshrimp: [
+		{
+			type: 'STR',
+			file: 'su_bunchofshrimp/su_bunchofshrimp',
+			texturePath: 'su_bunchofshrimp/'
+		}
+	],
+
+	// Fresh Shrimp (SU_FRESHSHRIMP), from the client's own effect folders.
+	ef_su_freshshrimp: [
+		{
+			type: 'STR',
+			file: 'su_freshshrimp/su_freshshrimp',
+			texturePath: 'su_freshshrimp/'
+		}
+	],
+
+	// Power of Flock (SU_POWEROFFLOCK), from the client's own effect folders.
+	ef_su_powerofflock: [
+		{
+			type: 'STR',
+			file: 'su_powerofflock/su_powerofflock',
+			texturePath: 'su_powerofflock/',
+			wav: 'effect/su_powerofflock'
+		}
+	],
+
+	// Spirit of Savage (SU_SVG_SPIRIT), from the client's own effect folders.
+	ef_su_svg_spirit: [
+		{
+			type: 'STR',
+			file: 'su_svg_spirit/su_svg_spirit',
+			texturePath: 'su_svg_spirit/',
+			wav: 'effect/su_svg_spirit'
+		}
+	],
+
+	// Hiss (SU_HISS), from the client's own effect folders.
+	ef_su_hiss: [
+		{
+			type: 'STR',
+			file: 'su_hiss/su_hiss',
+			texturePath: 'su_hiss/',
+			wav: 'effect/su_hiss'
+		}
+	],
+
+	// Nyang Grass (SU_NYANGGRASS), from the client's own effect folders.
+	ef_su_nyanggrass: [
+		{
+			type: 'STR',
+			file: 'su_nyanggrass/su_nyanggrass',
+			texturePath: 'su_nyanggrass/',
+			wav: 'effect/su_nyanggrass'
+		}
+	],
+
+	// Grooming (SU_GROOMING), from the client's own effect folders.
+	ef_su_grooming: [
+		{
+			type: 'STR',
+			file: 'su_grooming/su_grooming',
+			texturePath: 'su_grooming/',
+			wav: 'effect/su_grooming'
+		}
+	],
+
+	// Chattering (SU_CHATTERING), from the client's own effect folders.
+	ef_su_chattering: [
+		{
+			type: 'STR',
+			file: 'su_chattering/su_chattering',
+			texturePath: 'su_chattering/',
+			wav: 'effect/su_chattering'
+		}
+	],
+
+	// Help Angel (NV_HELPANGEL), from the client's own effect folders.
+	ef_nv_helpangel: [
+		{
+			type: 'STR',
+			file: 'help_angel/help_angel/help_angel',
+			texturePath: 'help_angel/help_angel/'
+		},
+		{
+			type: 'STR',
+			file: 'help_angel/help_angel_bottom/help_angel_bottom',
+			texturePath: 'help_angel/help_angel_bottom/',
+			renderBeforeEntities: true
+		}
 	]
 };
