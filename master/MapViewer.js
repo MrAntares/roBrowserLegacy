@@ -214621,6 +214621,36 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.KO_ZENKAI] = {};
 	SkillEffect[SkillConst_default.KO_GENWAKU] = {};
 	SkillEffect[SkillConst_default.KO_IZAYOI] = {};
+	SkillEffect[SkillConst_default.SS_TOKEDASU] = { effectId: "ef_ss_tokedasu" };
+	SkillEffect[SkillConst_default.SS_SHIMIRU] = { effectId: "ef_ss_shimiru" };
+	SkillEffect[SkillConst_default.SS_AKUMUKESU] = { effectId: "ef_ss_akumukesu" };
+	SkillEffect[SkillConst_default.SS_KAGEGARI] = { effectId: "ef_ss_kagegari" };
+	SkillEffect[SkillConst_default.SS_KAGENOMAI] = { effectId: "ef_ss_kagenomai" };
+	SkillEffect[SkillConst_default.SS_KAGEGISSEN] = {
+		effectId: "ef_ss_kagegissen",
+		hitEffectId: "ef_ss_kagegissen_hit"
+	};
+	SkillEffect[SkillConst_default.SS_FUUMASHOUAKU] = { effectId: "ef_ss_fuumashouaku" };
+	SkillEffect[SkillConst_default.SS_FUUMAKOUCHIKU] = { effectId: "ef_ss_fuumakouchiku" };
+	SkillEffect[SkillConst_default.SS_KUNAIWAIKYOKU] = { effectId: "ef_ss_kunaiwaikyoku" };
+	SkillEffect[SkillConst_default.SS_KUNAIKAITEN] = { effectId: "ef_ss_kunaikaiten" };
+	SkillEffect[SkillConst_default.SS_KUNAIKUSSETSU] = { effectId: "ef_ss_kunaikussetsu" };
+	SkillEffect[SkillConst_default.SS_SEKIENHOU] = { effectId: "ef_ss_sekienhou" };
+	SkillEffect[SkillConst_default.SS_REIKETSUHOU] = { effectId: "ef_ss_reiketsuhou" };
+	SkillEffect[SkillConst_default.SS_RAIDENPOU] = {
+		effectId: "ef_ss_raidenpou",
+		effectIdOnCaster: "ef_ss_raidenpou_cast",
+		hitEffectId: "ef_ss_raidenpou_hit"
+	};
+	SkillEffect[SkillConst_default.SS_KINRYUUHOU] = {
+		effectId: "ef_ss_kinryuuhou",
+		hitEffectId: "ef_ss_kinryuuhou_hit"
+	};
+	SkillEffect[SkillConst_default.SS_ANTENPOU] = { effectId: "ef_ss_antenpou" };
+	SkillEffect[SkillConst_default.SS_KAGEAKUMU] = { effectId: "ef_ss_kageakumu" };
+	SkillEffect[SkillConst_default.SS_HITOUAKUMU] = { effectId: "ef_ss_hitouakumu" };
+	SkillEffect[SkillConst_default.SS_ANKOKURYUUAKUMU] = { effectId: "ef_ss_ankokuryuuakumu" };
+	SkillEffect[5499] = { effectId: "ef_ss_four_charm" };
 	SkillEffect[SkillConst_default.KG_KAGEHUMI] = {};
 	SkillEffect[SkillConst_default.KG_KYOMU] = {};
 	SkillEffect[SkillConst_default.KG_KAGEMUSYA] = {};
@@ -275069,6 +275099,210 @@ var init_EffectTable = __esmMin((() => {
 			posz: .5,
 			repeat: true
 		}, { wav: "effect/³ª¶ôÀÇ³ë·¡" }],
+		ef_ss_tokedasu: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_tokedasu/tokedasu/tokedasu",
+			texturePath: "shinkiro_shiranui/ss_tokedasu/tokedasu/",
+			min: "shinkiro_shiranui/ss_tokedasu/tokedasu/min_tokedasu",
+			wav: "effect/shinkiro_shiranui/ss_tokedasu"
+		}],
+		ef_ss_shimiru: [{
+			wav: "effect/shinkiro_shiranui/ss_shimiru",
+			attachedEntity: true
+		}],
+		ef_ss_akumukesu: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_akumukesu/akumukesu",
+			texturePath: "shinkiro_shiranui/ss_akumukesu/",
+			min: "shinkiro_shiranui/ss_akumukesu/min_akumukesu",
+			wav: "effect/shinkiro_shiranui/ss_akumukesu"
+		}],
+		ef_ss_kagegari: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_kagegari/kagegari",
+			texturePath: "shinkiro_shiranui/ss_kagegari/",
+			min: "shinkiro_shiranui/ss_kagegari/min_kagegari",
+			wav: "effect/shinkiro_shiranui/ss_kagegari"
+		}],
+		ef_ss_kagenomai: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_kagenomai/kagenomai",
+			texturePath: "shinkiro_shiranui/ss_kagenomai/",
+			min: "shinkiro_shiranui/ss_kagenomai/min_kagenomai"
+		}],
+		ef_ss_kagegissen: [
+			{
+				type: "STR",
+				file: "shinkiro_shiranui/ss_kagegissen/kagegissen",
+				texturePath: "shinkiro_shiranui/ss_kagegissen/",
+				min: "shinkiro_shiranui/ss_kagegissen/min_kagegissen",
+				wav: "effect/shinkiro_shiranui/ss_kagegissen"
+			},
+			{
+				type: "STR",
+				file: "shinkiro_shiranui/ss_kagegissen/new_kagegissen/new_kagegissen",
+				texturePath: "shinkiro_shiranui/ss_kagegissen/new_kagegissen/"
+			},
+			{
+				type: "STR",
+				file: "shinkiro_shiranui/ss_kagegissen/new_kagegissen_bottom/new_kagegissen_bottom",
+				texturePath: "shinkiro_shiranui/ss_kagegissen/new_kagegissen_bottom/",
+				renderBeforeEntities: true
+			}
+		],
+		ef_ss_kagegissen_hit: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_kagegissen/new_kagegissen_hit/new_kagegissen_hit",
+			texturePath: "shinkiro_shiranui/ss_kagegissen/new_kagegissen_hit/"
+		}],
+		ef_ss_fuumashouaku: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_fuumashouaku/fuumashouaku/fuumashouaku",
+			texturePath: "shinkiro_shiranui/ss_fuumashouaku/fuumashouaku/",
+			min: "shinkiro_shiranui/ss_fuumashouaku/fuumashouaku/min_fuumashouaku",
+			wav: "effect/shinkiro_shiranui/ss_fuumashouaku"
+		}],
+		ef_ss_fuumakouchiku: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_fuumakouchiku/fuumakouchiku/fuumakouchiku",
+			texturePath: "shinkiro_shiranui/ss_fuumakouchiku/fuumakouchiku/",
+			min: "shinkiro_shiranui/ss_fuumakouchiku/fuumakouchiku/min_fuumakouchiku",
+			wav: "effect/shinkiro_shiranui/ss_fuumakouchiku"
+		}, {
+			type: "STR",
+			file: "shinkiro_shiranui/ss_fuumakouchiku/new_fuumakouchiku/new_fuumakouchiku",
+			texturePath: "shinkiro_shiranui/ss_fuumakouchiku/new_fuumakouchiku/",
+			min: "shinkiro_shiranui/ss_fuumakouchiku/new_fuumakouchiku/min_new_fuumakouchiku"
+		}],
+		ef_ss_kunaiwaikyoku: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_kunaiwaikyoku/kunaiwaikyoku",
+			texturePath: "shinkiro_shiranui/ss_kunaiwaikyoku/",
+			min: "shinkiro_shiranui/ss_kunaiwaikyoku/min_kunaiwaikyoku",
+			wav: "effect/shinkiro_shiranui/ss_kunaiwaikyoku"
+		}],
+		ef_ss_kunaikaiten: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_kunaikaiten/kunaikaiten_bottom/kunaikaiten_bottom",
+			texturePath: "shinkiro_shiranui/ss_kunaikaiten/kunaikaiten_bottom/",
+			min: "shinkiro_shiranui/ss_kunaikaiten/kunaikaiten_bottom/min_kunaikaiten_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_ss_kunaikussetsu: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_kunaikussetsu/kunaikussetsu/kunaikussetsu",
+			texturePath: "shinkiro_shiranui/ss_kunaikussetsu/kunaikussetsu/",
+			min: "shinkiro_shiranui/ss_kunaikussetsu/kunaikussetsu/min_kunaikussetsu",
+			wav: "effect/shinkiro_shiranui/ss_kunaikussetsu"
+		}, {
+			type: "STR",
+			file: "shinkiro_shiranui/ss_kunaikussetsu/kunaikussetsu_bottom/kunaikussetsu_bottom",
+			texturePath: "shinkiro_shiranui/ss_kunaikussetsu/kunaikussetsu_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_ss_sekienhou: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_sekienhou/sekienhou",
+			texturePath: "shinkiro_shiranui/ss_sekienhou/",
+			min: "shinkiro_shiranui/ss_sekienhou/min_sekienhou",
+			wav: "effect/shinkiro_shiranui/ss_sekienhou"
+		}],
+		ef_ss_reiketsuhou: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_reiketsuhou/reiketsuhou/reiketsuhou",
+			texturePath: "shinkiro_shiranui/ss_reiketsuhou/reiketsuhou/",
+			min: "shinkiro_shiranui/ss_reiketsuhou/reiketsuhou/min_reiketsuhou",
+			wav: "effect/shinkiro_shiranui/ss_reiketsuhou"
+		}, {
+			type: "STR",
+			file: "shinkiro_shiranui/ss_reiketsuhou/reiketsuhou_bottom/reiketsuhou_bottom",
+			texturePath: "shinkiro_shiranui/ss_reiketsuhou/reiketsuhou_bottom/",
+			min: "shinkiro_shiranui/ss_reiketsuhou/reiketsuhou_bottom/min_reiketsuhou_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_ss_raidenpou: [
+			{
+				type: "STR",
+				file: "shinkiro_shiranui/ss_raidenpou/new_raidenpou/new_raidenpou",
+				texturePath: "shinkiro_shiranui/ss_raidenpou/new_raidenpou/",
+				min: "shinkiro_shiranui/ss_raidenpou/new_raidenpou/min_new_raidenpou",
+				wav: "effect/shinkiro_shiranui/ss_raidenpou"
+			},
+			{
+				type: "STR",
+				file: "shinkiro_shiranui/ss_raidenpou/raidenpou",
+				texturePath: "shinkiro_shiranui/ss_raidenpou/",
+				min: "shinkiro_shiranui/ss_raidenpou/min_raidenpou"
+			},
+			{
+				type: "STR",
+				file: "shinkiro_shiranui/ss_raidenpou/new_raidenpou_bottom/new_raidenpou_bottom",
+				texturePath: "shinkiro_shiranui/ss_raidenpou/new_raidenpou_bottom/",
+				renderBeforeEntities: true
+			}
+		],
+		ef_ss_raidenpou_cast: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_raidenpou/new_raidenpou_cast/new_raidenpou_cast",
+			texturePath: "shinkiro_shiranui/ss_raidenpou/new_raidenpou_cast/",
+			min: "shinkiro_shiranui/ss_raidenpou/new_raidenpou_cast/min_new_raidenpou_cast"
+		}],
+		ef_ss_raidenpou_hit: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_raidenpou/new_raidenpou_hit/new_raidenpou_hit",
+			texturePath: "shinkiro_shiranui/ss_raidenpou/new_raidenpou_hit/",
+			min: "shinkiro_shiranui/ss_raidenpou/new_raidenpou_hit/min_new_raidenpou_hit"
+		}],
+		ef_ss_kinryuuhou: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_kinryuuhou/kinryuuhou/kinryuuhou",
+			texturePath: "shinkiro_shiranui/ss_kinryuuhou/kinryuuhou/",
+			min: "shinkiro_shiranui/ss_kinryuuhou/kinryuuhou/min_kinryuuhou",
+			wav: "effect/shinkiro_shiranui/ss_kinryuuhou"
+		}],
+		ef_ss_kinryuuhou_hit: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_kinryuuhou/kinryuuhou_hit/kinryuuhou_hit",
+			texturePath: "shinkiro_shiranui/ss_kinryuuhou/kinryuuhou_hit/",
+			min: "shinkiro_shiranui/ss_kinryuuhou/kinryuuhou_hit/min_kinryuuhou_hit"
+		}],
+		ef_ss_antenpou: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_antenpou/antenpou",
+			texturePath: "shinkiro_shiranui/ss_antenpou/",
+			min: "shinkiro_shiranui/ss_antenpou/min_antenpou",
+			wav: "effect/shinkiro_shiranui/ss_antenpou"
+		}],
+		ef_ss_kageakumu: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_kageakumu/kageakumu",
+			texturePath: "shinkiro_shiranui/ss_kageakumu/",
+			min: "shinkiro_shiranui/ss_kageakumu/min_kageakumu"
+		}],
+		ef_ss_hitouakumu: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_hitouakumu/hitouakumu/hitouakumu",
+			texturePath: "shinkiro_shiranui/ss_hitouakumu/hitouakumu/",
+			min: "shinkiro_shiranui/ss_hitouakumu/hitouakumu/min_hitouakumu",
+			wav: "effect/shinkiro_shiranui/ss_hitouakumu"
+		}],
+		ef_ss_ankokuryuuakumu: [{
+			wav: "effect/shinkiro_shiranui/ss_ankokuryuuakumu",
+			attachedEntity: true
+		}],
+		ef_ss_four_charm: [{
+			type: "STR",
+			file: "shinkiro_shiranui/ss_four_charm/four_charm_ice/four_charm_ice",
+			texturePath: "shinkiro_shiranui/ss_four_charm/four_charm_ice/",
+			min: "shinkiro_shiranui/ss_four_charm/four_charm_ice/min_four_charm_ice",
+			wav: "effect/shinkiro_shiranui/ss_four_charm"
+		}, {
+			type: "STR",
+			file: "shinkiro_shiranui/ss_four_charm/four_charm_ice_bottom/four_charm_ice_bottom",
+			texturePath: "shinkiro_shiranui/ss_four_charm/four_charm_ice_bottom/",
+			min: "shinkiro_shiranui/ss_four_charm/four_charm_ice_bottom/min_four_charm_ice_bottom",
+			renderBeforeEntities: true
+		}],
 		861: [{ wav: "effect/¼øÈ¯ÇÏ´ÂÀÚ¿¬ÀÇ¼Ò¸®" }],
 		862: [
 			{
