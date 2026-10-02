@@ -213586,7 +213586,7 @@ var init_SkillEffect = __esmMin((() => {
 		effectId: 104
 	};
 	SkillEffect[SkillConst_default.HT_SKIDTRAP] = { effectId: 69 };
-	SkillEffect[SkillConst_default.HT_LANDMINE] = {};
+	SkillEffect[SkillConst_default.HT_LANDMINE] = { effectId: "ef_ht_landmine" };
 	SkillEffect[SkillConst_default.HT_ANKLESNARE] = { groundEffectId: "ef_anklesnare" };
 	SkillEffect[SkillConst_default.HT_SHOCKWAVE] = {
 		effectId: 145,
@@ -213811,7 +213811,7 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.SA_QUESTION] = {};
 	SkillEffect[SkillConst_default.SA_GRAVITY] = {};
 	SkillEffect[SkillConst_default.SA_LEVELUP] = {};
-	SkillEffect[SkillConst_default.SA_INSTANTDEATH] = {};
+	SkillEffect[SkillConst_default.SA_INSTANTDEATH] = { effectId: "ef_sa_instantdeath" };
 	SkillEffect[SkillConst_default.SA_FULLRECOVERY] = {};
 	SkillEffect[SkillConst_default.SA_COMA] = {};
 	SkillEffect[SkillConst_default.BD_ADAPTATION] = {};
@@ -214033,7 +214033,7 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.TK_READYTURN] = {};
 	SkillEffect[SkillConst_default.TK_TURNKICK] = { effectId: 414 };
 	SkillEffect[SkillConst_default.TK_READYCOUNTER] = {};
-	SkillEffect[SkillConst_default.TK_COUNTER] = { effectId: 415 };
+	SkillEffect[SkillConst_default.TK_COUNTER] = { effectId: "ef_tk_counter" };
 	SkillEffect[SkillConst_default.TK_DODGE] = {};
 	SkillEffect[SkillConst_default.TK_JUMPKICK] = {
 		effectId: 439,
@@ -214066,7 +214066,7 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.SL_KAUPE] = { effectId: 546 };
 	SkillEffect[SkillConst_default.SL_KAITE] = { effectId: 419 };
 	SkillEffect[SkillConst_default.SL_STIN] = { effectId: 547 };
-	SkillEffect[SkillConst_default.SL_STUN] = { effectId: 555 };
+	SkillEffect[SkillConst_default.SL_STUN] = { effectId: [555, "ef_sl_stun"] };
 	SkillEffect[SkillConst_default.SL_SMA] = {
 		effectId: 553,
 		successEffectId: 425
@@ -214122,7 +214122,10 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.GS_BULLSEYE] = { effectId: 649 };
 	SkillEffect[SkillConst_default.GS_MADNESSCANCEL] = { effectId: 625 };
 	SkillEffect[SkillConst_default.GS_ADJUSTMENT] = { effectId: 626 };
-	SkillEffect[SkillConst_default.GS_INCREASING] = { effectId: 456 };
+	SkillEffect[SkillConst_default.GS_INCREASING] = {
+		effectId: [456, "ef_gs_increasing"],
+		effectIdOnCaster: "ef_gs_increasing_cast"
+	};
 	SkillEffect[SkillConst_default.GS_MAGICALBULLET] = { effectId: 644 };
 	SkillEffect[SkillConst_default.GS_CRACKER] = {};
 	SkillEffect[SkillConst_default.GS_TRACKING] = {
@@ -214236,7 +214239,7 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.RK_SONICWAVE] = { effectId: 832 };
 	SkillEffect[SkillConst_default.RK_DEATHBOUND] = {};
 	SkillEffect[SkillConst_default.RK_HUNDREDSPEAR] = { effectId: 723 };
-	SkillEffect[SkillConst_default.RK_WINDCUTTER] = {};
+	SkillEffect[SkillConst_default.RK_WINDCUTTER] = { effectId: "ef_rk_windcutter" };
 	SkillEffect[SkillConst_default.RK_IGNITIONBREAK] = { effectIdOnCaster: 722 };
 	SkillEffect[SkillConst_default.RK_DRAGONBREATH] = { hitEffectId: 587 };
 	SkillEffect[SkillConst_default.RK_DRAGONHOWLING] = { effectId: 731 };
@@ -214251,7 +214254,10 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.RK_ABUNDANCE] = {};
 	SkillEffect[SkillConst_default.RK_PHANTOMTHRUST] = {};
 	SkillEffect[SkillConst_default.WL_WHITEIMPRISON] = { effectId: 802 };
-	SkillEffect[SkillConst_default.WL_SOULEXPANSION] = {};
+	SkillEffect[SkillConst_default.WL_SOULEXPANSION] = {
+		effectIdOnCaster: "ef_wl_soulexpansion_cast",
+		hitEffectId: "ef_wl_soulexpansion_hit"
+	};
 	SkillEffect[SkillConst_default.WL_FROSTMISTY] = { effectId: 726 };
 	SkillEffect[SkillConst_default.WL_JACKFROST] = {
 		successEffectIdOnCaster: "ef_jackfrost",
@@ -214265,24 +214271,28 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.WL_CRIMSONROCK] = { effectId: 727 };
 	SkillEffect[SkillConst_default.WL_HELLINFERNO] = {
 		groundEffectId: 728,
-		effectId: 800
+		effectId: "ef_wl_hellinferno",
+		effectIdOnCaster: "ef_wl_hellinferno_cast"
 	};
-	SkillEffect[SkillConst_default.WL_COMET] = {};
-	SkillEffect[SkillConst_default.WL_CHAINLIGHTNING] = {};
+	SkillEffect[SkillConst_default.WL_COMET] = {
+		effectId: "ef_wl_comet",
+		effectIdOnCaster: "ef_wl_comet_cast"
+	};
+	SkillEffect[SkillConst_default.WL_CHAINLIGHTNING] = { effectIdOnCaster: "ef_wl_chainlightning_cast" };
 	SkillEffect[SkillConst_default.WL_CHAINLIGHTNING_ATK] = { effectId: 734 };
 	SkillEffect[SkillConst_default.WL_EARTHSTRAIN] = { groundEffectId: 732 };
 	SkillEffect[SkillConst_default.WL_TETRAVORTEX] = {
 		effectId: 804,
 		beginCastEffectId: 805
 	};
-	SkillEffect[SkillConst_default.WL_TETRAVORTEX_FIRE] = {};
-	SkillEffect[SkillConst_default.WL_TETRAVORTEX_WATER] = {};
-	SkillEffect[SkillConst_default.WL_TETRAVORTEX_WIND] = {};
+	SkillEffect[SkillConst_default.WL_TETRAVORTEX_FIRE] = { effectId: "ef_wl_tetravortex_fire" };
+	SkillEffect[SkillConst_default.WL_TETRAVORTEX_WATER] = { effectId: "ef_wl_tetravortex_water" };
+	SkillEffect[SkillConst_default.WL_TETRAVORTEX_WIND] = { effectId: "ef_wl_tetravortex_wind" };
 	SkillEffect[SkillConst_default.WL_TETRAVORTEX_GROUND] = {};
 	SkillEffect[SkillConst_default.WL_SUMMONFB] = {};
 	SkillEffect[SkillConst_default.WL_SUMMONBL] = {};
 	SkillEffect[SkillConst_default.WL_SUMMONWB] = {};
-	SkillEffect[SkillConst_default.WL_SUMMON_ATK_FIRE] = {};
+	SkillEffect[SkillConst_default.WL_SUMMON_ATK_FIRE] = { effectId: "ef_wl_summon_atk_fire" };
 	SkillEffect[SkillConst_default.WL_SUMMON_ATK_WIND] = {};
 	SkillEffect[SkillConst_default.WL_SUMMON_ATK_WATER] = {};
 	SkillEffect[SkillConst_default.WL_SUMMON_ATK_GROUND] = {};
@@ -214290,21 +214300,21 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.WL_RELEASE] = { effectId: 751 };
 	SkillEffect[SkillConst_default.WL_READING_SB] = {};
 	SkillEffect[SkillConst_default.GC_VENOMIMPRESS] = { effectId: 788 };
-	SkillEffect[SkillConst_default.GC_CROSSIMPACT] = {};
+	SkillEffect[SkillConst_default.GC_CROSSIMPACT] = { effectId: "ef_gc_crossimpact" };
 	SkillEffect[SkillConst_default.GC_DARKILLUSION] = {};
 	SkillEffect[SkillConst_default.GC_CREATENEWPOISON] = {};
 	SkillEffect[SkillConst_default.GC_ANTIDOTE] = {};
-	SkillEffect[SkillConst_default.GC_POISONINGWEAPON] = {};
+	SkillEffect[SkillConst_default.GC_POISONINGWEAPON] = { effectId: "ef_gc_poisoningweapon" };
 	SkillEffect[SkillConst_default.GC_WEAPONBLOCKING] = {};
-	SkillEffect[SkillConst_default.GC_COUNTERSLASH] = {};
+	SkillEffect[SkillConst_default.GC_COUNTERSLASH] = { effectId: "ef_gc_counterslash" };
 	SkillEffect[SkillConst_default.GC_WEAPONCRUSH] = {};
 	SkillEffect[SkillConst_default.GC_VENOMPRESSURE] = {};
-	SkillEffect[SkillConst_default.GC_POISONSMOKE] = { effectId: 924 };
+	SkillEffect[SkillConst_default.GC_POISONSMOKE] = { effectId: "ef_gc_poisonsmoke" };
 	SkillEffect[SkillConst_default.GC_CLOAKINGEXCEED] = {};
 	SkillEffect[SkillConst_default.GC_PHANTOMMENACE] = {};
 	SkillEffect[SkillConst_default.GC_HALLUCINATIONWALK] = { effectId: "ef_hallucinationwalk" };
 	SkillEffect[SkillConst_default.GC_ROLLINGCUTTER] = { effectId: 775 };
-	SkillEffect[SkillConst_default.GC_CROSSRIPPERSLASHER] = { effectId: 769 };
+	SkillEffect[SkillConst_default.GC_CROSSRIPPERSLASHER] = { effectId: "ef_gc_crossripperslasher" };
 	SkillEffect[SkillConst_default.AB_JUDEX] = {
 		effectId: 718,
 		hitEffectId: 152
@@ -214333,9 +214343,9 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.AB_DUPLELIGHT_MELEE] = {};
 	SkillEffect[SkillConst_default.AB_DUPLELIGHT_MAGIC] = {};
 	SkillEffect[SkillConst_default.AB_SILENTIUM] = {};
-	SkillEffect[SkillConst_default.AB_SECRAMENT] = {};
+	SkillEffect[SkillConst_default.AB_SECRAMENT] = { effectId: "ef_ab_secrament" };
 	SkillEffect[SkillConst_default.RA_ARROWSTORM] = { effectId: 746 };
-	SkillEffect[SkillConst_default.RA_FEARBREEZE] = {};
+	SkillEffect[SkillConst_default.RA_FEARBREEZE] = { effectId: "ef_ra_fearbreeze" };
 	SkillEffect[SkillConst_default.RA_AIMEDBOLT] = {
 		effectId: 745,
 		beforeHitEffectId: "ef_arrow_projectile"
@@ -214358,10 +214368,10 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.RA_ICEBOUNDTRAP] = {};
 	SkillEffect[SkillConst_default.NC_BOOSTKNUCKLE] = {};
 	SkillEffect[SkillConst_default.NC_PILEBUNKER] = {};
-	SkillEffect[SkillConst_default.NC_VULCANARM] = {};
+	SkillEffect[SkillConst_default.NC_VULCANARM] = { effectId: "ef_nc_vulcanarm" };
 	SkillEffect[SkillConst_default.NC_FLAMELAUNCHER] = { effectId: 787 };
 	SkillEffect[SkillConst_default.NC_COLDSLOWER] = {};
-	SkillEffect[SkillConst_default.NC_ARMSCANNON] = {};
+	SkillEffect[SkillConst_default.NC_ARMSCANNON] = { effectIdOnCaster: "ef_nc_armscannon_cast" };
 	SkillEffect[SkillConst_default.NC_ACCELERATION] = {};
 	SkillEffect[SkillConst_default.NC_HOVERING] = {};
 	SkillEffect[SkillConst_default.NC_F_SIDESLIDE] = {};
@@ -214374,16 +214384,23 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.NC_MAGNETICFIELD] = { effectId: 781 };
 	SkillEffect[SkillConst_default.NC_NEUTRALBARRIER] = {};
 	SkillEffect[SkillConst_default.NC_STEALTHFIELD] = {};
-	SkillEffect[SkillConst_default.NC_REPAIR] = { effectId: 785 };
-	SkillEffect[SkillConst_default.NC_AXEBOOMERANG] = { effectId: 774 };
+	SkillEffect[SkillConst_default.NC_REPAIR] = { effectId: "ef_nc_repair" };
+	SkillEffect[SkillConst_default.NC_AXEBOOMERANG] = {
+		effectId: "ef_nc_axeboomerang",
+		effectIdOnCaster: "ef_nc_axeboomerang_cast",
+		hitEffectId: "ef_nc_axeboomerang_hit"
+	};
 	SkillEffect[SkillConst_default.NC_POWERSWING] = { effectId: 795 };
-	SkillEffect[SkillConst_default.NC_AXETORNADO] = {};
+	SkillEffect[SkillConst_default.NC_AXETORNADO] = { effectId: "ef_nc_axetornado" };
 	SkillEffect[SkillConst_default.NC_SILVERSNIPER] = {};
 	SkillEffect[SkillConst_default.NC_MAGICDECOY] = {};
 	SkillEffect[SkillConst_default.NC_DISJOINT] = {};
-	SkillEffect[SkillConst_default.SC_FATALMENACE] = {};
-	SkillEffect[SkillConst_default.SC_REPRODUCE] = {};
-	SkillEffect[SkillConst_default.SC_AUTOSHADOWSPELL] = {};
+	SkillEffect[SkillConst_default.SC_FATALMENACE] = {
+		effectId: "ef_sc_fatalmenace",
+		effectIdOnCaster: "ef_sc_fatalmenace_cast"
+	};
+	SkillEffect[SkillConst_default.SC_REPRODUCE] = { effectId: "ef_sc_reproduce" };
+	SkillEffect[SkillConst_default.SC_AUTOSHADOWSPELL] = { effectId: "ef_sc_autoshadowspell" };
 	SkillEffect[SkillConst_default.SC_SHADOWFORM] = {};
 	SkillEffect[SkillConst_default.SC_TRIANGLESHOT] = { beforeHitEffectId: "ef_arrow_projectile" };
 	SkillEffect[SkillConst_default.SC_BODYPAINT] = { effectId: 811 };
@@ -214405,8 +214422,11 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.SC_MAELSTROM] = { groundEffectId: 828 };
 	SkillEffect[SkillConst_default.SC_BLOODYLUST] = { groundEffectId: 829 };
 	SkillEffect[SkillConst_default.SC_FEINTBOMB] = {};
-	SkillEffect[SkillConst_default.LG_CANNONSPEAR] = { effectId: "ef_cannonspear" };
-	SkillEffect[SkillConst_default.LG_BANISHINGPOINT] = { effectId: "ef_banishingpoint" };
+	SkillEffect[SkillConst_default.LG_CANNONSPEAR] = { effectId: ["ef_cannonspear", "ef_lg_cannonspear"] };
+	SkillEffect[SkillConst_default.LG_BANISHINGPOINT] = {
+		effectId: "ef_banishingpoint",
+		effectIdOnCaster: "ef_lg_banishingpoint_cast"
+	};
 	SkillEffect[SkillConst_default.LG_TRAMPLE] = { effectId: "ef_trample" };
 	SkillEffect[SkillConst_default.LG_SHIELDPRESS] = { beforeHitEffectId: 906 };
 	SkillEffect[SkillConst_default.LG_REFLECTDAMAGE] = { effectId: "ef_reflectdamage" };
@@ -214415,39 +214435,63 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.LG_RAGEBURST] = { effectId: "ef_rageburst" };
 	SkillEffect[SkillConst_default.LG_SHIELDSPELL] = { effectId: "ef_shieldspell" };
 	SkillEffect[SkillConst_default.LG_EXEEDBREAK] = { effectId: "ef_exceedbreak" };
-	SkillEffect[SkillConst_default.LG_OVERBRAND] = { effectId: "ef_overbrand" };
+	SkillEffect[SkillConst_default.LG_OVERBRAND] = {
+		effectId: "ef_overbrand",
+		effectIdOnCaster: "ef_lg_overbrand_cast",
+		hitEffectId: "ef_lg_overbrand_hit"
+	};
 	SkillEffect[SkillConst_default.LG_PRESTIGE] = { effectId: 908 };
 	SkillEffect[SkillConst_default.LG_BANDING] = { effectId: 909 };
 	SkillEffect[SkillConst_default.LG_MOONSLASHER] = { effectId: "ef_moonslasher" };
-	SkillEffect[SkillConst_default.LG_RAYOFGENESIS] = { effectId: "ef_rayofgenesis" };
+	SkillEffect[SkillConst_default.LG_RAYOFGENESIS] = {
+		effectId: ["ef_rayofgenesis", "ef_lg_rayofgenesis"],
+		effectIdOnCaster: "ef_lg_rayofgenesis_cast",
+		hitEffectId: "ef_lg_rayofgenesis_hit"
+	};
 	SkillEffect[SkillConst_default.LG_PIETY] = { effectId: "ef_piety" };
-	SkillEffect[SkillConst_default.LG_EARTHDRIVE] = { effectId: "ef_earthdrive" };
+	SkillEffect[SkillConst_default.LG_EARTHDRIVE] = { effectId: ["ef_earthdrive", "ef_lg_earthdrive"] };
 	SkillEffect[SkillConst_default.LG_HESPERUSLIT] = { effectId: "ef_hesperuslit" };
 	SkillEffect[SkillConst_default.LG_INSPIRATION] = { effectId: 910 };
-	SkillEffect[SkillConst_default.LG_OVERBRAND_BRANDISH] = {};
-	SkillEffect[SkillConst_default.LG_OVERBRAND_PLUSATK] = {};
+	SkillEffect[2519] = {
+		effectIdOnCaster: "ef_lg_overbrand_brandish_cast",
+		hitEffectId: "ef_lg_overbrand_brandish_hit"
+	};
+	SkillEffect[2520] = {
+		effectIdOnCaster: "ef_lg_overbrand_plusatk_cast",
+		hitEffectId: "ef_lg_overbrand_plusatk_hit"
+	};
 	SkillEffect[SkillConst_default.SR_DRAGONCOMBO] = { effectId: "ef_dragoncombo" };
 	SkillEffect[SkillConst_default.SR_SKYNETBLOW] = { effectId: "ef_skynetblow" };
 	SkillEffect[SkillConst_default.SR_EARTHSHAKER] = { effectId: 888 };
-	SkillEffect[SkillConst_default.SR_FALLENEMPIRE] = { effectId: "ef_fallenempire" };
-	SkillEffect[SkillConst_default.SR_TIGERCANNON] = { effectId: "ef_tigercannon" };
-	SkillEffect[SkillConst_default.SR_RAMPAGEBLASTER] = { effectId: "ef_rampageblaster" };
+	SkillEffect[SkillConst_default.SR_FALLENEMPIRE] = {
+		effectId: ["ef_fallenempire", "ef_sr_fallenempire"],
+		hitEffectId: "ef_sr_fallenempire_hit"
+	};
+	SkillEffect[SkillConst_default.SR_TIGERCANNON] = { effectId: ["ef_tigercannon", "ef_sr_tigercannon"] };
+	SkillEffect[SkillConst_default.SR_RAMPAGEBLASTER] = { effectId: ["ef_rampageblaster", "ef_sr_rampageblaster"] };
 	SkillEffect[SkillConst_default.SR_CRESCENTELBOW] = { effectId: "ef_crescentelbow" };
 	SkillEffect[SkillConst_default.SR_CURSEDCIRCLE] = { effectId: "ef_cursedcircle" };
-	SkillEffect[SkillConst_default.SR_LIGHTNINGWALK] = { effectId: "ef_lightningwalk" };
+	SkillEffect[SkillConst_default.SR_LIGHTNINGWALK] = { effectId: ["ef_lightningwalk", "ef_sr_lightningwalk"] };
 	SkillEffect[SkillConst_default.SR_KNUCKLEARROW] = { effectId: "ef_knucklearrow" };
 	SkillEffect[SkillConst_default.SR_WINDMILL] = { effectId: "ef_windmill" };
 	SkillEffect[SkillConst_default.SR_RAISINGDRAGON] = { effectId: "ef_raisingdragon" };
 	SkillEffect[SkillConst_default.SR_ASSIMILATEPOWER] = {};
 	SkillEffect[SkillConst_default.SR_POWERVELOCITY] = { effectId: "ef_powervelocity" };
 	SkillEffect[SkillConst_default.SR_CRESCENTELBOW_AUTOSPELL] = {};
-	SkillEffect[SkillConst_default.SR_GATEOFHELL] = { effectId: "ef_gateofhell" };
+	SkillEffect[SkillConst_default.SR_GATEOFHELL] = {
+		effectId: "ef_gateofhell",
+		effectIdOnCaster: "ef_sr_gateofhell_cast"
+	};
 	SkillEffect[SkillConst_default.SR_GENTLETOUCH_QUIET] = {};
 	SkillEffect[SkillConst_default.SR_GENTLETOUCH_CURE] = {};
 	SkillEffect[SkillConst_default.SR_GENTLETOUCH_ENERGYGAIN] = {};
 	SkillEffect[SkillConst_default.SR_GENTLETOUCH_CHANGE] = {};
 	SkillEffect[SkillConst_default.SR_GENTLETOUCH_REVITALIZE] = {};
-	SkillEffect[SkillConst_default.SR_HOWLINGOFLION] = { effectId: "ef_howlingoflion" };
+	SkillEffect[SkillConst_default.SR_HOWLINGOFLION] = {
+		effectId: ["ef_howlingoflion", "ef_sr_howlingoflion"],
+		effectIdOnCaster: "ef_sr_howlingoflion_cast",
+		hitEffectId: "ef_sr_howlingoflion_hit"
+	};
 	SkillEffect[SkillConst_default.SR_RIDEINLIGHTNING] = { effectId: "ef_rideinlightning" };
 	SkillEffect[SkillConst_default.WA_SWING_DANCE] = { effectId: "ef_swing_dance" };
 	SkillEffect[SkillConst_default.WA_SYMPHONY_OF_LOVER] = { effectId: "ef_symphony_of_lovers" };
@@ -214455,12 +214499,18 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.MI_RUSH_WINDMILL] = { effectId: "ef_rush_windmill" };
 	SkillEffect[SkillConst_default.MI_ECHOSONG] = { effectId: "ef_echo_song" };
 	SkillEffect[SkillConst_default.MI_HARMONIZE] = { effectId: "ef_harmonize" };
-	SkillEffect[SkillConst_default.WM_METALICSOUND] = { effectId: "ef_metalicsound" };
+	SkillEffect[SkillConst_default.WM_METALICSOUND] = {
+		effectId: ["ef_metalicsound", "ef_wm_metalicsound"],
+		hitEffectId: "ef_wm_metalicsound_hit"
+	};
 	SkillEffect[SkillConst_default.WM_REVERBERATION] = { groundEffectId: 856 };
 	SkillEffect[SkillConst_default.WM_REVERBERATION_MELEE] = { effectId: 860 };
-	SkillEffect[SkillConst_default.WM_REVERBERATION_MAGIC] = {};
+	SkillEffect[SkillConst_default.WM_REVERBERATION_MAGIC] = { hitEffectId: "ef_wm_reverberation_magic_hit" };
 	SkillEffect[SkillConst_default.WM_DOMINION_IMPULSE] = { effectId: 863 };
-	SkillEffect[SkillConst_default.WM_SEVERE_RAINSTORM] = { effectId: 857 };
+	SkillEffect[SkillConst_default.WM_SEVERE_RAINSTORM] = {
+		effectId: [857, "ef_wm_severe_rainstorm"],
+		effectIdOnCaster: "ef_wm_severe_rainstorm_cast"
+	};
 	SkillEffect[SkillConst_default.WM_POEMOFNETHERWORLD] = { groundEffectId: 860 };
 	SkillEffect[SkillConst_default.WM_VOICEOFSIREN] = { groundEffectId: 879 };
 	SkillEffect[SkillConst_default.WM_DEADHILLHERE] = { effectId: "ef_valley_of_death" };
@@ -214477,7 +214527,10 @@ var init_SkillEffect = __esmMin((() => {
 		groundEffectId: 866,
 		effectIdOnCaster: 867
 	};
-	SkillEffect[SkillConst_default.WM_SOUND_OF_DESTRUCTION] = { effectId: "ef_sound_of_destruction" };
+	SkillEffect[SkillConst_default.WM_SOUND_OF_DESTRUCTION] = {
+		effectId: "ef_sound_of_destruction",
+		effectIdOnCaster: "ef_wm_sound_of_destruction_cast"
+	};
 	SkillEffect[SkillConst_default.WM_SATURDAY_NIGHT_FEVER] = {
 		groundEffectId: 870,
 		effectIdOnCaster: 871
@@ -214496,16 +214549,28 @@ var init_SkillEffect = __esmMin((() => {
 	};
 	SkillEffect[SkillConst_default.WM_UNLIMITED_HUMMING_VOICE] = {
 		groundEffectId: 878,
-		effectIdOnCaster: 877
+		effectId: "ef_wm_unlimited_humming_voice"
 	};
-	SkillEffect[SkillConst_default.WM_SEVERE_RAINSTORM_MELEE] = {};
+	SkillEffect[SkillConst_default.WM_SEVERE_RAINSTORM_MELEE] = {
+		effectId: "ef_wm_severe_rainstorm_melee",
+		effectIdOnCaster: "ef_wm_severe_rainstorm_melee_cast"
+	};
 	SkillEffect[SkillConst_default.SO_FIREWALK] = { groundEffectId: 920 };
 	SkillEffect[SkillConst_default.SO_ELECTRICWALK] = { groundEffectId: 926 };
 	SkillEffect[SkillConst_default.SO_SPELLFIST] = {};
-	SkillEffect[SkillConst_default.SO_EARTHGRAVE] = { effectId: 927 };
-	SkillEffect[SkillConst_default.SO_DIAMONDDUST] = { effectId: 928 };
-	SkillEffect[SkillConst_default.SO_POISON_BUSTER] = { effectId: 923 };
-	SkillEffect[SkillConst_default.SO_PSYCHIC_WAVE] = { effectId: 922 };
+	SkillEffect[SkillConst_default.SO_EARTHGRAVE] = {
+		effectId: "ef_so_earthgrave",
+		hitEffectId: "ef_so_earthgrave_hit"
+	};
+	SkillEffect[SkillConst_default.SO_DIAMONDDUST] = {
+		effectId: [928, "ef_so_diamonddust"],
+		effectIdOnCaster: "ef_so_diamonddust_cast"
+	};
+	SkillEffect[SkillConst_default.SO_POISON_BUSTER] = { effectId: "ef_so_poison_buster" };
+	SkillEffect[SkillConst_default.SO_PSYCHIC_WAVE] = {
+		effectId: [922, "ef_so_psychic_wave"],
+		effectIdOnCaster: "ef_so_psychic_wave_cast"
+	};
 	SkillEffect[SkillConst_default.SO_CLOUD_KILL] = {};
 	SkillEffect[SkillConst_default.SO_STRIKING] = {};
 	SkillEffect[SkillConst_default.SO_WARMER] = { effectId: 929 };
@@ -214519,18 +214584,21 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.SO_SUMMON_TERA] = {};
 	SkillEffect[SkillConst_default.SO_EL_ACTION] = {};
 	SkillEffect[SkillConst_default.SO_EL_ANALYSIS] = {};
-	SkillEffect[SkillConst_default.SO_EL_CURE] = {};
+	SkillEffect[SkillConst_default.SO_EL_CURE] = { effectId: "ef_so_el_cure" };
 	SkillEffect[SkillConst_default.SO_FIRE_INSIGNIA] = {};
 	SkillEffect[SkillConst_default.SO_WATER_INSIGNIA] = {};
 	SkillEffect[SkillConst_default.SO_WIND_INSIGNIA] = {};
 	SkillEffect[SkillConst_default.SO_EARTH_INSIGNIA] = {};
-	SkillEffect[SkillConst_default.GN_CART_TORNADO] = {};
-	SkillEffect[SkillConst_default.GN_CARTCANNON] = {};
-	SkillEffect[SkillConst_default.GN_CARTBOOST] = {};
+	SkillEffect[SkillConst_default.GN_CART_TORNADO] = { effectId: "ef_gn_cart_tornado" };
+	SkillEffect[SkillConst_default.GN_CARTCANNON] = {
+		effectId: "ef_gn_cartcannon",
+		effectIdOnCaster: "ef_gn_cartcannon_cast"
+	};
+	SkillEffect[SkillConst_default.GN_CARTBOOST] = { effectId: "ef_gn_cartboost" };
 	SkillEffect[SkillConst_default.GN_THORNS_TRAP] = { effectId: "ef_thorntrap" };
 	SkillEffect[SkillConst_default.GN_BLOOD_SUCKER] = {};
 	SkillEffect[SkillConst_default.GN_SPORE_EXPLOSION] = {};
-	SkillEffect[SkillConst_default.GN_WALLOFTHORN] = { groundEffectId: 912 };
+	SkillEffect[SkillConst_default.GN_WALLOFTHORN] = { effectIdOnCaster: "ef_gn_wallofthorn_cast" };
 	SkillEffect[SkillConst_default.GN_CRAZYWEED] = { effectId: 915 };
 	SkillEffect[SkillConst_default.GN_CRAZYWEED_ATK] = {};
 	SkillEffect[SkillConst_default.GN_DEMONIC_FIRE] = { effectId: 916 };
@@ -214540,9 +214608,12 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.GN_FIRE_EXPANSION_ACID] = {};
 	SkillEffect[SkillConst_default.GN_HELLS_PLANT] = { effectId: 919 };
 	SkillEffect[SkillConst_default.GN_HELLS_PLANT_ATK] = {};
-	SkillEffect[SkillConst_default.GN_MANDRAGORA] = {};
+	SkillEffect[SkillConst_default.GN_MANDRAGORA] = {
+		effectId: "ef_gn_mandragora",
+		effectIdOnCaster: "ef_gn_mandragora_cast"
+	};
 	SkillEffect[SkillConst_default.GN_SLINGITEM] = {};
-	SkillEffect[SkillConst_default.GN_CHANGEMATERIAL] = {};
+	SkillEffect[SkillConst_default.GN_CHANGEMATERIAL] = { effectId: "ef_gn_changematerial" };
 	SkillEffect[SkillConst_default.GN_MIX_COOKING] = {};
 	SkillEffect[SkillConst_default.GN_MAKEBOMB] = {};
 	SkillEffect[SkillConst_default.GN_S_PHARMACY] = {};
@@ -214559,19 +214630,19 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.RL_B_TRAP] = {};
 	SkillEffect[SkillConst_default.RL_FLICKER] = {};
 	SkillEffect[SkillConst_default.RL_S_STORM] = { effectId: "ef_s_storm" };
-	SkillEffect[SkillConst_default.RL_E_CHAIN] = {};
+	SkillEffect[SkillConst_default.RL_E_CHAIN] = { effectId: "ef_rl_e_chain" };
 	SkillEffect[SkillConst_default.RL_QD_SHOT] = {};
 	SkillEffect[SkillConst_default.RL_C_MARKER] = { successEffectId: "ef_c_marker1" };
-	SkillEffect[SkillConst_default.RL_FIREDANCE] = {};
-	SkillEffect[SkillConst_default.RL_H_MINE] = {};
-	SkillEffect[SkillConst_default.RL_P_ALTER] = {};
-	SkillEffect[SkillConst_default.RL_FALLEN_ANGEL] = {};
+	SkillEffect[SkillConst_default.RL_FIREDANCE] = { effectId: "ef_rl_firedance" };
+	SkillEffect[SkillConst_default.RL_H_MINE] = { effectId: "ef_rl_h_mine" };
+	SkillEffect[SkillConst_default.RL_P_ALTER] = { effectId: "ef_rl_p_alter" };
+	SkillEffect[SkillConst_default.RL_FALLEN_ANGEL] = { effectId: "ef_rl_fallen_angel" };
 	SkillEffect[SkillConst_default.RL_R_TRIP] = {};
-	SkillEffect[SkillConst_default.RL_D_TAIL] = {};
-	SkillEffect[SkillConst_default.RL_FIRE_RAIN] = {};
-	SkillEffect[SkillConst_default.RL_HEAT_BARREL] = {};
+	SkillEffect[SkillConst_default.RL_D_TAIL] = { effectId: "ef_rl_d_tail" };
+	SkillEffect[SkillConst_default.RL_FIRE_RAIN] = { effectId: "ef_rl_fire_rain" };
+	SkillEffect[SkillConst_default.RL_HEAT_BARREL] = { effectId: "ef_rl_heat_barrel" };
 	SkillEffect[SkillConst_default.RL_AM_BLAST] = {};
-	SkillEffect[SkillConst_default.RL_SLUGSHOT] = {};
+	SkillEffect[SkillConst_default.RL_SLUGSHOT] = { effectId: "ef_rl_slugshot" };
 	SkillEffect[SkillConst_default.RL_HAMMER_OF_GOD] = {};
 	SkillEffect[SkillConst_default.RL_R_TRIP_PLUSATK] = {};
 	SkillEffect[SkillConst_default.NW_INTENSIVE_AIM] = { effectId: "ef_nw_intensive_aim" };
@@ -214602,8 +214673,8 @@ var init_SkillEffect = __esmMin((() => {
 		effectIdOnCaster: "ef_nw_midnight_fallen_cast"
 	};
 	SkillEffect[SkillConst_default.KO_YAMIKUMO] = {};
-	SkillEffect[SkillConst_default.KO_JYUMONJIKIRI] = {};
-	SkillEffect[SkillConst_default.KO_SETSUDAN] = {};
+	SkillEffect[SkillConst_default.KO_JYUMONJIKIRI] = { effectId: "ef_ko_jyumonjikiri" };
+	SkillEffect[SkillConst_default.KO_SETSUDAN] = { effectId: "ef_ko_setsudan" };
 	SkillEffect[SkillConst_default.KO_BAKURETSU] = {};
 	SkillEffect[SkillConst_default.KO_HAPPOKUNAI] = {};
 	SkillEffect[SkillConst_default.KO_MUCHANAGE] = {};
@@ -214701,7 +214772,7 @@ var init_SkillEffect = __esmMin((() => {
 	};
 	SkillEffect[6511] = { effectId: "ef_shc_cross_slash" };
 	SkillEffect[SkillConst_default.GC_DARKCROW] = { effectId: 1040 };
-	SkillEffect[SkillConst_default.RA_UNLIMIT] = {};
+	SkillEffect[SkillConst_default.RA_UNLIMIT] = { effectId: "ef_ra_unlimit" };
 	SkillEffect[SkillConst_default.GN_ILLUSIONDOPING] = { effectId: 1049 };
 	SkillEffect[5307] = { effectId: "ef_bo_acidified_zone_water_atk" };
 	SkillEffect[5308] = { effectId: "ef_bo_acidified_zone_ground_atk" };
@@ -215160,34 +215231,34 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectId: "ef_ig_imperial_pressure_hit"
 	};
 	SkillEffect[SkillConst_default.ALL_FULL_THROTTLE] = { effectId: 1042 };
-	SkillEffect[SkillConst_default.SU_BITE] = {};
+	SkillEffect[SkillConst_default.SU_BITE] = { effectId: "ef_su_bite" };
 	SkillEffect[SkillConst_default.SU_HIDE] = {};
-	SkillEffect[SkillConst_default.SU_SCRATCH] = {};
+	SkillEffect[SkillConst_default.SU_SCRATCH] = { effectId: "ef_su_scratch" };
 	SkillEffect[SkillConst_default.SU_STOOP] = {};
 	SkillEffect[SkillConst_default.SU_LOPE] = {};
-	SkillEffect[SkillConst_default.SU_SV_STEMSPEAR] = {};
+	SkillEffect[SkillConst_default.SU_SV_STEMSPEAR] = { effectId: "ef_su_sv_stemspear" };
 	SkillEffect[SkillConst_default.SU_CN_POWDERING] = {};
 	SkillEffect[SkillConst_default.SU_CN_METEOR] = {};
 	SkillEffect[SkillConst_default.SU_SV_ROOTTWIST] = {};
 	SkillEffect[SkillConst_default.SU_SV_ROOTTWIST_ATK] = {};
-	SkillEffect[SkillConst_default.SU_SCAROFTAROU] = {};
-	SkillEffect[SkillConst_default.SU_PICKYPECK] = {};
+	SkillEffect[SkillConst_default.SU_SCAROFTAROU] = { effectId: "ef_su_scaroftarou" };
+	SkillEffect[SkillConst_default.SU_PICKYPECK] = { effectId: "ef_su_pickypeck" };
 	SkillEffect[SkillConst_default.SU_PICKYPECK_DOUBLE_ATK] = {};
-	SkillEffect[SkillConst_default.SU_ARCLOUSEDASH] = {};
+	SkillEffect[SkillConst_default.SU_ARCLOUSEDASH] = { effectId: "ef_su_arclousedash" };
 	SkillEffect[SkillConst_default.SU_LUNATICCARROTBEAT] = {};
-	SkillEffect[SkillConst_default.SU_TUNABELLY] = {};
+	SkillEffect[SkillConst_default.SU_TUNABELLY] = { effectId: "ef_su_tunabelly" };
 	SkillEffect[SkillConst_default.SU_TUNAPARTY] = {};
-	SkillEffect[SkillConst_default.SU_BUNCHOFSHRIMP] = {};
-	SkillEffect[SkillConst_default.SU_FRESHSHRIMP] = {};
-	SkillEffect[SkillConst_default.SU_POWEROFFLOCK] = {};
-	SkillEffect[SkillConst_default.SU_SVG_SPIRIT] = {};
-	SkillEffect[SkillConst_default.SU_HISS] = {};
-	SkillEffect[SkillConst_default.SU_NYANGGRASS] = {};
-	SkillEffect[SkillConst_default.SU_GROOMING] = {};
+	SkillEffect[SkillConst_default.SU_BUNCHOFSHRIMP] = { effectId: "ef_su_bunchofshrimp" };
+	SkillEffect[SkillConst_default.SU_FRESHSHRIMP] = { effectId: "ef_su_freshshrimp" };
+	SkillEffect[SkillConst_default.SU_POWEROFFLOCK] = { effectId: "ef_su_powerofflock" };
+	SkillEffect[SkillConst_default.SU_SVG_SPIRIT] = { effectId: "ef_su_svg_spirit" };
+	SkillEffect[SkillConst_default.SU_HISS] = { effectId: "ef_su_hiss" };
+	SkillEffect[SkillConst_default.SU_NYANGGRASS] = { effectId: "ef_su_nyanggrass" };
+	SkillEffect[SkillConst_default.SU_GROOMING] = { effectId: "ef_su_grooming" };
 	SkillEffect[SkillConst_default.SU_PURRING] = {};
 	SkillEffect[SkillConst_default.SU_SHRIMPARTY] = {};
 	SkillEffect[SkillConst_default.SU_MEOWMEOW] = {};
-	SkillEffect[SkillConst_default.SU_CHATTERING] = {};
+	SkillEffect[SkillConst_default.SU_CHATTERING] = { effectId: "ef_su_chattering" };
 	SkillEffect[SkillConst_default.WE_CALLALLFAMILY] = {};
 	SkillEffect[SkillConst_default.WE_ONEFOREVER] = {};
 	SkillEffect[SkillConst_default.WE_CHEERUP] = {};
@@ -215339,6 +215410,20 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.GD_RESTORE] = {};
 	SkillEffect[SkillConst_default.GD_EMERGENCYCALL] = {};
 	SkillEffect[SkillConst_default.GD_ITEMEMERGENCYCALL] = {};
+	SkillEffect[SkillConst_default.SL_ASSASIN] = { effectId: "ef_sl_assasin" };
+	SkillEffect[SkillConst_default.BS_ADRENALINE2] = { effectId: "ef_bs_adrenaline2" };
+	SkillEffect[SkillConst_default.SL_HUNTER] = { effectId: "ef_sl_hunter" };
+	SkillEffect[SkillConst_default.SJ_FULLMOONKICK] = { effectId: "ef_sj_fullmoonkick" };
+	SkillEffect[SkillConst_default.SJ_NEWMOONKICK] = { effectId: "ef_sj_newmoonkick" };
+	SkillEffect[SkillConst_default.SJ_FLASHKICK] = { effectId: "ef_sj_flashkick" };
+	SkillEffect[SkillConst_default.SJ_FALLINGSTAR] = { effectId: "ef_sj_fallingstar" };
+	SkillEffect[SkillConst_default.SJ_DOCUMENT] = { effectId: "ef_sj_document" };
+	SkillEffect[SkillConst_default.SJ_SOLARBURST] = { effectId: "ef_sj_solarburst" };
+	SkillEffect[SkillConst_default.SJ_PROMINENCEKICK] = { effectId: "ef_sj_prominencekick" };
+	SkillEffect[SkillConst_default.SP_SOULGOLEM] = { effectId: "ef_sp_soulgolem" };
+	SkillEffect[SkillConst_default.SP_SOULCURSE] = { effectId: "ef_sp_soulcurse" };
+	SkillEffect[SkillConst_default.SP_SOULREVOLVE] = { effectId: "ef_sp_soulrevolve" };
+	SkillEffect[SkillConst_default.NV_HELPANGEL] = { effectId: "ef_nv_helpangel" };
 }));
 //#endregion
 //#region src/DB/Skills/SkillUnitConst.js
@@ -280048,6 +280133,883 @@ var init_EffectTable = __esmMin((() => {
 		ef_: [{
 			wav: "effect/",
 			attachedEntity: true
+		}],
+		ef_ht_landmine: [{
+			type: "STR",
+			file: "landmine",
+			texturePath: ""
+		}],
+		ef_sa_instantdeath: [{
+			type: "STR",
+			file: "suicide",
+			texturePath: ""
+		}],
+		ef_tk_counter: [{
+			type: "STR",
+			file: "new_counter_slash/new_counter_slash/new_counter_slash",
+			texturePath: "new_counter_slash/new_counter_slash/"
+		}, {
+			type: "STR",
+			file: "new_counter_slash/new_counter_slash_bottom/new_counter_slash_bottom",
+			texturePath: "new_counter_slash/new_counter_slash_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_sl_assasin: [{
+			type: "STR",
+			file: "assasin_poisonreact",
+			texturePath: ""
+		}, {
+			type: "STR",
+			file: "assasin_poisonreact_1st",
+			texturePath: ""
+		}],
+		ef_bs_adrenaline2: [{
+			type: "STR",
+			file: "adrenaline",
+			texturePath: ""
+		}],
+		ef_sl_hunter: [
+			{
+				type: "STR",
+				file: "hunter_loud",
+				texturePath: ""
+			},
+			{
+				type: "STR",
+				file: "hunter_poison",
+				texturePath: ""
+			},
+			{
+				type: "STR",
+				file: "hunter_shockwave_blue",
+				texturePath: ""
+			}
+		],
+		ef_sl_stun: [{
+			type: "STR",
+			file: "stun",
+			texturePath: "",
+			wav: "effect/_stun"
+		}],
+		ef_gs_increasing: [{
+			type: "STR",
+			file: "increasing_activity/increasing_activity/increasing_activity",
+			texturePath: "increasing_activity/increasing_activity/",
+			min: "increasing_activity/increasing_activity/min_increasing_activity"
+		}],
+		ef_gs_increasing_cast: [{
+			type: "STR",
+			file: "increasing_activity/increasing_activity_cast/increasing_activity_cast",
+			texturePath: "increasing_activity/increasing_activity_cast/",
+			min: "increasing_activity/increasing_activity_cast/min_increasing_activity_cast"
+		}, {
+			type: "STR",
+			file: "increasing_activity/increasing_activity_cast_bottom/increasing_activity_cast_bottom",
+			texturePath: "increasing_activity/increasing_activity_cast_bottom/",
+			min: "increasing_activity/increasing_activity_cast_bottom/min_increasing_activity_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_rk_windcutter: [{
+			type: "STR",
+			file: "new_windcutter/new_windcutter/new_windcutter",
+			texturePath: "new_windcutter/new_windcutter/"
+		}],
+		ef_wl_soulexpansion_cast: [{
+			type: "STR",
+			file: "new_soulexpansion/new_soulexpansion_cast/new_soulexpansion_cast",
+			texturePath: "new_soulexpansion/new_soulexpansion_cast/"
+		}, {
+			type: "STR",
+			file: "new_soulexpansion/new_soulexpansion_cast_bottom/new_soulexpansion_cast_bottom",
+			texturePath: "new_soulexpansion/new_soulexpansion_cast_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_wl_soulexpansion_hit: [{
+			type: "STR",
+			file: "new_soulexpansion/new_soulexpansion_hit/new_soulexpansion_hit",
+			texturePath: "new_soulexpansion/new_soulexpansion_hit/"
+		}, {
+			type: "STR",
+			file: "new_soulexpansion/new_soulexpansion_hit_bottom/new_soulexpansion_hit_bottom",
+			texturePath: "new_soulexpansion/new_soulexpansion_hit_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_wl_hellinferno: [{
+			type: "STR",
+			file: "new_hellinferno/new_hellinferno/new_hellinferno",
+			texturePath: "new_hellinferno/new_hellinferno/"
+		}, {
+			type: "STR",
+			file: "new_hellinferno/new_hellinferno_bottom/new_hellinferno_bottom",
+			texturePath: "new_hellinferno/new_hellinferno_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_wl_hellinferno_cast: [{
+			type: "STR",
+			file: "new_hellinferno/new_hellinferno_cast_bottom/new_hellinferno_cast_bottom",
+			texturePath: "new_hellinferno/new_hellinferno_cast_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_wl_comet: [{
+			type: "STR",
+			file: "new_comet/new_comet/new_comet",
+			texturePath: "new_comet/new_comet/"
+		}, {
+			type: "STR",
+			file: "new_comet/new_comet_bottom/new_comet_bottom",
+			texturePath: "new_comet/new_comet_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_wl_comet_cast: [{
+			type: "STR",
+			file: "new_comet/new_comet_cast/new_comet_cast",
+			texturePath: "new_comet/new_comet_cast/"
+		}, {
+			type: "STR",
+			file: "new_comet/new_comet_cast_bottom/new_comet_cast_bottom",
+			texturePath: "new_comet/new_comet_cast_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_wl_chainlightning_cast: [{
+			type: "STR",
+			file: "new_chainlightning/new_chainlightning_cast/new_chainlightning_cast",
+			texturePath: "new_chainlightning/new_chainlightning_cast/"
+		}, {
+			type: "STR",
+			file: "new_chainlightning/new_chainlightning_cast_bottom/new_chainlightning_cast_bottom",
+			texturePath: "new_chainlightning/new_chainlightning_cast_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_wl_tetravortex_fire: [{
+			type: "STR",
+			file: "mineffect/new_tetravortex/new_tetravortex_fire/new_tetravortex_fire",
+			texturePath: "mineffect/new_tetravortex/new_tetravortex_fire/"
+		}],
+		ef_wl_tetravortex_water: [{
+			type: "STR",
+			file: "mineffect/new_tetravortex/new_tetravortex_water/new_tetravortex_water",
+			texturePath: "mineffect/new_tetravortex/new_tetravortex_water/"
+		}],
+		ef_wl_tetravortex_wind: [{
+			type: "STR",
+			file: "mineffect/new_tetravortex/new_tetravortex_wind/new_tetravortex_wind",
+			texturePath: "mineffect/new_tetravortex/new_tetravortex_wind/"
+		}],
+		ef_wl_summon_atk_fire: [{
+			type: "STR",
+			file: "fire",
+			texturePath: ""
+		}],
+		ef_gc_crossimpact: [{
+			type: "STR",
+			file: "new_crossimpact/new_crossimpact/new_crossimpact",
+			texturePath: "new_crossimpact/new_crossimpact/"
+		}],
+		ef_gc_poisoningweapon: [{
+			type: "STR",
+			file: "poison",
+			texturePath: ""
+		}],
+		ef_gc_counterslash: [{
+			type: "STR",
+			file: "new_counter_slash/new_counter_slash/new_counter_slash",
+			texturePath: "new_counter_slash/new_counter_slash/"
+		}, {
+			type: "STR",
+			file: "new_counter_slash/new_counter_slash_bottom/new_counter_slash_bottom",
+			texturePath: "new_counter_slash/new_counter_slash_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_gc_poisonsmoke: [{
+			type: "STR",
+			file: "new_poisonsmoke/new_poisonsmoke/new_poisonsmoke_%d",
+			rand: [1, 2],
+			texturePath: "new_poisonsmoke/new_poisonsmoke/"
+		}],
+		ef_gc_crossripperslasher: [{
+			type: "STR",
+			file: "new_crossripperslasher/new_crossripperslasher/new_crossripperslasher",
+			texturePath: "new_crossripperslasher/new_crossripperslasher/"
+		}],
+		ef_ab_secrament: [{
+			type: "STR",
+			file: "new_secrament/new_secrament/new_secrament",
+			texturePath: "new_secrament/new_secrament/"
+		}],
+		ef_ra_fearbreeze: [{
+			type: "STR",
+			file: "new_fearbreeze/new_fearbreeze",
+			texturePath: "new_fearbreeze/"
+		}],
+		ef_nc_vulcanarm: [{
+			type: "STR",
+			file: "new_vulcanarm/new_vulcanarm/new_vulcanarm",
+			texturePath: "new_vulcanarm/new_vulcanarm/"
+		}, {
+			type: "STR",
+			file: "new_vulcanarm/new_vulcanarm_bottom/new_vulcanarm_bottom",
+			texturePath: "new_vulcanarm/new_vulcanarm_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_nc_armscannon_cast: [{
+			type: "STR",
+			file: "new_armscannon/new_armscannon_cast/new_armscannon_cast",
+			texturePath: "new_armscannon/new_armscannon_cast/"
+		}, {
+			type: "STR",
+			file: "new_armscannon/new_armscannon_cast_bottom/new_armscannon_cast_bottom",
+			texturePath: "new_armscannon/new_armscannon_cast_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_nc_repair: [{
+			type: "STR",
+			file: "repair weapon",
+			texturePath: ""
+		}, {
+			type: "STR",
+			file: "repairweapon",
+			texturePath: ""
+		}],
+		ef_nc_axeboomerang: [{
+			type: "STR",
+			file: "new_axeboomerang/new_axeboomerang/new_axeboomerang",
+			texturePath: "new_axeboomerang/new_axeboomerang/"
+		}],
+		ef_nc_axeboomerang_cast: [{
+			type: "STR",
+			file: "new_axeboomerang/new_axeboomerang_cast/new_axeboomerang_cast",
+			texturePath: "new_axeboomerang/new_axeboomerang_cast/"
+		}, {
+			type: "STR",
+			file: "new_axeboomerang/new_axeboomerang_cast_bottom/new_axeboomerang_cast_bottom",
+			texturePath: "new_axeboomerang/new_axeboomerang_cast_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_nc_axeboomerang_hit: [{
+			type: "STR",
+			file: "new_axeboomerang/new_axeboomerang_hit/new_axeboomerang_hit",
+			texturePath: "new_axeboomerang/new_axeboomerang_hit/"
+		}],
+		ef_nc_axetornado: [{
+			type: "STR",
+			file: "new_axetornado/new_axetornado/new_axetornado",
+			texturePath: "new_axetornado/new_axetornado/"
+		}, {
+			type: "STR",
+			file: "new_axetornado/new_axetornado_bottom/new_axetornado_bottom",
+			texturePath: "new_axetornado/new_axetornado_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_sc_fatalmenace: [{
+			type: "STR",
+			file: "new_fatal_menace/new_fatal_menace/new_fatal_menace",
+			texturePath: "new_fatal_menace/new_fatal_menace/"
+		}, {
+			type: "STR",
+			file: "new_fatal_menace/new_fatal_menace_bottom/new_fatal_menace_bottom",
+			texturePath: "new_fatal_menace/new_fatal_menace_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_sc_fatalmenace_cast: [{
+			type: "STR",
+			file: "new_fatal_menace/new_fatal_menace_cast/new_fatal_menace_cast",
+			texturePath: "new_fatal_menace/new_fatal_menace_cast/"
+		}, {
+			type: "STR",
+			file: "new_fatal_menace/new_fatal_menace_cast_bottom/new_fatal_menace_cast_bottom",
+			texturePath: "new_fatal_menace/new_fatal_menace_cast_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_sc_reproduce: [{
+			type: "STR",
+			file: "new_reproduce/new_reproduce/new_reproduce",
+			texturePath: "new_reproduce/new_reproduce/",
+			wav: "effect/reproduce"
+		}, {
+			type: "STR",
+			file: "new_reproduce/new_reproduce_bottom/new_reproduce_bottom",
+			texturePath: "new_reproduce/new_reproduce_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_sc_autoshadowspell: [{
+			type: "STR",
+			file: "new_autoshadowspell/new_autoshadowspell/new_autoshadowspell",
+			texturePath: "new_autoshadowspell/new_autoshadowspell/"
+		}, {
+			type: "STR",
+			file: "new_autoshadowspell/new_autoshadowspell_bottom/new_autoshadowspell_bottom",
+			texturePath: "new_autoshadowspell/new_autoshadowspell_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_lg_cannonspear: [{
+			type: "STR",
+			file: "new_cannon_spear/new_cannon_spear_bottom/new_cannon_spear_bottom",
+			texturePath: "new_cannon_spear/new_cannon_spear_bottom/",
+			renderBeforeEntities: true,
+			wav: "effect/lg_cannonspear"
+		}],
+		ef_lg_banishingpoint_cast: [{
+			type: "STR",
+			file: "new_banishingpoint/new_banishingpoint_cast/new_banishingpoint_cast",
+			texturePath: "new_banishingpoint/new_banishingpoint_cast/",
+			wav: "effect/lg_banishingpoint"
+		}, {
+			type: "STR",
+			file: "new_banishingpoint/new_banishingpoint_cast_bottom/new_banishingpoint_cast_bottom",
+			texturePath: "new_banishingpoint/new_banishingpoint_cast_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_lg_overbrand_cast: [{
+			type: "STR",
+			file: "new_overbrand/new_overbrand_cast/new_overbrand_cast",
+			texturePath: "new_overbrand/new_overbrand_cast/",
+			wav: "effect/lg_overbrand"
+		}, {
+			type: "STR",
+			file: "new_overbrand/new_overbrand_cast_bottom/new_overbrand_cast_bottom",
+			texturePath: "new_overbrand/new_overbrand_cast_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_lg_overbrand_hit: [{
+			type: "STR",
+			file: "new_overbrand/new_overbrand_hit/new_overbrand_hit",
+			texturePath: "new_overbrand/new_overbrand_hit/"
+		}],
+		ef_lg_rayofgenesis: [{
+			type: "STR",
+			file: "new_rayofgenesis/new_rayofgenesis/new_rayofgenesis",
+			texturePath: "new_rayofgenesis/new_rayofgenesis/",
+			wav: "effect/lg_rayofgenesis"
+		}],
+		ef_lg_rayofgenesis_cast: [{
+			type: "STR",
+			file: "new_rayofgenesis/new_rayofgenesis_cast/new_rayofgenesis_cast",
+			texturePath: "new_rayofgenesis/new_rayofgenesis_cast/"
+		}, {
+			type: "STR",
+			file: "new_rayofgenesis/new_rayofgenesis_cast_bottom/new_rayofgenesis_cast_bottom",
+			texturePath: "new_rayofgenesis/new_rayofgenesis_cast_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_lg_rayofgenesis_hit: [{
+			type: "STR",
+			file: "new_rayofgenesis/new_rayofgenesis_hit/new_rayofgenesis_hit",
+			texturePath: "new_rayofgenesis/new_rayofgenesis_hit/"
+		}],
+		ef_lg_earthdrive: [{
+			type: "STR",
+			file: "new_earthdrive/new_earthdrive/new_earthdrive",
+			texturePath: "new_earthdrive/new_earthdrive/",
+			wav: "effect/lg_earthdrive"
+		}, {
+			type: "STR",
+			file: "new_earthdrive/new_earthdrive_bottom/new_earthdrive_bottom",
+			texturePath: "new_earthdrive/new_earthdrive_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_lg_overbrand_brandish_cast: [{
+			type: "STR",
+			file: "new_overbrand/new_overbrand_cast/new_overbrand_cast",
+			texturePath: "new_overbrand/new_overbrand_cast/"
+		}, {
+			type: "STR",
+			file: "new_overbrand/new_overbrand_cast_bottom/new_overbrand_cast_bottom",
+			texturePath: "new_overbrand/new_overbrand_cast_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_lg_overbrand_brandish_hit: [{
+			type: "STR",
+			file: "new_overbrand/new_overbrand_hit/new_overbrand_hit",
+			texturePath: "new_overbrand/new_overbrand_hit/"
+		}],
+		ef_lg_overbrand_plusatk_cast: [{
+			type: "STR",
+			file: "new_overbrand/new_overbrand_cast/new_overbrand_cast",
+			texturePath: "new_overbrand/new_overbrand_cast/"
+		}, {
+			type: "STR",
+			file: "new_overbrand/new_overbrand_cast_bottom/new_overbrand_cast_bottom",
+			texturePath: "new_overbrand/new_overbrand_cast_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_lg_overbrand_plusatk_hit: [{
+			type: "STR",
+			file: "new_overbrand/new_overbrand_hit/new_overbrand_hit",
+			texturePath: "new_overbrand/new_overbrand_hit/"
+		}],
+		ef_sr_fallenempire: [{
+			type: "STR",
+			file: "new_fallenempire/new_fallenempire/new_fallenempire",
+			texturePath: "new_fallenempire/new_fallenempire/",
+			wav: "effect/sr_fallenempire"
+		}, {
+			type: "STR",
+			file: "new_fallenempire/new_fallenempire_bottom/new_fallenempire_bottom",
+			texturePath: "new_fallenempire/new_fallenempire_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_sr_fallenempire_hit: [{
+			type: "STR",
+			file: "new_fallenempire/new_fallenempire_hit/new_fallenempire_hit",
+			texturePath: "new_fallenempire/new_fallenempire_hit/"
+		}],
+		ef_sr_tigercannon: [{
+			type: "STR",
+			file: "new_tigercannon/new_tigercannon",
+			texturePath: "new_tigercannon/",
+			wav: "effect/sr_tigercannon"
+		}],
+		ef_sr_rampageblaster: [{
+			type: "STR",
+			file: "new_rampageblaster/new_rampageblaster/new_rampageblaster",
+			texturePath: "new_rampageblaster/new_rampageblaster/",
+			wav: "effect/sr_rampageblaster"
+		}, {
+			type: "STR",
+			file: "new_rampageblaster/new_rampageblaster_bottom/new_rampageblaster_bottom",
+			texturePath: "new_rampageblaster/new_rampageblaster_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_sr_lightningwalk: [{
+			type: "STR",
+			file: "lightning",
+			texturePath: "",
+			wav: "effect/sr_lightningwalk"
+		}],
+		ef_sr_gateofhell_cast: [{
+			type: "STR",
+			file: "new_gateofhell/new_gateofhell_cast/new_gateofhell_cast",
+			texturePath: "new_gateofhell/new_gateofhell_cast/",
+			wav: "effect/sr_gateofhell"
+		}],
+		ef_sr_howlingoflion: [{
+			type: "STR",
+			file: "new_howlingoflion/new_howlingoflion/new_howlingoflion",
+			texturePath: "new_howlingoflion/new_howlingoflion/",
+			wav: "effect/sr_howlingoflion"
+		}, {
+			type: "STR",
+			file: "new_howlingoflion/new_howlingoflion_bottom/new_howlingoflion_bottom",
+			texturePath: "new_howlingoflion/new_howlingoflion_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_sr_howlingoflion_cast: [{
+			type: "STR",
+			file: "new_howlingoflion/new_howlingoflion_cast/new_howlingoflion_cast",
+			texturePath: "new_howlingoflion/new_howlingoflion_cast/"
+		}, {
+			type: "STR",
+			file: "new_howlingoflion/new_howlingoflion_cast_bottom/new_howlingoflion_cast_bottom",
+			texturePath: "new_howlingoflion/new_howlingoflion_cast_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_sr_howlingoflion_hit: [{
+			type: "STR",
+			file: "new_howlingoflion/new_howlingoflion_hit/new_howlingoflion_hit",
+			texturePath: "new_howlingoflion/new_howlingoflion_hit/"
+		}],
+		ef_wm_metalicsound: [{
+			type: "STR",
+			file: "new_metalicsound/new_metalicsound/new_metalicsound",
+			texturePath: "new_metalicsound/new_metalicsound/"
+		}, {
+			type: "STR",
+			file: "new_metalicsound/new_metalicsound_bottom/new_metalicsound_bottom",
+			texturePath: "new_metalicsound/new_metalicsound_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_wm_metalicsound_hit: [{
+			type: "STR",
+			file: "new_metalicsound/new_metalicsound_hit/new_metalicsound_hit",
+			texturePath: "new_metalicsound/new_metalicsound_hit/"
+		}],
+		ef_wm_reverberation_magic_hit: [{
+			type: "STR",
+			file: "new_reverberation/new_reverberation_hit/new_reverberation_hit",
+			texturePath: "new_reverberation/new_reverberation_hit/"
+		}],
+		ef_wm_severe_rainstorm: [{
+			type: "STR",
+			file: "new_severerainstorm/new_severerainstorm/new_severerainstorm",
+			texturePath: "new_severerainstorm/new_severerainstorm/"
+		}],
+		ef_wm_severe_rainstorm_cast: [{
+			type: "STR",
+			file: "new_severerainstorm/new_severerainstorm_cast/new_severerainstorm_cast",
+			texturePath: "new_severerainstorm/new_severerainstorm_cast/"
+		}],
+		ef_wm_sound_of_destruction_cast: [{
+			type: "STR",
+			file: "new_soundofdestruction/new_soundofdestruction_cast/new_soundofdestruction_cast",
+			texturePath: "new_soundofdestruction/new_soundofdestruction_cast/"
+		}, {
+			type: "STR",
+			file: "new_soundofdestruction/new_soundofdestruction_cast_bottom/new_soundofdestruction_cast_bottom",
+			texturePath: "new_soundofdestruction/new_soundofdestruction_cast_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_wm_unlimited_humming_voice: [{
+			type: "STR",
+			file: "new_unlimit/new_unlimit/new_unlimit",
+			texturePath: "new_unlimit/new_unlimit/"
+		}, {
+			type: "STR",
+			file: "new_unlimit/new_unlimit_bottom/new_unlimit_bottom",
+			texturePath: "new_unlimit/new_unlimit_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_wm_severe_rainstorm_melee: [{
+			type: "STR",
+			file: "new_severerainstorm/new_severerainstorm/new_severerainstorm",
+			texturePath: "new_severerainstorm/new_severerainstorm/"
+		}],
+		ef_wm_severe_rainstorm_melee_cast: [{
+			type: "STR",
+			file: "new_severerainstorm/new_severerainstorm_cast/new_severerainstorm_cast",
+			texturePath: "new_severerainstorm/new_severerainstorm_cast/"
+		}],
+		ef_so_earthgrave: [{
+			type: "STR",
+			file: "new_earthgrave/new_earthgrave/new_earthgrave",
+			texturePath: "new_earthgrave/new_earthgrave/"
+		}, {
+			type: "STR",
+			file: "new_earthgrave/new_earthgrave_bottom/new_earthgrave_bottom",
+			texturePath: "new_earthgrave/new_earthgrave_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_so_earthgrave_hit: [{
+			type: "STR",
+			file: "new_earthgrave/new_earthgrave_hit/new_earthgrave_hit",
+			texturePath: "new_earthgrave/new_earthgrave_hit/"
+		}],
+		ef_so_diamonddust: [{
+			type: "STR",
+			file: "new_diamonddust/new_diamonddust/new_diamonddust",
+			texturePath: "new_diamonddust/new_diamonddust/"
+		}, {
+			type: "STR",
+			file: "new_diamonddust/new_diamonddust_bottom/new_diamonddust_bottom",
+			texturePath: "new_diamonddust/new_diamonddust_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_so_diamonddust_cast: [{
+			type: "STR",
+			file: "new_diamonddust/new_diamonddust_cast/new_diamonddust_cast",
+			texturePath: "new_diamonddust/new_diamonddust_cast/"
+		}],
+		ef_so_poison_buster: [{
+			type: "STR",
+			file: "poison",
+			texturePath: ""
+		}],
+		ef_so_psychic_wave: [{
+			type: "STR",
+			file: "new_psychicwave/new_psychicwave/new_psychicwave",
+			texturePath: "new_psychicwave/new_psychicwave/"
+		}, {
+			type: "STR",
+			file: "new_psychicwave/new_psychicwave_bottom/new_psychicwave_bottom",
+			texturePath: "new_psychicwave/new_psychicwave_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_so_psychic_wave_cast: [{
+			type: "STR",
+			file: "new_psychicwave/new_psychicwave_cast/new_psychicwave_cast",
+			texturePath: "new_psychicwave/new_psychicwave_cast/"
+		}],
+		ef_so_el_cure: [{
+			type: "STR",
+			file: "cure",
+			texturePath: ""
+		}],
+		ef_gn_cart_tornado: [{
+			type: "STR",
+			file: "new_cart_tornado/new_cart_tornado/new_cart_tornado",
+			texturePath: "new_cart_tornado/new_cart_tornado/"
+		}, {
+			type: "STR",
+			file: "new_cart_tornado/new_cart_tornado_bottom/new_cart_tornado_bottom",
+			texturePath: "new_cart_tornado/new_cart_tornado_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_gn_cartcannon: [{
+			type: "STR",
+			file: "new_cart_cannon/new_cart_cannon/new_cart_cannon",
+			texturePath: "new_cart_cannon/new_cart_cannon/"
+		}],
+		ef_gn_cartcannon_cast: [{
+			type: "STR",
+			file: "new_cart_cannon/new_cart_cannon_cast/new_cart_cannon_cast",
+			texturePath: "new_cart_cannon/new_cart_cannon_cast/"
+		}, {
+			type: "STR",
+			file: "new_cart_cannon/new_cart_cannon_cast_bottom/new_cart_cannon_cast_bottom",
+			texturePath: "new_cart_cannon/new_cart_cannon_cast_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_gn_cartboost: [{
+			type: "STR",
+			file: "new_cartboost/new_cartboost/new_cartboost",
+			texturePath: "new_cartboost/new_cartboost/"
+		}, {
+			type: "STR",
+			file: "new_cartboost/new_cartboost_bottom/new_cartboost_bottom",
+			texturePath: "new_cartboost/new_cartboost_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_gn_wallofthorn_cast: [{
+			type: "STR",
+			file: "new_wallofthorn/new_wallofthorn_cast/new_wallofthorn_cast",
+			texturePath: "new_wallofthorn/new_wallofthorn_cast/"
+		}, {
+			type: "STR",
+			file: "new_wallofthorn/new_wallofthorn_cast_bottom/new_wallofthorn_cast_bottom",
+			texturePath: "new_wallofthorn/new_wallofthorn_cast_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_gn_mandragora: [{
+			type: "STR",
+			file: "new_mandragora/new_mandragora/new_mandragora",
+			texturePath: "new_mandragora/new_mandragora/"
+		}, {
+			type: "STR",
+			file: "new_mandragora/new_mandragora_bottom/new_mandragora_bottom",
+			texturePath: "new_mandragora/new_mandragora_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_gn_mandragora_cast: [{
+			type: "STR",
+			file: "new_mandragora/new_mandragora_cast/new_mandragora_cast",
+			texturePath: "new_mandragora/new_mandragora_cast/"
+		}],
+		ef_gn_changematerial: [{
+			type: "STR",
+			file: "changematerial_fa",
+			texturePath: ""
+		}, {
+			type: "STR",
+			file: "changematerial_su",
+			texturePath: ""
+		}],
+		ef_rl_e_chain: [{
+			type: "STR",
+			file: "rl_e_chain/eternal",
+			texturePath: "rl_e_chain/"
+		}],
+		ef_rl_firedance: [{
+			type: "STR",
+			file: "rl_fire_dance/firedance",
+			texturePath: "rl_fire_dance/"
+		}],
+		ef_rl_h_mine: [{
+			type: "STR",
+			file: "rl_h_mine/mine",
+			texturePath: "rl_h_mine/",
+			wav: "effect/rl_h_mine"
+		}],
+		ef_rl_p_alter: [{
+			type: "STR",
+			file: "rl_p_alter/platinum",
+			texturePath: "rl_p_alter/"
+		}],
+		ef_rl_fallen_angel: [{
+			type: "STR",
+			file: "rl_fallen_angel/penne",
+			texturePath: "rl_fallen_angel/"
+		}],
+		ef_rl_d_tail: [{
+			type: "STR",
+			file: "rl_d_tail/dtdt",
+			texturePath: "rl_d_tail/",
+			wav: "effect/rl_d_tail"
+		}],
+		ef_rl_fire_rain: [{
+			type: "STR",
+			file: "rl_fire_rain/fire_rain",
+			texturePath: "rl_fire_rain/",
+			wav: "effect/rl_fire_rain"
+		}],
+		ef_rl_heat_barrel: [{
+			type: "STR",
+			file: "rl_heat_barrel/htb",
+			texturePath: "rl_heat_barrel/"
+		}],
+		ef_rl_slugshot: [{
+			type: "STR",
+			file: "rl_slugshot/slug",
+			texturePath: "rl_slugshot/",
+			wav: "effect/rl_slugshot"
+		}],
+		ef_sj_fullmoonkick: [{
+			type: "STR",
+			file: "fullmoon_kick/fullmoon_kick",
+			texturePath: "fullmoon_kick/"
+		}],
+		ef_sj_newmoonkick: [{
+			type: "STR",
+			file: "newmoon_kick/newmoon_kick",
+			texturePath: "newmoon_kick/"
+		}],
+		ef_sj_flashkick: [{
+			type: "STR",
+			file: "flash_kick/flash_kick",
+			texturePath: "flash_kick/"
+		}],
+		ef_sj_fallingstar: [{
+			type: "STR",
+			file: "falling_star/falling_star",
+			texturePath: "falling_star/"
+		}],
+		ef_sj_document: [{
+			type: "STR",
+			file: "sj_document/sj_document",
+			texturePath: "sj_document/"
+		}],
+		ef_sj_solarburst: [{
+			type: "STR",
+			file: "solar_burst/solar_burst",
+			texturePath: "solar_burst/"
+		}],
+		ef_sj_prominencekick: [{
+			type: "STR",
+			file: "prominence_kick/prominence_kick",
+			texturePath: "prominence_kick/"
+		}],
+		ef_sp_soulgolem: [{
+			type: "STR",
+			file: "soul_golem/soul_golem",
+			texturePath: "soul_golem/"
+		}],
+		ef_sp_soulcurse: [{
+			type: "STR",
+			file: "soul_curse/soul_curse",
+			texturePath: "soul_curse/"
+		}],
+		ef_sp_soulrevolve: [{
+			type: "STR",
+			file: "soul_revolve/soul_revolve",
+			texturePath: "soul_revolve/"
+		}],
+		ef_ko_jyumonjikiri: [{
+			type: "STR",
+			file: "jyumonjikiri",
+			texturePath: ""
+		}],
+		ef_ko_setsudan: [{
+			type: "STR",
+			file: "setsudan",
+			texturePath: ""
+		}],
+		ef_ra_unlimit: [{
+			type: "STR",
+			file: "new_unlimit/new_unlimit/new_unlimit",
+			texturePath: "new_unlimit/new_unlimit/",
+			wav: "ra_unlimit"
+		}, {
+			type: "STR",
+			file: "new_unlimit/new_unlimit_bottom/new_unlimit_bottom",
+			texturePath: "new_unlimit/new_unlimit_bottom/",
+			renderBeforeEntities: true
+		}],
+		ef_su_bite: [{
+			type: "STR",
+			file: "su_bite/su_bite",
+			texturePath: "su_bite/"
+		}],
+		ef_su_scratch: [{
+			type: "STR",
+			file: "su_scratch/su_scratch",
+			texturePath: "su_scratch/",
+			wav: "effect/su_scratch"
+		}],
+		ef_su_sv_stemspear: [{
+			type: "STR",
+			file: "su_sv_stemspear/su_sv_stemspear",
+			texturePath: "su_sv_stemspear/"
+		}],
+		ef_su_scaroftarou: [{
+			type: "STR",
+			file: "su_scaroftarou/su_scaroftarou",
+			texturePath: "su_scaroftarou/",
+			wav: "effect/su_scaroftarou"
+		}],
+		ef_su_pickypeck: [{
+			type: "STR",
+			file: "su_pickypeck/su_pickypeck",
+			texturePath: "su_pickypeck/",
+			wav: "effect/su_pickypeck"
+		}],
+		ef_su_arclousedash: [{
+			type: "STR",
+			file: "su_arclousedash/su_arclousedash",
+			texturePath: "su_arclousedash/"
+		}],
+		ef_su_tunabelly: [{
+			type: "STR",
+			file: "su_tunabelly/su_scratch",
+			texturePath: "su_tunabelly/",
+			wav: "effect/su_tunabelly"
+		}, {
+			type: "STR",
+			file: "su_tunabelly/su_tunabelly",
+			texturePath: "su_tunabelly/"
+		}],
+		ef_su_bunchofshrimp: [{
+			type: "STR",
+			file: "su_bunchofshrimp/su_bunchofshrimp",
+			texturePath: "su_bunchofshrimp/"
+		}],
+		ef_su_freshshrimp: [{
+			type: "STR",
+			file: "su_freshshrimp/su_freshshrimp",
+			texturePath: "su_freshshrimp/"
+		}],
+		ef_su_powerofflock: [{
+			type: "STR",
+			file: "su_powerofflock/su_powerofflock",
+			texturePath: "su_powerofflock/",
+			wav: "effect/su_powerofflock"
+		}],
+		ef_su_svg_spirit: [{
+			type: "STR",
+			file: "su_svg_spirit/su_svg_spirit",
+			texturePath: "su_svg_spirit/",
+			wav: "effect/su_svg_spirit"
+		}],
+		ef_su_hiss: [{
+			type: "STR",
+			file: "su_hiss/su_hiss",
+			texturePath: "su_hiss/",
+			wav: "effect/su_hiss"
+		}],
+		ef_su_nyanggrass: [{
+			type: "STR",
+			file: "su_nyanggrass/su_nyanggrass",
+			texturePath: "su_nyanggrass/",
+			wav: "effect/su_nyanggrass"
+		}],
+		ef_su_grooming: [{
+			type: "STR",
+			file: "su_grooming/su_grooming",
+			texturePath: "su_grooming/",
+			wav: "effect/su_grooming"
+		}],
+		ef_su_chattering: [{
+			type: "STR",
+			file: "su_chattering/su_chattering",
+			texturePath: "su_chattering/",
+			wav: "effect/su_chattering"
+		}],
+		ef_nv_helpangel: [{
+			type: "STR",
+			file: "help_angel/help_angel/help_angel",
+			texturePath: "help_angel/help_angel/"
+		}, {
+			type: "STR",
+			file: "help_angel/help_angel_bottom/help_angel_bottom",
+			texturePath: "help_angel/help_angel_bottom/",
+			renderBeforeEntities: true
 		}]
 	};
 }));
