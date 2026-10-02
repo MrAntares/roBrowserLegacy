@@ -214548,6 +214548,33 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.RL_SLUGSHOT] = {};
 	SkillEffect[SkillConst_default.RL_HAMMER_OF_GOD] = {};
 	SkillEffect[SkillConst_default.RL_R_TRIP_PLUSATK] = {};
+	SkillEffect[SkillConst_default.NW_INTENSIVE_AIM] = { effectId: "ef_nw_intensive_aim" };
+	SkillEffect[SkillConst_default.NW_GRENADE_FRAGMENT] = { effectId: "ef_nw_grenade_fragment" };
+	SkillEffect[SkillConst_default.NW_THE_VIGILANTE_AT_NIGHT] = { effectId: "ef_nw_the_vigilante_at_night" };
+	SkillEffect[SkillConst_default.NW_ONLY_ONE_BULLET] = {
+		effectId: "ef_nw_only_one_bullet",
+		hitEffectId: "ef_nw_only_one_bullet_hit"
+	};
+	SkillEffect[SkillConst_default.NW_SPIRAL_SHOOTING] = { effectId: "ef_nw_spiral_shooting" };
+	SkillEffect[SkillConst_default.NW_MAGAZINE_FOR_ONE] = { effectId: "ef_nw_magazine_for_one" };
+	SkillEffect[SkillConst_default.NW_WILD_FIRE] = { effectId: "ef_nw_wild_fire" };
+	SkillEffect[SkillConst_default.NW_BASIC_GRENADE] = { effectId: "ef_nw_basic_grenade" };
+	SkillEffect[SkillConst_default.NW_GRENADES_DROPPING] = { effectId: "ef_nw_grenades_dropping" };
+	SkillEffect[SkillConst_default.NW_AUTO_FIRING_LAUNCHER] = { effectId: "ef_nw_auto_firing_launcher" };
+	SkillEffect[SkillConst_default.NW_HIDDEN_CARD] = { effectId: "ef_nw_hidden_card" };
+	SkillEffect[SkillConst_default.NW_MISSION_BOMBARD] = {
+		effectId: "ef_nw_mission_bombard",
+		hitEffectId: "ef_nw_mission_bombard_hit"
+	};
+	SkillEffect[5500] = {
+		effectId: "ef_nw_wild_shot",
+		effectIdOnCaster: "ef_nw_wild_shot_cast",
+		hitEffectId: "ef_nw_wild_shot_hit"
+	};
+	SkillEffect[5501] = {
+		effectId: "ef_nw_midnight_fallen",
+		effectIdOnCaster: "ef_nw_midnight_fallen_cast"
+	};
 	SkillEffect[SkillConst_default.KO_YAMIKUMO] = {};
 	SkillEffect[SkillConst_default.KO_JYUMONJIKIRI] = {};
 	SkillEffect[SkillConst_default.KO_SETSUDAN] = {};
@@ -279095,6 +279122,157 @@ var init_EffectTable = __esmMin((() => {
 			},
 			{ wav: "effect/RL_C_MARKER" }
 		],
+		ef_nw_intensive_aim: [{
+			type: "STR",
+			file: "night_watch/nw_intensive_aim/intensive_aim_full/intensiveaim_full",
+			texturePath: "night_watch/nw_intensive_aim/intensive_aim_full/",
+			min: "night_watch/nw_intensive_aim/intensive_aim_full/min_intensiveaim_full",
+			wav: "effect/night_watch/nw_intensive_aim"
+		}],
+		ef_nw_grenade_fragment: [{
+			type: "STR",
+			file: "night_watch/nw_grenade_fragment/grenade_fragment_fire/grenade_fragment_fire",
+			texturePath: "night_watch/nw_grenade_fragment/grenade_fragment_fire/",
+			min: "night_watch/nw_grenade_fragment/grenade_fragment_fire/min_grenade_fragment_fire"
+		}],
+		ef_nw_the_vigilante_at_night: [{
+			type: "STR",
+			file: "night_watch/nw_the_vigilante_at_night/the_vigilante_at_night_bottom/the_vigilante_at_night_bottom",
+			texturePath: "night_watch/nw_the_vigilante_at_night/the_vigilante_at_night_bottom/",
+			min: "night_watch/nw_the_vigilante_at_night/the_vigilante_at_night_bottom/min_the_vigilante_at_night_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_nw_only_one_bullet: [{
+			type: "STR",
+			file: "night_watch/nw_only_one_bullet/only_one_bullet/only_one_bullet",
+			texturePath: "night_watch/nw_only_one_bullet/only_one_bullet/",
+			min: "night_watch/nw_only_one_bullet/only_one_bullet/min_only_one_bullet",
+			wav: "effect/night_watch/nw_only_one_bullet"
+		}],
+		ef_nw_only_one_bullet_hit: [{
+			type: "STR",
+			file: "night_watch/nw_only_one_bullet/only_one_bullet_hit/only_one_bullet_hit",
+			texturePath: "night_watch/nw_only_one_bullet/only_one_bullet_hit/",
+			min: "night_watch/nw_only_one_bullet/only_one_bullet_hit/min_only_one_bullet_hit"
+		}],
+		ef_nw_spiral_shooting: [{
+			type: "STR",
+			file: "night_watch/nw_spiral_shooting/spiral_shooting",
+			texturePath: "night_watch/nw_spiral_shooting/",
+			min: "night_watch/nw_spiral_shooting/min_spiral_shooting",
+			wav: "effect/night_watch/nw_spiral_shooting"
+		}],
+		ef_nw_magazine_for_one: [{
+			type: "STR",
+			file: "night_watch/nw_magazine_for_one/magazine_for_one",
+			texturePath: "night_watch/nw_magazine_for_one/",
+			min: "night_watch/nw_magazine_for_one/min_magazine_for_one",
+			wav: "effect/night_watch/nw_magazine_for_one"
+		}],
+		ef_nw_wild_fire: [{
+			type: "STR",
+			file: "night_watch/nw_wild_fire/wild_fire/wild_fire",
+			texturePath: "night_watch/nw_wild_fire/wild_fire/",
+			min: "night_watch/nw_wild_fire/wild_fire/min_wild_fire",
+			wav: "effect/night_watch/nw_wild_fire"
+		}, {
+			type: "STR",
+			file: "night_watch/nw_wild_fire/wild_fire_bottom/wild_fire_bottom",
+			texturePath: "night_watch/nw_wild_fire/wild_fire_bottom/",
+			min: "night_watch/nw_wild_fire/wild_fire_bottom/min_wild_fire_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_nw_basic_grenade: [{
+			type: "STR",
+			file: "night_watch/nw_basic_grenade/basic_grenade/basic_grenade",
+			texturePath: "night_watch/nw_basic_grenade/basic_grenade/",
+			min: "night_watch/nw_basic_grenade/basic_grenade/min_basic_grenade",
+			wav: "effect/night_watch/nw_basic_grenade"
+		}, {
+			type: "STR",
+			file: "night_watch/nw_basic_grenade/basic_grenade_bottom/basic_grenade_bottom",
+			texturePath: "night_watch/nw_basic_grenade/basic_grenade_bottom/",
+			min: "night_watch/nw_basic_grenade/basic_grenade_bottom/min_basic_grenade_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_nw_grenades_dropping: [{
+			type: "STR",
+			file: "night_watch/nw_grenades_dropping/grenades_dropping/grenades_dropping",
+			texturePath: "night_watch/nw_grenades_dropping/grenades_dropping/",
+			min: "night_watch/nw_grenades_dropping/grenades_dropping/min_grenades_dropping"
+		}, {
+			type: "STR",
+			file: "night_watch/nw_grenades_dropping/grenades_dropping_bottom/grenades_dropping_bottom",
+			texturePath: "night_watch/nw_grenades_dropping/grenades_dropping_bottom/",
+			min: "night_watch/nw_grenades_dropping/grenades_dropping_bottom/min_grenades_dropping_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_nw_auto_firing_launcher: [{
+			type: "STR",
+			file: "night_watch/nw_auto_firing_launcher/auto_firing_launcher/auto_firing_launcher",
+			texturePath: "night_watch/nw_auto_firing_launcher/auto_firing_launcher/",
+			min: "night_watch/nw_auto_firing_launcher/auto_firing_launcher/min_auto_firing_launcher",
+			wav: "effect/night_watch/nw_auto_firing_launcher"
+		}, {
+			type: "STR",
+			file: "night_watch/nw_auto_firing_launcher/auto_firing_launcher_bottom/auto_firing_launcher_bottom",
+			texturePath: "night_watch/nw_auto_firing_launcher/auto_firing_launcher_bottom/",
+			min: "night_watch/nw_auto_firing_launcher/auto_firing_launcher_bottom/min_auto_firing_launcher_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_nw_hidden_card: [{
+			type: "STR",
+			file: "night_watch/nw_hidden_card/hidden_card/hiddencard",
+			texturePath: "night_watch/nw_hidden_card/hidden_card/",
+			min: "night_watch/nw_hidden_card/hidden_card/min_hiddencard",
+			wav: "effect/night_watch/nw_hidden_card"
+		}],
+		ef_nw_mission_bombard: [{
+			type: "STR",
+			file: "night_watch/nw_mission_bombard/mission_bombard/mission_bombard",
+			texturePath: "night_watch/nw_mission_bombard/mission_bombard/",
+			min: "night_watch/nw_mission_bombard/mission_bombard/min_mission_bombard",
+			wav: "effect/night_watch/nw_mission_bombard"
+		}],
+		ef_nw_mission_bombard_hit: [{
+			type: "STR",
+			file: "night_watch/nw_mission_bombard/mission_bombard/mission_bombard_hit",
+			texturePath: "night_watch/nw_mission_bombard/mission_bombard/",
+			min: "night_watch/nw_mission_bombard/mission_bombard/min_mission_bombard_hit"
+		}],
+		ef_nw_wild_shot: [{
+			type: "STR",
+			file: "night_watch/nw_wild_shot/wild_shot/wild_shot",
+			texturePath: "night_watch/nw_wild_shot/wild_shot/",
+			min: "night_watch/nw_wild_shot/wild_shot/min_wild_shot"
+		}],
+		ef_nw_wild_shot_cast: [{
+			type: "STR",
+			file: "night_watch/nw_wild_shot/wild_shot_cast/wild_shot_cast",
+			texturePath: "night_watch/nw_wild_shot/wild_shot_cast/",
+			min: "night_watch/nw_wild_shot/wild_shot_cast/min_wild_shot_cast"
+		}],
+		ef_nw_wild_shot_hit: [{
+			type: "STR",
+			file: "night_watch/nw_wild_shot/wild_shot_hit/wild_shot_hit",
+			texturePath: "night_watch/nw_wild_shot/wild_shot_hit/",
+			min: "night_watch/nw_wild_shot/wild_shot_hit/min_wild_shot_hit"
+		}],
+		ef_nw_midnight_fallen: [{
+			type: "STR",
+			file: "night_watch/nw_midnight_fallen/midnight_fallen_bottom/midnight_fallen_bottom",
+			texturePath: "night_watch/nw_midnight_fallen/midnight_fallen_bottom/",
+			min: "night_watch/nw_midnight_fallen/midnight_fallen_bottom/min_midnight_fallen_bottom",
+			renderBeforeEntities: true,
+			wav: "effect/night_watch/nw_midnight_fallen"
+		}],
+		ef_nw_midnight_fallen_cast: [{
+			type: "STR",
+			file: "night_watch/nw_midnight_fallen/midnight_fallen_cast_bottom/midnight_fallen_cast_bottom",
+			texturePath: "night_watch/nw_midnight_fallen/midnight_fallen_cast_bottom/",
+			min: "night_watch/nw_midnight_fallen/midnight_fallen_cast_bottom/min_midnight_fallen_cast_bottom",
+			renderBeforeEntities: true
+		}],
 		ef_c_marker2: [{
 			type: "2D",
 			file: "effect/RL_C_MAKER/ome.bmp",
