@@ -16,7 +16,8 @@ vi.mock('DB/DBManager.js', async () => {
 	// Anything else the view asks for is not under test.
 	return { default: new Proxy(DB, { get: (t, k) => (k in t ? t[k] : () => null) }) };
 });
-vi.mock('Core/Client.js', () => ({ default: { loadFile: vi.fn() } }));
+// Answers every load at once, so a body that loads sets its dye again as it does in game.
+vi.mock('Core/Client.js', () => ({ default: { loadFile: vi.fn((path, onLoad) => onLoad && onLoad()) } }));
 vi.mock('DB/Monsters/ShadowTable.js', () => ({ default: {} }));
 vi.mock('Network/PacketVerManager.js', () => ({ default: { value: 20221005 } }));
 vi.mock('Renderer/GR2/GR2ModelRenderer.js', () => ({ default: {} }));
@@ -25,7 +26,7 @@ vi.mock('Renderer/Entity/EntityAction.js', () => ({ default: vi.fn() }));
 const { default: EntityViewInit } = await import('Renderer/Entity/EntityView.js');
 
 function entity(job, costume) {
-	const e = { _job: job, _sex: 1, _bodypalette: 0, costume };
+	const e = { _job: job, _sex: 1, _bodypalette: 0, costume, sound: {} };
 	EntityViewInit.call(e);
 	return e;
 }
@@ -64,13 +65,12 @@ describe('EntityView body palette', () => {
 
 	// PACKETVER is 20221005 here, so a body style value is read through
 	// getBodyVal: a Rune Knight's style draws the RUNE_KNIGHT_2ND costume body.
-	// Once that body loads, UpdateBodyStyle sets the dye again; so does this.
+	// Once that body loads, UpdateBodyStyle sets the dye again.
 	function styled(e, look) {
 		vi.useFakeTimers();
 		e.body = look;
 		vi.advanceTimersByTime(50);
 		vi.useRealTimers();
-		e.bodypalette = e._bodypalette;
 		return e;
 	}
 
@@ -94,5 +94,13 @@ describe('EntityView body palette', () => {
 		rk.bodypalette = 3;
 		styled(rk, 0);
 		expect(rk.files.body.pal).toBe(`${PalNameTable[JobId.RUNE_KNIGHT2]}_1_3.pal`);
+	});
+
+	it("keeps an admin's palette when a body style leaves the admin sprite as it is", () => {
+		const rk = entity(JobId.RUNE_KNIGHT, 0);
+		rk.isAdmin = true;
+		rk.bodypalette = 3;
+		styled(rk, 1);
+		expect(rk.files.body.pal).toBe(`${PalNameTable[JobId.RUNE_KNIGHT]}_1_3.pal`);
 	});
 });
