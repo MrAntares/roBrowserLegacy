@@ -17980,6 +17980,7 @@ export default {
 			type: 'STR',
 			file: 'imperial_guard/ig_guard_stance/new_guard_stance/new_guard_stance/new_guard_stance',
 			texturePath: 'imperial_guard/ig_guard_stance/new_guard_stance/new_guard_stance/',
+			fallback: ['guard_stance/guard_stance/guard_stance'],
 			wav: 'effect/ig_guard_stance'
 		}
 	],
@@ -17990,13 +17991,15 @@ export default {
 			type: 'STR',
 			file: 'imperial_guard/ig_guard_stance/new_guard_stance/new_guard_stance_cast/new_guard_stance_cast',
 			texturePath: 'imperial_guard/ig_guard_stance/new_guard_stance/new_guard_stance_cast/',
-			min: 'imperial_guard/ig_guard_stance/new_guard_stance/new_guard_stance_cast/min_new_guard_stance_cast'
+			min: 'imperial_guard/ig_guard_stance/new_guard_stance/new_guard_stance_cast/min_new_guard_stance_cast',
+			fallback: ['guard_stance/guard_stance_cast/guard_stance_cast']
 		},
 		{
 			type: 'STR',
 			file: 'imperial_guard/ig_guard_stance/new_guard_stance/new_guard_stance_cast_bottom/new_guard_stance_cast_bottom',
 			texturePath: 'imperial_guard/ig_guard_stance/new_guard_stance/new_guard_stance_cast_bottom/',
 			min: 'imperial_guard/ig_guard_stance/new_guard_stance/new_guard_stance_cast_bottom/min_new_guard_stance_cast_bottom',
+			fallback: ['guard_stance/guard_stance_cast_bottom/guard_stance_cast_bottom'],
 			renderBeforeEntities: true
 		}
 	],
@@ -18008,6 +18011,7 @@ export default {
 			file: 'imperial_guard/ig_guardian_shield/new_guardianshield/guardianshield/guardianshield',
 			texturePath: 'imperial_guard/ig_guardian_shield/new_guardianshield/guardianshield/',
 			min: 'imperial_guard/ig_guardian_shield/new_guardianshield/guardianshield/min_guardianshield',
+			fallback: ['guardianshield/guardianshield/guardianshield'],
 			wav: 'effect/ig_guardian_shield'
 		},
 		{
@@ -18015,6 +18019,7 @@ export default {
 			file: 'imperial_guard/ig_guardian_shield/new_guardianshield/guardianshield_bottom/guardianshield_bottom',
 			texturePath: 'imperial_guard/ig_guardian_shield/new_guardianshield/guardianshield_bottom/',
 			min: 'imperial_guard/ig_guardian_shield/new_guardianshield/guardianshield_bottom/min_guardianshield_bottom',
+			fallback: ['guardianshield/guardianshield_bottom/guardianshield_bottom'],
 			renderBeforeEntities: true
 		}
 	],
@@ -18026,6 +18031,7 @@ export default {
 			file: 'imperial_guard/ig_rebound_shield/new_rebound_shield/new_rebound_shield/new_rebound_shield',
 			texturePath: 'imperial_guard/ig_rebound_shield/new_rebound_shield/new_rebound_shield/',
 			min: 'imperial_guard/ig_rebound_shield/new_rebound_shield/new_rebound_shield/min_new_rebound_shield',
+			fallback: ['rebound_shield/rebound_shield/rebound_shield'],
 			wav: 'effect/ig_rebound_shield'
 		},
 		{
@@ -18033,6 +18039,7 @@ export default {
 			file: 'imperial_guard/ig_rebound_shield/new_rebound_shield/new_rebound_shield_bottom/new_rebound_shield_bottom',
 			texturePath: 'imperial_guard/ig_rebound_shield/new_rebound_shield/new_rebound_shield_bottom/',
 			min: 'imperial_guard/ig_rebound_shield/new_rebound_shield/new_rebound_shield_bottom/min_new_rebound_shield_bottom',
+			fallback: ['rebound_shield/rebound_shield_bottom/rebound_shield_bottom'],
 			renderBeforeEntities: true
 		}
 	],
@@ -18043,13 +18050,15 @@ export default {
 			type: 'STR',
 			file: 'imperial_guard/ig_rebound_shield/new_rebound_shield/rebound_shield_cast/rebound_shield_cast',
 			texturePath: 'imperial_guard/ig_rebound_shield/new_rebound_shield/rebound_shield_cast/',
-			min: 'imperial_guard/ig_rebound_shield/new_rebound_shield/rebound_shield_cast/min_rebound_shield_cast'
+			min: 'imperial_guard/ig_rebound_shield/new_rebound_shield/rebound_shield_cast/min_rebound_shield_cast',
+			fallback: ['rebound_shield/rebound_shield_cast/rebound_shield_cast']
 		},
 		{
 			type: 'STR',
 			file: 'imperial_guard/ig_rebound_shield/new_rebound_shield/rebound_shield_cast_bottom/rebound_shield_cast_bottom',
 			texturePath: 'imperial_guard/ig_rebound_shield/new_rebound_shield/rebound_shield_cast_bottom/',
 			min: 'imperial_guard/ig_rebound_shield/new_rebound_shield/rebound_shield_cast_bottom/min_rebound_shield_cast_bottom',
+			fallback: ['rebound_shield/rebound_shield_cast_bottom/rebound_shield_cast_bottom'],
 			renderBeforeEntities: true
 		}
 	],
@@ -18059,7 +18068,8 @@ export default {
 		{
 			type: 'STR',
 			file: 'imperial_guard/ig_attack_stance/new_attack_stance/new_attack_stance/new_attack_stance',
-			texturePath: 'imperial_guard/ig_attack_stance/new_attack_stance/new_attack_stance/'
+			texturePath: 'imperial_guard/ig_attack_stance/new_attack_stance/new_attack_stance/',
+			fallback: ['attack_stance/attack_stance/attack_stance']
 		}
 	],
 
@@ -18069,13 +18079,15 @@ export default {
 			type: 'STR',
 			file: 'imperial_guard/ig_attack_stance/new_attack_stance/new_attack_stance_cast/new_attack_stance_cast',
 			texturePath: 'imperial_guard/ig_attack_stance/new_attack_stance/new_attack_stance_cast/',
-			min: 'imperial_guard/ig_attack_stance/new_attack_stance/new_attack_stance_cast/min_new_attack_stance_cast'
+			min: 'imperial_guard/ig_attack_stance/new_attack_stance/new_attack_stance_cast/min_new_attack_stance_cast',
+			fallback: ['attack_stance/attack_stance_cast/attack_stance_cast']
 		},
 		{
 			type: 'STR',
 			file: 'imperial_guard/ig_attack_stance/new_attack_stance/new_attack_stance_cast_bottom/new_attack_stance_cast_bottom',
 			texturePath: 'imperial_guard/ig_attack_stance/new_attack_stance/new_attack_stance_cast_bottom/',
 			min: 'imperial_guard/ig_attack_stance/new_attack_stance/new_attack_stance_cast_bottom/min_new_attack_stance_cast_bottom',
+			fallback: ['attack_stance/attack_stance_cast_bottom/attack_stance_cast_bottom'],
 			renderBeforeEntities: true
 		}
 	],
@@ -18087,6 +18099,7 @@ export default {
 			file: 'imperial_guard/ig_ultimate_sacrifice/ultimatesacrifice/ultimatesacrifice',
 			texturePath: 'imperial_guard/ig_ultimate_sacrifice/ultimatesacrifice/',
 			min: 'imperial_guard/ig_ultimate_sacrifice/ultimatesacrifice/min_ultimatesacrifice',
+			fallback: ['ultimate_sacrifice/ultimatesacrifice/ultimatesacrifice'],
 			wav: 'effect/ig_ultimate_sacrifice'
 		},
 		{
@@ -18094,6 +18107,7 @@ export default {
 			file: 'imperial_guard/ig_ultimate_sacrifice/ultimatesacrifice_bottom/ultimatesacrifice_bottom',
 			texturePath: 'imperial_guard/ig_ultimate_sacrifice/ultimatesacrifice_bottom/',
 			min: 'imperial_guard/ig_ultimate_sacrifice/ultimatesacrifice_bottom/min_ultimatesacrifice_bottom',
+			fallback: ['ultimate_sacrifice/ultimatesacrifice_bottom/ultimatesacrifice_bottom'],
 			renderBeforeEntities: true
 		}
 	],
@@ -18104,7 +18118,8 @@ export default {
 			type: 'STR',
 			file: 'imperial_guard/ig_holy_shield/new_holy_shield/new_holy_shield/new_holy_shield',
 			texturePath: 'imperial_guard/ig_holy_shield/new_holy_shield/new_holy_shield/',
-			min: 'imperial_guard/ig_holy_shield/new_holy_shield/new_holy_shield/min_new_holy_shield'
+			min: 'imperial_guard/ig_holy_shield/new_holy_shield/new_holy_shield/min_new_holy_shield',
+			fallback: ['holy_shield/holy_shield/holy_shield']
 		},
 		{
 			type: 'STR',
@@ -18121,7 +18136,8 @@ export default {
 			type: 'STR',
 			file: 'imperial_guard/ig_holy_shield/new_holy_shield/new_holy_shield_cast/new_holy_shield_cast',
 			texturePath: 'imperial_guard/ig_holy_shield/new_holy_shield/new_holy_shield_cast/',
-			min: 'imperial_guard/ig_holy_shield/new_holy_shield/new_holy_shield_cast/min_new_holy_shield_cast'
+			min: 'imperial_guard/ig_holy_shield/new_holy_shield/new_holy_shield_cast/min_new_holy_shield_cast',
+			fallback: ['holy_shield/holy_shield_cast/holy_shield_cast']
 		},
 		{
 			type: 'STR',
@@ -18139,6 +18155,7 @@ export default {
 			file: 'imperial_guard/ig_grand_judgement/new_grand_judgement/new_grand_judgement/new_grand_judgement',
 			texturePath: 'imperial_guard/ig_grand_judgement/new_grand_judgement/new_grand_judgement/',
 			min: 'imperial_guard/ig_grand_judgement/new_grand_judgement/new_grand_judgement/min_new_grand_judgement',
+			fallback: ['grand_judgement/grand_judgement/grand_judgement'],
 			wav: 'effect/ig_grand_judgement'
 		},
 		{
@@ -18146,6 +18163,7 @@ export default {
 			file: 'imperial_guard/ig_grand_judgement/new_grand_judgement/new_grand_judgement_bottom/new_grand_judgement_bottom',
 			texturePath: 'imperial_guard/ig_grand_judgement/new_grand_judgement/new_grand_judgement_bottom/',
 			min: 'imperial_guard/ig_grand_judgement/new_grand_judgement/new_grand_judgement_bottom/min_new_grand_judgement_bottom',
+			fallback: ['grand_judgement/grand_judgement_bottom/grand_judgement_bottom'],
 			renderBeforeEntities: true
 		}
 	],
@@ -18156,13 +18174,15 @@ export default {
 			type: 'STR',
 			file: 'imperial_guard/ig_grand_judgement/new_grand_judgement/grand_judgement_cast/grand_judgement_cast',
 			texturePath: 'imperial_guard/ig_grand_judgement/new_grand_judgement/grand_judgement_cast/',
-			min: 'imperial_guard/ig_grand_judgement/new_grand_judgement/grand_judgement_cast/min_grand_judgement_cast'
+			min: 'imperial_guard/ig_grand_judgement/new_grand_judgement/grand_judgement_cast/min_grand_judgement_cast',
+			fallback: ['grand_judgement/grand_judgement_cast/grand_judgement_cast']
 		},
 		{
 			type: 'STR',
 			file: 'imperial_guard/ig_grand_judgement/new_grand_judgement/grand_judgement_cast_bottom/grand_judgement_cast_bottom',
 			texturePath: 'imperial_guard/ig_grand_judgement/new_grand_judgement/grand_judgement_cast_bottom/',
 			min: 'imperial_guard/ig_grand_judgement/new_grand_judgement/grand_judgement_cast_bottom/min_grand_judgement_cast_bottom',
+			fallback: ['grand_judgement/grand_judgement_cast_bottom/grand_judgement_cast_bottom'],
 			renderBeforeEntities: true
 		}
 	],
@@ -18174,6 +18194,7 @@ export default {
 			file: 'imperial_guard/ig_judgement_cross/new_judgement_cross/new_judgement_cross/new_judgement_cross',
 			texturePath: 'imperial_guard/ig_judgement_cross/new_judgement_cross/new_judgement_cross/',
 			min: 'imperial_guard/ig_judgement_cross/new_judgement_cross/new_judgement_cross/min_new_judgement_cross',
+			fallback: ['judgement_cross/judgement_cross/judgement_cross'],
 			wav: 'effect/ig_judgement_cross'
 		},
 		{
@@ -18181,6 +18202,7 @@ export default {
 			file: 'imperial_guard/ig_judgement_cross/new_judgement_cross/new_judgement_cross_bottom/new_judgement_cross_bottom',
 			texturePath: 'imperial_guard/ig_judgement_cross/new_judgement_cross/new_judgement_cross_bottom/',
 			min: 'imperial_guard/ig_judgement_cross/new_judgement_cross/new_judgement_cross_bottom/min_new_judgement_cross_bottom',
+			fallback: ['judgement_cross/judgement_cross_bottom/judgement_cross_bottom'],
 			renderBeforeEntities: true
 		}
 	],
@@ -18191,13 +18213,15 @@ export default {
 			type: 'STR',
 			file: 'imperial_guard/ig_judgement_cross/new_judgement_cross/new_judgement_cross_cast/new_judgement_cross_cast',
 			texturePath: 'imperial_guard/ig_judgement_cross/new_judgement_cross/new_judgement_cross_cast/',
-			min: 'imperial_guard/ig_judgement_cross/new_judgement_cross/new_judgement_cross_cast/min_new_judgement_cross_cast'
+			min: 'imperial_guard/ig_judgement_cross/new_judgement_cross/new_judgement_cross_cast/min_new_judgement_cross_cast',
+			fallback: ['judgement_cross/judgement_cross_cast/judgement_cross_cast']
 		},
 		{
 			type: 'STR',
 			file: 'imperial_guard/ig_judgement_cross/new_judgement_cross/new_judgement_cross_cast_bottom/new_judgement_cross_cast_bottom',
 			texturePath: 'imperial_guard/ig_judgement_cross/new_judgement_cross/new_judgement_cross_cast_bottom/',
 			min: 'imperial_guard/ig_judgement_cross/new_judgement_cross/new_judgement_cross_cast_bottom/min_new_judgement_cross_cast_bottom',
+			fallback: ['judgement_cross/judgement_cross_cast_bottom/judgement_cross_cast_bottom'],
 			renderBeforeEntities: true
 		}
 	],
@@ -18249,6 +18273,7 @@ export default {
 			type: 'STR',
 			file: 'imperial_guard/ig_overslash/new_overslash/new_overslash/new_overslash',
 			texturePath: 'imperial_guard/ig_overslash/new_overslash/new_overslash/',
+			fallback: ['overslash/overslash/overslash'],
 			wav: 'effect/ig_overslash'
 		},
 		{
@@ -18256,6 +18281,7 @@ export default {
 			file: 'imperial_guard/ig_overslash/new_overslash/new_overslash_bottom/new_overslash_bottom',
 			texturePath: 'imperial_guard/ig_overslash/new_overslash/new_overslash_bottom/',
 			min: 'imperial_guard/ig_overslash/new_overslash/new_overslash_bottom/min_new_overslash_bottom',
+			fallback: ['overslash/overslash_bottom/overslash_bottom'],
 			renderBeforeEntities: true
 		}
 	],
@@ -18266,7 +18292,8 @@ export default {
 			type: 'STR',
 			file: 'imperial_guard/ig_overslash/new_overslash/overslash_cast/overslash_cast',
 			texturePath: 'imperial_guard/ig_overslash/new_overslash/overslash_cast/',
-			min: 'imperial_guard/ig_overslash/new_overslash/overslash_cast/min_overslash_cast'
+			min: 'imperial_guard/ig_overslash/new_overslash/overslash_cast/min_overslash_cast',
+			fallback: ['overslash/overslash_cast/overslash_cast']
 		}
 	],
 
@@ -18276,7 +18303,8 @@ export default {
 			type: 'STR',
 			file: 'imperial_guard/ig_overslash/new_overslash/new_overslash_hit/new_overslash_hit',
 			texturePath: 'imperial_guard/ig_overslash/new_overslash/new_overslash_hit/',
-			min: 'imperial_guard/ig_overslash/new_overslash/new_overslash_hit/min_new_overslash_hit'
+			min: 'imperial_guard/ig_overslash/new_overslash/new_overslash_hit/min_new_overslash_hit',
+			fallback: ['overslash/overslash_hit/overslash_hit']
 		}
 	],
 
@@ -18287,6 +18315,7 @@ export default {
 			file: 'imperial_guard/ig_cross_rain/new_crossrain/new_cross_rain/new_cross_rain',
 			texturePath: 'imperial_guard/ig_cross_rain/new_crossrain/new_cross_rain/',
 			min: 'imperial_guard/ig_cross_rain/new_crossrain/new_cross_rain/min_new_cross_rain',
+			fallback: ['crossrain/cross_rain/cross_rain'],
 			wav: 'effect/ig_cross_rain'
 		},
 		{
@@ -18294,6 +18323,7 @@ export default {
 			file: 'imperial_guard/ig_cross_rain/new_crossrain/new_cross_rain_bottom/new_cross_rain_bottom',
 			texturePath: 'imperial_guard/ig_cross_rain/new_crossrain/new_cross_rain_bottom/',
 			min: 'imperial_guard/ig_cross_rain/new_crossrain/new_cross_rain_bottom/min_new_cross_rain_bottom',
+			fallback: ['crossrain/cross_rain_bottom/cross_rain_bottom'],
 			renderBeforeEntities: true
 		}
 	],
@@ -18304,13 +18334,15 @@ export default {
 			type: 'STR',
 			file: 'imperial_guard/ig_cross_rain/new_crossrain/new_cross_rain_cast/new_cross_rain_cast',
 			texturePath: 'imperial_guard/ig_cross_rain/new_crossrain/new_cross_rain_cast/',
-			min: 'imperial_guard/ig_cross_rain/new_crossrain/new_cross_rain_cast/min_new_cross_rain_cast'
+			min: 'imperial_guard/ig_cross_rain/new_crossrain/new_cross_rain_cast/min_new_cross_rain_cast',
+			fallback: ['crossrain/cross_rain_cast/cross_rain_cast']
 		},
 		{
 			type: 'STR',
 			file: 'imperial_guard/ig_cross_rain/new_crossrain/new_cross_rain_cast_bottom/new_cross_rain_cast_bottom',
 			texturePath: 'imperial_guard/ig_cross_rain/new_crossrain/new_cross_rain_cast_bottom/',
 			min: 'imperial_guard/ig_cross_rain/new_crossrain/new_cross_rain_cast_bottom/min_new_cross_rain_cast_bottom',
+			fallback: ['crossrain/cross_rain_cast_bottom/cross_rain_cast_bottom'],
 			renderBeforeEntities: true
 		}
 	],
@@ -18370,7 +18402,8 @@ export default {
 			type: 'STR',
 			file: 'imperial_guard/ig_imperial_pressure/new_rayofgenesis_hit/new_rayofgenesis_hit',
 			texturePath: 'imperial_guard/ig_imperial_pressure/new_rayofgenesis_hit/',
-			min: 'imperial_guard/ig_imperial_pressure/new_rayofgenesis_hit/min_new_rayofgenesis_hit'
+			min: 'imperial_guard/ig_imperial_pressure/new_rayofgenesis_hit/min_new_rayofgenesis_hit',
+			fallback: ['new_rayofgenesis/new_rayofgenesis_hit/new_rayofgenesis_hit']
 		}
 	],
 
@@ -20018,6 +20051,7 @@ export default {
 			file: 'dragon_knight/dk_servantweapon/servantweapon/servantweapon',
 			texturePath: 'dragon_knight/dk_servantweapon/servantweapon/',
 			min: 'dragon_knight/dk_servantweapon/servantweapon/min_servantweapon',
+			fallback: ['new_servantweapon/new_servantweapon/new_servantweapon'],
 			wav: 'effect/dk_servantweapon'
 		}
 	],
@@ -20028,7 +20062,8 @@ export default {
 			type: 'STR',
 			file: 'dragon_knight/dk_servantweapon/servantweapon_cast/servantweapon_cast',
 			texturePath: 'dragon_knight/dk_servantweapon/servantweapon_cast/',
-			min: 'dragon_knight/dk_servantweapon/servantweapon_cast/min_servantweapon_cast'
+			min: 'dragon_knight/dk_servantweapon/servantweapon_cast/min_servantweapon_cast',
+			fallback: ['new_servantweapon/new_servantweapon_cast/new_servantweapon_cast']
 		}
 	],
 
@@ -20038,13 +20073,15 @@ export default {
 			type: 'STR',
 			file: 'dragon_knight/dk_servantweapon/servantweapon_hit/servantweapon_hit',
 			texturePath: 'dragon_knight/dk_servantweapon/servantweapon_hit/',
-			min: 'dragon_knight/dk_servantweapon/servantweapon_hit/min_servantweapon_hit'
+			min: 'dragon_knight/dk_servantweapon/servantweapon_hit/min_servantweapon_hit',
+			fallback: ['new_servantweapon/new_servantweapon_hit/new_servantweapon_hit']
 		},
 		{
 			type: 'STR',
 			file: 'dragon_knight/dk_servantweapon/servantweapon_hit_bottom/servantweapon_hit_bottom',
 			texturePath: 'dragon_knight/dk_servantweapon/servantweapon_hit_bottom/',
 			min: 'dragon_knight/dk_servantweapon/servantweapon_hit_bottom/min_servantweapon_hit_bottom',
+			fallback: ['new_servantweapon/new_servantweapon_hit_bottom/new_servantweapon_hit_bottom'],
 			renderBeforeEntities: true
 		}
 	],
@@ -20073,6 +20110,7 @@ export default {
 			file: 'dragon_knight/dk_servant_w_sign/servant_sign/servant_sign',
 			texturePath: 'dragon_knight/dk_servant_w_sign/servant_sign/',
 			min: 'dragon_knight/dk_servant_w_sign/servant_sign/min_servant_sign',
+			fallback: ['servant_sign/servant_sign/servant_sign'],
 			wav: 'effect/dk_servant_w_sign'
 		},
 		{
@@ -20080,6 +20118,7 @@ export default {
 			file: 'dragon_knight/dk_servant_w_sign/servant_sign_bottom/servant_sign_bottom',
 			texturePath: 'dragon_knight/dk_servant_w_sign/servant_sign_bottom/',
 			min: 'dragon_knight/dk_servant_w_sign/servant_sign_bottom/min_servant_sign_bottom',
+			fallback: ['servant_sign/servant_sign_bottom/servant_sign_bottom'],
 			renderBeforeEntities: true
 		}
 	],
@@ -20091,6 +20130,7 @@ export default {
 			file: 'dragon_knight/dk_servant_w_phantom/servant_phantom_sub/servant_phantom_sub',
 			texturePath: 'dragon_knight/dk_servant_w_phantom/servant_phantom_sub/',
 			min: 'dragon_knight/dk_servant_w_phantom/servant_phantom_sub/min_servant_phantom_sub',
+			fallback: ['servant_phantom/servant_phantom_sub/servant_phantom_sub'],
 			wav: 'effect/dk_servant_w_phantom'
 		},
 		{
@@ -20098,6 +20138,7 @@ export default {
 			file: 'dragon_knight/dk_servant_w_phantom/servant_phantom_sub_bottom/servant_phantom_sub_bottom',
 			texturePath: 'dragon_knight/dk_servant_w_phantom/servant_phantom_sub_bottom/',
 			min: 'dragon_knight/dk_servant_w_phantom/servant_phantom_sub_bottom/min_servant_phantom_sub_bottom',
+			fallback: ['servant_phantom/servant_phantom_sub_bottom/servant_phantom_sub_bottom'],
 			renderBeforeEntities: true
 		}
 	],
@@ -20109,6 +20150,7 @@ export default {
 			file: 'dragon_knight/dk_servant_w_demol/servant_demolition_hit/servant_demolition_hit',
 			texturePath: 'dragon_knight/dk_servant_w_demol/servant_demolition_hit/',
 			min: 'dragon_knight/dk_servant_w_demol/servant_demolition_hit/min_servant_demolition_hit',
+			fallback: ['servant_demolition/servant_demolition_hit/servant_demolition_hit'],
 			wav: 'effect/dk_servant_w_demol'
 		}
 	],
@@ -20119,12 +20161,14 @@ export default {
 			type: 'STR',
 			file: 'dragon_knight/dk_chargingpierce/chargingpierce_cast/chargingpierce_cast',
 			texturePath: 'dragon_knight/dk_chargingpierce/chargingpierce_cast/',
+			fallback: ['new_chargingpierce/new_chargingpierce_cast/new_chargingpierce_cast'],
 			wav: 'effect/dk_chargingpierce1'
 		},
 		{
 			type: 'STR',
 			file: 'dragon_knight/dk_chargingpierce/chargingpierce_cast_bottom/chargingpierce_cast_bottom',
 			texturePath: 'dragon_knight/dk_chargingpierce/chargingpierce_cast_bottom/',
+			fallback: ['new_chargingpierce/new_chargingpierce_cast_bottom/new_chargingpierce_cast_bottom'],
 			renderBeforeEntities: true
 		}
 	],
@@ -20135,6 +20179,7 @@ export default {
 			type: 'STR',
 			file: 'dragon_knight/dk_chargingpierce/chargingpierce_hit/chargingpierce_hit',
 			texturePath: 'dragon_knight/dk_chargingpierce/chargingpierce_hit/',
+			fallback: ['new_chargingpierce/new_chargingpierce_hit/new_chargingpierce_hit'],
 			wav: 'effect/dk_chargingpierce2'
 		}
 	],
@@ -20146,6 +20191,7 @@ export default {
 			file: 'dragon_knight/dk_hackandslasher/hackandslash/hackandslash',
 			texturePath: 'dragon_knight/dk_hackandslasher/hackandslash/',
 			min: 'dragon_knight/dk_hackandslasher/hackandslash/min_hackandslash',
+			fallback: ['hackandslash/hackandslash/hackandslash'],
 			wav: 'effect/dk_hackandslasher'
 		},
 		{
@@ -20153,6 +20199,7 @@ export default {
 			file: 'dragon_knight/dk_hackandslasher/hackandslash_bottom/hackandslash_bottom',
 			texturePath: 'dragon_knight/dk_hackandslasher/hackandslash_bottom/',
 			min: 'dragon_knight/dk_hackandslasher/hackandslash_bottom/min_hackandslash_bottom',
+			fallback: ['hackandslash/hackandslash_bottom/hackandslash_bottom'],
 			renderBeforeEntities: true
 		}
 	],
@@ -20163,7 +20210,8 @@ export default {
 			type: 'STR',
 			file: 'dragon_knight/dk_hackandslasher/hackandslash_hit/hackandslash_hit',
 			texturePath: 'dragon_knight/dk_hackandslasher/hackandslash_hit/',
-			min: 'dragon_knight/dk_hackandslasher/hackandslash_hit/min_hackandslash_hit'
+			min: 'dragon_knight/dk_hackandslasher/hackandslash_hit/min_hackandslash_hit',
+			fallback: ['hackandslash/hackandslash_hit/hackandslash_hit']
 		}
 	],
 
@@ -20192,6 +20240,7 @@ export default {
 			file: 'dragon_knight/dk_madness_crusher/madness_crusher/madness_crusher',
 			texturePath: 'dragon_knight/dk_madness_crusher/madness_crusher/',
 			min: 'dragon_knight/dk_madness_crusher/madness_crusher/min_madness_crusher',
+			fallback: ['madness_crusher/madness_crusher/madness_crusher'],
 			wav: 'effect/dk_madness_crusher'
 		},
 		{
@@ -20199,6 +20248,7 @@ export default {
 			file: 'dragon_knight/dk_madness_crusher/madness_crusher_bottom/madness_crusher_bottom',
 			texturePath: 'dragon_knight/dk_madness_crusher/madness_crusher_bottom/',
 			min: 'dragon_knight/dk_madness_crusher/madness_crusher_bottom/min_madness_crusher_bottom',
+			fallback: ['madness_crusher/madness_crusher_bottom/madness_crusher_bottom'],
 			renderBeforeEntities: true
 		}
 	],
@@ -20210,6 +20260,7 @@ export default {
 			file: 'dragon_knight/dk_vigor/vigor_buff/vigor_buff',
 			texturePath: 'dragon_knight/dk_vigor/vigor_buff/',
 			min: 'dragon_knight/dk_vigor/vigor_buff/min_vigor_buff',
+			fallback: ['vigor/vigor_buff/vigor_buff'],
 			wav: 'effect/dk_vigor'
 		}
 	],
@@ -20220,7 +20271,8 @@ export default {
 			type: 'STR',
 			file: 'dragon_knight/dk_vigor/vigor_cast/vigor_cast',
 			texturePath: 'dragon_knight/dk_vigor/vigor_cast/',
-			min: 'dragon_knight/dk_vigor/vigor_cast/min_vigor_cast'
+			min: 'dragon_knight/dk_vigor/vigor_cast/min_vigor_cast',
+			fallback: ['vigor/vigor_cast/vigor_cast']
 		}
 	],
 
@@ -20232,6 +20284,7 @@ export default {
 			min: 'dragon_knight/dk_stormslash/stormslash/min_stormslash_%d',
 			rand: [1, 5],
 			texturePath: 'dragon_knight/dk_stormslash/stormslash/',
+			fallback: ['stormslash/stormslash/stormslash_%d'],
 			wav: 'effect/dk_stormslash1'
 		}
 	],
@@ -20317,6 +20370,7 @@ export default {
 			file: 'shadow_cross/shc_shadow_exceed/shadow_exceed_cast/shadow_exceed_cast',
 			texturePath: 'shadow_cross/shc_shadow_exceed/shadow_exceed_cast/',
 			min: 'shadow_cross/shc_shadow_exceed/shadow_exceed_cast/min_shadow_exceed_cast',
+			fallback: ['shadow_exceed/shadow_exceed_cast/shadow_exceed_cast'],
 			wav: 'effect/shc_shadow_exceed'
 		}
 	],
@@ -20327,12 +20381,14 @@ export default {
 			type: 'STR',
 			file: 'shadow_cross/shc_dancing_knife/dancing_knife_cast/dancing_knife_cast',
 			texturePath: 'shadow_cross/shc_dancing_knife/dancing_knife_cast/',
+			fallback: ['dancing_knife/dancing_knife_cast/dancing_knife_cast'],
 			wav: 'effect/shc_dancing_knife'
 		},
 		{
 			type: 'STR',
 			file: 'shadow_cross/shc_dancing_knife/dancing_knife_cast_bottom/dancing_knife_cast_bottom',
 			texturePath: 'shadow_cross/shc_dancing_knife/dancing_knife_cast_bottom/',
+			fallback: ['dancing_knife/dancing_knife_cast_bottom/dancing_knife_cast_bottom'],
 			renderBeforeEntities: true
 		}
 	],
@@ -20403,6 +20459,7 @@ export default {
 			type: 'STR',
 			file: 'shadow_cross/shc_shadow_stab/shadow_stab/shadow_stab',
 			texturePath: 'shadow_cross/shc_shadow_stab/shadow_stab/',
+			fallback: ['shadow_stab/shadow_stab/shadow_stab'],
 			wav: 'effect/shc_shadow_stab'
 		}
 	],
@@ -20414,6 +20471,7 @@ export default {
 			file: 'shadow_cross/shc_impact_crater/impact_crater/impact_crater',
 			texturePath: 'shadow_cross/shc_impact_crater/impact_crater/',
 			min: 'shadow_cross/shc_impact_crater/impact_crater/min_impact_crater',
+			fallback: ['impact_crater/impact_crater/impact_crater'],
 			wav: 'effect/shc_impact_crater'
 		},
 		{
@@ -20421,6 +20479,7 @@ export default {
 			file: 'shadow_cross/shc_impact_crater/impact_crater_bottom/impact_crater_bottom',
 			texturePath: 'shadow_cross/shc_impact_crater/impact_crater_bottom/',
 			min: 'shadow_cross/shc_impact_crater/impact_crater_bottom/min_impact_crater_bottom',
+			fallback: ['impact_crater/impact_crater_bottom/impact_crater_bottom'],
 			renderBeforeEntities: true
 		}
 	],
@@ -20431,7 +20490,8 @@ export default {
 			type: 'STR',
 			file: 'shadow_cross/shc_impact_crater/impact_crater_hit/impact_crater_hit',
 			texturePath: 'shadow_cross/shc_impact_crater/impact_crater_hit/',
-			min: 'shadow_cross/shc_impact_crater/impact_crater_hit/min_impact_crater_hit'
+			min: 'shadow_cross/shc_impact_crater/impact_crater_hit/min_impact_crater_hit',
+			fallback: ['impact_crater/impact_crater_hit/impact_crater_hit']
 		}
 	],
 
@@ -20441,13 +20501,15 @@ export default {
 			type: 'STR',
 			file: 'shadow_cross/shc_enchanting_shadow/enchanting_shadow/enchanting_shadow',
 			texturePath: 'shadow_cross/shc_enchanting_shadow/enchanting_shadow/',
-			min: 'shadow_cross/shc_enchanting_shadow/enchanting_shadow/min_enchanting_shadow'
+			min: 'shadow_cross/shc_enchanting_shadow/enchanting_shadow/min_enchanting_shadow',
+			fallback: ['enchanting_shadow/enchanting_shadow/new_enchanting_shadow']
 		},
 		{
 			type: 'STR',
 			file: 'shadow_cross/shc_enchanting_shadow/enchanting_shadow_bottom/enchanting_shadow_bottom',
 			texturePath: 'shadow_cross/shc_enchanting_shadow/enchanting_shadow_bottom/',
 			min: 'shadow_cross/shc_enchanting_shadow/enchanting_shadow_bottom/min_enchanting_shadow_bottom',
+			fallback: ['enchanting_shadow/enchanting_shadow_bottom/new_enchanting_shadow_bottom'],
 			renderBeforeEntities: true
 		}
 	],
@@ -21325,6 +21387,7 @@ export default {
 			file: 'windhawk/calamitygale/calumitygale_cast/calumitygale_cast',
 			texturePath: 'windhawk/calamitygale/calumitygale_cast/',
 			min: 'windhawk/calamitygale/calumitygale_cast/min_calumitygale_cast',
+			fallback: ['4wh_calumitygale/calumitygale_cast/calumitygale_cast'],
 			wav: 'effect/wh_calamitygale'
 		}
 	],
