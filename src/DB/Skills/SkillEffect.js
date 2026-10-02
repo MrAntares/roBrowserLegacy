@@ -1018,6 +1018,81 @@ SkillEffect[SK.SR_FLASHCOMBO] = { effectId: 1043 }; //Flash Combo
 SkillEffect[SK.SC_ESCAPE] = {}; //Emergency Escape
 SkillEffect[SK.AB_OFFERTORIUM] = { effectId: 1047 }; //Offertorium
 SkillEffect[SK.WL_TELEKINESIS_INTENSE] = { effectId: 1048 }; //Intense Telekinesis
+SkillEffect[SK.AG_DEADLY_PROJECTION] = {
+	effectIdOnCaster: 'ef_ag_deadly_projection_cast',
+	hitEffectId: 'ef_ag_deadly_projection_hit'
+}; //Deadly Projection
+SkillEffect[SK.AG_DESTRUCTIVE_HURRICANE] = {
+	effectId: 'ef_ag_destructive_hurricane',
+	effectIdOnCaster: 'ef_ag_destructive_hurricane_cast',
+	hitEffectId: 'ef_ag_destructive_hurricane_hit'
+}; //Destructive Hurricane
+SkillEffect[SK.AG_RAIN_OF_CRYSTAL] = {
+	effectIdOnCaster: 'ef_ag_rain_of_crystal_cast',
+	hitEffectId: 'ef_ag_rain_of_crystal_hit'
+}; //Rain Of Crystal
+SkillEffect[SK.AG_MYSTERY_ILLUSION] = {
+	effectId: 'ef_ag_mystery_illusion',
+	effectIdOnCaster: 'ef_ag_mystery_illusion_cast',
+	hitEffectId: 'ef_ag_mystery_illusion_hit'
+}; //Mystery Illusion
+SkillEffect[SK.AG_VIOLENT_QUAKE] = {
+	effectId: 'ef_ag_violent_quake',
+	effectIdOnCaster: 'ef_ag_violent_quake_cast',
+	hitEffectId: 'ef_ag_violent_quake_hit'
+}; //Violent Quake
+SkillEffect[SK.AG_VIOLENT_QUAKE_ATK] = { effectId: 'ef_ag_violent_quake_atk' }; //Violent Quake Attack
+SkillEffect[SK.AG_SOUL_VC_STRIKE] = {
+	effectIdOnCaster: 'ef_ag_soul_vc_strike_cast',
+	hitEffectId: 'ef_ag_soul_vc_strike_hit'
+}; //Soul Vulcan Strike
+SkillEffect[SK.AG_STRANTUM_TREMOR] = {
+	effectId: 'ef_ag_strantum_tremor',
+	effectIdOnCaster: 'ef_ag_strantum_tremor_cast',
+	hitEffectId: 'ef_ag_strantum_tremor_hit'
+}; //Strantum Tremor
+SkillEffect[SK.AG_ALL_BLOOM] = {
+	effectId: 'ef_ag_all_bloom',
+	effectIdOnCaster: 'ef_ag_all_bloom_cast',
+	hitEffectId: 'ef_ag_all_bloom_hit'
+}; //All Bloom
+SkillEffect[SK.AG_ALL_BLOOM_ATK] = { effectId: 'ef_ag_all_bloom_atk' }; //All Bloom Attack
+SkillEffect[SK.AG_ALL_BLOOM_ATK2] = { effectId: 'ef_ag_all_bloom_atk2' }; //All Bloom Attack 2
+SkillEffect[SK.AG_CRYSTAL_IMPACT] = {
+	effectId: 'ef_ag_crystal_impact',
+	effectIdOnCaster: 'ef_ag_crystal_impact_cast',
+	hitEffectId: 'ef_ag_crystal_impact_hit'
+}; //Crystal Impact
+SkillEffect[SK.AG_CRYSTAL_IMPACT_ATK] = { effectId: 'ef_ag_crystal_impact_atk' }; //Crystal Impact Attack
+SkillEffect[SK.AG_TORNADO_STORM] = {
+	effectId: 'ef_ag_tornado_storm',
+	effectIdOnCaster: 'ef_ag_tornado_storm_cast',
+	hitEffectId: 'ef_ag_tornado_storm_hit'
+}; //Tornado Storm
+SkillEffect[SK.AG_ASTRAL_STRIKE] = { effectId: 'ef_ag_astral_strike', effectIdOnCaster: 'ef_ag_astral_strike_cast' }; //Astral Strike
+SkillEffect[SK.AG_CLIMAX] = { effectId: 'ef_ag_climax', effectIdOnCaster: 'ef_ag_climax_cast' }; //Climax
+SkillEffect[SK.AG_ROCK_DOWN] = {
+	effectId: 'ef_ag_rock_down',
+	effectIdOnCaster: 'ef_ag_rock_down_cast',
+	hitEffectId: 'ef_ag_rock_down_hit'
+}; //Rock Down
+SkillEffect[SK.AG_STORM_CANNON] = { effectId: 'ef_ag_storm_cannon', effectIdOnCaster: 'ef_ag_storm_cannon_cast' }; //Storm Cannon
+SkillEffect[SK.AG_CRIMSON_ARROW] = {
+	effectId: 'ef_ag_crimson_arrow',
+	effectIdOnCaster: 'ef_ag_crimson_arrow_cast',
+	hitEffectId: 'ef_ag_crimson_arrow_hit'
+}; //Crimson Arrow
+SkillEffect[SK.AG_CRIMSON_ARROW_ATK] = { effectId: 'ef_ag_crimson_arrow_atk' }; //Crimson Arrow Attack
+SkillEffect[SK.AG_FROZEN_SLASH] = {
+	effectId: 'ef_ag_frozen_slash',
+	effectIdOnCaster: 'ef_ag_frozen_slash_cast',
+	hitEffectId: 'ef_ag_frozen_slash_hit'
+}; //Frozen Slash
+SkillEffect[5306 /* AG_DESTRUCTIVE_HURRICANE_CLIMAX */] = { effectId: 'ef_ag_destructive_hurricane_climax' }; //Destructive Hurricane Climax
+SkillEffect[6516 /* AG_ENERGY_CONVERSION */] = {
+	effectId: 'ef_ag_energy_conversion',
+	effectIdOnCaster: 'ef_ag_energy_conversion_cast'
+}; //Energy Conversion
 SkillEffect[SK.LG_KINGS_GRACE] = { effectId: 'ef_kings_grace' }; //King's Grace
 SkillEffect[SK.ALL_FULL_THROTTLE] = { effectId: 1042 }; //Full Throttle
 // Summoner
