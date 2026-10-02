@@ -214654,6 +214654,21 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.KG_KAGEHUMI] = {};
 	SkillEffect[SkillConst_default.KG_KYOMU] = {};
 	SkillEffect[SkillConst_default.KG_KAGEMUSYA] = {};
+	SkillEffect[SkillConst_default.SOA_TALISMAN_OF_PROTECTION] = { effectId: "ef_soa_talisman_of_protection" };
+	SkillEffect[SkillConst_default.SOA_TALISMAN_OF_WARRIOR] = { effectId: "ef_soa_talisman_of_warrior" };
+	SkillEffect[SkillConst_default.SOA_TALISMAN_OF_MAGICIAN] = { effectId: "ef_soa_talisman_of_magician" };
+	SkillEffect[SkillConst_default.SOA_SOUL_GATHERING] = { effectId: "ef_soa_soul_gathering" };
+	SkillEffect[SkillConst_default.SOA_TOTEM_OF_TUTELARY] = { effectId: "ef_soa_totem_of_tutelary" };
+	SkillEffect[SkillConst_default.SOA_TALISMAN_OF_FIVE_ELEMENTS] = { effectId: "ef_soa_talisman_of_five_elements" };
+	SkillEffect[SkillConst_default.SOA_TALISMAN_OF_SOUL_STEALING] = { effectId: "ef_soa_talisman_of_soul_stealing" };
+	SkillEffect[SkillConst_default.SOA_EXORCISM_OF_MALICIOUS_SOUL] = { effectId: "ef_soa_exorcism_of_malicious_soul" };
+	SkillEffect[SkillConst_default.SOA_TALISMAN_OF_BLUE_DRAGON] = { effectId: "ef_soa_talisman_of_blue_dragon" };
+	SkillEffect[SkillConst_default.SOA_TALISMAN_OF_WHITE_TIGER] = { effectId: "ef_soa_talisman_of_white_tiger" };
+	SkillEffect[SkillConst_default.SOA_TALISMAN_OF_RED_PHOENIX] = { effectId: "ef_soa_talisman_of_red_phoenix" };
+	SkillEffect[SkillConst_default.SOA_TALISMAN_OF_BLACK_TORTOISE] = { effectId: "ef_soa_talisman_of_black_tortoise" };
+	SkillEffect[SkillConst_default.SOA_TALISMAN_OF_FOUR_BEARING_GOD] = { effectId: "ef_soa_talisman_of_four_bearing_god" };
+	SkillEffect[SkillConst_default.SOA_CIRCLE_OF_DIRECTIONS_AND_ELEMENTALS] = { effectId: "ef_soa_circle_of_directions_and_elementals" };
+	SkillEffect[SkillConst_default.SOA_SOUL_OF_HEAVEN_AND_EARTH] = { effectId: "ef_soa_soul_of_heaven_and_earth" };
 	SkillEffect[SkillConst_default.OB_ZANGETSU] = {};
 	SkillEffect[SkillConst_default.OB_OBOROGENSOU] = {};
 	SkillEffect[SkillConst_default.OB_OBOROGENSOU_TRANSITION_ATK] = {};
@@ -273619,6 +273634,129 @@ var init_EffectTable = __esmMin((() => {
 			file: "storm_min",
 			wav: "effect/wizard_stormgust",
 			attachedEntity: true
+		}],
+		ef_soa_talisman_of_protection: [{
+			type: "STR",
+			file: "soul_ascetic/soa_talisman_of_protection/talisman_of_protection",
+			texturePath: "soul_ascetic/soa_talisman_of_protection/",
+			min: "soul_ascetic/soa_talisman_of_protection/min_talisman_of_protection",
+			wav: "effect/soul_ascetic/soa_talisman_of_protection"
+		}],
+		ef_soa_talisman_of_warrior: [{
+			type: "STR",
+			file: "soul_ascetic/soa_talisman_of_warrior/talisman_of_warrior",
+			texturePath: "soul_ascetic/soa_talisman_of_warrior/",
+			min: "soul_ascetic/soa_talisman_of_warrior/min_talisman_of_warrior",
+			wav: "effect/soul_ascetic/soa_talisman_of_warrior"
+		}],
+		ef_soa_talisman_of_magician: [{
+			type: "STR",
+			file: "soul_ascetic/soa_talisman_of_magician/talisman_of_magician/talisman_of_magician",
+			texturePath: "soul_ascetic/soa_talisman_of_magician/talisman_of_magician/",
+			min: "soul_ascetic/soa_talisman_of_magician/talisman_of_magician/min_talisman_of_magician"
+		}, {
+			type: "STR",
+			file: "soul_ascetic/soa_talisman_of_magician/talisman_of_magician_bottom/talisman_of_magician_bottom",
+			texturePath: "soul_ascetic/soa_talisman_of_magician/talisman_of_magician_bottom/",
+			min: "soul_ascetic/soa_talisman_of_magician/talisman_of_magician_bottom/min_talisman_of_magician_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_soa_soul_gathering: [{
+			type: "STR",
+			file: "soul_ascetic/soa_soul_gathering/soul_gathering",
+			texturePath: "soul_ascetic/soa_soul_gathering/",
+			min: "soul_ascetic/soa_soul_gathering/min_soul_gathering",
+			wav: "effect/soul_ascetic/soa_soul_gathering"
+		}],
+		ef_soa_totem_of_tutelary: [{
+			type: "STR",
+			file: "soul_ascetic/soa_totem_of_tutelary/totem_of_tutelary/totem_of_tutelary_end",
+			texturePath: "soul_ascetic/soa_totem_of_tutelary/totem_of_tutelary/",
+			min: "soul_ascetic/soa_totem_of_tutelary/totem_of_tutelary/min_totem_of_tutelary_end"
+		}],
+		ef_soa_talisman_of_five_elements: [{
+			type: "STR",
+			file: "soul_ascetic/soa_talisman_of_five_elements/talisman_of_the_five_elements",
+			texturePath: "soul_ascetic/soa_talisman_of_five_elements/",
+			min: "soul_ascetic/soa_talisman_of_five_elements/min_talisman_of_the_five_elements"
+		}],
+		ef_soa_talisman_of_soul_stealing: [{
+			type: "STR",
+			file: "soul_ascetic/soa_talisman_of_soul_stealing/talisman_of_soul_stealing",
+			texturePath: "soul_ascetic/soa_talisman_of_soul_stealing/",
+			min: "soul_ascetic/soa_talisman_of_soul_stealing/min_talisman_of_soul_stealing",
+			wav: "effect/soul_ascetic/soa_talisman_of_soul_stealing"
+		}],
+		ef_soa_exorcism_of_malicious_soul: [{
+			type: "STR",
+			file: "soul_ascetic/soa_exorcism_of_malicious_soul/exorcism_of_malicuous_soul",
+			texturePath: "soul_ascetic/soa_exorcism_of_malicious_soul/",
+			min: "soul_ascetic/soa_exorcism_of_malicious_soul/min_exorcism_of_malicuous_soul"
+		}],
+		ef_soa_talisman_of_blue_dragon: [{
+			type: "STR",
+			file: "soul_ascetic/soa_talisman_of_blue_dragon/talisman_of_blue_dragon",
+			texturePath: "soul_ascetic/soa_talisman_of_blue_dragon/",
+			min: "soul_ascetic/soa_talisman_of_blue_dragon/min_talisman_of_blue_dragon",
+			wav: "effect/soul_ascetic/soa_talisman_of_blue_dragon"
+		}],
+		ef_soa_talisman_of_white_tiger: [{
+			type: "STR",
+			file: "soul_ascetic/soa_talisman_of_white_tiger/talisman_of_white_tiger",
+			texturePath: "soul_ascetic/soa_talisman_of_white_tiger/",
+			min: "soul_ascetic/soa_talisman_of_white_tiger/min_talisman_of_white_tiger",
+			wav: "effect/soul_ascetic/soa_talisman_of_white_tiger"
+		}],
+		ef_soa_talisman_of_red_phoenix: [{
+			type: "STR",
+			file: "soul_ascetic/soa_talisman_of_red_phoenix/talisman_of_red_phoenix/talisman_of_red_phoenix",
+			texturePath: "soul_ascetic/soa_talisman_of_red_phoenix/talisman_of_red_phoenix/",
+			min: "soul_ascetic/soa_talisman_of_red_phoenix/talisman_of_red_phoenix/min_talisman_of_red_phoenix",
+			wav: "effect/soul_ascetic/soa_talisman_of_red_phoenix"
+		}, {
+			type: "STR",
+			file: "soul_ascetic/soa_talisman_of_red_phoenix/talisman_of_red_phoenix_bottom/talisman_of_red_phoenix_bottom",
+			texturePath: "soul_ascetic/soa_talisman_of_red_phoenix/talisman_of_red_phoenix_bottom/",
+			min: "soul_ascetic/soa_talisman_of_red_phoenix/talisman_of_red_phoenix_bottom/min_talisman_of_red_phoenix_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_soa_talisman_of_black_tortoise: [{
+			type: "STR",
+			file: "soul_ascetic/soa_talisman_of_black_tortoise/talisman_of_black_tortoise/talisman_of_black_tortoise",
+			texturePath: "soul_ascetic/soa_talisman_of_black_tortoise/talisman_of_black_tortoise/",
+			min: "soul_ascetic/soa_talisman_of_black_tortoise/talisman_of_black_tortoise/min_talisman_of_black_tortoise",
+			wav: "effect/soul_ascetic/soa_talisman_of_black_tortoise"
+		}, {
+			type: "STR",
+			file: "soul_ascetic/soa_talisman_of_black_tortoise/talisman_of_black_tortoise_bottom/talisman_of_black_tortoise_bottom",
+			texturePath: "soul_ascetic/soa_talisman_of_black_tortoise/talisman_of_black_tortoise_bottom/",
+			min: "soul_ascetic/soa_talisman_of_black_tortoise/talisman_of_black_tortoise_bottom/min_talisman_of_black_tortoise_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_soa_talisman_of_four_bearing_god: [{
+			type: "STR",
+			file: "soul_ascetic/soa_talisman_of_four_bearing_god/talisman_of_four_bearing_god",
+			texturePath: "soul_ascetic/soa_talisman_of_four_bearing_god/",
+			min: "soul_ascetic/soa_talisman_of_four_bearing_god/min_talisman_of_four_bearing_god",
+			wav: "effect/soul_ascetic/soa_talisman_of_four_bearing_god"
+		}],
+		ef_soa_circle_of_directions_and_elementals: [{
+			type: "STR",
+			file: "soul_ascetic/soa_circle_of_directions_and_elementals/circle_directions_elements/circle_directions_elements",
+			texturePath: "soul_ascetic/soa_circle_of_directions_and_elementals/circle_directions_elements/",
+			min: "soul_ascetic/soa_circle_of_directions_and_elementals/circle_directions_elements/min_circle_directions_elements"
+		}],
+		ef_soa_soul_of_heaven_and_earth: [{
+			type: "STR",
+			file: "soul_ascetic/soa_soul_of_heaven_and_earth/soul_of_heaven_and_earth/soul_of_heaven_and_earth",
+			texturePath: "soul_ascetic/soa_soul_of_heaven_and_earth/soul_of_heaven_and_earth/",
+			min: "soul_ascetic/soa_soul_of_heaven_and_earth/soul_of_heaven_and_earth/min_soul_of_heaven_and_earth",
+			wav: "effect/soul_ascetic/soa_soul_of_heaven_and_earth"
+		}, {
+			type: "STR",
+			file: "soul_ascetic/soa_soul_of_heaven_and_earth/soul_of_heaven_and_earth_buff/soul_of_heaven_and_earth_buff",
+			texturePath: "soul_ascetic/soa_soul_of_heaven_and_earth/soul_of_heaven_and_earth_buff/",
+			min: "soul_ascetic/soa_soul_of_heaven_and_earth/soul_of_heaven_and_earth_buff/min_soul_of_heaven_and_earth_buff"
 		}],
 		709: [{
 			type: "STR",
