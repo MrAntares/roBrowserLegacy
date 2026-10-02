@@ -983,6 +983,27 @@ SkillEffect[SK.RL_AM_BLAST] = {}; //Anti-Material Blast
 SkillEffect[SK.RL_SLUGSHOT] = {}; //Slug Shot
 SkillEffect[SK.RL_HAMMER_OF_GOD] = {}; //Hammer of God
 SkillEffect[SK.RL_R_TRIP_PLUSATK] = {}; //Round Trip Plus Attack
+SkillEffect[SK.NW_INTENSIVE_AIM] = { effectId: 'ef_nw_intensive_aim' }; //Intensive Aim
+SkillEffect[SK.NW_GRENADE_FRAGMENT] = { effectId: 'ef_nw_grenade_fragment' }; //Grenade Fragment
+SkillEffect[SK.NW_THE_VIGILANTE_AT_NIGHT] = { effectId: 'ef_nw_the_vigilante_at_night' }; //The Vigilante at Night
+SkillEffect[SK.NW_ONLY_ONE_BULLET] = { effectId: 'ef_nw_only_one_bullet', hitEffectId: 'ef_nw_only_one_bullet_hit' }; //Only One Bullet
+SkillEffect[SK.NW_SPIRAL_SHOOTING] = { effectId: 'ef_nw_spiral_shooting' }; //Spiral Shooting
+SkillEffect[SK.NW_MAGAZINE_FOR_ONE] = { effectId: 'ef_nw_magazine_for_one' }; //Magazine for One
+SkillEffect[SK.NW_WILD_FIRE] = { effectId: 'ef_nw_wild_fire' }; //Wild Fire
+SkillEffect[SK.NW_BASIC_GRENADE] = { effectId: 'ef_nw_basic_grenade' }; //Basic Grenade
+SkillEffect[SK.NW_GRENADES_DROPPING] = { effectId: 'ef_nw_grenades_dropping' }; //Grenades Dropping
+SkillEffect[SK.NW_AUTO_FIRING_LAUNCHER] = { effectId: 'ef_nw_auto_firing_launcher' }; //Auto Firing Launcher
+SkillEffect[SK.NW_HIDDEN_CARD] = { effectId: 'ef_nw_hidden_card' }; //Hidden Card
+SkillEffect[SK.NW_MISSION_BOMBARD] = { effectId: 'ef_nw_mission_bombard', hitEffectId: 'ef_nw_mission_bombard_hit' }; //Mission Bombard
+SkillEffect[5500 /* NW_WILD_SHOT */] = {
+	effectId: 'ef_nw_wild_shot',
+	effectIdOnCaster: 'ef_nw_wild_shot_cast',
+	hitEffectId: 'ef_nw_wild_shot_hit'
+}; //Wild Shot
+SkillEffect[5501 /* NW_MIDNIGHT_FALLEN */] = {
+	effectId: 'ef_nw_midnight_fallen',
+	effectIdOnCaster: 'ef_nw_midnight_fallen_cast'
+}; //Midnight Fallen
 // Kagerou & Oboro
 SkillEffect[SK.KO_YAMIKUMO] = {}; //Shadow Hiding
 SkillEffect[SK.KO_JYUMONJIKIRI] = {}; //Cross Slash
