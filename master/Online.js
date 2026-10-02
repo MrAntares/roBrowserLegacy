@@ -228149,7 +228149,7 @@ var init_SkillDescription = __esmMin((() => {
 //#region src/UI/Components/Guild/Guild.html?raw
 var Guild_default$2;
 var init_Guild$3 = __esmMin((() => {
-	Guild_default$2 = "<div id=\"Guild\">\r\n	<div class=\"titlebar\">\r\n		<ui-image src=\"basic_interface/titlebar_mid.bmp\"></ui-image>\r\n		<div class=\"right\">\r\n			<ui-button\r\n				class=\"base close\"\r\n				bg=\"basic_interface/sys_close_off.bmp\"\r\n				hover=\"basic_interface/sys_close_on.bmp\"\r\n			></ui-button>\r\n		</div>\r\n		<div class=\"clear\"></div>\r\n	</div>\r\n\r\n	<div class=\"tabs\">\r\n		<!--\r\n		--><button data-flag=\"0\" class=\"info\"><ui-text msg=\"340\">Guild Info</ui-text></button\r\n		><!--\r\n		--><button data-flag=\"1\" class=\"members\"><ui-text msg=\"341\">Guildsmen Info</ui-text></button\r\n		><!--\r\n		--><button data-flag=\"2\" class=\"positions\"><ui-text msg=\"342\">Position</ui-text></button\r\n		><!--\r\n		--><button data-flag=\"3\" class=\"skills\"><ui-text msg=\"343\">Guild Skill</ui-text></button\r\n		><!--\r\n		--><button data-flag=\"4\" class=\"history\"><ui-text msg=\"344\">Expel History</ui-text></button\r\n		><!--\r\n		--><button data-flag=\"6\" class=\"notice\"><ui-text msg=\"345\">Guild Notice</ui-text></button>\r\n	</div>\r\n\r\n	<div class=\"panel\">\r\n		<!-- INFO TAB -->\r\n		<div class=\"content info\">\r\n			<div class=\"name\"><ui-text msg=\"328\">Guild Name</ui-text> : <span class=\"value\"></span></div>\r\n			<div class=\"level\"><ui-text msg=\"329\">Guild lvl</ui-text> : <span class=\"value\"></span></div>\r\n			<div class=\"master\"><ui-text msg=\"330\">Guild Master</ui-text> : <span class=\"value\"></span></div>\r\n			<div class=\"members\">\r\n				<ui-text msg=\"331\">Guildsmen</ui-text> : <span class=\"numMember\">0</span> /\r\n				<span class=\"maxMember\">0</span>\r\n				<span class=\"online-icon\" data-background=\"basic_interface/grp_online.bmp\"></span>\r\n				<span class=\"online\"></span>\r\n			</div>\r\n			<div class=\"avglevel\"><ui-text msg=\"332\">Avg.lvl of Guildsmen</ui-text> : <span class=\"value\"></span></div>\r\n			<div class=\"territory\"><ui-text msg=\"333\">Territory</ui-text> : <span class=\"value\"></span></div>\r\n			<div class=\"tendency\">\r\n				<!-- Label only, with no value and no separator. The chart is the\r\n				     value. See docs/reference/guild/info-tab-legacy.md -->\r\n				<div class=\"title\"><ui-text msg=\"334\">Tendency</ui-text></div>\r\n				<div class=\"righteous\">R</div>\r\n				<div class=\"wiked\">W</div>\r\n				<div class=\"vulgar\">V</div>\r\n				<div class=\"famed\">F</div>\r\n				<canvas width=\"90\" height=\"90\"></canvas>\r\n			</div>\r\n			<div class=\"exp\"><ui-text msg=\"335\">EXP</ui-text> : <span class=\"value\"></span></div>\r\n			<div class=\"emblem\"><ui-text msg=\"336\">Emblem</ui-text></div>\r\n			<!-- The emblem is the picker: one file input, opened by clicking the\r\n			     emblem, by the Edit button or by a drop.\r\n			     See docs/reference/guild/emblem-picker.md -->\r\n			<div class=\"emblem_container\">\r\n				<label class=\"emblem_pick\"><input type=\"file\" accept=\".bmp,.gif,image/bmp,image/gif\" /></label>\r\n			</div>\r\n			<ui-button class=\"emblem_edit\" bg=\"btn_edit.bmp\" hover=\"btn_edit_a.bmp\" down=\"btn_edit_b.bmp\"></ui-button>\r\n\r\n			<div class=\"tax\"><ui-text msg=\"337\">Tax Point</ui-text> : <span class=\"value\">0</span></div>\r\n			<div class=\"ally\"><ui-text msg=\"338\">Alliance</ui-text></div>\r\n			<div class=\"ally_list\"></div>\r\n			<div class=\"hostile\"><ui-text msg=\"339\">Antagonist</ui-text></div>\r\n			<div class=\"hostile_list\"></div>\r\n		</div>\r\n\r\n		<!-- MEMBERS TAB -->\r\n		<div class=\"content members\">\r\n			<table>\r\n				<thead>\r\n					<tr>\r\n						<th class=\"name\"><ui-text msg=\"407\">Name</ui-text></th>\r\n						<th class=\"position\"><ui-text msg=\"503\">Position</ui-text></th>\r\n						<th class=\"job\"><ui-text msg=\"504\">Job</ui-text></th>\r\n						<th class=\"level\"><ui-text msg=\"408\">Level</ui-text></th>\r\n						<th class=\"note\"><ui-text msg=\"505\">Note</ui-text></th>\r\n						<th class=\"devotion\"><ui-text msg=\"506\">Tax</ui-text></th>\r\n						<th class=\"tax\"><ui-text msg=\"507\">Contribution</ui-text></th>\r\n					</tr>\r\n				</thead>\r\n				<tbody>\r\n					<tr class=\"MemberView\">\r\n						<td class=\"name\">\r\n							<canvas width=\"30\" height=\"30\"></canvas>\r\n							<span class=\"value\"></span>\r\n							<span class=\"lastlogin\"></span>\r\n						</td>\r\n						<td class=\"position\"></td>\r\n						<td class=\"job\"></td>\r\n						<td class=\"level\"></td>\r\n						<td class=\"note\"></td>\r\n						<td class=\"devotion\"></td>\r\n						<td class=\"tax\"></td>\r\n					</tr>\r\n				</tbody>\r\n			</table>\r\n		</div>\r\n\r\n		<!-- POSITIONS TAB -->\r\n		<div class=\"content positions\">\r\n			<table>\r\n				<thead>\r\n					<tr>\r\n						<th class=\"id\"><ui-text msg=\"510\">Rank</ui-text></th>\r\n						<th class=\"title\"><ui-text msg=\"511\">Position Title</ui-text></th>\r\n						<th class=\"invite\"><ui-text msg=\"512\">Invitation</ui-text></th>\r\n						<th class=\"punish\"><ui-text msg=\"513\">Punish</ui-text></th>\r\n						<th class=\"storage\"><ui-text msg=\"2499\">Storage</ui-text></th>\r\n						<th class=\"tax\"><ui-text msg=\"514\">Tax</ui-text></th>\r\n					</tr>\r\n				</thead>\r\n				<tbody>\r\n					<tr class=\"PositionView\">\r\n						<td class=\"id\"></td>\r\n						<td class=\"title\">\r\n							<input type=\"text\" value=\"\" />\r\n						</td>\r\n						<td class=\"invite\">\r\n							<div class=\"checkbox off\"></div>\r\n						</td>\r\n						<td class=\"punish\">\r\n							<div class=\"checkbox off\"></div>\r\n						</td>\r\n						<td class=\"storage\">\r\n							<div class=\"checkbox off\"></div>\r\n						</td>\r\n						<td class=\"tax\"><input type=\"text\" value=\"0\" maxlength=\"2\" /> %</td>\r\n					</tr>\r\n				</tbody>\r\n			</table>\r\n		</div>\r\n\r\n		<!-- SKILLS TAB -->\r\n		<div class=\"content skills\">\r\n			<div class=\"skill_list\">\r\n				<!-- Just to get reference, will be removed -->\r\n				<ui-button\r\n					class=\"btn levelup\"\r\n					bg=\"basic_interface/skill_up_a.bmp\"\r\n					hover=\"basic_interface/skill_up_b.bmp\"\r\n					down=\"basic_interface/skill_up_c.bmp\"\r\n				></ui-button>\r\n			</div>\r\n		</div>\r\n\r\n		<!-- HISTORY BAN TAB -->\r\n		<div class=\"content history\">\r\n			<table>\r\n				<thead>\r\n					<tr>\r\n						<th class=\"name\"><ui-text msg=\"407\">Name</ui-text></th>\r\n						<th class=\"reason\"><ui-text msg=\"462\">The Reason of Expulsion</ui-text></th>\r\n					</tr>\r\n				</thead>\r\n				<tbody>\r\n					<tr class=\"ExpelView\">\r\n						<td class=\"name\"></td>\r\n						<td class=\"reason\"></td>\r\n					</tr>\r\n				</tbody>\r\n			</table>\r\n		</div>\r\n\r\n		<!-- NOTICE TAB -->\r\n		<div class=\"content notice\">\r\n			<div class=\"subjectTitle\"><ui-text msg=\"515\">Title</ui-text></div>\r\n			<input type=\"text\" class=\"subject\" />\r\n\r\n			<div class=\"noticeTitle\"><ui-text msg=\"516\">Contents</ui-text></div>\r\n			<textarea class=\"notice\"></textarea>\r\n		</div>\r\n	</div>\r\n\r\n	<div class=\"footer\">\r\n		<ui-image src=\"basic_interface/btnbar_mid2.bmp\"></ui-image>\r\n		<ui-button\r\n			class=\"btn_disband\"\r\n			bg=\"btn_disband.bmp\"\r\n			hover=\"btn_disband_a.bmp\"\r\n			down=\"btn_disband_b.bmp\"\r\n		></ui-button>\r\n		<ui-button class=\"btn_ok\" bg=\"btn_ok.bmp\" hover=\"btn_ok_a.bmp\" down=\"btn_ok_b.bmp\"></ui-button>\r\n		<div class=\"text skpoints\">Skill Points: <span class=\"skpoints_count\">0</span></div>\r\n		<div class=\"sortlogin\">\r\n			<ui-button bg=\"checkbox_1.bmp\"></ui-button><ui-text msg=\"2864\">Show guild member login status</ui-text>\r\n		</div>\r\n		<!-- The client draws btn_close beside this one at x=92. It is left out on\r\n		     purpose, not missing: it carries the same command id as the titlebar's\r\n		     close button, so it is a duplicate. See Guild.js. -->\r\n		<ui-button class=\"btn btn_use\" bg=\"btn_use.bmp\" hover=\"btn_use_a.bmp\" down=\"btn_use_b.bmp\"></ui-button>\r\n	</div>\r\n\r\n	<!-- The whole window becomes the drop target while a file is dragged over\r\n	     it, the emblem alone being a 24x24 target.\r\n	     See docs/reference/guild/emblem-picker.md -->\r\n	<div class=\"emblem_drop\"><ui-text msg=\"336\">Emblem</ui-text></div>\r\n</div>\r\n";
+	Guild_default$2 = "<div id=\"Guild\">\r\n	<div class=\"titlebar\">\r\n		<ui-image src=\"basic_interface/titlebar_mid.bmp\"></ui-image>\r\n		<div class=\"right\">\r\n			<ui-button\r\n				class=\"base close\"\r\n				bg=\"basic_interface/sys_close_off.bmp\"\r\n				hover=\"basic_interface/sys_close_on.bmp\"\r\n			></ui-button>\r\n		</div>\r\n		<div class=\"clear\"></div>\r\n	</div>\r\n\r\n	<div class=\"tabs\">\r\n		<!--\r\n		--><button data-flag=\"0\" class=\"info\"><ui-text msg=\"340\">Guild Info</ui-text></button><!--\r\n		--><button data-flag=\"1\" class=\"members\"><ui-text msg=\"341\">Guildsmen Info</ui-text></button><!--\r\n		--><button data-flag=\"2\" class=\"positions\"><ui-text msg=\"342\">Position</ui-text></button><!--\r\n		--><button data-flag=\"3\" class=\"skills\"><ui-text msg=\"343\">Guild Skill</ui-text></button><!--\r\n		--><button data-flag=\"4\" class=\"history\"><ui-text msg=\"344\">Expel History</ui-text></button><!--\r\n		--><button data-flag=\"6\" class=\"notice\"><ui-text msg=\"345\">Guild Notice</ui-text></button>\r\n	</div>\r\n\r\n	<div class=\"panel\">\r\n		<!-- INFO TAB -->\r\n		<div class=\"content info\">\r\n			<div class=\"name\"><ui-text msg=\"328\">Guild Name</ui-text> : <span class=\"value\"></span></div>\r\n			<div class=\"level\"><ui-text msg=\"329\">Guild lvl</ui-text> : <span class=\"value\"></span></div>\r\n			<div class=\"master\"><ui-text msg=\"330\">Guild Master</ui-text> : <span class=\"value\"></span></div>\r\n			<div class=\"members\">\r\n				<ui-text msg=\"331\">Guildsmen</ui-text> : <span class=\"numMember\">0</span> /\r\n				<span class=\"maxMember\">0</span>\r\n				<span class=\"online-icon\" data-background=\"basic_interface/grp_online.bmp\"></span>\r\n				<span class=\"online\"></span>\r\n			</div>\r\n			<div class=\"avglevel\"><ui-text msg=\"332\">Avg.lvl of Guildsmen</ui-text> : <span class=\"value\"></span></div>\r\n			<div class=\"territory\"><ui-text msg=\"333\">Territory</ui-text> : <span class=\"value\"></span></div>\r\n			<div class=\"tendency\">\r\n				<!-- Label only, with no value and no separator. The chart is the\r\n				     value. See docs/reference/guild/info-tab-legacy.md -->\r\n				<div class=\"title\"><ui-text msg=\"334\">Tendency</ui-text></div>\r\n				<div class=\"righteous\">R</div>\r\n				<div class=\"wiked\">W</div>\r\n				<div class=\"vulgar\">V</div>\r\n				<div class=\"famed\">F</div>\r\n				<canvas width=\"90\" height=\"90\"></canvas>\r\n			</div>\r\n			<div class=\"exp\"><ui-text msg=\"335\">EXP</ui-text> : <span class=\"value\"></span></div>\r\n			<div class=\"emblem\"><ui-text msg=\"336\">Emblem</ui-text></div>\r\n			<!-- The emblem is the picker: one file input, opened by clicking the\r\n			     emblem, by the Edit button or by a drop.\r\n			     See docs/reference/guild/emblem-picker.md -->\r\n			<div class=\"emblem_container\">\r\n				<label class=\"emblem_pick\"><input type=\"file\" accept=\".bmp,.gif,image/bmp,image/gif\" /></label>\r\n			</div>\r\n			<ui-button class=\"emblem_edit\" bg=\"btn_edit.bmp\" hover=\"btn_edit_a.bmp\" down=\"btn_edit_b.bmp\"></ui-button>\r\n\r\n			<div class=\"tax\"><ui-text msg=\"337\">Tax Point</ui-text> : <span class=\"value\">0</span></div>\r\n			<div class=\"ally\"><ui-text msg=\"338\">Alliance</ui-text></div>\r\n			<div class=\"ally_list\"></div>\r\n			<div class=\"hostile\"><ui-text msg=\"339\">Antagonist</ui-text></div>\r\n			<div class=\"hostile_list\"></div>\r\n		</div>\r\n\r\n		<!-- MEMBERS TAB -->\r\n		<div class=\"content members\">\r\n			<table>\r\n				<thead>\r\n					<tr>\r\n						<th class=\"name\"><ui-text msg=\"407\">Name</ui-text></th>\r\n						<th class=\"position\"><ui-text msg=\"503\">Position</ui-text></th>\r\n						<th class=\"job\"><ui-text msg=\"504\">Job</ui-text></th>\r\n						<th class=\"level\"><ui-text msg=\"408\">Level</ui-text></th>\r\n						<th class=\"note\"><ui-text msg=\"505\">Note</ui-text></th>\r\n						<th class=\"devotion\"><ui-text msg=\"506\">Tax</ui-text></th>\r\n						<th class=\"tax\"><ui-text msg=\"507\">Contribution</ui-text></th>\r\n					</tr>\r\n				</thead>\r\n				<tbody>\r\n					<tr class=\"MemberView\">\r\n						<td class=\"name\">\r\n							<canvas width=\"30\" height=\"30\"></canvas>\r\n							<span class=\"value\"></span>\r\n							<span class=\"lastlogin\"></span>\r\n						</td>\r\n						<td class=\"position\"></td>\r\n						<td class=\"job\"></td>\r\n						<td class=\"level\"></td>\r\n						<td class=\"note\"></td>\r\n						<td class=\"devotion\"></td>\r\n						<td class=\"tax\"></td>\r\n					</tr>\r\n				</tbody>\r\n			</table>\r\n		</div>\r\n\r\n		<!-- POSITIONS TAB -->\r\n		<div class=\"content positions\">\r\n			<table>\r\n				<thead>\r\n					<tr>\r\n						<th class=\"id\"><ui-text msg=\"510\">Rank</ui-text></th>\r\n						<th class=\"title\"><ui-text msg=\"511\">Position Title</ui-text></th>\r\n						<th class=\"invite\"><ui-text msg=\"512\">Invitation</ui-text></th>\r\n						<th class=\"punish\"><ui-text msg=\"513\">Punish</ui-text></th>\r\n						<th class=\"storage\"><ui-text msg=\"2499\">Storage</ui-text></th>\r\n						<th class=\"tax\"><ui-text msg=\"514\">Tax</ui-text></th>\r\n					</tr>\r\n				</thead>\r\n				<tbody>\r\n					<tr class=\"PositionView\">\r\n						<td class=\"id\"></td>\r\n						<td class=\"title\">\r\n							<input type=\"text\" value=\"\" />\r\n						</td>\r\n						<td class=\"invite\">\r\n							<div class=\"checkbox off\"></div>\r\n						</td>\r\n						<td class=\"punish\">\r\n							<div class=\"checkbox off\"></div>\r\n						</td>\r\n						<td class=\"storage\">\r\n							<div class=\"checkbox off\"></div>\r\n						</td>\r\n						<td class=\"tax\"><input type=\"text\" value=\"0\" maxlength=\"2\" /> %</td>\r\n					</tr>\r\n				</tbody>\r\n			</table>\r\n		</div>\r\n\r\n		<!-- SKILLS TAB -->\r\n		<div class=\"content skills\">\r\n			<div class=\"skill_list\">\r\n				<!-- Just to get reference, will be removed -->\r\n				<ui-button\r\n					class=\"btn levelup\"\r\n					bg=\"basic_interface/skill_up_a.bmp\"\r\n					hover=\"basic_interface/skill_up_b.bmp\"\r\n					down=\"basic_interface/skill_up_c.bmp\"\r\n				></ui-button>\r\n			</div>\r\n		</div>\r\n\r\n		<!-- HISTORY BAN TAB -->\r\n		<div class=\"content history\">\r\n			<table>\r\n				<thead>\r\n					<tr>\r\n						<th class=\"name\"><ui-text msg=\"407\">Name</ui-text></th>\r\n						<th class=\"reason\"><ui-text msg=\"462\">The Reason of Expulsion</ui-text></th>\r\n					</tr>\r\n				</thead>\r\n				<tbody>\r\n					<tr class=\"ExpelView\">\r\n						<td class=\"name\"></td>\r\n						<td class=\"reason\"></td>\r\n					</tr>\r\n				</tbody>\r\n			</table>\r\n		</div>\r\n\r\n		<!-- NOTICE TAB -->\r\n		<div class=\"content notice\">\r\n			<div class=\"subjectTitle\"><ui-text msg=\"515\">Title</ui-text></div>\r\n			<input type=\"text\" class=\"subject\" />\r\n\r\n			<div class=\"noticeTitle\"><ui-text msg=\"516\">Contents</ui-text></div>\r\n			<textarea class=\"notice\"></textarea>\r\n		</div>\r\n	</div>\r\n\r\n	<div class=\"footer\">\r\n		<ui-image src=\"basic_interface/btnbar_mid2.bmp\"></ui-image>\r\n		<ui-button\r\n			class=\"btn_disband\"\r\n			bg=\"btn_disband.bmp\"\r\n			hover=\"btn_disband_a.bmp\"\r\n			down=\"btn_disband_b.bmp\"\r\n		></ui-button>\r\n		<ui-button class=\"btn_ok\" bg=\"btn_ok.bmp\" hover=\"btn_ok_a.bmp\" down=\"btn_ok_b.bmp\"></ui-button>\r\n		<div class=\"text skpoints\">Skill Points: <span class=\"skpoints_count\">0</span></div>\r\n		<div class=\"sortlogin\">\r\n			<ui-button bg=\"checkbox_1.bmp\"></ui-button><ui-text msg=\"2864\">Show guild member login status</ui-text>\r\n		</div>\r\n		<!-- The client draws btn_close beside this one at x=92. It is left out on\r\n		     purpose, not missing: it carries the same command id as the titlebar's\r\n		     close button, so it is a duplicate. See Guild.js. -->\r\n		<ui-button class=\"btn btn_use\" bg=\"btn_use.bmp\" hover=\"btn_use_a.bmp\" down=\"btn_use_b.bmp\"></ui-button>\r\n	</div>\r\n\r\n	<!-- The whole window becomes the drop target while a file is dragged over\r\n	     it, the emblem alone being a 24x24 target.\r\n	     See docs/reference/guild/emblem-picker.md -->\r\n	<div class=\"emblem_drop\"><ui-text msg=\"336\">Emblem</ui-text></div>\r\n</div>\r\n";
 }));
 //#endregion
 //#region src/UI/Components/Guild/Guild.css?raw
@@ -249644,8 +249644,9 @@ var init_SakuraWeatherEffect = __esmMin((() => {
 				const radY = leave.angY * Math.PI / 180;
 				const driftX = leave.swayFacX * Math.sin(radX);
 				const driftY = leave.swayFacY * Math.sin(radY);
-				leave.x += driftX * .1;
-				leave.y += driftY * .1;
+				const driftScale = dt / RAG_TICK_MS$1;
+				leave.x += driftX * .1 * driftScale;
+				leave.y += driftY * .1 * driftScale;
 				leave._lastTick = tick;
 				let alpha = 1;
 				let alphaCap = 1;
@@ -249771,11 +249772,14 @@ var init_PokJukWeatherEffect = __esmMin((() => {
 			};
 		}
 		render(gl, tick) {
-			for (let i = 0; i < this.fireworks.length; i++) {
-				const fw = this.fireworks[i];
-				this.updateFirework(fw);
-				this.drawFirework(fw);
+			const dt = Math.min(tick - (this._lastTick || tick), 250);
+			this._lastTick = tick;
+			this._accumTime = (this._accumTime || 0) + dt;
+			while (this._accumTime >= 16) {
+				this._accumTime -= 16;
+				for (let i = 0; i < this.fireworks.length; i++) this.updateFirework(this.fireworks[i]);
 			}
+			for (let i = 0; i < this.fireworks.length; i++) this.drawFirework(this.fireworks[i]);
 		}
 		updateFirework(fw) {
 			fw.process++;
@@ -250148,6 +250152,7 @@ var init_CloudWeatherEffect = __esmMin((() => {
 			cloud.direction[2] = (Math.random() * .1 - .05) * speed;
 			cloud.born_tick = cloud.death_tick ? cloud.death_tick + 2e3 : now;
 			cloud.death_tick = cloud.born_tick + 6e3;
+			cloud._lastTick = cloud.born_tick;
 		}
 		render(gl, tick) {
 			if (!this._display) return;
@@ -250179,7 +250184,9 @@ var init_CloudWeatherEffect = __esmMin((() => {
 				SpriteRenderer.zIndex = zindex;
 				SpriteRenderer.color[3] = opacity;
 				SpriteRenderer.image.texture = this._textures[cloud.sprite];
-				vec3$8.add(cloud.position, cloud.position, cloud.direction);
+				const dt = Math.min(tick - (cloud._lastTick || cloud.born_tick), 250);
+				cloud._lastTick = tick;
+				vec3$8.scaleAndAdd(cloud.position, cloud.position, cloud.direction, dt / 25);
 				SpriteRenderer.position.set(cloud.position);
 				SpriteRenderer.runWithDepth(!overlay, false, !overlay, () => {
 					SpriteRenderer.render();
@@ -256358,6 +256365,7 @@ function cloudInit(cloud) {
 	cloud.direction[2] = Math.random() * .002 - .001;
 	cloud.born_tick = cloud.death_tick ? cloud.death_tick + 2e3 : Date.now();
 	cloud.death_tick = cloud.born_tick + 6e3;
+	cloud._lastTick = cloud.born_tick;
 }
 /**
 * Rendering clouds on maps
@@ -256392,7 +256400,9 @@ function render$6(gl, modelView, projection, fog, tick) {
 		SpriteRenderer.zIndex = 0;
 		SpriteRenderer.color[3] = opacity;
 		SpriteRenderer.image.texture = _textures[cloud.sprite];
-		vec3$8.add(cloud.position, cloud.position, cloud.direction);
+		const dt = Math.min(tick - (cloud._lastTick || cloud.born_tick), 250);
+		cloud._lastTick = tick;
+		vec3$8.scaleAndAdd(cloud.position, cloud.position, cloud.direction, dt / 25);
 		SpriteRenderer.position.set(cloud.position);
 		SpriteRenderer.runWithDepth(true, false, true, function() {
 			SpriteRenderer.render();
@@ -260774,14 +260784,13 @@ var init_SwirlingAura = __esmMin((() => {
 			this.bands = [];
 			for (let ec = 0; ec < 3; ec++) this.bands.push({
 				life: 1,
-				process: 0,
+				initialRotStart: ec * 90,
 				rotStart: ec * 90,
 				maxHeight: (15 - 2 * ec) * GAME_TO_WORLD,
 				distance: (3.9 + .2 * ec) * GAME_TO_WORLD * INNER_CIRCLE_SCALE,
 				riseAngle: (55 - 5 * ec) * DEG_TO_RAD$1,
 				spinSpeed: ec + 3,
-				height: new Float32Array(E_DIVISION),
-				flag1: new Uint8Array(E_DIVISION)
+				height: new Float32Array(E_DIVISION)
 			});
 			this.basicAngle = FULL_DISPLAY_ANGLE / 20;
 			this.vertices = /* @__PURE__ */ new Float32Array(210);
@@ -260793,19 +260802,17 @@ var init_SwirlingAura = __esmMin((() => {
 		/**
 		* Update height profile for a band
 		*/
-		updateHeightProfile(band) {
+		updateHeightProfile(band, process) {
 			const middle = 10;
 			const step = 9;
-			for (let i = 0; i < E_DIVISION; i++) if (band.flag1[i] === 0) {
+			for (let i = 0; i < E_DIVISION; i++) {
 				const sinLimit = (90 + (i - middle) * step) * DEG_TO_RAD$1;
 				const sinLimitValue = Math.sin(sinLimit);
 				const maxPossible = band.maxHeight * sinLimitValue;
-				if (band.process <= 90) {
-					const sinProcess = Math.sin(band.process * DEG_TO_RAD$1);
-					band.height[i] = band.maxHeight * sinLimitValue * sinProcess;
-				}
-				band.height[i] = Math.max(0, Math.min(band.height[i], maxPossible));
-				if (band.height[i] >= maxPossible * .99) band.flag1[i] = 1;
+				if (process <= 90) {
+					const sinProcess = Math.sin(process * DEG_TO_RAD$1);
+					band.height[i] = Math.max(0, Math.min(band.maxHeight * sinLimitValue * sinProcess, maxPossible));
+				} else band.height[i] = maxPossible;
 			}
 		}
 		/**
@@ -260910,13 +260917,13 @@ var init_SwirlingAura = __esmMin((() => {
 			gl.enableVertexAttribArray(attribute.aPosition);
 			gl.enableVertexAttribArray(attribute.aTextureCoord);
 			const self = this;
+			const process = (tick - this.tick) / 25;
 			SpriteRenderer.runWithDepth(true, false, false, function() {
 				for (let ec = 0; ec < self.bands.length; ec++) {
 					const band = self.bands[ec];
 					if (!band.life) continue;
-					band.process++;
-					band.rotStart = (band.rotStart + band.spinSpeed) % 360;
-					self.updateHeightProfile(band);
+					band.rotStart = (band.initialRotStart + process * band.spinSpeed) % 360;
+					self.updateHeightProfile(band, process);
 					self.fillBandMesh(band);
 					gl.bindBuffer(gl.ARRAY_BUFFER, self.buffers[ec]);
 					gl.bufferSubData(gl.ARRAY_BUFFER, 0, self.vertices);
@@ -261078,6 +261085,8 @@ var init_GroundAura = __esmMin((() => {
 			this.aura[1].direction = -1;
 			this.cosCache = {};
 			this.sinCache = {};
+			this._lastTick = tick;
+			this._accumTime = 0;
 		}
 		/**
 		* Initialize instance
@@ -261099,16 +261108,29 @@ var init_GroundAura = __esmMin((() => {
 		render(gl, tick) {
 			const uniform = _program$7.uniform;
 			gl.bindTexture(gl.TEXTURE_2D, this.texture);
-			for (let i = 0; i < this.aura.length; i++) {
-				this.aura[i].riseAngle += 3;
-				if (this.aura[i].riseAngle && !(this.aura[i].riseAngle % 180)) {
-					this.aura[i].direction *= -1;
-					if (this.aura[i].direction < 0 && this.aura[i].size[0] < this.aura[i].initialSize[0] || this.aura[i].direction > 0 && this.aura[i].size[0] > this.aura[i].initialSize[0]) {
-						this.aura[i].size[0] = this.aura[i].initialSize[0];
-						this.aura[i].size[1] = this.aura[i].initialSize[1];
+			const RAG_TICK_MS = 25;
+			const dt = Math.min(tick - (this._lastTick || tick), 250);
+			this._lastTick = tick;
+			this._accumTime = (this._accumTime || 0) + dt;
+			while (this._accumTime >= RAG_TICK_MS) {
+				this._accumTime -= RAG_TICK_MS;
+				for (let i = 0; i < this.aura.length; i++) {
+					this.aura[i].riseAngle += 3;
+					if (this.aura[i].riseAngle && !(this.aura[i].riseAngle % 180)) {
+						this.aura[i].direction *= -1;
+						if (this.aura[i].direction < 0 && this.aura[i].size[0] < this.aura[i].initialSize[0] || this.aura[i].direction > 0 && this.aura[i].size[0] > this.aura[i].initialSize[0]) {
+							this.aura[i].size[0] = this.aura[i].initialSize[0];
+							this.aura[i].size[1] = this.aura[i].initialSize[1];
+						}
+					}
+					if (this.aura[i].riseAngle >= 360) this.aura[i].riseAngle -= 360;
+					if (this.aura[i].life) {
+						const auraAngle = i * 23;
+						const sizeModifier = calculateSize(this, this.aura, auraAngle, i);
+						this.aura[i].size[0] += sizeModifier[0] * this.aura[i].direction / (this.size / 2);
+						this.aura[i].size[1] += sizeModifier[1] * this.aura[i].direction / (this.size / 2);
 					}
 				}
-				if (this.aura[i].riseAngle >= 360) this.aura[i].riseAngle -= 360;
 			}
 			const groundZ = Altitude.getCellHeight(this.position[0], this.position[1]);
 			const worldPos = [
@@ -261122,9 +261144,6 @@ var init_GroundAura = __esmMin((() => {
 				for (let i = 0; i < self.aura.length; i++) {
 					if (!self.aura[i].life) continue;
 					const auraAngle = i * 23;
-					const sizeModifier = calculateSize(self, self.aura, auraAngle, i);
-					self.aura[i].size[0] += sizeModifier[0] * self.aura[i].direction / (self.size / 2);
-					self.aura[i].size[1] += sizeModifier[1] * self.aura[i].direction / (self.size / 2);
 					gl.uniform2f(uniform.uSize, self.aura[i].size[0], self.aura[i].size[1]);
 					gl.uniform1f(uniform.uAngle, auraAngle * Math.PI / 180);
 					gl.uniform4f(uniform.uColor, 1, 1, 1, .8);
@@ -261217,10 +261236,10 @@ function wrapDegrees(angle) {
 * Advance a phase angle toward a random target, reseed when reached.
 * Returns { angle, target }
 */
-function advancePhase(current, target) {
+function advancePhase(current, target, stepScale = 1) {
 	let diff = target - current;
 	diff = (diff + 540) % 360 - 180;
-	const step = 2 + Math.random();
+	const step = (2 + Math.random()) * stepScale;
 	if (Math.abs(diff) <= step) {
 		current = target;
 		target = randRange(0, 360);
@@ -261350,6 +261369,7 @@ var init_Level99Bubble = __esmMin((() => {
 			this.position = position;
 			this.textureName = textureName || "whitelight.tga";
 			this.tick = tick || 0;
+			this._lastTick = tick || Date.now();
 			this.flag1 = flag1 === 0 || flag1 ? flag1 : 1;
 			const isGhost = this.flag1 === 11 || this.flag1 === 3;
 			this.baseRadius = this.flag1 === 1 ? REF_RADIUS : isGhost ? 3.2 : .8;
@@ -261428,9 +261448,9 @@ var init_Level99Bubble = __esmMin((() => {
 		/**
 		* Update all phases in a column (advance toward random targets)
 		*/
-		updatePhases(column) {
+		updatePhases(column, stepScale = 1) {
 			for (let i = 0; i < 16; i++) {
-				const result = advancePhase(column.phases[i], column.phaseTargets[i]);
+				const result = advancePhase(column.phases[i], column.phaseTargets[i], stepScale);
 				column.phases[i] = result.angle;
 				column.phaseTargets[i] = result.target;
 			}
@@ -261442,17 +261462,17 @@ var init_Level99Bubble = __esmMin((() => {
 		* - Y drift: y -= v each frame
 		* - Reset when y < resetY: x=z=0, y=rand[0,seedMax], reseed phases
 		*/
-		updateAnchor(column, anchorIndex) {
+		updateAnchor(column, anchorIndex, stepScale = 1) {
 			const anchor = column.anchors[anchorIndex];
 			const signs = ANCHOR_SIGNS[anchorIndex];
 			const phaseOffsets = ANCHOR_PHASE_OFFSETS[anchorIndex];
 			if (anchor.y < 0) {
 				const phaseA = column.phases[phaseOffsets.pa] * DEG_TO_RAD;
 				const phaseB = column.phases[phaseOffsets.pb] * DEG_TO_RAD;
-				anchor.x += signs.kx * this.driftK * Math.sin(phaseA);
-				anchor.z += signs.kz * this.driftK * Math.sin(phaseB);
+				anchor.x += signs.kx * this.driftK * Math.sin(phaseA) * stepScale;
+				anchor.z += signs.kz * this.driftK * Math.sin(phaseB) * stepScale;
 			}
-			anchor.y -= this.fallSpeed * debugConfig.fallSpeedMult;
+			anchor.y -= this.fallSpeed * debugConfig.fallSpeedMult * stepScale;
 			const resetLimit = this.resetY * debugConfig.respawnDepthMult;
 			if (anchor.y < resetLimit) {
 				anchor.x = 0;
@@ -261516,12 +261536,16 @@ var init_Level99Bubble = __esmMin((() => {
 			gl.bindTexture(gl.TEXTURE_2D, this.texture);
 			if (debugConfig.showRedBg) this.renderBackground(gl, basePos);
 			const radius = this.baseRadius * GAME_TO_WORLD * debugConfig.scaleMult;
+			const RAG_TICK_MS = 25;
+			const dt = Math.min(tick - (this._lastTick || tick), 250);
+			this._lastTick = tick;
+			const stepScale = dt / RAG_TICK_MS;
 			for (let ec = 0; ec < this.columns.length; ec++) {
 				const column = this.columns[ec];
 				if (!column.life) continue;
-				this.updatePhases(column);
+				this.updatePhases(column, stepScale);
 				for (let ai = 0; ai < column.anchors.length; ai++) {
-					this.updateAnchor(column, ai);
+					this.updateAnchor(column, ai, stepScale);
 					const anchor = column.anchors[ai];
 					const anchorWorldX = anchor.x * GAME_TO_WORLD;
 					const anchorWorldY = anchor.y * GAME_TO_WORLD;
@@ -305985,7 +306009,7 @@ var init_EntityAttachments = __esmMin((() => {
 		*/
 		add(attachment) {
 			if (attachment.uid && !attachment.stackable) this.remove(attachment.uid);
-			attachment.startTick = Date.now();
+			attachment.startTick = attachment.startTick || Renderer.tick || Date.now();
 			attachment.opacity = !isNaN(attachment.opacity) ? attachment.opacity : 1;
 			attachment.direction = attachment.hasOwnProperty("frame") ? false : true;
 			attachment.frame = attachment.frame || 0;
@@ -306025,6 +306049,7 @@ var init_EntityAttachments = __esmMin((() => {
 				return;
 			}
 			Client.loadFile(attachment.spr, function onLoad() {
+				attachment.startTick = Renderer.tick || Date.now();
 				this.list.push(attachment);
 			}.bind(this), null, { to_rgba: true });
 		}
@@ -306149,15 +306174,18 @@ var init_EntityAttachments = __esmMin((() => {
 			}
 			frame = attachment.direction ? (Camera.direction + this.entity.direction + 8) % 8 : attachment.frame;
 			frame %= act.actions.length;
-			const animations = act.actions[frame].animations;
-			const delay = attachment.delay || act.actions[frame].delay;
+			const action = act.actions[frame];
+			const animations = action.animations;
+			const delay = Math.max(1, attachment.delay || action.delay || 100);
 			SpriteRenderer.depth = attachment.depth || 0;
+			const elapsed = Math.max(0, tick - attachment.startTick);
+			const animIndex = Math.floor(elapsed / delay);
 			if ("animationId" in attachment) layers = animations[attachment.animationId].layers;
 			else if (attachment.repeat) {
-				if (attachment.duration > 0 && tick - attachment.startTick >= attachment.duration) return true;
-				layers = animations[Math.floor((tick - attachment.startTick) / delay) % animations.length].layers;
+				if (attachment.duration > 0 && elapsed >= attachment.duration) return true;
+				layers = animations[animIndex % animations.length].layers;
 			} else {
-				animation = Math.min(Math.floor((tick - attachment.startTick) / delay), animations.length - 1);
+				animation = Math.min(animIndex, animations.length - 1);
 				layers = animations[animation].layers;
 				if (animation === animations.length - 1 && !attachment.stopAtEnd) clean = true;
 			}
