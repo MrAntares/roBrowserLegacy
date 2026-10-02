@@ -1493,6 +1493,28 @@ SkillEffect[SK.SU_CHATTERING] = {}; //Chattering
 SkillEffect[SK.WE_CALLALLFAMILY] = {}; //Call All Family
 SkillEffect[SK.WE_ONEFOREVER] = {}; //One Forever
 SkillEffect[SK.WE_CHEERUP] = {}; //Cheer Up
+SkillEffect[SK.SH_CHUL_HO_SONIC_CLAW] = { effectId: 'ef_sh_chul_ho_sonic_claw' }; //Chulho Sonic Claw
+SkillEffect[SK.SH_HOWLING_OF_CHUL_HO] = { effectId: 'ef_sh_howling_of_chul_ho' }; //Howling of Chulho
+SkillEffect[SK.SH_HOGOGONG_STRIKE] = { effectId: 'ef_sh_hogogong_strike' }; //Hogogong Strike
+SkillEffect[SK.SH_KI_SUL_WATER_SPRAYING] = { effectId: 'ef_sh_ki_sul_water_spraying' }; //Kisul Water Spraying
+SkillEffect[SK.SH_MARINE_FESTIVAL_OF_KI_SUL] = { effectId: 'ef_sh_marine_festival_of_ki_sul' }; //Marine Festival of Kisul
+SkillEffect[SK.SH_SANDY_FESTIVAL_OF_KI_SUL] = { effectId: 'ef_sh_sandy_festival_of_ki_sul' }; //Sandy Festival of Kisul
+SkillEffect[SK.SH_KI_SUL_RAMPAGE] = { effectId: 'ef_sh_ki_sul_rampage' }; //Kisul Rampage
+SkillEffect[SK.SH_COLORS_OF_HYUN_ROK] = { effectId: 'ef_sh_colors_of_hyun_rok' }; //Colors of Hyunrok
+SkillEffect[SK.SH_HYUN_ROKS_BREEZE] = { effectId: 'ef_sh_hyun_roks_breeze' }; //Hyunrok Breeze
+SkillEffect[SK.SH_HYUN_ROK_CANNON] = { effectId: 'ef_sh_hyun_rok_cannon' }; //Hyunrok Cannon
+SkillEffect[SK.SH_TEMPORARY_COMMUNION] = { effectId: 'ef_sh_temporary_communion' }; //Temporary Communion
+SkillEffect[SK.SH_BLESSING_OF_MYSTICAL_CREATURES] = { effectId: 'ef_sh_blessing_of_mystical_creatures' }; //Blessing of Mystical Creatures
+SkillEffect[5506 /* SH_CHUL_HO_BATTERING */] = {
+	effectId: 'ef_sh_chul_ho_battering',
+	effectIdOnCaster: 'ef_sh_chul_ho_battering_cast',
+	hitEffectId: 'ef_sh_chul_ho_battering_hit'
+}; //Chulho Battering
+SkillEffect[5507 /* SH_HYUN_ROK_SPIRIT_POWER */] = {
+	effectId: 'ef_sh_hyun_rok_spirit_power',
+	effectIdOnCaster: 'ef_sh_hyun_rok_spirit_power_cast',
+	hitEffectId: 'ef_sh_hyun_rok_spirit_power_hit'
+}; //Hyunrok Spirit Power
 // Homunculus S
 SkillEffect[SK.HLIF_HEAL] = SkillEffect[SK.AL_HEAL]; //Healing Touch
 SkillEffect[SK.HLIF_AVOID] = SkillEffect[SK.AL_INCAGI]; //Avoid
