@@ -1183,6 +1183,31 @@ SkillEffect[6510 /* BO_DUST_EXPLOSION */] = {
 }; //Dust Explosion
 SkillEffect[SK.RK_DRAGONBREATH_WATER] = { hitEffectId: 'ef_dragonbreath_water' }; //Dragon Breath - Water
 SkillEffect[SK.RK_LUXANIMA] = { effectId: 1044 }; //Lux Anima
+SkillEffect[SK.DK_SERVANTWEAPON] = {
+	effectId: 'ef_dk_servantweapon',
+	effectIdOnCaster: 'ef_dk_servantweapon_cast',
+	hitEffectId: 'ef_dk_servantweapon_hit'
+}; //Servant Weapon
+SkillEffect[SK.DK_SERVANTWEAPON_ATK] = { effectId: 'ef_dk_servantweapon_atk' }; //Servant Weapon Attack
+SkillEffect[SK.DK_SERVANT_W_SIGN] = { effectId: 'ef_dk_servant_w_sign' }; //Servant Weapon Sign
+SkillEffect[SK.DK_SERVANT_W_PHANTOM] = { effectId: 'ef_dk_servant_w_phantom' }; //Servant Weapon Phantom
+SkillEffect[SK.DK_SERVANT_W_DEMOL] = { hitEffectId: 'ef_dk_servant_w_demol_hit' }; //Servant Weapon Demolition
+SkillEffect[SK.DK_CHARGINGPIERCE] = {
+	effectIdOnCaster: 'ef_dk_chargingpierce_cast',
+	hitEffectId: 'ef_dk_chargingpierce_hit'
+}; //Charging Pierce
+SkillEffect[SK.DK_HACKANDSLASHER] = { effectId: 'ef_dk_hackandslasher', hitEffectId: 'ef_dk_hackandslasher_hit' }; //Hack And Slasher
+SkillEffect[SK.DK_HACKANDSLASHER_ATK] = { effectId: 'ef_dk_hackandslasher_atk' }; //Hack And Slasher Attack
+SkillEffect[SK.DK_DRAGONIC_AURA] = { effectIdOnCaster: 'ef_dk_dragonic_aura' }; //Dragonic Aura
+SkillEffect[SK.DK_MADNESS_CRUSHER] = { effectId: 'ef_dk_madness_crusher' }; //Madness Crusher
+SkillEffect[SK.DK_VIGOR] = { effectId: 'ef_dk_vigor', effectIdOnCaster: 'ef_dk_vigor_cast' }; //Vigor
+SkillEffect[SK.DK_STORMSLASH] = { hitEffectId: 'ef_dk_stormslash_hit' }; //Storm Slash
+SkillEffect[SK.DK_DRAGONIC_BREATH] = { effectId: 'ef_dk_dragonic_breath', hitEffectId: 'ef_dk_dragonic_breath_hit' }; //Dragonic Breath
+SkillEffect[6502 /* DK_DRAGONIC_PIERCE */] = {
+	effectId: 'ef_dk_dragonic_pierce',
+	effectIdOnCaster: 'ef_dk_dragonic_pierce_cast',
+	hitEffectId: 'ef_dk_dragonic_pierce_hit'
+}; //Dragonic Pierce
 SkillEffect[SK.NC_MAGMA_ERUPTION] = { effectId: 1050 }; //Magma Eruption
 SkillEffect[SK.MT_AXE_STOMP] = { effectId: 'ef_mt_axe_stomp', hitEffectId: 'ef_mt_axe_stomp_hit' }; //Axe Stomp
 SkillEffect[SK.MT_RUSH_QUAKE] = { effectId: 'ef_mt_rush_quake', hitEffectId: 'ef_mt_rush_quake_hit' }; //Rush Quake
