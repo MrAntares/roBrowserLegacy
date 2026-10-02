@@ -214780,6 +214780,45 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectId: "ef_bo_dust_explosion_hit"
 	};
 	SkillEffect[SkillConst_default.RK_DRAGONBREATH_WATER] = { hitEffectId: "ef_dragonbreath_water" };
+	SkillEffect[SkillConst_default.WH_WIND_SIGN] = { effectId: "ef_wh_wind_sign" };
+	SkillEffect[SkillConst_default.WH_HAWKRUSH] = { effectId: "ef_wh_hawkrush" };
+	SkillEffect[SkillConst_default.WH_CALAMITYGALE] = { effectIdOnCaster: "ef_wh_calamitygale_cast" };
+	SkillEffect[SkillConst_default.WH_HAWKBOOMERANG] = { effectId: "ef_wh_hawkboomerang" };
+	SkillEffect[SkillConst_default.WH_GALESTORM] = {
+		effectId: "ef_wh_galestorm",
+		effectIdOnCaster: "ef_wh_galestorm_cast",
+		hitEffectId: "ef_wh_galestorm_hit"
+	};
+	SkillEffect[SkillConst_default.WH_DEEPBLINDTRAP] = {
+		effectId: "ef_wh_deepblindtrap",
+		effectIdOnCaster: "ef_wh_deepblindtrap_cast",
+		hitEffectId: "ef_wh_deepblindtrap_hit"
+	};
+	SkillEffect[SkillConst_default.WH_SOLIDTRAP] = {
+		effectId: "ef_wh_solidtrap",
+		effectIdOnCaster: "ef_wh_solidtrap_cast",
+		hitEffectId: "ef_wh_solidtrap_hit"
+	};
+	SkillEffect[SkillConst_default.WH_SWIFTTRAP] = {
+		effectId: "ef_wh_swifttrap",
+		effectIdOnCaster: "ef_wh_swifttrap_cast",
+		hitEffectId: "ef_wh_swifttrap_hit"
+	};
+	SkillEffect[SkillConst_default.WH_CRESCIVE_BOLT] = {
+		effectId: "ef_wh_crescive_bolt",
+		effectIdOnCaster: "ef_wh_crescive_bolt_cast",
+		hitEffectId: "ef_wh_crescive_bolt_hit"
+	};
+	SkillEffect[SkillConst_default.WH_FLAMETRAP] = {
+		effectId: "ef_wh_flametrap",
+		effectIdOnCaster: "ef_wh_flametrap_cast",
+		hitEffectId: "ef_wh_flametrap_hit"
+	};
+	SkillEffect[6520] = {
+		effectId: "ef_wh_wild_walk",
+		effectIdOnCaster: "ef_wh_wild_walk_cast",
+		hitEffectId: "ef_wh_wild_walk_hit"
+	};
 	SkillEffect[SkillConst_default.RK_LUXANIMA] = { effectId: 1044 };
 	SkillEffect[SkillConst_default.DK_SERVANTWEAPON] = {
 		effectId: "ef_dk_servantweapon",
@@ -214854,6 +214893,61 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectId: "ef_mt_energy_cannonade_hit"
 	};
 	SkillEffect[SkillConst_default.WM_FRIGG_SONG] = { effectId: "ef_frigg_song" };
+	SkillEffect[SkillConst_default.TR_MYSTIC_SYMPHONY] = {
+		effectId: "ef_tr_mystic_symphony",
+		effectIdOnCaster: "ef_tr_mystic_symphony_cast"
+	};
+	SkillEffect[SkillConst_default.TR_KVASIR_SONATA] = {
+		effectId: "ef_tr_kvasir_sonata",
+		effectIdOnCaster: "ef_tr_kvasir_sonata_cast"
+	};
+	SkillEffect[SkillConst_default.TR_ROSEBLOSSOM] = {
+		effectIdOnCaster: "ef_tr_roseblossom_cast",
+		hitEffectId: "ef_tr_roseblossom_hit"
+	};
+	SkillEffect[SkillConst_default.TR_ROSEBLOSSOM_ATK] = { effectId: "ef_tr_roseblossom_atk" };
+	SkillEffect[SkillConst_default.TR_RHYTHMSHOOTING] = {
+		effectIdOnCaster: "ef_tr_rhythmshooting_cast",
+		hitEffectId: "ef_tr_rhythmshooting_hit"
+	};
+	SkillEffect[SkillConst_default.TR_METALIC_FURY] = { effectId: "ef_tr_metalic_fury" };
+	SkillEffect[SkillConst_default.TR_SOUNDBLEND] = {
+		effectId: "ef_tr_soundblend",
+		effectIdOnCaster: "ef_tr_soundblend_cast"
+	};
+	SkillEffect[SkillConst_default.TR_GEF_NOCTURN] = {
+		effectId: "ef_tr_gef_nocturn",
+		effectIdOnCaster: "ef_tr_gef_nocturn_cast"
+	};
+	SkillEffect[SkillConst_default.TR_ROKI_CAPRICCIO] = {
+		effectId: "ef_tr_roki_capriccio",
+		effectIdOnCaster: "ef_tr_roki_capriccio_cast"
+	};
+	SkillEffect[SkillConst_default.TR_AIN_RHAPSODY] = {
+		effectId: "ef_tr_ain_rhapsody",
+		effectIdOnCaster: "ef_tr_ain_rhapsody_cast"
+	};
+	SkillEffect[SkillConst_default.TR_MUSICAL_INTERLUDE] = {
+		effectId: "ef_tr_musical_interlude",
+		effectIdOnCaster: "ef_tr_musical_interlude_cast"
+	};
+	SkillEffect[SkillConst_default.TR_JAWAII_SERENADE] = {
+		effectId: "ef_tr_jawaii_serenade",
+		effectIdOnCaster: "ef_tr_jawaii_serenade_cast"
+	};
+	SkillEffect[SkillConst_default.TR_NIPELHEIM_REQUIEM] = {
+		effectId: "ef_tr_nipelheim_requiem",
+		effectIdOnCaster: "ef_tr_nipelheim_requiem_cast"
+	};
+	SkillEffect[SkillConst_default.TR_PRON_MARCH] = {
+		effectId: "ef_tr_pron_march",
+		effectIdOnCaster: "ef_tr_pron_march_cast"
+	};
+	SkillEffect[6521] = {
+		effectId: "ef_tr_rhythmical_wave",
+		effectIdOnCaster: "ef_tr_rhythmical_wave_cast",
+		hitEffectId: "ef_tr_rhythmical_wave_hit"
+	};
 	SkillEffect[SkillConst_default.SO_ELEMENTAL_SHIELD] = { effectId: 1046 };
 	SkillEffect[SkillConst_default.EM_SPELL_ENCHANTING] = { effectId: "ef_em_spell_enchanting" };
 	SkillEffect[SkillConst_default.EM_ACTIVITY_BURN] = {
@@ -279466,6 +279560,251 @@ var init_EffectTable = __esmMin((() => {
 			wav: "effect/»ç¸ÁÀÇ°ñÂ¥±â¿¡¼­",
 			attachedEntity: true
 		}],
+		ef_tr_mystic_symphony: [{
+			type: "STR",
+			file: "mysticsymphony/mysticsymphony/mysticsymphony",
+			texturePath: "mysticsymphony/mysticsymphony/",
+			min: "mysticsymphony/mysticsymphony/min_mysticsymphony",
+			wav: "effect/tr_mystic_symphony"
+		}],
+		ef_tr_mystic_symphony_cast: [{
+			type: "STR",
+			file: "mysticsymphony/mysticsymphony_cast/mysticsymphony_cast",
+			texturePath: "mysticsymphony/mysticsymphony_cast/",
+			min: "mysticsymphony/mysticsymphony_cast/min_mysticsymphony_cast"
+		}],
+		ef_tr_kvasir_sonata: [{
+			type: "STR",
+			file: "4tr_kvasirsonata/kvasirsonata/kvasirsonata",
+			texturePath: "4tr_kvasirsonata/kvasirsonata/",
+			min: "4tr_kvasirsonata/kvasirsonata/min_kvasirsonata",
+			wav: "effect/tr_kvasir_sonata"
+		}],
+		ef_tr_kvasir_sonata_cast: [{
+			type: "STR",
+			file: "4tr_kvasirsonata/kvasirsonata_cast/kvasirsonata_cast",
+			texturePath: "4tr_kvasirsonata/kvasirsonata_cast/",
+			min: "4tr_kvasirsonata/kvasirsonata_cast/min_kvasirsonata_cast"
+		}, {
+			type: "STR",
+			file: "4tr_kvasirsonata/kvasirsonata_cast_bottom/kvasirsonata_cast_bottom",
+			texturePath: "4tr_kvasirsonata/kvasirsonata_cast_bottom/",
+			min: "4tr_kvasirsonata/kvasirsonata_cast_bottom/min_kvasirsonata_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_tr_roseblossom_cast: [{
+			type: "STR",
+			file: "roseblossom/roseblossom_cast/roseblossom_cast",
+			texturePath: "roseblossom/roseblossom_cast/",
+			min: "roseblossom/roseblossom_cast/min_roseblossom_cast"
+		}, {
+			type: "STR",
+			file: "roseblossom/roseblossom_cast_bottom/roseblossom_cast_bottom",
+			texturePath: "roseblossom/roseblossom_cast_bottom/",
+			min: "roseblossom/roseblossom_cast_bottom/min_roseblossom_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_tr_roseblossom_hit: [{
+			type: "STR",
+			file: "roseblossom/roseblossom_hit/roseblossom_hit",
+			texturePath: "roseblossom/roseblossom_hit/",
+			min: "roseblossom/roseblossom_hit/min_roseblossom_hit"
+		}],
+		ef_tr_roseblossom_atk: [{
+			type: "STR",
+			file: "roseblossom/roseblossom_hit/roseblossom_hit",
+			texturePath: "roseblossom/roseblossom_hit/",
+			min: "roseblossom/roseblossom_hit/min_roseblossom_hit"
+		}],
+		ef_tr_rhythmshooting_cast: [{
+			type: "STR",
+			file: "rhythmshooting/rhythmshooting_cast/rhythmshooting_cast",
+			texturePath: "rhythmshooting/rhythmshooting_cast/",
+			min: "rhythmshooting/rhythmshooting_cast/min_rhythmshooting_cast",
+			wav: "effect/tr_rhythmshooting"
+		}, {
+			type: "STR",
+			file: "rhythmshooting/rhythmshooting_cast_bottom/rhythmshooting_cast_bottom",
+			texturePath: "rhythmshooting/rhythmshooting_cast_bottom/",
+			min: "rhythmshooting/rhythmshooting_cast_bottom/min_rhythmshooting_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_tr_rhythmshooting_hit: [{
+			type: "STR",
+			file: "rhythmshooting/rhythmshooting_hit/rhythmshooting_hit",
+			texturePath: "rhythmshooting/rhythmshooting_hit/",
+			min: "rhythmshooting/rhythmshooting_hit/min_rhythmshooting_hit"
+		}],
+		ef_tr_metalic_fury: [{
+			type: "STR",
+			file: "metalicfury/metalicfury/metalicfury",
+			texturePath: "metalicfury/metalicfury/",
+			min: "metalicfury/metalicfury/min_metalicfury",
+			wav: "effect/tr_metalic_fury"
+		}],
+		ef_tr_soundblend: [{
+			type: "STR",
+			file: "soundblend/soundblend/soundblend",
+			texturePath: "soundblend/soundblend/",
+			min: "soundblend/soundblend/min_soundblend"
+		}],
+		ef_tr_soundblend_cast: [{
+			type: "STR",
+			file: "soundblend/soundblend_cast/soundblend_cast",
+			texturePath: "soundblend/soundblend_cast/",
+			min: "soundblend/soundblend_cast/min_soundblend_cast"
+		}, {
+			type: "STR",
+			file: "soundblend/soundblend_cast_bottom/soundblend_cast_bottom",
+			texturePath: "soundblend/soundblend_cast_bottom/",
+			min: "soundblend/soundblend_cast_bottom/min_soundblend_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_tr_gef_nocturn: [{
+			type: "STR",
+			file: "gef_nocturn/gef_nocturn/gef_nocturn",
+			texturePath: "gef_nocturn/gef_nocturn/",
+			min: "gef_nocturn/gef_nocturn/min_gef_nocturn",
+			wav: "effect/tr_gef_nocturn"
+		}],
+		ef_tr_gef_nocturn_cast: [{
+			type: "STR",
+			file: "gef_nocturn/gef_nocturn_cast/gef_nocturn_cast",
+			texturePath: "gef_nocturn/gef_nocturn_cast/",
+			min: "gef_nocturn/gef_nocturn_cast/min_gef_nocturn_cast"
+		}, {
+			type: "STR",
+			file: "gef_nocturn/gef_nocturn_cast_bottom/gef_nocturn_cast_bottom",
+			texturePath: "gef_nocturn/gef_nocturn_cast_bottom/",
+			min: "gef_nocturn/gef_nocturn_cast_bottom/min_gef_nocturn_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_tr_roki_capriccio: [{
+			type: "STR",
+			file: "roki_capriccio/roki_capriccio/roki_capriccio",
+			texturePath: "roki_capriccio/roki_capriccio/",
+			min: "roki_capriccio/roki_capriccio/min_roki_capriccio",
+			wav: "effect/tr_roki_capriccio"
+		}],
+		ef_tr_roki_capriccio_cast: [{
+			type: "STR",
+			file: "roki_capriccio/roki_capriccio_cast/roki_capriccio_cast",
+			texturePath: "roki_capriccio/roki_capriccio_cast/",
+			min: "roki_capriccio/roki_capriccio_cast/min_roki_capriccio_cast"
+		}, {
+			type: "STR",
+			file: "roki_capriccio/roki_capriccio_cast_bottom/roki_capriccio_cast_bottom",
+			texturePath: "roki_capriccio/roki_capriccio_cast_bottom/",
+			min: "roki_capriccio/roki_capriccio_cast_bottom/min_roki_capriccio_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_tr_ain_rhapsody: [{
+			type: "STR",
+			file: "ain_rhapsody/ain_rhapsody/ain_rhapsody",
+			texturePath: "ain_rhapsody/ain_rhapsody/",
+			min: "ain_rhapsody/ain_rhapsody/min_ain_rhapsody",
+			wav: "effect/tr_ain_rhapsody"
+		}],
+		ef_tr_ain_rhapsody_cast: [{
+			type: "STR",
+			file: "ain_rhapsody/ain_rhapsody_cast/ain_rhapsody_cast",
+			texturePath: "ain_rhapsody/ain_rhapsody_cast/",
+			min: "ain_rhapsody/ain_rhapsody_cast/min_ain_rhapsody_cast"
+		}],
+		ef_tr_musical_interlude: [{
+			type: "STR",
+			file: "musical_interlude/musical_interlude/musical_interlude",
+			texturePath: "musical_interlude/musical_interlude/",
+			min: "musical_interlude/musical_interlude/min_musical_interlude",
+			wav: "effect/tr_musical_interlude"
+		}],
+		ef_tr_musical_interlude_cast: [{
+			type: "STR",
+			file: "musical_interlude/musical_interlude_cast/musical_interlude_cast",
+			texturePath: "musical_interlude/musical_interlude_cast/",
+			min: "musical_interlude/musical_interlude_cast/min_musical_interlude_cast"
+		}],
+		ef_tr_jawaii_serenade: [{
+			type: "STR",
+			file: "jawaii_serenade/jawaii_serenade/jawaii_serenade",
+			texturePath: "jawaii_serenade/jawaii_serenade/",
+			min: "jawaii_serenade/jawaii_serenade/min_jawaii_serenade",
+			wav: "effect/tr_jawaii_serenade"
+		}],
+		ef_tr_jawaii_serenade_cast: [{
+			type: "STR",
+			file: "jawaii_serenade/jawaii_serenade_cast/jawaii_serenade_cast",
+			texturePath: "jawaii_serenade/jawaii_serenade_cast/",
+			min: "jawaii_serenade/jawaii_serenade_cast/min_jawaii_serenade_cast"
+		}, {
+			type: "STR",
+			file: "jawaii_serenade/jawaii_serenade_cast_bottom/jawaii_serenade_cast_bottom",
+			texturePath: "jawaii_serenade/jawaii_serenade_cast_bottom/",
+			min: "jawaii_serenade/jawaii_serenade_cast_bottom/min_jawaii_serenade_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_tr_nipelheim_requiem: [{
+			type: "STR",
+			file: "nipelheim/nipelheim/nipelheim",
+			texturePath: "nipelheim/nipelheim/",
+			min: "nipelheim/nipelheim/min_nipelheim",
+			wav: "effect/tr_nipelheim_requiem"
+		}],
+		ef_tr_nipelheim_requiem_cast: [{
+			type: "STR",
+			file: "nipelheim/nipelheim_cast/nipelheim_cast",
+			texturePath: "nipelheim/nipelheim_cast/",
+			min: "nipelheim/nipelheim_cast/min_nipelheim_cast"
+		}],
+		ef_tr_pron_march: [{
+			type: "STR",
+			file: "pronmarch/pronmarch/pronmarch",
+			texturePath: "pronmarch/pronmarch/",
+			min: "pronmarch/pronmarch/min_pronmarch",
+			wav: "effect/tr_pron_march"
+		}],
+		ef_tr_pron_march_cast: [{
+			type: "STR",
+			file: "pronmarch/pronmarch_cast/pronmarch_cast",
+			texturePath: "pronmarch/pronmarch_cast/",
+			min: "pronmarch/pronmarch_cast/min_pronmarch_cast"
+		}, {
+			type: "STR",
+			file: "pronmarch/pronmarch_cast_bottom/pronmarch_cast_bottom",
+			texturePath: "pronmarch/pronmarch_cast_bottom/",
+			min: "pronmarch/pronmarch_cast_bottom/min_pronmarch_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_tr_rhythmical_wave: [{
+			type: "STR",
+			file: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave/rhythmical_wave",
+			texturePath: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave/",
+			min: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave/min_rhythmical_wave"
+		}, {
+			type: "STR",
+			file: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_bottom/rhythmical_wave_bottom",
+			texturePath: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_bottom/",
+			min: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_bottom/min_rhythmical_wave_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_tr_rhythmical_wave_cast: [{
+			type: "STR",
+			file: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_cast/rhythmical_wave_cast",
+			texturePath: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_cast/",
+			min: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_cast/min_rhythmical_wave_cast"
+		}, {
+			type: "STR",
+			file: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_cast_bottom/rhythmical_wave_cast_bottom",
+			texturePath: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_cast_bottom/",
+			min: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_cast_bottom/min_rhythmical_wave_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_tr_rhythmical_wave_hit: [{
+			type: "STR",
+			file: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_hit/rhythmical_wave_hit",
+			texturePath: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_hit/",
+			min: "troubadour_trouvere/tr_rhythmical_wave/rhythmical_wave_hit/min_rhythmical_wave_hit"
+		}],
 		ef_harmonize: [{
 			wav: "effect/ÇÏ¸ð³ªÀÌÁî",
 			attachedEntity: true
@@ -279725,6 +280064,195 @@ var init_EffectTable = __esmMin((() => {
 			zIndex: 1,
 			posxEndRand: 1.5,
 			posyEndRand: 1.5
+		}],
+		ef_wh_wind_sign: [{
+			type: "STR",
+			file: "windsign/windsign/windsign",
+			texturePath: "windsign/windsign/",
+			min: "windsign/windsign/min_windsign",
+			wav: "effect/wh_wind_sign"
+		}],
+		ef_wh_hawkrush: [{
+			type: "STR",
+			file: "hawkrush/hawkrush/hawkrush",
+			texturePath: "hawkrush/hawkrush/",
+			wav: "effect/wh_hawkrush"
+		}],
+		ef_wh_calamitygale_cast: [{
+			type: "STR",
+			file: "windhawk/calamitygale/calumitygale_cast/calumitygale_cast",
+			texturePath: "windhawk/calamitygale/calumitygale_cast/",
+			min: "windhawk/calamitygale/calumitygale_cast/min_calumitygale_cast",
+			wav: "effect/wh_calamitygale"
+		}],
+		ef_wh_hawkboomerang: [{
+			wav: "effect/wh_hawkboomerang",
+			attachedEntity: true
+		}],
+		ef_wh_galestorm: [{
+			type: "STR",
+			file: "galestorm/galestorm/galestorm",
+			texturePath: "galestorm/galestorm/",
+			min: "galestorm/galestorm/min_galestorm",
+			wav: "effect/wh_galestorm"
+		}],
+		ef_wh_galestorm_cast: [{
+			type: "STR",
+			file: "galestorm/galestorm_cast/galestorm_cast",
+			texturePath: "galestorm/galestorm_cast/",
+			min: "galestorm/galestorm_cast/min_galestorm_cast"
+		}],
+		ef_wh_galestorm_hit: [{
+			type: "STR",
+			file: "galestorm/galestorm_hit/galestorm_hit",
+			texturePath: "galestorm/galestorm_hit/",
+			min: "galestorm/galestorm_hit/min_galestorm_hit"
+		}],
+		ef_wh_deepblindtrap: [{
+			type: "STR",
+			file: "deepblindtrap/deepblindtrap/deepblindtrap",
+			texturePath: "deepblindtrap/deepblindtrap/",
+			min: "deepblindtrap/deepblindtrap/min_deepblindtrap"
+		}, {
+			type: "STR",
+			file: "deepblindtrap/deepblindtrap_bottom/deepblindtrap_bottom",
+			texturePath: "deepblindtrap/deepblindtrap_bottom/",
+			min: "deepblindtrap/deepblindtrap_bottom/min_deepblindtrap_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_wh_deepblindtrap_cast: [{
+			type: "STR",
+			file: "deepblindtrap/deepblindtrap_cast/deepblindtrap_cast",
+			texturePath: "deepblindtrap/deepblindtrap_cast/",
+			min: "deepblindtrap/deepblindtrap_cast/min_deepblindtrap_cast"
+		}],
+		ef_wh_deepblindtrap_hit: [{
+			type: "STR",
+			file: "deepblindtrap/deepblindtrap_hit/deepblindtrap_hit",
+			texturePath: "deepblindtrap/deepblindtrap_hit/",
+			min: "deepblindtrap/deepblindtrap_hit/min_deepblindtrap_hit"
+		}],
+		ef_wh_solidtrap: [{
+			type: "STR",
+			file: "solidtrap/solidtrap/solidtrap",
+			texturePath: "solidtrap/solidtrap/",
+			min: "solidtrap/solidtrap/min_solidtrap"
+		}, {
+			type: "STR",
+			file: "solidtrap/solidtrap_bottom/solidtrap_bottom",
+			texturePath: "solidtrap/solidtrap_bottom/",
+			min: "solidtrap/solidtrap_bottom/min_solidtrap_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_wh_solidtrap_cast: [{
+			type: "STR",
+			file: "solidtrap/solidtrap_cast/solidtrap_cast",
+			texturePath: "solidtrap/solidtrap_cast/",
+			min: "solidtrap/solidtrap_cast/min_solidtrap_cast"
+		}, {
+			type: "STR",
+			file: "solidtrap/solidtrap_cast_bottom/solidtrap_cast_bottom",
+			texturePath: "solidtrap/solidtrap_cast_bottom/",
+			min: "solidtrap/solidtrap_cast_bottom/min_solidtrap_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_wh_solidtrap_hit: [{
+			type: "STR",
+			file: "solidtrap/solidtrap_hit/solidtrap_hit",
+			texturePath: "solidtrap/solidtrap_hit/",
+			min: "solidtrap/solidtrap_hit/min_solidtrap_hit"
+		}],
+		ef_wh_swifttrap: [{
+			type: "STR",
+			file: "swifttrap/swifttrap/swifttrap",
+			texturePath: "swifttrap/swifttrap/",
+			min: "swifttrap/swifttrap/min_swifttrap"
+		}, {
+			type: "STR",
+			file: "swifttrap/swifttrap_bottom/swifttrap_bottom",
+			texturePath: "swifttrap/swifttrap_bottom/",
+			min: "swifttrap/swifttrap_bottom/min_swifttrap_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_wh_swifttrap_cast: [{
+			type: "STR",
+			file: "swifttrap/swifttrap_cast/swifttrap_cast",
+			texturePath: "swifttrap/swifttrap_cast/",
+			min: "swifttrap/swifttrap_cast/min_swifttrap_cast"
+		}],
+		ef_wh_swifttrap_hit: [{
+			type: "STR",
+			file: "swifttrap/swifttrap_hit/swifttrap_hit",
+			texturePath: "swifttrap/swifttrap_hit/",
+			min: "swifttrap/swifttrap_hit/min_swifttrap_hit"
+		}],
+		ef_wh_crescive_bolt: [{
+			type: "STR",
+			file: "crescivebolt/crescivebolt/crescivebolt",
+			texturePath: "crescivebolt/crescivebolt/",
+			min: "crescivebolt/crescivebolt/min_crescivebolt",
+			wav: "effect/wh_crescive_bolt"
+		}],
+		ef_wh_crescive_bolt_cast: [{
+			type: "STR",
+			file: "crescivebolt/crescivebolt_cast/crescivebolt_cast",
+			texturePath: "crescivebolt/crescivebolt_cast/",
+			min: "crescivebolt/crescivebolt_cast/min_crescivebolt_cast"
+		}],
+		ef_wh_crescive_bolt_hit: [{
+			type: "STR",
+			file: "crescivebolt/crescivebolt_hit/crescivebolt_hit",
+			texturePath: "crescivebolt/crescivebolt_hit/",
+			min: "crescivebolt/crescivebolt_hit/min_crescivebolt_hit"
+		}],
+		ef_wh_flametrap: [{
+			type: "STR",
+			file: "flametrap/flametrap/flametrap",
+			texturePath: "flametrap/flametrap/",
+			min: "flametrap/flametrap/min_flametrap"
+		}, {
+			type: "STR",
+			file: "flametrap/flametrap_bottom/flametrap_bottom",
+			texturePath: "flametrap/flametrap_bottom/",
+			min: "flametrap/flametrap_bottom/min_flametrap_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_wh_flametrap_cast: [{
+			type: "STR",
+			file: "flametrap/flametrap_cast/flametrap_cast",
+			texturePath: "flametrap/flametrap_cast/",
+			min: "flametrap/flametrap_cast/min_flametrap_cast"
+		}],
+		ef_wh_flametrap_hit: [{
+			type: "STR",
+			file: "flametrap/flametrap_hit/flametrap_hit",
+			texturePath: "flametrap/flametrap_hit/",
+			min: "flametrap/flametrap_hit/min_flametrap_hit"
+		}],
+		ef_wh_wild_walk: [{
+			type: "STR",
+			file: "windhawk/wh_wild_walk/wild_walk/wild_walk",
+			texturePath: "windhawk/wh_wild_walk/wild_walk/",
+			min: "windhawk/wh_wild_walk/wild_walk/min_wild_walk",
+			wav: "effect/wh_wild_walk"
+		}],
+		ef_wh_wild_walk_cast: [{
+			type: "STR",
+			file: "windhawk/wh_wild_walk/wild_walk_cast/wild_walk_cast",
+			texturePath: "windhawk/wh_wild_walk/wild_walk_cast/",
+			min: "windhawk/wh_wild_walk/wild_walk_cast/min_wild_walk_cast"
+		}, {
+			type: "STR",
+			file: "windhawk/wh_wild_walk/wild_walk_cast_bottom/wild_walk_cast_bottom",
+			texturePath: "windhawk/wh_wild_walk/wild_walk_cast_bottom/",
+			min: "windhawk/wh_wild_walk/wild_walk_cast_bottom/min_wild_walk_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_wh_wild_walk_hit: [{
+			type: "STR",
+			file: "windhawk/wh_wild_walk/wild_walk_hit/wild_walk_hit",
+			texturePath: "windhawk/wh_wild_walk/wild_walk_hit/",
+			min: "windhawk/wh_wild_walk/wild_walk_hit/min_wild_walk_hit"
 		}],
 		ef_spear_projectile: [{
 			type: "3D",
