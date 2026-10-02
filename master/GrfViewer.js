@@ -214687,6 +214687,63 @@ var init_SkillEffect = __esmMin((() => {
 		hitEffectId: "ef_abc_abyss_flame_hit"
 	};
 	SkillEffect[SkillConst_default.AB_OFFERTORIUM] = { effectId: 1047 };
+	SkillEffect[SkillConst_default.CD_REPARATIO] = {
+		effectId: "ef_cd_reparatio",
+		effectIdOnCaster: "ef_cd_reparatio_cast"
+	};
+	SkillEffect[SkillConst_default.CD_MEDIALE_VOTUM] = {
+		effectId: "ef_cd_mediale_votum",
+		effectIdOnCaster: "ef_cd_mediale_votum_cast"
+	};
+	SkillEffect[SkillConst_default.CD_ARGUTUS_VITA] = {
+		effectId: "ef_cd_argutus_vita",
+		effectIdOnCaster: "ef_cd_argutus_vita_cast"
+	};
+	SkillEffect[SkillConst_default.CD_ARGUTUS_TELUM] = {
+		effectId: "ef_cd_argutus_telum",
+		effectIdOnCaster: "ef_cd_argutus_telum_cast"
+	};
+	SkillEffect[SkillConst_default.CD_ARBITRIUM] = {
+		effectId: "ef_cd_arbitrium",
+		effectIdOnCaster: "ef_cd_arbitrium_cast",
+		hitEffectId: "ef_cd_arbitrium_hit"
+	};
+	SkillEffect[SkillConst_default.CD_ARBITRIUM_ATK] = { effectId: "ef_cd_arbitrium_atk" };
+	SkillEffect[SkillConst_default.CD_PRESENS_ACIES] = {
+		effectId: "ef_cd_presens_acies",
+		effectIdOnCaster: "ef_cd_presens_acies_cast"
+	};
+	SkillEffect[SkillConst_default.CD_EFFLIGO] = {
+		effectId: "ef_cd_effligo",
+		hitEffectId: "ef_cd_effligo_hit"
+	};
+	SkillEffect[SkillConst_default.CD_COMPETENTIA] = {
+		effectId: "ef_cd_competentia",
+		effectIdOnCaster: "ef_cd_competentia_cast"
+	};
+	SkillEffect[SkillConst_default.CD_PNEUMATICUS_PROCELLA] = {
+		effectId: "ef_cd_pneumaticus_procella",
+		effectIdOnCaster: "ef_cd_pneumaticus_procella_cast"
+	};
+	SkillEffect[SkillConst_default.CD_DILECTIO_HEAL] = {
+		effectId: "ef_cd_dilectio_heal",
+		effectIdOnCaster: "ef_cd_dilectio_heal_cast"
+	};
+	SkillEffect[SkillConst_default.CD_RELIGIO] = {
+		effectId: "ef_cd_religio",
+		effectIdOnCaster: "ef_cd_religio_cast"
+	};
+	SkillEffect[SkillConst_default.CD_BENEDICTUM] = {
+		effectId: "ef_cd_benedictum",
+		effectIdOnCaster: "ef_cd_benedictum_cast"
+	};
+	SkillEffect[SkillConst_default.CD_PETITIO] = { effectId: "ef_cd_petitio" };
+	SkillEffect[SkillConst_default.CD_FRAMEN] = { effectId: "ef_cd_framen" };
+	SkillEffect[6518] = {
+		effectId: "ef_cd_divinus_flos",
+		effectIdOnCaster: "ef_cd_divinus_flos_cast",
+		hitEffectId: "ef_cd_divinus_flos_hit"
+	};
 	SkillEffect[SkillConst_default.WL_TELEKINESIS_INTENSE] = { effectId: 1048 };
 	SkillEffect[SkillConst_default.AG_DEADLY_PROJECTION] = {
 		effectIdOnCaster: "ef_ag_deadly_projection_cast",
@@ -276562,6 +276619,265 @@ var init_EffectTable = __esmMin((() => {
 		ef_duplelight: [{
 			wav: "effect/ab_duplelight",
 			attachedEntity: true
+		}],
+		ef_cd_reparatio: [{
+			type: "STR",
+			file: "new_reparatio/new_reparatio/new_reparatio",
+			texturePath: "new_reparatio/new_reparatio/",
+			min: "new_reparatio/new_reparatio/min_new_reparatio"
+		}, {
+			type: "STR",
+			file: "new_reparatio/new_reparatio_bottom/new_reparatio_bottom",
+			texturePath: "new_reparatio/new_reparatio_bottom/",
+			min: "new_reparatio/new_reparatio_bottom/min_new_reparatio_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_cd_reparatio_cast: [{
+			type: "STR",
+			file: "new_reparatio/new_reparatio_cast/new_reparatio_cast",
+			texturePath: "new_reparatio/new_reparatio_cast/",
+			min: "new_reparatio/new_reparatio_cast/min_new_reparatio_cast"
+		}, {
+			type: "STR",
+			file: "new_reparatio/new_reparatio_cast_bottom/new_reparatio_cast_bottom",
+			texturePath: "new_reparatio/new_reparatio_cast_bottom/",
+			min: "new_reparatio/new_reparatio_cast_bottom/min_new_reparatio_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_cd_mediale_votum: [{
+			type: "STR",
+			file: "medialevotum/medialevotum/medialevotum",
+			texturePath: "medialevotum/medialevotum/",
+			min: "medialevotum/medialevotum/min_medialevotum",
+			wav: "effect/cd_mediale_votum"
+		}],
+		ef_cd_mediale_votum_cast: [{
+			type: "STR",
+			file: "medialevotum/medialevotum_cast/medialevotum_cast",
+			texturePath: "medialevotum/medialevotum_cast/",
+			min: "medialevotum/medialevotum_cast/min_medialevotum_cast"
+		}],
+		ef_cd_argutus_vita: [{
+			type: "STR",
+			file: "argutusvita/argutusvita/argutusvita",
+			texturePath: "argutusvita/argutusvita/",
+			min: "argutusvita/argutusvita/min_argutusvita",
+			wav: "effect/cd_argutus_vita"
+		}],
+		ef_cd_argutus_vita_cast: [{
+			type: "STR",
+			file: "argutusvita/argutusvita_cast/argutusvita_cast",
+			texturePath: "argutusvita/argutusvita_cast/",
+			min: "argutusvita/argutusvita_cast/min_argutusvita_cast"
+		}],
+		ef_cd_argutus_telum: [{
+			type: "STR",
+			file: "argutustelum/argutustelum/argutustelum",
+			texturePath: "argutustelum/argutustelum/",
+			min: "argutustelum/argutustelum/min_argutustelum"
+		}],
+		ef_cd_argutus_telum_cast: [{
+			type: "STR",
+			file: "argutustelum/argutustelum_cast/argutustelum_cast",
+			texturePath: "argutustelum/argutustelum_cast/",
+			min: "argutustelum/argutustelum_cast/min_argutustelum_cast"
+		}],
+		ef_cd_arbitrium: [{
+			type: "STR",
+			file: "arbitrium/arbitrium/arbitrium",
+			texturePath: "arbitrium/arbitrium/",
+			min: "arbitrium/arbitrium/min_arbitrium",
+			wav: "effect/cd_arbitrium"
+		}, {
+			type: "STR",
+			file: "arbitrium/arbitrium_bottom/arbitrium_bottom",
+			texturePath: "arbitrium/arbitrium_bottom/",
+			min: "arbitrium/arbitrium_bottom/min_arbitrium_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_cd_arbitrium_cast: [{
+			type: "STR",
+			file: "arbitrium/arbitrium_cast/arbitrium_cast",
+			texturePath: "arbitrium/arbitrium_cast/",
+			min: "arbitrium/arbitrium_cast/min_arbitrium_cast"
+		}, {
+			type: "STR",
+			file: "arbitrium/arbitrium_cast_bottom/arbitrium_cast_bottom",
+			texturePath: "arbitrium/arbitrium_cast_bottom/",
+			min: "arbitrium/arbitrium_cast_bottom/min_arbitrium_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_cd_arbitrium_hit: [{
+			type: "STR",
+			file: "arbitrium/arbitrium_hit/arbitrium_hit",
+			texturePath: "arbitrium/arbitrium_hit/",
+			min: "arbitrium/arbitrium_hit/min_arbitrium_hit"
+		}],
+		ef_cd_arbitrium_atk: [{
+			type: "STR",
+			file: "arbitrium/arbitrium_hit/arbitrium_hit",
+			texturePath: "arbitrium/arbitrium_hit/",
+			min: "arbitrium/arbitrium_hit/min_arbitrium_hit"
+		}],
+		ef_cd_presens_acies: [{
+			type: "STR",
+			file: "presensacies/presensacies/presensacies",
+			texturePath: "presensacies/presensacies/",
+			min: "presensacies/presensacies/min_presensacies",
+			wav: "effect/cd_presens_acies"
+		}],
+		ef_cd_presens_acies_cast: [{
+			type: "STR",
+			file: "presensacies/presensacies_cast/presensacies_cast",
+			texturePath: "presensacies/presensacies_cast/",
+			min: "presensacies/presensacies_cast/min_presensacies_cast"
+		}],
+		ef_cd_effligo: [{
+			type: "STR",
+			file: "effligo/effligo/effligo",
+			texturePath: "effligo/effligo/",
+			min: "effligo/effligo/min_effligo",
+			wav: "effect/cd_effligo"
+		}, {
+			type: "STR",
+			file: "effligo/effligo_bottom/effligo_bottom",
+			texturePath: "effligo/effligo_bottom/",
+			min: "effligo/effligo_bottom/min_effligo_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_cd_effligo_hit: [{
+			type: "STR",
+			file: "effligo/effligo_hit/effligo_hit",
+			texturePath: "effligo/effligo_hit/",
+			min: "effligo/effligo_hit/min_effligo_hit"
+		}],
+		ef_cd_competentia: [{
+			type: "STR",
+			file: "competentia/competentia/competentia",
+			texturePath: "competentia/competentia/",
+			min: "competentia/competentia/min_competentia",
+			wav: "effect/cd_competentia"
+		}, {
+			type: "STR",
+			file: "competentia/competentia_bottom/competentia_bottom",
+			texturePath: "competentia/competentia_bottom/",
+			min: "competentia/competentia_bottom/min_competentia_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_cd_competentia_cast: [{
+			type: "STR",
+			file: "competentia/competentia_cast/competentia_cast",
+			texturePath: "competentia/competentia_cast/"
+		}],
+		ef_cd_pneumaticus_procella: [{
+			type: "STR",
+			file: "new_pneumaticusprocella/new_pneumaticusprocella/new_pneumaticusprocella",
+			texturePath: "new_pneumaticusprocella/new_pneumaticusprocella/",
+			wav: "effect/cd_pneumaticus_procella"
+		}],
+		ef_cd_pneumaticus_procella_cast: [{
+			type: "STR",
+			file: "new_pneumaticusprocella/new_pneumaticusprocella_cast/new_pneumaticusprocella_cast",
+			texturePath: "new_pneumaticusprocella/new_pneumaticusprocella_cast/"
+		}],
+		ef_cd_dilectio_heal: [{
+			type: "STR",
+			file: "new_dilectioheal/new_dilectioheal/new_dilectioheal",
+			texturePath: "new_dilectioheal/new_dilectioheal/",
+			min: "new_dilectioheal/new_dilectioheal/min_new_dilectioheal",
+			wav: "effect/cd_dilectio_heal"
+		}],
+		ef_cd_dilectio_heal_cast: [{
+			type: "STR",
+			file: "new_dilectioheal/new_dilectioheal_cast/new_dilectioheal_cast",
+			texturePath: "new_dilectioheal/new_dilectioheal_cast/",
+			min: "new_dilectioheal/new_dilectioheal_cast/min_new_dilectioheal_cast"
+		}, {
+			type: "STR",
+			file: "new_dilectioheal/new_dilectioheal_cast_bottom/new_dilectioheal_cast_bottom",
+			texturePath: "new_dilectioheal/new_dilectioheal_cast_bottom/",
+			min: "new_dilectioheal/new_dilectioheal_cast_bottom/min_new_dilectioheal_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_cd_religio: [{
+			type: "STR",
+			file: "religio/religio/religio",
+			texturePath: "religio/religio/",
+			min: "religio/religio/min_religio",
+			wav: "effect/cd_religio"
+		}],
+		ef_cd_religio_cast: [{
+			type: "STR",
+			file: "religio/religio_cast/religio_cast",
+			texturePath: "religio/religio_cast/",
+			min: "religio/religio_cast/min_religio_cast"
+		}],
+		ef_cd_benedictum: [{
+			type: "STR",
+			file: "benedictum/benedictum/benedictum",
+			texturePath: "benedictum/benedictum/",
+			min: "benedictum/benedictum/min_benedictum",
+			wav: "effect/cd_benedictum"
+		}],
+		ef_cd_benedictum_cast: [{
+			type: "STR",
+			file: "benedictum/benedictum_cast/benedictum_cast",
+			texturePath: "benedictum/benedictum_cast/",
+			min: "benedictum/benedictum_cast/min_benedictum_cast"
+		}, {
+			type: "STR",
+			file: "benedictum/benedictum_cast_bottom/benedictum_cast_bottom",
+			texturePath: "benedictum/benedictum_cast_bottom/",
+			min: "benedictum/benedictum_cast_bottom/min_benedictum_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_cd_petitio: [{
+			type: "STR",
+			file: "petitio/petitio/petitio",
+			texturePath: "petitio/petitio/",
+			min: "petitio/petitio/min_petitio",
+			wav: "effect/cd_petitio"
+		}, {
+			type: "STR",
+			file: "petitio/petitio_bottom/petitio_bottom",
+			texturePath: "petitio/petitio_bottom/",
+			min: "petitio/petitio_bottom/min_petitio_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_cd_framen: [{
+			wav: "effect/cd_framen",
+			attachedEntity: true
+		}],
+		ef_cd_divinus_flos: [{
+			type: "STR",
+			file: "cardinal/cd_divinus_flos/divinus_flos/divinus_flos",
+			texturePath: "cardinal/cd_divinus_flos/divinus_flos/",
+			min: "cardinal/cd_divinus_flos/divinus_flos/min_divinus_flos",
+			wav: "effect/cd_divinus_flos"
+		}, {
+			type: "STR",
+			file: "cardinal/cd_divinus_flos/divinus_flos_bottom/divinus_flos_bottom",
+			texturePath: "cardinal/cd_divinus_flos/divinus_flos_bottom/",
+			min: "cardinal/cd_divinus_flos/divinus_flos_bottom/min_divinus_flos_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_cd_divinus_flos_cast: [{
+			type: "STR",
+			file: "cardinal/cd_divinus_flos/divinus_flos_cast/divinus_flos_cast",
+			texturePath: "cardinal/cd_divinus_flos/divinus_flos_cast/",
+			min: "cardinal/cd_divinus_flos/divinus_flos_cast/min_divinus_flos_cast"
+		}, {
+			type: "STR",
+			file: "cardinal/cd_divinus_flos/divinus_flos_cast_bottom/divinus_flos_cast_bottom",
+			texturePath: "cardinal/cd_divinus_flos/divinus_flos_cast_bottom/",
+			min: "cardinal/cd_divinus_flos/divinus_flos_cast_bottom/min_divinus_flos_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_cd_divinus_flos_hit: [{
+			type: "STR",
+			file: "cardinal/cd_divinus_flos/divinus_flos_hit/divinus_flos_hit",
+			texturePath: "cardinal/cd_divinus_flos/divinus_flos_hit/",
+			min: "cardinal/cd_divinus_flos/divinus_flos_hit/min_divinus_flos_hit"
 		}],
 		ef_wugbite: [{
 			wav: "wug_bite",
