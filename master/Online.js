@@ -214518,6 +214518,97 @@ var init_SkillEffect = __esmMin((() => {
 	};
 	SkillEffect[SkillConst_default.WM_FRIGG_SONG] = { effectId: "ef_frigg_song" };
 	SkillEffect[SkillConst_default.SO_ELEMENTAL_SHIELD] = { effectId: 1046 };
+	SkillEffect[SkillConst_default.EM_SPELL_ENCHANTING] = { effectId: "ef_em_spell_enchanting" };
+	SkillEffect[SkillConst_default.EM_ACTIVITY_BURN] = {
+		effectId: "ef_em_activity_burn",
+		effectIdOnCaster: "ef_em_activity_burn_cast"
+	};
+	SkillEffect[SkillConst_default.EM_INCREASING_ACTIVITY] = {
+		effectId: "ef_em_increasing_activity",
+		effectIdOnCaster: "ef_em_increasing_activity_cast"
+	};
+	SkillEffect[SkillConst_default.EM_DIAMOND_STORM] = {
+		effectId: "ef_em_diamond_storm",
+		effectIdOnCaster: "ef_em_diamond_storm_cast",
+		hitEffectId: "ef_em_diamond_storm_hit"
+	};
+	SkillEffect[SkillConst_default.EM_LIGHTNING_LAND] = {
+		effectId: "ef_em_lightning_land",
+		effectIdOnCaster: "ef_em_lightning_land_cast",
+		hitEffectId: "ef_em_lightning_land_hit"
+	};
+	SkillEffect[SkillConst_default.EM_VENOM_SWAMP] = {
+		effectId: "ef_em_venom_swamp",
+		effectIdOnCaster: "ef_em_venom_swamp_cast",
+		hitEffectId: "ef_em_venom_swamp_hit"
+	};
+	SkillEffect[SkillConst_default.EM_CONFLAGRATION] = {
+		effectId: "ef_em_conflagration",
+		effectIdOnCaster: "ef_em_conflagration_cast",
+		hitEffectId: "ef_em_conflagration_hit"
+	};
+	SkillEffect[SkillConst_default.EM_TERRA_DRIVE] = {
+		effectId: "ef_em_terra_drive",
+		effectIdOnCaster: "ef_em_terra_drive_cast",
+		hitEffectId: "ef_em_terra_drive_hit"
+	};
+	SkillEffect[SkillConst_default.EM_SUMMON_ELEMENTAL_ARDOR] = {
+		effectId: "ef_em_summon_elemental_ardor",
+		effectIdOnCaster: "ef_em_summon_elemental_ardor_cast",
+		hitEffectId: "ef_em_summon_elemental_ardor_hit"
+	};
+	SkillEffect[SkillConst_default.EM_SUMMON_ELEMENTAL_DILUVIO] = {
+		effectIdOnCaster: "ef_em_summon_elemental_diluvio_cast",
+		hitEffectId: "ef_em_summon_elemental_diluvio_hit"
+	};
+	SkillEffect[SkillConst_default.EM_SUMMON_ELEMENTAL_PROCELLA] = {
+		effectId: "ef_em_summon_elemental_procella",
+		effectIdOnCaster: "ef_em_summon_elemental_procella_cast",
+		hitEffectId: "ef_em_summon_elemental_procella_hit"
+	};
+	SkillEffect[SkillConst_default.EM_SUMMON_ELEMENTAL_TERREMOTUS] = {
+		effectId: "ef_em_summon_elemental_terremotus",
+		effectIdOnCaster: "ef_em_summon_elemental_terremotus_cast",
+		hitEffectId: "ef_em_summon_elemental_terremotus_hit"
+	};
+	SkillEffect[SkillConst_default.EM_SUMMON_ELEMENTAL_SERPENS] = {
+		effectId: "ef_em_summon_elemental_serpens",
+		effectIdOnCaster: "ef_em_summon_elemental_serpens_cast",
+		hitEffectId: "ef_em_summon_elemental_serpens_hit"
+	};
+	SkillEffect[SkillConst_default.EM_ELEMENTAL_BUSTER] = { effectIdOnCaster: "ef_em_elemental_buster_cast" };
+	SkillEffect[SkillConst_default.EM_ELEMENTAL_BUSTER_FIRE] = {
+		effectId: "ef_em_elemental_buster_fire",
+		hitEffectId: "ef_em_elemental_buster_fire_hit"
+	};
+	SkillEffect[SkillConst_default.EM_ELEMENTAL_BUSTER_WATER] = {
+		effectId: "ef_em_elemental_buster_water",
+		hitEffectId: "ef_em_elemental_buster_water_hit"
+	};
+	SkillEffect[SkillConst_default.EM_ELEMENTAL_BUSTER_WIND] = {
+		effectId: "ef_em_elemental_buster_wind",
+		hitEffectId: "ef_em_elemental_buster_wind_hit"
+	};
+	SkillEffect[SkillConst_default.EM_ELEMENTAL_BUSTER_GROUND] = {
+		effectId: "ef_em_elemental_buster_ground",
+		hitEffectId: "ef_em_elemental_buster_ground_hit"
+	};
+	SkillEffect[SkillConst_default.EM_ELEMENTAL_BUSTER_POISON] = {
+		effectId: "ef_em_elemental_buster_poison",
+		hitEffectId: "ef_em_elemental_buster_poison_hit"
+	};
+	SkillEffect[6517] = {
+		effectId: "ef_em_psychic_stream",
+		effectIdOnCaster: "ef_em_psychic_stream_cast",
+		hitEffectId: "ef_em_psychic_stream_hit"
+	};
+	SkillEffect[SkillConst_default.EM_EL_FLAMETECHNIC] = { effectId: "ef_em_el_flametechnic" };
+	SkillEffect[SkillConst_default.EM_EL_FLAMEARMOR] = { effectId: "ef_em_el_flamearmor" };
+	SkillEffect[SkillConst_default.EM_EL_COLD_FORCE] = { effectId: "ef_em_el_cold_force" };
+	SkillEffect[SkillConst_default.EM_EL_GRACE_BREEZE] = { effectId: "ef_em_el_grace_breeze" };
+	SkillEffect[SkillConst_default.EM_EL_EARTH_CARE] = { effectId: "ef_em_el_earth_care" };
+	SkillEffect[SkillConst_default.EM_EL_DEEP_POISONING] = { effectId: "ef_em_el_deep_poisoning" };
+	SkillEffect[SkillConst_default.EM_EL_DEADLY_POISON] = { effectId: "ef_em_el_deadly_poison" };
 	SkillEffect[SkillConst_default.SR_FLASHCOMBO] = { effectId: 1043 };
 	SkillEffect[SkillConst_default.IQ_POWERFUL_FAITH] = { effectId: "ef_iq_powerful_faith" };
 	SkillEffect[SkillConst_default.IQ_FIRM_FAITH] = { effectId: "ef_iq_firm_faith" };
@@ -275218,6 +275309,488 @@ var init_EffectTable = __esmMin((() => {
 			file: "so_elemental_shield",
 			wav: "effect/so_elemental_shield",
 			attachedEntity: true
+		}],
+		ef_em_spell_enchanting: [{
+			type: "STR",
+			file: "spell_enchanting/spell_enchanting/spell_enchanting",
+			texturePath: "spell_enchanting/spell_enchanting/",
+			wav: "effect/em_spell_enchanting"
+		}],
+		ef_em_activity_burn: [{
+			type: "STR",
+			file: "activity_burn/activity_burn/activity_burn",
+			texturePath: "activity_burn/activity_burn/",
+			min: "activity_burn/activity_burn/min_activity_burn",
+			wav: "effect/em_activity_burn"
+		}],
+		ef_em_activity_burn_cast: [{
+			type: "STR",
+			file: "activity_burn/activity_burn_cast/activity_burn_cast",
+			texturePath: "activity_burn/activity_burn_cast/",
+			min: "activity_burn/activity_burn_cast/min_activity_burn_cast"
+		}, {
+			type: "STR",
+			file: "activity_burn/activity_burn_cast_bottom/activity_burn_cast_bottom",
+			texturePath: "activity_burn/activity_burn_cast_bottom/",
+			min: "activity_burn/activity_burn_cast_bottom/min_activity_burn_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_em_increasing_activity: [{
+			type: "STR",
+			file: "increasing_activity/increasing_activity/increasing_activity",
+			texturePath: "increasing_activity/increasing_activity/",
+			min: "increasing_activity/increasing_activity/min_increasing_activity",
+			wav: "effect/em_increasing_activity"
+		}],
+		ef_em_increasing_activity_cast: [{
+			type: "STR",
+			file: "increasing_activity/increasing_activity_cast/increasing_activity_cast",
+			texturePath: "increasing_activity/increasing_activity_cast/",
+			min: "increasing_activity/increasing_activity_cast/min_increasing_activity_cast"
+		}, {
+			type: "STR",
+			file: "increasing_activity/increasing_activity_cast_bottom/increasing_activity_cast_bottom",
+			texturePath: "increasing_activity/increasing_activity_cast_bottom/",
+			min: "increasing_activity/increasing_activity_cast_bottom/min_increasing_activity_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_em_diamond_storm: [{
+			type: "STR",
+			file: "diamond_storm/diamond_storm/diamond_storm",
+			texturePath: "diamond_storm/diamond_storm/",
+			min: "diamond_storm/diamond_storm/min_diamond_storm",
+			wav: "effect/em_diamond_storm"
+		}, {
+			type: "STR",
+			file: "diamond_storm/diamond_storm_bottom/diamond_storm_bottom",
+			texturePath: "diamond_storm/diamond_storm_bottom/",
+			min: "diamond_storm/diamond_storm_bottom/min_diamond_storm_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_em_diamond_storm_cast: [{
+			type: "STR",
+			file: "diamond_storm/diamond_storm_cast/diamond_storm_cast",
+			texturePath: "diamond_storm/diamond_storm_cast/",
+			min: "diamond_storm/diamond_storm_cast/min_diamond_storm_cast"
+		}, {
+			type: "STR",
+			file: "diamond_storm/diamond_storm_cast_bottom/diamond_storm_cast_bottom",
+			texturePath: "diamond_storm/diamond_storm_cast_bottom/",
+			min: "diamond_storm/diamond_storm_cast_bottom/min_diamond_storm_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_em_diamond_storm_hit: [{
+			type: "STR",
+			file: "diamond_storm/diamond_storm_hit/diamond_storm_hit",
+			texturePath: "diamond_storm/diamond_storm_hit/",
+			min: "diamond_storm/diamond_storm_hit/min_diamond_storm_hit"
+		}],
+		ef_em_lightning_land: [{
+			type: "STR",
+			file: "lightning_land/lightning_land/lightning_land",
+			texturePath: "lightning_land/lightning_land/",
+			min: "lightning_land/lightning_land/min_lightning_land",
+			wav: "effect/em_lightning_land"
+		}, {
+			type: "STR",
+			file: "lightning_land/lightning_land_bottom/lightning_land_bottom",
+			texturePath: "lightning_land/lightning_land_bottom/",
+			min: "lightning_land/lightning_land_bottom/min_lightning_land_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_em_lightning_land_cast: [{
+			type: "STR",
+			file: "lightning_land/lightning_land_cast/lightning_land_cast",
+			texturePath: "lightning_land/lightning_land_cast/",
+			min: "lightning_land/lightning_land_cast/min_lightning_land_cast"
+		}, {
+			type: "STR",
+			file: "lightning_land/lightning_land_cast_bottom/lightning_land_cast_bottom",
+			texturePath: "lightning_land/lightning_land_cast_bottom/",
+			min: "lightning_land/lightning_land_cast_bottom/min_lightning_land_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_em_lightning_land_hit: [{
+			type: "STR",
+			file: "lightning_land/lightning_land_hit/lightning_land_hit",
+			texturePath: "lightning_land/lightning_land_hit/",
+			min: "lightning_land/lightning_land_hit/min_lightning_land_hit"
+		}],
+		ef_em_venom_swamp: [{
+			type: "STR",
+			file: "venom_swamp/venom_swamp_bottom/venom_swamp_bottom",
+			texturePath: "venom_swamp/venom_swamp_bottom/",
+			min: "venom_swamp/venom_swamp_bottom/min_venom_swamp_bottom",
+			renderBeforeEntities: true,
+			wav: "effect/em_venom_swamp"
+		}],
+		ef_em_venom_swamp_cast: [{
+			type: "STR",
+			file: "venom_swamp/venom_swamp_cast/venom_swamp_cast",
+			texturePath: "venom_swamp/venom_swamp_cast/",
+			min: "venom_swamp/venom_swamp_cast/min_venom_swamp_cast"
+		}, {
+			type: "STR",
+			file: "venom_swamp/venom_swamp_cast_bottom/venom_swamp_cast_bottom",
+			texturePath: "venom_swamp/venom_swamp_cast_bottom/",
+			min: "venom_swamp/venom_swamp_cast_bottom/min_venom_swamp_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_em_venom_swamp_hit: [{
+			type: "STR",
+			file: "venom_swamp/venom_swamp_hit/venom_swamp_hit",
+			texturePath: "venom_swamp/venom_swamp_hit/",
+			min: "venom_swamp/venom_swamp_hit/min_venom_swamp_hit"
+		}],
+		ef_em_conflagration: [{
+			type: "STR",
+			file: "conflagration/conflagration",
+			texturePath: "conflagration/",
+			wav: "effect/em_conflagration"
+		}, {
+			type: "STR",
+			file: "conflagration/conflagration_bottom/conflagration_bottom",
+			texturePath: "conflagration/conflagration_bottom/",
+			min: "conflagration/conflagration_bottom/min_conflagration_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_em_conflagration_cast: [{
+			type: "STR",
+			file: "conflagration/conflagration_cast/conflagration_cast",
+			texturePath: "conflagration/conflagration_cast/",
+			min: "conflagration/conflagration_cast/min_conflagration_cast"
+		}, {
+			type: "STR",
+			file: "conflagration/conflagration_cast_bottom/conflagration_cast_bottom",
+			texturePath: "conflagration/conflagration_cast_bottom/",
+			min: "conflagration/conflagration_cast_bottom/min_conflagration_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_em_conflagration_hit: [{
+			type: "STR",
+			file: "conflagration/conflagration_hit/conflagration_hit",
+			texturePath: "conflagration/conflagration_hit/",
+			min: "conflagration/conflagration_hit/min_conflagration_hit"
+		}],
+		ef_em_terra_drive: [{
+			type: "STR",
+			file: "terradrive/terradrive/terradrive",
+			texturePath: "terradrive/terradrive/",
+			min: "terradrive/terradrive/min_terradrive",
+			wav: "effect/em_terra_drive"
+		}, {
+			type: "STR",
+			file: "terradrive/terradrive_bottom/terradrive_bottom",
+			texturePath: "terradrive/terradrive_bottom/",
+			min: "terradrive/terradrive_bottom/min_terradrive_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_em_terra_drive_cast: [{
+			type: "STR",
+			file: "terradrive/terradrive_cast/terradrive_cast",
+			texturePath: "terradrive/terradrive_cast/",
+			min: "terradrive/terradrive_cast/min_terradrive_cast"
+		}, {
+			type: "STR",
+			file: "terradrive/terradrive_cast_bottom/terradrive_cast_bottom",
+			texturePath: "terradrive/terradrive_cast_bottom/",
+			min: "terradrive/terradrive_cast_bottom/min_terradrive_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_em_terra_drive_hit: [{
+			type: "STR",
+			file: "terradrive/terradrive_hit/terradrive_hit",
+			texturePath: "terradrive/terradrive_hit/",
+			min: "terradrive/terradrive_hit/min_terradrive_hit"
+		}],
+		ef_em_summon_elemental_ardor: [{
+			type: "STR",
+			file: "ardor/ardor/ardor",
+			texturePath: "ardor/ardor/",
+			min: "ardor/ardor/min_ardor"
+		}, {
+			type: "STR",
+			file: "ardor/ardor_bottom/ardor_bottom",
+			texturePath: "ardor/ardor_bottom/",
+			min: "ardor/ardor_bottom/min_ardor_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_em_summon_elemental_ardor_cast: [{
+			type: "STR",
+			file: "ardor/ardor_cast/ardor_cast",
+			texturePath: "ardor/ardor_cast/",
+			min: "ardor/ardor_cast/min_ardor_cast"
+		}, {
+			type: "STR",
+			file: "ardor/ardor_cast_bottom/ardor_cast_bottom",
+			texturePath: "ardor/ardor_cast_bottom/",
+			min: "ardor/ardor_cast_bottom/min_ardor_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_em_summon_elemental_ardor_hit: [{
+			type: "STR",
+			file: "ardor/ardor_hit/ardor_hit",
+			texturePath: "ardor/ardor_hit/",
+			min: "ardor/ardor_hit/min_ardor_hit"
+		}],
+		ef_em_summon_elemental_diluvio_cast: [{
+			type: "STR",
+			file: "diluvio/diluvio_cast/diluvio_cast",
+			texturePath: "diluvio/diluvio_cast/",
+			min: "diluvio/diluvio_cast/min_diluvio_cast"
+		}, {
+			type: "STR",
+			file: "diluvio/diluvio_cast_bottom/diluvio_cast_bottom",
+			texturePath: "diluvio/diluvio_cast_bottom/",
+			min: "diluvio/diluvio_cast_bottom/min_diluvio_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_em_summon_elemental_diluvio_hit: [{
+			type: "STR",
+			file: "diluvio/diluvio_hit/diluvio_hit",
+			texturePath: "diluvio/diluvio_hit/",
+			min: "diluvio/diluvio_hit/min_diluvio_hit"
+		}],
+		ef_em_summon_elemental_procella: [{
+			type: "STR",
+			file: "procella/procella/procella",
+			texturePath: "procella/procella/",
+			min: "procella/procella/min_procella"
+		}, {
+			type: "STR",
+			file: "procella/procella_bottom/procella_bottom",
+			texturePath: "procella/procella_bottom/",
+			min: "procella/procella_bottom/min_procella_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_em_summon_elemental_procella_cast: [{
+			type: "STR",
+			file: "procella/procella_cast/procella_cast",
+			texturePath: "procella/procella_cast/",
+			min: "procella/procella_cast/min_procella_cast"
+		}, {
+			type: "STR",
+			file: "procella/procella_cast_bottom/procella_cast_bottom",
+			texturePath: "procella/procella_cast_bottom/",
+			min: "procella/procella_cast_bottom/min_procella_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_em_summon_elemental_procella_hit: [{
+			type: "STR",
+			file: "procella/procella_hit/procella_hit",
+			texturePath: "procella/procella_hit/",
+			min: "procella/procella_hit/min_procella_hit"
+		}],
+		ef_em_summon_elemental_terremotus: [{
+			type: "STR",
+			file: "terremotus/terremotus/terremotus",
+			texturePath: "terremotus/terremotus/",
+			min: "terremotus/terremotus/min_terremotus"
+		}],
+		ef_em_summon_elemental_terremotus_cast: [{
+			type: "STR",
+			file: "terremotus/terremotus_cast/terremotus_cast",
+			texturePath: "terremotus/terremotus_cast/",
+			min: "terremotus/terremotus_cast/min_terremotus_cast"
+		}, {
+			type: "STR",
+			file: "terremotus/terremotus_cast_bottom/terremotus_cast_bottom",
+			texturePath: "terremotus/terremotus_cast_bottom/",
+			min: "terremotus/terremotus_cast_bottom/min_terremotus_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_em_summon_elemental_terremotus_hit: [{
+			type: "STR",
+			file: "terremotus/terremotus_hit/terremotus_hit",
+			texturePath: "terremotus/terremotus_hit/",
+			min: "terremotus/terremotus_hit/min_terremotus_hit"
+		}],
+		ef_em_summon_elemental_serpens: [{
+			type: "STR",
+			file: "serpens/serpens_bottom/serpens_bottom",
+			texturePath: "serpens/serpens_bottom/",
+			min: "serpens/serpens_bottom/min_serpens_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_em_summon_elemental_serpens_cast: [{
+			type: "STR",
+			file: "serpens/serpens_cast/serpens_cast",
+			texturePath: "serpens/serpens_cast/",
+			min: "serpens/serpens_cast/min_serpens_cast"
+		}, {
+			type: "STR",
+			file: "serpens/serpens_cast_bottom/serpens_cast_bottom",
+			texturePath: "serpens/serpens_cast_bottom/",
+			min: "serpens/serpens_cast_bottom/min_serpens_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_em_summon_elemental_serpens_hit: [{
+			type: "STR",
+			file: "serpens/serpens_hit/serpens_hit",
+			texturePath: "serpens/serpens_hit/",
+			min: "serpens/serpens_hit/min_serpens_hit"
+		}],
+		ef_em_elemental_buster_cast: [{
+			type: "STR",
+			file: "elemental_buster/elemental_buster_cast/elemental_buster_cast",
+			texturePath: "elemental_buster/elemental_buster_cast/",
+			min: "elemental_buster/elemental_buster_cast/min_elemental_buster_cast"
+		}],
+		ef_em_elemental_buster_fire: [{
+			type: "STR",
+			file: "elemental_buster/elemental_buster/elemental_buster_fire/elemental_buster_fire",
+			texturePath: "elemental_buster/elemental_buster/elemental_buster_fire/",
+			min: "elemental_buster/elemental_buster/elemental_buster_fire/min_elemental_buster_fire"
+		}, {
+			type: "STR",
+			file: "elemental_buster/elemental_buster/elemental_buster_fire_bottom/elemental_buster_fire_bottom",
+			texturePath: "elemental_buster/elemental_buster/elemental_buster_fire_bottom/",
+			min: "elemental_buster/elemental_buster/elemental_buster_fire_bottom/min_elemental_buster_fire_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_em_elemental_buster_fire_hit: [{
+			type: "STR",
+			file: "elemental_buster/elemental_buster_hit/elemental_buster_fire_hit/elemental_buster_fire_hit",
+			texturePath: "elemental_buster/elemental_buster_hit/elemental_buster_fire_hit/",
+			min: "elemental_buster/elemental_buster_hit/elemental_buster_fire_hit/min_elemental_buster_fire_hit"
+		}],
+		ef_em_elemental_buster_water: [{
+			type: "STR",
+			file: "elemental_buster/elemental_buster/elemental_buster_water/elemental_buster_water",
+			texturePath: "elemental_buster/elemental_buster/elemental_buster_water/",
+			min: "elemental_buster/elemental_buster/elemental_buster_water/min_elemental_buster_water"
+		}, {
+			type: "STR",
+			file: "elemental_buster/elemental_buster/elemental_buster_water_bottom/elemental_buster_water_bottom",
+			texturePath: "elemental_buster/elemental_buster/elemental_buster_water_bottom/",
+			min: "elemental_buster/elemental_buster/elemental_buster_water_bottom/min_elemental_buster_water_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_em_elemental_buster_water_hit: [{
+			type: "STR",
+			file: "elemental_buster/elemental_buster_hit/elemental_buster_water_hit/elemental_buster_water_hit",
+			texturePath: "elemental_buster/elemental_buster_hit/elemental_buster_water_hit/",
+			min: "elemental_buster/elemental_buster_hit/elemental_buster_water_hit/min_elemental_buster_water_hit"
+		}],
+		ef_em_elemental_buster_wind: [{
+			type: "STR",
+			file: "elemental_buster/elemental_buster/elemental_buster_wind/elemental_buster_wind",
+			texturePath: "elemental_buster/elemental_buster/elemental_buster_wind/",
+			min: "elemental_buster/elemental_buster/elemental_buster_wind/min_elemental_buster_wind"
+		}, {
+			type: "STR",
+			file: "elemental_buster/elemental_buster/elemental_buster_wind_bottom/elemental_buster_wind_bottom",
+			texturePath: "elemental_buster/elemental_buster/elemental_buster_wind_bottom/",
+			min: "elemental_buster/elemental_buster/elemental_buster_wind_bottom/min_elemental_buster_wind_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_em_elemental_buster_wind_hit: [{
+			type: "STR",
+			file: "elemental_buster/elemental_buster_hit/elemental_buster_wind_hit/elemental_buster_wind_hit",
+			texturePath: "elemental_buster/elemental_buster_hit/elemental_buster_wind_hit/",
+			min: "elemental_buster/elemental_buster_hit/elemental_buster_wind_hit/min_elemental_buster_wind_hit"
+		}],
+		ef_em_elemental_buster_ground: [{
+			type: "STR",
+			file: "elemental_buster/elemental_buster/elemental_buster_land/elemental_buster_land",
+			texturePath: "elemental_buster/elemental_buster/elemental_buster_land/",
+			min: "elemental_buster/elemental_buster/elemental_buster_land/min_elemental_buster_land"
+		}, {
+			type: "STR",
+			file: "elemental_buster/elemental_buster/elemental_buster_land_bottom/elemental_buster_land_bottom",
+			texturePath: "elemental_buster/elemental_buster/elemental_buster_land_bottom/",
+			min: "elemental_buster/elemental_buster/elemental_buster_land_bottom/min_elemental_buster_land_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_em_elemental_buster_ground_hit: [{
+			type: "STR",
+			file: "elemental_buster/elemental_buster_hit/elemental_buster_land_hit/elemental_buster_land_hit",
+			texturePath: "elemental_buster/elemental_buster_hit/elemental_buster_land_hit/",
+			min: "elemental_buster/elemental_buster_hit/elemental_buster_land_hit/min_elemental_buster_land_hit"
+		}],
+		ef_em_elemental_buster_poison: [{
+			type: "STR",
+			file: "elemental_buster/elemental_buster/elemental_buster_poison/elemental_buster_poison",
+			texturePath: "elemental_buster/elemental_buster/elemental_buster_poison/",
+			min: "elemental_buster/elemental_buster/elemental_buster_poison/min_elemental_buster_poison"
+		}, {
+			type: "STR",
+			file: "elemental_buster/elemental_buster/elemental_buster_poison_bottom/elemental_buster_poison_bottom",
+			texturePath: "elemental_buster/elemental_buster/elemental_buster_poison_bottom/",
+			min: "elemental_buster/elemental_buster/elemental_buster_poison_bottom/min_elemental_buster_poison_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_em_elemental_buster_poison_hit: [{
+			type: "STR",
+			file: "elemental_buster/elemental_buster_hit/elemental_buster_poison_hit/elemental_buster_poison_hit",
+			texturePath: "elemental_buster/elemental_buster_hit/elemental_buster_poison_hit/",
+			min: "elemental_buster/elemental_buster_hit/elemental_buster_poison_hit/min_elemental_buster_poison_hit"
+		}],
+		ef_em_psychic_stream: [{
+			type: "STR",
+			file: "elemental_master/em_psychic_stream/psychic_stream/psychic_stream",
+			texturePath: "elemental_master/em_psychic_stream/psychic_stream/",
+			min: "elemental_master/em_psychic_stream/psychic_stream/min_psychic_stream",
+			wav: "effect/em_psychic_stream"
+		}, {
+			type: "STR",
+			file: "elemental_master/em_psychic_stream/psychic_stream_bottom/psychic_stream_bottom",
+			texturePath: "elemental_master/em_psychic_stream/psychic_stream_bottom/",
+			min: "elemental_master/em_psychic_stream/psychic_stream_bottom/min_psychic_stream_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_em_psychic_stream_cast: [{
+			type: "STR",
+			file: "elemental_master/em_psychic_stream/psychic_stream_cast/psychic_stream_cast",
+			texturePath: "elemental_master/em_psychic_stream/psychic_stream_cast/",
+			min: "elemental_master/em_psychic_stream/psychic_stream_cast/min_psychic_stream_cast"
+		}],
+		ef_em_psychic_stream_hit: [{
+			type: "STR",
+			file: "elemental_master/em_psychic_stream/psychic_stream_hit/psychic_stream_hit",
+			texturePath: "elemental_master/em_psychic_stream/psychic_stream_hit/",
+			min: "elemental_master/em_psychic_stream/psychic_stream_hit/min_psychic_stream_hit"
+		}],
+		ef_em_el_flametechnic: [{
+			type: "STR",
+			file: "ardor/ardor_flametechnic/ardor_flametechnic",
+			texturePath: "ardor/ardor_flametechnic/",
+			min: "ardor/ardor_flametechnic/min_ardor_flametechnic"
+		}],
+		ef_em_el_flamearmor: [{
+			type: "STR",
+			file: "ardor/ardor_flamearmor/ardor_flamearmor",
+			texturePath: "ardor/ardor_flamearmor/",
+			min: "ardor/ardor_flamearmor/min_ardor_flamearmor"
+		}],
+		ef_em_el_cold_force: [{
+			type: "STR",
+			file: "diluvio/diluvio_cold_force/diluvio_cold_force",
+			texturePath: "diluvio/diluvio_cold_force/",
+			min: "diluvio/diluvio_cold_force/min_diluvio_cold_force"
+		}],
+		ef_em_el_grace_breeze: [{
+			type: "STR",
+			file: "procella/procella_grace_breeze/procella_grace_breeze",
+			texturePath: "procella/procella_grace_breeze/",
+			min: "procella/procella_grace_breeze/min_procella_grace_breeze"
+		}],
+		ef_em_el_earth_care: [{
+			type: "STR",
+			file: "terremotus/terremotus_earth_care/terremotus_earth_care",
+			texturePath: "terremotus/terremotus_earth_care/",
+			min: "terremotus/terremotus_earth_care/min_terremotus_earth_care"
+		}],
+		ef_em_el_deep_poisoning: [{
+			type: "STR",
+			file: "serpens/serpens_deep_poisoning/serpens_deep_poisoning",
+			texturePath: "serpens/serpens_deep_poisoning/",
+			min: "serpens/serpens_deep_poisoning/min_serpens_deep_poisoning"
+		}],
+		ef_em_el_deadly_poison: [{
+			type: "STR",
+			file: "deadlypoison/deadlypoison",
+			texturePath: "deadlypoison/"
 		}],
 		1047: [{
 			type: "STR",
