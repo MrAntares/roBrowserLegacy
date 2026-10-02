@@ -50,7 +50,7 @@ class AttachmentManager {
 			this.remove(attachment.uid);
 		}
 
-		attachment.startTick = Date.now();
+		attachment.startTick = attachment.startTick || Renderer.tick || Date.now();
 		attachment.opacity = !isNaN(attachment.opacity) ? attachment.opacity : 1.0;
 		attachment.direction = attachment.hasOwnProperty('frame') ? false : true;
 		attachment.frame = attachment.frame || 0;
@@ -111,6 +111,7 @@ class AttachmentManager {
 		Client.loadFile(
 			attachment.spr,
 			function onLoad() {
+				attachment.startTick = Renderer.tick || Date.now();
 				this.list.push(attachment);
 			}.bind(this),
 			null,
@@ -303,9 +304,13 @@ class AttachmentManager {
 
 		frame = attachment.direction ? (Camera.direction + this.entity.direction + 8) % 8 : attachment.frame;
 		frame %= act.actions.length;
-		const animations = act.actions[frame].animations;
-		const delay = attachment.delay || act.actions[frame].delay;
+		const action = act.actions[frame];
+		const animations = action.animations;
+		const delay = Math.max(1, attachment.delay || action.delay || 100);
 		SpriteRenderer.depth = attachment.depth || 0;
+
+		const elapsed = Math.max(0, tick - attachment.startTick);
+		const animIndex = Math.floor(elapsed / delay);
 
 		// pause
 		if ('animationId' in attachment) {
@@ -314,15 +319,15 @@ class AttachmentManager {
 
 		// repeat animation
 		else if (attachment.repeat) {
-			if (attachment.duration > 0 && tick - attachment.startTick >= attachment.duration) {
+			if (attachment.duration > 0 && elapsed >= attachment.duration) {
 				return true; // duration expired, remove attachment
 			}
-			layers = animations[Math.floor((tick - attachment.startTick) / delay) % animations.length].layers;
+			layers = animations[animIndex % animations.length].layers;
 		}
 
 		// stop at end
 		else {
-			animation = Math.min(Math.floor((tick - attachment.startTick) / delay), animations.length - 1);
+			animation = Math.min(animIndex, animations.length - 1);
 			layers = animations[animation].layers;
 
 			if (animation === animations.length - 1 && !attachment.stopAtEnd) {

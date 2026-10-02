@@ -178,6 +178,7 @@ class CloudWeatherEffect {
 
 		cloud.born_tick = cloud.death_tick ? cloud.death_tick + 2000 : now;
 		cloud.death_tick = cloud.born_tick + 6000;
+		cloud._lastTick = cloud.born_tick;
 	}
 
 	render(gl, tick) {
@@ -230,7 +231,9 @@ class CloudWeatherEffect {
 			SpriteRenderer.color[3] = opacity;
 			SpriteRenderer.image.texture = this._textures[cloud.sprite];
 
-			vec3.add(cloud.position, cloud.position, cloud.direction);
+			const dt = Math.min(tick - (cloud._lastTick || cloud.born_tick), 250);
+			cloud._lastTick = tick;
+			vec3.scaleAndAdd(cloud.position, cloud.position, cloud.direction, dt / 25);
 			SpriteRenderer.position.set(cloud.position);
 
 			SpriteRenderer.runWithDepth(!overlay, false, !overlay, () => {

@@ -137,6 +137,7 @@ function cloudInit(cloud) {
 
 	cloud.born_tick = cloud.death_tick ? cloud.death_tick + 2000 : Date.now();
 	cloud.death_tick = cloud.born_tick + 6000;
+	cloud._lastTick = cloud.born_tick;
 }
 
 /**
@@ -197,8 +198,10 @@ function render(gl, modelView, projection, fog, tick) {
 		SpriteRenderer.color[3] = opacity;
 		SpriteRenderer.image.texture = _textures[cloud.sprite];
 
-		// Calculate position
-		vec3.add(cloud.position, cloud.position, cloud.direction);
+		// Calculate position scaled by delta time
+		const dt = Math.min(tick - (cloud._lastTick || cloud.born_tick), 250);
+		cloud._lastTick = tick;
+		vec3.scaleAndAdd(cloud.position, cloud.position, cloud.direction, dt / 25);
 		SpriteRenderer.position.set(cloud.position);
 		SpriteRenderer.runWithDepth(true, false, true, function () {
 			SpriteRenderer.render();
