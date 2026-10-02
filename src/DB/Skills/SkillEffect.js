@@ -1025,6 +1025,30 @@ SkillEffect[SK.KO_KAIHOU] = {}; //Release Ninja Spell
 SkillEffect[SK.KO_ZENKAI] = {}; //Cast Ninja Spell
 SkillEffect[SK.KO_GENWAKU] = {}; //Illusion - Bewitch
 SkillEffect[SK.KO_IZAYOI] = {}; //16th Night
+SkillEffect[SK.SS_TOKEDASU] = { effectId: 'ef_ss_tokedasu' }; //Melt Away
+SkillEffect[SK.SS_SHIMIRU] = { effectId: 'ef_ss_shimiru' }; //Infiltrate
+SkillEffect[SK.SS_AKUMUKESU] = { effectId: 'ef_ss_akumukesu' }; //Nightmare Erasion
+SkillEffect[SK.SS_KAGEGARI] = { effectId: 'ef_ss_kagegari' }; //Shadow Hunting
+SkillEffect[SK.SS_KAGENOMAI] = { effectId: 'ef_ss_kagenomai' }; //Shadow Dance
+SkillEffect[SK.SS_KAGEGISSEN] = { effectId: 'ef_ss_kagegissen', hitEffectId: 'ef_ss_kagegissen_hit' }; //Shadow Flash
+SkillEffect[SK.SS_FUUMASHOUAKU] = { effectId: 'ef_ss_fuumashouaku' }; //Huuma Shuriken - Grasp
+SkillEffect[SK.SS_FUUMAKOUCHIKU] = { effectId: 'ef_ss_fuumakouchiku' }; //Huuma Shuriken - Construct
+SkillEffect[SK.SS_KUNAIWAIKYOKU] = { effectId: 'ef_ss_kunaiwaikyoku' }; //Kunai - Distortion
+SkillEffect[SK.SS_KUNAIKAITEN] = { effectId: 'ef_ss_kunaikaiten' }; //Kunai - Rotation
+SkillEffect[SK.SS_KUNAIKUSSETSU] = { effectId: 'ef_ss_kunaikussetsu' }; //Kunai - Refraction
+SkillEffect[SK.SS_SEKIENHOU] = { effectId: 'ef_ss_sekienhou' }; //Red Flame Cannon
+SkillEffect[SK.SS_REIKETSUHOU] = { effectId: 'ef_ss_reiketsuhou' }; //Cold Blooded Cannon
+SkillEffect[SK.SS_RAIDENPOU] = {
+	effectId: 'ef_ss_raidenpou',
+	effectIdOnCaster: 'ef_ss_raidenpou_cast',
+	hitEffectId: 'ef_ss_raidenpou_hit'
+}; //Thundering Cannon
+SkillEffect[SK.SS_KINRYUUHOU] = { effectId: 'ef_ss_kinryuuhou', hitEffectId: 'ef_ss_kinryuuhou_hit' }; //Golden Dragon Cannon
+SkillEffect[SK.SS_ANTENPOU] = { effectId: 'ef_ss_antenpou' }; //Darkening Cannon
+SkillEffect[SK.SS_KAGEAKUMU] = { effectId: 'ef_ss_kageakumu' }; //Shadow - Nightmare
+SkillEffect[SK.SS_HITOUAKUMU] = { effectId: 'ef_ss_hitouakumu' }; //Kunai - Nightmare
+SkillEffect[SK.SS_ANKOKURYUUAKUMU] = { effectId: 'ef_ss_ankokuryuuakumu' }; //Dark Dragon - Nightmare
+SkillEffect[5499 /* SS_FOUR_CHARM */] = { effectId: 'ef_ss_four_charm' }; //Four Colors Charm
 SkillEffect[SK.KG_KAGEHUMI] = {}; //Shadow Trampling
 SkillEffect[SK.KG_KYOMU] = {}; //Empty Shadow
 SkillEffect[SK.KG_KAGEMUSYA] = {}; //Shadow Warrior
