@@ -1022,6 +1022,45 @@ SkillEffect[6511 /* SHC_CROSS_SLASH */] = { effectId: 'ef_shc_cross_slash' }; //
 SkillEffect[SK.GC_DARKCROW] = { effectId: 1040 }; //Dark Claw
 SkillEffect[SK.RA_UNLIMIT] = {}; //Unlimited
 SkillEffect[SK.GN_ILLUSIONDOPING] = { effectId: 1049 }; //Illusion Doping
+SkillEffect[5307 /* BO_ACIDIFIED_ZONE_WATER_ATK */] = { effectId: 'ef_bo_acidified_zone_water_atk' }; //Actified Zone Water Attack
+SkillEffect[5308 /* BO_ACIDIFIED_ZONE_GROUND_ATK */] = { effectId: 'ef_bo_acidified_zone_ground_atk' }; //Actified Zone Ground Attack
+SkillEffect[5309 /* BO_ACIDIFIED_ZONE_WIND_ATK */] = { effectId: 'ef_bo_acidified_zone_wind_atk' }; //Actified Zone Wind Attack
+SkillEffect[5310 /* BO_ACIDIFIED_ZONE_FIRE_ATK */] = { effectId: 'ef_bo_acidified_zone_fire_atk' }; //Actified Zone Fire Attack
+SkillEffect[SK.BO_ADVANCE_PROTECTION] = { effectId: 'ef_bo_advance_protection' }; //Advance Protection
+SkillEffect[SK.BO_ACIDIFIED_ZONE_WATER] = {
+	effectIdOnCaster: 'ef_bo_acidified_zone_water_cast',
+	hitEffectId: 'ef_bo_acidified_zone_water_hit'
+}; //Acidified Zone Water
+SkillEffect[SK.BO_ACIDIFIED_ZONE_GROUND] = {
+	effectIdOnCaster: 'ef_bo_acidified_zone_ground_cast',
+	hitEffectId: 'ef_bo_acidified_zone_ground_hit'
+}; //Acidified Zone Ground
+SkillEffect[SK.BO_ACIDIFIED_ZONE_WIND] = {
+	effectIdOnCaster: 'ef_bo_acidified_zone_wind_cast',
+	hitEffectId: 'ef_bo_acidified_zone_wind_hit'
+}; //Acidified Zone Wind
+SkillEffect[SK.BO_ACIDIFIED_ZONE_FIRE] = {
+	effectIdOnCaster: 'ef_bo_acidified_zone_fire_cast',
+	hitEffectId: 'ef_bo_acidified_zone_fire_hit'
+}; //Acidified Zone Fire
+SkillEffect[SK.BO_WOODENWARRIOR] = {
+	effectIdOnCaster: 'ef_bo_woodenwarrior_cast',
+	hitEffectId: 'ef_bo_woodenwarrior_hit'
+}; //Wooden Warrior
+SkillEffect[SK.BO_WOODEN_FAIRY] = { effectIdOnCaster: 'ef_bo_wooden_fairy_cast' }; //Wooden Fairy
+SkillEffect[SK.BO_RESEARCHREPORT] = { effectId: 'ef_bo_researchreport', effectIdOnCaster: 'ef_bo_researchreport_cast' }; //Research Report
+SkillEffect[SK.BO_HELLTREE] = { effectIdOnCaster: 'ef_bo_helltree_cast' }; //Hell Tree
+SkillEffect[5385 /* BO_WOODEN_ATTACK */] = { hitEffectId: 'ef_bo_wooden_attack_hit' }; //Wooden Attack
+SkillEffect[SK.BO_EXPLOSIVE_POWDER] = { effectId: 'ef_bo_explosive_powder' }; //Explosive Powder
+SkillEffect[SK.BO_MAYHEMIC_THORNS] = { effectId: 'ef_bo_mayhemic_thorns' }; //Mayhemic Thorns
+SkillEffect[6509 /* BO_MYSTERY_POWDER */] = {
+	effectId: 'ef_bo_mystery_powder',
+	hitEffectId: 'ef_bo_mystery_powder_hit'
+}; //Mystery Powder
+SkillEffect[6510 /* BO_DUST_EXPLOSION */] = {
+	effectId: 'ef_bo_dust_explosion',
+	hitEffectId: 'ef_bo_dust_explosion_hit'
+}; //Dust Explosion
 SkillEffect[SK.RK_DRAGONBREATH_WATER] = { hitEffectId: 'ef_dragonbreath_water' }; //Dragon Breath - Water
 SkillEffect[SK.RK_LUXANIMA] = { effectId: 1044 }; //Lux Anima
 SkillEffect[SK.NC_MAGMA_ERUPTION] = { effectId: 1050 }; //Magma Eruption
