@@ -214434,6 +214434,48 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.GC_DARKCROW] = { effectId: 1040 };
 	SkillEffect[SkillConst_default.RA_UNLIMIT] = {};
 	SkillEffect[SkillConst_default.GN_ILLUSIONDOPING] = { effectId: 1049 };
+	SkillEffect[5307] = { effectId: "ef_bo_acidified_zone_water_atk" };
+	SkillEffect[5308] = { effectId: "ef_bo_acidified_zone_ground_atk" };
+	SkillEffect[5309] = { effectId: "ef_bo_acidified_zone_wind_atk" };
+	SkillEffect[5310] = { effectId: "ef_bo_acidified_zone_fire_atk" };
+	SkillEffect[SkillConst_default.BO_ADVANCE_PROTECTION] = { effectId: "ef_bo_advance_protection" };
+	SkillEffect[SkillConst_default.BO_ACIDIFIED_ZONE_WATER] = {
+		effectIdOnCaster: "ef_bo_acidified_zone_water_cast",
+		hitEffectId: "ef_bo_acidified_zone_water_hit"
+	};
+	SkillEffect[SkillConst_default.BO_ACIDIFIED_ZONE_GROUND] = {
+		effectIdOnCaster: "ef_bo_acidified_zone_ground_cast",
+		hitEffectId: "ef_bo_acidified_zone_ground_hit"
+	};
+	SkillEffect[SkillConst_default.BO_ACIDIFIED_ZONE_WIND] = {
+		effectIdOnCaster: "ef_bo_acidified_zone_wind_cast",
+		hitEffectId: "ef_bo_acidified_zone_wind_hit"
+	};
+	SkillEffect[SkillConst_default.BO_ACIDIFIED_ZONE_FIRE] = {
+		effectIdOnCaster: "ef_bo_acidified_zone_fire_cast",
+		hitEffectId: "ef_bo_acidified_zone_fire_hit"
+	};
+	SkillEffect[SkillConst_default.BO_WOODENWARRIOR] = {
+		effectIdOnCaster: "ef_bo_woodenwarrior_cast",
+		hitEffectId: "ef_bo_woodenwarrior_hit"
+	};
+	SkillEffect[SkillConst_default.BO_WOODEN_FAIRY] = { effectIdOnCaster: "ef_bo_wooden_fairy_cast" };
+	SkillEffect[SkillConst_default.BO_RESEARCHREPORT] = {
+		effectId: "ef_bo_researchreport",
+		effectIdOnCaster: "ef_bo_researchreport_cast"
+	};
+	SkillEffect[SkillConst_default.BO_HELLTREE] = { effectIdOnCaster: "ef_bo_helltree_cast" };
+	SkillEffect[5385] = { hitEffectId: "ef_bo_wooden_attack_hit" };
+	SkillEffect[SkillConst_default.BO_EXPLOSIVE_POWDER] = { effectId: "ef_bo_explosive_powder" };
+	SkillEffect[SkillConst_default.BO_MAYHEMIC_THORNS] = { effectId: "ef_bo_mayhemic_thorns" };
+	SkillEffect[6509] = {
+		effectId: "ef_bo_mystery_powder",
+		hitEffectId: "ef_bo_mystery_powder_hit"
+	};
+	SkillEffect[6510] = {
+		effectId: "ef_bo_dust_explosion",
+		hitEffectId: "ef_bo_dust_explosion_hit"
+	};
 	SkillEffect[SkillConst_default.RK_DRAGONBREATH_WATER] = { hitEffectId: "ef_dragonbreath_water" };
 	SkillEffect[SkillConst_default.RK_LUXANIMA] = { effectId: 1044 };
 	SkillEffect[SkillConst_default.NC_MAGMA_ERUPTION] = { effectId: 1050 };
@@ -275837,6 +275879,248 @@ var init_EffectTable = __esmMin((() => {
 		ef_thorntrap: [{
 			wav: "effect/°¡½Ã³ª¹«µ£",
 			attachedEntity: true
+		}],
+		ef_bo_acidified_zone_water_atk: [{
+			type: "STR",
+			file: "acidified_zone_water/acidified_zone_water_hit/acidified_zone_water_hit",
+			texturePath: "acidified_zone_water/acidified_zone_water_hit/",
+			min: "acidified_zone_water/acidified_zone_water_hit/min_acidified_zone_water_hit"
+		}],
+		ef_bo_acidified_zone_ground_atk: [{
+			type: "STR",
+			file: "acidified_zone_ground/acidified_zone_ground_hit/acidified_zone_ground_hit",
+			texturePath: "acidified_zone_ground/acidified_zone_ground_hit/",
+			min: "acidified_zone_ground/acidified_zone_ground_hit/min_acidified_zone_ground_hit"
+		}],
+		ef_bo_acidified_zone_wind_atk: [{
+			type: "STR",
+			file: "acidified_zone_wind/acidified_zone_wind_hit/acidified_zone_wind_hit",
+			texturePath: "acidified_zone_wind/acidified_zone_wind_hit/",
+			min: "acidified_zone_wind/acidified_zone_wind_hit/min_acidified_zone_wind_hit"
+		}],
+		ef_bo_acidified_zone_fire_atk: [{
+			type: "STR",
+			file: "acidified_zone_fire/acidified_zone_fire_hit/acidified_zone_fire_hit",
+			texturePath: "acidified_zone_fire/acidified_zone_fire_hit/",
+			min: "acidified_zone_fire/acidified_zone_fire_hit/min_acidified_zone_fire_hit"
+		}],
+		ef_bo_advance_protection: [{
+			wav: "effect/bo_advance_protection",
+			attachedEntity: true
+		}],
+		ef_bo_acidified_zone_water_cast: [{
+			type: "STR",
+			file: "acidified_zone_water/acidified_zone_water_cast/acidified_zone_water_cast",
+			texturePath: "acidified_zone_water/acidified_zone_water_cast/",
+			min: "acidified_zone_water/acidified_zone_water_cast/min_acidified_zone_water_cast",
+			wav: "effect/bo_acidified_zone_water"
+		}, {
+			type: "STR",
+			file: "acidified_zone_water/acidified_zone_water_cast_bottom/acidified_zone_water_cast_bottom",
+			texturePath: "acidified_zone_water/acidified_zone_water_cast_bottom/",
+			min: "acidified_zone_water/acidified_zone_water_cast_bottom/min_acidified_zone_water_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_bo_acidified_zone_water_hit: [{
+			type: "STR",
+			file: "acidified_zone_water/acidified_zone_water_hit/acidified_zone_water_hit",
+			texturePath: "acidified_zone_water/acidified_zone_water_hit/",
+			min: "acidified_zone_water/acidified_zone_water_hit/min_acidified_zone_water_hit"
+		}],
+		ef_bo_acidified_zone_ground_cast: [{
+			type: "STR",
+			file: "acidified_zone_ground/acidified_zone_ground_cast/acidified_zone_ground_cast",
+			texturePath: "acidified_zone_ground/acidified_zone_ground_cast/",
+			min: "acidified_zone_ground/acidified_zone_ground_cast/min_acidified_zone_ground_cast",
+			wav: "effect/bo_acidified_zone_ground"
+		}, {
+			type: "STR",
+			file: "acidified_zone_ground/acidified_zone_ground_cast_bottom/acidified_zone_ground_cast_bottom",
+			texturePath: "acidified_zone_ground/acidified_zone_ground_cast_bottom/",
+			min: "acidified_zone_ground/acidified_zone_ground_cast_bottom/min_acidified_zone_ground_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_bo_acidified_zone_ground_hit: [{
+			type: "STR",
+			file: "acidified_zone_ground/acidified_zone_ground_hit/acidified_zone_ground_hit",
+			texturePath: "acidified_zone_ground/acidified_zone_ground_hit/",
+			min: "acidified_zone_ground/acidified_zone_ground_hit/min_acidified_zone_ground_hit"
+		}],
+		ef_bo_acidified_zone_wind_cast: [{
+			type: "STR",
+			file: "acidified_zone_wind/acidified_zone_wind_cast/acidified_zone_wind_cast",
+			texturePath: "acidified_zone_wind/acidified_zone_wind_cast/",
+			min: "acidified_zone_wind/acidified_zone_wind_cast/min_acidified_zone_wind_cast",
+			wav: "effect/bo_acidified_zone_wind"
+		}, {
+			type: "STR",
+			file: "acidified_zone_wind/acidified_zone_wind_cast_bottom/acidified_zone_wind_cast_bottom",
+			texturePath: "acidified_zone_wind/acidified_zone_wind_cast_bottom/",
+			min: "acidified_zone_wind/acidified_zone_wind_cast_bottom/min_acidified_zone_wind_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_bo_acidified_zone_wind_hit: [{
+			type: "STR",
+			file: "acidified_zone_wind/acidified_zone_wind_hit/acidified_zone_wind_hit",
+			texturePath: "acidified_zone_wind/acidified_zone_wind_hit/",
+			min: "acidified_zone_wind/acidified_zone_wind_hit/min_acidified_zone_wind_hit"
+		}],
+		ef_bo_acidified_zone_fire_cast: [{
+			type: "STR",
+			file: "acidified_zone_fire/acidified_zone_fire_cast/acidified_zone_fire_cast",
+			texturePath: "acidified_zone_fire/acidified_zone_fire_cast/",
+			min: "acidified_zone_fire/acidified_zone_fire_cast/min_acidified_zone_fire_cast",
+			wav: "effect/bo_acidified_zone_fire"
+		}, {
+			type: "STR",
+			file: "acidified_zone_fire/acidified_zone_fire_cast_bottom/acidified_zone_fire_cast_bottom",
+			texturePath: "acidified_zone_fire/acidified_zone_fire_cast_bottom/",
+			min: "acidified_zone_fire/acidified_zone_fire_cast_bottom/min_acidified_zone_fire_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_bo_acidified_zone_fire_hit: [{
+			type: "STR",
+			file: "acidified_zone_fire/acidified_zone_fire_hit/acidified_zone_fire_hit",
+			texturePath: "acidified_zone_fire/acidified_zone_fire_hit/",
+			min: "acidified_zone_fire/acidified_zone_fire_hit/min_acidified_zone_fire_hit"
+		}],
+		ef_bo_woodenwarrior_cast: [{
+			type: "STR",
+			file: "wooden_warrior/wooden_warrior_cast/wooden_warrior_cast",
+			texturePath: "wooden_warrior/wooden_warrior_cast/",
+			min: "wooden_warrior/wooden_warrior_cast/min_wooden_warrior_cast"
+		}, {
+			type: "STR",
+			file: "wooden_warrior/wooden_warrior_cast_bottom/wooden_warrior_cast_bottom",
+			texturePath: "wooden_warrior/wooden_warrior_cast_bottom/",
+			min: "wooden_warrior/wooden_warrior_cast_bottom/min_wooden_warrior_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_bo_woodenwarrior_hit: [
+			{
+				type: "STR",
+				file: "wooden_warrior/throwrock/throwrock_hit/throwrock_hit",
+				texturePath: "wooden_warrior/throwrock/throwrock_hit/",
+				min: "wooden_warrior/throwrock/throwrock_hit/min_throwrock_hit"
+			},
+			{
+				type: "STR",
+				file: "wooden_warrior/wooden_attack/wooden_attack/wooden_attack",
+				texturePath: "wooden_warrior/wooden_attack/wooden_attack/",
+				min: "wooden_warrior/wooden_attack/wooden_attack/min_wooden_attack"
+			},
+			{
+				type: "STR",
+				file: "wooden_warrior/wooden_attack/wooden_attack_hit/wooden_attack_hit",
+				texturePath: "wooden_warrior/wooden_attack/wooden_attack_hit/",
+				min: "wooden_warrior/wooden_attack/wooden_attack_hit/min_wooden_attack_hit"
+			}
+		],
+		ef_bo_wooden_fairy_cast: [{
+			type: "STR",
+			file: "wooden_fairy/wooden_cast/wooden_cast",
+			texturePath: "wooden_fairy/wooden_cast/",
+			min: "wooden_fairy/wooden_cast/min_wooden_cast"
+		}, {
+			type: "STR",
+			file: "wooden_fairy/wooden_cast_bottom/wooden_cast_bottom",
+			texturePath: "wooden_fairy/wooden_cast_bottom/",
+			min: "wooden_fairy/wooden_cast_bottom/min_wooden_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_bo_researchreport: [{
+			type: "STR",
+			file: "research_report/researchreport/researchreport",
+			texturePath: "research_report/researchreport/",
+			min: "research_report/researchreport/min_researchreport",
+			wav: "effect/bo_researchreport"
+		}],
+		ef_bo_researchreport_cast: [{
+			type: "STR",
+			file: "research_report/researchreport_cast/researchreport_cast",
+			texturePath: "research_report/researchreport_cast/",
+			min: "research_report/researchreport_cast/min_researchreport_cast"
+		}, {
+			type: "STR",
+			file: "research_report/researchreport_cast_bottom/researchreport_cast_bottom",
+			texturePath: "research_report/researchreport_cast_bottom/",
+			min: "research_report/researchreport_cast_bottom/min_researchreport_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_bo_helltree_cast: [{
+			type: "STR",
+			file: "helltree/helltree_cast/helltree_cast",
+			texturePath: "helltree/helltree_cast/",
+			min: "helltree/helltree_cast/min_helltree_cast"
+		}, {
+			type: "STR",
+			file: "helltree/helltree_cast_bottom/helltree_cast_bottom",
+			texturePath: "helltree/helltree_cast_bottom/",
+			min: "helltree/helltree_cast_bottom/min_helltree_cast_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_bo_wooden_attack_hit: [{
+			type: "STR",
+			file: "wooden_warrior/wooden_attack/wooden_attack/wooden_attack",
+			texturePath: "wooden_warrior/wooden_attack/wooden_attack/",
+			min: "wooden_warrior/wooden_attack/wooden_attack/min_wooden_attack",
+			wav: "effect/bo_wooden_attack"
+		}, {
+			type: "STR",
+			file: "wooden_warrior/wooden_attack/wooden_attack_hit/wooden_attack_hit",
+			texturePath: "wooden_warrior/wooden_attack/wooden_attack_hit/",
+			min: "wooden_warrior/wooden_attack/wooden_attack_hit/min_wooden_attack_hit"
+		}],
+		ef_bo_explosive_powder: [{
+			type: "STR",
+			file: "biolo/explosive_powder/explosive_powder/explosive_powder",
+			texturePath: "biolo/explosive_powder/explosive_powder/",
+			min: "biolo/explosive_powder/explosive_powder/min_explosive_powder",
+			wav: "effect/bo_explosive_powder"
+		}],
+		ef_bo_mayhemic_thorns: [{
+			type: "STR",
+			file: "biolo/mayhemic_thorns/mayhemic_thorns/mayhemic_thorns",
+			texturePath: "biolo/mayhemic_thorns/mayhemic_thorns/",
+			min: "biolo/mayhemic_thorns/mayhemic_thorns/min_mayhemic_thorns",
+			wav: "effect/bo_mayhemic_thorns"
+		}, {
+			type: "STR",
+			file: "biolo/mayhemic_thorns/mayhemic_thorns_bottom/mayhemic_thorns_bottom",
+			texturePath: "biolo/mayhemic_thorns/mayhemic_thorns_bottom/",
+			min: "biolo/mayhemic_thorns/mayhemic_thorns_bottom/min_mayhemic_thorns_bottom",
+			renderBeforeEntities: true
+		}],
+		ef_bo_mystery_powder: [{
+			type: "STR",
+			file: "biolo/bo_mystery_powder/mistery_powder/mistery_powder",
+			texturePath: "biolo/bo_mystery_powder/mistery_powder/",
+			min: "biolo/bo_mystery_powder/mistery_powder/min_mistery_powder",
+			wav: "effect/bo_mystery_powder"
+		}],
+		ef_bo_mystery_powder_hit: [{
+			type: "STR",
+			file: "biolo/bo_mystery_powder/mistery_powder_hit/mistery_powder_hit",
+			texturePath: "biolo/bo_mystery_powder/mistery_powder_hit/",
+			min: "biolo/bo_mystery_powder/mistery_powder_hit/min_mistery_powder_hit"
+		}],
+		ef_bo_dust_explosion: [{
+			type: "STR",
+			file: "biolo/bo_dust_explosion/dust_explosion/dust_explosion",
+			texturePath: "biolo/bo_dust_explosion/dust_explosion/",
+			min: "biolo/bo_dust_explosion/dust_explosion/min_dust_explosion"
+		}],
+		ef_bo_dust_explosion_hit: [{
+			type: "STR",
+			file: "biolo/bo_dust_explosion/dust_explosion_hit/dust_explosion_hit",
+			texturePath: "biolo/bo_dust_explosion/dust_explosion_hit/",
+			min: "biolo/bo_dust_explosion/dust_explosion_hit/min_dust_explosion_hit"
+		}, {
+			type: "STR",
+			file: "biolo/bo_dust_explosion/dust_explosion_hit_bottom/dust_explosion_hit_bottom",
+			texturePath: "biolo/bo_dust_explosion/dust_explosion_hit_bottom/",
+			min: "biolo/bo_dust_explosion/dust_explosion_hit_bottom/min_dust_explosion_hit_bottom",
+			renderBeforeEntities: true
 		}],
 		ef_banishingpoint: [{
 			wav: "effect/lg_banishingpoint",
