@@ -1015,6 +1015,36 @@ SkillEffect[SK.NC_MAGMA_ERUPTION] = { effectId: 1050 }; //Magma Eruption
 SkillEffect[SK.WM_FRIGG_SONG] = { effectId: 'ef_frigg_song' }; //Frigg's Song
 SkillEffect[SK.SO_ELEMENTAL_SHIELD] = { effectId: 1046 }; //Elemental Shield
 SkillEffect[SK.SR_FLASHCOMBO] = { effectId: 1043 }; //Flash Combo
+SkillEffect[SK.IQ_POWERFUL_FAITH] = { effectId: 'ef_iq_powerful_faith' }; //Powerful Faith
+SkillEffect[SK.IQ_FIRM_FAITH] = { effectId: 'ef_iq_firm_faith' }; //Firm Faith
+SkillEffect[SK.IQ_OLEUM_SANCTUM] = { effectId: 'ef_iq_oleum_sanctum', hitEffectId: 'ef_iq_oleum_sanctum_hit' }; //Oleum Sanctum
+SkillEffect[SK.IQ_SINCERE_FAITH] = { effectId: 'ef_iq_sincere_faith' }; //Sincere Faith
+SkillEffect[SK.IQ_MASSIVE_F_BLASTER] = {
+	effectId: 'ef_iq_massive_f_blaster',
+	hitEffectId: 'ef_iq_massive_f_blaster_hit'
+}; //Massive Flame Blaster
+SkillEffect[SK.IQ_EXPOSION_BLASTER] = { effectId: 'ef_iq_exposion_blaster', hitEffectId: 'ef_iq_exposion_blaster_hit' }; //Explosion Blaster
+SkillEffect[SK.IQ_FIRST_BRAND] = { effectId: 'ef_iq_first_brand', hitEffectId: 'ef_iq_first_brand_hit' }; //First Brand
+SkillEffect[SK.IQ_FIRST_FAITH_POWER] = {
+	effectId: 'ef_iq_first_faith_power',
+	effectIdOnCaster: 'ef_iq_first_faith_power_cast'
+}; //First Faith Power
+SkillEffect[SK.IQ_JUDGE] = { effectId: 'ef_iq_judge', effectIdOnCaster: 'ef_iq_judge_cast' }; //Judge
+SkillEffect[SK.IQ_SECOND_FLAME] = { effectId: 'ef_iq_second_flame' }; //Second Flame
+SkillEffect[SK.IQ_SECOND_FAITH] = { effectId: 'ef_iq_second_faith' }; //Second Faith
+SkillEffect[SK.IQ_SECOND_JUDGEMENT] = { effectId: 'ef_iq_second_judgement' }; //Second Judgement
+SkillEffect[SK.IQ_THIRD_PUNISH] = { effectId: 'ef_iq_third_punish' }; //Third Punish
+SkillEffect[SK.IQ_THIRD_FLAME_BOMB] = { effectId: 'ef_iq_third_flame_bomb' }; //Third Flame Bomb
+SkillEffect[SK.IQ_THIRD_CONSECRATION] = { effectId: 'ef_iq_third_consecration' }; //Third Consecration
+SkillEffect[SK.IQ_THIRD_EXOR_FLAME] = {
+	effectId: 'ef_iq_third_exor_flame',
+	effectIdOnCaster: 'ef_iq_third_exor_flame_cast'
+}; //Third Exorcism Flame
+SkillEffect[6519 /* IQ_BLAZING_FLAME_BLAST */] = {
+	effectId: 'ef_iq_blazing_flame_blast',
+	effectIdOnCaster: 'ef_iq_blazing_flame_blast_cast',
+	hitEffectId: 'ef_iq_blazing_flame_blast_hit'
+}; //Blazing Flame Blast
 SkillEffect[SK.SC_ESCAPE] = {}; //Emergency Escape
 SkillEffect[SK.AB_OFFERTORIUM] = { effectId: 1047 }; //Offertorium
 SkillEffect[SK.WL_TELEKINESIS_INTENSE] = { effectId: 1048 }; //Intense Telekinesis
