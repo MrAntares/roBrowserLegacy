@@ -272,6 +272,17 @@ CashShop.init = function init() {
 	// Prevent dragover on whole component
 	container.addEventListener('dragover', stopPropagation);
 
+	// Enter in the search box searches, as the magnifier does
+	const searchInput = root.querySelector('.cashshop-search');
+	if (searchInput) {
+		searchInput.addEventListener('keydown', e => {
+			if (e.which === KEYS.ENTER || e.key === 'Enter') {
+				e.preventDefault();
+				onClickSearch();
+			}
+		});
+	}
+
 	const cartListItems = root.querySelector('#cart-list .items');
 	if (cartListItems && cartListItems.children.length > 0) {
 		onResetCartListCashShop();
