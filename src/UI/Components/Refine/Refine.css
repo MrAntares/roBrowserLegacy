@@ -3,12 +3,16 @@
 	height: 350px;
 }
 
+/* GUIComponent wraps the content in .ui-component-root: let it fill :host,
+   otherwise #Refine's 100% collapses to the titlebar and the window body is cut off */
+.ui-component-root {
+	height: 100%;
+}
+
 #Refine {
 	position: relative;
-	/* fixed size like :host - the shadow root wrapper (.ui-component-root) has no height,
-	   so 100% collapsed to the titlebar and the window body was cut off */
-	height: 350px;
-	width: 261px;
+	height: 100%;
+	width: 100%;
 }
 
 #Refine .titlebar {
