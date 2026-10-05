@@ -5,8 +5,10 @@
 
 #Refine {
 	position: relative;
-	height: 100%;
-	width: 100%;
+	/* fixed size like :host - the shadow root wrapper (.ui-component-root) has no height,
+	   so 100% collapsed to the titlebar and the window body was cut off */
+	height: 350px;
+	width: 261px;
 }
 
 #Refine .titlebar {
