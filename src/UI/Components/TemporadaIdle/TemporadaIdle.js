@@ -84,6 +84,7 @@ import { fecharEEsquecer } from '../limpezaDeJanelaIdle.js';
 import { abaLembrada, lembrarAba } from '../memoriaDeAba.js';
 import { formatarRoCash, minorDe, minorDePrimeiro } from 'Utils/roCash.js';
 import { assinarSaldoDeCash, publicarSaldoDeCash, saldoDeCashConhecido } from 'Utils/saldoDeCash.js';
+import { aplicarParcialDaTemporada, comBase, ehParcialDaTemporada } from './parcialDaTemporada.js';
 import htmlText from './TemporadaIdle.html?raw';
 import cssText from './TemporadaIdle.css?raw';
 import {
@@ -613,11 +614,20 @@ function enviarAcao(corpo) {
 	}
 	travarBotoes();
 	const pkt = new PACKET.CZ.RAGIDLE_TEMPORADA_ACAO();
-	pkt.json = JSON.stringify(corpo);
+	// A banda das janelas (06/10/2026): a revisao que a janela tem vai junto,
+	// e o servidor responde so o que mudou (`parcialDaTemporada.js`).
+	pkt.json = JSON.stringify(comBase(corpo, TemporadaIdle.estado));
 	Network.sendPacket(pkt);
 }
 
 function pedirEstado() {
+	const pkt = new PACKET.CZ.RAGIDLE_TEMPORADA_ACAO();
+	pkt.json = JSON.stringify(comBase({ acao: 'pedir' }, TemporadaIdle.estado));
+	Network.sendPacket(pkt);
+}
+
+/** O estado INTEIRO, sem `base`: o parcial nao coube no que a janela tem. */
+function pedirEstadoInteiro() {
 	const pkt = new PACKET.CZ.RAGIDLE_TEMPORADA_ACAO();
 	pkt.json = JSON.stringify({ acao: 'pedir' });
 	Network.sendPacket(pkt);
@@ -1173,6 +1183,18 @@ function onTemporadaRecebida(pkt) {
 	   (`moeda.saldoMinor`, `caixas[].precoMinor` - CONTRATO.md do RO Shop,
 	   secao 5). O resto do payload e o da v2, e a janela ja le as duas formas
 	   do dinheiro por `minorDe`; versao que ela nao conhece continua ignorada. */
+	/* A banda das janelas (06/10/2026): o parcial `v: 4` so traz as trocas
+	   sobre o estado que a janela tem, e vira o estado inteiro AQUI - dai em
+	   diante o caminho e o mesmo do inteiro. Se ele nao cair sobre o que a
+	   janela tem (o estado foi esquecido no caminho), o inteiro e pedido. */
+	if (ehParcialDaTemporada(dados)) {
+		const montado = aplicarParcialDaTemporada(TemporadaIdle.estado, dados);
+		if (!montado) {
+			pedirEstadoInteiro();
+			return;
+		}
+		dados = montado;
+	}
 	if (!dados || (dados.v !== 2 && dados.v !== 3)) {
 		return;
 	}
