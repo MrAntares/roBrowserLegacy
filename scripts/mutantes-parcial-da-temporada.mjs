@@ -34,8 +34,9 @@ const MUTANTES = [
 	['PD8 a troca atravessa folha', P, "\t\t\tif (!no || typeof no !== 'object') {\n\t\t\t\treturn null;\n\t\t\t}\n", ''],
 	['PD9 o prototipo passa no caminho', P, "\t\t\tif (passo === '__proto__' || passo === 'constructor' || passo === 'prototype') {\n\t\t\t\treturn null;\n\t\t\t}\n", ''],
 	/* Sem mutante: a guarda do prototipo na FOLHA saiu - o laco ja confere todo passo, inclusive o ultimo. */
-	['PD11 a rev nao avanca', P, 'return { ...raiz.r, rev: parcial.rev,', 'return { ...raiz.r, rev: parcial.de,'],
-	['PD12 o resultado velho fica', P, 'resultado: parcial.resultado == null ? null : parcial.resultado };', 'resultado: parcial.resultado == null ? raiz.r.resultado : parcial.resultado };'],
+	['PD11 a rev nao avanca', P, 'return { ...montado, rev: parcial.rev,', 'return { ...montado, rev: parcial.de,'],
+	['PD12 o resultado velho fica', P, 'resultado: parcial.resultado == null ? null : parcial.resultado };', 'resultado: parcial.resultado == null ? montado.resultado : parcial.resultado };'],
+	['PD17 a troca que nao cai e desenhada', P, '\tif (!montado) {\n\t\treturn null;\n\t}\n', ''],
 	['PD13 a acao vai sem base', J, 'pkt.json = JSON.stringify(comBase(corpo, TemporadaIdle.estado));', 'pkt.json = JSON.stringify(corpo);'],
 	['PD14 o pedido vai sem base', J, "pkt.json = JSON.stringify(comBase({ acao: 'pedir' }, TemporadaIdle.estado));", "pkt.json = JSON.stringify({ acao: 'pedir' });"],
 	['PD15 o parcial que nao cai e desenhado', J, '\t\tif (!montado) {\n\t\t\tpedirEstadoInteiro();\n\t\t\treturn;\n\t\t}\n', ''],

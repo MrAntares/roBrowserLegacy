@@ -51,8 +51,24 @@ export function aplicarParcialDaTemporada(estado, parcial) {
 	if (!ehParcialDaTemporada(parcial) || !estado || estado.rev !== parcial.de || !Array.isArray(parcial.trocas)) {
 		return null;
 	}
+	const montado = aplicarTrocas(estado, parcial.trocas);
+	if (!montado) {
+		return null;
+	}
+	return { ...montado, rev: parcial.rev, resultado: parcial.resultado == null ? null : parcial.resultado };
+}
+
+/**
+ * As TROCAS `[caminho, valor]` aplicadas numa COPIA do estado (o de antes fica
+ * intacto). Devolve a copia, ou `null` quando uma troca nao cai sobre ele
+ * (caminho que nao e lista, que atravessa folha ou o prototipo).
+ *
+ * E a metade generica do parcial, e por isso exportada: a janela de
+ * habilidades (`IdleSkills/parcialDasSkills.js`) aplica o mesmo formato.
+ */
+export function aplicarTrocas(estado, trocas) {
 	const raiz = { r: copia(estado) };
-	for (const troca of parcial.trocas) {
+	for (const troca of trocas) {
 		const caminho = Array.isArray(troca) ? troca[0] : null;
 		if (!Array.isArray(caminho)) {
 			return null;
@@ -72,5 +88,5 @@ export function aplicarParcialDaTemporada(estado, parcial) {
 		}
 		no[chave] = copia(troca[1]);
 	}
-	return { ...raiz.r, rev: parcial.rev, resultado: parcial.resultado == null ? null : parcial.resultado };
+	return raiz.r;
 }
