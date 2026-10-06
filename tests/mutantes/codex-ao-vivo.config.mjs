@@ -10,7 +10,19 @@ const mutantes = {
 	// o parcial com a versao do inteiro
 	'versao-do-inteiro': ['export const VERSAO_DO_PARCIAL_DO_CODEX = 3;', 'export const VERSAO_DO_PARCIAL_DO_CODEX = 2;'],
 	// a abertura sem `aberta` (o servidor nunca liga o ao vivo)
-	'abre-sem-aberta': ["return { acao: 'pedir', aberta: true };", "return { acao: 'pedir' };"],
+	'abre-sem-aberta': ["return { acao: 'pedir', aberta: true, porCampo: true };", "return { acao: 'pedir', porCampo: true };"],
+	// D-1991: a abertura nao declara que troca campo (o servidor manda o inteiro)
+	'abre-sem-porCampo': ["return { acao: 'pedir', aberta: true, porCampo: true };", "return { acao: 'pedir', aberta: true };"],
+	// D-1991: os campos do parcial sao ignorados
+	'ignora-campos': ['const novo = { ...comCampos(estado, parcial.campos),', 'const novo = { ...estado,'],
+	// D-1991: os campos da Jornada sao ignorados
+	'ignora-campos-da-jornada': ['...comCampos(estado.jornada, jp.campos),', '...estado.jornada,'],
+	// D-1991: os campos trocam ao contrario (o velho vence)
+	'campos-ao-contrario': ['return { ...objeto, ...campos };', 'return { ...campos, ...objeto };'],
+	// D-1991: a carga de capitulo nao e reconhecida
+	'carga-ignorada': ["return ehParcialDoCodex(dados) && typeof dados.capitulo === 'string' && dados.capitulo ? dados.capitulo : null;", 'return null;'],
+	// D-1991: o inteiro com `capitulo` vira carga de parcial
+	'carga-no-inteiro': ["return ehParcialDoCodex(dados) && typeof dados.capitulo === 'string' && dados.capitulo ? dados.capitulo : null;", "return typeof (dados && dados.capitulo) === 'string' && dados.capitulo ? dados.capitulo : null;"],
 	// fechar nao desliga
 	'fechar-errado': ["return { acao: 'fechar' };", "return { acao: 'pedir' };"],
 	// a troca por id nao troca nada

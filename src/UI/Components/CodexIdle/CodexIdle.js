@@ -74,7 +74,7 @@ import MissoesIdle from 'UI/Components/MissoesIdle/MissoesIdle.js';
 import { ehCelularEmPe } from 'UI/hudVertical.js';
 import { jornadaHtml } from './jornadaHtml.js';
 // D-1986: o parcial ao vivo e a validade do cache de capitulos.
-import { aplicarParcialDoCodex, ehParcialDoCodex, juntarPaginaDoCapitulo, pedidoDeAbertura, pedidoDeFechamento, precisaPedirCapitulo } from './codexAoVivo.js';
+import { aplicarParcialDoCodex, capituloCarregadoPeloParcial, ehParcialDoCodex, juntarPaginaDoCapitulo, pedidoDeAbertura, pedidoDeFechamento, precisaPedirCapitulo } from './codexAoVivo.js';
 import { placarHtml, eixosHtml, desafiosHtml, retratoDoCodexAceito } from './eixosDoCodex.js';
 import { missoesGeraisHtml, cliqueDeMissoesGerais, SUBABA_PADRAO } from './missoesGeraisHtml.js';
 import { entradaOcultavel, entradasVisiveis, estrelaDoCodexHtml, faixaDeMarcacaoHtml, marcadasDoRetrato, pedidoDaEstrela } from './marcacaoDoCodex.js'; // D-1839, D-1853
@@ -1259,10 +1259,23 @@ function onCodexRecebido(pkt) {
 		const r = aplicarParcialDoCodex(CodexIdle.estado, dados, CodexIdle.missoesPorCapitulo);
 		CodexIdle.estado = r.estado;
 		CodexIdle.missoesPorCapitulo = r.missoesPorCapitulo;
+		/*
+		 * D-1991: a resposta ao pedido de capitulo pode vir como parcial
+		 * (`capitulo: <id>`, todas as missoes dele, sem o envelope). Ela e
+		 * guardada como a do retrato inteiro - as paginas se somam - e a
+		 * varredura por especie segue.
+		 */
+		const carregado = capituloCarregadoPeloParcial(dados);
+		if (carregado) {
+			acumularMissoesDaJornada(dados, carregado);
+		}
 		if (_apertadoNoCorpo) {
 			_desenhoAdiado = true;
 		} else {
 			render();
+		}
+		if (carregado) {
+			seguirVarredura();
 		}
 		return;
 	}
@@ -1294,13 +1307,16 @@ function onCodexRecebido(pkt) {
  *    servidor agrupar - agrupar por `m.capitulo` cobre os dois casos sem
  *    supor nada.
  */
-function acumularMissoesDaJornada(dados) {
+function acumularMissoesDaJornada(dados, capituloDaResposta) {
 	const jornada = dados.jornada;
-	const pedido = _capituloEmVoo;
+	// D-1991: o parcial de capitulo diz de quem e; o inteiro, nao (o pedido em voo).
+	const pedido = capituloDaResposta || _capituloEmVoo;
 	if (!jornada || !Array.isArray(jornada.missoes)) {
 		return;
 	}
-	_capituloEmVoo = null;
+	if (!capituloDaResposta || capituloDaResposta === _capituloEmVoo) {
+		_capituloEmVoo = null;
+	}
 
 	const porCapitulo = {};
 	for (const m of jornada.missoes) {

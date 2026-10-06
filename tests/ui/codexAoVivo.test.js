@@ -15,6 +15,7 @@ import { describe, expect, it } from 'vitest';
 import {
 	VERSAO_DO_PARCIAL_DO_CODEX,
 	aplicarParcialDoCodex,
+	capituloCarregadoPeloParcial,
 	ehParcialDoCodex,
 	juntarPaginaDoCapitulo,
 	pedidoDeAbertura,
@@ -60,7 +61,9 @@ describe('o parcial e outra versao, e o cliente antigo o descarta', () => {
 	});
 
 	it('os dois pedidos: abrir pede ao vivo, fechar desliga', () => {
-		expect(pedidoDeAbertura()).toEqual({ acao: 'pedir', aberta: true });
+		// D-1991: `porCampo` diz ao servidor que a janela aplica os campos e a
+		// carga de capitulo por parcial.
+		expect(pedidoDeAbertura()).toEqual({ acao: 'pedir', aberta: true, porCampo: true });
 		expect(pedidoDeFechamento()).toEqual({ acao: 'fechar' });
 	});
 });
@@ -118,6 +121,38 @@ describe('aplicar o parcial', () => {
 		expect(Object.prototype.hasOwnProperty.call(r.missoesPorCapitulo, 'cap-02')).toBe(false);
 		// O indice de antes nao foi tocado.
 		expect(indice['cap-01'][0].abates).toBe(1);
+	});
+
+	it('D-1991: os CAMPOS do parcial trocam o saldo e o resumo da Jornada; os outros ficam', () => {
+		const antes = { ...retrato(), temNovidade: false, eixos: [{ eixo: 'str', recusa: 'sem-ponto' }] };
+		antes.jornada = { ...antes.jornada, capituloAtual: 'cap-01', premio: { entregue: false } };
+		const r = aplicarParcialDoCodex(
+			antes,
+			{
+				v: 3,
+				missoes: [],
+				campos: { pontos: { disponiveis: 5 }, temNovidade: true },
+				jornada: { capitulos: [], missoes: [], campos: { capituloAtual: 'cap-02' } }
+			},
+			{}
+		);
+		expect(r.estado.pontos).toEqual({ disponiveis: 5 });
+		expect(r.estado.temNovidade).toBe(true);
+		expect(r.estado.eixos).toBe(antes.eixos);
+		expect(r.estado.jornada.capituloAtual).toBe('cap-02');
+		expect(r.estado.jornada.premio).toBe(antes.jornada.premio);
+		expect(r.estado.jornada.capitulos).toBe(antes.jornada.capitulos);
+		// O retrato de antes nao foi tocado.
+		expect(antes.pontos).toEqual({ disponiveis: 3 });
+		expect(antes.jornada.capituloAtual).toBe('cap-01');
+	});
+
+	it('D-1991: a carga de capitulo por parcial e reconhecida pelo id', () => {
+		expect(capituloCarregadoPeloParcial({ v: 3, capitulo: 'cap-01', missoes: [] })).toBe('cap-01');
+		expect(capituloCarregadoPeloParcial({ v: 3, missoes: [] })).toBeNull();
+		expect(capituloCarregadoPeloParcial({ v: 3, capitulo: '', missoes: [] })).toBeNull();
+		expect(capituloCarregadoPeloParcial({ v: 2, capitulo: 'cap-01', missoes: [] })).toBeNull();
+		expect(capituloCarregadoPeloParcial(null)).toBeNull();
 	});
 
 	it('sem retrato ainda, ou com um corpo que nao e parcial, nada muda', () => {
@@ -200,6 +235,16 @@ describe('as ligacoes em CodexIdle.js', () => {
 		expect(CODEX).toMatch(/corpo\.addEventListener\('pointerdown', \(\) => \{\s*_apertadoNoCorpo = true;/);
 		expect(CODEX).toContain("window.addEventListener('pointerup', soltar, true);");
 		expect(CODEX).toMatch(/if \(_desenhoAdiado\) \{\s*_desenhoAdiado = false;\s*setTimeout\(render, 0\);/);
+	});
+
+	it('D-1991: a carga de capitulo por parcial e guardada como a do inteiro, e a varredura segue', () => {
+		const i = CODEX.indexOf('if (ehParcialDoCodex(dados))');
+		const guarda = CODEX.indexOf('if (!retratoDoCodexAceito(dados))');
+		const bloco = CODEX.slice(i, guarda);
+		expect(bloco).toContain('const carregado = capituloCarregadoPeloParcial(dados);');
+		expect(bloco).toMatch(/if \(carregado\) \{\s*acumularMissoesDaJornada\(dados, carregado\);/);
+		expect(bloco).toMatch(/if \(carregado\) \{\s*seguirVarredura\(\);/);
+		expect(CODEX).toContain('const pedido = capituloDaResposta || _capituloEmVoo;');
 	});
 
 	it('o parcial e aplicado ANTES da guarda de versao do inteiro', () => {

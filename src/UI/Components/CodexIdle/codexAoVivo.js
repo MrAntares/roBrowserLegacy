@@ -16,6 +16,13 @@
  * (`servidor/codex-ao-vivo.ts`, no repositorio do jogo); este modulo sabe
  * aplica-lo. A janela continua sem calcular nada: cada peca do parcial chega
  * pronta, no MESMO formato da peca do retrato inteiro, e so troca de lugar.
+ *
+ * D-1991 (05/10/2026): o parcial tambem troca CAMPOS (`campos` e
+ * `jornada.campos`: o saldo de pontos, os eixos, a novidade...), e o pedido
+ * de capitulo responde com um parcial `capitulo: <id>` que traz todas as
+ * missoes dele sem o envelope de 34 KB. O servidor so manda as duas coisas a
+ * quem declarou `porCampo: true` na abertura - o cliente da D-1986 nao
+ * declara e segue recebendo o retrato inteiro nesses casos.
  */
 
 /** A versao do parcial no fio (o retrato inteiro e `v: 2`). */
@@ -25,9 +32,29 @@ export function ehParcialDoCodex(dados) {
 	return !!dados && dados.v === VERSAO_DO_PARCIAL_DO_CODEX;
 }
 
-/** O pedido que a janela manda ao ABRIR: o retrato inteiro, e ao vivo dai em diante. */
+/**
+ * O pedido que a janela manda ao ABRIR: o retrato inteiro, e ao vivo dai em
+ * diante. `porCampo` (D-1991) diz ao servidor que esta janela sabe aplicar os
+ * `campos` do parcial e a carga de capitulo por parcial.
+ */
 export function pedidoDeAbertura() {
-	return { acao: 'pedir', aberta: true };
+	return { acao: 'pedir', aberta: true, porCampo: true };
+}
+
+/**
+ * O parcial e a CARGA de um capitulo (a resposta ao verbo `capitulo`, D-1991)?
+ * Devolve o id do capitulo, ou `null`.
+ */
+export function capituloCarregadoPeloParcial(dados) {
+	return ehParcialDoCodex(dados) && typeof dados.capitulo === 'string' && dados.capitulo ? dados.capitulo : null;
+}
+
+/** Os campos trocados de um objeto (D-1991): so os que vieram, o resto fica. */
+function comCampos(objeto, campos) {
+	if (!campos || typeof campos !== 'object') {
+		return objeto;
+	}
+	return { ...objeto, ...campos };
 }
 
 /** O pedido que a janela manda ao FECHAR: o servidor para de empurrar. */
@@ -67,14 +94,17 @@ export function aplicarParcialDoCodex(estado, parcial, missoesPorCapitulo) {
 	if (!estado || !ehParcialDoCodex(parcial)) {
 		return { estado, missoesPorCapitulo: indice };
 	}
-	const novo = { ...estado, missoes: trocarPorId(estado.missoes, parcial.missoes) };
+	const novo = { ...comCampos(estado, parcial.campos), missoes: trocarPorId(estado.missoes, parcial.missoes) };
 	if (parcial.desafios) {
 		novo.desafios = parcial.desafios;
 	}
 	const jp = parcial.jornada;
 	let novoIndice = indice;
 	if (jp && estado.jornada) {
-		novo.jornada = { ...estado.jornada, capitulos: trocarPorId(estado.jornada.capitulos, jp.capitulos) };
+		novo.jornada = {
+			...comCampos(estado.jornada, jp.campos),
+			capitulos: trocarPorId(estado.jornada.capitulos, jp.capitulos)
+		};
 		const porCapitulo = {};
 		for (const m of Array.isArray(jp.missoes) ? jp.missoes : []) {
 			const cap = m && m.capitulo;
