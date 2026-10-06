@@ -20,7 +20,9 @@ import {
 	juntarPaginaDoCapitulo,
 	pedidoDeAbertura,
 	pedidoDeFechamento,
-	precisaPedirCapitulo
+	precisaPedirCapitulo,
+	revisaoDepoisDoParcial,
+	revisaoDoCodex
 } from 'UI/Components/CodexIdle/codexAoVivo.js';
 import { retratoDoCodexAceito } from 'UI/Components/CodexIdle/eixosDoCodex.js';
 import { faixaDeMarcacaoHtml } from 'UI/Components/CodexIdle/marcacaoDoCodex.js';
@@ -64,8 +66,45 @@ describe('o parcial e outra versao, e o cliente antigo o descarta', () => {
 	it('os dois pedidos: abrir pede ao vivo, fechar desliga', () => {
 		// D-1991: `porCampo` diz ao servidor que a janela aplica os campos e a
 		// carga de capitulo por parcial.
-		expect(pedidoDeAbertura()).toEqual({ acao: 'pedir', aberta: true, porCampo: true });
+		// D-2037: `base` e a revisao que a janela tem (`null` sem retrato), e vai sempre.
+		expect(pedidoDeAbertura()).toEqual({ acao: 'pedir', aberta: true, porCampo: true, base: null });
+		expect(pedidoDeAbertura(null)).toEqual({ acao: 'pedir', aberta: true, porCampo: true, base: null });
+		expect(pedidoDeAbertura({ v: 2, rev: 7 })).toEqual({ acao: 'pedir', aberta: true, porCampo: true, base: 7 });
 		expect(pedidoDeFechamento()).toEqual({ acao: 'fechar' });
+	});
+});
+
+describe('D-2037: a revisao que a janela tem na mao', () => {
+	it('o retrato inteiro traz a revisao; sem ela (servidor que nao numera, ou sem retrato), `null`', () => {
+		expect(revisaoDoCodex({ v: 2, rev: 4 })).toBe(4);
+		expect(revisaoDoCodex({ v: 2, rev: 0 })).toBe(0);
+		expect(revisaoDoCodex({ v: 2 })).toBeNull();
+		expect(revisaoDoCodex({ v: 2, rev: '4' })).toBeNull();
+		expect(revisaoDoCodex(null)).toBeNull();
+	});
+
+	it('o parcial que cai sobre a revisao da janela a anda; o que nao cai a apaga', () => {
+		expect(revisaoDepoisDoParcial({ rev: 4 }, { v: 3, de: 4, rev: 5 })).toBe(5);
+		expect(revisaoDepoisDoParcial({ rev: 4 }, { v: 3, de: 3, rev: 5 })).toBeNull();
+		expect(revisaoDepoisDoParcial({ rev: 4 }, { v: 3, rev: 5 })).toBeNull();
+		expect(revisaoDepoisDoParcial({ rev: 4 }, { v: 3, de: 4 })).toBeNull();
+		expect(revisaoDepoisDoParcial({}, { v: 3, de: 4, rev: 5 })).toBeNull();
+		expect(revisaoDepoisDoParcial(null, { v: 3, de: 4, rev: 5 })).toBeNull();
+	});
+
+	it('aplicar o parcial carimba a revisao nova no estado (e a pagina seguinte, em `de: rev`, a mantem)', () => {
+		const estado = { ...retrato(), rev: 4 };
+		const r1 = aplicarParcialDoCodex(estado, { v: 3, missoes: [], de: 4, rev: 5, campos: { avisoDeMarcacao: null } }, {});
+		expect(r1.estado.rev).toBe(5);
+		expect(r1.estado.avisoDeMarcacao).toBeNull();
+		const r2 = aplicarParcialDoCodex(r1.estado, { v: 3, missoes: [], de: 5, rev: 5 }, {});
+		expect(r2.estado.rev).toBe(5);
+		// O que nao cai apaga a revisao: a proxima abertura pede o inteiro.
+		const r3 = aplicarParcialDoCodex(r2.estado, { v: 3, missoes: [], de: 9, rev: 10 }, {});
+		expect(r3.estado.rev).toBeNull();
+		expect(pedidoDeAbertura(r3.estado).base).toBeNull();
+		// O estado de antes fica intacto.
+		expect(estado.rev).toBe(4);
 	});
 });
 
@@ -211,7 +250,8 @@ describe('as ligacoes em CodexIdle.js', () => {
 		expect(i).toBeGreaterThan(-1);
 		const bloco = CODEX.slice(i, i + 400);
 		expect(bloco).toContain('CodexIdle.missoesPorCapitulo = {};');
-		expect(bloco).toContain('enviarAcao(pedidoDeAbertura());');
+		// D-2037: a abertura leva o retrato que a janela tem (a revisao dele).
+		expect(bloco).toContain('enviarAcao(pedidoDeAbertura(CodexIdle.estado));');
 		expect(CODEX).not.toContain("enviarAcao({ acao: 'pedir' });");
 	});
 

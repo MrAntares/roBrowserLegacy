@@ -403,7 +403,8 @@ CodexIdle.toggle = function toggle() {
 		CodexIdle.missoesPorCapitulo = {};
 		_capituloEmVoo = null;
 		_filaDaVarredura = [];
-		enviarAcao(pedidoDeAbertura());
+		// D-2037: com a revisao na mao, o servidor manda so o que mudou.
+		enviarAcao(pedidoDeAbertura(CodexIdle.estado));
 		aoEntrarNaAba();
 	}
 };

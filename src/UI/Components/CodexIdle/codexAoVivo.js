@@ -33,12 +33,35 @@ export function ehParcialDoCodex(dados) {
 }
 
 /**
- * O pedido que a janela manda ao ABRIR: o retrato inteiro, e ao vivo dai em
- * diante. `porCampo` (D-1991) diz ao servidor que esta janela sabe aplicar os
- * `campos` do parcial e a carga de capitulo por parcial.
+ * A REVISAO que a janela tem na mao (D-2037, 06/10/2026): o `rev` do ultimo
+ * envio que ela aplicou, ou `null` - sem retrato, servidor que nao numera, ou
+ * um parcial que nao caiu sobre a revisao dela.
  */
-export function pedidoDeAbertura() {
-	return { acao: 'pedir', aberta: true, porCampo: true };
+export function revisaoDoCodex(estado) {
+	return estado && typeof estado.rev === 'number' ? estado.rev : null;
+}
+
+/**
+ * O pedido que a janela manda ao ABRIR: o estado, e ao vivo dai em diante.
+ * `porCampo` (D-1991) diz ao servidor que esta janela sabe aplicar os
+ * `campos` do parcial e a carga de capitulo por parcial. `base` (D-2037) e a
+ * revisao que ela tem: se for a ultima que o servidor mandou a esta conexao,
+ * a abertura desce so o que mudou desde entao; senao (ou `null`), o retrato
+ * inteiro. A chave vai SEMPRE - e ela que declara que a janela guarda o retrato.
+ */
+export function pedidoDeAbertura(estado) {
+	return { acao: 'pedir', aberta: true, porCampo: true, base: revisaoDoCodex(estado) };
+}
+
+/**
+ * A revisao DEPOIS de um parcial (D-2037): a nova, quando ele caiu sobre a
+ * revisao que a janela tem (`de`); senao `null`, e a proxima abertura pede o
+ * retrato inteiro em vez de somar um parcial a um estado que o servidor nao
+ * conhece.
+ */
+export function revisaoDepoisDoParcial(estado, parcial) {
+	const de = revisaoDoCodex(estado);
+	return de !== null && parcial && parcial.de === de && typeof parcial.rev === 'number' ? parcial.rev : null;
 }
 
 /**
@@ -95,6 +118,7 @@ export function aplicarParcialDoCodex(estado, parcial, missoesPorCapitulo) {
 		return { estado, missoesPorCapitulo: indice };
 	}
 	const novo = { ...comCampos(estado, parcial.campos), missoes: trocarPorId(estado.missoes, parcial.missoes) };
+	novo.rev = revisaoDepoisDoParcial(estado, parcial);
 	if (parcial.desafios) {
 		novo.desafios = parcial.desafios;
 	}
