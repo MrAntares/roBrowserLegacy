@@ -23,6 +23,7 @@ import {
 	precisaPedirCapitulo
 } from 'UI/Components/CodexIdle/codexAoVivo.js';
 import { retratoDoCodexAceito } from 'UI/Components/CodexIdle/eixosDoCodex.js';
+import { faixaDeMarcacaoHtml } from 'UI/Components/CodexIdle/marcacaoDoCodex.js';
 
 function semComentarios(texto) {
 	return texto.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/(^|[^:])\/\/[^\n]*/g, '$1 ');
@@ -256,5 +257,20 @@ describe('as ligacoes em CodexIdle.js', () => {
 		expect(guarda).toBeGreaterThan(parcial);
 		expect(bloco).toContain('aplicarParcialDoCodex(CodexIdle.estado, dados, CodexIdle.missoesPorCapitulo)');
 		expect(bloco).toContain('CodexIdle.missoesPorCapitulo = r.missoesPorCapitulo;');
+	});
+});
+
+describe('a banda das janelas (06/10/2026): gastar, resgatar e marcar respondem por parcial', () => {
+	it('o aviso da estrela recusada chega em `campos` e a resposta seguinte (null) o apaga', () => {
+		const inteiro = { v: 2, missoes: [], marcadas: ['a'], maximoDeMarcadas: 5, jornada: null };
+		const recusa = aplicarParcialDoCodex(
+			inteiro,
+			{ v: 3, missoes: [], campos: { avisoDeMarcacao: 'Voce ja acompanha 5.' } },
+			{}
+		).estado;
+		expect(faixaDeMarcacaoHtml(recusa)).toContain('Voce ja acompanha 5.');
+		const aceita = aplicarParcialDoCodex(recusa, { v: 3, missoes: [], campos: { avisoDeMarcacao: null, marcadas: [] } }, {}).estado;
+		expect(faixaDeMarcacaoHtml(aceita)).not.toContain('cx-marcacao-aviso');
+		expect(aceita.marcadas).toEqual([]);
 	});
 });
