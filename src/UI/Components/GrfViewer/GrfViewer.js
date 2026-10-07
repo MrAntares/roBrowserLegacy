@@ -952,6 +952,9 @@ const onWorldClick = (() => {
 	let App = null;
 	const element = document.createElement('div');
 
+	// The worker tags map events with this frame's request id; the preview waits on its own
+	const previewRequests = {};
+
 	function initApp() {
 		if (App) return true;
 		if (typeof ROBrowser === 'undefined') return false;
@@ -983,8 +986,9 @@ const onWorldClick = (() => {
 			case 'CLEAN_GRF':
 				return;
 
-			default:
-				Thread.send(event.data.type, event.data.data, function () {
+			default: {
+				const request = Thread.send(event.data.type, event.data.data, function () {
+					delete previewRequests[request];
 					App._APP.postMessage(
 						{
 							arguments: Array.prototype.slice.call(arguments, 0),
@@ -993,15 +997,18 @@ const onWorldClick = (() => {
 						location.origin
 					);
 				});
+				previewRequests[request] = event.data.uid;
+			}
 		}
 	}
 
 	function threadRedirect(type) {
-		Thread.hook(type, data => {
+		Thread.hook(type, (data, request) => {
 			App._APP.postMessage(
 				{
 					type: type,
-					data: data
+					data: data,
+					request: previewRequests[request]
 				},
 				location.origin
 			);
