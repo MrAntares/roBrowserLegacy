@@ -260,15 +260,6 @@ class Background {
 	 * @param {function} callback once the overlay hide the window (optional)
 	 */
 	static remove(callback) {
-		const exist = !!_container.parentNode;
-
-		if (!exist) {
-			if (callback) {
-				callback();
-			}
-			return;
-		}
-
 		transition(() => {
 			_container.style.zIndex = '0';
 			_canvas.style.zIndex = '0';
