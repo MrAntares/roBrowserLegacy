@@ -243718,8 +243718,7 @@ function createEquipment({ name, htmlText, cssText, entityRender = true, enchant
 		this._host.addEventListener("dragover", onDragOver);
 		this._host.addEventListener("dragleave", onDragLeave);
 		this._host.addEventListener("drop", onDrop);
-		const content = root.querySelector(".content");
-		if (content) {
+		root.querySelectorAll(".content").forEach((content) => {
 			content.addEventListener("contextmenu", (e) => {
 				e.preventDefault();
 				const item = e.target.closest(".item");
@@ -243736,7 +243735,7 @@ function createEquipment({ name, htmlText, cssText, entityRender = true, enchant
 			content.addEventListener("mouseout", (e) => {
 				if (e.target.closest("button")) onEquipmentOut();
 			});
-		}
+		});
 		this.draggable(".titlebar");
 		if (switchEquip) switchappend = root.querySelector(".footer");
 		if (costumeConfig) {
