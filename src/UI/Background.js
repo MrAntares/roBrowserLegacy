@@ -53,32 +53,36 @@ Object.assign(_canvas.style, { position: 'absolute', top: '0', left: '0', zIndex
 const _ctx = _canvas.getContext('2d');
 
 /**
- * Background loading progress
- * @var {number} percent
- */
-let _progress = -1;
-
-/**
- * @var {object|null} current overlay animation handle
- */
-let _overlayAnim = null;
-
-/**
  * Render background (or a black background if no image is loaded yet)
  */
 function render() {
 	_ctx.clearRect(0, 0, _canvas.width, _canvas.height);
 
-	if (_progress > -1) {
-		Background.setPercent(_progress);
+	if (Background._progress > -1) {
+		Background.setPercent(Background._progress);
 	}
 }
-let _loading = [];
 
 /**
  * Background Namespace
  */
 class Background {
+	/**
+	 * Background loading progress
+	 * @var {number} percent
+	 */
+	static _progress = -1;
+
+	/**
+	 * @var {object|null} current overlay animation handle
+	 */
+	static _overlayAnim = null;
+
+	/**
+	 * @var {Array} loading screen filenames
+	 */
+	static _loading = [];
+
 	/**
 	 * Initialize Background component
 	 *
@@ -87,20 +91,20 @@ class Background {
 	static init(loading) {
 		let i;
 
-		_progress = 0;
+		Background._progress = 0;
 		_canvas.style.zIndex = '1';
 
 		render();
 
 		if (loading) {
-			_loading = loading;
+			Background._loading = loading;
 			return;
 		}
 
 		// Generate default loadings
-		_loading.length = 10;
+		Background._loading.length = 10;
 		for (i = 1; i <= 10; ++i) {
-			_loading[i - 1] = `loading${i < 10 ? '0' + i : i}.jpg`;
+			Background._loading[i - 1] = `loading${i < 10 ? '0' + i : i}.jpg`;
 		}
 	}
 
@@ -126,7 +130,7 @@ class Background {
 	 */
 	static setImage(filename, callback) {
 		const exist = !!_container.parentNode;
-		_progress = -1;
+		Background._progress = -1;
 
 		_container.innerHTML = '';
 		_container.style.backgroundImage = 'none';
@@ -242,9 +246,9 @@ class Background {
 	 * @param {function} callback once the loading is display (optional)
 	 */
 	static setLoading(callback) {
-		const index = Math.floor(Math.random() * _loading.length);
+		const index = Math.floor(Math.random() * Background._loading.length);
 
-		Background.setImage(_loading[index] || 'loading01.jpg', () => {
+		Background.setImage(Background._loading[index] || 'loading01.jpg', () => {
 			_canvas.style.zIndex = '999';
 			Background.setPercent(0.0);
 
@@ -280,7 +284,7 @@ class Background {
 	 * @param {number} percent
 	 */
 	static setPercent(percent) {
-		_progress = Math.min(Math.floor(percent), 100);
+		Background._progress = Math.min(Math.floor(percent), 100);
 
 		const width = 240;
 		const height = 15;
@@ -313,17 +317,17 @@ class Background {
 function transition(callback) {
 	const transitionDuration = Configs.get('transitionDuration') ? Configs.get('transitionDuration') : 500;
 
-	if (_overlayAnim) {
-		_overlayAnim.stop();
+	if (Background._overlayAnim) {
+		Background._overlayAnim.stop();
 	}
 
 	_overlay.style.opacity = '0.01';
 	document.body.appendChild(_overlay);
 
-	_overlayAnim = animateElement(_overlay, { opacity: 1.0 }, transitionDuration, () => {
+	Background._overlayAnim = animateElement(_overlay, { opacity: 1.0 }, transitionDuration, () => {
 		callback();
 
-		_overlayAnim = animateElement(_overlay, { opacity: 0.01 }, transitionDuration, () => {
+		Background._overlayAnim = animateElement(_overlay, { opacity: 0.01 }, transitionDuration, () => {
 			if (_overlay.parentNode) {
 				_overlay.parentNode.removeChild(_overlay);
 			}
