@@ -102,6 +102,16 @@ class MapRenderer {
 	static loading = false;
 
 	/**
+	 * @var {number} id of the latest map load, bumped to cancel the one in progress
+	 */
+	static _loadId = 0;
+
+	/**
+	 * @var {number} worker request of the map load in progress, 0 when none
+	 */
+	static _loadRequest = 0;
+
+	/**
 	 * @var {Float32Array} diffuse Modified diffuse color
 	 */
 	static diffuse = null;
@@ -135,6 +145,8 @@ class MapRenderer {
 			.replace(/^(\d{3})(\d@)/, '$2') // 0061@tower   -> 1@tower
 			.replace(/^\d{3}#/, ''); // 003#prontera -> prontera
 
+		const loadId = ++this._loadId;
+
 		// Clean objects
 		SoundManager.stop();
 		Renderer.stop();
@@ -155,18 +167,23 @@ class MapRenderer {
 			const filename = mapname.replace(/\.gat$/i, '.rsw');
 
 			Background.setLoading(function () {
+				// Cancelled while the loading screen was coming up
+				if (loadId !== MapRenderer._loadId) {
+					return;
+				}
+
 				// Hooking Thread
-				Thread.hook('MAP_PROGRESS', onProgressUpdate.bind(MapRenderer));
-				Thread.hook('MAP_WORLD', onWorldComplete.bind(MapRenderer));
-				Thread.hook('MAP_GROUND', onGroundComplete.bind(MapRenderer));
-				Thread.hook('MAP_ALTITUDE', onAltitudeComplete.bind(MapRenderer));
-				Thread.hook('MAP_MODELS', onModelsComplete.bind(MapRenderer));
-				Thread.hook('MAP_ANIMATED_MODEL', onAnimatedModelComplete.bind(MapRenderer));
+				Thread.hook('MAP_PROGRESS', loadEvent(onProgressUpdate));
+				Thread.hook('MAP_WORLD', loadEvent(onWorldComplete));
+				Thread.hook('MAP_GROUND', loadEvent(onGroundComplete));
+				Thread.hook('MAP_ALTITUDE', loadEvent(onAltitudeComplete));
+				Thread.hook('MAP_MODELS', loadEvent(onModelsComplete));
+				Thread.hook('MAP_ANIMATED_MODEL', loadEvent(onAnimatedModelComplete));
 
 				// Start Loading
 				MapRenderer.free();
 				Renderer.remove();
-				Thread.send('LOAD_MAP', filename, onMapComplete.bind(MapRenderer));
+				MapRenderer._loadRequest = Thread.send('LOAD_MAP', filename, loadStep(loadId, onMapComplete));
 			});
 
 			return;
@@ -181,12 +198,25 @@ class MapRenderer {
 		// Basic TP
 		Mouse.intersect = false;
 		Background.remove(() => {
+			if (loadId !== MapRenderer._loadId) {
+				return;
+			}
+
 			MapRenderer.onLoad();
 			Sky.setUpCloudData();
 
 			Renderer.render(MapRenderer.onRender);
 			Mouse.intersect = true;
 		});
+	}
+
+	/**
+	 * Cancel the map load in progress, if any: its remaining steps do nothing
+	 */
+	static cancelLoad() {
+		this._loadId++;
+		this._loadRequest = 0;
+		this.loading = false;
 	}
 
 	/**
@@ -355,6 +385,33 @@ class MapRenderer {
 }
 
 /**
+ * Bind a map load step to its load, so that it does nothing once the load is cancelled
+ *
+ * @param {number} loadId
+ * @param {function} step
+ */
+function loadStep(loadId, step) {
+	return (...args) => {
+		if (loadId === MapRenderer._loadId) {
+			step.apply(MapRenderer, args);
+		}
+	};
+}
+
+/**
+ * Bind a worker event of map loading, so that it only reaches the load whose request sent it
+ *
+ * @param {function} step
+ */
+function loadEvent(step) {
+	return (data, request) => {
+		if (request === MapRenderer._loadRequest) {
+			step.call(MapRenderer, data);
+		}
+	};
+}
+
+/**
  * Received progress from Thread
  *
  * @param {number} percent (progress)
@@ -487,6 +544,7 @@ function registerPostProcessModules(gl) {
  * Once the map finished to load
  */
 function onMapComplete(success, error) {
+	const loadId = MapRenderer._loadId;
 	const worldResource = this.currentMap.replace(/\.gat$/i, '.rsw');
 	const mapInfo = DB.getMap(worldResource);
 
@@ -522,6 +580,10 @@ function onMapComplete(success, error) {
 
 	// Starting to render
 	Background.remove(() => {
+		if (loadId !== MapRenderer._loadId) {
+			return;
+		}
+
 		MapRenderer.loading = false;
 
 		MapRenderer.onLoad();

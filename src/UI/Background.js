@@ -84,6 +84,11 @@ class Background {
 	static _loading = [];
 
 	/**
+	 * @var {object|null} removal in progress, dropped when a background is set during its fade
+	 */
+	static _removal = null;
+
+	/**
 	 * Initialize Background component
 	 *
 	 * @param {Array} loading - Array of loading filenames stored in clientinfo.xml
@@ -131,6 +136,7 @@ class Background {
 	static setImage(filename, callback) {
 		const exist = !!_container.parentNode;
 		Background._progress = -1;
+		Background._removal = null;
 
 		_container.innerHTML = '';
 		_container.style.backgroundImage = 'none';
@@ -264,13 +270,20 @@ class Background {
 	 * @param {function} callback once the overlay hide the window (optional)
 	 */
 	static remove(callback) {
+		const removal = {};
+		Background._removal = removal;
+
 		transition(() => {
-			_container.style.zIndex = '0';
-			_canvas.style.zIndex = '0';
-			if (_container.parentNode) _container.parentNode.removeChild(_container);
-			if (_canvas.parentNode) _canvas.parentNode.removeChild(_canvas);
-			_container.innerHTML = '';
-			_container.style.backgroundImage = 'none';
+			// A background set during the fade replaces the one this call was removing
+			if (Background._removal === removal) {
+				Background._removal = null;
+				_container.style.zIndex = '0';
+				_canvas.style.zIndex = '0';
+				if (_container.parentNode) _container.parentNode.removeChild(_container);
+				if (_canvas.parentNode) _canvas.parentNode.removeChild(_canvas);
+				_container.innerHTML = '';
+				_container.style.backgroundImage = 'none';
+			}
 
 			if (callback) {
 				callback();
