@@ -206182,7 +206182,7 @@ var init_HtmlHelper = __esmMin((() => {
 */
 function render$15() {
 	_ctx$6.clearRect(0, 0, _canvas.width, _canvas.height);
-	if (_progress > -1) Background.setPercent(_progress);
+	if (Background._progress > -1) Background.setPercent(Background._progress);
 }
 /**
 * Play with the overlay
@@ -206191,17 +206191,17 @@ function render$15() {
 */
 function transition(callback) {
 	const transitionDuration = Configs.get("transitionDuration") ? Configs.get("transitionDuration") : 500;
-	if (_overlayAnim) _overlayAnim.stop();
+	if (Background._overlayAnim) Background._overlayAnim.stop();
 	_overlay.style.opacity = "0.01";
 	document.body.appendChild(_overlay);
-	_overlayAnim = animateElement(_overlay, { opacity: 1 }, transitionDuration, () => {
+	Background._overlayAnim = animateElement(_overlay, { opacity: 1 }, transitionDuration, () => {
 		callback();
-		_overlayAnim = animateElement(_overlay, { opacity: .01 }, transitionDuration, () => {
+		Background._overlayAnim = animateElement(_overlay, { opacity: .01 }, transitionDuration, () => {
 			if (_overlay.parentNode) _overlay.parentNode.removeChild(_overlay);
 		});
 	});
 }
-var _overlay, _container, _canvas, _ctx$6, _progress, _overlayAnim, _loading, Background;
+var _overlay, _container, _canvas, _ctx$6, Background;
 var init_Background = __esmMin((() => {
 	init_DBManager();
 	init_Client();
@@ -206235,10 +206235,20 @@ var init_Background = __esmMin((() => {
 		zIndex: "2"
 	});
 	_ctx$6 = _canvas.getContext("2d");
-	_progress = -1;
-	_overlayAnim = null;
-	_loading = [];
 	Background = class Background {
+		/**
+		* Background loading progress
+		* @var {number} percent
+		*/
+		static _progress = -1;
+		/**
+		* @var {object|null} current overlay animation handle
+		*/
+		static _overlayAnim = null;
+		/**
+		* @var {Array} loading screen filenames
+		*/
+		static _loading = [];
 		/**
 		* Initialize Background component
 		*
@@ -206246,15 +206256,15 @@ var init_Background = __esmMin((() => {
 		*/
 		static init(loading) {
 			let i;
-			_progress = 0;
+			Background._progress = 0;
 			_canvas.style.zIndex = "1";
 			render$15();
 			if (loading) {
-				_loading = loading;
+				Background._loading = loading;
 				return;
 			}
-			_loading.length = 10;
-			for (i = 1; i <= 10; ++i) _loading[i - 1] = `loading${i < 10 ? "0" + i : i}.jpg`;
+			Background._loading.length = 10;
+			for (i = 1; i <= 10; ++i) Background._loading[i - 1] = `loading${i < 10 ? "0" + i : i}.jpg`;
 		}
 		/**
 		* Resize the background
@@ -206281,7 +206291,7 @@ var init_Background = __esmMin((() => {
 		*/
 		static setImage(filename, callback) {
 			const exist = !!_container.parentNode;
-			_progress = -1;
+			Background._progress = -1;
 			_container.innerHTML = "";
 			_container.style.backgroundImage = "none";
 			render$15();
@@ -206368,8 +206378,8 @@ var init_Background = __esmMin((() => {
 		* @param {function} callback once the loading is display (optional)
 		*/
 		static setLoading(callback) {
-			const index = Math.floor(Math.random() * _loading.length);
-			Background.setImage(_loading[index] || "loading01.jpg", () => {
+			const index = Math.floor(Math.random() * Background._loading.length);
+			Background.setImage(Background._loading[index] || "loading01.jpg", () => {
 				_canvas.style.zIndex = "999";
 				Background.setPercent(0);
 				if (callback) callback();
@@ -206381,10 +206391,6 @@ var init_Background = __esmMin((() => {
 		* @param {function} callback once the overlay hide the window (optional)
 		*/
 		static remove(callback) {
-			if (!!!_container.parentNode) {
-				if (callback) callback();
-				return;
-			}
 			transition(() => {
 				_container.style.zIndex = "0";
 				_canvas.style.zIndex = "0";
@@ -206401,7 +206407,7 @@ var init_Background = __esmMin((() => {
 		* @param {number} percent
 		*/
 		static setPercent(percent) {
-			_progress = Math.min(Math.floor(percent), 100);
+			Background._progress = Math.min(Math.floor(percent), 100);
 			const width = 240;
 			const height = 15;
 			const x = Math.floor((_canvas.width - width) * .5);
