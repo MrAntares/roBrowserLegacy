@@ -11,7 +11,7 @@ const mocks = vi.hoisted(() => {
 		hooks: {},
 		box: null,
 		renderer: { width: 1200, height: 800, stop: record('Renderer.stop') },
-		mapRenderer: { free: record('MapRenderer.free') },
+		mapRenderer: { cancelLoad: record('MapRenderer.cancelLoad'), free: record('MapRenderer.free') },
 		background: {
 			setLoginBackground: record('Background.setLoginBackground'),
 			init: vi.fn(),
@@ -89,6 +89,7 @@ describe('LoginEngine SC.NOTIFY_BAN', () => {
 
 		expect(mocks.calls).toEqual([
 			'Renderer.stop',
+			'MapRenderer.cancelLoad',
 			'MapRenderer.free',
 			'UIManager.removeComponents',
 			'Background.setLoginBackground',
