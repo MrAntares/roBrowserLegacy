@@ -233,8 +233,8 @@ export function createEquipment({
 		this._host.addEventListener('dragleave', onDragLeave);
 		this._host.addEventListener('drop', onDrop);
 
-		const content = root.querySelector('.content');
-		if (content) {
+		// Every tab (general, costume, ...) is its own .content table: bind them all, not only the first
+		root.querySelectorAll('.content').forEach(content => {
 			content.addEventListener('contextmenu', e => {
 				e.preventDefault();
 				const item = e.target.closest('.item');
@@ -252,7 +252,7 @@ export function createEquipment({
 				const btn = e.target.closest('button');
 				if (btn) onEquipmentOut();
 			});
-		}
+		});
 
 		this.draggable('.titlebar');
 
