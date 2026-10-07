@@ -107,6 +107,11 @@ class MapRenderer {
 	static _loadId = 0;
 
 	/**
+	 * @var {number} worker request of the map load in progress, 0 when none
+	 */
+	static _loadRequest = 0;
+
+	/**
 	 * @var {Float32Array} diffuse Modified diffuse color
 	 */
 	static diffuse = null;
@@ -168,17 +173,17 @@ class MapRenderer {
 				}
 
 				// Hooking Thread
-				Thread.hook('MAP_PROGRESS', loadStep(loadId, onProgressUpdate));
-				Thread.hook('MAP_WORLD', loadStep(loadId, onWorldComplete));
-				Thread.hook('MAP_GROUND', loadStep(loadId, onGroundComplete));
-				Thread.hook('MAP_ALTITUDE', loadStep(loadId, onAltitudeComplete));
-				Thread.hook('MAP_MODELS', loadStep(loadId, onModelsComplete));
-				Thread.hook('MAP_ANIMATED_MODEL', loadStep(loadId, onAnimatedModelComplete));
+				Thread.hook('MAP_PROGRESS', loadEvent(onProgressUpdate));
+				Thread.hook('MAP_WORLD', loadEvent(onWorldComplete));
+				Thread.hook('MAP_GROUND', loadEvent(onGroundComplete));
+				Thread.hook('MAP_ALTITUDE', loadEvent(onAltitudeComplete));
+				Thread.hook('MAP_MODELS', loadEvent(onModelsComplete));
+				Thread.hook('MAP_ANIMATED_MODEL', loadEvent(onAnimatedModelComplete));
 
 				// Start Loading
 				MapRenderer.free();
 				Renderer.remove();
-				Thread.send('LOAD_MAP', filename, loadStep(loadId, onMapComplete));
+				MapRenderer._loadRequest = Thread.send('LOAD_MAP', filename, loadStep(loadId, onMapComplete));
 			});
 
 			return;
@@ -210,6 +215,7 @@ class MapRenderer {
 	 */
 	static cancelLoad() {
 		this._loadId++;
+		this._loadRequest = 0;
 		this.loading = false;
 	}
 
@@ -388,6 +394,19 @@ function loadStep(loadId, step) {
 	return (...args) => {
 		if (loadId === MapRenderer._loadId) {
 			step.apply(MapRenderer, args);
+		}
+	};
+}
+
+/**
+ * Bind a worker event of map loading, so that it only reaches the load whose request sent it
+ *
+ * @param {function} step
+ */
+function loadEvent(step) {
+	return (data, request) => {
+		if (request === MapRenderer._loadRequest) {
+			step.call(MapRenderer, data);
 		}
 	};
 }
