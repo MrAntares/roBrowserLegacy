@@ -1,8 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const mocks = vi.hoisted(() => ({
-	animations: []
-}));
+const mocks = vi.hoisted(() => {
+	// jsdom has no 2D canvas; the background draws its progress bar on one
+	HTMLCanvasElement.prototype.getContext = () => ({
+		clearRect() {},
+		fillRect() {},
+		fillText() {},
+		measureText: () => ({ width: 0 })
+	});
+
+	return { animations: [] };
+});
 
 vi.mock('DB/DBManager.js', () => ({ default: { INTERFACE_PATH: '' } }));
 vi.mock('Core/Client.js', () => ({ default: { loadFile: vi.fn() } }));
@@ -46,5 +54,21 @@ describe('Background.remove', () => {
 		finishAnimation();
 
 		expect(overlay.parentNode).toBeNull();
+	});
+
+	it('keeps a background set while its fade is running', () => {
+		Background.setImage('bgi_temp.bmp');
+		finishAnimation();
+		finishAnimation();
+		const background = [...document.body.children].find(el => el.tagName === 'DIV' && el.style.zIndex !== '1000');
+		expect(background).toBeDefined();
+
+		const callback = vi.fn();
+		Background.remove(callback);
+		Background.setImage('bgi_temp.bmp');
+		finishAnimation();
+
+		expect(callback).toHaveBeenCalledOnce();
+		expect(background.parentNode).toBe(document.body);
 	});
 });
