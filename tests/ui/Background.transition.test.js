@@ -41,5 +41,10 @@ describe('Background.remove', () => {
 
 		expect(callback).toHaveBeenCalledOnce();
 		expect(mocks.animations[0].props).toEqual({ opacity: 0.01 });
+
+		const overlay = mocks.animations[0].element;
+		finishAnimation();
+
+		expect(overlay.parentNode).toBeNull();
 	});
 });
