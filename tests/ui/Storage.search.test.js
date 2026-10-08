@@ -3,7 +3,7 @@
  *
  * The search field of the expanded Storage window.
  */
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('UI/CursorManager.js', () => ({ default: { ACTION: {}, getActualType: vi.fn(), setType: vi.fn() } }));
 vi.mock('DB/DBManager.js', () => ({
@@ -39,10 +39,15 @@ function search(term) {
 
 describe('Storage search', () => {
 	Storage.prepare();
-	Storage.setItems([
-		{ index: 2, ITID: 512, type: 0, count: 3, IsIdentified: true, name: 'Apple' },
-		{ index: 3, ITID: 909, type: 3, count: 1, IsIdentified: true, name: 'Jellopy' }
-	]);
+
+	// onRemove is what closing the window runs: it empties the list and closes the filter windows
+	beforeEach(() => {
+		Storage.onRemove();
+		Storage.setItems([
+			{ index: 2, ITID: 512, type: 0, count: 3, IsIdentified: true, name: 'Apple' },
+			{ index: 3, ITID: 909, type: 3, count: 1, IsIdentified: true, name: 'Jellopy' }
+		]);
+	});
 
 	it('opens the results on Enter in the search field', () => {
 		search('app');
