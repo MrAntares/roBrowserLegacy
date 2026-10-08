@@ -243371,7 +243371,10 @@ var init_CartItems = __esmMin((() => {
 			CartItems._host.style.display = "none";
 		});
 		this._host.addEventListener("drop", onDrop$9);
-		this._host.addEventListener("dragover", (e) => e.stopImmediatePropagation());
+		this._host.addEventListener("dragover", (e) => {
+			e.stopImmediatePropagation();
+			e.preventDefault();
+		});
 		const content = root.querySelector(".container .content");
 		if (content) {
 			content.addEventListener("wheel", onScroll$5);
