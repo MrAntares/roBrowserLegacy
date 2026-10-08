@@ -94,7 +94,10 @@ CartItems.init = function Init() {
 
 	// on drop item
 	this._host.addEventListener('drop', onDrop);
-	this._host.addEventListener('dragover', e => e.stopImmediatePropagation());
+	this._host.addEventListener('dragover', e => {
+		e.stopImmediatePropagation();
+		e.preventDefault(); // without it the browser never fires 'drop' here
+	});
 
 	// Items event (delegation)
 	const content = root.querySelector('.container .content');
