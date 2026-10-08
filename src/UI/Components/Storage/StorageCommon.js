@@ -58,6 +58,8 @@ export function createStorage(config) {
 
 	let _openFilters = {};
 
+	let _searchTerm = '';
+
 	const _preferences = Preferences.get(
 		'Storage',
 		{
@@ -130,6 +132,15 @@ export function createStorage(config) {
 			if (searchBtn) {
 				searchBtn.addEventListener('mousedown', e => e.stopImmediatePropagation());
 				searchBtn.addEventListener('click', () => Component.onSearch());
+			}
+
+			const searchInput = root.querySelector('#storage-search-input');
+			if (searchInput) {
+				searchInput.addEventListener('keydown', e => {
+					if (e.key === 'Enter') {
+						Component.onSearch();
+					}
+				});
 			}
 		}
 
@@ -248,6 +259,10 @@ export function createStorage(config) {
 			if (_openFilters[itemTab]) {
 				_openFilters[itemTab].addItem(item);
 			}
+		}
+
+		if (hasSearch && _openFilters[ItemType.SEARCH] && matchesSearch(item)) {
+			_openFilters[ItemType.SEARCH].addItem(item);
 		}
 
 		if (i > -1) {
@@ -398,11 +413,9 @@ export function createStorage(config) {
 			if (!searchInput) {
 				return;
 			}
-			const searchTerm = searchInput.value.toLowerCase();
+			_searchTerm = searchInput.value.toLowerCase();
 
-			const filteredItems = _list.filter(item => {
-				return DB.getItemName(item).toLowerCase().indexOf(searchTerm) > -1;
-			});
+			const filteredItems = _list.filter(matchesSearch);
 
 			if (!_openFilters[ItemType.SEARCH]) {
 				const newFilter = new StorageFilter(ItemType.SEARCH);
@@ -546,6 +559,10 @@ export function createStorage(config) {
 		for (let i = 0, count = list.length; i < count; ++i) {
 			Component.addItemSub(list[i]);
 		}
+	}
+
+	function matchesSearch(item) {
+		return DB.getItemName(item).toLowerCase().includes(_searchTerm);
 	}
 
 	function getItemIndexById(index) {
