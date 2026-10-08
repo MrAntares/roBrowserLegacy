@@ -77835,7 +77835,7 @@ var init_PacketLength = __esmMin((() => {
 }));
 //#endregion
 //#region \0vite/preload-helper.js
-var scriptRel, assetsURL, seen, isCssPreloadUrl, __vitePreload;
+var scriptRel, assetsURL, seen, isCssPreloadUrl, preloadOnce, __vitePreload;
 var init_preload_helper = __esmMin((() => {
 	scriptRel = "modulepreload";
 	assetsURL = function(dep, importerUrl) {
@@ -77844,6 +77844,22 @@ var init_preload_helper = __esmMin((() => {
 	seen = {};
 	isCssPreloadUrl = function isCssPreloadUrl(url) {
 		return url.pathname.endsWith(".css");
+	};
+	preloadOnce = function preloadOnce(seen, href, preload) {
+		if (href in seen) return seen[href];
+		const promise = preload();
+		if (!promise) {
+			seen[href] = void 0;
+			return;
+		}
+		const preloadPromise = promise.then(() => {
+			seen[href] = void 0;
+		}, (err) => {
+			seen[href] = void 0;
+			throw err;
+		});
+		seen[href] = preloadPromise;
+		return preloadPromise;
 	};
 	__vitePreload = function preload(baseModule, deps, importerUrl) {
 		let promise = Promise.resolve();
@@ -77871,32 +77887,32 @@ var init_preload_helper = __esmMin((() => {
 			promise = allSettled(deps.map((depString) => {
 				depString = assetsURL(depString, importerUrl);
 				const dep = importMetaResolve(depString);
-				if (dep.href in seen) return;
-				seen[dep.href] = true;
 				const isCss = isCssPreloadUrl(dep);
-				if (preloadedHrefs === void 0) {
-					preloadedHrefs = {
-						all: /* @__PURE__ */ new Set(),
-						styles: /* @__PURE__ */ new Set()
-					};
-					const links = document.getElementsByTagName("link");
-					for (let i = links.length - 1; i >= 0; i--) {
-						const link = links[i];
-						preloadedHrefs.all.add(link.href);
-						if (link.rel === "stylesheet") preloadedHrefs.styles.add(link.href);
+				return preloadOnce(seen, dep.href, () => {
+					if (preloadedHrefs === void 0) {
+						preloadedHrefs = {
+							all: /* @__PURE__ */ new Set(),
+							styles: /* @__PURE__ */ new Set()
+						};
+						const links = document.getElementsByTagName("link");
+						for (let i = links.length - 1; i >= 0; i--) {
+							const link = links[i];
+							preloadedHrefs.all.add(link.href);
+							if (link.rel === "stylesheet") preloadedHrefs.styles.add(link.href);
+						}
 					}
-				}
-				if ((isCss ? preloadedHrefs.styles : preloadedHrefs.all).has(dep.href)) return;
-				const link = document.createElement("link");
-				link.rel = isCss ? "stylesheet" : scriptRel;
-				if (!isCss) link.as = "script";
-				link.crossOrigin = "";
-				link.href = dep.href;
-				if (cspNonce) link.setAttribute("nonce", cspNonce);
-				document.head.appendChild(link);
-				if (isCss) return new Promise((res, rej) => {
-					link.addEventListener("load", res);
-					link.addEventListener("error", () => rej(/* @__PURE__ */ new Error(`Unable to preload CSS for ${dep}`)));
+					if ((isCss ? preloadedHrefs.styles : preloadedHrefs.all).has(dep.href)) return;
+					const link = document.createElement("link");
+					link.rel = isCss ? "stylesheet" : scriptRel;
+					if (!isCss) link.as = "script";
+					link.crossOrigin = "";
+					link.href = dep.href;
+					if (cspNonce) link.setAttribute("nonce", cspNonce);
+					document.head.appendChild(link);
+					if (isCss) return new Promise((res, rej) => {
+						link.addEventListener("load", res);
+						link.addEventListener("error", () => rej(/* @__PURE__ */ new Error(`Unable to preload CSS for ${dep}`)));
+					});
 				});
 			}).filter((p) => p !== void 0));
 		}
@@ -242105,6 +242121,7 @@ function createStorage(config) {
 	};
 	const _list = [];
 	let _openFilters = {};
+	let _searchTerm = "";
 	const _preferences = Preferences.get("Storage", {
 		x: 200,
 		y: 500,
@@ -242152,6 +242169,10 @@ function createStorage(config) {
 				searchBtn.addEventListener("mousedown", (e) => e.stopImmediatePropagation());
 				searchBtn.addEventListener("click", () => Component.onSearch());
 			}
+			const searchInput = root.querySelector("#storage-search-input");
+			if (searchInput) searchInput.addEventListener("keydown", (e) => {
+				if (e.key === "Enter") Component.onSearch();
+			});
 		}
 		if (hasOrderBy) {
 			const orderBySelect = root.querySelector(".storage-order-by");
@@ -242230,6 +242251,7 @@ function createStorage(config) {
 			const itemTab = getItemTab(item);
 			if (_openFilters[itemTab]) _openFilters[itemTab].addItem(item);
 		}
+		if (hasSearch && _openFilters[ItemType_default.SEARCH] && matchesSearch(item)) _openFilters[ItemType_default.SEARCH].addItem(item);
 		if (i > -1) {
 			_list[i].count += item.count;
 			const countEl = this.getRoot().querySelector(`.item[data-index="${item.index}"] .count`);
@@ -242316,10 +242338,8 @@ function createStorage(config) {
 	if (hasSearch) Component.onSearch = function onSearch() {
 		const searchInput = this.getRoot().querySelector("#storage-search-input");
 		if (!searchInput) return;
-		const searchTerm = searchInput.value.toLowerCase();
-		const filteredItems = _list.filter((item) => {
-			return DB.getItemName(item).toLowerCase().indexOf(searchTerm) > -1;
-		});
+		_searchTerm = searchInput.value.toLowerCase();
+		const filteredItems = _list.filter(matchesSearch);
 		if (!_openFilters[ItemType_default.SEARCH]) {
 			const newFilter = new StorageFilter(ItemType_default.SEARCH);
 			_openFilters[ItemType_default.SEARCH] = newFilter;
@@ -242406,6 +242426,9 @@ function createStorage(config) {
 			}
 		}
 		for (let i = 0, count = list.length; i < count; ++i) Component.addItemSub(list[i]);
+	}
+	function matchesSearch(item) {
+		return DB.getItemName(item).toLowerCase().includes(_searchTerm);
 	}
 	function getItemIndexById(index) {
 		for (let i = 0, count = _list.length; i < count; ++i) if (_list[i].index === index) return i;
@@ -242584,31 +242607,7 @@ var init_StorageFilter$1 = __esmMin((() => {
 }));
 //#endregion
 //#region src/UI/Components/Storage/StorageV3/StorageFilter.js
-function StorageFilter(tabId) {
-	const prefName = "StorageFilter_" + tabId;
-	GUIComponent.call(this, prefName, StorageFilter_default);
-	this.render = () => StorageFilter_default$1;
-	this.onRemove = function() {
-		const root = this.getRoot();
-		const content = root.querySelector(".content");
-		if (content) content.innerHTML = "";
-		this._list.length = 0;
-		this._currentTabId = -1;
-		this._preferences.y = parseInt(this._host.style.top, 10);
-		this._preferences.x = parseInt(this._host.style.left, 10);
-		this._preferences.height = Math.floor((root.querySelector(".content") ? root.querySelector(".content").offsetHeight : 128) / 32);
-		this._preferences.save();
-		if (typeof this.onCloseCallback === "function") this.onCloseCallback();
-	};
-	this._list = [];
-	this._currentTabId = -1;
-	this._preferences = Preferences.get(prefName, {
-		x: 300 + tabId * 20,
-		y: 200 + tabId * 20,
-		height: 4
-	}, 1);
-	this.onCloseCallback = null;
-}
+var StorageFilter;
 var init_StorageFilter = __esmMin((() => {
 	init_DBManager();
 	init_Client();
@@ -242620,216 +242619,239 @@ var init_StorageFilter = __esmMin((() => {
 	init_ItemInfo();
 	init_StorageFilter$2();
 	init_StorageFilter$1();
-	StorageFilter.prototype = Object.create(GUIComponent.prototype);
-	StorageFilter.prototype.constructor = StorageFilter;
-	StorageFilter.prototype.init = function init() {
-		const self = this;
-		const root = this.getRoot();
-		const closeBtn = root.querySelector(".titlebar .right .close");
-		if (closeBtn) {
-			closeBtn.addEventListener("mousedown", (e) => e.stopImmediatePropagation());
-			closeBtn.addEventListener("click", () => {
-				self.remove();
+	StorageFilter = class extends GUIComponent {
+		constructor(tabId) {
+			const prefName = `StorageFilter_${tabId}`;
+			super(prefName, StorageFilter_default);
+			this._list = [];
+			this._currentTabId = -1;
+			this._preferences = Preferences.get(prefName, {
+				x: 300 + tabId * 20,
+				y: 200 + tabId * 20,
+				height: 4
+			}, 1);
+			this.onCloseCallback = null;
+			this.mouseMode = GUIComponent.MouseMode.STOP;
+		}
+		render() {
+			return StorageFilter_default$1;
+		}
+		onRemove() {
+			const root = this.getRoot();
+			const content = root.querySelector(".content");
+			if (content) content.innerHTML = "";
+			this._list.length = 0;
+			this._currentTabId = -1;
+			this._preferences.y = parseInt(this._host.style.top, 10);
+			this._preferences.x = parseInt(this._host.style.left, 10);
+			this._preferences.height = Math.floor((root.querySelector(".content") ? root.querySelector(".content").offsetHeight : 128) / 32);
+			this._preferences.save();
+			if (typeof this.onCloseCallback === "function") this.onCloseCallback();
+		}
+		init() {
+			const root = this.getRoot();
+			const closeBtn = root.querySelector(".titlebar .right .close");
+			if (closeBtn) {
+				closeBtn.addEventListener("mousedown", (e) => e.stopImmediatePropagation());
+				closeBtn.addEventListener("click", () => this.remove());
+			}
+			const extendBtn = root.querySelector(".footer .extend");
+			if (extendBtn) extendBtn.addEventListener("mousedown", () => this.onResize());
+			this.resizeHeight(this._preferences.height);
+			const content = root.querySelector(".content");
+			if (content) {
+				content.addEventListener("mouseover", (e) => {
+					const itemEl = e.target.closest(".item");
+					if (itemEl) this.onItemOver(itemEl, root);
+				});
+				content.addEventListener("mouseout", (e) => {
+					if (e.target.closest(".item")) this.onItemOut(root);
+				});
+				content.addEventListener("contextmenu", (e) => {
+					const itemEl = e.target.closest(".item");
+					if (itemEl) {
+						e.preventDefault();
+						this.onItemInfo(e, itemEl);
+					}
+				});
+				content.addEventListener("dragstart", (e) => {
+					const itemEl = e.target.closest(".item");
+					if (itemEl) {
+						this.onItemDragStart(e, itemEl);
+						this.onItemOut(root);
+					}
+				});
+				content.addEventListener("dragend", (e) => {
+					if (e.target.closest(".item")) this.onItemDragEnd();
+				});
+			}
+			this.draggable(".titlebar");
+			this.ui.hide();
+		}
+		onAppend() {
+			this.ui.show();
+			this._host.style.left = `${Math.min(Math.max(0, this._preferences.x), Renderer.width - this._host.getBoundingClientRect().width)}px`;
+			this._host.style.top = `${Math.min(Math.max(0, this._preferences.y), Renderer.height - this._host.getBoundingClientRect().height)}px`;
+		}
+		setItems(title, items, tabId) {
+			this._list = items.map((item) => ({ ...item }));
+			this._currentTabId = tabId;
+			const root = this.getRoot();
+			const titleEl = root.querySelector(".titlebar .text");
+			if (titleEl) titleEl.textContent = title;
+			const content = root.querySelector(".content");
+			if (content) content.innerHTML = "";
+			for (let i = 0, count = this._list.length; i < count; ++i) this.renderItem(this._list[i]);
+		}
+		renderItem(item) {
+			const it = DB.getItemInfo(item.ITID);
+			const root = this.getRoot();
+			const content = root.querySelector(".content");
+			const itemEl = document.createElement("div");
+			itemEl.className = "item";
+			itemEl.setAttribute("data-index", item.index);
+			itemEl.setAttribute("draggable", "true");
+			const iconDiv = document.createElement("div");
+			iconDiv.className = "icon";
+			itemEl.appendChild(iconDiv);
+			const amountDiv = document.createElement("div");
+			amountDiv.className = "amount";
+			if (item.count) {
+				const countSpan = document.createElement("span");
+				countSpan.className = "count";
+				countSpan.textContent = item.count;
+				amountDiv.appendChild(countSpan);
+				amountDiv.appendChild(document.createTextNode(" "));
+			}
+			itemEl.appendChild(amountDiv);
+			const nameSpan = document.createElement("span");
+			nameSpan.className = "name";
+			nameSpan.innerHTML = DB.getItemName(item);
+			itemEl.appendChild(nameSpan);
+			if (content) content.appendChild(itemEl);
+			Client.loadFile(`${DB.INTERFACE_PATH}item/${item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName}.bmp`, (data) => {
+				const icon = root.querySelector(`.item[data-index="${item.index}"] .icon`);
+				if (icon) icon.style.backgroundImage = `url(${data})`;
 			});
 		}
-		const extendBtn = root.querySelector(".footer .extend");
-		if (extendBtn) extendBtn.addEventListener("mousedown", () => this.onResize());
-		this.resizeHeight(this._preferences.height);
-		const content = root.querySelector(".content");
-		if (content) {
-			content.addEventListener("mouseover", (e) => {
-				const itemEl = e.target.closest(".item");
-				if (itemEl) this.onItemOver(itemEl, root);
-			});
-			content.addEventListener("mouseout", (e) => {
-				if (e.target.closest(".item")) this.onItemOut(root);
-			});
-			content.addEventListener("contextmenu", (e) => {
-				const itemEl = e.target.closest(".item");
-				if (itemEl) {
-					e.preventDefault();
-					this.onItemInfo(e, itemEl);
-				}
-			});
-			content.addEventListener("dragstart", (e) => {
-				const itemEl = e.target.closest(".item");
-				if (itemEl) {
-					this.onItemDragStart(e, itemEl);
-					this.onItemOut(root);
-				}
-			});
-			content.addEventListener("dragend", (e) => {
-				if (e.target.closest(".item")) this.onItemDragEnd();
-			});
+		getItemFromIndex(index) {
+			return this._list.filter((item) => item.index === index)[0];
 		}
-		this.draggable(".titlebar");
-		this.ui.hide();
-	};
-	StorageFilter.prototype.onAppend = function onAppend() {
-		this.ui.show();
-		this._host.style.left = `${Math.min(Math.max(0, this._preferences.x), Renderer.width - this._host.getBoundingClientRect().width)}px`;
-		this._host.style.top = `${Math.min(Math.max(0, this._preferences.y), Renderer.height - this._host.getBoundingClientRect().height)}px`;
-	};
-	StorageFilter.prototype.setItems = function setItems(title, items, tabId) {
-		this._list = items.slice(0);
-		this._currentTabId = tabId;
-		const root = this.getRoot();
-		const titleEl = root.querySelector(".titlebar .text");
-		if (titleEl) titleEl.textContent = title;
-		const content = root.querySelector(".content");
-		if (content) content.innerHTML = "";
-		for (let i = 0, count = this._list.length; i < count; ++i) this.renderItem(this._list[i]);
-	};
-	StorageFilter.prototype.renderItem = function renderItem(item) {
-		const it = DB.getItemInfo(item.ITID);
-		const root = this.getRoot();
-		const content = root.querySelector(".content");
-		const itemEl = document.createElement("div");
-		itemEl.className = "item";
-		itemEl.setAttribute("data-index", item.index);
-		itemEl.setAttribute("draggable", "true");
-		const iconDiv = document.createElement("div");
-		iconDiv.className = "icon";
-		itemEl.appendChild(iconDiv);
-		const amountDiv = document.createElement("div");
-		amountDiv.className = "amount";
-		if (item.count) {
-			const countSpan = document.createElement("span");
-			countSpan.className = "count";
-			countSpan.textContent = item.count;
-			amountDiv.appendChild(countSpan);
-			amountDiv.appendChild(document.createTextNode(" "));
+		onItemOver(itemEl, root) {
+			const index = parseInt(itemEl.getAttribute("data-index"), 10);
+			const item = this.getItemFromIndex(index);
+			if (!item) return;
+			const overlay = root.querySelector(".overlay");
+			if (overlay) {
+				overlay.style.display = "";
+				overlay.style.top = `${itemEl.offsetTop - 10}px`;
+				overlay.style.left = `${itemEl.offsetLeft + 35}px`;
+				overlay.innerHTML = `${DB.getItemName(item)} ${item.count || 1} ea`;
+				if (item.IsIdentified) overlay.classList.remove("grey");
+				else overlay.classList.add("grey");
+			}
 		}
-		itemEl.appendChild(amountDiv);
-		const nameSpan = document.createElement("span");
-		nameSpan.className = "name";
-		nameSpan.innerHTML = DB.getItemName(item);
-		itemEl.appendChild(nameSpan);
-		if (content) content.appendChild(itemEl);
-		Client.loadFile(`${DB.INTERFACE_PATH}item/${item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName}.bmp`, (data) => {
-			const icon = root.querySelector(`.item[data-index="${item.index}"] .icon`);
-			if (icon) icon.style.backgroundImage = `url(${data})`;
-		});
-	};
-	StorageFilter.prototype.getItemFromIndex = function getItemFromIndex(index) {
-		return this._list.filter((item) => item.index === index)[0];
-	};
-	StorageFilter.prototype.onItemOver = function onItemOver(itemEl, root) {
-		const index = parseInt(itemEl.getAttribute("data-index"), 10);
-		const item = this.getItemFromIndex(index);
-		if (!item) return;
-		const overlay = root.querySelector(".overlay");
-		if (overlay) {
-			overlay.style.display = "";
-			overlay.style.top = `${itemEl.offsetTop - 10}px`;
-			overlay.style.left = `${itemEl.offsetLeft + 35}px`;
-			overlay.innerHTML = `${DB.getItemName(item)} ${item.count || 1} ea`;
-			if (item.IsIdentified) overlay.classList.remove("grey");
-			else overlay.classList.add("grey");
+		onItemOut(root) {
+			if (!root) root = this.getRoot();
+			const overlay = root.querySelector(".overlay");
+			if (overlay) overlay.style.display = "none";
 		}
-	};
-	StorageFilter.prototype.onItemOut = function onItemOut(root) {
-		if (!root) root = this.getRoot();
-		const overlay = root.querySelector(".overlay");
-		if (overlay) overlay.style.display = "none";
-	};
-	StorageFilter.prototype.onItemDragStart = function onItemDragStart(event, itemEl) {
-		const index = parseInt(itemEl.getAttribute("data-index"), 10);
-		const item = this.getItemFromIndex(index);
-		if (!item) return;
-		const img = new Image();
-		let url = itemEl.firstChild.style.backgroundImage.match(/\(([^)]+)/)[1];
-		url = url.replace(/^"/, "").replace(/"$/, "");
-		img.src = url;
-		event.dataTransfer.setDragImage(img, 12, 12);
-		event.dataTransfer.setData("Text", JSON.stringify(window._OBJ_DRAG_ = {
-			type: "item",
-			from: "Storage",
-			data: item
-		}));
-	};
-	StorageFilter.prototype.onItemDragEnd = function onItemDragEnd() {
-		delete window._OBJ_DRAG_;
-	};
-	StorageFilter.prototype.onItemInfo = function onItemInfo(event, itemEl) {
-		event.stopImmediatePropagation();
-		const index = parseInt(itemEl.getAttribute("data-index"), 10);
-		const item = this.getItemFromIndex(index);
-		if (!item) return false;
-		if (event.altKey && event.which === 3) {
-			if (typeof this.onTransferItemToOtherUI === "function") this.onTransferItemToOtherUI(item);
+		onItemDragStart(event, itemEl) {
+			const index = parseInt(itemEl.getAttribute("data-index"), 10);
+			const item = this.getItemFromIndex(index);
+			if (!item) return;
+			const img = new Image();
+			let url = itemEl.firstChild.style.backgroundImage.match(/\(([^)]+)/)[1];
+			url = url.replace(/^"/, "").replace(/"$/, "");
+			img.src = url;
+			event.dataTransfer.setDragImage(img, 12, 12);
+			event.dataTransfer.setData("Text", JSON.stringify(window._OBJ_DRAG_ = {
+				type: "item",
+				from: "Storage",
+				data: item
+			}));
+		}
+		onItemDragEnd() {
+			delete window._OBJ_DRAG_;
+		}
+		onItemInfo(event, itemEl) {
+			event.stopImmediatePropagation();
+			const index = parseInt(itemEl.getAttribute("data-index"), 10);
+			const item = this.getItemFromIndex(index);
+			if (!item) return false;
+			if (event.altKey && event.which === 3) {
+				if (typeof this.onTransferItemToOtherUI === "function") this.onTransferItemToOtherUI(item);
+				return false;
+			}
+			if (ItemInfo_default.uid === item.ITID) ItemInfo_default.remove();
+			ItemInfo_default.append();
+			ItemInfo_default.uid = item.ITID;
+			ItemInfo_default.setItem(item);
 			return false;
 		}
-		if (ItemInfo_default.uid === item.ITID) ItemInfo_default.remove();
-		ItemInfo_default.append();
-		ItemInfo_default.uid = item.ITID;
-		ItemInfo_default.setItem(item);
-		return false;
-	};
-	StorageFilter.prototype.resizeHeight = function resizeHeight(height) {
-		height = Math.min(Math.max(height, 4), 10);
-		const content = this.getRoot().querySelector(".content");
-		if (content) content.style.height = `${height * 32}px`;
-		this._host.style.height = `${height * 32 + 17 + 19}px`;
-	};
-	StorageFilter.prototype.onResize = function onResize() {
-		const self = this;
-		const top = this._host.offsetTop;
-		let lastHeight = 0;
-		const extraY = 36;
-		function resizing() {
-			let h = Math.floor((Mouse.screen.y - top - extraY) / 32);
-			h = Math.min(Math.max(h, 4), 10);
-			if (h === lastHeight) return;
-			self.resizeHeight(h);
-			lastHeight = h;
+		resizeHeight(height) {
+			height = Math.min(Math.max(height, 4), 10);
+			const content = this.getRoot().querySelector(".content");
+			if (content) content.style.height = `${height * 32}px`;
+			this._host.style.height = `${height * 32 + 17 + 19}px`;
 		}
-		const _Interval = setInterval(resizing, 30);
-		const onMouseUp = (event) => {
-			if (event.which === 1) {
-				clearInterval(_Interval);
-				window.removeEventListener("mouseup", onMouseUp);
+		onResize() {
+			const top = this._host.offsetTop;
+			let lastHeight = 0;
+			const extraY = 36;
+			const resizing = () => {
+				let h = Math.floor((Mouse.screen.y - top - extraY) / 32);
+				h = Math.min(Math.max(h, 4), 10);
+				if (h === lastHeight) return;
+				this.resizeHeight(h);
+				lastHeight = h;
+			};
+			const _Interval = setInterval(resizing, 30);
+			const onMouseUp = (event) => {
+				if (event.which === 1) {
+					clearInterval(_Interval);
+					window.removeEventListener("mouseup", onMouseUp);
+				}
+			};
+			window.addEventListener("mouseup", onMouseUp);
+		}
+		getCurrentTab() {
+			return this._currentTabId;
+		}
+		removeItem(index, count) {
+			let i = -1;
+			for (let j = 0, count_ = this._list.length; j < count_; ++j) if (this._list[j].index === index) {
+				i = j;
+				break;
 			}
-		};
-		window.addEventListener("mouseup", onMouseUp);
-	};
-	StorageFilter.prototype.getCurrentTab = function getCurrentTab() {
-		return this._currentTabId;
-	};
-	StorageFilter.prototype.removeItem = function removeItem(index, count) {
-		let i = -1;
-		for (let j = 0, count_ = this._list.length; j < count_; ++j) if (this._list[j].index === index) {
-			i = j;
-			break;
+			if (i < 0) return;
+			const item = this._list[i];
+			const root = this.getRoot();
+			if (item.count) {
+				item.count -= count;
+				if (item.count > 0) {
+					const countEl = root.querySelector(`.item[data-index="${index}"] .count`);
+					if (countEl) countEl.textContent = item.count;
+					return;
+				}
+			}
+			this._list.splice(i, 1);
+			const el = root.querySelector(`.item[data-index="${index}"]`);
+			if (el) el.remove();
+			const overlay = root.querySelector(".overlay");
+			if (overlay) overlay.style.display = "none";
 		}
-		if (i < 0) return;
-		const item = this._list[i];
-		const root = this.getRoot();
-		if (item.count) {
-			item.count -= count;
-			if (item.count > 0) {
-				const countEl = root.querySelector(`.item[data-index="${index}"] .count`);
-				if (countEl) countEl.textContent = item.count;
+		addItem(item) {
+			for (let j = 0, count_ = this._list.length; j < count_; ++j) if (this._list[j].index === item.index) {
+				this._list[j].count += item.count;
+				const countEl = this.getRoot().querySelector(`.item[data-index="${item.index}"] .count`);
+				if (countEl) countEl.textContent = this._list[j].count;
 				return;
 			}
+			this._list.push(JSON.parse(JSON.stringify(item)));
+			this.renderItem(item);
 		}
-		this._list.splice(i, 1);
-		const el = root.querySelector(`.item[data-index="${index}"]`);
-		if (el) el.remove();
-		const overlay = root.querySelector(".overlay");
-		if (overlay) overlay.style.display = "none";
 	};
-	StorageFilter.prototype.addItem = function addItem(item) {
-		for (let j = 0, count_ = this._list.length; j < count_; ++j) if (this._list[j].index === item.index) {
-			this._list[j].count += item.count;
-			const countEl = this.getRoot().querySelector(`.item[data-index="${item.index}"] .count`);
-			if (countEl) countEl.textContent = this._list[j].count;
-			return;
-		}
-		this._list.push(JSON.parse(JSON.stringify(item)));
-		this.renderItem(item);
-	};
-	StorageFilter.prototype.mouseMode = GUIComponent.MouseMode.STOP;
 }));
 //#endregion
 //#region src/UI/Components/Storage/StorageV3/Storage.html?raw
