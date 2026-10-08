@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => {
-	// Mirrors GUIComponent: prepare() leaves a detached host with no inline display.
+	// Mirrors GUIComponent: prepare() renders, runs init() and leaves a detached host
+	// with no inline display; every append() runs onAppend().
 	class MockGUIComponent {
 		constructor(name) {
 			this.name = name;
@@ -10,11 +11,14 @@ const mocks = vi.hoisted(() => {
 
 		prepare() {
 			this._host = document.createElement('div');
+			this._host.innerHTML = this.render();
+			if (this.init) this.init();
 		}
 
 		append() {
 			this.__active = true;
 			document.body.appendChild(this._host);
+			this.onAppend();
 		}
 
 		focus() {}
@@ -40,6 +44,7 @@ describe('Rodex toggle', () => {
 		Rodex.__active = false;
 		Rodex.openRodexBox = vi.fn();
 		Rodex.closeRodexBox = vi.fn();
+		Rodex.draggable = vi.fn();
 		Rodex.prepare();
 	});
 
@@ -57,5 +62,13 @@ describe('Rodex toggle', () => {
 
 		expect(Rodex.closeRodexBox).toHaveBeenCalledTimes(1);
 		expect(Rodex._host.style.display).toBe('none');
+	});
+
+	it('makes the title bar draggable once across reopenings', () => {
+		Rodex.toggle();
+		Rodex.toggle();
+		Rodex.toggle();
+
+		expect(Rodex.draggable).toHaveBeenCalledTimes(1);
 	});
 });

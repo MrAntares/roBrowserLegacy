@@ -86,14 +86,10 @@ function _root() {
 Rodex.render = () => htmlText;
 
 /**
- * Apply preferences once append to body
+ * Bind the window controls once
  */
-Rodex.onAppend = function OnAppend() {
+Rodex.init = function init() {
 	const root = _root();
-
-	// Apply preferences
-	this._host.style.top = `${Math.min(Math.max(0, _preferences.y), Renderer.height - this._host.offsetHeight)}px`;
-	this._host.style.left = `${Math.min(Math.max(0, _preferences.x), Renderer.width - this._host.offsetWidth)}px`;
 
 	this.draggable(root.querySelector('.titlebar'));
 
@@ -107,8 +103,20 @@ Rodex.onAppend = function OnAppend() {
 	root.querySelectorAll('.nav-item').forEach(el => el.addEventListener('click', onClickTab));
 	root.querySelector('.search-title').addEventListener('click', onClickSearchTitle);
 	root.querySelector('.search-sender').addEventListener('click', onClickSearchSender);
-	root.querySelector('.search').value = '';
 	root.querySelector('.search-btn').addEventListener('click', onClickSearchButton);
+};
+
+/**
+ * Apply preferences once append to body
+ */
+Rodex.onAppend = function OnAppend() {
+	const root = _root();
+
+	// Apply preferences
+	this._host.style.top = `${Math.min(Math.max(0, _preferences.y), Renderer.height - this._host.offsetHeight)}px`;
+	this._host.style.left = `${Math.min(Math.max(0, _preferences.x), Renderer.width - this._host.offsetWidth)}px`;
+
+	root.querySelector('.search').value = '';
 
 	Rodex.openType = 0;
 	root.querySelectorAll('.nav-item.active').forEach(el => el.classList.remove('active'));
