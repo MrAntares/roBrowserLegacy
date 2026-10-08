@@ -226258,12 +226258,10 @@ var init_Rodex$1 = __esmMin((() => {
 	*/
 	Rodex.render = () => Rodex_default$2;
 	/**
-	* Apply preferences once append to body
+	* Bind the window controls once
 	*/
-	Rodex.onAppend = function OnAppend() {
+	Rodex.init = function init() {
 		const root = _root$17();
-		this._host.style.top = `${Math.min(Math.max(0, _preferences$37.y), Renderer.height - this._host.offsetHeight)}px`;
-		this._host.style.left = `${Math.min(Math.max(0, _preferences$37.x), Renderer.width - this._host.offsetWidth)}px`;
 		this.draggable(root.querySelector(".titlebar"));
 		root.querySelector(".close").addEventListener("click", onClickClose$2);
 		root.querySelector(".refresh").addEventListener("click", onClickRefresh);
@@ -226275,8 +226273,16 @@ var init_Rodex$1 = __esmMin((() => {
 		root.querySelectorAll(".nav-item").forEach((el) => el.addEventListener("click", onClickTab));
 		root.querySelector(".search-title").addEventListener("click", onClickSearchTitle);
 		root.querySelector(".search-sender").addEventListener("click", onClickSearchSender);
-		root.querySelector(".search").value = "";
 		root.querySelector(".search-btn").addEventListener("click", onClickSearchButton);
+	};
+	/**
+	* Apply preferences once append to body
+	*/
+	Rodex.onAppend = function OnAppend() {
+		const root = _root$17();
+		this._host.style.top = `${Math.min(Math.max(0, _preferences$37.y), Renderer.height - this._host.offsetHeight)}px`;
+		this._host.style.left = `${Math.min(Math.max(0, _preferences$37.x), Renderer.width - this._host.offsetWidth)}px`;
+		root.querySelector(".search").value = "";
 		Rodex.openType = 0;
 		root.querySelectorAll(".nav-item.active").forEach((el) => el.classList.remove("active"));
 		root.querySelector("#tab_0").classList.add("active");
@@ -226391,7 +226397,7 @@ var init_Rodex$1 = __esmMin((() => {
 	* Show/Hide UI
 	*/
 	Rodex.toggle = function toggle() {
-		if (this._host && this._host.style.display !== "none") {
+		if (this.__active && this._host.style.display !== "none") {
 			Rodex.closeRodexBox();
 			this._host.style.display = "none";
 		} else {
