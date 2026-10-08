@@ -3,7 +3,7 @@
  *
  * The search field of the expanded Storage window.
  */
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('UI/CursorManager.js', () => ({ default: { ACTION: {}, getActualType: vi.fn(), setType: vi.fn() } }));
 vi.mock('DB/DBManager.js', () => ({
@@ -38,15 +38,17 @@ function search(term) {
 }
 
 describe('Storage search', () => {
-	Storage.prepare();
-
-	// onRemove is what closing the window runs: it empties the list and closes the filter windows
+	// Each test opens the window and closes it again, so it starts with no items and no filter window
 	beforeEach(() => {
-		Storage.onRemove();
+		Storage.append();
 		Storage.setItems([
 			{ index: 2, ITID: 512, type: 0, count: 3, IsIdentified: true, name: 'Apple' },
 			{ index: 3, ITID: 909, type: 3, count: 1, IsIdentified: true, name: 'Jellopy' }
 		]);
+	});
+
+	afterEach(() => {
+		Storage.remove();
 	});
 
 	it('opens the results on Enter in the search field', () => {
@@ -82,5 +84,18 @@ describe('Storage search', () => {
 			el => el.textContent
 		);
 		expect(names).toEqual(['Jellopy', 'Jellopy Box']);
+	});
+
+	it('closes its filter windows when it closes', () => {
+		search('app');
+		Storage.getRoot().querySelector('.filter-buttons button[data-tab-id="0"]').dispatchEvent(new MouseEvent('mousedown'));
+		expect(document.getElementById('StorageFilter_99')).not.toBeNull();
+		expect(document.getElementById('StorageFilter_0')).not.toBeNull();
+
+		Storage.remove();
+
+		expect(document.getElementById('StorageFilter_99')).toBeNull();
+		expect(document.getElementById('StorageFilter_0')).toBeNull();
+		expect(Storage.getRoot().querySelector('#storage-search-input').value).toBe('');
 	});
 });
