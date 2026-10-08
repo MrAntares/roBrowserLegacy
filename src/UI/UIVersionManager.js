@@ -51,8 +51,6 @@ class UIVersionManager {
 	}
 
 	static getUIController(publicName, versionInfo, options = {}) {
-		let _selectedUI;
-
 		// Methods that always resolve on the controller itself, never delegated to getUI()
 		const CONTROLLER_OWN = new Set([
 			'selectUIVersion',
@@ -60,22 +58,37 @@ class UIVersionManager {
 			'selectSpecificUIVersion',
 			'getUI'
 		]);
+		let _selectedUI;
+
+		// Writes made before (or across) version selection, replayed onto each selected UI
+		const _pending = Object.create(null);
+
+		function _applyPending() {
+			if (_selectedUI) {
+				for (const prop in _pending) {
+					_selectedUI[prop] = _pending[prop];
+				}
+			}
+		}
 
 		const UIController = {
 			selectUIVersion() {
 				_selectedUI = UIVersionManager.selectUIVersion(publicName, versionInfo);
+				_applyPending();
 			},
 
 			selectUIVersionWithJob(job) {
 				_selectedUI = versionInfo.job[job] || versionInfo.job.default;
 				_UIAliases[publicName] = _selectedUI.name;
 				console.log('[UIVersion] ' + publicName + ': ', _selectedUI.name);
+				_applyPending();
 			},
 
 			selectSpecificUIVersion(version) {
 				_selectedUI = versionInfo.common[version] || versionInfo.default;
 				_UIAliases[publicName] = _selectedUI.name;
 				console.log('[UIVersion] ' + publicName + ': ', _selectedUI.name);
+				_applyPending();
 			},
 
 			getUI() {
@@ -85,11 +98,9 @@ class UIVersionManager {
 
 		const proxy = new Proxy(UIController, {
 			get(target, prop, receiver) {
-				// Controller-own methods and any property explicitly set on target have priority
 				if (CONTROLLER_OWN.has(prop) || Object.prototype.hasOwnProperty.call(target, prop)) {
 					return Reflect.get(target, prop, receiver);
 				}
-				// Delegate to the active UI
 				if (!_selectedUI) {
 					return undefined;
 				}
@@ -98,12 +109,11 @@ class UIVersionManager {
 			},
 
 			set(target, prop, value) {
-				// If the property already lives on the target (e.g. Storage's defineProperty descriptors),
-				// keep it there to preserve fan-out setters
 				if (CONTROLLER_OWN.has(prop) || Object.prototype.hasOwnProperty.call(target, prop)) {
 					return Reflect.set(target, prop, value);
 				}
-				// Forward to active UI (e.g. onKeyDown, onItemIndexChange callbacks)
+				// Record the write so it survives (re)selection, and apply immediately
+				_pending[prop] = value;
 				if (_selectedUI) {
 					_selectedUI[prop] = value;
 				}
@@ -111,7 +121,7 @@ class UIVersionManager {
 			},
 
 			has(target, prop) {
-				return prop in target || (_selectedUI !== undefined && prop in _selectedUI);
+				return prop in target || prop in _pending || (_selectedUI !== undefined && prop in _selectedUI);
 			}
 		});
 
