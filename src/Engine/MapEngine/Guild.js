@@ -673,9 +673,9 @@ function onMemberTalk(pkt) {
 function onMemberMove(pkt) {
 	// Server remove mark with "-1" as position
 	if (pkt.xPos < 0 || pkt.yPos < 0) {
-		MiniMap.getUI().removeGuildMemberMark(pkt.AID);
+		MiniMap.removeGuildMemberMark(pkt.AID);
 	} else {
-		MiniMap.getUI().addGuildMemberMark(pkt.AID, pkt.xPos, pkt.yPos);
+		MiniMap.addGuildMemberMark(pkt.AID, pkt.xPos, pkt.yPos);
 	}
 }
 

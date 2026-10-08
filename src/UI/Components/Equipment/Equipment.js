@@ -41,7 +41,7 @@ EquipmentController.selectUIVersion = function () {
 	_selectUIVersion();
 
 	//Add selected UI to item owner name update queue
-	const component = EquipmentController.getUI();
+	const component = EquipmentController;
 	DB.UpdateOwnerName.Equipment = component.onUpdateOwnerName;
 
 	// Escape to close the UI

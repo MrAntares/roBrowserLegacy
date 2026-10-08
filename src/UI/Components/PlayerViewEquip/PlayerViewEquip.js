@@ -38,7 +38,7 @@ PlayerViewEquipController.selectUIVersion = function () {
 	_selectUIVersion();
 
 	//Add selected UI to item owner name update queue
-	const component = PlayerViewEquipController.getUI();
+	const component = PlayerViewEquipController;
 	DB.UpdateOwnerName.PlayerViewEquip = component.onUpdateOwnerName;
 
 	// Escape to close the UI

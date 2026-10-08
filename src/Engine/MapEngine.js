@@ -28,6 +28,7 @@ import MapControl from 'Controls/MapControl.js';
 import Mouse from 'Controls/MouseEventHandler.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 import UIManager from 'UI/UIManager.js';
+import UIVersionManager from 'UI/UIVersionManager.js';
 import EffectManager from 'Renderer/EffectManager.js';
 import Escape from 'UI/Components/Escape/Escape.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
@@ -36,7 +37,6 @@ import StatusConst from 'DB/Status/StatusState.js';
 import CheckAttendance from 'UI/Components/CheckAttendance/CheckAttendance.js';
 import WinStats from 'UI/Components/WinStats/WinStats.js';
 import Inventory from 'UI/Components/Inventory/Inventory.js';
-import Storage from 'UI/Components/Storage/Storage.js';
 import CartItems from 'UI/Components/CartItems/CartItems.js';
 import Vending from 'UI/Components/Vending/Vending.js';
 import VendingReport from 'UI/Components/VendingReport/VendingReport.js';
@@ -241,15 +241,8 @@ class MapEngine {
 			if (PACKETVER.value < 20200520) {
 				BasicInfo.selectUIVersion();
 			}
-			MiniMap.selectUIVersion();
-			SkillList.selectUIVersion();
-			Quest.selectUIVersion();
-			Equipment.selectUIVersion();
-			PlayerViewEquip.selectUIVersion();
-			WinStats.selectUIVersion();
-			Inventory.selectUIVersion();
-			Storage.selectUIVersion();
-			PartyFriends.selectUIVersion();
+			// Batch-select all map-phase versioned UIs (skips BasicInfo — job-based)
+			UIVersionManager.selectAll();
 		}
 
 		// Do not hook multiple time
@@ -335,17 +328,17 @@ class MapEngine {
 			Escape.prepare();
 			PvPTimer.prepare();
 			PvPCount.prepare();
-			Inventory.getUI().prepare();
+			Inventory.prepare();
 			CartItems.prepare();
 			Vending.prepare();
 			ChangeCart.prepare();
-			Equipment.getUI().prepare();
+			Equipment.prepare();
 			ShortCuts.prepare();
 			ShortCut.prepare();
 			ChatRoomCreate.prepare();
 			Emoticons.prepare();
 			FPS.prepare();
-			PartyFriends.getUI().prepare();
+			PartyFriends.prepare();
 			StatusIcons.prepare();
 			ChatBox.prepare();
 			ChatBoxSettings.prepare();
@@ -434,24 +427,24 @@ class MapEngine {
 		// Init selected UIs when needed
 		if (MapEngine.needsUIVerUpdate || !_isInitialised) {
 			// Prepare UIs
-			MiniMap.getUI().prepare();
-			SkillList.getUI().prepare();
+			MiniMap.prepare();
+			SkillList.prepare();
 			if (PACKETVER.value < 20200520) {
-				BasicInfo.getUI().prepare();
+				BasicInfo.prepare();
 			}
-			Equipment.getUI().prepare();
-			Quest.getUI().prepare();
-			WinStats.getUI().prepare();
+			Equipment.prepare();
+			Quest.prepare();
+			WinStats.prepare();
 			PartyFriends.selectUIVersion();
 
 			// Bind UIs
-			WinStats.getUI().onRequestUpdate = onRequestStatUpdate;
-			Equipment.getUI().onUnEquip = onUnEquip;
-			Equipment.getUI().onConfigUpdate = onConfigUpdate;
-			Equipment.getUI().onEquipItem = onEquipItem;
-			Equipment.getUI().onRemoveOption = onRemoveOption;
-			Inventory.getUI().onUseItem = onUseItem;
-			Inventory.getUI().onEquipItem = onEquipItem;
+			WinStats.onRequestUpdate = onRequestStatUpdate;
+			Equipment.onUnEquip = onUnEquip;
+			Equipment.onConfigUpdate = onConfigUpdate;
+			Equipment.onEquipItem = onEquipItem;
+			Equipment.onRemoveOption = onRemoveOption;
+			Inventory.onUseItem = onUseItem;
+			Inventory.onEquipItem = onEquipItem;
 
 			// Avoid zone server change init
 			MapEngine.needsUIVerUpdate = false;
@@ -489,7 +482,7 @@ function onPingLive(pkt) {
 function onConfig(pkt) {
 	switch (pkt.Config) {
 		case 0:
-			Equipment.getUI().setEquipConfig(pkt.Value);
+			Equipment.setEquipConfig(pkt.Value);
 			ChatBox.addText(DB.getMessage(1358 + (pkt.Value ? 1 : 0)), ChatBox.TYPE.INFO, ChatBox.FILTER.PUBLIC_LOG);
 			break;
 		case 1:
@@ -505,7 +498,7 @@ function onConfig(pkt) {
 			ChatBox.addText(DB.getMessage(3282 + (pkt.Value ? 0 : 1)), ChatBox.TYPE.INFO, ChatBox.FILTER.PUBLIC_LOG);
 			break;
 		case 5:
-			Equipment.getUI().setCostumeConfig(pkt.Value);
+			Equipment.setCostumeConfig(pkt.Value);
 			break;
 		default:
 			console.error('[PACKET_ZC_CONFIG] Unknown Config Type %d (value:%d)', pkt.Config, pkt.Value);
@@ -519,7 +512,7 @@ function onConfig(pkt) {
  */
 function onConfigNotify(pkt) {
 	if (typeof pkt.show_eq_flag !== 'undefined') {
-		Equipment.getUI().setEquipConfig(pkt.show_eq_flag);
+		Equipment.setEquipConfig(pkt.show_eq_flag);
 		ChatBox.addText(DB.getMessage(1358 + (pkt.show_eq_flag ? 1 : 0)), ChatBox.TYPE.INFO, ChatBox.FILTER.PUBLIC_LOG);
 	}
 	if (typeof pkt.pet_autofeeding_flag !== 'undefined') {
@@ -595,14 +588,14 @@ function onConnectionAccepted(pkt) {
 
 	if (PACKETVER.value >= 20200520) {
 		BasicInfo.selectUIVersionWithJob(DB.getJobClass(Session.Entity.job));
-		BasicInfo.getUI().prepare();
+		BasicInfo.prepare();
 	}
 
-	BasicInfo.getUI().update('blvl', Session.Entity.clevel);
-	BasicInfo.getUI().update('jlvl', Session.Entity.joblevel);
-	BasicInfo.getUI().update('zeny', Session.Entity.money);
-	BasicInfo.getUI().update('name', Session.Entity.display.name);
-	BasicInfo.getUI().update('job', Session.Entity.job);
+	BasicInfo.update('blvl', Session.Entity.clevel);
+	BasicInfo.update('jlvl', Session.Entity.joblevel);
+	BasicInfo.update('zeny', Session.Entity.money);
+	BasicInfo.update('name', Session.Entity.display.name);
+	BasicInfo.update('job', Session.Entity.job);
 
 	// Fix http://forum.robrowser.com/?topic=32177.0
 	onMapChange({
@@ -696,30 +689,30 @@ function onMapChange(pkt) {
 		Camera.init();
 
 		// Add Game UI
-		MiniMap.getUI().append();
-		MiniMap.getUI().setMap(MapRenderer.currentMap);
+		MiniMap.append();
+		MiniMap.setMap(MapRenderer.currentMap);
 		if (Configs.get('enableMapName')) {
 			MapName.setMap(MapRenderer.currentMap);
 			MapName.append();
 		}
 		ChatBox.append();
 		ChatBoxSettings.append();
-		BasicInfo.getUI().append();
+		BasicInfo.append();
 		Escape.append();
-		Inventory.getUI().append();
+		Inventory.append();
 		CartItems.append();
 		Vending.append();
 		ChangeCart.append();
 		CartDecoration.append();
-		Equipment.getUI().append();
+		Equipment.append();
 		ShortCuts.append();
 		StatusIcons.append();
 		ShortCut.append();
 		ChatRoomCreate.append();
 		Emoticons.append();
-		SkillList.getUI().append();
+		SkillList.append();
 		FPS.append();
-		PartyFriends.getUI().append();
+		PartyFriends.append();
 		Guild.append();
 		WorldMap.append();
 		SkillListMH.homunculus.append();
@@ -736,9 +729,9 @@ function onMapChange(pkt) {
 			PCGoldTimer.append();
 		}
 
-		WinStats.getUI().append();
+		WinStats.append();
 
-		Quest.getUI().append();
+		Quest.append();
 
 		if (Configs.get('enableCashShop')) {
 			CashShopIcon.append();
@@ -803,10 +796,8 @@ function cleanGameUI() {
 	];
 
 	for (const [target, method] of tasks) {
-		const component = typeof target.getUI === 'function' ? target.getUI() : target;
-
-		if (component && component.__loaded && typeof component[method] === 'function') {
-			component[method]();
+		if (target && target.__loaded && typeof target[method] === 'function') {
+			target[method]();
 		}
 	}
 }
@@ -1000,7 +991,7 @@ function onRequestTalk(user, text, target) {
 
 	//Super Novice Chant
 	if (chatLines > 7 && DB.isSuperNovice(Session.Entity._job)) {
-		if (Math.floor((BasicInfo.getUI().base_exp / BasicInfo.getUI().base_exp_next) * 1000.0) % 100 == 0) {
+		if (Math.floor((BasicInfo.base_exp / BasicInfo.base_exp_next) * 1000.0) % 100 == 0) {
 			if (text == DB.getMessage(790)) {
 				snCounter = 1;
 			} else if (

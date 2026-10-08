@@ -258,7 +258,7 @@ Trade.addItemFromInventory = function addItemFromInventory(index, success) {
 		return;
 	}
 
-	const inventoryItem = Inventory.getUI().removeItem(index, _tmpCount[index]);
+	const inventoryItem = Inventory.removeItem(index, _tmpCount[index]);
 	const item = Object.assign({}, inventoryItem);
 	const it = DB.getItemInfo(item.ITID);
 	const idx = _send.push(item) - 1;

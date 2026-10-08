@@ -471,9 +471,9 @@ export default class ReplayPlayer {
 			}
 		}
 
-		// If initial items exist from Container 8, add them using Inventory.getUI().addItem
+		// If initial items exist from Container 8, add them using Inventory.addItem
 		if (this._itemsBuffer) {
-			const inventoryUI = Inventory?.getUI ? Inventory.getUI() : null;
+			const inventoryUI = Inventory?.getUI ? Inventory : null;
 			if (inventoryUI && typeof inventoryUI.addItem === 'function') {
 				// Clear any previous inventory list entries
 				if (inventoryUI.list) {
@@ -506,7 +506,7 @@ export default class ReplayPlayer {
 			}
 
 			// Add cart items
-			const cartUI = CartItems?.getUI ? CartItems.getUI() : null;
+			const cartUI = CartItems?.getUI ? CartItems : null;
 			if (cartUI && this._itemsBuffer.cart?.length > 0) {
 				if (typeof cartUI.addItem === 'function') {
 					if (cartUI.list) {
@@ -523,30 +523,30 @@ export default class ReplayPlayer {
 
 		// Update UI components with character session values
 		if (Session.Entity) {
-			if (BasicInfo?.getUI()?.update) {
-				BasicInfo.getUI().update('blvl', Session.Entity.clevel);
-				BasicInfo.getUI().update('jlvl', Session.Entity.joblevel);
-				BasicInfo.getUI().update('zeny', Session.Entity.money);
-				BasicInfo.getUI().update('name', Session.Entity.display.name);
-				BasicInfo.getUI().update('job', Session.Entity.job);
-				BasicInfo.getUI().update('hp', Session.Entity.life.hp, Session.Entity.life.hp_max);
-				BasicInfo.getUI().update('sp', Session.Entity.life.sp, Session.Entity.life.sp_max);
-				BasicInfo.getUI().update('weight', Session.Entity.weight, Session.Entity.max_weight);
+			if (BasicInfo.update) {
+				BasicInfo.update('blvl', Session.Entity.clevel);
+				BasicInfo.update('jlvl', Session.Entity.joblevel);
+				BasicInfo.update('zeny', Session.Entity.money);
+				BasicInfo.update('name', Session.Entity.display.name);
+				BasicInfo.update('job', Session.Entity.job);
+				BasicInfo.update('hp', Session.Entity.life.hp, Session.Entity.life.hp_max);
+				BasicInfo.update('sp', Session.Entity.life.sp, Session.Entity.life.sp_max);
+				BasicInfo.update('weight', Session.Entity.weight, Session.Entity.max_weight);
 			}
 
-			if (WinStats?.getUI()?.update) {
-				WinStats.getUI().update('str', Session.Entity.str);
-				WinStats.getUI().update('agi', Session.Entity.agi);
-				WinStats.getUI().update('vit', Session.Entity.vit);
-				WinStats.getUI().update('int', Session.Entity.int);
-				WinStats.getUI().update('dex', Session.Entity.dex);
-				WinStats.getUI().update('luk', Session.Entity.luk);
-				WinStats.getUI().update('str2', Session.Entity.str_bonus);
-				WinStats.getUI().update('agi2', Session.Entity.agi_bonus);
-				WinStats.getUI().update('vit2', Session.Entity.vit_bonus);
-				WinStats.getUI().update('int2', Session.Entity.int_bonus);
-				WinStats.getUI().update('dex2', Session.Entity.dex_bonus);
-				WinStats.getUI().update('luk2', Session.Entity.luk_bonus);
+			if (WinStats.update) {
+				WinStats.update('str', Session.Entity.str);
+				WinStats.update('agi', Session.Entity.agi);
+				WinStats.update('vit', Session.Entity.vit);
+				WinStats.update('int', Session.Entity.int);
+				WinStats.update('dex', Session.Entity.dex);
+				WinStats.update('luk', Session.Entity.luk);
+				WinStats.update('str2', Session.Entity.str_bonus);
+				WinStats.update('agi2', Session.Entity.agi_bonus);
+				WinStats.update('vit2', Session.Entity.vit_bonus);
+				WinStats.update('int2', Session.Entity.int_bonus);
+				WinStats.update('dex2', Session.Entity.dex_bonus);
+				WinStats.update('luk2', Session.Entity.luk_bonus);
 			}
 		}
 

@@ -463,7 +463,7 @@ NpcStore.setList = function setList(items) {
 				out.count = 0;
 
 				addItem(content, items[i]);
-				it = Inventory.getUI().getItemById(items[i].ITID);
+				it = Inventory.getItemById(items[i].ITID);
 
 				if (it) {
 					item = Object.assign({}, it);
@@ -504,12 +504,10 @@ NpcStore.setList = function setList(items) {
 		case NpcStore.Type.SELL: {
 			const InventoryVersion = UIManager.getComponent('Inventory').name;
 			for (i = 0, count = items.length; i < count; ++i) {
-				it = Inventory.getUI().getItemByIndex(items[i].index);
+				it = Inventory.getItemByIndex(items[i].index);
 
 				const condition =
-					InventoryVersion !== 'InventoryV0'
-						? it && (!Inventory.getUI().npcsalelock || it.PlaceETCTab < 1)
-						: it;
+					InventoryVersion !== 'InventoryV0' ? it && (!Inventory.npcsalelock || it.PlaceETCTab < 1) : it;
 
 				if (condition) {
 					item = Object.assign({}, it);

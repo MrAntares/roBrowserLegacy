@@ -54,7 +54,6 @@ export function createBasicInfo(config) {
 		buttonsEvent = 'mousedown',
 		buttonKeyBy = 'class',
 		infoOpensWinStats = true,
-		partyViaGetUI = false,
 		hasToolbarToggle = false,
 		miniLayout = false,
 		hideIds = [],
@@ -102,26 +101,22 @@ export function createBasicInfo(config) {
 	function dispatchButton(key) {
 		switch (key) {
 			case 'item':
-				Inventory.getUI().toggle();
+				Inventory.toggle();
 				break;
 			case 'info':
-				(infoOpensWinStats ? WinStats.getUI() : Equipment.getUI()).toggle();
+				(infoOpensWinStats ? WinStats : Equipment).toggle();
 				break;
 			case 'equip':
-				Equipment.getUI().toggle();
+				Equipment.toggle();
 				break;
 			case 'skill':
-				SkillList.getUI().toggle();
+				SkillList.toggle();
 				break;
 			case 'option':
 				Escape.ui.toggle();
 				break;
 			case 'party':
-				if (partyViaGetUI) {
-					PartyFriends.getUI().toggle();
-				} else {
-					PartyFriends.toggle();
-				}
+				PartyFriends.toggle();
 				break;
 			case 'guild':
 				Guild.toggle();
@@ -136,7 +131,7 @@ export function createBasicInfo(config) {
 				Bank.toggle();
 				break;
 			case 'quest':
-				Quest.getUI().toggle();
+				Quest.toggle();
 				break;
 			case 'mail':
 				Rodex.toggle();

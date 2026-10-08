@@ -114,7 +114,7 @@ PartyMemberExternal.init = function init() {
 					if (PartyFriends && PartyFriends.onRequestLeave) {
 						PartyFriends.onRequestLeave();
 					} else {
-						const ui = PartyFriends ? PartyFriends.getUI() : null;
+						const ui = PartyFriends ? PartyFriends : null;
 						if (ui && ui.onRequestLeave) {
 							ui.onRequestLeave();
 						}

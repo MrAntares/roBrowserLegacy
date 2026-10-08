@@ -34,7 +34,7 @@ export default {
 		}
 
 		if (!shortcut.isSkill) {
-			const item = InventoryUI.getUI().getItemById(shortcut.ID);
+			const item = InventoryUI.getItemById(shortcut.ID);
 			if (!item || item.count === 0) {
 				return;
 			}
@@ -75,7 +75,7 @@ export default {
 		let itemData;
 
 		if (!isSkill) {
-			const item = InventoryUI.getUI().getItemByIndex(index);
+			const item = InventoryUI.getItemByIndex(index);
 			if (item) {
 				if (
 					item.type === ItemType.UNKNOWN ||

@@ -99,7 +99,7 @@ function updateJoystickSlot(joystickSlotIndex, shortcutIndex) {
 			});
 		}
 	} else {
-		const inventoryItem = InventoryUI.getUI().getItemById(item.ID);
+		const inventoryItem = InventoryUI.getItemById(item.ID);
 		if (inventoryItem) {
 			const itemInfo = DB.getItemInfo(item.ID);
 			const fileName = inventoryItem.IsIdentified

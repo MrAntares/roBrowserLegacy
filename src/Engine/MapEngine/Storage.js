@@ -32,15 +32,15 @@ let InvTypeName = '';
  * @param {object} pkt - PACKET.ZC.NOTIFY_STOREITEM_COUNTINFO
  */
 function onStorageInfo(pkt) {
-	if (!(Storage.getUI().__loaded && Storage.getUI().__active)) {
-		Storage.getUI().append();
+	if (!(Storage.__loaded && Storage.__active)) {
+		Storage.append();
 		// Update Storage Title based on InvTypeName
 		if (PACKETVER.value >= 20181002) {
-			Storage.getUI().ui.find('.titlebar .text').text(InvTypeName);
+			Storage.ui.find('.titlebar .text').text(InvTypeName);
 		}
 	}
-	Storage.getUI().setItemInfo(pkt.curCount, pkt.maxCount);
-	Storage.getUI().setItems(itemBuffer);
+	Storage.setItemInfo(pkt.curCount, pkt.maxCount);
+	Storage.setItems(itemBuffer);
 
 	itemBuffer = [];
 }
@@ -60,7 +60,7 @@ function onStorageList(pkt) {
  * @param {object} pkt - PACKET.ZC.ADD_ITEM_TO_STORE
  */
 function onStorageItemAdded(pkt) {
-	Storage.getUI().addItem(Object.assign({}, pkt));
+	Storage.addItem(Object.assign({}, pkt));
 }
 
 /**
@@ -69,7 +69,7 @@ function onStorageItemAdded(pkt) {
  * @param {object} pkt - PACKET.ZC.DELETE_ITEM_FROM_STORE
  */
 function onStorageItemRemoved(pkt) {
-	Storage.getUI().removeItem(pkt.index, pkt.count);
+	Storage.removeItem(pkt.index, pkt.count);
 }
 
 /**
@@ -78,7 +78,7 @@ function onStorageItemRemoved(pkt) {
  * @param {object} pkt - PACKET.ZC.CLOSE_STORE
  */
 function onStorageClose() {
-	Storage.getUI().remove();
+	Storage.remove();
 }
 
 /**
@@ -89,7 +89,7 @@ Storage.onClosePressed = function onClosePressed() {
 	const pkt = new PACKET.CZ.CLOSE_STORE();
 	Network.sendPacket(pkt);
 
-	Storage.getUI().remove();
+	Storage.remove();
 };
 
 /**

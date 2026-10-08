@@ -27,5 +27,5 @@ const versionInfo = {
 	prere: {}
 };
 
-const Controller = UIVersionManager.getUIController(publicName, versionInfo);
+const Controller = UIVersionManager.getUIController(publicName, versionInfo, { phase: 'char' });
 export default Controller;

@@ -50,32 +50,107 @@ class UIVersionManager {
 		return SelectedUI;
 	}
 
-	static getUIController(publicName, versionInfo) {
+	static getUIController(publicName, versionInfo, options = {}) {
 		let _selectedUI;
 
-		const UIController = {};
+		// Methods that always resolve on the controller itself, never delegated to getUI()
+		const CONTROLLER_OWN = new Set([
+			'selectUIVersion',
+			'selectUIVersionWithJob',
+			'selectSpecificUIVersion',
+			'getUI'
+		]);
 
-		UIController.selectUIVersion = function () {
-			_selectedUI = UIVersionManager.selectUIVersion(publicName, versionInfo);
+		const UIController = {
+			selectUIVersion() {
+				_selectedUI = UIVersionManager.selectUIVersion(publicName, versionInfo);
+			},
+
+			selectUIVersionWithJob(job) {
+				_selectedUI = versionInfo.job[job] || versionInfo.job.default;
+				_UIAliases[publicName] = _selectedUI.name;
+				console.log('[UIVersion] ' + publicName + ': ', _selectedUI.name);
+			},
+
+			selectSpecificUIVersion(version) {
+				_selectedUI = versionInfo.common[version] || versionInfo.default;
+				_UIAliases[publicName] = _selectedUI.name;
+				console.log('[UIVersion] ' + publicName + ': ', _selectedUI.name);
+			},
+
+			getUI() {
+				return _selectedUI;
+			}
 		};
 
-		UIController.selectUIVersionWithJob = function (job) {
-			_selectedUI = versionInfo.job[job] || versionInfo.job.default;
-			_UIAliases[publicName] = _selectedUI.name;
-			console.log('[UIVersion] ' + publicName + ': ', _selectedUI.name);
-		};
+		const proxy = new Proxy(UIController, {
+			get(target, prop, receiver) {
+				// Controller-own methods and any property explicitly set on target have priority
+				if (CONTROLLER_OWN.has(prop) || Object.prototype.hasOwnProperty.call(target, prop)) {
+					return Reflect.get(target, prop, receiver);
+				}
+				// Delegate to the active UI
+				if (!_selectedUI) {
+					return undefined;
+				}
+				const val = _selectedUI[prop];
+				return typeof val === 'function' ? val.bind(_selectedUI) : val;
+			},
 
-		UIController.selectSpecificUIVersion = function (version) {
-			_selectedUI = versionInfo.common[version] || versionInfo.default;
-			_UIAliases[publicName] = _selectedUI.name;
-			console.log('[UIVersion] ' + publicName + ': ', _selectedUI.name);
-		};
+			set(target, prop, value) {
+				// If the property already lives on the target (e.g. Storage's defineProperty descriptors),
+				// keep it there to preserve fan-out setters
+				if (CONTROLLER_OWN.has(prop) || Object.prototype.hasOwnProperty.call(target, prop)) {
+					return Reflect.set(target, prop, value);
+				}
+				// Forward to active UI (e.g. onKeyDown, onItemIndexChange callbacks)
+				if (_selectedUI) {
+					_selectedUI[prop] = value;
+				}
+				return true;
+			},
 
-		UIController.getUI = function () {
-			return _selectedUI;
-		};
+			has(target, prop) {
+				return prop in target || (_selectedUI !== undefined && prop in _selectedUI);
+			}
+		});
 
-		return UIController;
+		// Register for batch selection
+		UIVersionManager._registry.push({
+			proxy,
+			controller: UIController,
+			versionInfo,
+			publicName,
+			phase: options.phase || null
+		});
+
+		return proxy;
+	}
+
+	/**
+	 * Select the correct UI version for all map-phase controllers.
+	 * Skips job-based controllers (versionInfo.job defined) — those are
+	 * selected later via selectUIVersionWithJob() when the job is known.
+	 * Also skips char-phase controllers registered via selectAllChar().
+	 */
+	static selectAll() {
+		for (const entry of UIVersionManager._registry) {
+			if (!entry.versionInfo.job && entry.phase !== 'char') {
+				entry.controller.selectUIVersion();
+			}
+		}
+	}
+
+	/**
+	 * Select the correct UI version for char-phase controllers
+	 * (CharSelect, CharCreate). Called from CharEngine.
+	 */
+	static selectAllChar() {
+		for (const entry of UIVersionManager._registry) {
+			if (entry.phase === 'char') {
+				entry.controller.selectUIVersion();
+			}
+		}
 	}
 
 	/// DEPRECATED
@@ -120,4 +195,8 @@ class UIVersionManager {
 		return 1;
 	}
 }
+
+// Internal registry for batch version selection
+UIVersionManager._registry = [];
+
 export default UIVersionManager;

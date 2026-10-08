@@ -307,7 +307,7 @@ function onSkillResult(pkt) {
  * @param {object} pkt - PACKET_ZC_SKILLINFO_LIST
  */
 function onSkillList(pkt) {
-	SkillWindow.getUI().setSkills(pkt.skillList);
+	SkillWindow.setSkills(pkt.skillList);
 }
 
 /**
@@ -316,7 +316,7 @@ function onSkillList(pkt) {
  * @param {object} pkt - PACKET.ZC.SKILLINFO_UPDATE
  */
 function onSkillUpdate(pkt) {
-	SkillWindow.getUI().updateSkill(pkt);
+	SkillWindow.updateSkill(pkt);
 }
 
 /**
@@ -337,7 +337,7 @@ function onShortCutList(pkt) {
  * @param {object} pkt - PACKET.ZC.ADD_SKILL
  */
 function onSkillAdded(pkt) {
-	SkillWindow.getUI().addSkill(pkt.data);
+	SkillWindow.addSkill(pkt.data);
 }
 
 /**
@@ -346,7 +346,7 @@ function onSkillAdded(pkt) {
  * @param {object} pkt - PACKET.ZC.AUTORUN_SKILL
  */
 function onAutoCastSkill(pkt) {
-	SkillWindow.getUI().useSkill(pkt.data);
+	SkillWindow.useSkill(pkt.data);
 }
 
 /**
@@ -388,12 +388,12 @@ function onIdentifyResult(pkt) {
 			ChatBox.addText(DB.getMessage(491), ChatBox.TYPE.BLUE, ChatBox.FILTER.ITEM);
 
 			// Remove old item
-			const item = Inventory.getUI().removeItem(pkt.index, 1);
+			const item = Inventory.removeItem(pkt.index, 1);
 
 			// Add new item updated
 			if (item) {
 				item.IsIdentified = true;
-				Inventory.getUI().addItem(item);
+				Inventory.addItem(item);
 			}
 			break;
 		}
@@ -691,7 +691,7 @@ function onUseSkill(id, level, targetID) {
 	}
 
 	const target = EntityManager.get(targetID) || entity;
-	const skill = SkillWindow.getUI().getSkillById(id);
+	const skill = SkillWindow.getSkillById(id);
 	const out = [];
 
 	if (skill) {
@@ -799,7 +799,7 @@ SkillTargetSelection.onUseSkillToPos = function onUseSkillToPos(id, level, x, y)
 	}
 
 	const pos = entity.position;
-	const skill = SkillWindow.getUI().getSkillById(id);
+	const skill = SkillWindow.getSkillById(id);
 	const out = [];
 
 	if (skill) {
@@ -938,8 +938,8 @@ function onSense(pkt) {
 }
 
 function hookSkillWindow() {
-	SkillWindow.getUI().onIncreaseSkill = onIncreaseSkill;
-	SkillWindow.getUI().onUseSkill = onUseSkill;
+	SkillWindow.onIncreaseSkill = onIncreaseSkill;
+	SkillWindow.onUseSkill = onUseSkill;
 }
 
 /**

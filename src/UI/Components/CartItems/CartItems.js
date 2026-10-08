@@ -594,7 +594,7 @@ function onDrop(event) {
 					break;
 
 				case 'Inventory':
-					Inventory.getUI().reqMoveItemToCart(item.index, parseInt(count, 10));
+					Inventory.reqMoveItemToCart(item.index, parseInt(count, 10));
 					break;
 			}
 		};
@@ -607,7 +607,7 @@ function onDrop(event) {
 			break;
 
 		case 'Inventory':
-			Inventory.getUI().reqMoveItemToCart(item.index, 1);
+			Inventory.reqMoveItemToCart(item.index, 1);
 			break;
 	}
 
@@ -764,10 +764,10 @@ function onItemInfo(event) {
 	ItemInfo.setItem(item);
 
 	// Check if there is an equipped item in the same location
-	const compareItem = Equipment.getUI().isInEquipList(item.location);
+	const compareItem = Equipment.isInEquipList(item.location);
 
 	// If a comparison item is found, display comparison
-	if (compareItem && Inventory.getUI().itemcomp) {
+	if (compareItem && Inventory.itemcomp) {
 		ItemCompare.prepare();
 		ItemCompare.append();
 		ItemCompare.uid = compareItem.ITID;
@@ -781,8 +781,8 @@ function onItemInfo(event) {
  * Alt Right Click Request Transfer
  */
 function transferItemToOtherUI(item) {
-	const storageUI = Storage.getUI();
-	const inventoryUI = Inventory.getUI();
+	const storageUI = Storage;
+	const inventoryUI = Inventory;
 	const isStorageOpen = storageUI._host ? storageUI._host.style.display !== 'none' : false;
 	const isInventoryOpen = inventoryUI._host ? inventoryUI._host.style.display !== 'none' : false;
 

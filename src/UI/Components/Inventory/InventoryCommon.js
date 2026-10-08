@@ -464,7 +464,7 @@ export function createInventory(config) {
 				break;
 		}
 
-		const basicInfoUI = BasicInfo.getUI();
+		const basicInfoUI = BasicInfo;
 		if (basicInfoUI._host) {
 			const changeUI = basicInfoUI.getRoot().querySelector('#item .btn_overlay');
 			if (changeUI) {
@@ -490,7 +490,7 @@ export function createInventory(config) {
 			this._host.style.display = 'none';
 		}
 
-		const basicInfoUI = BasicInfo.getUI();
+		const basicInfoUI = BasicInfo;
 		if (basicInfoUI._host) {
 			const changeUI = basicInfoUI.getRoot().querySelector('#item .btn_overlay');
 			if (changeUI) {
@@ -657,7 +657,7 @@ export function createInventory(config) {
 	};
 
 	function countLabel() {
-		return Component.list.length + Equipment.getUI().getNumber() + (favoriteTab ? ' / ' : '');
+		return Component.list.length + Equipment.getNumber() + (favoriteTab ? ' / ' : '');
 	}
 
 	/**
@@ -677,7 +677,7 @@ export function createInventory(config) {
 			// Mark as new item
 			Component.newItems.push(item.index);
 
-			const basicInfoUI = BasicInfo.getUI();
+			const basicInfoUI = BasicInfo;
 			if (basicInfoUI._host) {
 				const changeUI = basicInfoUI.getRoot().querySelector('#item .btn_overlay');
 				if (changeUI) {
@@ -761,7 +761,7 @@ export function createInventory(config) {
 		}
 
 		if (item.WearState && item.type !== ItemType.AMMO && item.type !== ItemType.CARD) {
-			Equipment.getUI().equip(item, item.WearState);
+			Equipment.equip(item, item.WearState);
 			return false;
 		}
 
@@ -1310,7 +1310,7 @@ export function createInventory(config) {
 		ItemInfo.setItem(item);
 
 		if (favoriteTab) {
-			const compareItem = Equipment.getUI().isInEquipList(item.location);
+			const compareItem = Equipment.isInEquipList(item.location);
 
 			if (compareItem && Component.itemcomp) {
 				ItemCompare.prepare();
@@ -1331,7 +1331,7 @@ export function createInventory(config) {
 			return true;
 		}
 
-		const storageUI = Storage.getUI();
+		const storageUI = Storage;
 		const isStorageOpen = storageUI._host ? storageUI._host.style.display !== 'none' : false;
 		const isCartOpen = CartItems._host ? CartItems._host.style.display !== 'none' : false;
 
@@ -1600,7 +1600,7 @@ export function createInventory(config) {
 					ChatBox.FILTER.ITEM
 				);
 
-				Equipment.getUI().equipItemsToSwitch();
+				Equipment.equipItemsToSwitch();
 				Component.equipAllFromSwitchList();
 			}
 		};

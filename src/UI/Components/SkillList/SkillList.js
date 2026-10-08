@@ -28,7 +28,7 @@ const _selectUIVersion = Controller.selectUIVersion;
 Controller.selectUIVersion = function () {
 	_selectUIVersion();
 
-	const component = Controller.getUI();
+	const component = Controller;
 
 	component.onKeyDown = e => {
 		if ((e.which === KEYS.ESCAPE || e.key === 'Escape') && component.ui.is(':visible')) {
