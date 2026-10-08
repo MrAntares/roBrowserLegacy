@@ -1257,8 +1257,12 @@ function extractChatMessage(inputEl) {
 
 /**
  * Add text to chatbox
+ *
+ * @see docs/reference/chat/text-parsing.md
  */
 ChatBox.addText = function addText(text, colorType, filterType, color, override) {
+	// The client drops ^RRGGBB codes: a chat line has one colour.
+	text = text.replace(/\^[0-9A-Fa-f]{6}/g, '');
 	text = text.replace(/<ITEMLINK>.*?<\/ITEMLINK>|<ITEML>.*?<\/ITEML>|<ITEM>.*?<\/ITEM>/gi, function (match) {
 		const item = DB.parseItemLink(match);
 		const span = `<span data-item="${match}" class="item-link" style="color:#FFFF63;">&lt;${item.name}&gt;</span>`;
