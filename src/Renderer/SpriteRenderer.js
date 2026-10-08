@@ -68,7 +68,9 @@ function RenderCanvas3D(isBlendModeOne) {
 		gl.uniform1i(uniform.uDisableDepthCorrection, disableDepthCorrection);
 	}
 
+	gl.uniform1i(uniform.uIgnoreZindexCap, this.ignoreDepthMinCap);
 	gl.uniform1f(uniform.uSpriteRendererZindex, this.zIndex++);
+
 	// Rotate
 	if (this.angle !== _angle) {
 		_angle = this.angle;
@@ -450,6 +452,11 @@ class SpriteRenderer {
 	 * @type {boolean} disable depth correction (ray-plane) for current draw
 	 */
 	static disableDepthCorrection = false;
+
+	/**
+	 * @type {boolean} cached depth test state
+	 */
+	static ignoreDepthMinCap = false;
 
 	/**
 	 * @type {number} width unity

@@ -20,6 +20,7 @@ uniform vec3 uSpriteRendererPosition;
 uniform float uSpriteRendererDepth;
 uniform float uSpriteRendererZindex;
 uniform bool  uDisableDepthCorrection;
+uniform bool  uIgnoreZindexCap;
 
 mat4 Project( mat4 mat, vec3 pos) {
 
@@ -84,7 +85,7 @@ void main(void) {
         vec4 planeClip       = uProjectionMat * (uModelViewMat * vec4(cameraPos + rayDir * dist, 1.0));
         float correctedZBase = planeClip.z * (gl_Position.w / max(planeClip.w, 0.000001));
 
-        gl_Position.z = correctedZBase;
+        gl_Position.z = uIgnoreZindexCap ? correctedZBase : min(gl_Position.z, correctedZBase);
     }
     gl_Position.z -= (uSpriteRendererZindex * 0.01 + uSpriteRendererDepth) / max(uCameraZoom, 1.0);
 
