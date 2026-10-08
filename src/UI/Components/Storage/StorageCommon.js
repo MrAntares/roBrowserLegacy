@@ -131,6 +131,15 @@ export function createStorage(config) {
 				searchBtn.addEventListener('mousedown', e => e.stopImmediatePropagation());
 				searchBtn.addEventListener('click', () => Component.onSearch());
 			}
+
+			const searchInput = root.querySelector('#storage-search-input');
+			if (searchInput) {
+				searchInput.addEventListener('keydown', e => {
+					if (e.key === 'Enter') {
+						Component.onSearch();
+					}
+				});
+			}
 		}
 
 		if (hasOrderBy) {
