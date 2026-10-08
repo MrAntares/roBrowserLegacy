@@ -55,6 +55,42 @@ function _ensureDeps() {
 	return _depsPromise;
 }
 
+let _noCursorFallback;
+
+function _supportsStyleQueries() {
+	const probe = document.createElement('div');
+	probe.innerHTML = '<style>@container style(--ro-probe: 1) { i { color: rgb(1, 2, 3); } }</style><i></i>';
+	probe.style.setProperty('--ro-probe', '1');
+	document.body.appendChild(probe);
+	const supported = getComputedStyle(probe.lastChild).color === 'rgb(1, 2, 3)';
+	probe.remove();
+	return supported;
+}
+
+/**
+ * Shared sheet hiding the native cursor in shadow roots where CSS style
+ * queries are missing, null where Common.css handles it.
+ */
+function _getNoCursorFallback() {
+	if (_noCursorFallback !== undefined) {
+		return _noCursorFallback;
+	}
+	if (_supportsStyleQueries()) {
+		_noCursorFallback = null;
+		return null;
+	}
+
+	const sheet = new CSSStyleSheet();
+	sheet.replaceSync('* { cursor: none !important; }');
+	const sync = () => {
+		sheet.disabled = !document.body.classList.contains('custom-cursor');
+	};
+	sync();
+	new MutationObserver(sync).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+	_noCursorFallback = sheet;
+	return sheet;
+}
+
 /**
  * Snap cache shared across all draggable instances (same as UIComponent)
  */
@@ -171,6 +207,12 @@ class GUIComponent {
 		const commonStyle = document.createElement('style');
 		commonStyle.textContent = CommonCSS;
 		this._shadow.appendChild(commonStyle);
+
+		// Hide native cursor where style queries are missing
+		const noCursorFallback = _getNoCursorFallback();
+		if (noCursorFallback) {
+			this._shadow.adoptedStyleSheets = [noCursorFallback];
+		}
 
 		// Inject component CSS (hot-reloadable)
 		const compStyle = document.createElement('style');

@@ -214,7 +214,7 @@ Not all pitfalls require action from the migrator. Some are already handled by t
 
 **Automatic (no action needed):**
 
-- §2: Global CSS penetration → Common.css `:host-context` rule
+- §2: Global CSS penetration → Common.css style query on `--ro-game-cursor`
 - §3: Scrollbar CSS injection → `applyDOMScrollbar()` auto-detects shadow
 - §4 (closest body): `isConnected` fix in Scrollbar.js
 - §5 (mouse events): `_setupShadowCursorEvents()` handles retargeting
@@ -618,17 +618,21 @@ $scrollbar[0].style.display = ''; // ← resets to CSS value (flex)
 
 **Bug**: CSS rules in the global `<style>` tag (e.g., `.custom-cursor * { cursor: none !important; }` from CursorManager) do not affect elements inside Shadow DOM.
 
-**Fix applied in `src/UI/Common.css`** (commit `f4183351`):
+**Fix applied in `src/UI/Common.css`**:
 
 ```css
-:host-context(.custom-cursor) * {
-	cursor: none !important;
+@container style(--ro-game-cursor: on) {
+	* {
+		cursor: none !important;
+	}
 }
 ```
 
-This rule is inside `Common.css` which is injected into every Shadow DOM. `:host-context(.custom-cursor)` checks if any ancestor of the shadow host has the class `custom-cursor` (set on `document.body` by CursorManager).
+This rule is inside `Common.css` which is injected into every Shadow DOM. CursorManager sets `--ro-game-cursor: on` on `.custom-cursor` (`document.body`), and custom properties inherit across the shadow boundary, so the style query sees it in every shadow root.
 
-**RULE**: Any global CSS that needs to affect Shadow DOM content must be added to `Common.css`.
+The first fix (commit `f4183351`) used `:host-context(.custom-cursor) *`. Only Chromium supports `:host-context()`: Firefox and Safari dropped the rule and showed the native cursor on top of the game one over any control with its own `cursor` (buttons, links). Where style queries are missing (Firefox < 151, Safari < 18), GUIComponent adopts a shared sheet into each shadow root that mirrors the body's `custom-cursor` class instead.
+
+**RULE**: Any global CSS that needs to affect Shadow DOM content must be added to `Common.css`. To make it depend on page state, pass the state in through an inherited custom property — never `:host-context()`.
 
 ### 3. Scrollbar CSS injection into Shadow DOM
 

@@ -5,7 +5,7 @@
  * replaces it with a stub, so the two behaviours below are held by nothing
  * else in the suite.
  */
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
 	cursor: {
@@ -43,14 +43,19 @@ let seq = 0;
  * so the caller drains the microtask queue before expecting a cursor.
  *
  * @param {string} html - markup for the component body
+ * @param {typeof GUIComponent} [Component] - the class to build it from
  * @return {GUIComponent}
  */
-function mount(html) {
-	const component = new GUIComponent(`TestComponent${++seq}`, '');
+function mount(html, Component = GUIComponent) {
+	const component = new Component(`TestComponent${++seq}`, '');
 	component.render = () => html;
 	component.append();
 	return component;
 }
+
+// prepare() schedules scrollbar checks up to 500 ms out; let the last ones
+// land before jsdom is torn down.
+afterAll(() => new Promise(resolve => setTimeout(resolve, 600)));
 
 beforeEach(() => {
 	document.body.innerHTML = '';
@@ -156,5 +161,46 @@ describe('the cursor over a clickable a component has marked refused', () => {
 		component._container.querySelector('.plain').dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
 
 		expect(mocks.cursor.setType).toHaveBeenCalledWith(mocks.cursor.ACTION.CLICK);
+	});
+});
+
+/**
+ * jsdom has no style queries, so these cases run the fallback sheet. It is
+ * shared per module, so each case loads GUIComponent afresh.
+ */
+describe('the native cursor inside a window', () => {
+	const freshMount = async () => {
+		vi.resetModules();
+		const Fresh = (await import('UI/GUIComponent.js')).default;
+		return mount('<button>OK</button>', Fresh);
+	};
+	const hidesCursor = component => !component._shadow.adoptedStyleSheets[0].disabled;
+
+	beforeEach(() => {
+		document.body.classList.remove('custom-cursor');
+	});
+
+	afterEach(() => {
+		vi.restoreAllMocks();
+	});
+
+	it('shows while the game cursor is off and follows it being toggled', async () => {
+		const component = await freshMount();
+		expect(hidesCursor(component)).toBe(false);
+
+		document.body.classList.add('custom-cursor');
+		await Promise.resolve();
+		expect(hidesCursor(component)).toBe(true);
+
+		document.body.classList.remove('custom-cursor');
+		await Promise.resolve();
+		expect(hidesCursor(component)).toBe(false);
+	});
+
+	it('is left to Common.css where style queries are supported', async () => {
+		vi.spyOn(window, 'getComputedStyle').mockReturnValueOnce({ color: 'rgb(1, 2, 3)' });
+		const component = await freshMount();
+
+		expect(component._shadow.adoptedStyleSheets ?? []).toHaveLength(0);
 	});
 });
