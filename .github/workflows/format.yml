@@ -1,32 +1,32 @@
 name: Format
 
 concurrency:
-    group: ${{ github.repository }}-${{ github.workflow }}-${{ github.ref }}
-    cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
-    
+  group: ${{ github.repository }}-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
+
 on:
-    pull_request:
+  pull_request:
 
 permissions:
-    contents: write
+  contents: write
 
 jobs:
-    prettier:
-        name: Prettier Check
-        runs-on: ubuntu-latest
+  prettier:
+    name: Prettier Check
+    runs-on: ubuntu-latest
 
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
 
-            - name: Setup Node.js
-              uses: actions/setup-node@v6
-              with:
-                  node-version: '24'
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
 
-            - name: Install dependencies
-              run: npm i
+      - name: Install dependencies
+        run: npm i
 
-            - name: Run Prettier check
-              run: npm run format:check
-              continue-on-error: true
+      - name: Run Prettier check
+        run: npm run format:check
+        continue-on-error: true
