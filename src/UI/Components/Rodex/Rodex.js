@@ -263,7 +263,7 @@ Rodex.updateDeletedMailContent = function updateDeletedMailContent(openType, Mai
  * Show/Hide UI
  */
 Rodex.toggle = function toggle() {
-	if (this._host && this._host.style.display !== 'none') {
+	if (this.__active && this._host.style.display !== 'none') {
 		Rodex.closeRodexBox();
 		this._host.style.display = 'none';
 	} else {
