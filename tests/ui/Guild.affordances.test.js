@@ -111,7 +111,7 @@ vi.mock('UI/Components/InputBox/InputBox.js', () => ({
 vi.mock('UI/Components/GuildCompanion/GuildCompanion.js', () => ({ default: { openDisband: vi.fn() } }));
 vi.mock('UI/Components/SkillTargetSelection/SkillTargetSelection.js', () => ({ default: {} }));
 vi.mock('UI/Components/SkillDescription/SkillDescription.js', () => ({ default: {} }));
-vi.mock('UI/Components/WinStats/WinStats.js', () => ({ default: { getUI: () => ({ update: vi.fn() }) } }));
+vi.mock('UI/Components/WinStats/WinStats.js', () => ({ default: { update: vi.fn() } }));
 
 HTMLCanvasElement.prototype.getContext = function () {
 	return { canvas: this, fillStyle: '', fillRect() {}, clearRect() {}, drawImage() {}, getImageData: (_x, _y, w, h) => ({ data: new Uint8ClampedArray(w * h * 4).fill(255) }) };

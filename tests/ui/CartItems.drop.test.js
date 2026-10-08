@@ -22,7 +22,7 @@ vi.mock('UI/Components/InputBox/InputBox.js', () => ({ default: {} }));
 vi.mock('UI/Components/ItemInfo/ItemInfo.js', () => ({ default: {} }));
 vi.mock('UI/Components/ItemCompare/ItemCompare.js', () => ({ default: {} }));
 vi.mock('UI/Components/Storage/Storage.js', () => ({ default: { reqMoveItemToCart: vi.fn() } }));
-vi.mock('UI/Components/Inventory/Inventory.js', () => ({ default: { getUI: () => ({ reqMoveItemToCart }) } }));
+vi.mock('UI/Components/Inventory/Inventory.js', () => ({ default: { reqMoveItemToCart } }));
 vi.mock('UI/Components/Equipment/Equipment.js', () => ({ default: {} }));
 
 const CartItems = (await import('UI/Components/CartItems/CartItems.js')).default;
