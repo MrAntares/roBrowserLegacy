@@ -114,6 +114,7 @@ var init_Thread = __esmMin((() => {
 		* @param {string} type
 		* @param {mixed} data
 		* @param {function} callback
+		* @return {number} request id, also carried by the hook events the request sends (0 without callback)
 		*/
 		static send = (type, data, callback) => {
 			let uid = 0;
@@ -126,6 +127,7 @@ var init_Thread = __esmMin((() => {
 				data,
 				uid
 			}, _origin);
+			return uid;
 		};
 		/**
 		* Receive data from Thread
@@ -140,7 +142,7 @@ var init_Thread = __esmMin((() => {
 				_memory$1[uid].apply(null, event.data.arguments);
 				delete _memory$1[uid];
 			}
-			if (type && _hook[type]) _hook[type].call(null, event.data.data);
+			if (type && _hook[type]) _hook[type].call(null, event.data.data, event.data.request);
 		};
 		/**
 		* Hook receive data
@@ -206250,6 +206252,10 @@ var init_Background = __esmMin((() => {
 		*/
 		static _loading = [];
 		/**
+		* @var {object|null} removal in progress, dropped when a background is set during its fade
+		*/
+		static _removal = null;
+		/**
 		* Initialize Background component
 		*
 		* @param {Array} loading - Array of loading filenames stored in clientinfo.xml
@@ -206292,6 +206298,7 @@ var init_Background = __esmMin((() => {
 		static setImage(filename, callback) {
 			const exist = !!_container.parentNode;
 			Background._progress = -1;
+			Background._removal = null;
 			_container.innerHTML = "";
 			_container.style.backgroundImage = "none";
 			render$16();
@@ -206391,13 +206398,18 @@ var init_Background = __esmMin((() => {
 		* @param {function} callback once the overlay hide the window (optional)
 		*/
 		static remove(callback) {
+			const removal = {};
+			Background._removal = removal;
 			transition(() => {
-				_container.style.zIndex = "0";
-				_canvas.style.zIndex = "0";
-				if (_container.parentNode) _container.parentNode.removeChild(_container);
-				if (_canvas.parentNode) _canvas.parentNode.removeChild(_canvas);
-				_container.innerHTML = "";
-				_container.style.backgroundImage = "none";
+				if (Background._removal === removal) {
+					Background._removal = null;
+					_container.style.zIndex = "0";
+					_canvas.style.zIndex = "0";
+					if (_container.parentNode) _container.parentNode.removeChild(_container);
+					if (_canvas.parentNode) _canvas.parentNode.removeChild(_canvas);
+					_container.innerHTML = "";
+					_container.style.backgroundImage = "none";
+				}
 				if (callback) callback();
 			});
 		}
@@ -240818,7 +240830,7 @@ var init_WriteRodex = __esmMin((() => {
 		root.querySelector(".validate-name").style.display = "none";
 		const baloon = root.querySelector(".baloon");
 		baloon.innerHTML = text;
-		baloon.style.display = "";
+		baloon.style.display = "block";
 		const nameInput = root.querySelector(".name");
 		nameInput.type = "none";
 		WriteRodex.receiver = pkt.name !== void 0 ? pkt.name : nameInput.value;
@@ -260198,6 +260210,27 @@ function stripMapExtension(mapname) {
 	return (mapname || "").replace(/\.[^.]*$/, "");
 }
 /**
+* Bind a map load step to its load, so that it does nothing once the load is cancelled
+*
+* @param {number} loadId
+* @param {function} step
+*/
+function loadStep(loadId, step) {
+	return (...args) => {
+		if (loadId === MapRenderer._loadId) step.apply(MapRenderer, args);
+	};
+}
+/**
+* Bind a worker event of map loading, so that it only reaches the load whose request sent it
+*
+* @param {function} step
+*/
+function loadEvent(step) {
+	return (data, request) => {
+		if (request === MapRenderer._loadRequest) step.call(MapRenderer, data);
+	};
+}
+/**
 * Received progress from Thread
 *
 * @param {number} percent (progress)
@@ -260304,6 +260337,7 @@ function registerPostProcessModules(gl) {
 * Once the map finished to load
 */
 function onMapComplete(success, error) {
+	const loadId = MapRenderer._loadId;
 	const worldResource = this.currentMap.replace(/\.gat$/i, ".rsw");
 	const mapInfo = DB.getMap(worldResource);
 	if (!success) {
@@ -260328,6 +260362,7 @@ function onMapComplete(success, error) {
 	registerPostProcessModules(gl);
 	JoystickUI_default.onRestore();
 	Background.remove(() => {
+		if (loadId !== MapRenderer._loadId) return;
 		MapRenderer.loading = false;
 		MapRenderer.onLoad();
 		Sky_default.setUpCloudData();
@@ -260412,6 +260447,14 @@ var init_MapRenderer = __esmMin((() => {
 		*/
 		static loading = false;
 		/**
+		* @var {number} id of the latest map load, bumped to cancel the one in progress
+		*/
+		static _loadId = 0;
+		/**
+		* @var {number} worker request of the map load in progress, 0 when none
+		*/
+		static _loadRequest = 0;
+		/**
 		* @var {Float32Array} diffuse Modified diffuse color
 		*/
 		static diffuse = null;
@@ -260438,6 +260481,7 @@ var init_MapRenderer = __esmMin((() => {
 		static setMap(mapname) {
 			if (this.loading) return;
 			mapname = mapname.replace(/^(\d{3})(\d@)/, "$2").replace(/^\d{3}#/, "");
+			const loadId = ++this._loadId;
 			SoundManager.stop();
 			Renderer.stop();
 			UIManager.removeComponents();
@@ -260448,15 +260492,16 @@ var init_MapRenderer = __esmMin((() => {
 				this.currentMap = mapname;
 				const filename = mapname.replace(/\.gat$/i, ".rsw");
 				Background.setLoading(function() {
-					Thread.hook("MAP_PROGRESS", onProgressUpdate.bind(MapRenderer));
-					Thread.hook("MAP_WORLD", onWorldComplete.bind(MapRenderer));
-					Thread.hook("MAP_GROUND", onGroundComplete.bind(MapRenderer));
-					Thread.hook("MAP_ALTITUDE", onAltitudeComplete.bind(MapRenderer));
-					Thread.hook("MAP_MODELS", onModelsComplete.bind(MapRenderer));
-					Thread.hook("MAP_ANIMATED_MODEL", onAnimatedModelComplete.bind(MapRenderer));
+					if (loadId !== MapRenderer._loadId) return;
+					Thread.hook("MAP_PROGRESS", loadEvent(onProgressUpdate));
+					Thread.hook("MAP_WORLD", loadEvent(onWorldComplete));
+					Thread.hook("MAP_GROUND", loadEvent(onGroundComplete));
+					Thread.hook("MAP_ALTITUDE", loadEvent(onAltitudeComplete));
+					Thread.hook("MAP_MODELS", loadEvent(onModelsComplete));
+					Thread.hook("MAP_ANIMATED_MODEL", loadEvent(onAnimatedModelComplete));
 					MapRenderer.free();
 					Renderer.remove();
-					Thread.send("LOAD_MAP", filename, onMapComplete.bind(MapRenderer));
+					MapRenderer._loadRequest = Thread.send("LOAD_MAP", filename, loadStep(loadId, onMapComplete));
 				});
 				return;
 			}
@@ -260467,11 +260512,20 @@ var init_MapRenderer = __esmMin((() => {
 			JoystickUI_default.onRestore();
 			Mouse.intersect = false;
 			Background.remove(() => {
+				if (loadId !== MapRenderer._loadId) return;
 				MapRenderer.onLoad();
 				Sky_default.setUpCloudData();
 				Renderer.render(MapRenderer.onRender);
 				Mouse.intersect = true;
 			});
+		}
+		/**
+		* Cancel the map load in progress, if any: its remaining steps do nothing
+		*/
+		static cancelLoad() {
+			this._loadId++;
+			this._loadRequest = 0;
+			this.loading = false;
 		}
 		/**
 		* Clean up data
@@ -347006,7 +347060,12 @@ function onServerClosed(pkt) {
 		case 110: msg_id = 1589;
 	}
 	UIManager.showMessageBox(DB.getMessage(msg_id), "ok", () => {
+		Renderer.stop();
+		MapRenderer.cancelLoad();
+		MapRenderer.free();
+		BGM.play("01.mp3");
 		UIManager.removeComponents();
+		Background.setLoginBackground();
 		Controller.getUI().append();
 	}, true);
 	Network.close();
@@ -347026,6 +347085,7 @@ var init_LoginEngine = __esmMin((() => {
 	init_PacketStructure();
 	init_PluginManager();
 	init_Renderer();
+	init_MapRenderer();
 	init_UIManager();
 	init_WinList();
 	init_WinPopup();
@@ -347974,6 +348034,7 @@ function onReload() {
 		WinList_default.setList(list);
 	}
 	Renderer.stop();
+	MapRenderer.cancelLoad();
 	MapRenderer.free();
 	BGM.play("01.mp3");
 }

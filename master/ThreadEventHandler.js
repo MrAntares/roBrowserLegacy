@@ -19664,7 +19664,8 @@ onmessage = function receive(event) {
 			map.onprogress = function(progress) {
 				postMessage({
 					type: "MAP_PROGRESS",
-					data: progress
+					data: progress,
+					request: msg.uid
 				});
 			};
 			map.onload = function(success, error) {
@@ -19680,7 +19681,8 @@ onmessage = function receive(event) {
 			map.ondata = function(type, data) {
 				postMessage({
 					type,
-					data
+					data,
+					request: msg.uid
 				});
 			};
 			map.load(msg.data);
