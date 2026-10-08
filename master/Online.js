@@ -207753,7 +207753,7 @@ function init$11(gl, water) {
 	_vertCount = water.vertCount;
 	_waveHeight = water.waveHeight;
 	_waveSpeed = water.waveSpeed;
-	_waterLevel = water.level;
+	water.level;
 	_animSpeed = water.animSpeed;
 	_wavePitch = water.wavePitch;
 	_waterOpacity = water.type !== 4 && water.type !== 6 ? .8 : 1;
@@ -207829,27 +207829,7 @@ function free$6(gl) {
 	}
 	_vertCount = 0;
 }
-/**
-* Is the ground at this cell under the water surface ?
-* (world Y points down: ground is submerged when -altitude is above the wave crest)
-*
-* @param {number} x
-* @param {number} y
-* @return {boolean}
-*/
-function isSubmerged(x, y) {
-	if (!_vertCount) return false;
-	return -Altitude.getCellHeight(x, y) > _waterLevel - _waveHeight;
-}
-/**
-* Does the current map have any water surface ?
-*
-* @return {boolean}
-*/
-function hasWater() {
-	return _vertCount > 0;
-}
-var _program$24, _buffer$17, _vertCount, _textures$1, _waveSpeed, _waveHeight, _wavePitch, _waterLevel, _animSpeed, _waterOpacity, Water_default;
+var _program$24, _buffer$17, _vertCount, _textures$1, _waveSpeed, _waveHeight, _wavePitch, _animSpeed, _waterOpacity, Water_default;
 var init_Water = __esmMin((() => {
 	init_WebGL();
 	init_SpriteRenderer();
@@ -207863,15 +207843,12 @@ var init_Water = __esmMin((() => {
 	_waveSpeed = 0;
 	_waveHeight = 0;
 	_wavePitch = 0;
-	_waterLevel = 0;
 	_animSpeed = 0;
 	_waterOpacity = .9;
 	Water_default = {
 		init: init$11,
 		free: free$6,
-		render: render$11,
-		isSubmerged,
-		hasWater
+		render: render$11
 	};
 }));
 //#endregion
@@ -311178,8 +311155,6 @@ function Init$3() {
 	this.render = render$5;
 	this.renderLayer = renderLayer;
 	this.renderEntity = renderEntity;
-	this.waterDepthFrame = void 0;
-	this._waterDepthFrameBuffer = null;
 }
 var WALK_DIST_TO_MOTION, renderGUI, SPRITE_LIFT, calculateBoundingRect, renderEntity, renderElement;
 var init_EntityRender = __esmMin((() => {
@@ -311454,7 +311429,6 @@ var init_EntityRender = __esmMin((() => {
 				default:
 					SpriteRenderer.position[2] = SpriteRenderer.position[2] + .2;
 					SpriteRenderer.zIndex = 150;
-					self.waterDepthFrame = null;
 					SpriteRenderer.runWithDepth(true, false, false, function() {
 						renderElement(self, self.files.body, "body", _position, true);
 					});
@@ -311529,15 +311503,6 @@ var init_EntityRender = __esmMin((() => {
 				blurType: isBUNSIN ? 5 : isHALLUCINATIONWALK ? 3 : entity._blurType || 1
 			});
 			for (let i = 0, count = layers.length; i < count; ++i) entity.renderLayer(layers[i], spr, pal, files.size, _position, type, isBlendModeOne);
-			if (is_main && type === "body" && entity.waterDepthFrame === null) {
-				const frame = entity._waterDepthFrameBuffer || (entity._waterDepthFrameBuffer = { position: /* @__PURE__ */ new Int32Array(2) });
-				frame.layers = layers;
-				frame.spr = spr;
-				frame.pal = pal;
-				frame.size = files.size;
-				frame.position.set(_position);
-				entity.waterDepthFrame = frame;
-			}
 			if (is_main && animation.pos.length) {
 				position[0] = animation.pos[0].x;
 				position[1] = animation.pos[0].y;
