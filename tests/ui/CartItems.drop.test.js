@@ -5,6 +5,16 @@
  */
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 
+import 'UI/Components/InputBox/InputBox.js';
+import 'UI/Components/ItemInfo/ItemInfo.js';
+import 'UI/Components/ItemCompare/ItemCompare.js';
+import 'UI/Components/Storage/Storage.js';
+import 'UI/Components/Inventory/Inventory.js';
+import 'UI/Components/Equipment/Equipment.js';
+import { selectUIDefaults } from 'tests/ui/ui.js';
+
+beforeAll(selectUIDefaults);
+
 const reqMoveItemToCart = vi.fn();
 
 vi.mock('UI/CursorManager.js', () => ({ default: { ACTION: {}, getActualType: vi.fn(), setType: vi.fn() } }));
@@ -39,6 +49,7 @@ function dragEvent(type, payload) {
 	});
 	return event;
 }
+
 
 describe('CartItems drop', () => {
 	beforeAll(() => {

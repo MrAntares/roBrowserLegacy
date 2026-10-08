@@ -1,4 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import LoginEngine from 'Engine/LoginEngine.js';
+import 'UI/Components/WinList/WinList.js';
+import 'UI/Components/WinPopup/WinPopup.js';
+import 'UI/Components/WinLogin/WinLogin.js';
+import { selectUIDefaults } from 'tests/ui/ui.js';
+
+beforeAll(selectUIDefaults);
 
 // onServerClosed is module-private and only reachable through the hook init()
 // registers, so the Network mock keeps the packet name -> handler map.
@@ -66,8 +73,6 @@ vi.mock('UI/Components/WinLogin/WinLogin.js', () => ({
 }));
 vi.mock('Vendors/spark-md5.min.js', () => ({ default: {} }));
 vi.mock('Utils/Rijndael.js', () => ({ default: {} }));
-
-import LoginEngine from 'Engine/LoginEngine.js';
 
 describe('LoginEngine SC.NOTIFY_BAN', () => {
 	beforeEach(() => {

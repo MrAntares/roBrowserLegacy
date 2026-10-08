@@ -56,6 +56,7 @@ class UIVersionManager {
 			'selectUIVersion',
 			'selectUIVersionWithJob',
 			'selectSpecificUIVersion',
+			'selectUIVersionDefault',
 			'getUI'
 		]);
 		let _selectedUI;
@@ -91,6 +92,12 @@ class UIVersionManager {
 				_applyPending();
 			},
 
+			selectUIVersionDefault() {
+				_selectedUI = versionInfo.default;
+				_UIAliases[publicName] = _selectedUI.name;
+				_applyPending();
+			},
+
 			getUI() {
 				return _selectedUI;
 			}
@@ -102,7 +109,7 @@ class UIVersionManager {
 					return Reflect.get(target, prop, receiver);
 				}
 				if (!_selectedUI) {
-					return undefined;
+					return prop in _pending ? _pending[prop] : undefined;
 				}
 				const val = _selectedUI[prop];
 				return typeof val === 'function' ? val.bind(_selectedUI) : val;
@@ -160,6 +167,17 @@ class UIVersionManager {
 			if (entry.phase === 'char') {
 				entry.controller.selectUIVersion();
 			}
+		}
+	}
+
+	/**
+	 * Select versionInfo.default for every registered controller.
+	 * Test-only helper: bypasses PACKETVER/renewal so components work
+	 * without a server selection. Not called by the game runtime.
+	 */
+	static selectAllDefaults() {
+		for (const entry of UIVersionManager._registry) {
+			entry.controller.selectUIVersionDefault();
 		}
 	}
 
