@@ -153,7 +153,7 @@ class UIVersionManager {
 	static selectAll() {
 		for (const entry of UIVersionManager._registry) {
 			if (!entry.versionInfo.job && entry.phase !== 'char') {
-				entry.controller.selectUIVersion();
+				entry.proxy.selectUIVersion();
 			}
 		}
 	}

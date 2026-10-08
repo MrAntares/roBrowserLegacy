@@ -23,11 +23,15 @@ const versionInfo = {
 
 const Controller = UIVersionManager.getUIController(publicName, versionInfo);
 
-/**
- * Proxy for getMemberColor
- */
-Controller.getMemberColor = function getMemberColor(key) {
-	const ui = Controller.getUI();
-	return ui && ui.getMemberColor ? ui.getMemberColor(key) : 'white';
-};
+// Own property on the controller: not forwarded to the active UI
+// (forwarding would overwrite the implementation and recurse).
+Object.defineProperty(Controller, 'getMemberColor', {
+	value: function getMemberColor(key) {
+		const ui = Controller.getUI();
+		return ui && typeof ui.getMemberColor === 'function' ? ui.getMemberColor(key) : 'white';
+	},
+	writable: true,
+	configurable: true
+});
+
 export default Controller;
