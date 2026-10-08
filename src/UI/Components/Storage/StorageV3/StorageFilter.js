@@ -125,7 +125,7 @@ class StorageFilter extends GUIComponent {
 	}
 
 	setItems(title, items, tabId) {
-		this._list = items.slice(0);
+		this._list = items.map(item => ({ ...item }));
 		this._currentTabId = tabId;
 		const root = this.getRoot();
 		const titleEl = root.querySelector('.titlebar .text');

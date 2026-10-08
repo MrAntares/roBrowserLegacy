@@ -27,21 +27,55 @@ vi.mock('UI/Components/Inventory/Inventory.js', () => ({ default: {} }));
 
 const Storage = (await import('UI/Components/Storage/StorageV3/Storage.js')).default;
 
-describe('Storage search', () => {
-	it('opens the results on Enter in the search field', () => {
-		Storage.prepare();
-		Storage.setItems([
-			{ index: 2, ITID: 512, type: 0, count: 3, IsIdentified: true, name: 'Apple' },
-			{ index: 3, ITID: 909, type: 3, count: 1, IsIdentified: true, name: 'Jellopy' }
-		]);
+function filterCount(id, index) {
+	return document.getElementById(id).shadowRoot.querySelector(`.item[data-index="${index}"] .count`).textContent;
+}
 
-		const input = Storage.getRoot().querySelector('#storage-search-input');
-		input.value = 'app';
-		input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+function search(term) {
+	const input = Storage.getRoot().querySelector('#storage-search-input');
+	input.value = term;
+	input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+}
+
+describe('Storage search', () => {
+	Storage.prepare();
+	Storage.setItems([
+		{ index: 2, ITID: 512, type: 0, count: 3, IsIdentified: true, name: 'Apple' },
+		{ index: 3, ITID: 909, type: 3, count: 1, IsIdentified: true, name: 'Jellopy' }
+	]);
+
+	it('opens the results on Enter in the search field', () => {
+		search('app');
 
 		const results = document.getElementById('StorageFilter_99');
 		expect(results).not.toBeNull();
 		const names = [...results.shadowRoot.querySelectorAll('.item .name')].map(el => el.textContent);
 		expect(names).toEqual(['Apple']);
+	});
+
+	it('counts a change once with a filter window open', () => {
+		search('app');
+		Storage.getRoot().querySelector('.filter-buttons button[data-tab-id="0"]').dispatchEvent(new MouseEvent('mousedown'));
+
+		Storage.addItem({ index: 2, ITID: 512, type: 0, count: 2, IsIdentified: true, name: 'Apple' });
+		expect(filterCount('StorageFilter_0', 2)).toBe('5');
+		expect(filterCount('StorageFilter_99', 2)).toBe('5');
+
+		Storage.removeItem(2, 1);
+		expect(filterCount('StorageFilter_0', 2)).toBe('4');
+		expect(filterCount('StorageFilter_99', 2)).toBe('4');
+		expect(Storage.getRoot().querySelector('.content .item[data-index="2"] .count').textContent).toBe('4');
+	});
+
+	it('adds a new matching item to the open results', () => {
+		search('jell');
+
+		Storage.addItem({ index: 7, ITID: 913, type: 3, count: 2, IsIdentified: true, name: 'Jellopy Box' });
+		Storage.addItem({ index: 8, ITID: 914, type: 3, count: 1, IsIdentified: true, name: 'Apple Pie' });
+
+		const names = [...document.getElementById('StorageFilter_99').shadowRoot.querySelectorAll('.item .name')].map(
+			el => el.textContent
+		);
+		expect(names).toEqual(['Jellopy', 'Jellopy Box']);
 	});
 });
