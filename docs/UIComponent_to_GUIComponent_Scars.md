@@ -616,11 +616,15 @@ $scrollbar[0].style.display = ''; // ← resets to CSS value (flex)
 
 ### 2. Global CSS does not penetrate Shadow DOM
 
-**Bug**: CSS rules in the global `<style>` tag (e.g., `.custom-cursor * { cursor: none !important; }` from CursorManager) do not affect elements inside Shadow DOM.
+**Bug**: CSS rules in the global `<style>` tag (e.g., `.custom-cursor * { cursor: none !important; }` from CursorManager) do not affect elements inside Shadow DOM. `:host-context(.custom-cursor)` does not help outside Chromium: Firefox and Safari ignore it and show the native cursor over any control with its own `cursor`.
 
-**Fix applied in `src/UI/Common.css`**:
+**Fix applied in `src/UI/CursorManager.js` and `src/UI/Common.css`**:
 
 ```css
+/* CursorManager */
+.custom-cursor { --ro-game-cursor: on; }
+
+/* Common.css */
 @container style(--ro-game-cursor: on) {
 	* {
 		cursor: none !important;
@@ -628,9 +632,20 @@ $scrollbar[0].style.display = ''; // ← resets to CSS value (flex)
 }
 ```
 
-This rule is inside `Common.css` which is injected into every Shadow DOM. CursorManager sets `--ro-game-cursor: on` on `.custom-cursor` (`document.body`), and custom properties inherit across the shadow boundary, so the style query sees it in every shadow root.
+Custom properties inherit across the shadow boundary, so the style query sees `--ro-game-cursor` in every shadow root.
 
-The first fix (commit `f4183351`) used `:host-context(.custom-cursor) *`. Only Chromium supports `:host-context()`: Firefox and Safari dropped the rule and showed the native cursor on top of the game one over any control with its own `cursor` (buttons, links). Where style queries are missing (Firefox < 151, Safari < 18), GUIComponent appends a `<style data-no-cursor>` to each shadow root and switches its `media` between `all` and `not all` to follow the body's `custom-cursor` class. It toggles `media` rather than `disabled`, because a style element's sheet, and with it `disabled`, is rebuilt each time the window is appended again. Each style is tracked from the window's creation, so windows attached without `append()` (e.g. `WinStats.embed()`) follow too, and `remove()` lets go of it, so closed windows (a cloned one per message box) are not held.
+**Fallback applied in `src/UI/GUIComponent.js`**, for browsers without style queries (Firefox < 151, Safari < 18):
+
+```javascript
+// _prepare(): a <style data-no-cursor> in the shadow root, null when not needed
+this._noCursorStyle = _addNoCursorFallback(this._shadow);
+
+// append() / remove()
+_trackNoCursorStyle(this._noCursorStyle);
+_untrackNoCursorStyle(this._noCursorStyle);
+```
+
+A body `class` observer switches each tracked style's `media` between `all` and `not all` (`disabled` would reset when the window is appended again). No action needed from the component author.
 
 **RULE**: Any global CSS that needs to affect Shadow DOM content must be added to `Common.css`. To make it depend on page state, pass the state in through an inherited custom property — never `:host-context()`.
 
