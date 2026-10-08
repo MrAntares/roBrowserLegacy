@@ -55,7 +55,8 @@ function _ensureDeps() {
 	return _depsPromise;
 }
 
-let _noCursorFallback;
+let _noCursorStyles;
+let _noCursorMedia = 'not all';
 
 function _supportsStyleQueries() {
 	const probe = document.createElement('div');
@@ -67,28 +68,46 @@ function _supportsStyleQueries() {
 	return supported;
 }
 
-/**
- * Shared sheet hiding the native cursor in shadow roots where CSS style
- * queries are missing, null where Common.css handles it.
- */
-function _getNoCursorFallback() {
-	if (_noCursorFallback !== undefined) {
-		return _noCursorFallback;
+function _syncNoCursorStyles() {
+	const media = document.body.classList.contains('custom-cursor') ? 'all' : 'not all';
+	if (media === _noCursorMedia) {
+		return;
 	}
-	if (_supportsStyleQueries()) {
-		_noCursorFallback = null;
-		return null;
+	_noCursorMedia = media;
+	for (let i = 0; i < _noCursorStyles.length; i++) {
+		_noCursorStyles[i].media = media;
+	}
+}
+
+/**
+ * Hides the native cursor in a shadow root where CSS style queries are
+ * missing, following body.custom-cursor. Common.css handles it elsewhere.
+ *
+ * @param {ShadowRoot} shadow
+ */
+function _addNoCursorFallback(shadow) {
+	if (_noCursorStyles === undefined) {
+		_noCursorStyles = _supportsStyleQueries() ? null : [];
+		if (_noCursorStyles) {
+			_syncNoCursorStyles();
+			new MutationObserver(_syncNoCursorStyles).observe(document.body, {
+				attributes: true,
+				attributeFilter: ['class']
+			});
+		}
+	}
+	if (!_noCursorStyles) {
+		return;
 	}
 
-	const sheet = new CSSStyleSheet();
-	sheet.replaceSync('* { cursor: none !important; }');
-	const sync = () => {
-		sheet.disabled = !document.body.classList.contains('custom-cursor');
-	};
-	sync();
-	new MutationObserver(sync).observe(document.body, { attributes: true, attributeFilter: ['class'] });
-	_noCursorFallback = sheet;
-	return sheet;
+	// `media` rather than `disabled`: a style element's sheet, and with it
+	// `disabled`, is rebuilt each time the window is appended again.
+	const style = document.createElement('style');
+	style.setAttribute('data-no-cursor', '');
+	style.media = _noCursorMedia;
+	style.textContent = '* { cursor: none !important; }';
+	shadow.appendChild(style);
+	_noCursorStyles.push(style);
 }
 
 /**
@@ -209,10 +228,7 @@ class GUIComponent {
 		this._shadow.appendChild(commonStyle);
 
 		// Hide native cursor where style queries are missing
-		const noCursorFallback = _getNoCursorFallback();
-		if (noCursorFallback) {
-			this._shadow.adoptedStyleSheets = [noCursorFallback];
-		}
+		_addNoCursorFallback(this._shadow);
 
 		// Inject component CSS (hot-reloadable)
 		const compStyle = document.createElement('style');

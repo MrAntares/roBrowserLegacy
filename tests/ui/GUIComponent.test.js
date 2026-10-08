@@ -165,8 +165,8 @@ describe('the cursor over a clickable a component has marked refused', () => {
 });
 
 /**
- * jsdom has no style queries, so these cases run the fallback sheet. It is
- * shared per module, so each case loads GUIComponent afresh.
+ * jsdom has no style queries, so these cases run the fallback style. Its
+ * state is shared per module, so each case loads GUIComponent afresh.
  */
 describe('the native cursor inside a window', () => {
 	const freshMount = async () => {
@@ -174,7 +174,8 @@ describe('the native cursor inside a window', () => {
 		const Fresh = (await import('UI/GUIComponent.js')).default;
 		return mount('<button>OK</button>', Fresh);
 	};
-	const hidesCursor = component => !component._shadow.adoptedStyleSheets[0].disabled;
+	const fallback = component => component._shadow.querySelector('style[data-no-cursor]');
+	const hidesCursor = component => fallback(component).media === 'all';
 
 	beforeEach(() => {
 		document.body.classList.remove('custom-cursor');
@@ -197,10 +198,17 @@ describe('the native cursor inside a window', () => {
 		expect(hidesCursor(component)).toBe(false);
 	});
 
+	it('is hidden in a window opened while the game cursor is on', async () => {
+		document.body.classList.add('custom-cursor');
+		const component = await freshMount();
+
+		expect(hidesCursor(component)).toBe(true);
+	});
+
 	it('is left to Common.css where style queries are supported', async () => {
 		vi.spyOn(window, 'getComputedStyle').mockReturnValueOnce({ color: 'rgb(1, 2, 3)' });
 		const component = await freshMount();
 
-		expect(component._shadow.adoptedStyleSheets ?? []).toHaveLength(0);
+		expect(fallback(component)).toBeNull();
 	});
 });
