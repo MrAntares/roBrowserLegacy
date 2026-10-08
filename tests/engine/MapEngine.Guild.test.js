@@ -1,15 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import 'UI/Components/Guild/Guild.js';
-import 'UI/Components/GuildCompanion/GuildCompanion.js';
-import 'UI/Components/ChatBox/ChatBox.js';
-import 'UI/Components/MiniMap/MiniMap.js';
-import 'UI/Components/ShortCut/ShortCut.js';
-import 'UI/UIManager.js';
-import { selectUIDefaults } from 'tests/ui/ui.js';
-
-beforeAll(selectUIDefaults);
-
 // The packet handlers in Engine/MapEngine/Guild.js are module-private and are
 // only reachable through the hooks init() registers, so the Network mock keeps
 // the map of packet structure -> handler that init builds.
