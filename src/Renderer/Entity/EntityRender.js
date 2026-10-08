@@ -547,7 +547,6 @@ const renderEntity = (function renderEntityClosure() {
 				// Non-player entities:
 				// - Do not write depth to avoid breaking PC occlusion and internal layer issues
 				// - Still use depth test for correct ordering
-				self.waterDepthFrame = null;
 				SpriteRenderer.runWithDepth(true, false, false, function () {
 					renderElement(self, self.files.body, 'body', _position, true);
 				});
@@ -871,17 +870,6 @@ const renderElement = (function renderElementClosure() {
 			entity.renderLayer(layers[i], spr, pal, files.size, _position, type, isBlendModeOne);
 		}
 
-		if (is_main && type === 'body' && entity.waterDepthFrame === null) {
-			const frame =
-				entity._waterDepthFrameBuffer || (entity._waterDepthFrameBuffer = { position: new Int32Array(2) });
-			frame.layers = layers;
-			frame.spr = spr;
-			frame.pal = pal;
-			frame.size = files.size;
-			frame.position.set(_position);
-			entity.waterDepthFrame = frame;
-		}
-
 		// Save reference
 		if (is_main && animation.pos.length) {
 			position[0] = animation.pos[0].x;
@@ -1173,6 +1161,4 @@ export default function Init() {
 	this.render = render;
 	this.renderLayer = renderLayer;
 	this.renderEntity = renderEntity;
-	this.waterDepthFrame = undefined;
-	this._waterDepthFrameBuffer = null;
 }
