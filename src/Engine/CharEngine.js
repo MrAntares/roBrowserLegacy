@@ -127,10 +127,15 @@ class CharEngine {
 
 	/**
 	 * Reload Char-Select
+	 *
+	 * @param {function} [onBlack] - run once the fade has covered the screen
 	 */
-	static reload() {
+	static reload(onBlack) {
 		Network.close();
 		Background.setLoginBackground(() => {
+			if (onBlack) {
+				onBlack();
+			}
 			UIManager.removeComponents();
 			CharEngine.init(_server);
 		});

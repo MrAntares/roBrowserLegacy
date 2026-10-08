@@ -904,11 +904,8 @@ function onRestartAnswer(pkt) {
 		ChatBox.addText(DB.getMessage(502), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 	} else {
 		GuildEngine.guild_id = 0;
-		cleanGameUI();
 		Session.Achievement = null;
 		Mouse.intersect = false;
-		MapRenderer.free();
-		Renderer.stop();
 		onRestart();
 	}
 }
@@ -1307,7 +1304,14 @@ function onConfigUpdate(type, val) {
  * Go back from map-server to char-server
  */
 function onRestart() {
-	import('Engine/CharEngine.js').then(m => m.default.reload());
+	// The map stays drawn under the fade and goes once the screen is black
+	import('Engine/CharEngine.js').then(m =>
+		m.default.reload(() => {
+			cleanGameUI();
+			MapRenderer.free();
+			Renderer.stop();
+		})
+	);
 }
 
 /**
