@@ -81,9 +81,11 @@ function _syncNoCursorStyles() {
 
 /**
  * Hides the native cursor in a shadow root where CSS style queries are
- * missing, following body.custom-cursor. Common.css handles it elsewhere.
+ * missing, following body.custom-cursor; null where Common.css handles it.
+ * remove() lets go of it, so a closed window is not held.
  *
  * @param {ShadowRoot} shadow
+ * @return {?HTMLStyleElement}
  */
 function _addNoCursorFallback(shadow) {
 	if (_noCursorStyles === undefined) {
@@ -97,7 +99,7 @@ function _addNoCursorFallback(shadow) {
 		}
 	}
 	if (!_noCursorStyles) {
-		return;
+		return null;
 	}
 
 	// `media` rather than `disabled`: a style element's sheet, and with it
@@ -108,6 +110,21 @@ function _addNoCursorFallback(shadow) {
 	style.textContent = '* { cursor: none !important; }';
 	shadow.appendChild(style);
 	_noCursorStyles.push(style);
+	return style;
+}
+
+function _trackNoCursorStyle(style) {
+	style.media = _noCursorMedia;
+	if (_noCursorStyles.indexOf(style) === -1) {
+		_noCursorStyles.push(style);
+	}
+}
+
+function _untrackNoCursorStyle(style) {
+	const index = _noCursorStyles.indexOf(style);
+	if (index !== -1) {
+		_noCursorStyles.splice(index, 1);
+	}
 }
 
 /**
@@ -228,7 +245,7 @@ class GUIComponent {
 		this._shadow.appendChild(commonStyle);
 
 		// Hide native cursor where style queries are missing
-		_addNoCursorFallback(this._shadow);
+		this._noCursorStyle = _addNoCursorFallback(this._shadow);
 
 		// Inject component CSS (hot-reloadable)
 		const compStyle = document.createElement('style');
@@ -291,6 +308,9 @@ class GUIComponent {
 		}
 
 		parent.appendChild(this._host);
+		if (this._noCursorStyle) {
+			_trackNoCursorStyle(this._noCursorStyle);
+		}
 
 		// Bind keydown
 		if (this.onKeyDown) {
@@ -362,6 +382,9 @@ class GUIComponent {
 
 			// Detach from DOM
 			this._host.remove();
+			if (this._noCursorStyle) {
+				_untrackNoCursorStyle(this._noCursorStyle);
+			}
 
 			// Freeze mode cleanup
 			if (this.mouseMode === MouseMode.FREEZE) {

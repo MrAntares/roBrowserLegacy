@@ -174,6 +174,7 @@ describe('the native cursor inside a window', () => {
 		const Fresh = (await import('UI/GUIComponent.js')).default;
 		return mount('<button>OK</button>', Fresh);
 	};
+	const flush = () => Promise.resolve();
 	const fallback = component => component._shadow.querySelector('style[data-no-cursor]');
 	const hidesCursor = component => fallback(component).media === 'all';
 
@@ -202,6 +203,32 @@ describe('the native cursor inside a window', () => {
 		document.body.classList.add('custom-cursor');
 		const component = await freshMount();
 
+		expect(hidesCursor(component)).toBe(true);
+	});
+
+	it('lets go of a closed window and catches up when it opens again', async () => {
+		const component = await freshMount();
+		component.remove();
+
+		document.body.classList.add('custom-cursor');
+		await flush();
+		expect(hidesCursor(component)).toBe(false);
+
+		component.append();
+		expect(hidesCursor(component)).toBe(true);
+	});
+
+	// WinStats.embed() attaches its window this way.
+	it('follows a window attached without append()', async () => {
+		vi.resetModules();
+		const Fresh = (await import('UI/GUIComponent.js')).default;
+		const component = new Fresh(`TestComponent${++seq}`, '');
+		component.render = () => '<button>OK</button>';
+		component.prepare();
+		document.body.appendChild(component._host);
+
+		document.body.classList.add('custom-cursor');
+		await flush();
 		expect(hidesCursor(component)).toBe(true);
 	});
 
