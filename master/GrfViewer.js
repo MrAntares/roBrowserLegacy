@@ -208013,7 +208013,6 @@ var _program$24, _buffer$17, _vertCount, _textures$1, _waveSpeed, _waveHeight, _
 var init_Water = __esmMin((() => {
 	init_WebGL();
 	init_SpriteRenderer();
-	init_Altitude();
 	init_Water$2();
 	init_Water$1();
 	_program$24 = null;
@@ -222059,26 +222058,94 @@ var init_UIVersionManager = __esmMin((() => {
 			console.log("%c[UIVersion] " + publicName + ": ", "color:#007000", SelectedUI.name);
 			return SelectedUI;
 		}
-		static getUIController(publicName, versionInfo) {
+		static getUIController(publicName, versionInfo, options = {}) {
+			const CONTROLLER_OWN = /* @__PURE__ */ new Set([
+				"selectUIVersion",
+				"selectUIVersionWithJob",
+				"selectSpecificUIVersion",
+				"selectUIVersionDefault",
+				"getUI"
+			]);
 			let _selectedUI;
-			const UIController = {};
-			UIController.selectUIVersion = function() {
-				_selectedUI = UIVersionManager.selectUIVersion(publicName, versionInfo);
+			const _pending = Object.create(null);
+			function _applyPending() {
+				if (_selectedUI) for (const prop in _pending) _selectedUI[prop] = _pending[prop];
+			}
+			const UIController = {
+				selectUIVersion() {
+					_selectedUI = UIVersionManager.selectUIVersion(publicName, versionInfo);
+					_applyPending();
+				},
+				selectUIVersionWithJob(job) {
+					_selectedUI = versionInfo.job[job] || versionInfo.job.default;
+					_UIAliases[publicName] = _selectedUI.name;
+					console.log("[UIVersion] " + publicName + ": ", _selectedUI.name);
+					_applyPending();
+				},
+				selectSpecificUIVersion(version) {
+					_selectedUI = versionInfo.common[version] || versionInfo.default;
+					_UIAliases[publicName] = _selectedUI.name;
+					console.log("[UIVersion] " + publicName + ": ", _selectedUI.name);
+					_applyPending();
+				},
+				selectUIVersionDefault() {
+					_selectedUI = versionInfo.default;
+					_UIAliases[publicName] = _selectedUI.name;
+					_applyPending();
+				},
+				getUI() {
+					return _selectedUI;
+				}
 			};
-			UIController.selectUIVersionWithJob = function(job) {
-				_selectedUI = versionInfo.job[job] || versionInfo.job.default;
-				_UIAliases[publicName] = _selectedUI.name;
-				console.log("[UIVersion] " + publicName + ": ", _selectedUI.name);
-			};
-			UIController.selectSpecificUIVersion = function(version) {
-				_selectedUI = versionInfo.common[version] || versionInfo.default;
-				_UIAliases[publicName] = _selectedUI.name;
-				console.log("[UIVersion] " + publicName + ": ", _selectedUI.name);
-			};
-			UIController.getUI = function() {
-				return _selectedUI;
-			};
-			return UIController;
+			const proxy = new Proxy(UIController, {
+				get(target, prop, receiver) {
+					if (CONTROLLER_OWN.has(prop) || Object.prototype.hasOwnProperty.call(target, prop)) return Reflect.get(target, prop, receiver);
+					if (!_selectedUI) return prop in _pending ? _pending[prop] : void 0;
+					const val = _selectedUI[prop];
+					return typeof val === "function" ? val.bind(_selectedUI) : val;
+				},
+				set(target, prop, value) {
+					if (CONTROLLER_OWN.has(prop) || Object.prototype.hasOwnProperty.call(target, prop)) return Reflect.set(target, prop, value);
+					_pending[prop] = value;
+					if (_selectedUI) _selectedUI[prop] = value;
+					return true;
+				},
+				has(target, prop) {
+					return prop in target || prop in _pending || _selectedUI !== void 0 && prop in _selectedUI;
+				}
+			});
+			UIVersionManager._registry.push({
+				proxy,
+				controller: UIController,
+				versionInfo,
+				publicName,
+				phase: options.phase || null
+			});
+			return proxy;
+		}
+		/**
+		* Select the correct UI version for all map-phase controllers.
+		* Skips job-based controllers (versionInfo.job defined) — those are
+		* selected later via selectUIVersionWithJob() when the job is known.
+		* Also skips char-phase controllers registered via selectAllChar().
+		*/
+		static selectAll() {
+			for (const entry of UIVersionManager._registry) if (!entry.versionInfo.job && entry.phase !== "char") entry.proxy.selectUIVersion();
+		}
+		/**
+		* Select the correct UI version for char-phase controllers
+		* (CharSelect, CharCreate). Called from CharEngine.
+		*/
+		static selectAllChar() {
+			for (const entry of UIVersionManager._registry) if (entry.phase === "char") entry.controller.selectUIVersion();
+		}
+		/**
+		* Select versionInfo.default for every registered controller.
+		* Test-only helper: bypasses PACKETVER/renewal so components work
+		* without a server selection. Not called by the game runtime.
+		*/
+		static selectAllDefaults() {
+			for (const entry of UIVersionManager._registry) entry.controller.selectUIVersionDefault();
 		}
 		static getEquipmentVersion() {
 			if (Configs.get("clientVersionMode") === "PacketVer") {
@@ -222105,6 +222172,7 @@ var init_UIVersionManager = __esmMin((() => {
 			return 1;
 		}
 	};
+	UIVersionManager._registry = [];
 }));
 //#endregion
 //#region src/UI/Components/InputBox/InputBox.html?raw
@@ -222524,7 +222592,7 @@ var init_SwitchEquip = __esmMin((() => {
 		if (swapBtn) swapBtn.addEventListener("click", () => {
 			SwitchEquip.RequestSwitch();
 		});
-		const currentEquipTabId = EquipmentController.getUI().getCurrentTabId();
+		const currentEquipTabId = EquipmentController.getCurrentTabId();
 		SwitchEquip.showSwapTab(currentEquipTabId);
 		const swapcontents = root.querySelectorAll(".swapcontent");
 		for (const content of swapcontents) {
@@ -222567,7 +222635,7 @@ var init_SwitchEquip = __esmMin((() => {
 	* Append to body
 	*/
 	SwitchEquip.onAppend = function onAppend() {
-		const currentEquipTabId = EquipmentController.getUI().getCurrentTabId();
+		const currentEquipTabId = EquipmentController.getCurrentTabId();
 		SwitchEquip.showSwapTab(currentEquipTabId);
 		const root = SwitchEquip.getRoot();
 		if ((root ? root.querySelector("canvas") : null) && this._host.style.display !== "none") Renderer.render(swaprender);
@@ -222679,7 +222747,7 @@ var init_SwitchEquip = __esmMin((() => {
 				headpalette: SessionStorage_default.Entity.headpalette,
 				bodypalette: SessionStorage_default.Entity.bodypalette
 			});
-			const currentEquipTabId = EquipmentController.getUI().getCurrentTabId();
+			const currentEquipTabId = EquipmentController.getCurrentTabId();
 			if (currentEquipTabId === "general") {
 				swap_character.accessory = SwitchEquip.checkEquipLoc(EquipmentLocation_default.HEAD_BOTTOM);
 				swap_character.accessory2 = SwitchEquip.checkEquipLoc(EquipmentLocation_default.HEAD_TOP);
@@ -222740,7 +222808,7 @@ var init_SwitchEquip = __esmMin((() => {
 	* @returns {number} The sprite number of the item in the specified location, or 0 if not equipped
 	*/
 	SwitchEquip.checkEquipLoc = function checkEquipLoc(location) {
-		const switchList = InventoryController.getUI().equipswitchlist;
+		const switchList = InventoryController.equipswitchlist;
 		for (let i = 0; i < switchList.length; i++) {
 			const item = switchList[i];
 			if (item.location & location) return item.wItemSpriteNumber;
@@ -224890,13 +224958,14 @@ var init_MiniMap = __esmMin((() => {
 		prere: {}
 	};
 	Controller$5 = UIVersionManager.getUIController(publicName$12, versionInfo$12);
-	/**
-	* Proxy for getMemberColor
-	*/
-	Controller$5.getMemberColor = function getMemberColor(key) {
-		const ui = Controller$5.getUI();
-		return ui && ui.getMemberColor ? ui.getMemberColor(key) : "white";
-	};
+	Object.defineProperty(Controller$5, "getMemberColor", {
+		value: function getMemberColor(key) {
+			const ui = Controller$5.getUI();
+			return ui && typeof ui.getMemberColor === "function" ? ui.getMemberColor(key) : "white";
+		},
+		writable: true,
+		configurable: true
+	});
 }));
 //#endregion
 //#region src/UI/Components/PartyFriends/PartyHelper/PartyHelper.html?raw
@@ -225093,7 +225162,7 @@ var Friends_exports = /* @__PURE__ */ __exportAll({ default: () => FriendEngine 
 */
 function onFriendList(pkt) {
 	_friends = pkt.friendList;
-	controller.getUI().setFriends(_friends);
+	controller.setFriends(_friends);
 }
 /**
 * Update friend information
@@ -225104,7 +225173,7 @@ function onFriendUpdate(pkt) {
 	const idx = getFriendIndex(pkt.AID, pkt.GID);
 	if (idx > -1) {
 		_friends[idx].State = pkt.State;
-		controller.getUI().updateFriendState(idx, pkt.State);
+		controller.updateFriendState(idx, pkt.State);
 	}
 }
 /**
@@ -225139,7 +225208,7 @@ function onFriendAdded(pkt) {
 			_friends[idx].GID = pkt.GID;
 			_friends[idx].Name = pkt.Name;
 			_friends[idx].State = 0;
-			controller.getUI().updateFriend(idx, _friends[idx]);
+			controller.updateFriend(idx, _friends[idx]);
 			break;
 		case 1:
 			ChatBox_default.addText(DB.getMessage(822).replace("%s", pkt.Name), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
@@ -225159,7 +225228,7 @@ function onFriendRemoved(pkt) {
 	const idx = getFriendIndex(pkt.AID, pkt.GID);
 	if (idx > -1) {
 		_friends.splice(idx, 1);
-		controller.getUI().removeFriend(idx);
+		controller.removeFriend(idx);
 	}
 }
 /**
@@ -225194,9 +225263,8 @@ var init_Friends = __esmMin((() => {
 			Network.hookPacket(PACKET.ZC.REQ_ADD_FRIENDS, onFriendRequest);
 			Network.hookPacket(PACKET.ZC.ADD_FRIENDS_LIST, onFriendAdded);
 			Network.hookPacket(PACKET.ZC.DELETE_FRIENDS, onFriendRemoved);
-			const FriendUI = controller.getUI();
-			FriendUI.onRequestNewFriend = FriendEngine.addFriend;
-			FriendUI.onRemoveFriend = FriendEngine.removeFriend;
+			controller.onRequestNewFriend = FriendEngine.addFriend;
+			controller.onRemoveFriend = FriendEngine.removeFriend;
 		}
 		/**
 		* Clean up from memory
@@ -226707,7 +226775,7 @@ var init_PartyMemberExternal = __esmMin((() => {
 				UIManager.showPromptBox(DB.getMessage(357), "ok", "cancel", () => {
 					if (controller && controller.onRequestLeave) controller.onRequestLeave();
 					else {
-						const ui = controller ? controller.getUI() : null;
+						const ui = controller ? controller : null;
 						if (ui && ui.onRequestLeave) ui.onRequestLeave();
 					}
 				});
@@ -227109,7 +227177,7 @@ function onDrop$11(event) {
 		InputBox_default.onSubmitRequest = function OnSubmitRequest(count) {
 			InputBox_default.remove();
 			Mail.parseMailWinopen(1);
-			if (data.from == "Inventory") InventoryController.getUI().removeItem(item.index, parseInt(count, 10));
+			if (data.from == "Inventory") InventoryController.removeItem(item.index, parseInt(count, 10));
 			Mail.parseMailSetattach(item.index, parseInt(count, 10));
 			_preferences$36.item_add_email = item;
 			_preferences$36.item_add_email.count = parseInt(count, 10);
@@ -227117,7 +227185,7 @@ function onDrop$11(event) {
 		};
 		return;
 	}
-	if (data.from == "Inventory") InventoryController.getUI().removeItem(item.index, 1);
+	if (data.from == "Inventory") InventoryController.removeItem(item.index, 1);
 	Mail.parseMailWinopen(1);
 	Mail.parseMailSetattach(item.index, 1);
 	_preferences$36.item_add_email = item;
@@ -229010,27 +229078,6 @@ var init_PartyFriends = __esmMin((() => {
 		prere: {}
 	};
 	controller = UIVersionManager.getUIController(publicName$11, versionInfo$11);
-	/**
-	* Proxy for isGroupMember
-	*/
-	controller.isGroupMember = function isGroupMember(name) {
-		const ui = controller.getUI();
-		return ui && ui.isGroupMember && ui.isGroupMember(name);
-	};
-	/**
-	* Proxy for onOpenChat1to1
-	*/
-	controller.onOpenChat1to1 = function onOpenChat1to1(name) {
-		const ui = controller.getUI();
-		if (ui && ui.onOpenChat1to1) ui.onOpenChat1to1(name);
-	};
-	/**
-	* Proxy for toggle
-	*/
-	controller.toggle = function toggle() {
-		const ui = controller.getUI();
-		if (ui && ui.toggle) ui.toggle();
-	};
 }));
 //#endregion
 //#region src/UI/Components/GuildCompanion/GuildCompanion.html?raw
@@ -229692,7 +229739,7 @@ var init_WinStats = __esmMin((() => {
 	_selectUIVersion$6 = WinStatsController.selectUIVersion;
 	WinStatsController.selectUIVersion = function() {
 		_selectUIVersion$6();
-		const component = WinStatsController.getUI();
+		const component = WinStatsController;
 		component.onKeyDown = function onKeyDown(e) {
 			if ((e.which === KEYS.ESCAPE || e.key === "Escape") && component.ui.is(":visible")) {
 				if (typeof component.toggle === "function") component.toggle();
@@ -230740,7 +230787,7 @@ var init_Guild$1 = __esmMin((() => {
 		updateDisbandButton(root, getActiveTab(root));
 		updateSkillFooter(root, getActiveTab(root));
 		updateMemberSort(root, getActiveTab(root));
-		WinStatsController.getUI().update("guildname", info.guildname);
+		WinStatsController.update("guildname", info.guildname);
 		updateInfoOptions(root);
 		if (_showsTendency()) renderTendency(info.honor, info.virtue);
 	};
@@ -234189,7 +234236,7 @@ var init_SkillList = __esmMin((() => {
 	_selectUIVersion$5 = Controller$4.selectUIVersion;
 	Controller$4.selectUIVersion = function() {
 		_selectUIVersion$5();
-		const component = Controller$4.getUI();
+		const component = Controller$4;
 		component.onKeyDown = (e) => {
 			if ((e.which === KEYS.ESCAPE || e.key === "Escape") && component.ui.is(":visible")) {
 				if (typeof component.toggle === "function") component.toggle();
@@ -235237,7 +235284,7 @@ var init_Quest$1 = __esmMin((() => {
 	_selectUIVersion$4 = Controller$3.selectUIVersion;
 	Controller$3.selectUIVersion = function() {
 		_selectUIVersion$4();
-		const component = Controller$3.getUI();
+		const component = Controller$3;
 		component.onKeyDown = function onKeyDown(e) {
 			if ((e.which === KEYS.ESCAPE || e.key === "Escape") && component.ui.is(":visible")) {
 				if (typeof component.toggle === "function") component.toggle();
@@ -236325,7 +236372,7 @@ var init_Reputation = __esmMin((() => {
 //#endregion
 //#region src/UI/Components/BasicInfo/BasicInfoCommon.js
 function createBasicInfo(config) {
-	const { name, htmlText, cssText, prefKey, reduceDefault = true, innerId, topbarItemSelector = ".topbar button", topbarDblClick = false, toggleButtonsEvent = "mousedown", buttonsSelector = ".buttons button", buttonsEvent = "mousedown", buttonKeyBy = "class", infoOpensWinStats = true, partyViaGetUI = false, hasToolbarToggle = false, miniLayout = false, hideIds = [], barScale = 1.27, hasApBar = false } = config;
+	const { name, htmlText, cssText, prefKey, reduceDefault = true, innerId, topbarItemSelector = ".topbar button", topbarDblClick = false, toggleButtonsEvent = "mousedown", buttonsSelector = ".buttons button", buttonsEvent = "mousedown", buttonKeyBy = "class", infoOpensWinStats = true, hasToolbarToggle = false, miniLayout = false, hideIds = [], barScale = 1.27, hasApBar = false } = config;
 	const Component = new GUIComponent(name, cssText);
 	/**
 	* Stored data
@@ -236358,23 +236405,22 @@ function createBasicInfo(config) {
 	function dispatchButton(key) {
 		switch (key) {
 			case "item":
-				InventoryController.getUI().toggle();
+				InventoryController.toggle();
 				break;
 			case "info":
-				(infoOpensWinStats ? WinStatsController.getUI() : EquipmentController.getUI()).toggle();
+				(infoOpensWinStats ? WinStatsController : EquipmentController).toggle();
 				break;
 			case "equip":
-				EquipmentController.getUI().toggle();
+				EquipmentController.toggle();
 				break;
 			case "skill":
-				Controller$4.getUI().toggle();
+				Controller$4.toggle();
 				break;
 			case "option":
 				Escape_default.ui.toggle();
 				break;
 			case "party":
-				if (partyViaGetUI) controller.getUI().toggle();
-				else controller.toggle();
+				controller.toggle();
 				break;
 			case "guild":
 				Guild_default.toggle();
@@ -236389,7 +236435,7 @@ function createBasicInfo(config) {
 				Bank_default.toggle();
 				break;
 			case "quest":
-				Controller$3.getUI().toggle();
+				Controller$3.toggle();
 				break;
 			case "mail":
 				Rodex_default.toggle();
@@ -236847,7 +236893,6 @@ var init_BasicInfoV4 = __esmMin((() => {
 		buttonsSelector: ".buttons button",
 		buttonsEvent: "click",
 		buttonKeyBy: "id",
-		partyViaGetUI: true,
 		hasToolbarToggle: true,
 		hideIds: [
 			"battle",
@@ -236891,7 +236936,6 @@ var init_BasicInfoV5 = __esmMin((() => {
 		buttonsSelector: ".buttons > div[id]",
 		buttonsEvent: "click",
 		buttonKeyBy: "id",
-		partyViaGetUI: true,
 		hasToolbarToggle: true,
 		hideIds: [
 			"battle",
@@ -236987,11 +237031,11 @@ function onOpenRefineUI() {
 		return false;
 	}
 	Refine.append();
-	if (!(InventoryController.getUI().ui ? InventoryController.getUI().ui.is(":visible") : false)) InventoryController.getUI().toggle();
+	if (!(InventoryController.ui ? InventoryController.ui.is(":visible") : false)) InventoryController.toggle();
 	const refineRect = Refine._host.getBoundingClientRect();
 	const refineWidth = Refine._host.offsetWidth;
-	const refineHeight = Refine._host.offsetHeight - InventoryController.getUI().ui.height();
-	InventoryController.getUI().ui.css({
+	const refineHeight = Refine._host.offsetHeight - InventoryController.ui.height();
+	InventoryController.ui.css({
 		position: "absolute",
 		top: refineRect.top ? refineRect.top + refineHeight : 200,
 		left: refineRect.left ? refineRect.left + refineWidth : 300
@@ -237066,7 +237110,7 @@ function onRefineUIUpdateMaterials(pkt) {
 	if (pkt && pkt.MaterialInfo.length > 0) {
 		if (root.querySelector(".item_to_refine .item")) onRemoveItem$1(false);
 		refine_item_index = pkt.itemIndex;
-		const item = InventoryController.getUI().getItemByIndex(pkt.itemIndex);
+		const item = InventoryController.getItemByIndex(pkt.itemIndex);
 		refiningMaterials = pkt.MaterialInfo;
 		blacksmithBlessing = pkt.blacksmithBlessing;
 		if (!Refine.hammer) {
@@ -237093,7 +237137,7 @@ function onRefineUIUpdateMaterials(pkt) {
 			for (let i = 0; i < refiningMaterials.length; i++) {
 				foundMaterial = refiningMaterials[i];
 				if (foundMaterial.itemId === refine_item_mat) {
-					foundItem = InventoryController.getUI().getItemById(foundMaterial.itemId);
+					foundItem = InventoryController.getItemById(foundMaterial.itemId);
 					materialFound = true;
 					refine_new_mats = 0;
 					break;
@@ -237130,7 +237174,7 @@ function onPopulateMaterials$1() {
 	for (let i = 0; i < refiningMaterials.length; i++) (function(idx) {
 		const material = refiningMaterials[idx];
 		const it = DB.getItemInfo(material.itemId);
-		const item = InventoryController.getUI().getItemById(material.itemId);
+		const item = InventoryController.getItemById(material.itemId);
 		const materialDiv = root.querySelector(`.material_${idx}`);
 		if (!materialDiv) return;
 		materialDiv.innerHTML = "";
@@ -237148,7 +237192,7 @@ function onPopulateMaterials$1() {
 		const iconEl = materialDiv.querySelector(".icon");
 		if (iconEl) iconEl.addEventListener("click", () => {
 			const clickedItemId = material.itemId;
-			const clickedItem = InventoryController.getUI().getItemById(clickedItemId);
+			const clickedItem = InventoryController.getItemById(clickedItemId);
 			if ((clickedItem ? clickedItem.count : 0) === 0) return;
 			for (const messageID in itemMessageMapping) if (itemMessageMapping[messageID].includes(clickedItemId)) {
 				showMessage$3(messageID, 0, "info");
@@ -237186,7 +237230,7 @@ function onPopulateMaterials$1() {
 	if (blacksmithBlessing) {
 		const bsbDiv = root.querySelector(".bsb_overlay .bsb");
 		const bsbItem = DB.getItemInfo(BSB_ITID);
-		const item = InventoryController.getUI().getItemById(BSB_ITID);
+		const item = InventoryController.getItemById(BSB_ITID);
 		bsbDiv.insertAdjacentHTML("beforeend", `<div class="item" data-index="${BSB_ITID}" draggable="false"><div class="icon"></div><div class="mat_count"></div></div>`);
 		Client.loadFile(DB.INTERFACE_PATH + "item/" + (bsbItem.IsIdentified ? bsbItem.identifiedResourceName : bsbItem.unidentifiedResourceName) + ".bmp", function(data) {
 			const icon = bsbDiv.querySelector(`.item[data-index="${BSB_ITID}"] .icon`);
@@ -237200,7 +237244,7 @@ function onPopulateMaterials$1() {
 		}
 		const bsbIcon = bsbDiv.querySelector(".icon");
 		if (bsbIcon) bsbIcon.addEventListener("click", () => {
-			const bsbInventoryItem = InventoryController.getUI().getItemById(BSB_ITID);
+			const bsbInventoryItem = InventoryController.getItemById(BSB_ITID);
 			if ((bsbInventoryItem ? bsbInventoryItem.count : 0) >= blacksmithBlessing) {
 				const bsbOverlay = bsbDiv.closest(".bsb_overlay");
 				if (bsbOverlay.classList.contains("selected")) {
@@ -237240,7 +237284,7 @@ function selectMaterial(material, item) {
 		refine_can_cont = 0;
 	}
 	if (refine_bsb) {
-		const bsbinInventory = InventoryController.getUI().getItemById(BSB_ITID);
+		const bsbinInventory = InventoryController.getItemById(BSB_ITID);
 		const bsbCount = bsbinInventory ? bsbinInventory.count || 0 : 0;
 		if (!bsbinInventory || bsbCount < refine_bsb) {
 			refine_no_bsb = 1;
@@ -237420,8 +237464,8 @@ function showMessage$3(messageID, timeout, type) {
 */
 function onRequestRefine() {
 	const root = _root$11();
-	const item = InventoryController.getUI().getItemByIndex(refine_item_index);
-	const material = InventoryController.getUI().getItemById(refine_item_mat);
+	const item = InventoryController.getItemByIndex(refine_item_index);
+	const material = InventoryController.getItemById(refine_item_mat);
 	if (!item) return;
 	if (!material) return;
 	if (SessionStorage_default.zeny < refine_fee) {
@@ -237571,7 +237615,7 @@ function onUpdateRefineUI(result) {
 	const refineCont = root.querySelector(".refine_cont");
 	if (refineCont) refineCont.style.display = "block";
 	if (!refine_item_broken) {
-		const refineditem = InventoryController.getUI().getItemByIndex(refine_item_index);
+		const refineditem = InventoryController.getItemByIndex(refine_item_index);
 		if (refineditem) {
 			const itemToRefineName = root.querySelector(".item_to_refine_name");
 			if (itemToRefineName) itemToRefineName.textContent = DB.getItemName(refineditem);
@@ -237614,7 +237658,7 @@ function onHideContRefineButtons() {
 */
 function onCheckItemBroken() {
 	const root = _root$11();
-	if (!InventoryController.getUI().getItemByIndex(refine_item_index)) {
+	if (!InventoryController.getItemByIndex(refine_item_index)) {
 		refine_result_div = "fail_refine_cont_disabled";
 		const itemToRefineName = root.querySelector(".item_to_refine_name");
 		if (itemToRefineName) itemToRefineName.textContent = DB.getMessage(3246);
@@ -237652,7 +237696,7 @@ function onItemInfo$16(event) {
 	event.stopImmediatePropagation();
 	event.preventDefault();
 	const ITID = parseInt(this.getAttribute("data-index"), 10);
-	const item = InventoryController.getUI().getItemById(ITID) ? InventoryController.getUI().getItemById(ITID) : InventoryController.getUI().getItemByIndex(ITID);
+	const item = InventoryController.getItemById(ITID) ? InventoryController.getItemById(ITID) : InventoryController.getItemByIndex(ITID);
 	if (!item) return;
 	if (ItemCompare_default.ui) ItemCompare_default.remove();
 	if (ItemInfo_default.uid === item.ITID) {
@@ -237663,8 +237707,8 @@ function onItemInfo$16(event) {
 	ItemInfo_default.append();
 	ItemInfo_default.uid = item.ITID;
 	ItemInfo_default.setItem(item);
-	const compareItem = EquipmentController.getUI().isInEquipList(item.location);
-	if (compareItem && InventoryController.getUI().itemcomp) {
+	const compareItem = EquipmentController.isInEquipList(item.location);
+	if (compareItem && InventoryController.itemcomp) {
 		ItemCompare_default.prepare();
 		ItemCompare_default.append();
 		ItemCompare_default.uid = compareItem.ITID;
@@ -237981,10 +238025,10 @@ var init_Refine = __esmMin((() => {
 			if (backButton) backButton.style.display = "none";
 			const refineCont = root.querySelector(".refine_cont");
 			if (refineCont) refineCont.style.display = "none";
-			const item = InventoryController.getUI().removeItem(pkt.itemIndex, 1);
+			const item = InventoryController.removeItem(pkt.itemIndex, 1);
 			if (item) {
 				item.RefiningLevel = pkt.RefiningLevel;
-				InventoryController.getUI().addItem(item);
+				InventoryController.addItem(item);
 			}
 			stopCurrentLoop();
 			refine_result = pkt.result;
@@ -238165,7 +238209,7 @@ function onEnchantGradeUIUpdateMaterials(pkt) {
 		if (root.querySelector(".enchant_container .item")) onRemoveItem();
 		EnchantGrade_item_index = pkt.index;
 		EnchantGrade_current_success = pkt.success_chance;
-		const item = InventoryController.getUI().getItemByIndex(pkt.index);
+		const item = InventoryController.getItemByIndex(pkt.index);
 		gradingMaterials = pkt.materialList;
 		onPopulateMaterials();
 		clearTimeout(EnchantGrade.imageLoopTimeout["idle"]);
@@ -238195,7 +238239,7 @@ function onEnchantGradeUIUpdateMaterials(pkt) {
 		const bless = pkt.blessing_info;
 		if (!bless || !bless.id) return;
 		const blessItem = DB.getItemInfo(bless.id);
-		const invBless = InventoryController.getUI().getItemById(bless.id);
+		const invBless = InventoryController.getItemById(bless.id);
 		const invCount = invBless ? invBless.count : 0;
 		const bedContainer = root.querySelector(".BED_container");
 		if (bedContainer) bedContainer.innerHTML = `<div class="item" data-index="${bless.id}"><div class="icon"></div></div><div class="additional_mat_name" style="margin-right: 3px; margin-left: 7px;">${blessItem.identifiedDisplayName}</div><div class="additonal_mat_amount">${EnchantGrade_currentBlessing} ea</div>`;
@@ -238324,7 +238368,7 @@ function onPopulateMaterials() {
 			let insufficent = false;
 			const zenyCost = root.querySelector(".zeny_cost_container");
 			if (zenyCost) zenyCost.textContent = price;
-			const item = InventoryController.getUI().getItemById(material_ITID);
+			const item = InventoryController.getItemById(material_ITID);
 			const material_count = item ? item.count : 0;
 			if (!item || material_count < material_amount) insufficent = true;
 			if (SessionStorage_default.zeny < price) insufficent = true;
@@ -238455,11 +238499,11 @@ function onEnchantGradeResult(pkt) {
 				});
 			}
 		});
-		const item = InventoryController.getUI().removeItem(pkt.index, 1);
+		const item = InventoryController.removeItem(pkt.index, 1);
 		if (item) {
 			item.enchantgrade = pkt.grade;
 			item.RefiningLevel = pkt.result === 0 ? 0 : item.RefiningLevel;
-			InventoryController.getUI().addItem(item);
+			InventoryController.addItem(item);
 		}
 	}
 }
@@ -238488,7 +238532,7 @@ function onItemInfo$15(event) {
 	event.stopImmediatePropagation();
 	event.preventDefault();
 	const ITID = parseInt(this.getAttribute("data-index"), 10);
-	const item = InventoryController.getUI().getItemById(ITID) ? InventoryController.getUI().getItemById(ITID) : InventoryController.getUI().getItemByIndex(ITID);
+	const item = InventoryController.getItemById(ITID) ? InventoryController.getItemById(ITID) : InventoryController.getItemByIndex(ITID);
 	if (!item) return false;
 	if (ItemCompare_default.ui) ItemCompare_default.remove();
 	if (ItemInfo_default.uid === item.ITID) {
@@ -238499,8 +238543,8 @@ function onItemInfo$15(event) {
 	ItemInfo_default.append();
 	ItemInfo_default.uid = item.ITID;
 	ItemInfo_default.setItem(item);
-	const compareItem = EquipmentController.getUI().isInEquipList(item.location);
-	if (compareItem && InventoryController.getUI().itemcomp) {
+	const compareItem = EquipmentController.isInEquipList(item.location);
+	if (compareItem && InventoryController.itemcomp) {
 		ItemCompare_default.prepare();
 		ItemCompare_default.append();
 		ItemCompare_default.uid = compareItem.ITID;
@@ -238727,7 +238771,7 @@ var init_EnchantGrade = __esmMin((() => {
 	*/
 	EnchantGrade.onOpenEnchantGradeUI = function onOpenEnchantGradeUI() {
 		EnchantGrade.append();
-		const invUI = InventoryController.getUI();
+		const invUI = InventoryController;
 		if (!(invUI && invUI._host ? invUI._host.isConnected && invUI._host.style.display !== "none" : false)) invUI.toggle();
 		const hostRect = EnchantGrade._host.getBoundingClientRect();
 		const invHost = invUI._host || invUI.ui && invUI.ui[0];
@@ -239598,7 +239642,7 @@ function hasEnoughZeny(zeny) {
 }
 function hasEnoughMaterials(materials) {
 	if (!materials || !materials.length) return true;
-	const inventoryUI = InventoryController.getUI && InventoryController.getUI();
+	const inventoryUI = InventoryController;
 	if (!inventoryUI || !inventoryUI.getItemById) return false;
 	for (let i = 0; i < materials.length; i++) {
 		const mat = materials[i];
@@ -239621,7 +239665,6 @@ function renderMaterials(materials) {
 	if (!list) return;
 	list.innerHTML = "";
 	if (!materials || !materials.length) return;
-	const inventoryUI = InventoryController.getUI && InventoryController.getUI();
 	materials.forEach((mat) => {
 		const entry = document.createElement("div");
 		entry.className = "material";
@@ -239635,8 +239678,8 @@ function renderMaterials(materials) {
 		const label = matId ? getItemDisplayName(matId, mat.base) : mat.base || "Unknown";
 		let current = 0;
 		const required = Number(mat.count) || 0;
-		if (matId && inventoryUI && inventoryUI.getItemById) {
-			const inventoryItem = inventoryUI.getItemById(matId);
+		if (matId && InventoryController.getItemById) {
+			const inventoryItem = InventoryController.getItemById(matId);
 			current = inventoryItem ? inventoryItem.count : 0;
 		}
 		nameEl.textContent = label;
@@ -239708,8 +239751,7 @@ function renderItemList() {
 		list.appendChild(empty);
 		return;
 	}
-	const inventoryUI = InventoryController.getUI && InventoryController.getUI();
-	const items = inventoryUI && inventoryUI.list ? inventoryUI.list : [];
+	const items = InventoryController && InventoryController.list ? InventoryController.list : [];
 	let selectedIndex = EnchantState.item ? EnchantState.item.index : 0;
 	let selectedValid = false;
 	const candidates = [];
@@ -240043,8 +240085,7 @@ function validateItem(item) {
 	return { ok: true };
 }
 function getInventoryItemByIndex(index) {
-	const inventoryUI = InventoryController.getUI && InventoryController.getUI();
-	return inventoryUI && inventoryUI.getItemByIndex ? inventoryUI.getItemByIndex(index) : null;
+	return InventoryController.getItemByIndex(index);
 }
 function resolveItemContext(target) {
 	const slotEntry = target.closest(".slot_entry");
@@ -240164,8 +240205,7 @@ function onItemSelect$2(event) {
 	if (!entry) return;
 	const index = parseInt(entry.dataset.index, 10);
 	if (isNaN(index)) return;
-	const inventoryUI = InventoryController.getUI && InventoryController.getUI();
-	const item = inventoryUI && inventoryUI.getItemByIndex ? inventoryUI.getItemByIndex(index) : null;
+	const item = InventoryController.getItemByIndex(index);
 	if (!item) return;
 	Enchant.onRequestItemEnchant(item);
 }
@@ -241252,7 +241292,7 @@ function createInventory(config) {
 				this._host.style.display = "none";
 			}
 		}
-		const basicInfoUI = BasicInfoController.getUI();
+		const basicInfoUI = BasicInfoController;
 		if (basicInfoUI._host) {
 			const changeUI = basicInfoUI.getRoot().querySelector("#item .btn_overlay");
 			if (changeUI) changeUI.style.display = "none";
@@ -241273,7 +241313,7 @@ function createInventory(config) {
 			});
 			this._host.style.display = "none";
 		}
-		const basicInfoUI = BasicInfoController.getUI();
+		const basicInfoUI = BasicInfoController;
 		if (basicInfoUI._host) {
 			const changeUI = basicInfoUI.getRoot().querySelector("#item .btn_overlay");
 			if (changeUI) changeUI.style.display = "none";
@@ -241388,7 +241428,7 @@ function createInventory(config) {
 		}
 	};
 	function countLabel() {
-		return Component.list.length + EquipmentController.getUI().getNumber() + (favoriteTab ? " / " : "");
+		return Component.list.length + EquipmentController.getNumber() + (favoriteTab ? " / " : "");
 	}
 	/**
 	* Insert Item to inventory
@@ -241402,7 +241442,7 @@ function createInventory(config) {
 		if (equippedIndex !== -1) Component.equippedItems.splice(equippedIndex, 1);
 		else {
 			Component.newItems.push(item.index);
-			const basicInfoUI = BasicInfoController.getUI();
+			const basicInfoUI = BasicInfoController;
 			if (basicInfoUI._host) {
 				const changeUI = basicInfoUI.getRoot().querySelector("#item .btn_overlay");
 				if (changeUI) changeUI.style.display = "block";
@@ -241454,7 +241494,7 @@ function createInventory(config) {
 		let tab = getItemTab(item);
 		if (favoriteTab && item.PlaceETCTab) tab = Component.TAB.FAV;
 		if (item.WearState && item.type !== ItemType_default.AMMO && item.type !== ItemType_default.CARD) {
-			EquipmentController.getUI().equip(item, item.WearState);
+			EquipmentController.equip(item, item.WearState);
 			return false;
 		}
 		const isInSwitchList = equipSwitch ? Component.equipswitchlist.some((equipItem) => equipItem.index === item.index) : false;
@@ -241812,7 +241852,7 @@ function createInventory(config) {
 		ItemInfo_default.uid = item.ITID;
 		ItemInfo_default.setItem(item);
 		if (favoriteTab) {
-			const compareItem = EquipmentController.getUI().isInEquipList(item.location);
+			const compareItem = EquipmentController.isInEquipList(item.location);
 			if (compareItem && Component.itemcomp) {
 				ItemCompare_default.prepare();
 				ItemCompare_default.append();
@@ -241827,7 +241867,7 @@ function createInventory(config) {
 	*/
 	function transferItemToOtherUI(item) {
 		if (transferInventoryItemStack(item, UIManager.components)) return true;
-		const storageUI = StorageController.getUI();
+		const storageUI = StorageController;
 		const isStorageOpen = storageUI._host ? storageUI._host.style.display !== "none" : false;
 		const isCartOpen = CartItems_default._host ? CartItems_default._host.style.display !== "none" : false;
 		if (!item) return false;
@@ -242007,7 +242047,7 @@ function createInventory(config) {
 				SwitchEquip_default.unEquip(item.index, item.location);
 				this.equipswitchlist.splice(existingItemIndex, 1);
 				ChatBox_default.addText(DB.getItemName(item) + " " + DB.getMessage(3144), ChatBox_default.TYPE.BLUE, ChatBox_default.FILTER.ITEM);
-				EquipmentController.getUI().equipItemsToSwitch();
+				EquipmentController.equipItemsToSwitch();
 				Component.equipAllFromSwitchList();
 			}
 		};
@@ -242267,7 +242307,7 @@ var init_Inventory = __esmMin((() => {
 	_selectUIVersion$3 = InventoryController.selectUIVersion;
 	InventoryController.selectUIVersion = function() {
 		_selectUIVersion$3();
-		const component = InventoryController.getUI();
+		const component = InventoryController;
 		DB.UpdateOwnerName.Inventory = component.onUpdateOwnerName;
 		component.onKeyDown = function onKeyDown(e) {
 			if ((e.which === KEYS.ESCAPE || e.key === "Escape") && component.ui.is(":visible")) {
@@ -242707,7 +242747,7 @@ function createStorage(config) {
 		return false;
 	}
 	Component.transferItemToOtherUI = function transferItemToOtherUI(item) {
-		const isInventoryOpen = InventoryController.getUI().ui ? InventoryController.getUI().ui.is(":visible") : false;
+		const isInventoryOpen = InventoryController.ui ? InventoryController.ui.is(":visible") : false;
 		const isCartOpen = CartItems_default.ui ? CartItems_default.ui.is(":visible") : false;
 		if (!item) return false;
 		const count = item.count || 1;
@@ -243168,7 +243208,7 @@ function onDrop$9(event) {
 				case "Storage":
 					StorageController.reqMoveItemToCart(item.index, parseInt(count, 10));
 					break;
-				case "Inventory": InventoryController.getUI().reqMoveItemToCart(item.index, parseInt(count, 10));
+				case "Inventory": InventoryController.reqMoveItemToCart(item.index, parseInt(count, 10));
 			}
 		};
 		return false;
@@ -243177,7 +243217,7 @@ function onDrop$9(event) {
 		case "Storage":
 			StorageController.reqMoveItemToCart(item.index, 1);
 			break;
-		case "Inventory": InventoryController.getUI().reqMoveItemToCart(item.index, 1);
+		case "Inventory": InventoryController.reqMoveItemToCart(item.index, 1);
 	}
 	return false;
 }
@@ -243271,8 +243311,8 @@ function onItemInfo$13(event) {
 	ItemInfo_default.append();
 	ItemInfo_default.uid = item.ITID;
 	ItemInfo_default.setItem(item);
-	const compareItem = EquipmentController.getUI().isInEquipList(item.location);
-	if (compareItem && InventoryController.getUI().itemcomp) {
+	const compareItem = EquipmentController.isInEquipList(item.location);
+	if (compareItem && InventoryController.itemcomp) {
 		ItemCompare_default.prepare();
 		ItemCompare_default.append();
 		ItemCompare_default.uid = compareItem.ITID;
@@ -243284,8 +243324,8 @@ function onItemInfo$13(event) {
 * Alt Right Click Request Transfer
 */
 function transferItemToOtherUI(item) {
-	const storageUI = StorageController.getUI();
-	const inventoryUI = InventoryController.getUI();
+	const storageUI = StorageController;
+	const inventoryUI = InventoryController;
 	const isStorageOpen = storageUI._host ? storageUI._host.style.display !== "none" : false;
 	const isInventoryOpen = inventoryUI._host ? inventoryUI._host.style.display !== "none" : false;
 	if (!item) return false;
@@ -243890,7 +243930,7 @@ function createEquipment({ name, htmlText, cssText, entityRender = true, enchant
 			if (panel) panel.style.display = "none";
 		}
 		if (UIVersionManager.getEquipmentVersion() > 0) {
-			if (_preferences.stats && _preferences.show) WinStatsController.getUI().embed(Component._host);
+			if (_preferences.stats && _preferences.show) WinStatsController.embed(Component._host);
 			else Client.loadFile(DB.INTERFACE_PATH + "basic_interface/viewon.bmp", (data) => {
 				const btn = Component.getRoot().querySelector(".view_status");
 				if (btn) btn.style.backgroundImage = `url(${data})`;
@@ -243916,8 +243956,7 @@ function createEquipment({ name, htmlText, cssText, entityRender = true, enchant
 		_preferences.show = this._host.style.display !== "none";
 		const panel = root.querySelector(".panel");
 		_preferences.reduce = panel ? panel.style.display === "none" : false;
-		const winStats = WinStatsController.getUI();
-		_preferences.stats = winStats.isEmbedded();
+		_preferences.stats = WinStatsController.isEmbedded();
 		hideStatus();
 		_preferences.y = parseInt(this._host.style.top, 10);
 		_preferences.x = parseInt(this._host.style.left, 10);
@@ -243929,7 +243968,7 @@ function createEquipment({ name, htmlText, cssText, entityRender = true, enchant
 			Renderer.render(renderCharacter);
 			if (UIVersionManager.getEquipmentVersion() > 0) {
 				if (_btnLevelUp && _btnLevelUp.parentNode) _btnLevelUp.remove();
-				if (_preferences.stats) WinStatsController.getUI().embed(Component._host);
+				if (_preferences.stats) WinStatsController.embed(Component._host);
 			}
 			this.focus();
 		} else {
@@ -243996,9 +244035,9 @@ function createEquipment({ name, htmlText, cssText, entityRender = true, enchant
 				el.style.backgroundImage = `url(${data})`;
 			});
 		});
-		if (!InventoryController.getUI().equippedItems.includes(item.index)) InventoryController.getUI().equippedItems.push(item.index);
+		if (!InventoryController.equippedItems.includes(item.index)) InventoryController.equippedItems.push(item.index);
 		if (switchEquip && PacketVerManager_default.value >= 20170621) {
-			if (!InventoryController.getUI().isInEquipSwitchList(location)) SwitchEquip_default.equip(item, location, false);
+			if (!InventoryController.isInEquipSwitchList(location)) SwitchEquip_default.equip(item, location, false);
 		}
 	};
 	Component.unEquip = function unEquip(index, location) {
@@ -244021,12 +244060,12 @@ function createEquipment({ name, htmlText, cssText, entityRender = true, enchant
 		return 0;
 	};
 	function hideStatus() {
-		const winStats = WinStatsController.getUI();
+		const winStats = WinStatsController;
 		if (winStats.isEmbedded()) winStats.unembed();
 	}
 	function toggleStatus() {
 		const self = Component.getRoot().querySelector(".view_status");
-		const winStats = WinStatsController.getUI();
+		const winStats = WinStatsController;
 		const isVisible = winStats.isEmbedded();
 		const state = isVisible ? "on" : "off";
 		if (isVisible) {
@@ -244559,7 +244598,7 @@ var init_Equipment = __esmMin((() => {
 	_selectUIVersion$1 = EquipmentController.selectUIVersion;
 	EquipmentController.selectUIVersion = function() {
 		_selectUIVersion$1();
-		const component = EquipmentController.getUI();
+		const component = EquipmentController;
 		DB.UpdateOwnerName.Equipment = component.onUpdateOwnerName;
 		component.onKeyDown = function onKeyDown(e) {
 			if ((e.which === KEYS.ESCAPE || e.key === "Escape") && component.ui.is(":visible")) {
@@ -244801,7 +244840,7 @@ function validateFieldsExist(event) {
 */
 function onItemPreview(pkt) {
 	if (pkt) {
-		const item = InventoryController.getUI().getItemByIndex(pkt.index);
+		const item = InventoryController.getItemByIndex(pkt.index);
 		if (!item) return false;
 		if (ItemCompare_default.ui) ItemCompare_default.remove();
 		if (ItemInfo.uid === item.ITID) {
@@ -244812,8 +244851,8 @@ function onItemPreview(pkt) {
 		ItemInfo.append();
 		ItemInfo.uid = item.ITID;
 		ItemInfo.setItem(item);
-		const compareItem = EquipmentController.getUI().isInEquipList(item.location);
-		if (compareItem && InventoryController.getUI().itemcomp) {
+		const compareItem = EquipmentController.isInEquipList(item.location);
+		if (compareItem && InventoryController.itemcomp) {
 			ItemCompare_default.prepare();
 			ItemCompare_default.append();
 			ItemCompare_default.uid = compareItem.ITID;
@@ -245914,7 +245953,7 @@ function onPartyCreate(pkt) {
 				if (entity.job !== void 0) memberData.class_ = entity.job;
 				if (entity.life && entity.life.display) memberData.life = entity.life;
 			}
-			controller.getUI().setParty(_partyName, [memberData]);
+			controller.setParty(_partyName, [memberData]);
 			break;
 		}
 		case 1:
@@ -245932,7 +245971,7 @@ function onPartyCreate(pkt) {
 * @param {object} pkt - PACKET.ZC.GROUP_ISALIVE
 */
 function onPartyIsAlive(pkt) {
-	controller.getUI().updateMemberDead(pkt.AID, pkt.isDead);
+	controller.updateMemberDead(pkt.AID, pkt.isDead);
 }
 /**
 * Get list of party members
@@ -245951,7 +245990,7 @@ function onPartyList(pkt) {
 			if (!pkt.groupInfo[i].class_ && entity.job !== void 0) pkt.groupInfo[i].class_ = entity.job;
 		}
 	}
-	controller.getUI().setParty(pkt.groupName, pkt.groupInfo);
+	controller.setParty(pkt.groupName, pkt.groupInfo);
 	WorldMap_default.updatePartyMembers(pkt);
 }
 /**
@@ -245966,10 +246005,9 @@ function onPartyMemberJoin(pkt) {
 		if (!pkt.baseLevel && entity.display && entity.display.lvl) pkt.baseLevel = entity.display.lvl;
 		if (!pkt.class_ && entity.job !== void 0) pkt.class_ = entity.job;
 	}
-	const PartyUI = controller.getUI();
 	if (pkt.AID === SessionStorage_default.AID) SessionStorage_default.hasParty = true;
-	PartyUI.setOptions(pkt.expOption, pkt.ItemPickupRule, pkt.ItemDivisionRule);
-	PartyUI.addPartyMember(pkt);
+	controller.setOptions(pkt.expOption, pkt.ItemPickupRule, pkt.ItemDivisionRule);
+	controller.addPartyMember(pkt);
 }
 /**
 * Remove a player from the group
@@ -245988,7 +246026,7 @@ function onPartyMemberLeave(pkt) {
 			return;
 	}
 	if (SessionStorage_default.AID === pkt.AID) SessionStorage_default.hasParty = false;
-	controller.getUI().removePartyMember(pkt.AID, pkt.characterName);
+	controller.removePartyMember(pkt.AID, pkt.characterName);
 }
 /**
 * Display entity life
@@ -246005,7 +246043,7 @@ function onMemberLifeUpdate(pkt) {
 		entity.life.hp = pkt.hp;
 		entity.life.hp_max = pkt.maxhp;
 		entity.life.update();
-		if (entity && entity.life && entity.life.canvas) controller.getUI().updateMemberLife(pkt.AID, entity.life.canvas, pkt.hp, pkt.maxhp);
+		if (entity && entity.life && entity.life.canvas) controller.updateMemberLife(pkt.AID, entity.life.canvas, pkt.hp, pkt.maxhp);
 	}
 }
 /**
@@ -246024,8 +246062,8 @@ function onMemberTalk$1(pkt) {
 * @param {object} pkt - PACKET.ZC.NOTIFY_POSITION_TO_GROUPM
 */
 function onMemberMove$1(pkt) {
-	if (pkt.xPos < 0 || pkt.yPos < 0) Controller$5.getUI().removePartyMemberMark(pkt.AID);
-	else Controller$5.getUI().addPartyMemberMark(pkt.AID, pkt.xPos, pkt.yPos);
+	if (pkt.xPos < 0 || pkt.yPos < 0) Controller$5.removePartyMemberMark(pkt.AID);
+	else Controller$5.addPartyMemberMark(pkt.AID, pkt.xPos, pkt.yPos);
 }
 /**
 * Get party information
@@ -246033,7 +246071,7 @@ function onMemberMove$1(pkt) {
 * @param {object} pkt - PACKET.ZC.GROUPINFO_CHANGE
 */
 function onPartyOption(pkt) {
-	controller.getUI().setOptions(pkt.expOption, pkt.ItemPickupRule, pkt.ItemDivisionRule);
+	controller.setOptions(pkt.expOption, pkt.ItemPickupRule, pkt.ItemDivisionRule);
 	ChatBox_default.addText(DB.getMessage(291) + "  - " + DB.getMessage(292) + "  : " + DB.getMessage(287 + pkt.expOption), ChatBox_default.TYPE.PRIVATE, ChatBox_default.FILTER.PARTY_SETUP);
 	if (pkt.ItemPickupRule !== void 0) ChatBox_default.addText(DB.getMessage(291) + "  - " + DB.getMessage(293) + "  : " + DB.getMessage(289 + pkt.ItemPickupRule), ChatBox_default.TYPE.PRIVATE, ChatBox_default.FILTER.PARTY_SETUP);
 	if (pkt.ItemDivisionRule !== void 0) ChatBox_default.addText(DB.getMessage(291) + "  - " + DB.getMessage(738) + "  : " + DB.getMessage(287 + pkt.ItemDivisionRule), ChatBox_default.TYPE.PRIVATE, ChatBox_default.FILTER.PARTY_SETUP);
@@ -246140,7 +246178,7 @@ var init_Group = __esmMin((() => {
 			Network.hookPacket(PACKET.ZC.DELETE_MEMBER_FROM_GROUP, onPartyMemberLeave);
 			Network.hookPacket(PACKET.ZC.ACK_MAKE_GROUP, onPartyCreate);
 			Network.hookPacket(PACKET.ZC.GROUP_ISALIVE, onPartyIsAlive);
-			const PartyUI = controller.getUI();
+			const PartyUI = controller;
 			PartyUI.onExpelMember = GroupEngine.onRequestExpel;
 			PartyUI.onRequestChangeLeader = GroupEngine.onRequestChangeLeader;
 			PartyUI.onRequestLeave = GroupEngine.onRequestLeave;
@@ -247144,7 +247182,7 @@ function getSkillOwner(id) {
 	if (id >= SkillConst_default.GD_APPROVAL && id <= SkillConst_default.GD_LAST) return Guild_default;
 	if (id >= SkillConst_default.HOMUN_BEGIN && id <= SkillConst_default.HOMUN_LAST) return SkillListMH_default.homunculus;
 	if (id >= SkillConst_default.MERCENARY_BEGIN && id <= SkillConst_default.MERCENARY_LAST) return SkillListMH_default.mercenary;
-	return Controller$4.getUI();
+	return Controller$4;
 }
 /**
 * Update tooltip for empty slots with hotkey only
@@ -247408,7 +247446,7 @@ function onElementInfo(event, icon) {
 		}
 		ItemInfo_default.append();
 		ItemInfo_default.uid = _list$4[index].ID;
-		ItemInfo_default.setItem(InventoryController.getUI().getItemById(_list$4[index].ID));
+		ItemInfo_default.setItem(InventoryController.getItemById(_list$4[index].ID));
 	}
 }
 /**
@@ -247428,8 +247466,8 @@ function clickElement(index) {
 	if (!shortcut) return;
 	if (shortcut.isSkill) ShortCut.useSkill(shortcut.ID, shortcut.count);
 	else {
-		const item = InventoryController.getUI().getItemById(_list$4[index].ID);
-		if (item) InventoryController.getUI().useItem(item);
+		const item = InventoryController.getItemById(_list$4[index].ID);
+		if (item) InventoryController.useItem(item);
 	}
 }
 /**
@@ -247705,7 +247743,7 @@ var init_ShortCut = __esmMin((() => {
 			el.addEventListener("mouseleave", onContainerMouseLeave);
 		});
 		DB.UpdateOwnerName.ShortCut = onUpdateOwnerName$1;
-		InventoryController.getUI().onUpdateItem = onUpdateItem;
+		InventoryController.onUpdateItem = onUpdateItem;
 	};
 	/**
 	* Append to body
@@ -247719,7 +247757,7 @@ var init_ShortCut = __esmMin((() => {
 		this.magnet.BOTTOM = _preferences$23.magnet_bottom;
 		this.magnet.LEFT = _preferences$23.magnet_left;
 		this.magnet.RIGHT = _preferences$23.magnet_right;
-		Controller$4.getUI().onUpdateSkill = onUpdateSkill;
+		Controller$4.onUpdateSkill = onUpdateSkill;
 		updateEmptySlotTooltips();
 	};
 	/**
@@ -247819,7 +247857,7 @@ var init_ShortCut = __esmMin((() => {
 				let name = "";
 				if (_list$4[i].isSkill && SkillInfo[_list$4[i].ID]) name = SkillInfo[_list$4[i].ID].SkillName;
 				else if (_list$4[i].ID) {
-					const item = InventoryController.getUI().getItemById(_list$4[i].ID);
+					const item = InventoryController.getItemById(_list$4[i].ID);
 					if (item) name = DB.getItemName(item);
 				}
 				if (name) {
@@ -247860,7 +247898,7 @@ var init_ShortCut = __esmMin((() => {
 			}
 		} else {
 			_list$4[index].count = count;
-			const item = InventoryController.getUI().getItemById(ID);
+			const item = InventoryController.getItemById(ID);
 			if (!item) return;
 			const it = DB.getItemInfo(ID);
 			file = item.IsIdentified ? it.identifiedResourceName : it.unidentifiedResourceName;
@@ -248027,8 +248065,8 @@ function onMemberTalk(pkt) {
 * @param {object} pkt - PACKET.ZC.NOTIFY_POSITION_TO_GUILDM
 */
 function onMemberMove(pkt) {
-	if (pkt.xPos < 0 || pkt.yPos < 0) Controller$5.getUI().removeGuildMemberMark(pkt.AID);
-	else Controller$5.getUI().addGuildMemberMark(pkt.AID, pkt.xPos, pkt.yPos);
+	if (pkt.xPos < 0 || pkt.yPos < 0) Controller$5.removeGuildMemberMark(pkt.AID);
+	else Controller$5.addGuildMemberMark(pkt.AID, pkt.xPos, pkt.yPos);
 }
 /**
 * Get guild informations
@@ -258380,7 +258418,7 @@ function updateJoystickSlot(joystickSlotIndex, shortcutIndex) {
 			amount.textContent = item.count;
 		});
 	} else {
-		const inventoryItem = InventoryController.getUI().getItemById(item.ID);
+		const inventoryItem = InventoryController.getItemById(item.ID);
 		if (inventoryItem) {
 			const itemInfo = DB.getItemInfo(item.ID);
 			const fileName = inventoryItem.IsIdentified ? itemInfo.identifiedResourceName : itemInfo.unidentifiedResourceName;
@@ -259210,7 +259248,7 @@ var init_JoystickInteractionService = __esmMin((() => {
 			const shortcut = ShortCut_default.getList()[index];
 			if (!shortcut) return;
 			if (!shortcut.isSkill) {
-				const item = InventoryController.getUI().getItemById(shortcut.ID);
+				const item = InventoryController.getItemById(shortcut.ID);
 				if (!item || item.count === 0) return;
 			} else if (Controls_default.attackTargetMode) {
 				const targetEntity = JoystickTargetService_default.getEntity();
@@ -259235,7 +259273,7 @@ var init_JoystickInteractionService = __esmMin((() => {
 			const isSkill = draggableElement.closest(".skill");
 			let itemData;
 			if (!isSkill) {
-				const item = InventoryController.getUI().getItemByIndex(index);
+				const item = InventoryController.getItemByIndex(index);
 				if (item) {
 					if (item.type === ItemType_default.UNKNOWN || item.type === ItemType_default.ETC || item.type === ItemType_default.CARD || item.type === ItemType_default.PETEGG || item.type === ItemType_default.PETARMOR) return false;
 					itemData = {
@@ -307810,7 +307848,7 @@ var init_Trade$1 = __esmMin((() => {
 			if (zenySend) zenySend.value = prettifyZeny$2(_tmpCount[index]);
 			return;
 		}
-		const inventoryItem = InventoryController.getUI().removeItem(index, _tmpCount[index]);
+		const inventoryItem = InventoryController.removeItem(index, _tmpCount[index]);
 		const item = Object.assign({}, inventoryItem);
 		const it = DB.getItemInfo(item.ITID);
 		const idx = _send.push(item) - 1;
@@ -311345,7 +311383,6 @@ var init_EntityRender = __esmMin((() => {
 	init_SpriteRenderer();
 	init_Ground();
 	init_Altitude();
-	init_Water();
 	init_SessionStorage();
 	init_DBManager();
 	init_Graphics();
@@ -319108,11 +319145,11 @@ function onDrop$6(event) {
 		if (comp && comp.ui) (comp.ui[0] || comp.ui).dispatchEvent(new MouseEvent("mouseleave", { bubbles: false }));
 	}
 	if (data.type !== "item" || data.from !== "Inventory") return;
-	if (EquipmentController.getUI().ui.is(":visible")) {
+	if (EquipmentController.ui.is(":visible")) {
 		ChatBox_default.addText(DB.getMessage(189), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.ITEM);
 		return;
 	}
-	if (UIManager.getComponent("Inventory").name !== "InventoryV0" && InventoryController.getUI().itemlock === true) return;
+	if (UIManager.getComponent("Inventory").name !== "InventoryV0" && InventoryController.itemlock === true) return;
 	const item = data.data;
 	if (item.count > 1) {
 		InputBox_default.append();
@@ -319536,7 +319573,7 @@ function submitNetworkPacket(pkt) {
 function onItemOver$8() {
 	if (!this.classList.contains("input")) return;
 	const idx = parseInt(this.getAttribute("data-index"), 10);
-	const item = _type$3 === Vending.Type.VENDING_STORE ? CartItems_default.getItemByIndex(idx) : InventoryController.getUI().getItemByIndex(idx);
+	const item = _type$3 === Vending.Type.VENDING_STORE ? CartItems_default.getItemByIndex(idx) : InventoryController.getItemByIndex(idx);
 	if (!item) return;
 	const overlay = Vending.getRoot().querySelector(".overlay");
 	overlay.style.display = "";
@@ -319720,7 +319757,7 @@ var init_Vending = __esmMin((() => {
 					el.style.display = "";
 				});
 				root.querySelector(".zenySpan").textContent = prettyZeny$3(SessionStorage_default.zeny);
-				root.querySelector(".weightSpan").textContent = `${BasicInfoController.getUI().weight}/${BasicInfoController.getUI().weight_max}`;
+				root.querySelector(".weightSpan").textContent = `${BasicInfoController.weight}/${BasicInfoController.weight_max}`;
 				root.querySelector(".limitZeny").value = "0";
 		}
 		_type$3 = type;
@@ -319817,8 +319854,8 @@ var init_Vending = __esmMin((() => {
 		if (Vending.isOpen) return;
 		_slots = pkt.itemcount;
 		const buyable = [];
-		for (const key in InventoryController.getUI().list) {
-			const item = InventoryController.getUI().list[key];
+		for (const key in InventoryController.list) {
+			const item = InventoryController.list[key];
 			if (isItemStackable(item) && DB.isBuyable(item.ITID)) buyable.push(item);
 		}
 		this.setList(buyable);
@@ -322315,7 +322352,7 @@ function resetReformUIState() {
 */
 function GetInventoryItemsById$2(id) {
 	const items = [];
-	const list = InventoryController.getUI().list;
+	const list = InventoryController.list;
 	for (let i = 0, count = list.length; i < count; ++i) if (list[i].ITID === id) items.push(list[i]);
 	return items;
 }
@@ -322328,7 +322365,7 @@ function onOpenReformUI(pkt) {
 		ReformInfo = {};
 		SelectedReformInfo = {};
 		const reformids = DB.findReformListByItemID(pkt.ITID);
-		const item = InventoryController.getUI().getItemById(pkt.ITID);
+		const item = InventoryController.getItemById(pkt.ITID);
 		if (!item) return false;
 		ReformUIState.itemId = pkt.ITID;
 		if (reformids) {
@@ -322391,7 +322428,7 @@ function onAddMaterialItem$2(item) {
 */
 function onMaterialSelect(element) {
 	const idx = parseInt(element.getAttribute("data-index"), 10);
-	const item = InventoryController.getUI().getItemByIndex(idx);
+	const item = InventoryController.getItemByIndex(idx);
 	if (!item) return;
 	ReformUIState.index = item.index;
 	SelectedReformInfo = ReformInfo.find((info) => info.BaseItemId === item.ITID);
@@ -322402,7 +322439,7 @@ function onMaterialSelect(element) {
 	availableMatList.querySelectorAll(".item").forEach((el) => {
 		el.classList.remove("selected");
 		const resetIdx = parseInt(el.getAttribute("data-index"), 10);
-		const resetItem = InventoryController.getUI().getItemByIndex(resetIdx);
+		const resetItem = InventoryController.getItemByIndex(resetIdx);
 		if (resetItem) Client.loadFile(DB.INTERFACE_PATH + "itemreform/btn_reform_item.bmp", function(data) {
 			const target = availableMatList.querySelector(`.item[data-index="${resetItem.index}"]`);
 			if (target) target.style.backgroundImage = `url(${data})`;
@@ -322421,7 +322458,7 @@ function onMaterialSelect(element) {
 function onHoverContainer(element) {
 	if (element.classList.contains("selected")) return;
 	const idx = parseInt(element.getAttribute("data-index"), 10);
-	const item = InventoryController.getUI().getItemByIndex(idx);
+	const item = InventoryController.getItemByIndex(idx);
 	if (!item) return;
 	const availableMatList = _root$5().querySelector(".available_material_list");
 	if (!availableMatList) return;
@@ -322436,7 +322473,7 @@ function onHoverContainer(element) {
 function onHoverOutContainer(element) {
 	if (element.classList.contains("selected")) return;
 	const idx = parseInt(element.getAttribute("data-index"), 10);
-	const item = InventoryController.getUI().getItemByIndex(idx);
+	const item = InventoryController.getItemByIndex(idx);
 	if (!item) return;
 	const availableMatList = _root$5().querySelector(".available_material_list");
 	if (!availableMatList) return;
@@ -322493,7 +322530,7 @@ function UpdatePossibleReformUI(item, info) {
 	let withenoughMat = 0;
 	limitedMaterials.forEach((material) => {
 		const mat_it = DB.getItemInfo(material.MaterialItemID);
-		const mat_item = InventoryController.getUI().getItemById(material.MaterialItemID);
+		const mat_item = InventoryController.getItemById(material.MaterialItemID);
 		let inventory_mat_count;
 		if (!mat_item) inventory_mat_count = 0;
 		else inventory_mat_count = mat_item.type === ItemType_default.WEAPON || mat_item.type === ItemType_default.ARMOR ? 1 : mat_item.count;
@@ -322552,7 +322589,7 @@ function onHoverOutDetails() {
 function onItemReformResult(pkt) {
 	if (pkt) switch (pkt.result) {
 		case 0: {
-			const item = InventoryController.getUI().getItemByIndex(pkt.index);
+			const item = InventoryController.getItemByIndex(pkt.index);
 			const EF_Init_Par = {
 				effectId: EffectConst_default.EF_NEW_SUCCESS,
 				ownerAID: SessionStorage_default.AID
@@ -322608,7 +322645,7 @@ function onItemOver$5(event, element) {
 		IsIdentified: 1
 	};
 	else if (element.classList.contains("resultitem")) item = ReformUIState.resultItem;
-	else item = InventoryController.getUI().getItemByIndex(idx);
+	else item = InventoryController.getItemByIndex(idx);
 	const overlay = _root$5().querySelector(".overlay");
 	if (!overlay) return;
 	overlay.style.display = "block";
@@ -322653,7 +322690,7 @@ function onItemInfo$7(element) {
 		IsIdentified: 1
 	};
 	else if (element.classList.contains("resultitem")) item = ReformUIState.resultItem;
-	else item = InventoryController.getUI().getItemByIndex(idx);
+	else item = InventoryController.getItemByIndex(idx);
 	if (!item) return;
 	showItemPreview(item);
 }
@@ -322672,8 +322709,8 @@ function showItemPreview(item) {
 	ItemInfo_default.append();
 	ItemInfo_default.uid = item.ITID;
 	ItemInfo_default.setItem(item);
-	const compareItem = EquipmentController.getUI().isInEquipList(item.location);
-	if (compareItem && InventoryController.getUI().itemcomp) {
+	const compareItem = EquipmentController.isInEquipList(item.location);
+	if (compareItem && InventoryController.itemcomp) {
 		ItemCompare_default.prepare();
 		ItemCompare_default.append();
 		ItemCompare_default.uid = compareItem.ITID;
@@ -322883,7 +322920,7 @@ function onOpenLaphineUI(pkt) {
 * Updates the Laphine UI with the current state information.
 */
 function onUpdateLaphineUI() {
-	const item = InventoryController.getUI().getItemById(LaphineUIState.itemId);
+	const item = InventoryController.getItemById(LaphineUIState.itemId);
 	if (!item) return false;
 	const root = _root$4();
 	root.querySelector(".item_text").textContent = DB.getItemName(item);
@@ -322898,7 +322935,7 @@ function onUpdateLaphineUI() {
 */
 function GetInventoryItemsById$1(id) {
 	const items = [];
-	const list = InventoryController.getUI().list;
+	const list = InventoryController.list;
 	for (let i = 0, count = list.length; i < count; ++i) if (list[i].ITID === id) items.push(list[i]);
 	return items;
 }
@@ -322962,7 +322999,7 @@ function onItemSelect$1(e) {
 		return;
 	}
 	const idx = parseInt(this.getAttribute("data-index"), 10);
-	const item = InventoryController.getUI().getItemByIndex(idx);
+	const item = InventoryController.getItemByIndex(idx);
 	if (!item) {
 		e.preventDefault();
 		e.stopImmediatePropagation();
@@ -322983,7 +323020,7 @@ function onSubmitItem$1() {
 	let idx;
 	if (selectedItem) idx = parseInt(selectedItem.closest(".item").getAttribute("data-index"), 10);
 	else idx = parseInt(this.getAttribute("data-index"), 10);
-	const item = InventoryController.getUI().getItemByIndex(idx);
+	const item = InventoryController.getItemByIndex(idx);
 	if (!item) return;
 	if (LaphineSys.submittedItems.some((submittedItem) => submittedItem.index === item.index)) return;
 	const sourceItem = LaphineUIState.sourceItems.find((si) => si.id === item.ITID);
@@ -323053,7 +323090,7 @@ function adjustSubmittedMatList() {
 */
 function onItemRemove$1() {
 	const idx = parseInt(this.getAttribute("data-index"), 10);
-	const item = InventoryController.getUI().getItemByIndex(idx);
+	const item = InventoryController.getItemByIndex(idx);
 	if (item) onRemoveItemSubmitList$1(item, this);
 }
 function onRemoveItemSubmitList$1(item, element = null) {
@@ -323081,7 +323118,7 @@ function updateAvailableMatList$1(itemId, itemIndex, countChange, increase) {
 	let itemExists = false;
 	availableMatList.querySelectorAll(".item").forEach((el) => {
 		const idx = parseInt(el.getAttribute("data-index"), 10);
-		const item = InventoryController.getUI().getItemByIndex(idx);
+		const item = InventoryController.getItemByIndex(idx);
 		if (item.ITID === itemId && idx === itemIndex) {
 			itemExists = true;
 			let tempCount = item.type === ItemType_default.WEAPON || item.type === ItemType_default.ARMOR ? 1 : item.count;
@@ -323105,7 +323142,7 @@ function updateAvailableMatList$1(itemId, itemIndex, countChange, increase) {
 		}
 	});
 	if (increase && !itemExists) {
-		const item = InventoryController.getUI().getItemByIndex(itemIndex);
+		const item = InventoryController.getItemByIndex(itemIndex);
 		if (item) {
 			const inventory_count = item.type === ItemType_default.WEAPON || item.type === ItemType_default.ARMOR ? 1 : item.count;
 			const sourceItem = LaphineUIState.sourceItems.find((si) => si.id === itemId);
@@ -323153,7 +323190,7 @@ function onRequestSynthesis() {
 */
 function onItemOver$4() {
 	const idx = parseInt(this.getAttribute("data-index"), 10);
-	const item = InventoryController.getUI().getItemByIndex(idx);
+	const item = InventoryController.getItemByIndex(idx);
 	if (!item) return;
 	const root = _root$4();
 	const overlay = root.querySelector(".overlay");
@@ -323191,7 +323228,7 @@ function stopPropagation$5(event) {
 */
 function onItemDragStart$3(event) {
 	const index = parseInt(this.getAttribute("data-index"), 10);
-	const item = InventoryController.getUI().getItemByIndex(index);
+	const item = InventoryController.getItemByIndex(index);
 	if (!item) return;
 	const img = new Image();
 	const iconEl = this.querySelector(".icon");
@@ -323260,7 +323297,7 @@ function onItemInfo$6(event) {
 	event.stopImmediatePropagation();
 	event.preventDefault();
 	const idx = parseInt(this.getAttribute("data-index"), 10);
-	const item = InventoryController.getUI().getItemByIndex(idx);
+	const item = InventoryController.getItemByIndex(idx);
 	if (!item) return;
 	if (ItemCompare_default.ui) ItemCompare_default.remove();
 	if (ItemInfo_default.uid === item.ITID) {
@@ -323271,8 +323308,8 @@ function onItemInfo$6(event) {
 	ItemInfo_default.append();
 	ItemInfo_default.uid = item.ITID;
 	ItemInfo_default.setItem(item);
-	const compareItem = EquipmentController.getUI().isInEquipList(item.location);
-	if (compareItem && InventoryController.getUI().itemcomp) {
+	const compareItem = EquipmentController.isInEquipList(item.location);
+	if (compareItem && InventoryController.itemcomp) {
 		ItemCompare_default.prepare();
 		ItemCompare_default.append();
 		ItemCompare_default.uid = compareItem.ITID;
@@ -323493,7 +323530,7 @@ function onOpenLaphineUpgUI(pkt) {
 * Updates the Laphine UI with the current state information.
 */
 function onUpdateLaphineUpgUI() {
-	const item = InventoryController.getUI().getItemById(LaphineUpgUIState.itemId);
+	const item = InventoryController.getItemById(LaphineUpgUIState.itemId);
 	if (!item) return false;
 	const root = _root$3();
 	root.querySelector(".item_text").textContent = DB.getItemName(item);
@@ -323507,7 +323544,7 @@ function onUpdateLaphineUpgUI() {
 */
 function GetInventoryItemsById(id) {
 	const items = [];
-	const list = InventoryController.getUI().list;
+	const list = InventoryController.list;
 	for (let i = 0, count = list.length; i < count; ++i) if (list[i].ITID === id) items.push(list[i]);
 	return items;
 }
@@ -323579,7 +323616,7 @@ function onRequestLaphineUpgClose() {
 */
 function onItemSelect(e) {
 	const idx = parseInt(this.getAttribute("data-index"), 10);
-	const item = InventoryController.getUI().getItemByIndex(idx);
+	const item = InventoryController.getItemByIndex(idx);
 	if (!item) {
 		e.preventDefault();
 		e.stopImmediatePropagation();
@@ -323599,7 +323636,7 @@ function onSubmitItem() {
 	let idx;
 	if (selectedItem) idx = parseInt(selectedItem.closest(".item").getAttribute("data-index"), 10);
 	else idx = parseInt(this.getAttribute("data-index"), 10);
-	const item = InventoryController.getUI().getItemByIndex(idx);
+	const item = InventoryController.getItemByIndex(idx);
 	if (!item) return;
 	if (LaphineUpg.submittedIndex !== 0) return;
 	if (root.querySelector(".submitted_mat_list .item")) return;
@@ -323642,7 +323679,7 @@ function onCheckSubmittedItem(item) {
 */
 function onItemRemove() {
 	const idx = parseInt(this.getAttribute("data-index"), 10);
-	const item = InventoryController.getUI().getItemByIndex(idx);
+	const item = InventoryController.getItemByIndex(idx);
 	if (item) onRemoveItemSubmitList(item, this);
 }
 /**
@@ -323669,13 +323706,13 @@ function updateAvailableMatList(itemId, itemIndex, remove) {
 	let itemExists = false;
 	availableMatList.querySelectorAll(".item").forEach((el) => {
 		const idx = parseInt(el.getAttribute("data-index"), 10);
-		if (InventoryController.getUI().getItemByIndex(idx).ITID === itemId && idx === itemIndex) {
+		if (InventoryController.getItemByIndex(idx).ITID === itemId && idx === itemIndex) {
 			itemExists = true;
 			if (remove) el.remove();
 		}
 	});
 	if (!remove && !itemExists) {
-		const item = InventoryController.getUI().getItemByIndex(itemIndex);
+		const item = InventoryController.getItemByIndex(itemIndex);
 		if (item) {
 			const targetItem = LaphineUpgUIState.targetItems.find((ti) => ti.id === itemId);
 			if (targetItem) {
@@ -323704,7 +323741,7 @@ function showMessage(message) {
 * Handles the upgrade request by preparing and sending the packet.
 */
 function onRequestLaphineUpg() {
-	if (!InventoryController.getUI().getItemByIndex(LaphineUpg.submittedIndex)) return;
+	if (!InventoryController.getItemByIndex(LaphineUpg.submittedIndex)) return;
 	const pkt = new PACKET.CZ.REQ_RANDOM_UPGRADE_ITEM();
 	pkt.itemId = LaphineUpgUIState.itemId;
 	pkt.item_index = LaphineUpg.submittedIndex;
@@ -323718,7 +323755,7 @@ function onRequestLaphineUpg() {
 */
 function onItemOver$3() {
 	const idx = parseInt(this.getAttribute("data-index"), 10);
-	const item = InventoryController.getUI().getItemByIndex(idx);
+	const item = InventoryController.getItemByIndex(idx);
 	if (!item) return;
 	const root = _root$3();
 	const overlay = root.querySelector(".overlay");
@@ -323759,7 +323796,7 @@ function stopPropagation$4(event) {
 */
 function onItemDragStart$2(event) {
 	const index = parseInt(this.getAttribute("data-index"), 10);
-	const item = InventoryController.getUI().getItemByIndex(index);
+	const item = InventoryController.getItemByIndex(index);
 	if (!item) return;
 	const img = new Image();
 	const iconEl = this.querySelector(".icon");
@@ -323829,7 +323866,7 @@ function onItemInfo$5(event) {
 	event.stopImmediatePropagation();
 	event.preventDefault();
 	const idx = parseInt(this.getAttribute("data-index"), 10);
-	const item = InventoryController.getUI().getItemByIndex(idx);
+	const item = InventoryController.getItemByIndex(idx);
 	if (!item) return;
 	if (ItemCompare_default.ui) ItemCompare_default.remove();
 	if (ItemInfo_default.uid === item.ITID) {
@@ -323840,8 +323877,8 @@ function onItemInfo$5(event) {
 	ItemInfo_default.append();
 	ItemInfo_default.uid = item.ITID;
 	ItemInfo_default.setItem(item);
-	const compareItem = EquipmentController.getUI().isInEquipList(item.location);
-	if (compareItem && InventoryController.getUI().itemcomp) {
+	const compareItem = EquipmentController.isInEquipList(item.location);
+	if (compareItem && InventoryController.itemcomp) {
 		ItemCompare_default.prepare();
 		ItemCompare_default.append();
 		ItemCompare_default.uid = compareItem.ITID;
@@ -325791,7 +325828,7 @@ var init_PlayerViewEquip = __esmMin((() => {
 	_selectUIVersion = PlayerViewEquipController.selectUIVersion;
 	PlayerViewEquipController.selectUIVersion = function() {
 		_selectUIVersion();
-		const component = PlayerViewEquipController.getUI();
+		const component = PlayerViewEquipController;
 		DB.UpdateOwnerName.PlayerViewEquip = component.onUpdateOwnerName;
 		component.onKeyDown = function onKeyDown(e) {
 			if ((e.which === KEYS.ESCAPE || e.key === "Escape") && component.ui.is(":visible")) {
@@ -326156,32 +326193,32 @@ function onAttackRangeUpdate(pkt) {
 * @param {object} pkt - PACKET.ZC.STATUS
 */
 function onStatusParameterChange(pkt) {
-	WinStatsController.getUI().update("str", pkt.str);
-	WinStatsController.getUI().update("agi", pkt.agi);
-	WinStatsController.getUI().update("vit", pkt.vit);
-	WinStatsController.getUI().update("int", pkt.Int);
-	WinStatsController.getUI().update("dex", pkt.dex);
-	WinStatsController.getUI().update("luk", pkt.luk);
-	WinStatsController.getUI().update("str3", pkt.standardStr);
-	WinStatsController.getUI().update("agi3", pkt.standardAgi);
-	WinStatsController.getUI().update("vit3", pkt.standardVit);
-	WinStatsController.getUI().update("int3", pkt.standardInt);
-	WinStatsController.getUI().update("dex3", pkt.standardDex);
-	WinStatsController.getUI().update("luk3", pkt.standardLuk);
-	WinStatsController.getUI().update("aspd", (pkt.ASPD + pkt.plusASPD) / 4);
-	WinStatsController.getUI().update("atak", pkt.attPower);
-	WinStatsController.getUI().update("atak2", pkt.refiningPower);
-	WinStatsController.getUI().update("matak", pkt.min_mattPower);
-	WinStatsController.getUI().update("matak2", pkt.max_mattPower);
-	WinStatsController.getUI().update("flee", pkt.avoidSuccessValue);
-	WinStatsController.getUI().update("flee2", pkt.plusAvoidSuccessValue);
-	WinStatsController.getUI().update("critical", pkt.criticalSuccessValue);
-	WinStatsController.getUI().update("hit", pkt.hitSuccessValue);
-	WinStatsController.getUI().update("def", pkt.itemdefPower);
-	WinStatsController.getUI().update("def2", pkt.plusdefPower);
-	WinStatsController.getUI().update("mdef", pkt.mdefPower);
-	WinStatsController.getUI().update("mdef2", pkt.plusmdefPower);
-	WinStatsController.getUI().update("statuspoint", pkt.point);
+	WinStatsController.update("str", pkt.str);
+	WinStatsController.update("agi", pkt.agi);
+	WinStatsController.update("vit", pkt.vit);
+	WinStatsController.update("int", pkt.Int);
+	WinStatsController.update("dex", pkt.dex);
+	WinStatsController.update("luk", pkt.luk);
+	WinStatsController.update("str3", pkt.standardStr);
+	WinStatsController.update("agi3", pkt.standardAgi);
+	WinStatsController.update("vit3", pkt.standardVit);
+	WinStatsController.update("int3", pkt.standardInt);
+	WinStatsController.update("dex3", pkt.standardDex);
+	WinStatsController.update("luk3", pkt.standardLuk);
+	WinStatsController.update("aspd", (pkt.ASPD + pkt.plusASPD) / 4);
+	WinStatsController.update("atak", pkt.attPower);
+	WinStatsController.update("atak2", pkt.refiningPower);
+	WinStatsController.update("matak", pkt.min_mattPower);
+	WinStatsController.update("matak2", pkt.max_mattPower);
+	WinStatsController.update("flee", pkt.avoidSuccessValue);
+	WinStatsController.update("flee2", pkt.plusAvoidSuccessValue);
+	WinStatsController.update("critical", pkt.criticalSuccessValue);
+	WinStatsController.update("hit", pkt.hitSuccessValue);
+	WinStatsController.update("def", pkt.itemdefPower);
+	WinStatsController.update("def2", pkt.plusdefPower);
+	WinStatsController.update("mdef", pkt.mdefPower);
+	WinStatsController.update("mdef2", pkt.plusmdefPower);
+	WinStatsController.update("statuspoint", pkt.point);
 }
 /**
 * Answer from server for updating parameter
@@ -326192,39 +326229,39 @@ function onStatusParameterUpdateAnswer(pkt) {
 	if (!pkt.result) return;
 	switch (pkt.statusID) {
 		case StatusProperty_default.STR:
-			WinStatsController.getUI().update("str", pkt.value);
+			WinStatsController.update("str", pkt.value);
 			break;
 		case StatusProperty_default.AGI:
-			WinStatsController.getUI().update("agi", pkt.value);
+			WinStatsController.update("agi", pkt.value);
 			break;
 		case StatusProperty_default.VIT:
-			WinStatsController.getUI().update("vit", pkt.value);
+			WinStatsController.update("vit", pkt.value);
 			break;
 		case StatusProperty_default.INT:
-			WinStatsController.getUI().update("int", pkt.value);
+			WinStatsController.update("int", pkt.value);
 			break;
 		case StatusProperty_default.DEX:
-			WinStatsController.getUI().update("dex", pkt.value);
+			WinStatsController.update("dex", pkt.value);
 			break;
 		case StatusProperty_default.LUK:
-			WinStatsController.getUI().update("luk", pkt.value);
+			WinStatsController.update("luk", pkt.value);
 			break;
 		case StatusProperty_default.VAR_SP_POW:
-			WinStatsController.getUI().update("pow", pkt.value);
+			WinStatsController.update("pow", pkt.value);
 			break;
 		case StatusProperty_default.VAR_SP_STA:
-			WinStatsController.getUI().update("sta", pkt.value);
+			WinStatsController.update("sta", pkt.value);
 			break;
 		case StatusProperty_default.VAR_SP_WIS:
-			WinStatsController.getUI().update("wis", pkt.value);
+			WinStatsController.update("wis", pkt.value);
 			break;
 		case StatusProperty_default.VAR_SP_SPL:
-			WinStatsController.getUI().update("spl", pkt.value);
+			WinStatsController.update("spl", pkt.value);
 			break;
 		case StatusProperty_default.VAR_SP_CON:
-			WinStatsController.getUI().update("con", pkt.value);
+			WinStatsController.update("con", pkt.value);
 			break;
-		case StatusProperty_default.VAR_SP_CRT: WinStatsController.getUI().update("crt", pkt.value);
+		case StatusProperty_default.VAR_SP_CRT: WinStatsController.update("crt", pkt.value);
 	}
 }
 /**
@@ -326246,12 +326283,12 @@ function onParameterChange$1(pkt) {
 			SessionStorage_default.Entity.walk.speed = amount;
 			break;
 		case StatusProperty_default.EXP:
-			BasicInfoController.getUI().base_exp = amount;
-			if (BasicInfoController.getUI().base_exp_next) BasicInfoController.getUI().update("bexp", BasicInfoController.getUI().base_exp, BasicInfoController.getUI().base_exp_next);
+			BasicInfoController.base_exp = amount;
+			if (BasicInfoController.base_exp_next) BasicInfoController.update("bexp", BasicInfoController.base_exp, BasicInfoController.base_exp_next);
 			break;
 		case StatusProperty_default.JOBEXP:
-			BasicInfoController.getUI().job_exp = amount;
-			if (BasicInfoController.getUI().job_exp_next) BasicInfoController.getUI().update("jexp", BasicInfoController.getUI().job_exp, BasicInfoController.getUI().job_exp_next);
+			BasicInfoController.job_exp = amount;
+			if (BasicInfoController.job_exp_next) BasicInfoController.update("jexp", BasicInfoController.job_exp, BasicInfoController.job_exp_next);
 			break;
 		case StatusProperty_default.VIRTUE:
 		case StatusProperty_default.HONOR: break;
@@ -326259,8 +326296,8 @@ function onParameterChange$1(pkt) {
 			SessionStorage_default.Entity.life.hp = amount;
 			SessionStorage_default.Entity.life.update();
 			if (SessionStorage_default.Entity.life.hp_max > -1) {
-				BasicInfoController.getUI().update("hp", SessionStorage_default.Entity.life.hp, SessionStorage_default.Entity.life.hp_max);
-				if (SessionStorage_default.hasParty) controller.getUI().updateMemberLife(SessionStorage_default.AID, SessionStorage_default.Entity.life.canvas, SessionStorage_default.Entity.life.hp, SessionStorage_default.Entity.life.hp_max);
+				BasicInfoController.update("hp", SessionStorage_default.Entity.life.hp, SessionStorage_default.Entity.life.hp_max);
+				if (SessionStorage_default.hasParty) controller.updateMemberLife(SessionStorage_default.AID, SessionStorage_default.Entity.life.canvas, SessionStorage_default.Entity.life.hp, SessionStorage_default.Entity.life.hp_max);
 			}
 			if (SessionStorage_default.Entity.life.hp <= 25 / 100 * SessionStorage_default.Entity.life.hp_max) {
 				if (SessionStorage_default.pet.friendly > 900 && (SessionStorage_default.pet.lastTalk || 0) + 1e4 < Date.now()) {
@@ -326287,28 +326324,28 @@ function onParameterChange$1(pkt) {
 			SessionStorage_default.Entity.life.hp_max = amount;
 			SessionStorage_default.Entity.life.update();
 			if (SessionStorage_default.Entity.life.hp > -1) {
-				BasicInfoController.getUI().update("hp", SessionStorage_default.Entity.life.hp, SessionStorage_default.Entity.life.hp_max);
-				if (SessionStorage_default.hasParty) controller.getUI().updateMemberLife(SessionStorage_default.AID, SessionStorage_default.Entity.life.canvas, SessionStorage_default.Entity.life.hp, SessionStorage_default.Entity.life.hp_max);
+				BasicInfoController.update("hp", SessionStorage_default.Entity.life.hp, SessionStorage_default.Entity.life.hp_max);
+				if (SessionStorage_default.hasParty) controller.updateMemberLife(SessionStorage_default.AID, SessionStorage_default.Entity.life.canvas, SessionStorage_default.Entity.life.hp, SessionStorage_default.Entity.life.hp_max);
 			}
 			break;
 		case StatusProperty_default.SP:
 			SessionStorage_default.Entity.life.sp = amount;
 			SessionStorage_default.Entity.life.update();
-			if (SessionStorage_default.Entity.life.sp_max > -1) BasicInfoController.getUI().update("sp", SessionStorage_default.Entity.life.sp, SessionStorage_default.Entity.life.sp_max);
+			if (SessionStorage_default.Entity.life.sp_max > -1) BasicInfoController.update("sp", SessionStorage_default.Entity.life.sp, SessionStorage_default.Entity.life.sp_max);
 			break;
 		case StatusProperty_default.MAXSP:
 			SessionStorage_default.Entity.life.sp_max = amount;
 			SessionStorage_default.Entity.life.update();
-			if (SessionStorage_default.Entity.life.sp > -1) BasicInfoController.getUI().update("sp", SessionStorage_default.Entity.life.sp, SessionStorage_default.Entity.life.sp_max);
+			if (SessionStorage_default.Entity.life.sp > -1) BasicInfoController.update("sp", SessionStorage_default.Entity.life.sp, SessionStorage_default.Entity.life.sp_max);
 			break;
 		case StatusProperty_default.POINT:
-			WinStatsController.getUI().update("statuspoint", amount);
+			WinStatsController.update("statuspoint", amount);
 			break;
 		case StatusProperty_default.CLEVEL:
 			SessionStorage_default.Entity.clevel = amount;
 			SessionStorage_default.Entity.aura.load(EffectManager);
-			BasicInfoController.getUI().update("blvl", amount);
-			EquipmentController.getUI().onLevelUp();
+			BasicInfoController.update("blvl", amount);
+			EquipmentController.onLevelUp();
 			ChangeCart_default.onLevelUp(amount);
 			if (SessionStorage_default.pet.friendly > 900) {
 				const hunger = DB.getPetHungryState(SessionStorage_default.pet.oldHungry);
@@ -326320,185 +326357,185 @@ function onParameterChange$1(pkt) {
 			}
 			break;
 		case StatusProperty_default.SKPOINT:
-			Controller$4.getUI().setPoints(amount);
+			Controller$4.setPoints(amount);
 			break;
 		case StatusProperty_default.STR:
-			WinStatsController.getUI().update("str", pkt.defaultStatus);
-			WinStatsController.getUI().update("str2", pkt.plusStatus);
+			WinStatsController.update("str", pkt.defaultStatus);
+			WinStatsController.update("str2", pkt.plusStatus);
 			break;
 		case StatusProperty_default.AGI:
-			WinStatsController.getUI().update("agi", pkt.defaultStatus);
-			WinStatsController.getUI().update("agi2", pkt.plusStatus);
+			WinStatsController.update("agi", pkt.defaultStatus);
+			WinStatsController.update("agi2", pkt.plusStatus);
 			break;
 		case StatusProperty_default.VIT:
-			WinStatsController.getUI().update("vit", pkt.defaultStatus);
-			WinStatsController.getUI().update("vit2", pkt.plusStatus);
+			WinStatsController.update("vit", pkt.defaultStatus);
+			WinStatsController.update("vit2", pkt.plusStatus);
 			break;
 		case StatusProperty_default.INT:
-			WinStatsController.getUI().update("int", pkt.defaultStatus);
-			WinStatsController.getUI().update("int2", pkt.plusStatus);
+			WinStatsController.update("int", pkt.defaultStatus);
+			WinStatsController.update("int2", pkt.plusStatus);
 			break;
 		case StatusProperty_default.DEX:
-			WinStatsController.getUI().update("dex", pkt.defaultStatus);
-			WinStatsController.getUI().update("dex2", pkt.plusStatus);
+			WinStatsController.update("dex", pkt.defaultStatus);
+			WinStatsController.update("dex2", pkt.plusStatus);
 			break;
 		case StatusProperty_default.LUK:
-			WinStatsController.getUI().update("luk", pkt.defaultStatus);
-			WinStatsController.getUI().update("luk2", pkt.plusStatus);
+			WinStatsController.update("luk", pkt.defaultStatus);
+			WinStatsController.update("luk2", pkt.plusStatus);
 			break;
 		case StatusProperty_default.MONEY:
-			BasicInfoController.getUI().update("zeny", amount);
+			BasicInfoController.update("zeny", amount);
 			break;
 		case StatusProperty_default.MAXEXP:
-			BasicInfoController.getUI().base_exp_next = amount;
-			if (BasicInfoController.getUI().base_exp > -1) BasicInfoController.getUI().update("bexp", BasicInfoController.getUI().base_exp, BasicInfoController.getUI().base_exp_next);
+			BasicInfoController.base_exp_next = amount;
+			if (BasicInfoController.base_exp > -1) BasicInfoController.update("bexp", BasicInfoController.base_exp, BasicInfoController.base_exp_next);
 			break;
 		case StatusProperty_default.MAXJOBEXP:
-			BasicInfoController.getUI().job_exp_next = amount;
-			if (BasicInfoController.getUI().job_exp > -1) BasicInfoController.getUI().update("jexp", BasicInfoController.getUI().job_exp, BasicInfoController.getUI().job_exp_next);
+			BasicInfoController.job_exp_next = amount;
+			if (BasicInfoController.job_exp > -1) BasicInfoController.update("jexp", BasicInfoController.job_exp, BasicInfoController.job_exp_next);
 			break;
 		case StatusProperty_default.WEIGHT:
 			SessionStorage_default.Entity.weight = amount;
-			if (BasicInfoController.getUI().weight_max > -1) BasicInfoController.getUI().update("weight", SessionStorage_default.Entity.weight, BasicInfoController.getUI().weight_max);
+			if (BasicInfoController.weight_max > -1) BasicInfoController.update("weight", SessionStorage_default.Entity.weight, BasicInfoController.weight_max);
 			break;
 		case StatusProperty_default.MAXWEIGHT:
 			SessionStorage_default.Entity.max_weight = amount;
-			BasicInfoController.getUI().weight_max = amount;
-			if (BasicInfoController.getUI().weight > -1) BasicInfoController.getUI().update("weight", SessionStorage_default.Entity.weight, BasicInfoController.getUI().weight_max);
+			BasicInfoController.weight_max = amount;
+			if (BasicInfoController.weight > -1) BasicInfoController.update("weight", SessionStorage_default.Entity.weight, BasicInfoController.weight_max);
 			break;
 		case StatusProperty_default.STANDARD_STR:
-			WinStatsController.getUI().update("str3", amount);
+			WinStatsController.update("str3", amount);
 			break;
 		case StatusProperty_default.STANDARD_AGI:
-			WinStatsController.getUI().update("agi3", amount);
+			WinStatsController.update("agi3", amount);
 			break;
 		case StatusProperty_default.STANDARD_VIT:
-			WinStatsController.getUI().update("vit3", amount);
+			WinStatsController.update("vit3", amount);
 			break;
 		case StatusProperty_default.STANDARD_INT:
-			WinStatsController.getUI().update("int3", amount);
+			WinStatsController.update("int3", amount);
 			break;
 		case StatusProperty_default.STANDARD_DEX:
-			WinStatsController.getUI().update("dex3", amount);
+			WinStatsController.update("dex3", amount);
 			break;
 		case StatusProperty_default.STANDARD_LUK:
-			WinStatsController.getUI().update("luk3", amount);
+			WinStatsController.update("luk3", amount);
 			break;
 		case StatusProperty_default.ATTPOWER:
-			WinStatsController.getUI().update("atak", amount);
+			WinStatsController.update("atak", amount);
 			break;
 		case StatusProperty_default.REFININGPOWER:
-			WinStatsController.getUI().update("atak2", amount);
+			WinStatsController.update("atak2", amount);
 			break;
 		case StatusProperty_default.MAX_MATTPOWER:
-			WinStatsController.getUI().update("matak", amount);
+			WinStatsController.update("matak", amount);
 			break;
 		case StatusProperty_default.MIN_MATTPOWER:
-			WinStatsController.getUI().update("matak2", amount);
+			WinStatsController.update("matak2", amount);
 			break;
 		case StatusProperty_default.ITEMDEFPOWER:
-			WinStatsController.getUI().update("def", amount);
+			WinStatsController.update("def", amount);
 			break;
 		case StatusProperty_default.PLUSDEFPOWER:
-			WinStatsController.getUI().update("def2", amount);
+			WinStatsController.update("def2", amount);
 			break;
 		case StatusProperty_default.MDEFPOWER:
-			WinStatsController.getUI().update("mdef", amount);
+			WinStatsController.update("mdef", amount);
 			break;
 		case StatusProperty_default.PLUSMDEFPOWER:
-			WinStatsController.getUI().update("mdef2", amount);
+			WinStatsController.update("mdef2", amount);
 			break;
 		case StatusProperty_default.HITSUCCESSVALUE:
-			WinStatsController.getUI().update("hit", amount);
+			WinStatsController.update("hit", amount);
 			break;
 		case StatusProperty_default.AVOIDSUCCESSVALUE:
-			WinStatsController.getUI().update("flee", amount);
+			WinStatsController.update("flee", amount);
 			break;
 		case StatusProperty_default.PLUSAVOIDSUCCESSVALUE:
-			WinStatsController.getUI().update("flee2", amount);
+			WinStatsController.update("flee2", amount);
 			break;
 		case StatusProperty_default.CRITICALSUCCESSVALUE:
-			WinStatsController.getUI().update("critical", amount);
+			WinStatsController.update("critical", amount);
 			break;
 		case StatusProperty_default.ASPD:
-			WinStatsController.getUI().update("aspd", amount);
+			WinStatsController.update("aspd", amount);
 			break;
 		case StatusProperty_default.JOBLEVEL:
-			BasicInfoController.getUI().update("jlvl", amount);
-			Controller$4.getUI().onLevelUp();
+			BasicInfoController.update("jlvl", amount);
+			Controller$4.onLevelUp();
 			break;
 		case StatusProperty_default.VAR_SP_POW:
-			WinStatsController.getUI().update("pow", pkt.defaultStatus);
-			WinStatsController.getUI().update("pow2", pkt.plusStatus);
+			WinStatsController.update("pow", pkt.defaultStatus);
+			WinStatsController.update("pow2", pkt.plusStatus);
 			break;
 		case StatusProperty_default.VAR_SP_STA:
-			WinStatsController.getUI().update("sta", pkt.defaultStatus);
-			WinStatsController.getUI().update("sta2", pkt.plusStatus);
+			WinStatsController.update("sta", pkt.defaultStatus);
+			WinStatsController.update("sta2", pkt.plusStatus);
 			break;
 		case StatusProperty_default.VAR_SP_WIS:
-			WinStatsController.getUI().update("wis", pkt.defaultStatus);
-			WinStatsController.getUI().update("wis2", pkt.plusStatus);
+			WinStatsController.update("wis", pkt.defaultStatus);
+			WinStatsController.update("wis2", pkt.plusStatus);
 			break;
 		case StatusProperty_default.VAR_SP_SPL:
-			WinStatsController.getUI().update("spl", pkt.defaultStatus);
-			WinStatsController.getUI().update("spl2", pkt.plusStatus);
+			WinStatsController.update("spl", pkt.defaultStatus);
+			WinStatsController.update("spl2", pkt.plusStatus);
 			break;
 		case StatusProperty_default.VAR_SP_CON:
-			WinStatsController.getUI().update("con", pkt.defaultStatus);
-			WinStatsController.getUI().update("con2", pkt.plusStatus);
+			WinStatsController.update("con", pkt.defaultStatus);
+			WinStatsController.update("con2", pkt.plusStatus);
 			break;
 		case StatusProperty_default.VAR_SP_CRT:
-			WinStatsController.getUI().update("crt", pkt.defaultStatus);
-			WinStatsController.getUI().update("crt2", pkt.plusStatus);
+			WinStatsController.update("crt", pkt.defaultStatus);
+			WinStatsController.update("crt2", pkt.plusStatus);
 			break;
 		case StatusProperty_default.VAR_SP_PATK:
-			WinStatsController.getUI().update("patk", amount);
+			WinStatsController.update("patk", amount);
 			break;
 		case StatusProperty_default.VAR_SP_SMATK:
-			WinStatsController.getUI().update("smatk", amount);
+			WinStatsController.update("smatk", amount);
 			break;
 		case StatusProperty_default.VAR_SP_RES:
-			WinStatsController.getUI().update("res", amount);
+			WinStatsController.update("res", amount);
 			break;
 		case StatusProperty_default.VAR_SP_MRES:
-			WinStatsController.getUI().update("mres", amount);
+			WinStatsController.update("mres", amount);
 			break;
 		case StatusProperty_default.VAR_SP_HPLUS:
-			WinStatsController.getUI().update("hplus", amount);
+			WinStatsController.update("hplus", amount);
 			break;
 		case StatusProperty_default.VAR_SP_CRATE:
-			WinStatsController.getUI().update("crate", amount);
+			WinStatsController.update("crate", amount);
 			break;
 		case StatusProperty_default.VAR_SP_TRAITPOINT:
-			WinStatsController.getUI().update("trait_point", amount);
+			WinStatsController.update("trait_point", amount);
 			break;
 		case StatusProperty_default.VAR_SP_AP:
 			SessionStorage_default.Entity.life.ap = amount;
 			SessionStorage_default.Entity.life.update();
-			if (SessionStorage_default.Entity.life.ap_max > -1) BasicInfoController.getUI().update("ap", SessionStorage_default.Entity.life.ap, SessionStorage_default.Entity.life.ap_max);
+			if (SessionStorage_default.Entity.life.ap_max > -1) BasicInfoController.update("ap", SessionStorage_default.Entity.life.ap, SessionStorage_default.Entity.life.ap_max);
 			break;
 		case StatusProperty_default.VAR_SP_MAXAP:
 			SessionStorage_default.Entity.life.ap_max = amount;
 			SessionStorage_default.Entity.life.update();
-			if (SessionStorage_default.Entity.life.ap > -1) BasicInfoController.getUI().update("ap", SessionStorage_default.Entity.life.ap, SessionStorage_default.Entity.life.ap_max);
+			if (SessionStorage_default.Entity.life.ap > -1) BasicInfoController.update("ap", SessionStorage_default.Entity.life.ap, SessionStorage_default.Entity.life.ap_max);
 			break;
 		case StatusProperty_default.VAR_SP_UPOW:
-			WinStatsController.getUI().update("pow3", amount);
+			WinStatsController.update("pow3", amount);
 			break;
 		case StatusProperty_default.VAR_SP_USTA:
-			WinStatsController.getUI().update("sta3", amount);
+			WinStatsController.update("sta3", amount);
 			break;
 		case StatusProperty_default.VAR_SP_UWIS:
-			WinStatsController.getUI().update("wis3", amount);
+			WinStatsController.update("wis3", amount);
 			break;
 		case StatusProperty_default.VAR_SP_USPL:
-			WinStatsController.getUI().update("spl3", amount);
+			WinStatsController.update("spl3", amount);
 			break;
 		case StatusProperty_default.VAR_SP_UCON:
-			WinStatsController.getUI().update("con3", amount);
+			WinStatsController.update("con3", amount);
 			break;
 		case StatusProperty_default.VAR_SP_UCRT:
-			WinStatsController.getUI().update("crt3", amount);
+			WinStatsController.update("crt3", amount);
 			break;
 		default: console.error("Main::onParameterChange() - Unsupported type", pkt);
 	}
@@ -326577,7 +326614,7 @@ function onRecovery(pkt) {
 			EffectManager.spam(EF_Init_Par);
 			SessionStorage_default.Entity.life.hp += pkt.amount;
 			SessionStorage_default.Entity.life.update();
-			if (SessionStorage_default.Entity.life.hp_max > -1) BasicInfoController.getUI().update("hp", SessionStorage_default.Entity.life.hp, SessionStorage_default.Entity.life.hp_max);
+			if (SessionStorage_default.Entity.life.hp_max > -1) BasicInfoController.update("hp", SessionStorage_default.Entity.life.hp, SessionStorage_default.Entity.life.hp_max);
 			break;
 		}
 		case StatusProperty_default.SP: {
@@ -326589,7 +326626,7 @@ function onRecovery(pkt) {
 			EffectManager.spam(EF_Init_Par);
 			SessionStorage_default.Entity.life.sp += pkt.amount;
 			SessionStorage_default.Entity.life.update();
-			if (SessionStorage_default.Entity.life.sp_max > -1) BasicInfoController.getUI().update("sp", SessionStorage_default.Entity.life.sp, SessionStorage_default.Entity.life.sp_max);
+			if (SessionStorage_default.Entity.life.sp_max > -1) BasicInfoController.update("sp", SessionStorage_default.Entity.life.sp, SessionStorage_default.Entity.life.sp_max);
 			break;
 		}
 	}
@@ -327117,12 +327154,12 @@ function onCutin(pkt) {
 function onMinimapMarker(pkt) {
 	switch (pkt.type) {
 		case 0:
-			Controller$5.getUI().addNpcMark(pkt.id, pkt.xPos, pkt.yPos, pkt.color, 15e3);
+			Controller$5.addNpcMark(pkt.id, pkt.xPos, pkt.yPos, pkt.color, 15e3);
 			break;
 		case 1:
-			Controller$5.getUI().addNpcMark(pkt.id, pkt.xPos, pkt.yPos, pkt.color, Infinity);
+			Controller$5.addNpcMark(pkt.id, pkt.xPos, pkt.yPos, pkt.color, Infinity);
 			break;
-		case 2: Controller$5.getUI().removeNpcMark(pkt.id);
+		case 2: Controller$5.removeNpcMark(pkt.id);
 	}
 }
 /**
@@ -328357,7 +328394,7 @@ function updateEntityStyle(entity) {
 }
 function onTitleChangeAck(pkt) {
 	if (pkt.result === 0) {
-		const comp = EquipmentController.getUI();
+		const comp = EquipmentController;
 		if (comp && typeof comp.setTitle === "function") comp.setTitle(pkt.title_id);
 	}
 }
@@ -328432,7 +328469,7 @@ function onEntityQuestNotifyEffect(pkt) {
 			break;
 		default: return;
 	}
-	Controller$5.getUI().addNpcMark(pkt.npcID, pkt.xPos, pkt.yPos, color, Infinity);
+	Controller$5.addNpcMark(pkt.npcID, pkt.xPos, pkt.yPos, color, Infinity);
 }
 /**
 * Updating entity direction
@@ -328471,17 +328508,17 @@ function onEntityViewChange(pkt) {
 				else entity.job = pkt.value;
 				if (entity === SessionStorage_default.Entity) {
 					if (PacketVerManager_default.value >= 20200520) {
-						BasicInfoController.getUI().remove();
+						BasicInfoController.remove();
 						BasicInfoController.selectUIVersionWithJob(DB.getJobClass(pkt.value));
-						BasicInfoController.getUI().prepare();
-						BasicInfoController.getUI().update("blvl", SessionStorage_default.Entity.clevel);
-						BasicInfoController.getUI().update("jlvl", SessionStorage_default.Entity.joblevel);
-						BasicInfoController.getUI().update("zeny", SessionStorage_default.Entity.money);
-						BasicInfoController.getUI().update("name", SessionStorage_default.Entity.display.name);
-						BasicInfoController.getUI().update("bexp", BasicInfoController.getUI().base_exp, BasicInfoController.getUI().base_exp_next);
-						BasicInfoController.getUI().append();
+						BasicInfoController.prepare();
+						BasicInfoController.update("blvl", SessionStorage_default.Entity.clevel);
+						BasicInfoController.update("jlvl", SessionStorage_default.Entity.joblevel);
+						BasicInfoController.update("zeny", SessionStorage_default.Entity.money);
+						BasicInfoController.update("name", SessionStorage_default.Entity.display.name);
+						BasicInfoController.update("bexp", BasicInfoController.base_exp, BasicInfoController.base_exp_next);
+						BasicInfoController.append();
 					}
-					BasicInfoController.getUI().update("job", pkt.value);
+					BasicInfoController.update("job", pkt.value);
 				}
 			}
 			break;
@@ -329403,8 +329440,8 @@ function onNotifyExp(pkt) {
 *   probably it's not updated with Tombstone system, but Tombstones are fail...
 */
 function onMarkMvp(pkt) {
-	Controller$5.getUI().removeNpcMark("mvp");
-	if (pkt.infoType == 1) Controller$5.getUI().addNpcMark("mvp", pkt.xPos, pkt.yPos, 16711680, Infinity);
+	Controller$5.removeNpcMark("mvp");
+	if (pkt.infoType == 1) Controller$5.addNpcMark("mvp", pkt.xPos, pkt.yPos, 16711680, Infinity);
 	if (pkt.infoType == 0) ChatBox_default.addText("Boss monster not found.", ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
 }
 /**
@@ -329474,7 +329511,7 @@ function onEntityWillBeHitSub(pkt, dstEntity) {
 * Does player have a Token of Siegfried?
 */
 function haveSiegfriedItem() {
-	const itemInfo = InventoryController.getUI().getItemById(7621);
+	const itemInfo = InventoryController.getItemById(7621);
 	if (SessionStorage_default.IsPKZone || SessionStorage_default.IsSiegeMode || SessionStorage_default.IsEventPVPMode) return false;
 	else if (itemInfo && itemInfo.count > 0) return true;
 	else return false;
@@ -330001,7 +330038,7 @@ var init_ItemSelection = __esmMin((() => {
 				addElement$3(DB.INTERFACE_PATH + "item/" + file + ".bmp", list[i], name);
 			}
 		} else {
-			const item = InventoryController.getUI().getItemByIndex(list[i]);
+			const item = InventoryController.getItemByIndex(list[i]);
 			if (item) {
 				const it = DB.getItemInfo(item.ITID);
 				if (it) {
@@ -330290,7 +330327,7 @@ var init_MakeItemSelection = __esmMin((() => {
 	*/
 	MakeItemSelection.selectIndex = function selectIndex() {
 		this.onIndexSelected(this.index, this.material, this.mkType);
-		if (this.index == -1) this.material.forEach((item) => InventoryController.getUI().addItem(item));
+		if (this.index == -1) this.material.forEach((item) => InventoryController.addItem(item));
 		this.remove();
 	};
 	/**
@@ -330328,7 +330365,7 @@ var init_MakeItemSelection = __esmMin((() => {
 		if (this.material.length < 3 && (validMultipleMaterials.includes(item.ITID) || validSingleMaterials.includes(item.ITID) && !singleMatUsed)) {
 			if (this.addItemSub(item)) {
 				switch (from) {
-					case "Inventory": InventoryController.getUI().removeItem(item.index, 1);
+					case "Inventory": InventoryController.removeItem(item.index, 1);
 				}
 				this.material.push(item);
 			}
@@ -331033,13 +331070,13 @@ var init_ItemListWindowSelection = __esmMin((() => {
 			if (item) onItemInfo$3.call(item, e);
 		});
 		this.draggable(root.querySelector(".titlebar"));
-		this.setList(InventoryController.getUI().list);
+		this.setList(InventoryController.list);
 	};
 	/**
 	* Apply preferences once append to body
 	*/
 	ItemListWindowSelection.onAppend = function OnAppend() {
-		this.setList(InventoryController.getUI().list);
+		this.setList(InventoryController.list);
 		ConvertItems_default.append();
 	};
 	/**
@@ -331203,7 +331240,7 @@ function onItemPickAnswer(pkt) {
 	ItemObtain_default.set(pkt);
 	const getTextItem = DB.getItemName(pkt, { showItemOptions: false });
 	ChatBox_default.addText(DB.getMessage(153).replace("%s", getTextItem).replace("%d", pkt.count), ChatBox_default.TYPE.BLUE, ChatBox_default.FILTER.ITEM);
-	InventoryController.getUI().addItem(pkt);
+	InventoryController.addItem(pkt);
 }
 /**
 * Generic function to add items to inventory
@@ -331211,7 +331248,7 @@ function onItemPickAnswer(pkt) {
 * @param {object} pkt - PACKET.ZC.EQUIPMENT_ITEMLIST
 */
 function onInventorySetList(pkt) {
-	InventoryController.getUI().setItems(pkt.itemInfo || pkt.ItemInfo);
+	InventoryController.setItems(pkt.itemInfo || pkt.ItemInfo);
 }
 /**
 * Remove item from inventory
@@ -331219,7 +331256,7 @@ function onInventorySetList(pkt) {
 * @param {object} pkt - PACKET.ZC.ITEM_THROW_ACK
 */
 function onIventoryRemoveItem(pkt) {
-	InventoryController.getUI().removeItem(pkt.Index, pkt.count || pkt.Count || 0);
+	InventoryController.removeItem(pkt.Index, pkt.count || pkt.Count || 0);
 }
 /**
 * Remove an item from equipment, add it to inventory
@@ -331228,25 +331265,25 @@ function onIventoryRemoveItem(pkt) {
 */
 function onEquipementTakeOff(pkt) {
 	if (pkt.result) {
-		const item = EquipmentController.getUI().unEquip(pkt.index, pkt.wearLocation);
+		const item = EquipmentController.unEquip(pkt.index, pkt.wearLocation);
 		if (item) {
 			item.WearState = 0;
 			const it = DB.getItemInfo(item.ITID);
 			ChatBox_default.addText(it.identifiedDisplayName + " " + DB.getMessage(171), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.ITEM);
-			if (!(pkt.wearLocation & EquipmentLocation_default.AMMO)) InventoryController.getUI().addItem(item);
+			if (!(pkt.wearLocation & EquipmentLocation_default.AMMO)) InventoryController.addItem(item);
 		}
-		if (pkt.wearLocation & EquipmentLocation_default.HEAD_TOP) SessionStorage_default.Entity.accessory2 = EquipmentController.getUI().checkEquipLoc(EquipmentLocation_default.COSTUME_HEAD_TOP);
-		if (pkt.wearLocation & EquipmentLocation_default.HEAD_MID) SessionStorage_default.Entity.accessory3 = EquipmentController.getUI().checkEquipLoc(EquipmentLocation_default.COSTUME_HEAD_MID);
-		if (pkt.wearLocation & EquipmentLocation_default.HEAD_BOTTOM) SessionStorage_default.Entity.accessory = EquipmentController.getUI().checkEquipLoc(EquipmentLocation_default.COSTUME_HEAD_BOTTOM);
-		if (pkt.wearLocation & EquipmentLocation_default.GARMENT) SessionStorage_default.Entity.robe = EquipmentController.getUI().checkEquipLoc(EquipmentLocation_default.COSTUME_ROBE);
+		if (pkt.wearLocation & EquipmentLocation_default.HEAD_TOP) SessionStorage_default.Entity.accessory2 = EquipmentController.checkEquipLoc(EquipmentLocation_default.COSTUME_HEAD_TOP);
+		if (pkt.wearLocation & EquipmentLocation_default.HEAD_MID) SessionStorage_default.Entity.accessory3 = EquipmentController.checkEquipLoc(EquipmentLocation_default.COSTUME_HEAD_MID);
+		if (pkt.wearLocation & EquipmentLocation_default.HEAD_BOTTOM) SessionStorage_default.Entity.accessory = EquipmentController.checkEquipLoc(EquipmentLocation_default.COSTUME_HEAD_BOTTOM);
+		if (pkt.wearLocation & EquipmentLocation_default.GARMENT) SessionStorage_default.Entity.robe = EquipmentController.checkEquipLoc(EquipmentLocation_default.COSTUME_ROBE);
 		if (pkt.wearLocation & EquipmentLocation_default.WEAPON) SessionStorage_default.Entity.weapon = 0;
 		if (pkt.wearLocation & EquipmentLocation_default.SHIELD) SessionStorage_default.Entity.shield = 0;
-		if (pkt.wearLocation & EquipmentLocation_default.COSTUME_HEAD_TOP) SessionStorage_default.Entity.accessory2 = EquipmentController.getUI().checkEquipLoc(EquipmentLocation_default.HEAD_TOP);
-		if (pkt.wearLocation & EquipmentLocation_default.COSTUME_HEAD_MID) SessionStorage_default.Entity.accessory3 = EquipmentController.getUI().checkEquipLoc(EquipmentLocation_default.HEAD_MID);
-		if (pkt.wearLocation & EquipmentLocation_default.COSTUME_HEAD_BOTTOM) SessionStorage_default.Entity.accessory = EquipmentController.getUI().checkEquipLoc(EquipmentLocation_default.HEAD_BOTTOM);
-		if (pkt.wearLocation & EquipmentLocation_default.COSTUME_ROBE) SessionStorage_default.Entity.robe = EquipmentController.getUI().checkEquipLoc(EquipmentLocation_default.GARMENT);
+		if (pkt.wearLocation & EquipmentLocation_default.COSTUME_HEAD_TOP) SessionStorage_default.Entity.accessory2 = EquipmentController.checkEquipLoc(EquipmentLocation_default.HEAD_TOP);
+		if (pkt.wearLocation & EquipmentLocation_default.COSTUME_HEAD_MID) SessionStorage_default.Entity.accessory3 = EquipmentController.checkEquipLoc(EquipmentLocation_default.HEAD_MID);
+		if (pkt.wearLocation & EquipmentLocation_default.COSTUME_HEAD_BOTTOM) SessionStorage_default.Entity.accessory = EquipmentController.checkEquipLoc(EquipmentLocation_default.HEAD_BOTTOM);
+		if (pkt.wearLocation & EquipmentLocation_default.COSTUME_ROBE) SessionStorage_default.Entity.robe = EquipmentController.checkEquipLoc(EquipmentLocation_default.GARMENT);
 		if (PacketVerManager_default.value >= 20170208) {
-			if (!InventoryController.getUI().isInEquipSwitchList(pkt.wearLocation)) SwitchEquip_default.unEquip(pkt.index, pkt.wearLocation);
+			if (!InventoryController.isInEquipSwitchList(pkt.wearLocation)) SwitchEquip_default.unEquip(pkt.index, pkt.wearLocation);
 		}
 	}
 }
@@ -331257,13 +331294,13 @@ function onEquipementTakeOff(pkt) {
 */
 function onItemEquip(pkt) {
 	if (pkt.result == 1) {
-		const item = InventoryController.getUI().removeItem(pkt.index, 1);
-		EquipmentController.getUI().equip(item, pkt.wearLocation);
+		const item = InventoryController.removeItem(pkt.index, 1);
+		EquipmentController.equip(item, pkt.wearLocation);
 		ChatBox_default.addText(DB.getItemName(item) + " " + DB.getMessage(170), ChatBox_default.TYPE.BLUE, ChatBox_default.FILTER.ITEM);
-		const CostumeCheckTop = EquipmentController.getUI().checkEquipLoc(EquipmentLocation_default.COSTUME_HEAD_TOP);
-		const CostumeCheckMid = EquipmentController.getUI().checkEquipLoc(EquipmentLocation_default.COSTUME_HEAD_MID);
-		const CostumeCheckBot = EquipmentController.getUI().checkEquipLoc(EquipmentLocation_default.COSTUME_HEAD_BOTTOM);
-		const CostumeCheckRobe = EquipmentController.getUI().checkEquipLoc(EquipmentLocation_default.COSTUME_ROBE);
+		const CostumeCheckTop = EquipmentController.checkEquipLoc(EquipmentLocation_default.COSTUME_HEAD_TOP);
+		const CostumeCheckMid = EquipmentController.checkEquipLoc(EquipmentLocation_default.COSTUME_HEAD_MID);
+		const CostumeCheckBot = EquipmentController.checkEquipLoc(EquipmentLocation_default.COSTUME_HEAD_BOTTOM);
+		const CostumeCheckRobe = EquipmentController.checkEquipLoc(EquipmentLocation_default.COSTUME_ROBE);
 		if (pkt.wearLocation & EquipmentLocation_default.HEAD_TOP) SessionStorage_default.Entity.accessory2 = CostumeCheckTop ? CostumeCheckTop : pkt.viewid;
 		if (pkt.wearLocation & EquipmentLocation_default.HEAD_MID) SessionStorage_default.Entity.accessory3 = CostumeCheckMid ? CostumeCheckMid : pkt.viewid;
 		if (pkt.wearLocation & EquipmentLocation_default.HEAD_BOTTOM) SessionStorage_default.Entity.accessory = CostumeCheckBot ? CostumeCheckBot : pkt.viewid;
@@ -331282,7 +331319,7 @@ function onItemEquip(pkt) {
 */
 function onItemUseAnswer(pkt) {
 	if (!pkt.hasOwnProperty("AID") || SessionStorage_default.Entity.GID === pkt.AID) {
-		if (pkt.result) InventoryController.getUI().updateItem(pkt.index, pkt.count);
+		if (pkt.result) InventoryController.updateItem(pkt.index, pkt.count);
 	}
 	if (pkt.result) EffectManager.spamItem(pkt.id, pkt.AID, null, null, null);
 }
@@ -331292,10 +331329,10 @@ function onItemUseAnswer(pkt) {
 * @param {object} pkt - ZC_EQUIPWIN_MICROSCOPE
 */
 function onShowPlayerEquip(pkt) {
-	PlayerViewEquipController.getUI().append();
-	PlayerViewEquipController.getUI().setTitleBar(pkt.characterName);
-	PlayerViewEquipController.getUI().setEquipmentData(pkt.ItemInfo);
-	PlayerViewEquipController.getUI().setChar2Render(pkt);
+	PlayerViewEquipController.append();
+	PlayerViewEquipController.setTitleBar(pkt.characterName);
+	PlayerViewEquipController.setEquipmentData(pkt.ItemInfo);
+	PlayerViewEquipController.setChar2Render(pkt);
 }
 /**
 * Equip an arrow
@@ -331303,8 +331340,8 @@ function onShowPlayerEquip(pkt) {
 * @param {object} pkt - PACKET_ZC_EQUIP_ARROW
 */
 function onArrowEquipped(pkt) {
-	const item = InventoryController.getUI().getItemByIndex(pkt.index);
-	EquipmentController.getUI().equip(item, EquipmentLocation_default.AMMO);
+	const item = InventoryController.getItemByIndex(pkt.index);
+	EquipmentController.equip(item, EquipmentLocation_default.AMMO);
 }
 /**
 * Ask to get a list of equipments where we can put a card
@@ -331324,7 +331361,7 @@ function onUseCard(index) {
 */
 function onItemCompositionList(pkt) {
 	if (!pkt.ITIDList.length) return;
-	const card = InventoryController.getUI().getItemByIndex(_cardComposition);
+	const card = InventoryController.getItemByIndex(_cardComposition);
 	ItemSelection_default.append();
 	ItemSelection_default.setList(pkt.ITIDList);
 	ItemSelection_default.setTitle(DB.getMessage(522) + "(" + DB.getItemInfo(card.ITID).identifiedDisplayName + ")");
@@ -331346,14 +331383,14 @@ function onItemCompositionList(pkt) {
 function onItemCompositionResult(pkt) {
 	switch (pkt.result) {
 		case 0: {
-			const item = InventoryController.getUI().removeItem(pkt.equipIndex, 1);
-			const card = InventoryController.getUI().removeItem(pkt.cardIndex, 1);
+			const item = InventoryController.removeItem(pkt.equipIndex, 1);
+			const card = InventoryController.removeItem(pkt.cardIndex, 1);
 			if (item) {
 				for (let i = 0; i < 4; ++i) if (!item.slot["card" + (i + 1)]) {
 					item.slot["card" + (i + 1)] = card.ITID;
 					break;
 				}
-				InventoryController.getUI().addItem(item);
+				InventoryController.addItem(item);
 			}
 			break;
 		}
@@ -331367,10 +331404,10 @@ function onItemCompositionResult(pkt) {
 function onRefineResult(pkt) {
 	if (Configs.get("enableRefineUI") && PacketVerManager_default.value >= 20161012) __vitePreload(() => Promise.resolve().then(() => (init_Refine(), Refine_exports)).then((m) => m.default.onRefineResult(pkt)), void 0, import.meta.url);
 	else {
-		const item = InventoryController.getUI().removeItem(pkt.itemIndex, 1);
+		const item = InventoryController.removeItem(pkt.itemIndex, 1);
 		if (item) {
 			item.RefiningLevel = pkt.RefiningLevel;
-			InventoryController.getUI().addItem(item);
+			InventoryController.addItem(item);
 		}
 		switch (pkt.result) {
 			case 0:
@@ -331488,7 +331525,7 @@ function onMakeitem_List(pkt) {
 function onBodyItemSize(pkt) {
 	if (pkt) {
 		const newlimit = 100 + pkt.type;
-		InventoryController.getUI().ui.find(".mcnt").text(newlimit);
+		InventoryController.ui.find(".mcnt").text(newlimit);
 	}
 }
 /**
@@ -331507,14 +331544,14 @@ function onRecoverPenaltyOverweight(pkt) {
 function onItemListNormal(pkt) {
 	switch (pkt.invType) {
 		case 0:
-			InventoryController.getUI().setItems(pkt.itemInfo || pkt.ItemInfo);
+			InventoryController.setItems(pkt.itemInfo || pkt.ItemInfo);
 			break;
 		case 1:
 			CartItems_default.setItems(pkt.itemInfo || pkt.ItemInfo);
 			break;
 		case 2:
-			StorageController.getUI().append();
-			StorageController.getUI().setItems(pkt.itemInfo || pkt.ItemInfo);
+			StorageController.append();
+			StorageController.setItems(pkt.itemInfo || pkt.ItemInfo);
 			break;
 		default: throw new Error("[PACKET.ZC.SPLIT_SEND_ITEMLIST_NORMAL] - Unknown invType '" + pkt.invType + "'.");
 	}
@@ -331527,13 +331564,13 @@ function onItemListNormal(pkt) {
 function onItemListEquip(pkt) {
 	switch (pkt.invType) {
 		case 0:
-			InventoryController.getUI().setItems(pkt.itemInfo || pkt.ItemInfo);
+			InventoryController.setItems(pkt.itemInfo || pkt.ItemInfo);
 			break;
 		case 1:
 			CartItems_default.setItems(pkt.itemInfo || pkt.ItemInfo);
 			break;
 		case 2:
-			StorageController.getUI().setItems(pkt.itemInfo || pkt.ItemInfo);
+			StorageController.setItems(pkt.itemInfo || pkt.ItemInfo);
 			break;
 		default: throw new Error("[PACKET.ZC.SPLIT_SEND_ITEMLIST_NORMAL] - Unknown invType '" + pkt.invType + "'.");
 	}
@@ -331549,7 +331586,7 @@ function onItemListEquip(pkt) {
 function onFavItemList(pkt) {
 	if (pkt) {
 		const isfavitem = pkt.favorite ? 0 : 1;
-		InventoryController.getUI().updatePlaceETCTab(pkt.index, isfavitem);
+		InventoryController.updatePlaceETCTab(pkt.index, isfavitem);
 	}
 }
 /**
@@ -331557,7 +331594,7 @@ function onFavItemList(pkt) {
 */
 function onSwitchEquipList(pkt) {
 	if (pkt && pkt.ItemInfo) pkt.ItemInfo.forEach(function(item) {
-		if (InventoryController.getUI().getItemByIndex(item.index)) InventoryController.getUI().addItemtoSwitch(item.index);
+		if (InventoryController.getItemByIndex(item.index)) InventoryController.addItemtoSwitch(item.index);
 	});
 }
 /**
@@ -331566,7 +331603,7 @@ function onSwitchEquipList(pkt) {
 function onSwitchEquipAdd(pkt) {
 	if (pkt) switch (pkt.flag) {
 		case 0:
-			InventoryController.getUI().addItemtoSwitch(pkt.index);
+			InventoryController.addItemtoSwitch(pkt.index);
 			break;
 		case 1:
 		case 2: break;
@@ -331579,7 +331616,7 @@ function onSwitchEquipAdd(pkt) {
 function onSwitchEquipRemove(pkt) {
 	if (pkt) switch (pkt.flag) {
 		case 0:
-			InventoryController.getUI().removeItemFromSwitch(pkt.index);
+			InventoryController.removeItemFromSwitch(pkt.index);
 			break;
 		case 1: break;
 		case 2: break;
@@ -331656,8 +331693,8 @@ function ItemEngine() {
 	Network.hookPacket(PACKET.ZC.SEND_SWAP_EQUIPITEM_INFO, onSwitchEquipList);
 	Network.hookPacket(PACKET.ZC.REQ_WEAR_SWITCHEQUIP_ADD_RESULT, onSwitchEquipAdd);
 	Network.hookPacket(PACKET.ZC.REQ_WEAR_SWITCHEQUIP_REMOVE_RESULT, onSwitchEquipRemove);
-	InventoryController.getUI().onUseCard = onUseCard;
-	InventoryController.getUI().reqMoveItemToCart = reqMoveItemToCart;
+	InventoryController.onUseCard = onUseCard;
+	InventoryController.reqMoveItemToCart = reqMoveItemToCart;
 }
 var _cardComposition;
 var init_Item = __esmMin((() => {
@@ -332323,12 +332360,12 @@ var init_PrivateMessage = __esmMin((() => {
 * @param {object} pkt - PACKET.ZC.NOTIFY_STOREITEM_COUNTINFO
 */
 function onStorageInfo(pkt) {
-	if (!(StorageController.getUI().__loaded && StorageController.getUI().__active)) {
-		StorageController.getUI().append();
-		if (PacketVerManager_default.value >= 20181002) StorageController.getUI().ui.find(".titlebar .text").text(InvTypeName);
+	if (!(StorageController.__loaded && StorageController.__active)) {
+		StorageController.append();
+		if (PacketVerManager_default.value >= 20181002) StorageController.ui.find(".titlebar .text").text(InvTypeName);
 	}
-	StorageController.getUI().setItemInfo(pkt.curCount, pkt.maxCount);
-	StorageController.getUI().setItems(itemBuffer);
+	StorageController.setItemInfo(pkt.curCount, pkt.maxCount);
+	StorageController.setItems(itemBuffer);
 	itemBuffer = [];
 }
 /**
@@ -332345,7 +332382,7 @@ function onStorageList(pkt) {
 * @param {object} pkt - PACKET.ZC.ADD_ITEM_TO_STORE
 */
 function onStorageItemAdded(pkt) {
-	StorageController.getUI().addItem(Object.assign({}, pkt));
+	StorageController.addItem(Object.assign({}, pkt));
 }
 /**
 * Remove item from storage
@@ -332353,7 +332390,7 @@ function onStorageItemAdded(pkt) {
 * @param {object} pkt - PACKET.ZC.DELETE_ITEM_FROM_STORE
 */
 function onStorageItemRemoved(pkt) {
-	StorageController.getUI().removeItem(pkt.index, pkt.count);
+	StorageController.removeItem(pkt.index, pkt.count);
 }
 /**
 * Server want you to close the storage
@@ -332361,7 +332398,7 @@ function onStorageItemRemoved(pkt) {
 * @param {object} pkt - PACKET.ZC.CLOSE_STORE
 */
 function onStorageClose() {
-	StorageController.getUI().remove();
+	StorageController.remove();
 }
 /**
 * Inventory Type has been started
@@ -332431,7 +332468,7 @@ var init_Storage = __esmMin((() => {
 	StorageController.onClosePressed = function onClosePressed() {
 		const pkt = new PACKET.CZ.CLOSE_STORE();
 		Network.sendPacket(pkt);
-		StorageController.getUI().remove();
+		StorageController.remove();
 	};
 	/**
 	* Send item to storage
@@ -333149,7 +333186,7 @@ function onSkillResult(pkt) {
 * @param {object} pkt - PACKET_ZC_SKILLINFO_LIST
 */
 function onSkillList$2(pkt) {
-	Controller$4.getUI().setSkills(pkt.skillList);
+	Controller$4.setSkills(pkt.skillList);
 }
 /**
 * Update a specified skill
@@ -333157,7 +333194,7 @@ function onSkillList$2(pkt) {
 * @param {object} pkt - PACKET.ZC.SKILLINFO_UPDATE
 */
 function onSkillUpdate$2(pkt) {
-	Controller$4.getUI().updateSkill(pkt);
+	Controller$4.updateSkill(pkt);
 }
 /**
 * List of skills/items in hotkey
@@ -333174,7 +333211,7 @@ function onShortCutList(pkt) {
 * @param {object} pkt - PACKET.ZC.ADD_SKILL
 */
 function onSkillAdded(pkt) {
-	Controller$4.getUI().addSkill(pkt.data);
+	Controller$4.addSkill(pkt.data);
 }
 /**
 * Server notify use that we need to cast a skill
@@ -333182,7 +333219,7 @@ function onSkillAdded(pkt) {
 * @param {object} pkt - PACKET.ZC.AUTORUN_SKILL
 */
 function onAutoCastSkill(pkt) {
-	Controller$4.getUI().useSkill(pkt.data);
+	Controller$4.useSkill(pkt.data);
 }
 /**
 * Get a list of item to identify
@@ -333212,10 +333249,10 @@ function onIdentifyResult(pkt) {
 	switch (pkt.result) {
 		case 0: {
 			ChatBox_default.addText(DB.getMessage(491), ChatBox_default.TYPE.BLUE, ChatBox_default.FILTER.ITEM);
-			const item = InventoryController.getUI().removeItem(pkt.index, 1);
+			const item = InventoryController.removeItem(pkt.index, 1);
 			if (item) {
 				item.IsIdentified = true;
-				InventoryController.getUI().addItem(item);
+				InventoryController.addItem(item);
 			}
 			break;
 		}
@@ -333416,7 +333453,7 @@ function onUseSkill(id, level, targetID) {
 	else entity = SessionStorage_default.Entity;
 	if (entity && entity.amotionTick > Renderer.tick) return;
 	const target = EntityManager.get(targetID) || entity;
-	const skill = Controller$4.getUI().getSkillById(id);
+	const skill = Controller$4.getSkillById(id);
 	const out = [];
 	if (skill) range = skill.attackRange + 1;
 	else if (SkillInfo[id]) range = SkillInfo[id].AttackRange[level - 1] + 1;
@@ -333511,8 +333548,8 @@ function onSense(pkt) {
 	Sense_default.setWindow(pkt);
 }
 function hookSkillWindow() {
-	Controller$4.getUI().onIncreaseSkill = onIncreaseSkill;
-	Controller$4.getUI().onUseSkill = onUseSkill;
+	Controller$4.onIncreaseSkill = onIncreaseSkill;
+	Controller$4.onUseSkill = onUseSkill;
 }
 /**
 * Initialize
@@ -333640,7 +333677,7 @@ var init_Skill = __esmMin((() => {
 		}
 		if (entity && entity.amotionTick > Renderer.tick) return;
 		const pos = entity.position;
-		const skill = Controller$4.getUI().getSkillById(id);
+		const skill = Controller$4.getSkillById(id);
 		const out = [];
 		if (skill) range = skill.attackRange + 1;
 		else if (SkillInfo[id]) range = SkillInfo[id].AttackRange[level - 1] + 1;
@@ -334242,7 +334279,7 @@ var init_PetEvolution = __esmMin((() => {
 	PetEvolution.hasEnoughMaterials = function() {
 		if (!currentMaterials) return false;
 		for (const mat of currentMaterials) {
-			const item = InventoryController.getUI().getItemById(mat.MaterialID);
+			const item = InventoryController.getItemById(mat.MaterialID);
 			if ((item ? item.count : 0) < mat.Amount) return false;
 		}
 		return true;
@@ -335606,7 +335643,7 @@ var init_NpcStore = __esmMin((() => {
 					out = Object.assign({}, items[i]);
 					out.count = 0;
 					addItem(content, items[i]);
-					it = InventoryController.getUI().getItemById(items[i].ITID);
+					it = InventoryController.getItemById(items[i].ITID);
 					if (it) {
 						item = Object.assign({}, it);
 						item.ITID = it.ITID;
@@ -335637,8 +335674,8 @@ var init_NpcStore = __esmMin((() => {
 			case NpcStore.Type.SELL: {
 				const InventoryVersion = UIManager.getComponent("Inventory").name;
 				for (i = 0, count = items.length; i < count; ++i) {
-					it = InventoryController.getUI().getItemByIndex(items[i].index);
-					if (InventoryVersion !== "InventoryV0" ? it && (!InventoryController.getUI().npcsalelock || it.PlaceETCTab < 1) : it) {
+					it = InventoryController.getItemByIndex(items[i].index);
+					if (InventoryVersion !== "InventoryV0" ? it && (!InventoryController.npcsalelock || it.PlaceETCTab < 1) : it) {
 						item = Object.assign({}, it);
 						item.price = items[i].price;
 						item.overchargeprice = items[i].overchargeprice;
@@ -335948,7 +335985,7 @@ function onBarterBuyList(pkt) {
 		const _pkt = new PACKET.CZ.NPC_BARTER_MARKET_PURCHASE();
 		const count = itemList.length;
 		for (let i = 0; i < count; ++i) {
-			const item = InventoryController.getUI().getItemById(itemList[i].matcurrency);
+			const item = InventoryController.getItemById(itemList[i].matcurrency);
 			const item_index = item ? item.index : -1;
 			_pkt.itemList.push({
 				itemId: itemList[i].ITID,
@@ -336563,7 +336600,7 @@ function onAllQuestList(pkt) {
 		}
 		quest_list[local_quest.questID] = local_quest;
 	}
-	Controller$3.getUI().setQuestList(quest_list);
+	Controller$3.setQuestList(quest_list);
 }
 /**
 * Quest added
@@ -336607,7 +336644,7 @@ function onAddQuest(pkt) {
 		const ID = hunt.huntID ? hunt.huntID : hunt.mobGID;
 		quest.hunt_list[ID] = local_hunt;
 	}
-	Controller$3.getUI().addQuest(quest, quest.questID);
+	Controller$3.addQuest(quest, quest.questID);
 }
 /**
 * Quest Hunt updated
@@ -336619,7 +336656,7 @@ function onUpdateMissionHunt(pkt) {
 		const local_hunt = pkt.hunt[i];
 		const ID = local_hunt.huntID ? local_hunt.huntID : local_hunt.mobGID;
 		if (local_hunt.questID !== void 0) {
-			if (Controller$3.getUI().questExists(local_hunt.questID)) Controller$3.getUI().updateMissionHunt(local_hunt, local_hunt.questID, ID);
+			if (Controller$3.questExists(local_hunt.questID)) Controller$3.updateMissionHunt(local_hunt, local_hunt.questID, ID);
 			else {
 				const quest_info = DB.getQuestInfo(local_hunt.questID);
 				const local_quest = {
@@ -336652,11 +336689,11 @@ function onUpdateMissionHunt(pkt) {
 					maxCount: local_hunt.maxCount || 0,
 					mobName: local_hunt.mobName || ""
 				};
-				Controller$3.getUI().addQuest(local_quest, local_quest.questID);
+				Controller$3.addQuest(local_quest, local_quest.questID);
 			}
 		} else {
-			const quest_saved_id = Controller$3.getUI().getQuestIDByServerID(ID);
-			if (quest_saved_id > 0) Controller$3.getUI().updateMissionHunt(local_hunt, quest_saved_id, ID);
+			const quest_saved_id = Controller$3.getQuestIDByServerID(ID);
+			if (quest_saved_id > 0) Controller$3.updateMissionHunt(local_hunt, quest_saved_id, ID);
 		}
 	}
 }
@@ -336666,7 +336703,7 @@ function onUpdateMissionHunt(pkt) {
 * @param {object} pkt - PACKET.ZC.ACTIVE_QUEST
 */
 function onActiveQuest(pkt) {
-	Controller$3.getUI().toggleQuestActive(pkt.questID, pkt.active);
+	Controller$3.toggleQuestActive(pkt.questID, pkt.active);
 }
 /**
 * Quest deleted
@@ -336674,7 +336711,7 @@ function onActiveQuest(pkt) {
 * @param {object} pkt - PACKET.ZC.DEL_QUEST
 */
 function onDeleteQuest(pkt) {
-	Controller$3.getUI().removeQuest(pkt.questID);
+	Controller$3.removeQuest(pkt.questID);
 }
 /**
 * Initialize
@@ -337906,7 +337943,7 @@ function onPingLive(pkt) {
 function onConfig(pkt) {
 	switch (pkt.Config) {
 		case 0:
-			EquipmentController.getUI().setEquipConfig(pkt.Value);
+			EquipmentController.setEquipConfig(pkt.Value);
 			ChatBox_default.addText(DB.getMessage(1358 + (pkt.Value ? 1 : 0)), ChatBox_default.TYPE.INFO, ChatBox_default.FILTER.PUBLIC_LOG);
 			break;
 		case 1:
@@ -337922,7 +337959,7 @@ function onConfig(pkt) {
 			ChatBox_default.addText(DB.getMessage(3282 + (pkt.Value ? 0 : 1)), ChatBox_default.TYPE.INFO, ChatBox_default.FILTER.PUBLIC_LOG);
 			break;
 		case 5:
-			EquipmentController.getUI().setCostumeConfig(pkt.Value);
+			EquipmentController.setCostumeConfig(pkt.Value);
 			break;
 		default: console.error("[PACKET_ZC_CONFIG] Unknown Config Type %d (value:%d)", pkt.Config, pkt.Value);
 	}
@@ -337934,7 +337971,7 @@ function onConfig(pkt) {
 */
 function onConfigNotify(pkt) {
 	if (typeof pkt.show_eq_flag !== "undefined") {
-		EquipmentController.getUI().setEquipConfig(pkt.show_eq_flag);
+		EquipmentController.setEquipConfig(pkt.show_eq_flag);
 		ChatBox_default.addText(DB.getMessage(1358 + (pkt.show_eq_flag ? 1 : 0)), ChatBox_default.TYPE.INFO, ChatBox_default.FILTER.PUBLIC_LOG);
 	}
 	if (typeof pkt.pet_autofeeding_flag !== "undefined") {
@@ -337990,13 +338027,13 @@ function onConnectionAccepted$2(pkt) {
 	};
 	if (PacketVerManager_default.value >= 20200520) {
 		BasicInfoController.selectUIVersionWithJob(DB.getJobClass(SessionStorage_default.Entity.job));
-		BasicInfoController.getUI().prepare();
+		BasicInfoController.prepare();
 	}
-	BasicInfoController.getUI().update("blvl", SessionStorage_default.Entity.clevel);
-	BasicInfoController.getUI().update("jlvl", SessionStorage_default.Entity.joblevel);
-	BasicInfoController.getUI().update("zeny", SessionStorage_default.Entity.money);
-	BasicInfoController.getUI().update("name", SessionStorage_default.Entity.display.name);
-	BasicInfoController.getUI().update("job", SessionStorage_default.Entity.job);
+	BasicInfoController.update("blvl", SessionStorage_default.Entity.clevel);
+	BasicInfoController.update("jlvl", SessionStorage_default.Entity.joblevel);
+	BasicInfoController.update("zeny", SessionStorage_default.Entity.money);
+	BasicInfoController.update("name", SessionStorage_default.Entity.display.name);
+	BasicInfoController.update("job", SessionStorage_default.Entity.job);
 	onMapChange({
 		xPos: pkt.PosDir[0],
 		yPos: pkt.PosDir[1],
@@ -338074,30 +338111,30 @@ function onMapChange(pkt) {
 		}
 		Camera.setTarget(SessionStorage_default.Entity);
 		Camera.init();
-		Controller$5.getUI().append();
-		Controller$5.getUI().setMap(MapRenderer.currentMap);
+		Controller$5.append();
+		Controller$5.setMap(MapRenderer.currentMap);
 		if (Configs.get("enableMapName")) {
 			MapName_default.setMap(MapRenderer.currentMap);
 			MapName_default.append();
 		}
 		ChatBox_default.append();
 		ChatBoxSettings_default.append();
-		BasicInfoController.getUI().append();
+		BasicInfoController.append();
 		Escape_default.append();
-		InventoryController.getUI().append();
+		InventoryController.append();
 		CartItems_default.append();
 		Vending_default.append();
 		ChangeCart_default.append();
 		CartDecoration_default.append();
-		EquipmentController.getUI().append();
+		EquipmentController.append();
 		ShortCuts_default.append();
 		StatusIcons_default.append();
 		ShortCut_default.append();
 		ChatRoomCreate_default.append();
 		Emoticons_default.append();
-		Controller$4.getUI().append();
+		Controller$4.append();
 		FPS_default.append();
-		controller.getUI().append();
+		controller.append();
 		Guild_default.append();
 		WorldMap_default.append();
 		SkillListMH_default.homunculus.append();
@@ -338108,8 +338145,8 @@ function onMapChange(pkt) {
 		Roulette_default.append();
 		if (Configs.get("enableAchievements") && PacketVerManager_default.value >= 20150513) Achievement_default.append();
 		if (SessionStorage_default.PCGoldTimer) PCGoldTimer_default.append();
-		WinStatsController.getUI().append();
-		Controller$3.getUI().append();
+		WinStatsController.append();
+		Controller$3.append();
 		if (Configs.get("enableCashShop")) CashShopIcon_default.append();
 		if (Configs.get("enableCheckAttendance") && PacketVerManager_default.value >= 20180307) CheckAttendance_default.append();
 		Plugins.init();
@@ -338150,10 +338187,7 @@ function cleanGameUI() {
 		[controller, "clean"],
 		[CashShop_default, "clean"]
 	];
-	for (const [target, method] of tasks) {
-		const component = typeof target.getUI === "function" ? target.getUI() : target;
-		if (component && component.__loaded && typeof component[method] === "function") component[method]();
-	}
+	for (const [target, method] of tasks) if (target && target.__loaded && typeof target[method] === "function") target[method]();
 }
 /**
 * Ask the server to disconnect
@@ -338285,7 +338319,7 @@ function onRequestTalk(user, text, target) {
 	pkt.msg = SessionStorage_default.Entity.display.name + " : " + text;
 	Network.sendPacket(pkt);
 	if (chatLines > 7 && DB.isSuperNovice(SessionStorage_default.Entity._job)) {
-		if (Math.floor(BasicInfoController.getUI().base_exp / BasicInfoController.getUI().base_exp_next * 1e3) % 100 == 0) {
+		if (Math.floor(BasicInfoController.base_exp / BasicInfoController.base_exp_next * 1e3) % 100 == 0) {
 			if (text == DB.getMessage(790)) snCounter = 1;
 			else if (snCounter == 1 && text == DB.getMessage(791) + " " + SessionStorage_default.Entity.display.name + " " + DB.getMessage(792)) snCounter = 2;
 			else if (snCounter == 2 && text == DB.getMessage(793)) snCounter = 3;
@@ -338528,6 +338562,7 @@ var init_MapEngine = __esmMin((() => {
 	init_MouseEventHandler();
 	init_KeyEventHandler();
 	init_UIManager();
+	init_UIVersionManager();
 	init_EffectManager();
 	init_Escape();
 	init_ChatBox();
@@ -338536,7 +338571,6 @@ var init_MapEngine = __esmMin((() => {
 	init_CheckAttendance();
 	init_WinStats();
 	init_Inventory();
-	init_Storage$1();
 	init_CartItems();
 	init_Vending();
 	init_VendingReport();
@@ -338684,15 +338718,7 @@ var init_MapEngine = __esmMin((() => {
 			}, true);
 			if (MapEngine.needsUIVerUpdate || !_isInitialised) {
 				if (PacketVerManager_default.value < 20200520) BasicInfoController.selectUIVersion();
-				Controller$5.selectUIVersion();
-				Controller$4.selectUIVersion();
-				Controller$3.selectUIVersion();
-				EquipmentController.selectUIVersion();
-				PlayerViewEquipController.selectUIVersion();
-				WinStatsController.selectUIVersion();
-				InventoryController.selectUIVersion();
-				StorageController.selectUIVersion();
-				controller.selectUIVersion();
+				UIVersionManager.selectAll();
 			}
 			if (!_isInitialised) {
 				_isInitialised = true;
@@ -338757,17 +338783,17 @@ var init_MapEngine = __esmMin((() => {
 				Escape_default.prepare();
 				PvPTimer_default.prepare();
 				PvPCount_default.prepare();
-				InventoryController.getUI().prepare();
+				InventoryController.prepare();
 				CartItems_default.prepare();
 				Vending_default.prepare();
 				ChangeCart_default.prepare();
-				EquipmentController.getUI().prepare();
+				EquipmentController.prepare();
 				ShortCuts_default.prepare();
 				ShortCut_default.prepare();
 				ChatRoomCreate_default.prepare();
 				Emoticons_default.prepare();
 				FPS_default.prepare();
-				controller.getUI().prepare();
+				controller.prepare();
 				StatusIcons_default.prepare();
 				ChatBox_default.prepare();
 				ChatBoxSettings_default.prepare();
@@ -338818,20 +338844,20 @@ var init_MapEngine = __esmMin((() => {
 				WhisperBox.onRequestTalk = onRequestTalk;
 			}
 			if (MapEngine.needsUIVerUpdate || !_isInitialised) {
-				Controller$5.getUI().prepare();
-				Controller$4.getUI().prepare();
-				if (PacketVerManager_default.value < 20200520) BasicInfoController.getUI().prepare();
-				EquipmentController.getUI().prepare();
-				Controller$3.getUI().prepare();
-				WinStatsController.getUI().prepare();
+				Controller$5.prepare();
+				Controller$4.prepare();
+				if (PacketVerManager_default.value < 20200520) BasicInfoController.prepare();
+				EquipmentController.prepare();
+				Controller$3.prepare();
+				WinStatsController.prepare();
 				controller.selectUIVersion();
-				WinStatsController.getUI().onRequestUpdate = onRequestStatUpdate;
-				EquipmentController.getUI().onUnEquip = onUnEquip;
-				EquipmentController.getUI().onConfigUpdate = onConfigUpdate;
-				EquipmentController.getUI().onEquipItem = onEquipItem;
-				EquipmentController.getUI().onRemoveOption = onRemoveOption;
-				InventoryController.getUI().onUseItem = onUseItem;
-				InventoryController.getUI().onEquipItem = onEquipItem;
+				WinStatsController.onRequestUpdate = onRequestStatUpdate;
+				EquipmentController.onUnEquip = onUnEquip;
+				EquipmentController.onConfigUpdate = onConfigUpdate;
+				EquipmentController.onEquipItem = onEquipItem;
+				EquipmentController.onRemoveOption = onRemoveOption;
+				InventoryController.onUseItem = onUseItem;
+				InventoryController.onEquipItem = onEquipItem;
 				MapEngine.needsUIVerUpdate = false;
 			}
 		}
@@ -340422,7 +340448,7 @@ var init_CharSelect = __esmMin((() => {
 		re: {},
 		prere: {}
 	};
-	Controller$2 = UIVersionManager.getUIController(publicName$2, versionInfo$2);
+	Controller$2 = UIVersionManager.getUIController(publicName$2, versionInfo$2, { phase: "char" });
 }));
 //#endregion
 //#region src/UI/Components/CharCreate/CharCreate/CharCreate.html?raw
@@ -341365,7 +341391,7 @@ var init_CharCreate = __esmMin((() => {
 		re: {},
 		prere: {}
 	};
-	Controller$1 = UIVersionManager.getUIController(publicName$1, versionInfo$1);
+	Controller$1 = UIVersionManager.getUIController(publicName$1, versionInfo$1, { phase: "char" });
 }));
 //#endregion
 //#region src/Renderer/Entity/Player.js
@@ -341389,10 +341415,8 @@ function onExitRequest$1() {
 * @param {object} pkt - PACKET.HC.ACCEPT_ENTER_NEO_UNION_LIST or PACKET.HC.ACCEPT_ENTER_NEO_UNION_LIST2
 */
 function onCharacterListChunk(pkt) {
-	const ChSel = Controller$2.getUI();
-	if (!ChSel) return;
 	pkt.charInfo.forEach((charInfo) => {
-		ChSel.addCharacter(charInfo);
+		Controller$2.addCharacter(charInfo);
 	});
 }
 /**
@@ -341419,15 +341443,14 @@ function onConnectionAccepted$1(pkt) {
 		MapName.resetState();
 	}
 	UIManager.getComponent("WinLoading").remove();
-	const ChSel = Controller$2.getUI();
-	ChSel.onExitRequest = onExitRequest$1;
-	ChSel.onConnectRequest = onConnectRequest;
-	ChSel.onCreateRequest = onCreateRequest;
-	ChSel.onDeleteRequest = onDeleteRequest;
-	ChSel.onDeleteReqDelay = onDeleteReqDelay;
-	ChSel.onCancelDeleteRequest = onCancelDeleteRequest;
-	ChSel.append();
-	ChSel.setInfo(pkt);
+	Controller$2.onExitRequest = onExitRequest$1;
+	Controller$2.onConnectRequest = onConnectRequest;
+	Controller$2.onCreateRequest = onCreateRequest;
+	Controller$2.onDeleteRequest = onDeleteRequest;
+	Controller$2.onDeleteReqDelay = onDeleteReqDelay;
+	Controller$2.onCancelDeleteRequest = onCancelDeleteRequest;
+	Controller$2.append();
+	Controller$2.setInfo(pkt);
 	/**
 	* In PACKETVERs < 20180124 that support pincode auth, we're supposed to
 	* show a button that will ask the server to perform it.
@@ -341503,7 +341526,7 @@ function onConnectionRefused$1(pkt) {
 function onMapUnavailable(pkt) {
 	UIManager.showMessageBox(DB.getMessage(1811), "ok", () => {
 		UIManager.getComponent("WinLoading").remove();
-		Controller$2.getUI().append();
+		Controller$2.append();
 	}, true);
 }
 /**
@@ -341511,7 +341534,7 @@ function onMapUnavailable(pkt) {
 */
 function onRequestCharDel(pkt) {
 	if (!pkt) return;
-	Controller$2.getUI().reqdeleteAnswer(pkt);
+	Controller$2.reqdeleteAnswer(pkt);
 }
 /**
 * Char Delete Request Cancel
@@ -341627,7 +341650,7 @@ function onDeleteAnswer(pkt) {
 	let result;
 	if (PacketVerManager_default.value <= 20100803) result = typeof pkt.ErrorCode === "undefined" ? -1 : pkt.ErrorCode;
 	else result = typeof pkt.Result === "undefined" ? -1 : pkt.Result;
-	Controller$2.getUI().deleteAnswer(result);
+	Controller$2.deleteAnswer(result);
 }
 /**
 * Asking from CharSelect to create a character, moving to CharCreate window
@@ -341635,17 +341658,15 @@ function onDeleteAnswer(pkt) {
 * @param {number} index - slot where to create character
 */
 function onCreateRequest(index) {
-	const ChSel = Controller$2.getUI();
-	const ChCre = Controller$1.getUI();
 	_creationSlot = index;
-	ChSel.remove();
-	ChCre.setAccountSex(SessionStorage_default.Sex);
-	ChCre.onCharCreationRequest = onCharCreationRequest;
-	ChCre.onExitRequest = function() {
-		ChCre.remove();
-		ChSel.append();
+	Controller$2.remove();
+	Controller$1.setAccountSex(SessionStorage_default.Sex);
+	Controller$1.onCharCreationRequest = onCharCreationRequest;
+	Controller$1.onExitRequest = function() {
+		Controller$1.remove();
+		Controller$2.append();
 	};
-	ChCre.append();
+	Controller$1.append();
 }
 /**
 * User want to create a character, send data to server
@@ -341689,10 +341710,9 @@ function onCharCreationRequest(name, Str, Agi, Vit, Int, Dex, Luk, hair, color, 
 * @param {object} pkt - PACKET.HC.ACCEPT_MAKECHAR
 */
 function onCreationSuccess(pkt) {
-	Controller$1.getUI().remove();
-	const ChSel = Controller$2.getUI();
-	ChSel.addCharacter(pkt.charinfo);
-	ChSel.append();
+	Controller$1.remove();
+	Controller$2.addCharacter(pkt.charinfo);
+	Controller$2.append();
 }
 /**
 * Fail to create a character
@@ -341786,11 +341806,11 @@ function onPincodeCheckSuccess(pkt) {
 					UIManager.showMessageBox(DB.getMessage(1891), "ok");
 				}
 				PincodeWindow_default.resetUI();
-				Controller$2.getUI().setUIEnabled(true);
+				Controller$2.setUIEnabled(true);
 			}
 			break;
 		case 1:
-			Controller$2.getUI().setUIEnabled(false);
+			Controller$2.setUIEnabled(false);
 			PincodeWindow_default.selectInput(0);
 			if (_pincodeAttempts < 3) {
 				PincodeWindow_default.clearPin();
@@ -341800,7 +341820,7 @@ function onPincodeCheckSuccess(pkt) {
 			break;
 		case 2:
 		case 4:
-			Controller$2.getUI().setUIEnabled(false);
+			Controller$2.setUIEnabled(false);
 			UIManager.showMessageBox(DB.getMessage(1900), "ok");
 			PincodeWindow_default.selectInput(0);
 			PincodeWindow_default.setUserSeed(pkt.Seed);
@@ -341808,7 +341828,7 @@ function onPincodeCheckSuccess(pkt) {
 			PincodeWindow_default.append();
 			break;
 		case 3:
-			Controller$2.getUI().setUIEnabled(false);
+			Controller$2.setUIEnabled(false);
 			if (_pincodeAttempts < 3) {
 				UIManager.showMessageBox(DB.getMessage(2345), "ok");
 				PincodeWindow_default.setUserSeed(pkt.Seed);
@@ -341845,7 +341865,7 @@ function onPincodeCheckSuccess(pkt) {
 */
 function onConnectRequest(entity) {
 	SoundManager.play("¹öÆ°¼Ò¸®.wav");
-	Controller$2.getUI().remove();
+	Controller$2.remove();
 	UIManager.getComponent("WinLoading").append();
 	SessionStorage_default.Entity = new Player(entity);
 	const pkt = new PACKET.CH.SELECT_CHAR();
@@ -341900,6 +341920,7 @@ var init_CharEngine = __esmMin((() => {
 	init_PacketVerManager();
 	init_PacketStructure();
 	init_UIManager();
+	init_UIVersionManager();
 	init_Background();
 	init_PincodeWindow();
 	init_InputBox();
@@ -341938,8 +341959,7 @@ var init_CharEngine = __esmMin((() => {
 					SessionStorage_default.AID = fp.readLong();
 				});
 			});
-			Controller$2.selectUIVersion();
-			Controller$1.selectUIVersion();
+			UIVersionManager.selectAllChar();
 			Network.hookPacket(PACKET.HC.ACCEPT_ENTER_NEO_UNION, onConnectionAccepted$1);
 			Network.hookPacket(PACKET.HC.REFUSE_ENTER, onConnectionRefused$1);
 			Network.hookPacket(PACKET.HC.REFUSE_SELECTCHAR, onSelectionRefused);
@@ -346217,7 +346237,7 @@ var init_ReplayPlayer = __esmMin((() => {
 			}
 			if (this._efstListBuffer && this._efstListBuffer.length > 0) for (const efstId of this._efstListBuffer) this._sendStateChange(efstId, true);
 			if (this._itemsBuffer) {
-				const inventoryUI = InventoryController?.getUI ? InventoryController.getUI() : null;
+				const inventoryUI = InventoryController?.getUI ? InventoryController : null;
 				if (inventoryUI && typeof inventoryUI.addItem === "function") {
 					if (inventoryUI.list) inventoryUI.list.length = 0;
 					if (inventoryUI.equippedItems) inventoryUI.equippedItems.length = 0;
@@ -346225,7 +346245,7 @@ var init_ReplayPlayer = __esmMin((() => {
 					if (this._itemsBuffer.equipped?.length > 0) for (const item of this._itemsBuffer.equipped) inventoryUI.addItem(item);
 					if (this._itemsBuffer.equippedCostume?.length > 0) for (const item of this._itemsBuffer.equippedCostume) inventoryUI.addItem(item);
 				}
-				const cartUI = CartItems_default?.getUI ? CartItems_default.getUI() : null;
+				const cartUI = CartItems_default?.getUI ? CartItems_default : null;
 				if (cartUI && this._itemsBuffer.cart?.length > 0) {
 					if (typeof cartUI.addItem === "function") {
 						if (cartUI.list) cartUI.list.length = 0;
@@ -346234,29 +346254,29 @@ var init_ReplayPlayer = __esmMin((() => {
 				}
 			}
 			if (SessionStorage_default.Entity) {
-				if (BasicInfoController?.getUI()?.update) {
-					BasicInfoController.getUI().update("blvl", SessionStorage_default.Entity.clevel);
-					BasicInfoController.getUI().update("jlvl", SessionStorage_default.Entity.joblevel);
-					BasicInfoController.getUI().update("zeny", SessionStorage_default.Entity.money);
-					BasicInfoController.getUI().update("name", SessionStorage_default.Entity.display.name);
-					BasicInfoController.getUI().update("job", SessionStorage_default.Entity.job);
-					BasicInfoController.getUI().update("hp", SessionStorage_default.Entity.life.hp, SessionStorage_default.Entity.life.hp_max);
-					BasicInfoController.getUI().update("sp", SessionStorage_default.Entity.life.sp, SessionStorage_default.Entity.life.sp_max);
-					BasicInfoController.getUI().update("weight", SessionStorage_default.Entity.weight, SessionStorage_default.Entity.max_weight);
+				if (BasicInfoController.update) {
+					BasicInfoController.update("blvl", SessionStorage_default.Entity.clevel);
+					BasicInfoController.update("jlvl", SessionStorage_default.Entity.joblevel);
+					BasicInfoController.update("zeny", SessionStorage_default.Entity.money);
+					BasicInfoController.update("name", SessionStorage_default.Entity.display.name);
+					BasicInfoController.update("job", SessionStorage_default.Entity.job);
+					BasicInfoController.update("hp", SessionStorage_default.Entity.life.hp, SessionStorage_default.Entity.life.hp_max);
+					BasicInfoController.update("sp", SessionStorage_default.Entity.life.sp, SessionStorage_default.Entity.life.sp_max);
+					BasicInfoController.update("weight", SessionStorage_default.Entity.weight, SessionStorage_default.Entity.max_weight);
 				}
-				if (WinStatsController?.getUI()?.update) {
-					WinStatsController.getUI().update("str", SessionStorage_default.Entity.str);
-					WinStatsController.getUI().update("agi", SessionStorage_default.Entity.agi);
-					WinStatsController.getUI().update("vit", SessionStorage_default.Entity.vit);
-					WinStatsController.getUI().update("int", SessionStorage_default.Entity.int);
-					WinStatsController.getUI().update("dex", SessionStorage_default.Entity.dex);
-					WinStatsController.getUI().update("luk", SessionStorage_default.Entity.luk);
-					WinStatsController.getUI().update("str2", SessionStorage_default.Entity.str_bonus);
-					WinStatsController.getUI().update("agi2", SessionStorage_default.Entity.agi_bonus);
-					WinStatsController.getUI().update("vit2", SessionStorage_default.Entity.vit_bonus);
-					WinStatsController.getUI().update("int2", SessionStorage_default.Entity.int_bonus);
-					WinStatsController.getUI().update("dex2", SessionStorage_default.Entity.dex_bonus);
-					WinStatsController.getUI().update("luk2", SessionStorage_default.Entity.luk_bonus);
+				if (WinStatsController.update) {
+					WinStatsController.update("str", SessionStorage_default.Entity.str);
+					WinStatsController.update("agi", SessionStorage_default.Entity.agi);
+					WinStatsController.update("vit", SessionStorage_default.Entity.vit);
+					WinStatsController.update("int", SessionStorage_default.Entity.int);
+					WinStatsController.update("dex", SessionStorage_default.Entity.dex);
+					WinStatsController.update("luk", SessionStorage_default.Entity.luk);
+					WinStatsController.update("str2", SessionStorage_default.Entity.str_bonus);
+					WinStatsController.update("agi2", SessionStorage_default.Entity.agi_bonus);
+					WinStatsController.update("vit2", SessionStorage_default.Entity.vit_bonus);
+					WinStatsController.update("int2", SessionStorage_default.Entity.int_bonus);
+					WinStatsController.update("dex2", SessionStorage_default.Entity.dex_bonus);
+					WinStatsController.update("luk2", SessionStorage_default.Entity.luk_bonus);
 				}
 			}
 			this._setState(ReplayState.INITIAL_DATA_COMPLETE);
@@ -346523,14 +346543,14 @@ var LoginEngine_exports = /* @__PURE__ */ __exportAll({ default: () => LoginEngi
 */
 function onConnectionRequest(username, password) {
 	SoundManager.play("¹öÆ°¼Ò¸®.wav");
-	Controller.getUI().remove();
+	Controller.remove();
 	WinLoading.append();
 	_loginID = username;
 	Network.connect(_server.address, _server.port, (success) => {
 		if (!success) {
 			UIManager.showMessageBox(DB.getMessage(1), "ok", () => {
 				UIManager.removeComponents();
-				Controller.getUI().append();
+				Controller.append();
 			}, true);
 			return;
 		}
@@ -346653,7 +346673,7 @@ function onConnectionAccepted(pkt) {
 		WinList_default.onExitRequest = () => {
 			Network.close();
 			WinList_default.remove();
-			Controller.getUI().append();
+			Controller.append();
 		};
 		WinList_default.append();
 		WinList_default.setList(list);
@@ -346703,7 +346723,7 @@ function onTarenConnectionRefused(pkt) {
 	}
 	UIManager.showMessageBox(DB.getMessage(msg_id), "ok", () => {
 		UIManager.removeComponents();
-		Controller.getUI().append();
+		Controller.append();
 	}, true);
 	Network.close();
 }
@@ -346751,7 +346771,7 @@ function onTarenConnectionRefused2(pkt) {
 	}
 	UIManager.showMessageBox(DB.getMessage(msg_id).replace("%s", pkt.blockDate), "ok", () => {
 		UIManager.removeComponents();
-		Controller.getUI().append();
+		Controller.append();
 	}, true);
 }
 /**
@@ -346809,7 +346829,7 @@ function onInternationalConnectionRefused(pkt) {
 	}
 	UIManager.showMessageBox(DB.getMessage(msg_id).replace("%d", pkt.blockDate), "ok", () => {
 		UIManager.removeComponents();
-		Controller.getUI().append();
+		Controller.append();
 	}, true);
 	Network.close();
 }
@@ -347009,7 +347029,7 @@ function onConnectionRefused(pkt) {
 	}
 	UIManager.showMessageBox(DB.getMessage(error).replace("%s", pkt.blockDate), "ok", () => {
 		UIManager.removeComponents();
-		Controller.getUI().append();
+		Controller.append();
 	}, true);
 	Network.close();
 }
@@ -347115,7 +347135,7 @@ function onServerClosed(pkt) {
 		BGM.play("01.mp3");
 		UIManager.removeComponents();
 		Background.setLoginBackground();
-		Controller.getUI().append();
+		Controller.append();
 	}, true);
 	Network.close();
 }
@@ -347207,19 +347227,19 @@ var init_LoginEngine = __esmMin((() => {
 			Plugins.init();
 			Controller.selectUIVersion();
 			Background.setLoginBackground();
-			Controller.getUI().onConnectionRequest = onConnectionRequest;
-			Controller.getUI().onExitRequest = onExitRequest;
+			Controller.onConnectionRequest = onConnectionRequest;
+			Controller.onExitRequest = onExitRequest;
 			Network.onDisconnect = () => {
 				UIManager.showMessageBox(DB.getMessage(1), "ok", () => {
 					UIManager.removeComponents();
-					Controller.getUI().append();
+					Controller.append();
 				}, true);
 			};
 			if (autoLogin instanceof Array && autoLogin[0] && autoLogin[1]) {
 				onConnectionRequest.apply(null, autoLogin);
 				Configs.set("autoLogin", null);
 			} else q.add(function() {
-				Controller.getUI().append();
+				Controller.append();
 			});
 			if (PacketVerManager_default.value < 20170315) Network.hookPacket(PACKET.AC.ACCEPT_LOGIN, onConnectionAccepted);
 			else Network.hookPacket(PACKET.AC.ACCEPT_LOGIN3, onConnectionAccepted);
@@ -347238,9 +347258,9 @@ var init_LoginEngine = __esmMin((() => {
 		*/
 		static reload() {
 			UIManager.removeComponents();
-			Controller.getUI().onConnectionRequest = onConnectionRequest;
-			Controller.getUI().onExitRequest = onExitRequest;
-			Controller.getUI().append();
+			Controller.onConnectionRequest = onConnectionRequest;
+			Controller.onExitRequest = onExitRequest;
+			Controller.append();
 			Network.close();
 		}
 		/**
