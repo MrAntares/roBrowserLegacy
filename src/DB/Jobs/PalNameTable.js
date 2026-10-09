@@ -126,13 +126,13 @@ PalNameTable[JobId.FOX_WIZ] = JobNameTable[JobId.FOX_WIZ];
 PalNameTable[JobId.PIG_BLACKSMITH] = JobNameTable[JobId.PIG_BLACKSMITH];
 PalNameTable[JobId.LION_KNIGHT] = JobNameTable[JobId.LION_KNIGHT];
 PalNameTable[JobId.DOG_ASSASSIN] = JobNameTable[JobId.DOG_ASSASSIN];
-PalNameTable[JobId.SHEEP_MONK] = JobNameTable[JobId.MONK]; // Monk
-PalNameTable[JobId.OSTRICH_BARD] = JobNameTable[JobId.BARD]; // Bard
-PalNameTable[JobId.OSTRICH_DANCER] = JobNameTable[JobId.DANCER]; // Dancer
-PalNameTable[JobId.FOX_SAGE] = JobNameTable[JobId.SAGE]; // Sage
-PalNameTable[JobId.PIG_ALCHE] = JobNameTable[JobId.ALCHEMIST]; // Alchemist
-PalNameTable[JobId.LION_CRUSADER] = '\xc5\xa9\xb7\xe7'; // "crew"
-PalNameTable[JobId.DOG_ROGUE] = JobNameTable[JobId.ROGUE]; // Rogue
+PalNameTable[JobId.SHEEP_MONK] = JobNameTable[JobId.SHEEP_MONK];
+PalNameTable[JobId.OSTRICH_BARD] = JobNameTable[JobId.OSTRICH_BARD];
+PalNameTable[JobId.OSTRICH_DANCER] = JobNameTable[JobId.OSTRICH_DANCER];
+PalNameTable[JobId.FOX_SAGE] = JobNameTable[JobId.FOX_SAGE];
+PalNameTable[JobId.PIG_ALCHE] = JobNameTable[JobId.PIG_ALCHE];
+PalNameTable[JobId.LION_CRUSADER] = JobNameTable[JobId.LION_CRUSADER];
+PalNameTable[JobId.DOG_ROGUE] = JobNameTable[JobId.DOG_ROGUE];
 
 PalNameTable[JobId.SHEEP_ARCB] = JobNameTable[JobId.SHEEP_ARCB];
 PalNameTable[JobId.OSTRICH_RANGER] = JobNameTable[JobId.OSTRICH_RANGER];
@@ -149,29 +149,29 @@ PalNameTable[JobId.LION_ROYAL_GUARD] = JobNameTable[JobId.LION_ROYAL_GUARD];
 PalNameTable[JobId.DOG_CHASER] = JobNameTable[JobId.DOG_CHASER];
 
 PalNameTable[JobId.PORING_SNOVICE] = JobNameTable[JobId.PORING_SNOVICE];
-PalNameTable[JobId.FROG_NINJA] = JobNameTable[JobId.FROG_NINJA];
+PalNameTable[JobId.FROG_NINJA] = '\xb5\xce\xb2\xa8\xba\xf1\xb4\xd1\xc0\xda'; // "toad ninja"
 PalNameTable[JobId.PECO_GUNNER] = JobNameTable[JobId.PECO_GUNNER];
 PalNameTable[JobId.PORING_TAEKWON] = JobNameTable[JobId.PORING_TAEKWON];
-PalNameTable[JobId.PORING_STAR] = JobNameTable[JobId.STAR]; // Star Gladiator
+PalNameTable[JobId.PORING_STAR] = JobNameTable[JobId.PORING_STAR];
 PalNameTable[JobId.FROG_LINKER] = JobNameTable[JobId.FROG_LINKER];
 
 PalNameTable[JobId.FROG_KAGEROU] = JobNameTable[JobId.FROG_KAGEROU];
 PalNameTable[JobId.FROG_OBORO] = JobNameTable[JobId.FROG_OBORO];
 PalNameTable[JobId.PECO_REBELLION] = JobNameTable[JobId.PECO_REBELLION];
 
-PalNameTable[JobId.SHEEP_HPRIEST] = '\xc7\xcf\xc0\xcc\xc7\xc1\xb8\xae\xbd\xba\xc6\xae'; // "high priest"
-PalNameTable[JobId.OSTRICH_SNIPER] = JobNameTable[JobId.HUNTER_H]; // Sniper
-PalNameTable[JobId.FOX_HWIZ] = JobNameTable[JobId.WIZARD_H]; // High Wizard
-PalNameTable[JobId.PIG_WHITESMITH] = JobNameTable[JobId.BLACKSMITH_H]; // Whitesmith
+PalNameTable[JobId.SHEEP_HPRIEST] = JobNameTable[JobId.SHEEP_HPRIEST];
+PalNameTable[JobId.OSTRICH_SNIPER] = JobNameTable[JobId.OSTRICH_SNIPER];
+PalNameTable[JobId.FOX_HWIZ] = JobNameTable[JobId.FOX_HWIZ];
+PalNameTable[JobId.PIG_WHITESMITH] = JobNameTable[JobId.PIG_WHITESMITH];
 PalNameTable[JobId.LION_KNIGHT_H] = JobNameTable[JobId.LION_KNIGHT_H];
-PalNameTable[JobId.DOG_ASSA_X] = '\xbe\xee\xbc\xbc\xbd\xc5\xc5\xa9\xb7\xce\xbd\xba'; // "assassin cross"
-PalNameTable[JobId.SHEEP_CHAMP] = JobNameTable[JobId.MONK_H]; // Champion
-PalNameTable[JobId.OSTRICH_CROWN] = '\xc5\xa9\xb6\xf3\xbf\xee'; // "crown"
-PalNameTable[JobId.OSTRICH_ZIPSI] = '\xc1\xfd\xbd\xc3'; // "gypsy"
-PalNameTable[JobId.FOX_PROF] = JobNameTable[JobId.SAGE_H]; // Professor
-PalNameTable[JobId.PIG_CREATOR] = JobNameTable[JobId.ALCHEMIST_H]; // Creator
-PalNameTable[JobId.LION_CRUSADER_H] = JobNameTable[JobId.CRUSADER_H]; // Paladin
-PalNameTable[JobId.DOG_STALKER] = JobNameTable[JobId.ROGUE_H]; // Stalker
+PalNameTable[JobId.DOG_ASSA_X] = JobNameTable[JobId.DOG_ASSA_X];
+PalNameTable[JobId.SHEEP_CHAMP] = JobNameTable[JobId.SHEEP_CHAMP];
+PalNameTable[JobId.OSTRICH_CROWN] = JobNameTable[JobId.OSTRICH_CROWN];
+PalNameTable[JobId.OSTRICH_ZIPSI] = JobNameTable[JobId.OSTRICH_ZIPSI];
+PalNameTable[JobId.FOX_PROF] = JobNameTable[JobId.FOX_PROF];
+PalNameTable[JobId.PIG_CREATOR] = JobNameTable[JobId.PIG_CREATOR];
+PalNameTable[JobId.LION_CRUSADER_H] = JobNameTable[JobId.LION_CRUSADER_H];
+PalNameTable[JobId.DOG_STALKER] = JobNameTable[JobId.DOG_STALKER];
 
 //PalNameTable[JobId.CART_DO_SUMMONER] 	 = "\xb0\xed\xbe\xe7\xc0\xcc\xc4\xab\xc6\xae";	// "cat cart"
 
@@ -289,7 +289,7 @@ duplicateEntry(JobId.OSTRICH_BARD, JobId.OSTRICH_BARD_B);
 duplicateEntry(JobId.OSTRICH_DANCER, JobId.OSTRICH_DANCER_B);
 duplicateEntry(JobId.FOX_SAGE, JobId.FOX_SAGE_B);
 duplicateEntry(JobId.PIG_ALCHE, JobId.PIG_ALCHE_B);
-duplicateEntry(JobId.LION_CRUSADER, JobId.LION_CRUSADER_B);
+PalNameTable[JobId.LION_CRUSADER_B] = '\xc5\xa9\xb7\xe7'; // "crew"
 duplicateEntry(JobId.DOG_ROGUE, JobId.DOG_ROGUE_B);
 duplicateEntry(JobId.SHEEP_ARCB, JobId.SHEEP_ARCB_B);
 duplicateEntry(JobId.OSTRICH_RANGER, JobId.OSTRICH_RANGER_B);
@@ -305,7 +305,7 @@ duplicateEntry(JobId.PIG_GENETIC, JobId.PIG_GENETIC_B);
 duplicateEntry(JobId.LION_ROYAL_GUARD, JobId.LION_ROYAL_GUARD_B);
 duplicateEntry(JobId.DOG_CHASER, JobId.DOG_CHASER_B);
 duplicateEntry(JobId.PORING_SNOVICE, JobId.PORING_SNOVICE_B, JobId.PORING_SNOVICE2, JobId.PORING_SNOVICE2_B);
-duplicateEntry(JobId.FROG_NINJA, JobId.FROG_NINJA_B);
+PalNameTable[JobId.FROG_NINJA_B] = PalNameTable[JobId.FROG_NINJA];
 duplicateEntry(JobId.PECO_GUNNER, JobId.PECO_GUNNER_B);
 duplicateEntry(JobId.PORING_TAEKWON, JobId.PORING_TAEKWON_B);
 duplicateEntry(JobId.PORING_STAR, JobId.PORING_STAR_B);

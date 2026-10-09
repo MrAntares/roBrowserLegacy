@@ -597,9 +597,24 @@ function UpdateBodyStyle(look) {
 }
 
 /**
+ * Job ids of the halter-lead mounts, the values of AllMountTable.
+ */
+const AllMountJobs = {};
+for (const baseJob in AllMountTable) {
+	AllMountJobs[AllMountTable[baseJob]] = true;
+}
+
+/**
+ * A palette file only the archives that ship the halter-lead mounts' own
+ * palettes have; asked for once, then answered from the cache.
+ */
+const MOUNT_PALETTE_SENTINEL = DB.getBodyPalPath(JobConst.PIG_CREATOR, 1, 0);
+
+/**
  * Update body palette
  *
  * @param {number} body palette number
+ * @see docs/reference/renderer/body-palette.md
  */
 function UpdateBodyPalette(pal) {
 	this._bodypalette = pal;
@@ -622,7 +637,26 @@ function UpdateBodyPalette(pal) {
 	// for the wedding, Xmas and summer outfits, which all arrive as `costume`,
 	// and for a body style, which draws the `costume_1` body (see UpdateBodyStyle).
 	const job = this._bodyStyleJob && !hasTransformation.call(this) ? this._bodyStyleJob : getEffectiveJob.call(this);
-	this.files.body.pal = DB.getBodyPalPath(job, this._bodypalette, this._sex);
+	if (!AllMountJobs[job]) {
+		this.files.body.pal = DB.getBodyPalPath(job, this._bodypalette, this._sex);
+		return;
+	}
+
+	// A halter-lead mount has palette files of its own only in the newer
+	// archives; the older ones dye it with the rider's palette. The archive
+	// decides, through the sentinel; the mount may have changed meanwhile.
+	const own = DB.getBodyPalPath(job, pal, this._sex);
+	const rider = DB.getBodyPalPath(this._job, pal, this._sex);
+	const apply = path => {
+		if (this._bodypalette === pal && getEffectiveJob.call(this) === job) {
+			this.files.body.pal = path;
+		}
+	};
+	Client.loadFile(
+		MOUNT_PALETTE_SENTINEL,
+		() => apply(own),
+		() => apply(rider)
+	);
 }
 
 /**

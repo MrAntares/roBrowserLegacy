@@ -17,7 +17,18 @@ vi.mock('DB/DBManager.js', async () => {
 	return { default: new Proxy(DB, { get: (t, k) => (k in t ? t[k] : () => null) }) };
 });
 // Answers every load at once, so a body that loads sets its dye again as it does in game.
-vi.mock('Core/Client.js', () => ({ default: { loadFile: vi.fn((path, onLoad) => onLoad && onLoad()) } }));
+// The archive answers the mount-palette sentinel through `archive.hasMountPalettes`.
+const archive = vi.hoisted(() => ({ hasMountPalettes: true }));
+vi.mock('Core/Client.js', () => ({
+	default: {
+		loadFile: vi.fn((path, onLoad, onError) => {
+			if (path.includes('_1.pal') && !archive.hasMountPalettes) {
+				return onError && onError();
+			}
+			return onLoad && onLoad();
+		})
+	}
+}));
 vi.mock('DB/Monsters/ShadowTable.js', () => ({ default: {} }));
 vi.mock('Network/PacketVerManager.js', () => ({ default: { value: 20221005 } }));
 vi.mock('Renderer/GR2/GR2ModelRenderer.js', () => ({ default: {} }));
@@ -43,6 +54,37 @@ describe('EntityView body palette', () => {
 		knight.bodypalette = 3;
 		expect(knight.files.body.pal).toBe(`${PalNameTable[JobId.KNIGHT2]}_1_3.pal`);
 		expect(PalNameTable[JobId.KNIGHT2]).not.toBe(PalNameTable[JobId.KNIGHT]);
+	});
+
+	it("dyes a halter-lead mount with the mount's own palette when the archive ships it", () => {
+		archive.hasMountPalettes = true;
+		const creator = entity(JobId.ALCHEMIST_H, AllMountTable[JobId.ALCHEMIST_H]);
+		creator.bodypalette = 2;
+		expect(creator.files.body.pal).toBe(`${PalNameTable[JobId.PIG_CREATOR]}_1_2.pal`);
+		expect(PalNameTable[JobId.PIG_CREATOR]).not.toBe(PalNameTable[JobId.ALCHEMIST_H]);
+	});
+
+	it("dyes a halter-lead mount with the rider's palette when the archive has none for it", () => {
+		archive.hasMountPalettes = false;
+		try {
+			const creator = entity(JobId.ALCHEMIST_H, AllMountTable[JobId.ALCHEMIST_H]);
+			creator.bodypalette = 2;
+			expect(creator.files.body.pal).toBe(`${PalNameTable[JobId.ALCHEMIST_H]}_1_2.pal`);
+		} finally {
+			archive.hasMountPalettes = true;
+		}
+	});
+
+	it('keeps the palette the mount still needs when the archive answers late', () => {
+		archive.hasMountPalettes = false;
+		try {
+			const creator = entity(JobId.ALCHEMIST_H, AllMountTable[JobId.ALCHEMIST_H]);
+			creator.bodypalette = 2;
+			creator.bodypalette = 3;
+			expect(creator.files.body.pal).toBe(`${PalNameTable[JobId.ALCHEMIST_H]}_1_3.pal`);
+		} finally {
+			archive.hasMountPalettes = true;
+		}
 	});
 
 	it('keeps the internal palette for palette 0', () => {

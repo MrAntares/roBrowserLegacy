@@ -8,6 +8,7 @@ Each subdirectory covers one subsystem:
 | directory | subsystem |
 |---|---|
 | [guild/](guild/) | the guild window, its six tabs, and the create / disband dialogs |
+| [renderer/](renderer/) | entity rendering: the body palette of a mounted player |
 
 ## Where the details come from
 
