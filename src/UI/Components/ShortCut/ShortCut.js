@@ -154,7 +154,7 @@ ShortCut.init = function init() {
 	// Add to item owner name update queue
 	DB.UpdateOwnerName.ShortCut = onUpdateOwnerName;
 
-	Inventory.getUI().onUpdateItem = onUpdateItem;
+	Inventory.onUpdateItem = onUpdateItem;
 };
 
 /**
@@ -171,7 +171,7 @@ ShortCut.onAppend = function onAppend() {
 	this.magnet.LEFT = _preferences.magnet_left;
 	this.magnet.RIGHT = _preferences.magnet_right;
 
-	SkillWindow.getUI().onUpdateSkill = onUpdateSkill;
+	SkillWindow.onUpdateSkill = onUpdateSkill;
 
 	// Initialize tooltips for empty slots
 	updateEmptySlotTooltips();
@@ -258,7 +258,7 @@ function getSkillOwner(id) {
 	if (id >= SkillId.MERCENARY_BEGIN && id <= SkillId.MERCENARY_LAST) {
 		return SkillListMH.mercenary;
 	}
-	return SkillWindow.getUI();
+	return SkillWindow;
 }
 
 ShortCut.useSkill = function useSkill(id, level) {
@@ -364,7 +364,7 @@ ShortCut.updateAllTooltips = function updateAllTooltips() {
 			if (_list[i].isSkill && SkillInfo[_list[i].ID]) {
 				name = SkillInfo[_list[i].ID].SkillName;
 			} else if (_list[i].ID) {
-				const item = Inventory.getUI().getItemById(_list[i].ID);
+				const item = Inventory.getItemById(_list[i].ID);
 				if (item) {
 					name = DB.getItemName(item);
 				}
@@ -594,7 +594,7 @@ ShortCut.addElement = function addElement(index, isSkill, ID, count) {
 		}
 	} else {
 		_list[index].count = count;
-		const item = Inventory.getUI().getItemById(ID);
+		const item = Inventory.getItemById(ID);
 
 		// Do not display items not in inventory
 		if (!item) {
@@ -894,7 +894,7 @@ function onElementInfo(event, icon) {
 
 		ItemInfo.append();
 		ItemInfo.uid = _list[index].ID;
-		ItemInfo.setItem(Inventory.getUI().getItemById(_list[index].ID));
+		ItemInfo.setItem(Inventory.getItemById(_list[index].ID));
 	}
 }
 
@@ -927,9 +927,9 @@ function clickElement(index) {
 	}
 	// Use the item
 	else {
-		const item = Inventory.getUI().getItemById(_list[index].ID);
+		const item = Inventory.getItemById(_list[index].ID);
 		if (item) {
-			Inventory.getUI().useItem(item);
+			Inventory.useItem(item);
 		}
 	}
 }

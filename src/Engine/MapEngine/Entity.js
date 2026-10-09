@@ -1142,7 +1142,7 @@ function updateEntityStyle(entity) {
 
 function onTitleChangeAck(pkt) {
 	if (pkt.result === 0) {
-		const comp = Equipment.getUI();
+		const comp = Equipment;
 		if (comp && typeof comp.setTitle === 'function') {
 			comp.setTitle(pkt.title_id);
 		}
@@ -1230,7 +1230,7 @@ function onEntityQuestNotifyEffect(pkt) {
 			return;
 	}
 
-	MiniMap.getUI().addNpcMark(pkt.npcID, pkt.xPos, pkt.yPos, color, Infinity);
+	MiniMap.addNpcMark(pkt.npcID, pkt.xPos, pkt.yPos, color, Infinity);
 }
 
 /**
@@ -1282,18 +1282,18 @@ function onEntityViewChange(pkt) {
 				if (entity === Session.Entity) {
 					//Interchange UI depending on Job
 					if (PACKETVER.value >= 20200520) {
-						BasicInfo.getUI().remove();
+						BasicInfo.remove();
 						BasicInfo.selectUIVersionWithJob(DB.getJobClass(pkt.value));
-						BasicInfo.getUI().prepare();
-						BasicInfo.getUI().update('blvl', Session.Entity.clevel);
-						BasicInfo.getUI().update('jlvl', Session.Entity.joblevel);
-						BasicInfo.getUI().update('zeny', Session.Entity.money);
-						BasicInfo.getUI().update('name', Session.Entity.display.name);
-						BasicInfo.getUI().update('bexp', BasicInfo.getUI().base_exp, BasicInfo.getUI().base_exp_next);
-						BasicInfo.getUI().append();
+						BasicInfo.prepare();
+						BasicInfo.update('blvl', Session.Entity.clevel);
+						BasicInfo.update('jlvl', Session.Entity.joblevel);
+						BasicInfo.update('zeny', Session.Entity.money);
+						BasicInfo.update('name', Session.Entity.display.name);
+						BasicInfo.update('bexp', BasicInfo.base_exp, BasicInfo.base_exp_next);
+						BasicInfo.append();
 					}
 					// Update UI for all client versions
-					BasicInfo.getUI().update('job', pkt.value);
+					BasicInfo.update('job', pkt.value);
 				}
 			}
 			break;
@@ -2655,9 +2655,9 @@ function onNotifyExp(pkt) {
  */
 
 function onMarkMvp(pkt) {
-	MiniMap.getUI().removeNpcMark('mvp'); //hack for mark system (todo: debug this)
+	MiniMap.removeNpcMark('mvp'); //hack for mark system (todo: debug this)
 	if (pkt.infoType == 1) {
-		MiniMap.getUI().addNpcMark('mvp', pkt.xPos, pkt.yPos, 0x0ff0000, Infinity);
+		MiniMap.addNpcMark('mvp', pkt.xPos, pkt.yPos, 0x0ff0000, Infinity);
 		/**if(!MiniMap.isNpcMarkExist('mvp')) {    // wtf marker is pushed with delay??
 				ChatBox.addText( pkt.name+' is already spawned at ('+pkt.xPos+','+pkt.yPos+')', null, ChatBox.FILTER.PUBLIC_LOG, '#FFFF63');
 			}*/
@@ -2762,7 +2762,7 @@ function onEntityWillBeHitSub(pkt, dstEntity) {
  * Does player have a Token of Siegfried?
  */
 function haveSiegfriedItem() {
-	const itemInfo = Inventory.getUI().getItemById(7621);
+	const itemInfo = Inventory.getItemById(7621);
 
 	if (Session.IsPKZone || Session.IsSiegeMode || Session.IsEventPVPMode) {
 		return false;

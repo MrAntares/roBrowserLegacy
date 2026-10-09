@@ -39,7 +39,7 @@ InventoryController.selectUIVersion = function () {
 	_selectUIVersion();
 
 	//Add selected UI to item owner name update queue
-	const component = InventoryController.getUI();
+	const component = InventoryController;
 	DB.UpdateOwnerName.Inventory = component.onUpdateOwnerName;
 
 	// Escape to close the UI

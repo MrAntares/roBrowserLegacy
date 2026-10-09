@@ -740,7 +740,7 @@ export function createStorage(config) {
 	}
 
 	Component.transferItemToOtherUI = function transferItemToOtherUI(item) {
-		const isInventoryOpen = Inventory.getUI().ui ? Inventory.getUI().ui.is(':visible') : false;
+		const isInventoryOpen = Inventory.ui ? Inventory.ui.is(':visible') : false;
 		const isCartOpen = CartItems.ui ? CartItems.ui.is(':visible') : false;
 
 		if (!item) {

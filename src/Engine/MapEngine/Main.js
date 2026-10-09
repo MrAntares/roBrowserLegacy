@@ -105,32 +105,32 @@ function onAttackRangeUpdate(pkt) {
  * @param {object} pkt - PACKET.ZC.STATUS
  */
 function onStatusParameterChange(pkt) {
-	WinStats.getUI().update('str', pkt.str);
-	WinStats.getUI().update('agi', pkt.agi);
-	WinStats.getUI().update('vit', pkt.vit);
-	WinStats.getUI().update('int', pkt.Int);
-	WinStats.getUI().update('dex', pkt.dex);
-	WinStats.getUI().update('luk', pkt.luk);
-	WinStats.getUI().update('str3', pkt.standardStr);
-	WinStats.getUI().update('agi3', pkt.standardAgi);
-	WinStats.getUI().update('vit3', pkt.standardVit);
-	WinStats.getUI().update('int3', pkt.standardInt);
-	WinStats.getUI().update('dex3', pkt.standardDex);
-	WinStats.getUI().update('luk3', pkt.standardLuk);
-	WinStats.getUI().update('aspd', (pkt.ASPD + pkt.plusASPD) / 4);
-	WinStats.getUI().update('atak', pkt.attPower);
-	WinStats.getUI().update('atak2', pkt.refiningPower);
-	WinStats.getUI().update('matak', pkt.min_mattPower);
-	WinStats.getUI().update('matak2', pkt.max_mattPower);
-	WinStats.getUI().update('flee', pkt.avoidSuccessValue);
-	WinStats.getUI().update('flee2', pkt.plusAvoidSuccessValue);
-	WinStats.getUI().update('critical', pkt.criticalSuccessValue);
-	WinStats.getUI().update('hit', pkt.hitSuccessValue);
-	WinStats.getUI().update('def', pkt.itemdefPower);
-	WinStats.getUI().update('def2', pkt.plusdefPower);
-	WinStats.getUI().update('mdef', pkt.mdefPower);
-	WinStats.getUI().update('mdef2', pkt.plusmdefPower);
-	WinStats.getUI().update('statuspoint', pkt.point);
+	WinStats.update('str', pkt.str);
+	WinStats.update('agi', pkt.agi);
+	WinStats.update('vit', pkt.vit);
+	WinStats.update('int', pkt.Int);
+	WinStats.update('dex', pkt.dex);
+	WinStats.update('luk', pkt.luk);
+	WinStats.update('str3', pkt.standardStr);
+	WinStats.update('agi3', pkt.standardAgi);
+	WinStats.update('vit3', pkt.standardVit);
+	WinStats.update('int3', pkt.standardInt);
+	WinStats.update('dex3', pkt.standardDex);
+	WinStats.update('luk3', pkt.standardLuk);
+	WinStats.update('aspd', (pkt.ASPD + pkt.plusASPD) / 4);
+	WinStats.update('atak', pkt.attPower);
+	WinStats.update('atak2', pkt.refiningPower);
+	WinStats.update('matak', pkt.min_mattPower);
+	WinStats.update('matak2', pkt.max_mattPower);
+	WinStats.update('flee', pkt.avoidSuccessValue);
+	WinStats.update('flee2', pkt.plusAvoidSuccessValue);
+	WinStats.update('critical', pkt.criticalSuccessValue);
+	WinStats.update('hit', pkt.hitSuccessValue);
+	WinStats.update('def', pkt.itemdefPower);
+	WinStats.update('def2', pkt.plusdefPower);
+	WinStats.update('mdef', pkt.mdefPower);
+	WinStats.update('mdef2', pkt.plusmdefPower);
+	WinStats.update('statuspoint', pkt.point);
 }
 
 /**
@@ -146,51 +146,51 @@ function onStatusParameterUpdateAnswer(pkt) {
 
 	switch (pkt.statusID) {
 		case StatusProperty.STR:
-			WinStats.getUI().update('str', pkt.value);
+			WinStats.update('str', pkt.value);
 			break;
 
 		case StatusProperty.AGI:
-			WinStats.getUI().update('agi', pkt.value);
+			WinStats.update('agi', pkt.value);
 			break;
 
 		case StatusProperty.VIT:
-			WinStats.getUI().update('vit', pkt.value);
+			WinStats.update('vit', pkt.value);
 			break;
 
 		case StatusProperty.INT:
-			WinStats.getUI().update('int', pkt.value);
+			WinStats.update('int', pkt.value);
 			break;
 
 		case StatusProperty.DEX:
-			WinStats.getUI().update('dex', pkt.value);
+			WinStats.update('dex', pkt.value);
 			break;
 
 		case StatusProperty.LUK:
-			WinStats.getUI().update('luk', pkt.value);
+			WinStats.update('luk', pkt.value);
 			break;
 
 		case StatusProperty.VAR_SP_POW:
-			WinStats.getUI().update('pow', pkt.value);
+			WinStats.update('pow', pkt.value);
 			break;
 
 		case StatusProperty.VAR_SP_STA:
-			WinStats.getUI().update('sta', pkt.value);
+			WinStats.update('sta', pkt.value);
 			break;
 
 		case StatusProperty.VAR_SP_WIS:
-			WinStats.getUI().update('wis', pkt.value);
+			WinStats.update('wis', pkt.value);
 			break;
 
 		case StatusProperty.VAR_SP_SPL:
-			WinStats.getUI().update('spl', pkt.value);
+			WinStats.update('spl', pkt.value);
 			break;
 
 		case StatusProperty.VAR_SP_CON:
-			WinStats.getUI().update('con', pkt.value);
+			WinStats.update('con', pkt.value);
 			break;
 
 		case StatusProperty.VAR_SP_CRT:
-			WinStats.getUI().update('crt', pkt.value);
+			WinStats.update('crt', pkt.value);
 			break;
 	}
 }
@@ -229,16 +229,16 @@ function onParameterChange(pkt) {
 			break;
 
 		case StatusProperty.EXP:
-			BasicInfo.getUI().base_exp = amount;
-			if (BasicInfo.getUI().base_exp_next) {
-				BasicInfo.getUI().update('bexp', BasicInfo.getUI().base_exp, BasicInfo.getUI().base_exp_next);
+			BasicInfo.base_exp = amount;
+			if (BasicInfo.base_exp_next) {
+				BasicInfo.update('bexp', BasicInfo.base_exp, BasicInfo.base_exp_next);
 			}
 			break;
 
 		case StatusProperty.JOBEXP:
-			BasicInfo.getUI().job_exp = amount;
-			if (BasicInfo.getUI().job_exp_next) {
-				BasicInfo.getUI().update('jexp', BasicInfo.getUI().job_exp, BasicInfo.getUI().job_exp_next);
+			BasicInfo.job_exp = amount;
+			if (BasicInfo.job_exp_next) {
+				BasicInfo.update('jexp', BasicInfo.job_exp, BasicInfo.job_exp_next);
 			}
 			break;
 
@@ -252,10 +252,10 @@ function onParameterChange(pkt) {
 			Session.Entity.life.update();
 
 			if (Session.Entity.life.hp_max > -1) {
-				BasicInfo.getUI().update('hp', Session.Entity.life.hp, Session.Entity.life.hp_max);
+				BasicInfo.update('hp', Session.Entity.life.hp, Session.Entity.life.hp_max);
 
 				if (Session.hasParty) {
-					PartyUI.getUI().updateMemberLife(
+					PartyUI.updateMemberLife(
 						Session.AID,
 						Session.Entity.life.canvas,
 						Session.Entity.life.hp,
@@ -296,10 +296,10 @@ function onParameterChange(pkt) {
 			Session.Entity.life.update();
 
 			if (Session.Entity.life.hp > -1) {
-				BasicInfo.getUI().update('hp', Session.Entity.life.hp, Session.Entity.life.hp_max);
+				BasicInfo.update('hp', Session.Entity.life.hp, Session.Entity.life.hp_max);
 
 				if (Session.hasParty) {
-					PartyUI.getUI().updateMemberLife(
+					PartyUI.updateMemberLife(
 						Session.AID,
 						Session.Entity.life.canvas,
 						Session.Entity.life.hp,
@@ -314,7 +314,7 @@ function onParameterChange(pkt) {
 			Session.Entity.life.update();
 
 			if (Session.Entity.life.sp_max > -1) {
-				BasicInfo.getUI().update('sp', Session.Entity.life.sp, Session.Entity.life.sp_max);
+				BasicInfo.update('sp', Session.Entity.life.sp, Session.Entity.life.sp_max);
 			}
 			break;
 
@@ -323,20 +323,20 @@ function onParameterChange(pkt) {
 			Session.Entity.life.update();
 
 			if (Session.Entity.life.sp > -1) {
-				BasicInfo.getUI().update('sp', Session.Entity.life.sp, Session.Entity.life.sp_max);
+				BasicInfo.update('sp', Session.Entity.life.sp, Session.Entity.life.sp_max);
 			}
 			break;
 
 		case StatusProperty.POINT:
-			WinStats.getUI().update('statuspoint', amount);
+			WinStats.update('statuspoint', amount);
 			break;
 
 		case StatusProperty.CLEVEL:
 			Session.Entity.clevel = amount;
 			// load aura on levelup
 			Session.Entity.aura.load(EffectManager);
-			BasicInfo.getUI().update('blvl', amount);
-			Equipment.getUI().onLevelUp();
+			BasicInfo.update('blvl', amount);
+			Equipment.onLevelUp();
 			ChangeCart.onLevelUp(amount);
 
 			//Pet Talk
@@ -352,209 +352,209 @@ function onParameterChange(pkt) {
 			break;
 
 		case StatusProperty.SKPOINT:
-			SkillList.getUI().setPoints(amount);
+			SkillList.setPoints(amount);
 			break;
 
 		case StatusProperty.STR:
-			WinStats.getUI().update('str', pkt.defaultStatus);
-			WinStats.getUI().update('str2', pkt.plusStatus);
+			WinStats.update('str', pkt.defaultStatus);
+			WinStats.update('str2', pkt.plusStatus);
 			break;
 
 		case StatusProperty.AGI:
-			WinStats.getUI().update('agi', pkt.defaultStatus);
-			WinStats.getUI().update('agi2', pkt.plusStatus);
+			WinStats.update('agi', pkt.defaultStatus);
+			WinStats.update('agi2', pkt.plusStatus);
 			break;
 
 		case StatusProperty.VIT:
-			WinStats.getUI().update('vit', pkt.defaultStatus);
-			WinStats.getUI().update('vit2', pkt.plusStatus);
+			WinStats.update('vit', pkt.defaultStatus);
+			WinStats.update('vit2', pkt.plusStatus);
 			break;
 
 		case StatusProperty.INT:
-			WinStats.getUI().update('int', pkt.defaultStatus);
-			WinStats.getUI().update('int2', pkt.plusStatus);
+			WinStats.update('int', pkt.defaultStatus);
+			WinStats.update('int2', pkt.plusStatus);
 			break;
 
 		case StatusProperty.DEX:
-			WinStats.getUI().update('dex', pkt.defaultStatus);
-			WinStats.getUI().update('dex2', pkt.plusStatus);
+			WinStats.update('dex', pkt.defaultStatus);
+			WinStats.update('dex2', pkt.plusStatus);
 			break;
 
 		case StatusProperty.LUK:
-			WinStats.getUI().update('luk', pkt.defaultStatus);
-			WinStats.getUI().update('luk2', pkt.plusStatus);
+			WinStats.update('luk', pkt.defaultStatus);
+			WinStats.update('luk2', pkt.plusStatus);
 			break;
 
 		case StatusProperty.MONEY:
-			BasicInfo.getUI().update('zeny', amount);
+			BasicInfo.update('zeny', amount);
 			break;
 
 		case StatusProperty.MAXEXP:
-			BasicInfo.getUI().base_exp_next = amount;
-			if (BasicInfo.getUI().base_exp > -1) {
-				BasicInfo.getUI().update('bexp', BasicInfo.getUI().base_exp, BasicInfo.getUI().base_exp_next);
+			BasicInfo.base_exp_next = amount;
+			if (BasicInfo.base_exp > -1) {
+				BasicInfo.update('bexp', BasicInfo.base_exp, BasicInfo.base_exp_next);
 			}
 			break;
 
 		case StatusProperty.MAXJOBEXP:
-			BasicInfo.getUI().job_exp_next = amount;
-			if (BasicInfo.getUI().job_exp > -1) {
-				BasicInfo.getUI().update('jexp', BasicInfo.getUI().job_exp, BasicInfo.getUI().job_exp_next);
+			BasicInfo.job_exp_next = amount;
+			if (BasicInfo.job_exp > -1) {
+				BasicInfo.update('jexp', BasicInfo.job_exp, BasicInfo.job_exp_next);
 			}
 			break;
 
 		case StatusProperty.WEIGHT:
 			Session.Entity.weight = amount; // Save weight in Session instead of UI
-			if (BasicInfo.getUI().weight_max > -1) {
-				BasicInfo.getUI().update('weight', Session.Entity.weight, BasicInfo.getUI().weight_max);
+			if (BasicInfo.weight_max > -1) {
+				BasicInfo.update('weight', Session.Entity.weight, BasicInfo.weight_max);
 			}
 			break;
 
 		case StatusProperty.MAXWEIGHT:
 			Session.Entity.max_weight = amount; // Save max weight in Session instead of UI only
-			BasicInfo.getUI().weight_max = amount;
-			if (BasicInfo.getUI().weight > -1) {
-				BasicInfo.getUI().update('weight', Session.Entity.weight, BasicInfo.getUI().weight_max);
+			BasicInfo.weight_max = amount;
+			if (BasicInfo.weight > -1) {
+				BasicInfo.update('weight', Session.Entity.weight, BasicInfo.weight_max);
 			}
 			break;
 
 		case StatusProperty.STANDARD_STR:
-			WinStats.getUI().update('str3', amount);
+			WinStats.update('str3', amount);
 			break;
 
 		case StatusProperty.STANDARD_AGI:
-			WinStats.getUI().update('agi3', amount);
+			WinStats.update('agi3', amount);
 			break;
 
 		case StatusProperty.STANDARD_VIT:
-			WinStats.getUI().update('vit3', amount);
+			WinStats.update('vit3', amount);
 			break;
 
 		case StatusProperty.STANDARD_INT:
-			WinStats.getUI().update('int3', amount);
+			WinStats.update('int3', amount);
 			break;
 
 		case StatusProperty.STANDARD_DEX:
-			WinStats.getUI().update('dex3', amount);
+			WinStats.update('dex3', amount);
 			break;
 
 		case StatusProperty.STANDARD_LUK:
-			WinStats.getUI().update('luk3', amount);
+			WinStats.update('luk3', amount);
 			break;
 
 		case StatusProperty.ATTPOWER:
-			WinStats.getUI().update('atak', amount);
+			WinStats.update('atak', amount);
 			break;
 
 		case StatusProperty.REFININGPOWER:
-			WinStats.getUI().update('atak2', amount);
+			WinStats.update('atak2', amount);
 			break;
 
 		case StatusProperty.MAX_MATTPOWER:
-			WinStats.getUI().update('matak', amount);
+			WinStats.update('matak', amount);
 			break;
 
 		case StatusProperty.MIN_MATTPOWER:
-			WinStats.getUI().update('matak2', amount);
+			WinStats.update('matak2', amount);
 			break;
 
 		case StatusProperty.ITEMDEFPOWER:
-			WinStats.getUI().update('def', amount);
+			WinStats.update('def', amount);
 			break;
 
 		case StatusProperty.PLUSDEFPOWER:
-			WinStats.getUI().update('def2', amount);
+			WinStats.update('def2', amount);
 			break;
 
 		case StatusProperty.MDEFPOWER:
-			WinStats.getUI().update('mdef', amount);
+			WinStats.update('mdef', amount);
 			break;
 
 		case StatusProperty.PLUSMDEFPOWER:
-			WinStats.getUI().update('mdef2', amount);
+			WinStats.update('mdef2', amount);
 			break;
 
 		case StatusProperty.HITSUCCESSVALUE:
-			WinStats.getUI().update('hit', amount);
+			WinStats.update('hit', amount);
 			break;
 
 		case StatusProperty.AVOIDSUCCESSVALUE:
-			WinStats.getUI().update('flee', amount);
+			WinStats.update('flee', amount);
 			break;
 
 		case StatusProperty.PLUSAVOIDSUCCESSVALUE:
-			WinStats.getUI().update('flee2', amount);
+			WinStats.update('flee2', amount);
 			break;
 
 		case StatusProperty.CRITICALSUCCESSVALUE:
-			WinStats.getUI().update('critical', amount);
+			WinStats.update('critical', amount);
 			break;
 
 		case StatusProperty.ASPD:
-			WinStats.getUI().update('aspd', amount);
+			WinStats.update('aspd', amount);
 			break;
 
 		case StatusProperty.JOBLEVEL:
-			BasicInfo.getUI().update('jlvl', amount);
-			SkillList.getUI().onLevelUp();
+			BasicInfo.update('jlvl', amount);
+			SkillList.onLevelUp();
 			break;
 
 		case StatusProperty.VAR_SP_POW:
-			WinStats.getUI().update('pow', pkt.defaultStatus);
-			WinStats.getUI().update('pow2', pkt.plusStatus);
+			WinStats.update('pow', pkt.defaultStatus);
+			WinStats.update('pow2', pkt.plusStatus);
 			break;
 
 		case StatusProperty.VAR_SP_STA:
-			WinStats.getUI().update('sta', pkt.defaultStatus);
-			WinStats.getUI().update('sta2', pkt.plusStatus);
+			WinStats.update('sta', pkt.defaultStatus);
+			WinStats.update('sta2', pkt.plusStatus);
 			break;
 
 		case StatusProperty.VAR_SP_WIS:
-			WinStats.getUI().update('wis', pkt.defaultStatus);
-			WinStats.getUI().update('wis2', pkt.plusStatus);
+			WinStats.update('wis', pkt.defaultStatus);
+			WinStats.update('wis2', pkt.plusStatus);
 			break;
 
 		case StatusProperty.VAR_SP_SPL:
-			WinStats.getUI().update('spl', pkt.defaultStatus);
-			WinStats.getUI().update('spl2', pkt.plusStatus);
+			WinStats.update('spl', pkt.defaultStatus);
+			WinStats.update('spl2', pkt.plusStatus);
 			break;
 
 		case StatusProperty.VAR_SP_CON:
-			WinStats.getUI().update('con', pkt.defaultStatus);
-			WinStats.getUI().update('con2', pkt.plusStatus);
+			WinStats.update('con', pkt.defaultStatus);
+			WinStats.update('con2', pkt.plusStatus);
 			break;
 
 		case StatusProperty.VAR_SP_CRT:
-			WinStats.getUI().update('crt', pkt.defaultStatus);
-			WinStats.getUI().update('crt2', pkt.plusStatus);
+			WinStats.update('crt', pkt.defaultStatus);
+			WinStats.update('crt2', pkt.plusStatus);
 			break;
 
 		case StatusProperty.VAR_SP_PATK:
-			WinStats.getUI().update('patk', amount);
+			WinStats.update('patk', amount);
 			break;
 
 		case StatusProperty.VAR_SP_SMATK:
-			WinStats.getUI().update('smatk', amount);
+			WinStats.update('smatk', amount);
 			break;
 
 		case StatusProperty.VAR_SP_RES:
-			WinStats.getUI().update('res', amount);
+			WinStats.update('res', amount);
 			break;
 
 		case StatusProperty.VAR_SP_MRES:
-			WinStats.getUI().update('mres', amount);
+			WinStats.update('mres', amount);
 			break;
 
 		case StatusProperty.VAR_SP_HPLUS:
-			WinStats.getUI().update('hplus', amount);
+			WinStats.update('hplus', amount);
 			break;
 
 		case StatusProperty.VAR_SP_CRATE:
-			WinStats.getUI().update('crate', amount);
+			WinStats.update('crate', amount);
 			break;
 
 		case StatusProperty.VAR_SP_TRAITPOINT:
-			WinStats.getUI().update('trait_point', amount);
+			WinStats.update('trait_point', amount);
 			break;
 
 		case StatusProperty.VAR_SP_AP:
@@ -562,7 +562,7 @@ function onParameterChange(pkt) {
 			Session.Entity.life.update();
 
 			if (Session.Entity.life.ap_max > -1) {
-				BasicInfo.getUI().update('ap', Session.Entity.life.ap, Session.Entity.life.ap_max);
+				BasicInfo.update('ap', Session.Entity.life.ap, Session.Entity.life.ap_max);
 			}
 			break;
 
@@ -571,32 +571,32 @@ function onParameterChange(pkt) {
 			Session.Entity.life.update();
 
 			if (Session.Entity.life.ap > -1) {
-				BasicInfo.getUI().update('ap', Session.Entity.life.ap, Session.Entity.life.ap_max);
+				BasicInfo.update('ap', Session.Entity.life.ap, Session.Entity.life.ap_max);
 			}
 			break;
 
 		case StatusProperty.VAR_SP_UPOW:
-			WinStats.getUI().update('pow3', amount);
+			WinStats.update('pow3', amount);
 			break;
 
 		case StatusProperty.VAR_SP_USTA:
-			WinStats.getUI().update('sta3', amount);
+			WinStats.update('sta3', amount);
 			break;
 
 		case StatusProperty.VAR_SP_UWIS:
-			WinStats.getUI().update('wis3', amount);
+			WinStats.update('wis3', amount);
 			break;
 
 		case StatusProperty.VAR_SP_USPL:
-			WinStats.getUI().update('spl3', amount);
+			WinStats.update('spl3', amount);
 			break;
 
 		case StatusProperty.VAR_SP_UCON:
-			WinStats.getUI().update('con3', amount);
+			WinStats.update('con3', amount);
 			break;
 
 		case StatusProperty.VAR_SP_UCRT:
-			WinStats.getUI().update('crt3', amount);
+			WinStats.update('crt3', amount);
 			break;
 
 		default:
@@ -702,7 +702,7 @@ function onRecovery(pkt) {
 			Session.Entity.life.update();
 
 			if (Session.Entity.life.hp_max > -1) {
-				BasicInfo.getUI().update('hp', Session.Entity.life.hp, Session.Entity.life.hp_max);
+				BasicInfo.update('hp', Session.Entity.life.hp, Session.Entity.life.hp_max);
 			}
 			break;
 		}
@@ -720,7 +720,7 @@ function onRecovery(pkt) {
 			Session.Entity.life.update();
 
 			if (Session.Entity.life.sp_max > -1) {
-				BasicInfo.getUI().update('sp', Session.Entity.life.sp, Session.Entity.life.sp_max);
+				BasicInfo.update('sp', Session.Entity.life.sp, Session.Entity.life.sp_max);
 			}
 			break;
 		}

@@ -416,7 +416,7 @@ export function createEquipment({
 
 		if (UIVersionManager.getEquipmentVersion() > 0) {
 			if (_preferences.stats && _preferences.show) {
-				const winStats = WinStats.getUI();
+				const winStats = WinStats;
 				winStats.embed(Component._host);
 			} else {
 				Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/viewon.bmp', data => {
@@ -458,7 +458,7 @@ export function createEquipment({
 		_preferences.show = this._host.style.display !== 'none';
 		const panel = root.querySelector('.panel');
 		_preferences.reduce = panel ? panel.style.display === 'none' : false;
-		const winStats = WinStats.getUI();
+		const winStats = WinStats;
 		_preferences.stats = winStats.isEmbedded();
 		hideStatus();
 		_preferences.y = parseInt(this._host.style.top, 10);
@@ -473,7 +473,7 @@ export function createEquipment({
 			if (UIVersionManager.getEquipmentVersion() > 0) {
 				if (_btnLevelUp && _btnLevelUp.parentNode) _btnLevelUp.remove();
 				if (_preferences.stats) {
-					WinStats.getUI().embed(Component._host);
+					WinStats.embed(Component._host);
 				}
 			}
 			this.focus();
@@ -577,12 +577,12 @@ export function createEquipment({
 			});
 		}
 
-		if (!Inventory.getUI().equippedItems.includes(item.index)) {
-			Inventory.getUI().equippedItems.push(item.index);
+		if (!Inventory.equippedItems.includes(item.index)) {
+			Inventory.equippedItems.push(item.index);
 		}
 
 		if (switchEquip && PACKETVER.value >= 20170621) {
-			if (!Inventory.getUI().isInEquipSwitchList(location)) {
+			if (!Inventory.isInEquipSwitchList(location)) {
 				SwitchEquip.equip(item, location, false);
 			}
 		}
@@ -624,7 +624,7 @@ export function createEquipment({
 	};
 
 	function hideStatus() {
-		const winStats = WinStats.getUI();
+		const winStats = WinStats;
 		if (winStats.isEmbedded()) {
 			winStats.unembed();
 		}
@@ -633,7 +633,7 @@ export function createEquipment({
 	function toggleStatus() {
 		const root = Component.getRoot();
 		const self = root.querySelector('.view_status');
-		const winStats = WinStats.getUI();
+		const winStats = WinStats;
 		const isVisible = winStats.isEmbedded();
 		const state = isVisible ? 'on' : 'off';
 

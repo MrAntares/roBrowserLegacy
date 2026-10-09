@@ -373,17 +373,17 @@ function onOpenRefineUI() {
 
 	Refine.append();
 
-	const isInventoryOpen = Inventory.getUI().ui ? Inventory.getUI().ui.is(':visible') : false;
+	const isInventoryOpen = Inventory.ui ? Inventory.ui.is(':visible') : false;
 
 	if (!isInventoryOpen) {
-		Inventory.getUI().toggle();
+		Inventory.toggle();
 	}
 
 	const refineRect = Refine._host.getBoundingClientRect();
 	const refineWidth = Refine._host.offsetWidth;
-	const refineHeight = Refine._host.offsetHeight - Inventory.getUI().ui.height();
+	const refineHeight = Refine._host.offsetHeight - Inventory.ui.height();
 
-	Inventory.getUI().ui.css({
+	Inventory.ui.css({
 		position: 'absolute',
 		top: refineRect.top ? refineRect.top + refineHeight : 200,
 		left: refineRect.left ? refineRect.left + refineWidth : 300
@@ -496,7 +496,7 @@ function onRefineUIUpdateMaterials(pkt) {
 		}
 
 		refine_item_index = pkt.itemIndex;
-		const item = Inventory.getUI().getItemByIndex(pkt.itemIndex);
+		const item = Inventory.getItemByIndex(pkt.itemIndex);
 
 		refiningMaterials = pkt.MaterialInfo;
 		blacksmithBlessing = pkt.blacksmithBlessing;
@@ -555,7 +555,7 @@ function onRefineUIUpdateMaterials(pkt) {
 			for (let i = 0; i < refiningMaterials.length; i++) {
 				foundMaterial = refiningMaterials[i];
 				if (foundMaterial.itemId === refine_item_mat) {
-					foundItem = Inventory.getUI().getItemById(foundMaterial.itemId);
+					foundItem = Inventory.getItemById(foundMaterial.itemId);
 					materialFound = true;
 					refine_new_mats = 0;
 					break;
@@ -605,7 +605,7 @@ function onPopulateMaterials() {
 		(function (idx) {
 			const material = refiningMaterials[idx];
 			const it = DB.getItemInfo(material.itemId);
-			const item = Inventory.getUI().getItemById(material.itemId);
+			const item = Inventory.getItemById(material.itemId);
 			const materialDiv = root.querySelector(`.material_${idx}`);
 
 			if (!materialDiv) {
@@ -650,7 +650,7 @@ function onPopulateMaterials() {
 			if (iconEl) {
 				iconEl.addEventListener('click', () => {
 					const clickedItemId = material.itemId;
-					const clickedItem = Inventory.getUI().getItemById(clickedItemId);
+					const clickedItem = Inventory.getItemById(clickedItemId);
 					const clickedCount = clickedItem ? clickedItem.count : 0;
 
 					if (clickedCount === 0) {
@@ -726,7 +726,7 @@ function onPopulateMaterials() {
 	if (blacksmithBlessing) {
 		const bsbDiv = root.querySelector('.bsb_overlay .bsb');
 		const bsbItem = DB.getItemInfo(BSB_ITID);
-		const item = Inventory.getUI().getItemById(BSB_ITID);
+		const item = Inventory.getItemById(BSB_ITID);
 		bsbDiv.insertAdjacentHTML(
 			'beforeend',
 			`<div class="item" data-index="${BSB_ITID}" draggable="false">` +
@@ -762,7 +762,7 @@ function onPopulateMaterials() {
 		const bsbIcon = bsbDiv.querySelector('.icon');
 		if (bsbIcon) {
 			bsbIcon.addEventListener('click', () => {
-				const bsbInventoryItem = Inventory.getUI().getItemById(BSB_ITID);
+				const bsbInventoryItem = Inventory.getItemById(BSB_ITID);
 				const currentBsbCount = bsbInventoryItem ? bsbInventoryItem.count : 0;
 
 				if (currentBsbCount >= blacksmithBlessing) {
@@ -827,7 +827,7 @@ function selectMaterial(material, item) {
 	}
 
 	if (refine_bsb) {
-		const bsbinInventory = Inventory.getUI().getItemById(BSB_ITID);
+		const bsbinInventory = Inventory.getItemById(BSB_ITID);
 		const bsbCount = bsbinInventory ? bsbinInventory.count || 0 : 0;
 
 		if (!bsbinInventory || bsbCount < refine_bsb) {
@@ -1100,8 +1100,8 @@ function showMessage(messageID, timeout, type) {
  */
 function onRequestRefine() {
 	const root = _root();
-	const item = Inventory.getUI().getItemByIndex(refine_item_index);
-	const material = Inventory.getUI().getItemById(refine_item_mat);
+	const item = Inventory.getItemByIndex(refine_item_index);
+	const material = Inventory.getItemById(refine_item_mat);
 
 	if (!item) {
 		return;
@@ -1162,10 +1162,10 @@ Refine.onRefineResult = function onRefineResult(pkt) {
 			refineCont.style.display = 'none';
 		}
 
-		const item = Inventory.getUI().removeItem(pkt.itemIndex, 1);
+		const item = Inventory.removeItem(pkt.itemIndex, 1);
 		if (item) {
 			item.RefiningLevel = pkt.RefiningLevel;
-			Inventory.getUI().addItem(item);
+			Inventory.addItem(item);
 		}
 
 		stopCurrentLoop();
@@ -1366,7 +1366,7 @@ function onUpdateRefineUI(result) {
 	}
 
 	if (!refine_item_broken) {
-		const refineditem = Inventory.getUI().getItemByIndex(refine_item_index);
+		const refineditem = Inventory.getItemByIndex(refine_item_index);
 		if (refineditem) {
 			const itemToRefineName = root.querySelector('.item_to_refine_name');
 			if (itemToRefineName) {
@@ -1440,7 +1440,7 @@ function onHideContRefineButtons() {
  */
 function onCheckItemBroken() {
 	const root = _root();
-	const refineditem = Inventory.getUI().getItemByIndex(refine_item_index);
+	const refineditem = Inventory.getItemByIndex(refine_item_index);
 	if (!refineditem) {
 		refine_result_div = 'fail_refine_cont_disabled';
 		const itemToRefineName = root.querySelector('.item_to_refine_name');
@@ -1492,9 +1492,7 @@ function onItemInfo(event) {
 	event.preventDefault();
 
 	const ITID = parseInt(this.getAttribute('data-index'), 10);
-	const item = Inventory.getUI().getItemById(ITID)
-		? Inventory.getUI().getItemById(ITID)
-		: Inventory.getUI().getItemByIndex(ITID);
+	const item = Inventory.getItemById(ITID) ? Inventory.getItemById(ITID) : Inventory.getItemByIndex(ITID);
 
 	if (!item) {
 		return;
@@ -1516,9 +1514,9 @@ function onItemInfo(event) {
 	ItemInfo.uid = item.ITID;
 	ItemInfo.setItem(item);
 
-	const compareItem = Equipment.getUI().isInEquipList(item.location);
+	const compareItem = Equipment.isInEquipList(item.location);
 
-	if (compareItem && Inventory.getUI().itemcomp) {
+	if (compareItem && Inventory.itemcomp) {
 		ItemCompare.prepare();
 		ItemCompare.append();
 		ItemCompare.uid = compareItem.ITID;

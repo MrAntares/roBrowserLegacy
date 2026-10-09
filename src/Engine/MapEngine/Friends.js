@@ -40,9 +40,8 @@ class FriendEngine {
 		Network.hookPacket(PACKET.ZC.DELETE_FRIENDS, onFriendRemoved);
 
 		// Hook UI
-		const FriendUI = PartyFriends.getUI();
-		FriendUI.onRequestNewFriend = FriendEngine.addFriend;
-		FriendUI.onRemoveFriend = FriendEngine.removeFriend;
+		PartyFriends.onRequestNewFriend = FriendEngine.addFriend;
+		PartyFriends.onRemoveFriend = FriendEngine.removeFriend;
 	}
 
 	/**
@@ -139,7 +138,7 @@ class FriendEngine {
 function onFriendList(pkt) {
 	_friends = pkt.friendList;
 
-	PartyFriends.getUI().setFriends(_friends);
+	PartyFriends.setFriends(_friends);
 }
 
 /**
@@ -153,7 +152,7 @@ function onFriendUpdate(pkt) {
 	if (idx > -1) {
 		_friends[idx].State = pkt.State;
 
-		PartyFriends.getUI().updateFriendState(idx, pkt.State);
+		PartyFriends.updateFriendState(idx, pkt.State);
 	}
 }
 
@@ -204,7 +203,7 @@ function onFriendAdded(pkt) {
 			_friends[idx].Name = pkt.Name;
 			_friends[idx].State = 0;
 
-			PartyFriends.getUI().updateFriend(idx, _friends[idx]);
+			PartyFriends.updateFriend(idx, _friends[idx]);
 			break;
 
 		case 1: // "(%s) does not want to be friends with you."
@@ -231,7 +230,7 @@ function onFriendRemoved(pkt) {
 
 	if (idx > -1) {
 		_friends.splice(idx, 1);
-		PartyFriends.getUI().removeFriend(idx);
+		PartyFriends.removeFriend(idx);
 	}
 }
 

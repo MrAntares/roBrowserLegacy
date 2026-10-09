@@ -27,7 +27,6 @@ import StatusConst from 'DB/Status/StatusState.js';
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import Ground from 'Renderer/Map/Ground.js';
 import Altitude from 'Renderer/Map/Altitude.js';
-import Water from 'Renderer/Map/Water.js';
 import Session from 'Engine/SessionStorage.js';
 import DB from 'DB/DBManager.js';
 import GraphicsSettings from 'Preferences/Graphics.js';
@@ -1135,7 +1134,7 @@ function renderLayer(layer, spr, pal, size, pos, type, isBlendModeOne) {
 		SpriteRenderer.color[3] = layer.color[3];
 	}
 
-	// apply disapear
+	// apply disappear
 	if (this.remove_tick) {
 		SpriteRenderer.color[3] *= 1 - (Date.now() - this.remove_tick) / this.remove_delay;
 	}

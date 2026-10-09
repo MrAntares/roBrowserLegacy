@@ -10,7 +10,6 @@
 
 import WebGL from 'Utils/WebGL.js';
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';
-import Altitude from 'Renderer/Map/Altitude.js';
 import _vertexShader from './Water.vs?raw';
 import _fragmentShader from './Water.fs?raw';
 
