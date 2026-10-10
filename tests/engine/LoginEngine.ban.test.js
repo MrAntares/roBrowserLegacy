@@ -20,6 +20,7 @@ const mocks = vi.hoisted(() => {
 		},
 		bgm: { play: vi.fn(), setAvailableExtensions: vi.fn() },
 		winLogin: { append: record('WinLogin.append') },
+		skillTarget: { remove: vi.fn() },
 		uiManager: {
 			removeComponents: record('UIManager.removeComponents'),
 			showErrorBox: vi.fn(),
@@ -64,6 +65,7 @@ vi.mock('UI/Components/WinPopup/WinPopup.js', () => ({ default: { clone: () => (
 vi.mock('UI/Components/WinLogin/WinLogin.js', () => ({
 	default: Object.assign(mocks.winLogin, { selectUIVersion: vi.fn() })
 }));
+vi.mock('UI/Components/SkillTargetSelection/SkillTargetSelection.js', () => ({ default: mocks.skillTarget }));
 vi.mock('Vendors/spark-md5.min.js', () => ({ default: {} }));
 vi.mock('Utils/Rijndael.js', () => ({ default: {} }));
 
@@ -75,6 +77,16 @@ describe('LoginEngine SC.NOTIFY_BAN', () => {
 		LoginEngine.init({ address: '127.0.0.1', port: 6900 });
 		mocks.calls.length = 0;
 		mocks.uiManager.showMessageBox.mockClear();
+		mocks.skillTarget.remove.mockClear();
+	});
+
+	it('drops a skill waiting for its target before the box opens', () => {
+		mocks.hooks['SC.NOTIFY_BAN']({ ErrorCode: 2 });
+
+		expect(mocks.skillTarget.remove).toHaveBeenCalledOnce();
+		expect(mocks.skillTarget.remove.mock.invocationCallOrder[0]).toBeLessThan(
+			mocks.uiManager.showMessageBox.mock.invocationCallOrder[0]
+		);
 	});
 
 	it('stops the map behind the login screen once the ban is acknowledged', () => {

@@ -177,6 +177,7 @@ function free() {
 
 	_list.length = 0;
 	_gidMap.clear();
+	_over = null;
 	_pickList.length = 0;
 	_renderSortDirty = true;
 	_pickSortDirty = true;

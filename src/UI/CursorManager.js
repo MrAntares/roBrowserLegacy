@@ -60,6 +60,16 @@ let _lastY = 0;
 let _compiledStyle = [];
 
 /**
+ * @type {boolean} the scene render loop draws the cursor
+ */
+let _sceneDriven = false;
+
+/**
+ * @type {number} standalone render loop handle
+ */
+let _loopId = 0;
+
+/**
  * @type {Sprite} sprite
  */
 let _sprite;
@@ -146,6 +156,7 @@ class Cursor {
 			bindMouseEvents();
 			preCompiledAnimations();
 			createSpriteSheet();
+			Cursor.setSceneDriven(_sceneDriven);
 			fn();
 		});
 	}
@@ -182,6 +193,22 @@ class Cursor {
 	 */
 	static getActualType() {
 		return _type;
+	}
+
+	/**
+	 * Let the scene render loop draw the cursor after its frame, or draw it on its own while the scene is stopped
+	 *
+	 * @param {boolean} value
+	 */
+	static setSceneDriven(value) {
+		_sceneDriven = value;
+
+		if (value) {
+			cancelAnimationFrame(_loopId);
+			_loopId = 0;
+		} else if (!_loopId && _compiledStyle.length) {
+			_loopId = requestAnimationFrame(renderLoop);
+		}
 	}
 
 	/**
@@ -438,6 +465,14 @@ function bindMouseEvents() {
 		},
 		true
 	);
+}
+
+/**
+ * Keep the cursor animated while the scene render loop is stopped (login, server list)
+ */
+function renderLoop() {
+	Cursor.render(Date.now());
+	_loopId = requestAnimationFrame(renderLoop);
 }
 
 /**

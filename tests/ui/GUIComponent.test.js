@@ -12,7 +12,8 @@ const mocks = vi.hoisted(() => ({
 		ACTION: { DEFAULT: 0, CLICK: 2, NOWALK: 13 },
 		getActualType: vi.fn(() => 0),
 		setType: vi.fn()
-	}
+	},
+	entityManager: { setOverEntity: vi.fn() }
 }));
 
 // GUIComponent imports these lazily and does not await the result, so they are
@@ -30,7 +31,7 @@ vi.mock('Core/Client.js', () => ({
 	}
 }));
 vi.mock('Renderer/Renderer.js', () => ({ default: { width: 1200, height: 800 } }));
-vi.mock('Renderer/EntityManager.js', () => ({ default: { setOverEntity: vi.fn() } }));
+vi.mock('Renderer/EntityManager.js', () => ({ default: mocks.entityManager }));
 vi.mock('UI/Scrollbar.js', () => ({ default: {} }));
 
 const GUIComponent = (await import('UI/GUIComponent.js')).default;
@@ -61,6 +62,7 @@ beforeEach(() => {
 	document.body.innerHTML = '';
 	mocks.cursor.setType.mockClear();
 	mocks.cursor.getActualType.mockClear();
+	mocks.entityManager.setOverEntity.mockClear();
 });
 
 /**
@@ -89,6 +91,25 @@ describe('clicking a window moves the keyboard into it', () => {
 		component._host.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
 
 		expect(component._shadow.activeElement).toBe(field);
+	});
+});
+
+/**
+ * A window that freezes the map took the cursor back to the arrow, but kept the
+ * entity under it: the snap offset kept pointing at it.
+ */
+describe('a window that freezes the map', () => {
+	it('forgets the entity under the cursor', async () => {
+		mount('<div></div>');
+		await new Promise(resolve => setTimeout(resolve, 0));
+
+		class Frozen extends GUIComponent {
+			mouseMode = GUIComponent.MouseMode.FREEZE;
+		}
+		mount('<div></div>', Frozen);
+
+		expect(mocks.entityManager.setOverEntity).toHaveBeenCalledWith(null);
+		expect(mocks.cursor.setType).toHaveBeenLastCalledWith(mocks.cursor.ACTION.DEFAULT);
 	});
 });
 

@@ -439,6 +439,7 @@ class Renderer {
 			// Reset timing helpers so first rAF initializes cleanly
 			this._lastFrameTime = 0;
 			this._renderBound = this._render.bind(this);
+			Cursor.setSceneDriven(true);
 
 			// Start loop with requestAnimationFrame (safer & sync with browser)
 			this.updateId = _requestAnimationFrame(this._renderBound);
@@ -458,6 +459,7 @@ class Renderer {
 			} catch (e) {
 				console.error(e);
 			}
+			Cursor.setSceneDriven(false);
 			return;
 		}
 		const pos = this.renderCallbacks.indexOf(fn);
