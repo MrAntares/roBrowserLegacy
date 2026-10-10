@@ -37,8 +37,11 @@ on every build.
   has `white-space: pre-line`. The modern client instead turns each line into
   its own entry. The two render the same way, and one entry per `addText` call
   keeps the entry count that the history limit works on.
-- Entries built from HTML (item links, name links, the `override` path) are
-  not touched by either rule.
+- Both rules apply to every entry, HTML ones included: a newline inside a
+  line that holds an item link or a name link breaks it the same way.
+- A line holding an item link is rendered as HTML so the link can be clicked.
+  The rest of that line, the link's name and its `data-item` copy are escaped
+  first, so they still show as text.
 
 ## Deviations
 

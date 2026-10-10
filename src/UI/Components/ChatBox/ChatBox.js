@@ -1256,6 +1256,15 @@ function extractChatMessage(inputEl) {
 }
 
 /**
+ * Escape text for use in HTML content and quoted attributes.
+ * @param {string} text
+ * @returns {string}
+ */
+function escapeHTML(text) {
+	return text.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+}
+
+/**
  * Add text to chatbox
  *
  * @see docs/reference/chat/text-parsing.md
@@ -1263,15 +1272,26 @@ function extractChatMessage(inputEl) {
 ChatBox.addText = function addText(text, colorType, filterType, color, override) {
 	// The client drops ^RRGGBB codes: a chat line has one colour.
 	text = text.replace(/\^[0-9A-Fa-f]{6}/g, '');
-	text = text.replace(/<ITEMLINK>.*?<\/ITEMLINK>|<ITEML>.*?<\/ITEML>|<ITEM>.*?<\/ITEM>/gi, function (match) {
-		const item = DB.parseItemLink(match);
-		const span = `<span data-item="${match}" class="item-link" style="color:#FFFF63;">&lt;${item.name}&gt;</span>`;
-		override = true;
-		return span;
-	});
 
 	// Auto-detect client-generated HTML (nickname links in whispers)
 	if (!override && /<span\s+class="nickname-link"/.test(text)) {
+		override = true;
+	}
+
+	// An item link turns the line into HTML: the text around it must stay text.
+	const parts = text.split(/(<ITEMLINK>.*?<\/ITEMLINK>|<ITEML>.*?<\/ITEML>|<ITEM>.*?<\/ITEM>)/i);
+	if (parts.length > 1) {
+		for (let i = 0; i < parts.length; i++) {
+			if (i % 2) {
+				const item = DB.parseItemLink(parts[i]);
+				parts[i] =
+					`<span data-item="${escapeHTML(parts[i])}" class="item-link" style="color:#FFFF63;">` +
+					`&lt;${escapeHTML(item.name)}&gt;</span>`;
+			} else if (!override) {
+				parts[i] = escapeHTML(parts[i]);
+			}
+		}
+		text = parts.join('');
 		override = true;
 	}
 
