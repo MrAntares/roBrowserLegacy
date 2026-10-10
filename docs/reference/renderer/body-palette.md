@@ -11,13 +11,15 @@ and for a halter-lead mount it also depends on the client build.
 - **A halter-lead mount (`AllMountTable`) is dyed with the mount's own palette
   files when the archive ships them, and with the rider's palette otherwise.**
   The archive is asked once, through `MOUNT_PALETTE_SENTINEL` (the Creator
-  boar's female palette 1): the cache answers every later entity, so one
-  request per session, and no file is ever requested per entity that the
+  boar's female palette 1), and `hasMountPalettes` keeps the answer for the
+  session: the file cache drops a file unused for 30 s, so it cannot hold it.
+  One request per session, and no file is ever requested per entity that the
   archive does not have. `PalNameTable` names the mount's own file for every
   halter-lead mount; those entries are only read when the sentinel loads.
-- **The answer is applied only if the entity still needs it**: by the time
-  the sentinel answers, the player may have dismounted or changed dye, and
-  `apply` checks both before writing the palette.
+- **The answer dyes the entity as it is when the answer comes**: by then the
+  player may have dismounted, changed dye, job or sex, so the callback runs
+  `UpdateBodyPalette` again on the current state instead of writing a path
+  built at request time.
 - **There is no existence check and no fallback.** The client builds one file
   name and loads it; when the file is missing it shows an "Error" message box
   (`CPaletteRes :: Cannot find File : ...`) and the body keeps its embedded
@@ -105,6 +107,11 @@ table, and the port already matched them.
   mounts the 2022 table names on their own (`제네릭멧돼지`, `미케닉멧돼지`,
   `아크비숍알파카`, `슈라알파카`), and the 2026 archive for eighteen names, so
   the data and the client tables move together; one sentinel is enough.
+- **The four 3rd-job mounts on an older archive** take the rider's palette,
+  where the port used to load the mount's own file. The 2022 client does the
+  same (a plain 3rd job keeps its view job, see above), and on the 2021-11
+  archive the two files are byte-identical for all four mounts, both sexes and
+  every palette the archive ships (0 to 3), so the dye on screen is unchanged.
 - **A body style on a halter-lead mount** is switched to the mount job by the
   2022 client under the `costume_%d` naming. The port keeps its existing body
   style path for that case.

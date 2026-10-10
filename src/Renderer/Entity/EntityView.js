@@ -611,6 +611,11 @@ for (const baseJob in AllMountTable) {
 const MOUNT_PALETTE_SENTINEL = DB.getBodyPalPath(JobConst.PIG_CREATOR, 1, 0);
 
 /**
+ * Whether the archive has the sentinel; undefined until it answers.
+ */
+let hasMountPalettes;
+
+/**
  * Update body palette
  *
  * @param {number} body palette number
@@ -643,19 +648,23 @@ function UpdateBodyPalette(pal) {
 	}
 
 	// A halter-lead mount has palette files of its own only in the newer
-	// archives; the older ones dye it with the rider's palette. The archive
-	// decides, through the sentinel; the mount may have changed meanwhile.
-	const own = DB.getBodyPalPath(job, pal, this._sex);
-	const rider = DB.getBodyPalPath(this._job, pal, this._sex);
-	const apply = path => {
-		if (this._bodypalette === pal && getEffectiveJob.call(this) === job) {
-			this.files.body.pal = path;
-		}
+	// archives; the older ones dye it with the rider's palette (the few
+	// mount files they ship hold the same colours). The archive decides,
+	// through the sentinel, once: the file cache may drop it.
+	if (hasMountPalettes !== undefined) {
+		this.files.body.pal = DB.getBodyPalPath(hasMountPalettes ? job : this._job, pal, this._sex);
+		return;
+	}
+
+	// The entity may have changed meanwhile: dye it as it is then.
+	const answer = present => {
+		hasMountPalettes = present;
+		UpdateBodyPalette.call(this, this._bodypalette);
 	};
 	Client.loadFile(
 		MOUNT_PALETTE_SENTINEL,
-		() => apply(own),
-		() => apply(rider)
+		() => answer(true),
+		() => answer(false)
 	);
 }
 

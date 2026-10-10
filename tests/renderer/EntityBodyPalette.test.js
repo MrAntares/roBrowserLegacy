@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import JobId from 'DB/Jobs/JobConst.js';
 import PalNameTable from 'DB/Jobs/PalNameTable.js';
@@ -17,24 +17,50 @@ vi.mock('DB/DBManager.js', async () => {
 	return { default: new Proxy(DB, { get: (t, k) => (k in t ? t[k] : () => null) }) };
 });
 // Answers every load at once, so a body that loads sets its dye again as it does in game.
-// The archive answers the mount-palette sentinel through `archive.hasMountPalettes`.
-const archive = vi.hoisted(() => ({ hasMountPalettes: true }));
-vi.mock('Core/Client.js', () => ({
-	default: {
-		loadFile: vi.fn((path, onLoad, onError) => {
-			if (path.includes('_1.pal') && !archive.hasMountPalettes) {
-				return onError && onError();
-			}
+// The archive answers the mount-palette sentinel through `archive.hasMountPalettes`;
+// with `archive.later` set, the answer waits in `archive.pending` until `answer()`.
+const archive = vi.hoisted(() => ({ hasMountPalettes: true, later: false, pending: [] }));
+const Client = vi.hoisted(() => ({
+	loadFile: vi.fn((path, onLoad, onError) => {
+		if (!path.includes('_1.pal')) {
 			return onLoad && onLoad();
-		})
-	}
+		}
+		if (archive.later) {
+			archive.pending.push([onLoad, onError]);
+			return;
+		}
+		return archive.hasMountPalettes ? onLoad && onLoad() : onError && onError();
+	})
 }));
+vi.mock('Core/Client.js', () => ({ default: Client }));
 vi.mock('DB/Monsters/ShadowTable.js', () => ({ default: {} }));
 vi.mock('Network/PacketVerManager.js', () => ({ default: { value: 20221005 } }));
 vi.mock('Renderer/GR2/GR2ModelRenderer.js', () => ({ default: {} }));
 vi.mock('Renderer/Entity/EntityAction.js', () => ({ default: vi.fn() }));
 
-const { default: EntityViewInit } = await import('Renderer/Entity/EntityView.js');
+// EntityView keeps the archive's answer for the session: each test starts a new one.
+let EntityViewInit;
+beforeEach(async () => {
+	vi.resetModules();
+	archive.hasMountPalettes = true;
+	archive.later = false;
+	archive.pending = [];
+	Client.loadFile.mockClear();
+	EntityViewInit = (await import('Renderer/Entity/EntityView.js')).default;
+});
+
+function answer() {
+	const pending = archive.pending;
+	archive.later = false;
+	archive.pending = [];
+	for (const [onLoad, onError] of pending) {
+		if (archive.hasMountPalettes) {
+			onLoad && onLoad();
+		} else {
+			onError && onError();
+		}
+	}
+}
 
 function entity(job, costume) {
 	const e = { _job: job, _sex: 1, _bodypalette: 0, costume, sound: {} };
@@ -57,7 +83,6 @@ describe('EntityView body palette', () => {
 	});
 
 	it("dyes a halter-lead mount with the mount's own palette when the archive ships it", () => {
-		archive.hasMountPalettes = true;
 		const creator = entity(JobId.ALCHEMIST_H, AllMountTable[JobId.ALCHEMIST_H]);
 		creator.bodypalette = 2;
 		expect(creator.files.body.pal).toBe(`${PalNameTable[JobId.PIG_CREATOR]}_1_2.pal`);
@@ -66,25 +91,40 @@ describe('EntityView body palette', () => {
 
 	it("dyes a halter-lead mount with the rider's palette when the archive has none for it", () => {
 		archive.hasMountPalettes = false;
-		try {
-			const creator = entity(JobId.ALCHEMIST_H, AllMountTable[JobId.ALCHEMIST_H]);
-			creator.bodypalette = 2;
-			expect(creator.files.body.pal).toBe(`${PalNameTable[JobId.ALCHEMIST_H]}_1_2.pal`);
-		} finally {
-			archive.hasMountPalettes = true;
-		}
+		const creator = entity(JobId.ALCHEMIST_H, AllMountTable[JobId.ALCHEMIST_H]);
+		creator.bodypalette = 2;
+		expect(creator.files.body.pal).toBe(`${PalNameTable[JobId.ALCHEMIST_H]}_1_2.pal`);
 	});
 
-	it('keeps the palette the mount still needs when the archive answers late', () => {
+	it('keeps the dye the mount still has when the archive answers late', () => {
 		archive.hasMountPalettes = false;
-		try {
-			const creator = entity(JobId.ALCHEMIST_H, AllMountTable[JobId.ALCHEMIST_H]);
-			creator.bodypalette = 2;
-			creator.bodypalette = 3;
-			expect(creator.files.body.pal).toBe(`${PalNameTable[JobId.ALCHEMIST_H]}_1_3.pal`);
-		} finally {
-			archive.hasMountPalettes = true;
-		}
+		archive.later = true;
+		const creator = entity(JobId.ALCHEMIST_H, AllMountTable[JobId.ALCHEMIST_H]);
+		creator.bodypalette = 2;
+		creator.bodypalette = 3;
+		answer();
+		expect(creator.files.body.pal).toBe(`${PalNameTable[JobId.ALCHEMIST_H]}_1_3.pal`);
+	});
+
+	it('dyes the rider the mount has now when the archive answers late', () => {
+		archive.hasMountPalettes = false;
+		archive.later = true;
+		const creator = entity(JobId.ALCHEMIST_H, AllMountTable[JobId.ALCHEMIST_H]);
+		creator.bodypalette = 2;
+		creator.sex = 0;
+		answer();
+		expect(creator.files.body.pal).toBe(`${PalNameTable[JobId.ALCHEMIST_H]}_0_2.pal`);
+	});
+
+	it('asks the archive once, however often the file cache forgets the answer', () => {
+		archive.hasMountPalettes = false;
+		const creator = entity(JobId.ALCHEMIST_H, AllMountTable[JobId.ALCHEMIST_H]);
+		creator.bodypalette = 2;
+		entity(JobId.ALCHEMIST_H, AllMountTable[JobId.ALCHEMIST_H]).bodypalette = 3;
+		creator.bodypalette = 4;
+		const asked = Client.loadFile.mock.calls.filter(([path]) => path.includes('_1.pal'));
+		expect(asked).toHaveLength(1);
+		expect(creator.files.body.pal).toBe(`${PalNameTable[JobId.ALCHEMIST_H]}_1_4.pal`);
 	});
 
 	it('keeps the internal palette for palette 0', () => {
