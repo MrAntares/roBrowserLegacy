@@ -17,6 +17,7 @@ import Configs from 'Core/Configs.js';
 import GraphicsSettings from 'Preferences/Graphics.js';
 import Events from 'Core/Events.js';
 import Background from 'UI/Background.js';
+import Cursor from 'UI/CursorManager.js';
 import Mouse from 'Controls/MouseEventHandler.js';
 import Camera from 'Renderer/Camera.js';
 import Session from 'Engine/SessionStorage.js';
@@ -406,6 +407,8 @@ class Renderer {
 			}
 		}
 
+		Cursor.render(this.tick);
+
 		// Schedule next frame
 		this.updateId = _requestAnimationFrame(this._renderBound);
 	}
@@ -436,6 +439,7 @@ class Renderer {
 			// Reset timing helpers so first rAF initializes cleanly
 			this._lastFrameTime = 0;
 			this._renderBound = this._render.bind(this);
+			Cursor.setSceneDriven(true);
 
 			// Start loop with requestAnimationFrame (safer & sync with browser)
 			this.updateId = _requestAnimationFrame(this._renderBound);
@@ -455,6 +459,7 @@ class Renderer {
 			} catch (e) {
 				console.error(e);
 			}
+			Cursor.setSceneDriven(false);
 			return;
 		}
 		const pos = this.renderCallbacks.indexOf(fn);

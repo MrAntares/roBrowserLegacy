@@ -34,7 +34,7 @@ import Cursor from 'UI/CursorManager.js';
 
 describe('Cursor', () => {
 	beforeAll(async () => {
-		vi.useFakeTimers({ toFake: ['requestAnimationFrame', 'Date'] });
+		vi.useFakeTimers({ toFake: ['requestAnimationFrame', 'cancelAnimationFrame', 'Date'] });
 		await new Promise(resolve => Cursor.init(resolve));
 	});
 
@@ -57,5 +57,18 @@ describe('Cursor', () => {
 		vi.advanceTimersToNextFrame();
 
 		expect(document.querySelector('.cursor').style.transform).toBe('translate(-0px, -0px)');
+	});
+
+	it('leaves the cursor to the scene render loop while it runs', () => {
+		Cursor.setSceneDriven(true);
+		Cursor.setType(Cursor.ACTION.TALK);
+		vi.advanceTimersToNextFrame();
+
+		expect(document.querySelector('.cursor').style.transform).toBe('translate(-0px, -0px)');
+
+		Cursor.setSceneDriven(false);
+		vi.advanceTimersToNextFrame();
+
+		expect(document.querySelector('.cursor').style.transform).toBe('translate(-20px, -20px)');
 	});
 });
