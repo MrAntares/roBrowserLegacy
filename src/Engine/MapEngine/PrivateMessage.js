@@ -56,17 +56,13 @@ function onPrivateMessage(pkt) {
 	}
 
 	// Fallback to main ChatBox
+	const sender = ChatBox.escapeHTML(pkt.sender);
 	ChatBox.addText(
-		'[ ' +
-			prefix +
-			' <span class="nickname-link" data-nickname="' +
-			pkt.sender +
-			'" style="cursor:pointer; text-decoration:underline;">' +
-			pkt.sender +
-			'</span> ] : ' +
-			msg,
+		`[ ${ChatBox.escapeHTML(prefix)} <span class="nickname-link" data-nickname="${sender}" style="cursor:pointer; text-decoration:underline;">${sender}</span> ] : ${ChatBox.messageToHTML(msg)}`,
 		ChatBox.TYPE.PRIVATE,
-		ChatBox.FILTER.WHISPER
+		ChatBox.FILTER.WHISPER,
+		null,
+		true
 	);
 	ChatBox.saveNickName(pkt.sender);
 }
@@ -85,15 +81,13 @@ function onPrivateMessageSent(pkt) {
 			if (getShouldOpenWhisperBox(user)) {
 				WhisperBox.addText(user, Session.Entity.display.name + ' : ' + msg, '#ffff00');
 			} else {
+				const name = ChatBox.escapeHTML(user);
 				ChatBox.addText(
-					'[ To <span class="nickname-link" data-nickname="' +
-						user +
-						'" style="cursor:pointer; text-decoration:underline;">' +
-						user +
-						'</span> ] : ' +
-						msg,
+					`[ To <span class="nickname-link" data-nickname="${name}" style="cursor:pointer; text-decoration:underline;">${name}</span> ] : ${ChatBox.messageToHTML(msg)}`,
 					ChatBox.TYPE.PRIVATE,
-					ChatBox.FILTER.WHISPER
+					ChatBox.FILTER.WHISPER,
+					null,
+					true
 				);
 			}
 		}
