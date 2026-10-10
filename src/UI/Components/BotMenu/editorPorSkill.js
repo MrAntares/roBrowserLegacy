@@ -140,7 +140,7 @@ function cartaoDaSkill(s, config, geral, nomeDoMonstro, monstros, editar, tetoGe
 			criar('small', 'bm-dica', entrada.nivel === 'aprendido' ? 'Acompanha o nível aprendido.' : 'Nível fixo.')
 		);
 	} else {
-		const teto = typeof tetoGeral === 'number' ? tetoGeral : 12;
+		const teto = typeof tetoGeral === 'number' ? tetoGeral : 3;
 		blocoNivel.appendChild(
 			botao(
 				'ri-btn ri-btn--sec bm-ps-incluir',

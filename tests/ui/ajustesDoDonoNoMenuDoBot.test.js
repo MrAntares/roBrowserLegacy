@@ -512,3 +512,21 @@ describe('o status novo `patrulhando`', () => {
 		expect(cat.exatos['Patrulhando o mapa']).toBe('Patrolling the map');
 	});
 });
+
+describe('so 3 skills de ataque equipadas por vez (pedido do dono, 09/10/2026)', () => {
+	const base = { skills: { geral: [{ skillId: 1, nivel: 'aprendido' }, { skillId: 2, nivel: 'aprendido' }, { skillId: 3, nivel: 'aprendido' }], porSkill: {}, porMonstro: {} } };
+
+	it('com o teto 3 a quarta skill nao entra (a lista segue igual), e a terceira entra', async () => {
+		const { adicionarSkill } = await import('UI/Components/BotMenu/edicaoDeSkills.js');
+		const duas = { skills: { geral: base.skills.geral.slice(0, 2), porSkill: {}, porMonstro: {} } };
+		expect(adicionarSkill(duas, 'geral', 3, 3).skills.geral.map(e => e.skillId)).toEqual([1, 2, 3]);
+		expect(adicionarSkill(base, 'geral', 4, 3).skills.geral.map(e => e.skillId)).toEqual([1, 2, 3]);
+	});
+
+	it('o cliente nao inventa teto maior que o do servidor: o plano B (sem capacidades) tambem e 3', () => {
+		const fonte = readFileSync(join(PASTA, 'BotMenu.js'), 'utf8');
+		expect(fonte).toContain('lim.skillsNaListaGeral || 3');
+		expect(fonte).toContain('lim.skillsPorMonstro || 3');
+		expect(fonte).not.toMatch(/skillsNaListaGeral \|\| 12/);
+	});
+});

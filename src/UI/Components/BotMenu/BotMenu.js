@@ -531,7 +531,7 @@ function desenhar() {
 function desenharAtaque(s, c, lim) {
 	const secao = el('[data-secao="ataque"]');
 	const monstros = s.monstros || [];
-	const tetoGeral = lim.skillsNaListaGeral || 12;
+	const tetoGeral = lim.skillsNaListaGeral || 3;
 	desenharRodizio(secao.querySelector('.bm-rodizio-caixa'), { config: c, skills: s.skills, teto: tetoGeral }, editar);
 
 	// AVANCADO, lista por monstro: so especies (a lista geral e o rodizio da frente).
@@ -547,7 +547,7 @@ function desenharAtaque(s, c, lim) {
 			skills: s.skills,
 			monstros,
 			escopo: _escopoDasSkills,
-			teto: { geral: tetoGeral, porMonstro: lim.skillsPorMonstro || 12 }
+			teto: { geral: tetoGeral, porMonstro: lim.skillsPorMonstro || 3 }
 		},
 		editar,
 		escopo => {
