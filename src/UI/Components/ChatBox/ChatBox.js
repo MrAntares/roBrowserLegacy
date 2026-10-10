@@ -1255,14 +1255,40 @@ function extractChatMessage(inputEl) {
 	return result;
 }
 
+const ITEM_LINK = /(<ITEMLINK>.*?<\/ITEMLINK>|<ITEML>.*?<\/ITEML>|<ITEM>.*?<\/ITEM>)/i;
+
 /**
  * Escape text for use in HTML content and quoted attributes.
  * @param {string} text
  * @returns {string}
  */
-function escapeHTML(text) {
+ChatBox.escapeHTML = function escapeHTML(text) {
 	return text.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
-}
+};
+
+/**
+ * Render a received message as HTML: colour codes dropped, item links clickable, the rest as text.
+ *
+ * @param {string} text
+ * @returns {string}
+ * @see docs/reference/chat/text-parsing.md
+ */
+ChatBox.messageToHTML = function messageToHTML(text) {
+	return text
+		.replace(/\^[0-9A-Fa-f]{6}/g, '')
+		.split(ITEM_LINK)
+		.map((part, i) => {
+			if (!(i % 2)) {
+				return ChatBox.escapeHTML(part);
+			}
+			const item = DB.parseItemLink(part);
+			return (
+				`<span data-item="${ChatBox.escapeHTML(part)}" class="item-link" style="color:#FFFF63; cursor:pointer;">` +
+				`&lt;${ChatBox.escapeHTML(item.name)}&gt;</span>`
+			);
+		})
+		.join('');
+};
 
 /**
  * Add text to chatbox
@@ -1273,25 +1299,9 @@ ChatBox.addText = function addText(text, colorType, filterType, color, override)
 	// The client drops ^RRGGBB codes: a chat line has one colour.
 	text = text.replace(/\^[0-9A-Fa-f]{6}/g, '');
 
-	// Auto-detect client-generated HTML (nickname links in whispers)
-	if (!override && /<span\s+class="nickname-link"/.test(text)) {
-		override = true;
-	}
-
 	// An item link turns the line into HTML: the text around it must stay text.
-	const parts = text.split(/(<ITEMLINK>.*?<\/ITEMLINK>|<ITEML>.*?<\/ITEML>|<ITEM>.*?<\/ITEM>)/i);
-	if (parts.length > 1) {
-		for (let i = 0; i < parts.length; i++) {
-			if (i % 2) {
-				const item = DB.parseItemLink(parts[i]);
-				parts[i] =
-					`<span data-item="${escapeHTML(parts[i])}" class="item-link" style="color:#FFFF63;">` +
-					`&lt;${escapeHTML(item.name)}&gt;</span>`;
-			} else if (!override) {
-				parts[i] = escapeHTML(parts[i]);
-			}
-		}
-		text = parts.join('');
+	if (!override && ITEM_LINK.test(text)) {
+		text = ChatBox.messageToHTML(text);
 		override = true;
 	}
 

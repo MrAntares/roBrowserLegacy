@@ -253,26 +253,12 @@ WhisperBox.show = function show(nickname, bHasMessage) {
  */
 WhisperBox.addText = function addText(nickname, text, color) {
 	const instance = this.instances[nickname] || this.show(nickname, true);
-	let override = false;
-
-	text = text.replace(/<ITEMLINK>.*?<\/ITEMLINK>|<ITEML>.*?<\/ITEML>|<ITEM>.*?<\/ITEM>/gi, match => {
-		const item = DB.parseItemLink(match);
-		if (!item) {
-			return match;
-		}
-		override = true;
-		return `<span data-item="${match}" class="item-link" style="color:#FFFF63; cursor:pointer;">&lt;${item.name}&gt;</span>`;
-	});
 
 	const contentEl = instance._contentEl;
 	const isAtBottom = contentEl.scrollHeight - contentEl.scrollTop <= contentEl.offsetHeight + 10;
 	const div = document.createElement('div');
 	div.style.color = color || '#ffffff';
-	if (override) {
-		div.innerHTML = text;
-	} else {
-		div.textContent = text;
-	}
+	div.innerHTML = ChatBox.messageToHTML(text);
 
 	contentEl.appendChild(div);
 

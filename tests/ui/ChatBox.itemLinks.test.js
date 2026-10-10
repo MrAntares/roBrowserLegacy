@@ -145,15 +145,6 @@ describe('ChatBox — item links in a received line', () => {
 		expect(span.getAttribute('data-item')).toBe(link);
 	});
 
-	it('keeps the nickname link of a whisper that holds an item link', () => {
-		const line = add(
-			'[ From: <span class="nickname-link" data-nickname="Bob">Bob</span> ] : <ITEML>01</ITEML>'
-		);
-
-		expect(line.querySelector('.nickname-link').textContent).toBe('Bob');
-		expect(line.querySelector('span.item-link').textContent).toBe('<Item>');
-	});
-
 	it('leaves a line without a link as plain text', () => {
 		const line = add('<b>hi</b> & bye');
 

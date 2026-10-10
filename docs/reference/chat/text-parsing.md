@@ -31,7 +31,8 @@ on every build.
 ## This port
 
 - `^RRGGBB` codes are removed from the text when a line is added
-  (`ChatBox.addText`), as the two modern builds do. The removal happens before
+  (`ChatBox.addText`, `ChatBox.messageToHTML` for whispers and the whisper
+  window), as the two modern builds do. The removal happens before
   the item-link tags are looked for, which is also the client's order.
 - A newline is kept as a line break *inside* one chat entry: the chat content
   has `white-space: pre-line`. The modern client instead turns each line into
@@ -39,9 +40,12 @@ on every build.
   keeps the entry count that the history limit works on.
 - Both rules apply to every entry, HTML ones included: a newline inside a
   line that holds an item link or a name link breaks it the same way.
-- A line holding an item link is rendered as HTML so the link can be clicked.
-  The rest of that line, the link's name and its `data-item` copy are escaped
-  first, so they still show as text.
+- A line holding an item link, a whisper (its sender name is a link) and a
+  whisper-window line are rendered as HTML through `ChatBox.messageToHTML`:
+  the message text, each link's name, its `data-item` copy and the sender
+  name are escaped first, so they still show as text. Only a caller that
+  passes `override` adds its own HTML; nothing in a received line switches
+  the entry to HTML by itself.
 
 ## Deviations
 
