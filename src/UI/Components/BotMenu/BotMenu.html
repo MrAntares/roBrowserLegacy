@@ -69,9 +69,14 @@
 							</label>
 						</div>
 						<div class="bm-cartao-secao bm-bloco">
-							<span class="bm-rotulo">Monstros ignorados</span>
-							<p class="bm-dica">O Bot nunca escolhe um monstro marcado como alvo. Seu clique manual continua livre.</p>
-							<ul class="bm-monstros" aria-label="Monstros deste mapa"></ul>
+							<span class="bm-rotulo">Monstros do mapa</span>
+							<p class="bm-dica">Todos os monstros deste mapa começam marcados: o Bot os ataca. Desmarque um para o Bot ignorá-lo. Seu clique manual continua livre.</p>
+							<ul class="bm-monstros" aria-label="Monstros do mapa"></ul>
+							<details class="bm-outros-mapas" hidden>
+								<summary>Ignorados em outros mapas (<b class="bm-outros-qtd">0</b>)</summary>
+								<p class="bm-dica">Estes monstros continuam ignorados, mas não estão neste mapa. Use Reativar para o Bot voltar a atacá-los.</p>
+								<ul class="bm-monstros bm-monstros-outros" aria-label="Ignorados em outros mapas"></ul>
+							</details>
 						</div>
 					</section>
 

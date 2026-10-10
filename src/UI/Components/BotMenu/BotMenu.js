@@ -259,7 +259,16 @@ BotMenu.init = function init() {
 	root.querySelectorAll('input[name="bm-modo"]').forEach(r =>
 		r.addEventListener('change', e => editar(c => ({ ...c, modoDeAtaque: e.target.value })))
 	);
-	el('.bm-monstros').addEventListener('click', onClickMonstro);
+	for (const lista of _root().querySelectorAll('.bm-monstros')) {
+		lista.addEventListener('click', onClickMonstro);
+		// Teclado: Espaco e Enter fazem o mesmo gesto do clique.
+		lista.addEventListener('keydown', e => {
+			if (e.key === ' ' || e.key === 'Enter') {
+				e.preventDefault();
+				onClickMonstro(e);
+			}
+		});
+	}
 	root.querySelectorAll('input[name="bm-postura"]').forEach(r =>
 		r.addEventListener('change', e => editar(c => ({ ...c, postura: { ...lerPostura(c), tipo: e.target.value } })))
 	);
@@ -710,34 +719,54 @@ function desenharPostura(s, c) {
 		g && g.emGrupo ? 'Posto em vigor: ' + g.postoNome + '.' : 'Sem grupo: o Bot caça sozinho (Andarilho).';
 }
 
+/**
+ * MONSTROS DO MAPA (segunda rodada dos ajustes do dono, 09/10/2026, item 4.4): todos os monstros do mapa de agora,
+ * cada um com a caixa MARCADA (o Bot ataca). Desmarcar = ignorar (entra em `especiesVetadas`); marcar de novo tira do
+ * veto. O gesto e o INVERSO do antigo, o dado gravado e o MESMO. Vetos de especies que nao estao neste mapa seguem
+ * gravados e aparecem recolhidos em "Ignorados em outros mapas", com o botao de reativar.
+ */
 function desenharMonstros(s, c) {
-	const lista = el('.bm-monstros');
 	const vetadas = new Set(c.especiesVetadas || []);
-	const conhecidos = new Map((s.monstros || []).map(m => [m.especie, m.nome]));
-	for (const v of vetadas) {
-		if (!conhecidos.has(v)) {
-			conhecidos.set(v, '#' + v);
+	const noMapa = new Map();
+	const fora = new Map();
+	for (const m of s.monstros || []) {
+		// `noMapa` ausente (servidor antigo) vale como "esta no mapa".
+		if (m.noMapa === false) {
+			fora.set(m.especie, m.nome);
+		} else {
+			noMapa.set(m.especie, m.nome);
 		}
 	}
-	const chave = [...conhecidos].map(([e, n]) => e + ':' + n + ':' + vetadas.has(e)).join(',');
+	for (const v of vetadas) {
+		if (!noMapa.has(v) && !fora.has(v)) {
+			fora.set(v, '#' + v);
+		}
+	}
+	for (const e of [...fora.keys()]) {
+		if (!vetadas.has(e)) {
+			fora.delete(e);
+		}
+	}
+	preencherMonstros(el('.bm-monstros:not(.bm-monstros-outros)'), noMapa, vetadas, false);
+	preencherMonstros(el('.bm-monstros-outros'), fora, vetadas, true);
+	el('.bm-outros-mapas').hidden = fora.size === 0;
+	el('.bm-outros-qtd').textContent = String(fora.size);
+}
+
+function preencherMonstros(lista, especies, vetadas, reativar) {
+	const chave = [...especies].map(([e, n]) => e + ':' + n + ':' + vetadas.has(e)).join(',');
 	if (lista.getAttribute('data-chave') === chave) {
 		return;
 	}
 	lista.setAttribute('data-chave', chave);
 	lista.innerHTML = '';
-	const ordenados = [...conhecidos].sort((a, b) => String(a[1]).localeCompare(String(b[1])));
+	const ordenados = [...especies].sort((a, b) => String(a[1]).localeCompare(String(b[1])));
 	for (const [especie, nome] of ordenados) {
+		const ignorado = vetadas.has(especie);
 		const li = document.createElement('li');
-		li.className = 'bm-monstro' + (vetadas.has(especie) ? ' is-vetado' : '');
+		li.className = 'bm-monstro' + (ignorado ? ' is-ignorado' : '');
 		li.setAttribute('data-especie', String(especie));
-		li.setAttribute('role', 'checkbox');
-		li.setAttribute('aria-checked', String(vetadas.has(especie)));
 		li.tabIndex = 0;
-		const caixa = document.createElement('input');
-		caixa.type = 'checkbox';
-		caixa.checked = vetadas.has(especie);
-		caixa.tabIndex = -1;
-		caixa.setAttribute('aria-hidden', 'true');
 		const rotulo = document.createElement('span');
 		rotulo.textContent = nome;
 		rotulo.setAttribute('translate', 'no');
@@ -748,9 +777,33 @@ function desenharMonstros(s, c) {
 		avatar.onerror = () => {
 			avatar.style.display = 'none';
 		};
-		li.appendChild(caixa);
-		li.appendChild(avatar);
-		li.appendChild(rotulo);
+		if (reativar) {
+			li.setAttribute('role', 'button');
+			li.setAttribute('aria-label', 'Reativar ' + nome);
+			li.appendChild(avatar);
+			li.appendChild(rotulo);
+			const botao = document.createElement('small');
+			botao.className = 'bm-monstro-estado';
+			botao.textContent = 'Reativar';
+			li.appendChild(botao);
+		} else {
+			li.setAttribute('role', 'checkbox');
+			li.setAttribute('aria-checked', String(!ignorado));
+			const caixa = document.createElement('input');
+			caixa.type = 'checkbox';
+			caixa.checked = !ignorado;
+			caixa.tabIndex = -1;
+			caixa.setAttribute('aria-hidden', 'true');
+			li.appendChild(caixa);
+			li.appendChild(avatar);
+			li.appendChild(rotulo);
+			if (ignorado) {
+				const estado = document.createElement('small');
+				estado.className = 'bm-monstro-estado';
+				estado.textContent = 'Ignorado';
+				li.appendChild(estado);
+			}
+		}
 		lista.appendChild(li);
 	}
 }
