@@ -146,6 +146,7 @@ class Cursor {
 			bindMouseEvents();
 			preCompiledAnimations();
 			createSpriteSheet();
+			renderLoop();
 			fn();
 		});
 	}
@@ -438,6 +439,14 @@ function bindMouseEvents() {
 		},
 		true
 	);
+}
+
+/**
+ * Keep the cursor animated on every screen, the scene render loop stops on login and server list
+ */
+function renderLoop() {
+	Cursor.render(Date.now());
+	requestAnimationFrame(renderLoop);
 }
 
 /**
