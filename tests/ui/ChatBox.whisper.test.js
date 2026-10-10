@@ -26,12 +26,12 @@ const mocks = vi.hoisted(() => {
 	}
 	MockGUIComponent.MouseMode = { CROSS: 'cross', DEFAULT: 'default' };
 
-	return { MockGUIComponent, handlers: {} };
+	return { MockGUIComponent, handlers: {}, friend: false };
 });
 
 vi.mock('DB/DBManager.js', () => ({
 	default: {
-		getMessage: id => `msg-${id}`,
+		getMessage: id => (id === 102 ? '<b>Friend</b>' : `msg-${id}`),
 		getItemInfo: () => ({ identifiedDisplayName: 'Item' }),
 		parseItemLink: link => ({ name: (/<ITEM>(.*?)<INFO>/.exec(link) || [, 'Item'])[1] })
 	}
@@ -73,7 +73,7 @@ vi.mock('Network/PacketStructure.js', () => ({
 	default: { ZC: { WHISPER: 'WHISPER', WHISPER2: 'WHISPER2', ACK_WHISPER: 'ACK', ACK_WHISPER2: 'ACK2' } }
 }));
 vi.mock('Network/PacketVerManager.js', () => ({ default: { value: 20200101 } }));
-vi.mock('Engine/MapEngine/Friends.js', () => ({ default: { isFriend: () => false } }));
+vi.mock('Engine/MapEngine/Friends.js', () => ({ default: { isFriend: () => mocks.friend } }));
 vi.mock('Engine/SessionStorage.js', () => ({ default: { Entity: { display: { name: 'Me' } } } }));
 vi.mock('Audio/SoundManager.js', () => ({ default: { play: vi.fn() } }));
 vi.mock('Controls/KeyEventHandler.js', () => ({ default: {} }));
@@ -104,6 +104,7 @@ describe('ChatBox — whispers', () => {
 	beforeEach(() => {
 		document.body.innerHTML = '';
 		vi.stubGlobal('requestAnimationFrame', cb => cb());
+		mocks.friend = false;
 		WhisperBox.instances = {};
 		WhisperBox.preferences.open1to1Stranger = false;
 		root = mountChatBox();
@@ -139,6 +140,15 @@ describe('ChatBox — whispers', () => {
 		const link = lastLine().querySelector('.nickname-link');
 		expect(link.hasAttribute('onclick')).toBe(false);
 		expect(link.getAttribute('data-nickname')).toBe('a" onclick="x');
+	});
+
+	it('shows the friend label of a whisper as text', () => {
+		mocks.friend = true;
+		mocks.handlers.WHISPER({ sender: 'Bob', msg: 'hi' });
+
+		const line = lastLine();
+		expect(line.querySelector('b')).toBeNull();
+		expect(line.textContent).toBe('[ <b>Friend</b> Bob ] : hi');
 	});
 
 	it('shows the echo of a sent whisper as text', () => {
