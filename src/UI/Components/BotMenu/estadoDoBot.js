@@ -378,7 +378,8 @@ export const FRASE_DO_STATUS = Object.freeze({
 	'voltando-a-caca': 'Voltando à caça',
 	'armazem-indisponivel': 'Armazém indisponível{detalhe}',
 	'mantendo-pocao-de-velocidade': 'Bebendo poção de velocidade',
-	'usando-asa-de-mosca': 'Usando Asa de Mosca'
+	'usando-asa-de-mosca': 'Usando Asa de Mosca',
+	'mapa-sem-bot': 'Cidade sem Bot'
 });
 
 /**
@@ -419,7 +420,8 @@ export const EXPLICACAO_DO_STATUS = Object.freeze({
 	'voltando-a-caca': 'O Bot terminou na cidade e está voltando ao mapa de caça.',
 	'armazem-indisponivel': 'O Bot não conseguiu fazer a ida ao armazém{detalhe}. Ele tenta de novo depois de um tempo.',
 	'mantendo-pocao-de-velocidade': 'A poção de velocidade acabou de valer e o Bot bebeu a próxima da lista.',
-	'usando-asa-de-mosca': 'Um dos gatilhos da Asa de Mosca disparou e o Bot a usou para mudar de lugar.'
+	'usando-asa-de-mosca': 'Um dos gatilhos da Asa de Mosca disparou e o Bot a usou para mudar de lugar.',
+	'mapa-sem-bot': 'Esta cidade não aceita o Bot, então ele foi desligado. Vá para um mapa de caça e ligue o Auto Caça de novo.'
 });
 
 /** A explicacao do status, com o alvo e o detalhe no lugar. */
@@ -460,6 +462,8 @@ export function fraseDoErro(erro) {
 			return 'A configuração mudou em outro lugar. Recarregue para ver a versão atual; sua edição só é perdida se você recarregar.';
 		case 'config-invalida':
 			return 'Alguns campos não foram aceitos. Nada foi alterado.';
+		case 'mapa-sem-bot':
+			return 'Prontera não aceita o Bot. Vá para um mapa de caça para ligar o Auto Caça.';
 		case 'pedido-invalido':
 			return 'O servidor não entendeu o pedido. Nada foi alterado.';
 		case 'config-grande':
