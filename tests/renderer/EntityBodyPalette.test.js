@@ -17,21 +17,31 @@ vi.mock('DB/DBManager.js', async () => {
 	return { default: new Proxy(DB, { get: (t, k) => (k in t ? t[k] : () => null) }) };
 });
 // Answers every load at once, so a body that loads sets its dye again as it does in game.
-// The archive answers the mount-palette sentinel through `archive.hasMountPalettes`;
-// with `archive.later` set, the answer waits in `archive.pending` until `answer()`.
-const archive = vi.hoisted(() => ({ hasMountPalettes: true, later: false, pending: [] }));
-const Client = vi.hoisted(() => ({
-	loadFile: vi.fn((path, onLoad, onError) => {
-		if (!path.includes('_1.pal')) {
-			return onLoad && onLoad();
-		}
-		if (archive.later) {
-			archive.pending.push([onLoad, onError]);
-			return;
-		}
-		return archive.hasMountPalettes ? onLoad && onLoad() : onError && onError();
-	})
-}));
+// The mount-palette sentinel goes through the real file cache, as Client.loadFile does: the
+// archive is asked only when the cache does not hold the file, and answers through
+// `archive.hasMountPalettes`; with `archive.later` set, it waits in `archive.pending` until `answer()`.
+const archive = vi.hoisted(() => ({ hasMountPalettes: true, later: false, pending: [], Memory: null }));
+const Client = vi.hoisted(() => {
+	const settle = path =>
+		archive.hasMountPalettes ? archive.Memory.set(path, {}) : archive.Memory.set(path, null, 'not found');
+	return {
+		settle,
+		loadFile: vi.fn((path, onLoad, onError) => {
+			if (!path.includes('_1.pal')) {
+				return onLoad && onLoad();
+			}
+			const ask = !archive.Memory.exist(path);
+			archive.Memory.get(path, onLoad, onError);
+			if (ask) {
+				if (archive.later) {
+					archive.pending.push(path);
+				} else {
+					settle(path);
+				}
+			}
+		})
+	};
+});
 vi.mock('Core/Client.js', () => ({ default: Client }));
 vi.mock('DB/Monsters/ShadowTable.js', () => ({ default: {} }));
 vi.mock('Network/PacketVerManager.js', () => ({ default: { value: 20221005 } }));
@@ -44,6 +54,7 @@ let Configs;
 beforeEach(async () => {
 	vi.resetModules();
 	Configs = (await import('Core/Configs.js')).default;
+	archive.Memory = (await import('Core/MemoryManager.js')).default;
 	archive.hasMountPalettes = true;
 	archive.later = false;
 	archive.pending = [];
@@ -55,12 +66,8 @@ function answer() {
 	const pending = archive.pending;
 	archive.later = false;
 	archive.pending = [];
-	for (const [onLoad, onError] of pending) {
-		if (archive.hasMountPalettes) {
-			onLoad && onLoad();
-		} else {
-			onError && onError();
-		}
+	for (const path of pending) {
+		Client.settle(path);
 	}
 }
 

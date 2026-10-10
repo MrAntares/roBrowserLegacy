@@ -29,6 +29,7 @@
 
 import Client from 'Core/Client.js';
 import Configs from 'Core/Configs.js';
+import Memory from 'Core/MemoryManager.js';
 import DB from 'DB/DBManager.js';
 import ShadowTable from 'DB/Monsters/ShadowTable.js';
 import MountTable from 'DB/Jobs/MountTable.js';
@@ -618,6 +619,11 @@ const MOUNT_PALETTE_SENTINEL = DB.getBodyPalPath(JobConst.PIG_CREATOR, 1, 0);
 const hasMountPalettes = {};
 
 /**
+ * The remote client the sentinel was last asked of.
+ */
+let sentinelHost;
+
+/**
  * Update body palette
  *
  * @param {number} body palette number
@@ -657,6 +663,13 @@ function UpdateBodyPalette(pal) {
 	if (host in hasMountPalettes) {
 		this.files.body.pal = DB.getBodyPalPath(hasMountPalettes[host] ? job : this._job, pal, this._sex);
 		return;
+	}
+
+	// The file cache keys the sentinel by name alone: drop the previous
+	// archive's answer before asking this one.
+	if (sentinelHost !== host) {
+		sentinelHost = host;
+		Memory.remove(null, MOUNT_PALETTE_SENTINEL);
 	}
 
 	// The entity may have changed meanwhile: dye it as it is then.

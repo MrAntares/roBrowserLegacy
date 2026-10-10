@@ -14,6 +14,8 @@ and for a halter-lead mount it also depends on the client build.
   boar's female palette 1), and `hasMountPalettes` keeps the answer for the
   session, by remote client, since a server of the list may serve another
   archive: the file cache drops a file unused for 30 s, so it cannot hold it.
+  The cache keys files by name alone, so the sentinel is dropped from it
+  before a new remote client is asked.
   One request per archive, and no file is ever requested per entity that the
   archive does not have. `PalNameTable` names the mount's own file for every
   halter-lead mount; those entries are only read when the sentinel loads.
