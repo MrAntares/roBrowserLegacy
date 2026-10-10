@@ -40,8 +40,10 @@ vi.mock('Renderer/Entity/EntityAction.js', () => ({ default: vi.fn() }));
 
 // EntityView keeps the archive's answer for the session: each test starts a new one.
 let EntityViewInit;
+let Configs;
 beforeEach(async () => {
 	vi.resetModules();
+	Configs = (await import('Core/Configs.js')).default;
 	archive.hasMountPalettes = true;
 	archive.later = false;
 	archive.pending = [];
@@ -125,6 +127,17 @@ describe('EntityView body palette', () => {
 		const asked = Client.loadFile.mock.calls.filter(([path]) => path.includes('_1.pal'));
 		expect(asked).toHaveLength(1);
 		expect(creator.files.body.pal).toBe(`${PalNameTable[JobId.ALCHEMIST_H]}_1_4.pal`);
+	});
+
+	it('asks again when the server serves another archive', () => {
+		Configs.setServer({ remoteClient: 'https://old.example/' });
+		archive.hasMountPalettes = false;
+		entity(JobId.ALCHEMIST_H, AllMountTable[JobId.ALCHEMIST_H]).bodypalette = 2;
+		Configs.setServer({ remoteClient: 'https://new.example/' });
+		archive.hasMountPalettes = true;
+		const creator = entity(JobId.ALCHEMIST_H, AllMountTable[JobId.ALCHEMIST_H]);
+		creator.bodypalette = 2;
+		expect(creator.files.body.pal).toBe(`${PalNameTable[JobId.PIG_CREATOR]}_1_2.pal`);
 	});
 
 	it('keeps the internal palette for palette 0', () => {

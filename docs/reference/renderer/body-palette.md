@@ -12,8 +12,9 @@ and for a halter-lead mount it also depends on the client build.
   files when the archive ships them, and with the rider's palette otherwise.**
   The archive is asked once, through `MOUNT_PALETTE_SENTINEL` (the Creator
   boar's female palette 1), and `hasMountPalettes` keeps the answer for the
-  session: the file cache drops a file unused for 30 s, so it cannot hold it.
-  One request per session, and no file is ever requested per entity that the
+  session, by remote client, since a server of the list may serve another
+  archive: the file cache drops a file unused for 30 s, so it cannot hold it.
+  One request per archive, and no file is ever requested per entity that the
   archive does not have. `PalNameTable` names the mount's own file for every
   halter-lead mount; those entries are only read when the sentinel loads.
 - **The answer dyes the entity as it is when the answer comes**: by then the

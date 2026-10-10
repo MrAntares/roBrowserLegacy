@@ -28,6 +28,7 @@
  */
 
 import Client from 'Core/Client.js';
+import Configs from 'Core/Configs.js';
 import DB from 'DB/DBManager.js';
 import ShadowTable from 'DB/Monsters/ShadowTable.js';
 import MountTable from 'DB/Jobs/MountTable.js';
@@ -611,9 +612,10 @@ for (const baseJob in AllMountTable) {
 const MOUNT_PALETTE_SENTINEL = DB.getBodyPalPath(JobConst.PIG_CREATOR, 1, 0);
 
 /**
- * Whether the archive has the sentinel; undefined until it answers.
+ * Whether the archive has the sentinel, by remote client: a server of the
+ * list may serve another archive. No entry until that archive answers.
  */
-let hasMountPalettes;
+const hasMountPalettes = {};
 
 /**
  * Update body palette
@@ -650,15 +652,16 @@ function UpdateBodyPalette(pal) {
 	// A halter-lead mount has palette files of its own only in the newer
 	// archives; the older ones dye it with the rider's palette (the few
 	// mount files they ship hold the same colours). The archive decides,
-	// through the sentinel, once: the file cache may drop it.
-	if (hasMountPalettes !== undefined) {
-		this.files.body.pal = DB.getBodyPalPath(hasMountPalettes ? job : this._job, pal, this._sex);
+	// through the sentinel, once per archive: the file cache may drop it.
+	const host = Configs.get('remoteClient', '');
+	if (host in hasMountPalettes) {
+		this.files.body.pal = DB.getBodyPalPath(hasMountPalettes[host] ? job : this._job, pal, this._sex);
 		return;
 	}
 
 	// The entity may have changed meanwhile: dye it as it is then.
 	const answer = present => {
-		hasMountPalettes = present;
+		hasMountPalettes[host] = present;
 		UpdateBodyPalette.call(this, this._bodypalette);
 	};
 	Client.loadFile(
