@@ -192,12 +192,13 @@
 					<!-- SUPORTE (Fase 6): buffs mantidos e curas por limiar de HP, em mim ou no grupo. -->
 					<section class="bm-secao" data-secao="suporte" role="tabpanel" hidden>
 						<div class="bm-cartao-secao bm-bloco">
-							<span class="bm-rotulo">Habilidades de suporte, em ordem de preferência</span>
-							<p class="bm-dica">Buff: o Bot renova quando o efeito acaba. Cura: o Bot usa quando o HP cai abaixo do limiar.</p>
-							<ol class="bm-lista-suporte bm-lista-itens"></ol>
-							<div class="bm-adicionar">
-								<select class="bm-novo-suporte" aria-label="Habilidade de suporte para adicionar"></select>
-								<button type="button" class="bm-add-suporte ri-btn ri-btn--sec">Adicionar</button>
+							<span class="bm-rotulo">Habilidades de suporte</span>
+							<p class="bm-dica bm-rodizio-explica">O Bot usa na ordem da lista (1, 2, 3...): pula o buff que ainda está ativo e a habilidade em recarga ou sem SP. Buff: renova quando o efeito acaba. Cura: usa quando o HP cai abaixo do limiar.</p>
+							<ol class="bm-lista-suporte bm-rodizio"></ol>
+							<p class="bm-dica bm-suporte-vazio" hidden>Nenhuma habilidade de suporte na lista: o Bot não buffa nem cura sozinho.</p>
+							<div class="bm-rodizio-outras bm-suporte-outras" hidden>
+								<span class="bm-rotulo">Outras habilidades de suporte</span>
+								<ul class="bm-rodizio-fora bm-suporte-fora"></ul>
 							</div>
 							<p class="bm-dica bm-sem-suporte" hidden>Este personagem não tem habilidades de suporte que o Bot saiba usar.</p>
 						</div>

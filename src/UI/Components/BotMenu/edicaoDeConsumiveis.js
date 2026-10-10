@@ -20,7 +20,7 @@ export const GATILHO_AO_LIGAR = Object.freeze({ semAlvoPorSegundos: 10, cercadoP
 
 /** As faixas de fabrica, usadas quando o servidor nao as anunciou. */
 export const FAIXAS_PADRAO = Object.freeze({
-	buffsDeItem: 6,
+	buffsDeItem: 32,
 	asaSemAlvoMinimo: 3,
 	asaSemAlvoMaximo: 20,
 	asaCercadoMinimo: 2,

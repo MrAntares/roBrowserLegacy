@@ -142,30 +142,29 @@ describe('o desenho das abas de manutencao', () => {
 		beforeEach(() => {
 			secao = document.querySelector('[data-secao="suporte"]');
 		});
+		// O "+ Usar" da lista de fora poe a habilidade no fim da lista (item 4.5).
+		const usar = id => secao.querySelector('.bm-suporte-fora [data-skill="' + id + '"] .bm-rodizio-usar').click();
 
 		it('so oferece skills com tipo de suporte, mostrando o tipo', () => {
 			desenhar();
-			expect(opcoes(secao.querySelector('.bm-novo-suporte'))).toEqual([
-				'Aumentar Agilidade (Buff)',
-				'Bênção (Buff)',
-				'Curar (Cura)'
-			]);
+			expect(
+				[...secao.querySelectorAll('.bm-suporte-fora .bm-rodizio-fora-item')].map(
+					li => li.querySelector('.bm-rodizio-nome').textContent + ' (' + li.querySelector('.bm-tipo').textContent + ')'
+				)
+			).toEqual(['Aumentar Agilidade (Buff)', 'Bênção (Buff)', 'Curar (Cura)']);
 			expect(secao.querySelector('.bm-sem-suporte').hidden).toBe(true);
 		});
 
 		it('sem nenhuma skill de suporte: diz isso e esconde o Adicionar', () => {
 			desenhar([SKILLS[0]]);
 			expect(secao.querySelector('.bm-sem-suporte').hidden).toBe(false);
-			expect(secao.querySelector('.bm-adicionar').hidden).toBe(true);
+			expect(secao.querySelector('.bm-suporte-outras').hidden).toBe(true);
 		});
 
 		it('adicionar cura usa gatilho hp/60 e mostra o limiar; buff fica manter/0 sem limiar', () => {
 			desenhar();
-			const nova = secao.querySelector('.bm-novo-suporte');
-			nova.value = '28';
-			secao.querySelector('.bm-add-suporte').click();
-			nova.value = '34';
-			secao.querySelector('.bm-add-suporte').click();
+			usar(28);
+			usar(34);
 			expect(config.suporte.lista).toEqual([
 				{ skillId: 28, nivel: 'aprendido', destino: 'eu', gatilho: 'hp', limiar: 60 },
 				{ skillId: 34, nivel: 'aprendido', destino: 'eu', gatilho: 'manter', limiar: 0 }
@@ -182,11 +181,8 @@ describe('o desenho das abas de manutencao', () => {
 
 		it('"No grupo" so aparece para skill que alcanca o grupo', () => {
 			desenhar();
-			const nova = secao.querySelector('.bm-novo-suporte');
-			nova.value = '29';
-			secao.querySelector('.bm-add-suporte').click();
-			nova.value = '34';
-			secao.querySelector('.bm-add-suporte').click();
+			usar(29);
+			usar(34);
 			const agi = secao.querySelector('[data-indice="0"] .bm-destino');
 			expect(opcoes(agi)).toEqual(['Em mim']);
 			expect(agi.disabled).toBe(true);
@@ -194,18 +190,15 @@ describe('o desenho das abas de manutencao', () => {
 			expect(opcoes(bencao)).toEqual(['Em mim', 'No grupo']);
 			mudar(bencao, 'grupo');
 			expect(config.suporte.lista[1].destino).toBe('grupo');
-			// Livre "em mim" de novo, a Bencao volta a ser oferecida (agora para mim).
-			expect(opcoes(secao.querySelector('.bm-novo-suporte'))).toContain('Bênção (Buff)');
+			// A Bencao segue na lista (so o destino mudou): nao volta para as de fora.
+			expect(secao.querySelector('.bm-suporte-fora [data-skill="34"]')).toBeNull();
 		});
 
 		it('nivel, ordem e remocao chegam ao rascunho; o teto desliga o Adicionar', () => {
 			desenhar(SKILLS, 2);
-			const nova = secao.querySelector('.bm-novo-suporte');
-			nova.value = '29';
-			secao.querySelector('.bm-add-suporte').click();
-			nova.value = '34';
-			secao.querySelector('.bm-add-suporte').click();
-			expect(secao.querySelector('.bm-add-suporte').disabled).toBe(true);
+			usar(29);
+			usar(34);
+			expect(secao.querySelector('.bm-suporte-fora .bm-rodizio-usar').disabled).toBe(true);
 			const nivel = secao.querySelector('[data-indice="1"] .bm-skill-nivel');
 			expect(opcoes(nivel)).toEqual(['Aprendido', 'Nv 1', 'Nv 2', 'Nv 3', 'Nv 4', 'Nv 5']);
 			mudar(nivel, 3);
@@ -376,9 +369,7 @@ describe('a costura das abas de manutencao na janela real', () => {
 		const frasco = host.querySelector('[data-eixo="hp"] .bm-frasco');
 		frasco.value = '501';
 		frasco.dispatchEvent(new Event('change'));
-		const novo = host.querySelector('.bm-novo-suporte');
-		novo.value = '28';
-		host.querySelector('.bm-add-suporte').click();
+		host.querySelector('.bm-suporte-fora [data-skill="28"] .bm-rodizio-usar').click();
 		const coletar = host.querySelector('.bm-coletar');
 		coletar.checked = true;
 		coletar.dispatchEvent(new Event('change'));

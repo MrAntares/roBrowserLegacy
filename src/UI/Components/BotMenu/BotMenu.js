@@ -625,7 +625,7 @@ function desenharManutencao(s, c, secoes, lim) {
 		);
 	}
 	if (secoes.includes('suporte')) {
-		desenharSuporte(el('[data-secao="suporte"]'), { config: c, skills: s.skills, teto: lim.skillsDeSuporte || 8 }, editar);
+		desenharSuporte(el('[data-secao="suporte"]'), { config: c, skills: s.skills, teto: lim.skillsDeSuporte || 64 }, editar);
 	}
 	if (secoes.includes('coleta')) {
 		desenharColeta(

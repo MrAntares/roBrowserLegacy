@@ -625,6 +625,15 @@
 #BotMenu .bm-rodizio-off {
 	color: var(--amber-600);
 }
+/* Suporte (item 4.5): os seletores do buff cabem na linha de detalhe do rodizio. */
+#BotMenu .bm-rodizio-detalhe select,
+#BotMenu .bm-rodizio-detalhe .bm-limiar {
+	font: var(--type-desc);
+	max-width: 9em;
+}
+#BotMenu .bm-rodizio-detalhe .bm-limiar {
+	width: 4em;
+}
 #BotMenu .bm-rodizio-item.is-desligada .bm-rodizio-ordem {
 	background: var(--sky-50);
 	color: var(--text-muted);

@@ -15,6 +15,7 @@ import {
 	SENTAR_PADRAO,
 	adicionarSuporte,
 	candidatosDaColeta,
+	definirAtivaDoSuporte,
 	definirAutomatico,
 	definirDescanso,
 	definirDestinoDoSuporte,
@@ -200,18 +201,26 @@ export function desenharSuporte(raiz, dados, editar) {
 	const porId = new Map(deSuporte.map(s => [s.skillId, s]));
 	const lista = lerSuporte(dados.config);
 
+	// A LISTA, no desenho do rodizio do Ataque (ajustes 2 do dono, 09/10/2026, item 4.5): numerada, icone, liga/desliga
+	// por buff, setas de ordem e Tirar. A ordem da lista E a ordem de lancamento.
 	const ol = raiz.querySelector('.bm-lista-suporte');
 	ol.innerHTML = '';
 	lista.forEach((e, i) => {
 		const skill = porId.get(e.skillId) || null;
 		const tipo = skill ? skill.suporte : e.gatilho === 'hp' ? 'cura' : 'buff';
-		const li = criar('li', 'bm-item bm-suporte');
+		const ativa = e.ativa !== false;
+		const nome = skill ? skill.nome : '#' + e.skillId;
+		const li = criar('li', 'bm-suporte bm-rodizio-item' + (ativa ? '' : ' is-desligada'));
 		li.setAttribute('data-indice', String(i));
 		li.setAttribute('data-skill', String(e.skillId));
-		const n = criar('span', 'bm-item-nome', skill ? skill.nome : '#' + e.skillId);
+		li.appendChild(criar('span', 'bm-rodizio-ordem', String(i + 1)));
+		li.appendChild(iconeDaSkill(skill && skill.chave));
+		const textos = criar('span', 'bm-rodizio-textos');
+		const n = criar('b', 'bm-rodizio-nome', nome);
 		n.setAttribute('translate', 'no');
-		li.appendChild(n);
-		li.appendChild(criar('span', 'bm-tipo bm-tipo--' + tipo, NOME_DO_TIPO[tipo]));
+		textos.appendChild(n);
+		const detalhe = criar('small', 'bm-rodizio-detalhe');
+		detalhe.appendChild(criar('span', 'bm-tipo bm-tipo--' + tipo, NOME_DO_TIPO[tipo]));
 
 		const destino = criar('select', 'bm-destino');
 		destino.setAttribute('aria-label', 'Em quem usar');
@@ -229,7 +238,7 @@ export function desenharSuporte(raiz, dados, editar) {
 		destino.value = e.destino;
 		destino.disabled = destino.options.length < 2;
 		destino.onchange = () => editar(c => definirDestinoDoSuporte(c, i, destino.value, skill));
-		li.appendChild(destino);
+		detalhe.appendChild(destino);
 
 		const nivel = criar('select', 'bm-skill-nivel');
 		nivel.setAttribute('aria-label', 'Nível de uso');
@@ -244,7 +253,7 @@ export function desenharSuporte(raiz, dados, editar) {
 		nivel.value = String(e.nivel);
 		nivel.onchange = () =>
 			editar(c => definirNivelDoSuporte(c, i, nivel.value === 'aprendido' ? 'aprendido' : Number(nivel.value)));
-		li.appendChild(nivel);
+		detalhe.appendChild(nivel);
 
 		if (tipo === 'cura') {
 			const rotulo = criar('label', 'bm-limiar-cura');
@@ -258,36 +267,74 @@ export function desenharSuporte(raiz, dados, editar) {
 			ligarNumero(limiar, e.limiar, v => editar(c => definirLimiarDaCura(c, i, v)));
 			rotulo.appendChild(limiar);
 			rotulo.appendChild(criar('span', '', '%'));
-			li.appendChild(rotulo);
+			detalhe.appendChild(rotulo);
 		}
+		if (!ativa) {
+			detalhe.appendChild(criar('span', 'bm-rodizio-off', 'Desligada: o Bot pula esta'));
+		}
+		textos.appendChild(detalhe);
+		li.appendChild(textos);
 
-		li.appendChild(botao('bm-sobe', '↑', 'Mover para cima', () => editar(c => moverSuporte(c, i, -1)), i === 0));
-		li.appendChild(botao('bm-desce', '↓', 'Descer', () => editar(c => moverSuporte(c, i, 1)), i === lista.length - 1));
-		li.appendChild(botao('bm-remove', '×', 'Remover', () => editar(c => removerSuporte(c, i))));
+		const chave = criar('label', 'bm-interruptor bm-rodizio-chave');
+		chave.title = ativa ? 'Ligada: o Bot usa esta habilidade' : 'Desligada: o Bot pula esta habilidade';
+		const caixa = criar('input', 'bm-rodizio-ativa');
+		caixa.type = 'checkbox';
+		caixa.checked = ativa;
+		caixa.setAttribute('aria-label', 'Usar ' + nome);
+		caixa.onchange = () => editar(c => definirAtivaDoSuporte(c, i, caixa.checked));
+		chave.appendChild(caixa);
+		const trilho = criar('span', 'bm-interruptor-trilho');
+		trilho.setAttribute('aria-hidden', 'true');
+		chave.appendChild(trilho);
+		li.appendChild(chave);
+
+		const acoes = criar('span', 'bm-rodizio-acoes');
+		acoes.appendChild(botao('bm-sobe', '↑', 'Mover para cima', () => editar(c => moverSuporte(c, i, -1)), i === 0));
+		acoes.appendChild(botao('bm-desce', '↓', 'Descer', () => editar(c => moverSuporte(c, i, 1)), i === lista.length - 1));
+		acoes.appendChild(botao('bm-remove', '×', 'Tirar do suporte', () => editar(c => removerSuporte(c, i))));
+		li.appendChild(acoes);
 		ol.appendChild(li);
 	});
+	raiz.querySelector('.bm-suporte-vazio').hidden = lista.length > 0 || deSuporte.length === 0;
 
-	// ADICIONAR: so as skills que o servidor marcou como suporte e que ainda nao estao "em mim".
-	const nova = raiz.querySelector('.bm-novo-suporte');
-	nova.innerHTML = '';
-	for (const s of deSuporte) {
-		if (!lista.some(e => e.skillId === s.skillId && e.destino === 'eu')) {
-			const o = criar('option', '', s.nome + ' (' + NOME_DO_TIPO[s.suporte] + ')');
-			o.value = String(s.skillId);
-			nova.appendChild(o);
-		}
+	// AS DE FORA: as de suporte que o personagem tem e ainda nao estao na lista, com o "+ Usar".
+	const fora = raiz.querySelector('.bm-suporte-fora');
+	fora.innerHTML = '';
+	const naLista = new Set(lista.map(e => e.skillId));
+	const outras = deSuporte.filter(s => !naLista.has(s.skillId));
+	for (const s of outras) {
+		const li = criar('li', 'bm-rodizio-fora-item');
+		li.setAttribute('data-skill', String(s.skillId));
+		li.appendChild(iconeDaSkill(s.chave));
+		const n = criar('span', 'bm-rodizio-nome', s.nome);
+		n.setAttribute('translate', 'no');
+		li.appendChild(n);
+		li.appendChild(criar('span', 'bm-tipo bm-tipo--' + s.suporte, NOME_DO_TIPO[s.suporte]));
+		li.appendChild(
+			botao(
+				'bm-rodizio-usar',
+				'+ Usar',
+				'Pôr ' + s.nome + ' no suporte',
+				() => editar(c => adicionarSuporte(c, s, dados.teto)),
+				lista.length >= dados.teto
+			)
+		);
+		fora.appendChild(li);
 	}
-	const add = raiz.querySelector('.bm-add-suporte');
-	add.disabled = nova.options.length === 0 || lista.length >= dados.teto;
-	add.onclick = ev => {
-		ev.stopImmediatePropagation();
-		const skill = porId.get(Number(nova.value));
-		if (skill) {
-			editar(c => adicionarSuporte(c, skill, dados.teto));
-		}
-	};
-	raiz.querySelector('.bm-adicionar').hidden = deSuporte.length === 0;
+	raiz.querySelector('.bm-suporte-outras').hidden = outras.length === 0;
 	raiz.querySelector('.bm-sem-suporte').hidden = deSuporte.length > 0;
+}
+
+function iconeDaSkill(chave) {
+	const img = criar('img', 'bm-rodizio-icone');
+	img.alt = '';
+	img.loading = 'lazy';
+	img.setAttribute('aria-hidden', 'true');
+	img.src = '/ragidle/skills/' + encodeURIComponent(chave || '') + '.png';
+	img.onerror = () => {
+		img.style.visibility = 'hidden';
+	};
+	return img;
 }
 
 /* ================= COLETA ================= */

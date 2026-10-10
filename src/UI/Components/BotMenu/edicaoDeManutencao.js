@@ -280,6 +280,17 @@ export function definirDestinoDoSuporte(config, indice, destino, skill) {
 	);
 }
 
+/** Liga ou desliga a entrada SEM tira-la da lista (item 4.5). `ativa` ausente = ligada: so o `false` e gravado. */
+export function definirAtivaDoSuporte(config, indice, ativa) {
+	return trocarEntrada(config, indice, e => {
+		if ((e.ativa !== false) === !!ativa) {
+			return e;
+		}
+		const { ativa: _antiga, ...resto } = e;
+		return ativa ? resto : { ...resto, ativa: false };
+	});
+}
+
 /** `nivel`: 'aprendido' ou inteiro (o servidor valida contra o aprendido). */
 export function definirNivelDoSuporte(config, indice, nivel) {
 	return trocarEntrada(config, indice, e => (e.nivel === nivel ? e : { ...e, nivel }));
