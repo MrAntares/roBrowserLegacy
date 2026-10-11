@@ -1,0 +1,85 @@
+name: Deploy server sites to GitHub Pages
+
+# After "Deploy to GitHub Pages" published SOURCE_BRANCH to gh-pages/<safe-branch>/, copies that build
+# to gh-pages/<site>/ for every folder of .github/pages-sites/ but shared/ (cyro.live/…), with shared/
+# (relay service worker, gate) and the site's own files (Config.local.js) on top.
+# workflow_run reads this file from the default branch: nothing is added to SOURCE_BRANCH.
+
+on:
+  workflow_run:
+    workflows: ["Deploy to GitHub Pages"]
+    types: [completed]
+    branches: [feat/native-plugin-manager]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.repository }}-pages-sites
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+env:
+  SOURCE_BRANCH: feat/native-plugin-manager
+
+jobs:
+  deploy:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout default branch (pages-sites)
+        uses: actions/checkout@v5
+        with:
+          path: repo
+          sparse-checkout: .github/pages-sites
+
+      - name: Checkout plugins of the deployed commit
+        uses: actions/checkout@v5
+        with:
+          path: source
+          ref: ${{ github.event.workflow_run.head_sha || env.SOURCE_BRANCH }}
+          sparse-checkout: plugins
+
+      - name: Clone gh-pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: git clone --depth 1 --branch gh-pages "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ghpages
+
+      - name: Commit and push (retry, no rebase)
+        run: |
+          set -euo pipefail
+          SAFE_BRANCH="$(printf '%s' "$SOURCE_BRANCH" | tr '/' '-' | sed -E 's/[^A-Za-z0-9._-]+/-/g')"
+          SHA="$(git -C source rev-parse --short HEAD)"
+          SITES_DIR="$PWD/repo/.github/pages-sites"
+
+          cd ghpages
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          for i in 1 2 3 4 5; do
+            git fetch origin gh-pages
+            git reset --hard origin/gh-pages
+
+            SITES=""
+            for site in "$SITES_DIR"/*/; do
+              name="$(basename "$site")"
+              [ "$name" = shared ] && continue
+              bash "$SITES_DIR/assemble.sh" "$SAFE_BRANCH" ../source/plugins "$site" "$name"
+              SITES="$SITES $name"
+            done
+
+            git add -A
+            if git diff --cached --quiet; then
+              exit 0
+            fi
+
+            git commit -m "Deploy${SITES} from ${SOURCE_BRANCH}@${SHA}"
+
+            if git push origin gh-pages; then
+              exit 0
+            fi
+
+            sleep $((i * 2))
+          done
+
+          exit 1
