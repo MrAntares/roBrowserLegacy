@@ -19,6 +19,36 @@ import Configs from 'Core/Configs.js';
 import { rotaDoBalcao } from 'UI/enderecoDoBalcao.js';
 import { armarEntrada } from 'Engine/entradaPosCadastro.js';
 
+/*
+ * A CONVERSAO DA META (10/10/2026): o mesmo do site. Os cookies do Pixel vao no
+ * cadastro para a API de Conversoes do servidor, e as chaves em SHA-256 que o
+ * balcao devolve ficam no cookie `rci_am` do dominio, que o Pixel le no
+ * `fbq('init')` da proxima pagina (o `meta-pixel.js` do builder).
+ */
+export function cookiesDoPixel(doc = document) {
+	const ler = nome => {
+		const m = String(doc.cookie || '').match(new RegExp('(?:^|; )' + nome + '=([^;]*)'));
+		return m ? decodeURIComponent(m[1]) : '';
+	};
+	const saida = {};
+	if (ler('_fbp')) saida.fbp = ler('_fbp');
+	if (ler('_fbc')) saida.fbc = ler('_fbc');
+	return saida;
+}
+
+export function guardarCorrespondencia(chaves, doc = document, local = window.location) {
+	if (!chaves || typeof chaves !== 'object') return;
+	const noDominio = /(^|\.)roclassicidle\.com\.br$/.test(local.hostname);
+	doc.cookie =
+		'rci_am=' +
+		encodeURIComponent(JSON.stringify(chaves)) +
+		'; max-age=' +
+		String(180 * 24 * 3600) +
+		'; path=/; SameSite=Lax' +
+		(local.protocol === 'https:' ? '; Secure' : '') +
+		(noDominio ? '; domain=.roclassicidle.com.br' : '');
+}
+
 const USUARIO_VALIDO = /^[A-Za-z0-9_]{4,23}$/;
 const EMAIL_VALIDO = /^[^\s@]+@[^\s@.]+\.[^\s@]+$/;
 const REF_VALIDO = /^[A-Za-z0-9]{6}$/;
@@ -27,11 +57,25 @@ const REF_VALIDO = /^[A-Za-z0-9]{6}$/;
  * @param {{nome: string, telefone: string, email: string, usuario: string, senha: string}} d
  * @returns {string | null} o problema, ou `null`
  */
+/*
+ * O TELEFONE COM DDD (10/10/2026), a mesma regra do site. O servidor poe o 55
+ * sozinho antes de mandar a Meta, mas DDD ele nao adivinha: um numero sem DDD
+ * nao casa com ninguem. Aceita 10 ou 11 digitos, com ou sem o 55 na frente, e
+ * o numero estrangeiro escrito com `+`.
+ */
+export const FRASE_DO_DDD = 'Informe o telefone com DDD, ex.: (11) 91234-5678.';
+export function telefoneComDdd(t) {
+	const digitos = t.replace(/\D/g, '').replace(/^0+/, '');
+	if (t.trim().charAt(0) === '+') return digitos.length >= 8 && digitos.length <= 15;
+	if (digitos.length === 12 || digitos.length === 13) return digitos.startsWith('55');
+	return digitos.length === 10 || digitos.length === 11;
+}
+
 export function conferirCadastro(d) {
 	if (d.nome.length < 2 || d.nome.length > 60) return 'Diga seu nome (2 a 60 caracteres).';
 	if (!EMAIL_VALIDO.test(d.email) || d.email.length > 120) return 'O e-mail não parece válido.';
 	if (d.telefone.length > 24) return 'O telefone é longo demais.';
-	if ((d.telefone.match(/\d/g) || []).length < 8) return 'O telefone precisa ter ao menos 8 dígitos.';
+	if (!telefoneComDdd(d.telefone)) return FRASE_DO_DDD;
 	if (!USUARIO_VALIDO.test(d.usuario)) return 'O usuário precisa ter de 4 a 23 caracteres: letras, números e _.';
 	if (d.senha.length < 4 || d.senha.length > 23) return 'A senha precisa ter de 4 a 23 caracteres.';
 	return null;
@@ -60,6 +104,7 @@ export async function enviarCadastro(dados, buscar = fetch) {
 	if (!resposta.ok || !json || !json.ok) {
 		return { erro: (json && json.erro) || 'Não foi possível concluir o cadastro.' };
 	}
+	guardarCorrespondencia(json.correspondencia);
 	const usuario = typeof json.usuario === 'string' ? json.usuario : dados.usuario;
 	if (typeof json.entrada === 'string' && armarEntrada(usuario, json.entrada)) {
 		return { usuario, senha: json.entrada, comPasse: true };
@@ -144,6 +189,7 @@ export function montarCadastroNaEntrada(root, { aoEntrar }) {
 		// INDIQUE & GANHE (D-1164): o codigo que a casca guardou do `?ref=`.
 		const ref = Configs.get('codigoDeIndicacao');
 		if (ref && REF_VALIDO.test(String(ref))) dados.ref = String(ref).toUpperCase();
+		Object.assign(dados, cookiesDoPixel());
 
 		const problema = conferirCadastro(dados);
 		if (problema) {

@@ -15,6 +15,7 @@ import { montarOfertaNaEntrada, sincronizar as sincronizarOferta } from './ofert
 import { enderecoDoCadastro } from 'UI/enderecoDoCadastro.js';
 import { montarCadastroNaEntrada } from './cadastroNaEntrada.js';
 import { montarEsqueciASenha } from './esqueciASenha.js';
+import { montarEntradaSocial } from './entradaSocial.js';
 import IdiomaIdle from 'UI/Components/IdiomaIdle/IdiomaIdle.js';
 import cadastroHtml from './cadastroNaEntrada.html?raw';
 import cadastroCss from './cadastroNaEntrada.css?raw';
@@ -97,6 +98,12 @@ export function createWinLogin({ name, htmlText, cssText }) {
 				_esqueci.abrir(_inputUsername.value);
 			});
 		}
+
+		// ENTRAR COM GOOGLE OU DISCORD (10/10/2026): a conta sem senha entra pelo
+		// provedor, e volta aqui com o passe de entrada (D-1379).
+		montarEntradaSocial(root, {
+			avisar: texto => UIManager.showMessageBox(texto, 'ok')
+		});
 
 		// A OFERTA DE INSTALACAO (D-945, 06/09/2026). A casca cala o banner do
 		// proprio navegador (`preventDefault` no `beforeinstallprompt`, D-933) e

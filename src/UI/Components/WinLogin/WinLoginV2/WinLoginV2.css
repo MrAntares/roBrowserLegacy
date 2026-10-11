@@ -238,6 +238,55 @@
 	right: var(--sp-8);
 	color: var(--gold-300);
 }
+/* ENTRAR COM GOOGLE OU DISCORD (10/10/2026). Os dois na linha inteira, com o
+   piso de toque; as cores seguem o que cada marca pede para o botao de entrar. */
+.wl-social {
+	display: grid;
+	gap: var(--sp-4);
+}
+.wl-social[hidden],
+.wl-social-btn[hidden] {
+	display: none;
+}
+.wl-social-ou {
+	display: flex;
+	align-items: center;
+	gap: var(--sp-4);
+	margin: 0;
+	font: var(--type-info);
+	color: var(--text-body);
+}
+.wl-social-ou::before,
+.wl-social-ou::after {
+	content: '';
+	flex: 1;
+	height: 1px;
+	background: var(--border-gold);
+}
+.wl-social-btn {
+	appearance: none;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--sp-4);
+	width: 100%;
+	min-height: max(46px, var(--hit-touch));
+	padding: 0 var(--sp-8);
+	border: 1px solid rgba(0, 0, 0, 0.15);
+	border-radius: var(--radius-bar);
+	background: #fff;
+	color: #1f1f1f;
+	font: var(--type-label);
+	cursor: pointer;
+}
+.wl-social-btn:hover {
+	filter: brightness(0.95);
+}
+.wl-social-btn--discord {
+	background: #5865f2;
+	border-color: #5865f2;
+	color: #fff;
+}
 .wl-links {
 	display: flex;
 	align-items: center;
