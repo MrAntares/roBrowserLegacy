@@ -343,16 +343,22 @@ class FileSystem {
 		const directories = filename.split('/').slice(0, -1);
 		let path = '';
 
-		// Create hierarchy
-		while (directories.length) {
-			path += directories.shift() + '/';
-			_fs_sync.root.getDirectory(path, { create: true });
+		// Best effort: Chromium refuses some names (SecurityError), and a throw
+		// here would fail the caller's load of a file it already has.
+		try {
+			// Create hierarchy
+			while (directories.length) {
+				path += directories.shift() + '/';
+				_fs_sync.root.getDirectory(path, { create: true });
+			}
+
+			const fileEntry = _fs_sync.root.getFile(filename, { create: true });
+			const writer = fileEntry.createWriter();
+
+			writer.write(new Blob([buffer]));
+		} catch (e) {
+			console.warn(`[FileSystem] cannot cache ${filename}: ${e.name}`);
 		}
-
-		const fileEntry = _fs_sync.root.getFile(filename, { create: true });
-		const writer = fileEntry.createWriter();
-
-		writer.write(new Blob([buffer]));
 	}
 
 	/**

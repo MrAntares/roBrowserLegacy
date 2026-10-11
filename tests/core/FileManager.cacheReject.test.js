@@ -1,0 +1,63 @@
+/**
+ * tests/core/FileManager.cacheReject.test.js
+ *
+ * A downloaded file whose cache write throws must still reach its caller,
+ * once. Chromium's sync FileSystem API refuses some EUC-KR-as-latin1 folder
+ * names (SecurityError), which used to turn every ground texture into null.
+ */
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+describe('FileManager.getHTTP with a cache that rejects the path', () => {
+	beforeEach(() => {
+		const rejectNonAscii = path => {
+			if (/[^\x00-\x7f]/.test(path)) {
+				const err = new Error('certain files are unsafe for access');
+				err.name = 'SecurityError';
+				throw err;
+			}
+		};
+		const fsSync = {
+			root: {
+				getDirectory: rejectNonAscii,
+				getFile: path => {
+					rejectNonAscii(path);
+					return { createWriter: () => ({ write() {} }) };
+				}
+			}
+		};
+		self.TEMPORARY = 0;
+		self.webkitRequestFileSystemSync = () => fsSync;
+		self.webkitRequestFileSystem = (type, size, ok) => ok({ root: {} });
+		vi.resetModules();
+	});
+
+	afterEach(() => {
+		delete self.webkitRequestFileSystemSync;
+		delete self.webkitRequestFileSystem;
+		vi.unstubAllGlobals();
+	});
+
+	it('calls back once with the buffer', async () => {
+		const { default: FileSystem } = await import('Core/FileSystem.js');
+		const { default: FileManager } = await import('Core/FileManager.js');
+		FileSystem.init([], true, { used: 1 });
+		FileManager.remoteClient = '/grf/';
+
+		const body = new Uint8Array([66, 77, 1, 2]).buffer;
+		vi.stubGlobal(
+			'fetch',
+			vi.fn(async () => ({
+				ok: true,
+				headers: { get: () => 'application/octet-stream' },
+				arrayBuffer: async () => body
+			}))
+		);
+
+		const callback = vi.fn();
+		FileManager.getHTTP('data\\texture\\\xc7\xca\xb5\xe5\\prt_01.bmp', callback);
+		await new Promise(r => setTimeout(r, 0));
+
+		expect(callback).toHaveBeenCalledOnce();
+		expect(callback).toHaveBeenCalledWith(body);
+	});
+});
