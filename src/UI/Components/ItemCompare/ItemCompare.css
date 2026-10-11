@@ -78,6 +78,7 @@
 }
 .ItemCompare .description .description-inner {
 	width: 150px;
+	white-space: pre-wrap;
 }
 .ItemCompare .extend {
 	position: absolute;

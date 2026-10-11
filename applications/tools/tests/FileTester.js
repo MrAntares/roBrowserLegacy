@@ -27,9 +27,10 @@ Configs.set('saveFiles', false);
  * @param {Function} callback – called with the raw ArrayBuffer for each file
  */
 class FileTester {
-	constructor(ext, callback) {
+	constructor(ext, callback, onComplete = null) {
 		this.ext = ext;
 		this.callback = callback;
+		this.onComplete = onComplete;
 	}
 
 
@@ -320,7 +321,10 @@ class FileTester {
 		startBtn.addEventListener('click', () => {
 			if (!selectedFiles) return;
 			Client.onFilesLoaded = () => {
-				const pattern = new RegExp(`data\\\\[^\\0]+\\.${this.ext}`, 'gi');
+				// GRF file tables are NUL-separated. Keep the separator out of the
+				// result and prevent `.rsm` from truncating a `.rsm2` filename.
+				const extension = this.ext === 'rsm' ? 'rsm2?' : this.ext;
+				const pattern = new RegExp(`data\\\\[^\\0]+\\.${extension}(?=\\0|$)`, 'gi');
 				Client.search(pattern, list => this._run(list));
 			};
 			Client.init(Array.from(selectedFiles));
@@ -632,7 +636,7 @@ class FileTester {
 		const start = Date.now();
 
 		const ctx = {
-			count, callback, start,
+			count, callback, onComplete: this.onComplete, start,
 			progressBar, statCurrent, statEta, statErrors,
 			progressFile, errorList, errorBadge, noErrors,
 			doneBanner, doneText, ext,
@@ -642,6 +646,15 @@ class FileTester {
 			incIndex: () => index++,
 		};
 
+		if (!count) {
+			doneText.innerHTML = 'No file found to test';
+			doneBanner.classList.add('visible');
+			if (this.onComplete) {
+				this.onComplete();
+			}
+			return;
+		}
+
 		const concurrency = Math.min(5, count);
 		for (let i = 0; i < concurrency; i++) {
 			this._loadNext(list, index++, ctx);
@@ -649,12 +662,21 @@ class FileTester {
 	}
 
 	_loadNext(list, i, ctx) {
-		const { count, callback, start,
+		const { count, callback, onComplete, start,
 			progressBar, statCurrent, statEta,
 			progressFile, errorList, noErrors,
 			doneBanner, doneText, ext } = ctx;
 
-		Client.getFile(list[i], data => {
+		let settled = false;
+		const finish = async (data, error) => {
+			// FileManager can report a load failure through MemoryManager's
+			// error channel. Always settle the slot so one missing/invalid file
+			// cannot leave the whole batch waiting forever.
+			if (settled) {
+				return;
+			}
+			settled = true;
+
 			const currentIndex = ctx.getIndex();
 			const elapsed = Date.now() - start;
 			const pct = ((currentIndex + 1) / count * 100).toFixed(1);
@@ -669,7 +691,11 @@ class FileTester {
 			progressFile.innerHTML = `<span>▸</span> ${list[i]}`;
 
 			try {
-				callback(data);
+				if (error || !data) {
+					throw new Error(error || 'File returned no data');
+				}
+
+				await callback(data, list[i]);
 			} catch (e) {
 				noErrors.style.display = 'none';
 				ctx.incErrors();
@@ -698,8 +724,17 @@ class FileTester {
 				progressBar.style.width = '100%';
 				doneText.innerHTML = `<strong>${count}</strong> .${ext} files loaded — <strong>${ctx.errors()}</strong> error(s) in <strong>${secs}s</strong>`;
 				doneBanner.classList.add('visible');
+				if (onComplete) {
+					onComplete();
+				}
 			}
-		});
+		};
+
+		try {
+			Client.getFile(list[i], finish, error => finish(null, error));
+		} catch (error) {
+			finish(null, error.message || String(error));
+		}
 	}
 }
 

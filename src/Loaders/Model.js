@@ -255,6 +255,9 @@ class Node {
 
 		// Find position
 		mat4.copy(this.matrix, _matrix);
+		if (this.baseMatrix) {
+			mat4.multiply(this.matrix, this.matrix, this.baseMatrix);
+		}
 		mat4.translate(this.matrix, this.matrix, this.pos);
 
 		// Dynamic or static model
@@ -298,6 +301,9 @@ class Node {
 		}
 
 		for (i = 0, count = nodes.length; i < count; ++i) {
+			if (this.absoluteTransform) {
+				break;
+			}
 			if (nodes[i].parentname === this.name && this.name !== this.parentname) {
 				nodes[i].calcBoundingBox(this.matrix);
 			}
@@ -426,6 +432,9 @@ class Node {
 		// Calculate node transform matrix with animation
 		const nodeMatrix = mat4.create();
 		mat4.identity(nodeMatrix);
+		if (this.baseMatrix) {
+			mat4.multiply(nodeMatrix, nodeMatrix, this.baseMatrix);
+		}
 
 		// Position animation
 		const animPos = getPositionAtFrame(this.posKeyframes, frame, animLen);
@@ -756,7 +765,21 @@ class RSM {
 		}
 
 		// Read infos
-		this.version = fp.readByte() + fp.readByte() / 10;
+		const major = fp.readByte();
+		const minor = fp.readByte();
+		this.version = major + minor / 10;
+
+		// RSM2 has a different header and node layout from legacy RSM. The
+		// former implementation used the RSM1 reader for both formats, which
+		// only happened to work for a subset of old files and lost all faces on
+		// real RSM2.2/RSM2.3 assets.
+		// RSM 2.1 still uses the legacy layout in the reference GRF reader.
+		// The length-prefixed RSM2 node layout starts at 2.2.
+		if (major === 2 && minor >= 2) {
+			this.loadRsm2(fp, minor);
+			return;
+		}
+
 		this.animLen = fp.readLong();
 		this.shadeType = fp.readLong();
 		this.main_node = null;
@@ -795,6 +818,9 @@ class RSM {
 
 		count = fp.readLong();
 		const nodes = new Array(count);
+		if (nodes.length === 0) {
+			throw new Error('RSM::load() - Model contains no nodes');
+		}
 		for (i = 0; i < count; ++i) {
 			nodes[i] = new RSM.Node(this, fp, count === 1);
 			if (mainNodeName && nodes[i].name === mainNodeName) {
@@ -864,6 +890,226 @@ class RSM {
 			});
 		}
 		this.volumebox = volumebox;
+		this.instances = [];
+		this.box = new RSM.Box();
+		this.calcBoundingBox();
+	}
+
+	/**
+	 * Load an RSM2 model.
+	 *
+	 * RSM2 stores an absolute 3x4 world transform per node and uses
+	 * length-prefixed strings. Versions 2.2 and 2.3 also use different face
+	 * encodings, so they cannot be parsed by the legacy Node constructor.
+	 * The transform is baked into the vertices here while retaining the
+	 * existing Node/renderer mesh API.
+	 *
+	 * @param {object} fp BinaryReader
+	 * @param {number} minor RSM2 minor version
+	 */
+	loadRsm2(fp, minor) {
+		let i;
+		const readString = () => fp.readBinaryString(fp.readLong());
+
+		this.animLen = fp.readLong(); // frameNum in RSM2; retained for API compatibility
+		this.shadeType = fp.readLong();
+		this.alpha = fp.readUByte() / 255.0;
+		this.frameRatePerSecond = fp.readFloat();
+
+		const sharedTextures = [];
+		if (minor <= 2) {
+			const textureCount = fp.readLong();
+			for (i = 0; i < textureCount; i++) {
+				sharedTextures.push(readString());
+			}
+		}
+
+		const rootNodeCount = fp.readLong();
+		const rootNodeNames = new Array(rootNodeCount);
+		for (i = 0; i < rootNodeCount; i++) {
+			rootNodeNames[i] = readString();
+		}
+
+		const nodeCount = fp.readLong();
+		const nodes = new Array(nodeCount);
+		const allTextures = sharedTextures.slice();
+
+		const addTexture = texture => {
+			let index = allTextures.indexOf(texture);
+			if (index === -1) {
+				index = allTextures.length;
+				allTextures.push(texture);
+			}
+			return index;
+		};
+
+		for (i = 0; i < nodeCount; i++) {
+			const name = readString();
+			const parentname = readString();
+			const textureCount = fp.readLong();
+			const nodeTextures = new Array(textureCount);
+
+			for (let j = 0; j < textureCount; j++) {
+				const texture = minor <= 2 ? sharedTextures[fp.readLong()] : readString();
+				nodeTextures[j] = addTexture(texture || '');
+			}
+
+			const transform = new Array(12);
+			for (let j = 0; j < transform.length; j++) {
+				transform[j] = fp.readFloat();
+			}
+
+			const vertexCount = fp.readLong();
+			const vertices = new Array(vertexCount);
+			for (let j = 0; j < vertexCount; j++) {
+				const x = fp.readFloat();
+				const y = fp.readFloat();
+				const z = fp.readFloat();
+				vertices[j] = [x, y, z];
+			}
+
+			const tvertexCount = fp.readLong();
+			const tvertices = new Float32Array(tvertexCount * 6);
+			for (let j = 0; j < tvertexCount; j++) {
+				const offset = j * 6;
+				fp.readULong(); // vertex color, currently not used by the WebGL mesh format
+				tvertices[offset + 4] = fp.readFloat() * 0.98 + 0.01;
+				tvertices[offset + 5] = fp.readFloat() * 0.98 + 0.01;
+			}
+
+			const faceCount = fp.readLong();
+			const faces = new Array(faceCount);
+			for (let j = 0; j < faceCount; j++) {
+				let faceLength = 24;
+				if (minor >= 2) {
+					faceLength = fp.readLong();
+				}
+
+				const face = {
+					vertidx: [fp.readUShort(), fp.readUShort(), fp.readUShort()],
+					tvertidx: [fp.readUShort(), fp.readUShort(), fp.readUShort()],
+					texid: fp.readUShort(),
+					padding: fp.readUShort(),
+					twoSide: fp.readLong(),
+					smoothGroup: 0
+				};
+
+				if (minor === 1 || minor >= 2) {
+					face.smoothGroup = fp.readLong();
+				}
+
+				// RSM2.2/RSM2.3 faces are length-prefixed blobs. Skip any
+				// additional smooth-group words without losing alignment.
+				const consumed = minor >= 2 ? 24 : 24;
+				if (minor >= 2 && faceLength > consumed) {
+					fp.seek(faceLength - consumed, SEEK_CUR);
+				}
+				faces[j] = face;
+			}
+
+			// Preserve RSM2 animation data in the same shape used by the legacy
+			// renderer. RSM2 keyframes are 20 bytes each: frame plus four floats.
+			const scaleCount = fp.readLong();
+			const scaleKeyFrames = new Array(scaleCount);
+			for (let j = 0; j < scaleCount; j++) {
+				scaleKeyFrames[j] = {
+					Frame: fp.readLong(),
+					Scale: [fp.readFloat(), fp.readFloat(), fp.readFloat()],
+					Data: fp.readFloat()
+				};
+			}
+
+			const rotationCount = fp.readLong();
+			const rotationKeyFrames = new Array(rotationCount);
+			for (let j = 0; j < rotationCount; j++) {
+				rotationKeyFrames[j] = {
+					frame: fp.readLong(),
+					q: [fp.readFloat(), fp.readFloat(), fp.readFloat(), fp.readFloat()]
+				};
+			}
+
+			const positionCount = fp.readLong();
+			const positionKeyFrames = new Array(positionCount);
+			for (let j = 0; j < positionCount; j++) {
+				positionKeyFrames[j] = {
+					frame: fp.readLong(),
+					px: fp.readFloat(),
+					py: fp.readFloat(),
+					pz: fp.readFloat(),
+					Data: fp.readLong()
+				};
+			}
+
+			if (minor === 3) {
+				const uvAnimationCount = fp.readLong();
+				for (let j = 0; j < uvAnimationCount; j++) {
+					fp.readLong(); // material id
+					const typeCount = fp.readLong();
+					for (let k = 0; k < typeCount; k++) {
+						fp.readLong();
+						fp.seek(fp.readLong() * 8, SEEK_CUR);
+					}
+				}
+			}
+
+			const node = Object.create(Node.prototype);
+			node.main = this;
+			node.is_only = true;
+			node.name = name;
+			node.parentname = parentname || null;
+			node.textures = nodeTextures;
+			node.mat3 = [1, 0, 0, 0, 1, 0, 0, 0, 1];
+			node.offset = [0, 0, 0];
+			node.pos = [0, 0, 0];
+			node.rotangle = 0;
+			node.rotaxis = [0, 0, 0];
+			node.scale = [1, 1, 1];
+			node.flip = [1, -1, 1];
+			node.box = new RSM.Box();
+			node.matrix = mat4.create();
+			node.vertices = vertices;
+			node.tvertices = tvertices;
+			node.faces = faces;
+			node.rotKeyframes = rotationKeyFrames;
+			node.posKeyframes = positionKeyFrames;
+			node.scaleKeyFrames = scaleKeyFrames;
+			node.textureKeyFrameGroup = [];
+			node.absoluteTransform = true;
+			node.baseMatrix = mat4.create();
+			node.baseMatrix[0] = transform[0];
+			node.baseMatrix[1] = transform[1];
+			node.baseMatrix[2] = transform[2];
+			node.baseMatrix[4] = transform[3];
+			node.baseMatrix[5] = transform[4];
+			node.baseMatrix[6] = transform[5];
+			node.baseMatrix[8] = transform[6];
+			node.baseMatrix[9] = transform[7];
+			node.baseMatrix[10] = transform[8];
+			node.baseMatrix[12] = transform[9];
+			node.baseMatrix[13] = transform[10];
+			node.baseMatrix[14] = transform[11];
+			nodes[i] = node;
+		}
+
+		if (fp.offset + 4 <= fp.length) {
+			const volumeBoxCount = fp.readLong();
+			const remaining = fp.length - fp.offset;
+			// RSM2 files in the wild use both the compact 40-byte volume box
+			// and the extended 232-byte representation. Prefer an exact fit.
+			const volumeBoxSize = remaining === volumeBoxCount * 40 || remaining < volumeBoxCount * 232 ? 40 : 232;
+			if (volumeBoxCount >= 0 && fp.offset + volumeBoxCount * volumeBoxSize <= fp.length) {
+				fp.seek(volumeBoxCount * volumeBoxSize, SEEK_CUR);
+			}
+		}
+
+		this.textures = allTextures;
+		this.nodes = nodes;
+		if (nodes.length === 0) {
+			throw new Error('RSM::load() - Model contains no nodes');
+		}
+		this.main_node = rootNodeNames.map(name => nodes.find(node => node.name === name)).find(Boolean) || nodes[0];
+		this.posKeyframes = [];
+		this.volumebox = [];
 		this.instances = [];
 		this.box = new RSM.Box();
 		this.calcBoundingBox();

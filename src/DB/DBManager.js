@@ -36,6 +36,7 @@ import WorldMap from './Map/WorldMap.js';
 import SKID from './Skills/SkillConst.js';
 import SkillInfo from './Skills/SkillInfo.js';
 import SkillTreeView from './Skills/SkillTreeView.js';
+import { resetSkillTree, keepBuiltInSkills } from './Skills/SkillTreeMerge.js';
 import JobHitSoundTable from './Jobs/JobHitSoundTable.js';
 import WeaponTrailTable from './Items/WeaponTrailTable.js';
 import TownInfo from './TownInfo.js';
@@ -1307,7 +1308,11 @@ class DB {
 			return null;
 		}
 
-		return 'data/palette/\xb8\xf6/' + PaletteTable[id] + '_' + SexTable[sex] + '_' + pal + '.pal';
+		// A `costume_1` body's palettes carry the body's own `_1` after the
+		// palette number: costume_1/<job>_<sex>_<pal>_1.pal.
+		const costume = String(PaletteTable[id]).startsWith('costume_1/') ? '_1' : '';
+
+		return 'data/palette/\xb8\xf6/' + PaletteTable[id] + '_' + SexTable[sex] + '_' + pal + costume + '.pal';
 	}
 
 	/**
@@ -6613,6 +6618,10 @@ function loadSkillTreeView(filename, callback, onEnd) {
 }
 
 function loadSkillTreeViewData(filename, callback, onEnd) {
+	// Start from the built-in layout every time, so a second client loaded
+	// after a server switch never inherits the first one's placements.
+	resetSkillTree(SkillTreeView);
+	const fileJobs = new Set();
 	Client.loadFile(
 		filename,
 		async function (file) {
@@ -6689,6 +6698,9 @@ function loadSkillTreeViewData(filename, callback, onEnd) {
 						beforeJob: beforeJob
 					};
 
+					// Remember the job, so skills this file leaves out can be
+					// put back once it has been read (see below).
+					fileJobs.add(jobId);
 					SkillTreeView[jobId] = entry;
 					return 1;
 				};
@@ -6758,6 +6770,14 @@ function loadSkillTreeViewData(filename, callback, onEnd) {
 						
 						main_skillTreeView()    
 					`);
+
+				// The client's file places only what that client version knew.
+				// A skill the server has since added -- the newest 4th-job
+				// skills are in no official skilltreeview.lub -- would otherwise
+				// fall to the Etc tab, where it cannot be learned. Keep the
+				// built-in position for any skill the file does not place, or
+				// the next free slot when the file has taken that one.
+				keepBuiltInSkills(SkillTreeView, fileJobs);
 			} catch (error) {
 				console.error('[loadSkillTreeView] Error: ', error);
 			} finally {

@@ -210,6 +210,9 @@ function UpdateBody(job) {
 		return;
 	}
 
+	// The body style (if any) is applied again at the end, for the new job.
+	this._bodyStyleJob = null;
+
 	// Check if this is a transformation job (monster or form)
 	// If so, don't update _job - it should preserve the original job
 	const isTransformation = hasTransformation.call(this);
@@ -561,6 +564,13 @@ function UpdateBodyStyle(look) {
 			}
 
 			path = this.isAdmin ? DB.getAdminPath(this._sex) : DB.getBodyPath(job, this._sex, look, cashMountCostume);
+
+			// The job whose sprite getBodyPath picked, so the palette can be the one made for it: a
+			// body style draws the `costume_1` body of `look`, mounted or not, and that body has
+			// palettes of its own. Null when the style draws the job's own body, and for an admin,
+			// whose body is the admin sprite whatever the style.
+			const styled = !this.isAdmin && PACKETVER.value > 20141022 && look > 0 && look !== job && !cashMountCostume;
+			this._bodyStyleJob = styled ? look : null;
 			Entity = this.constructor;
 
 			// Loading
@@ -605,7 +615,14 @@ function UpdateBodyPalette(pal) {
 		return;
 	}
 
-	this.files.body.pal = DB.getBodyPalPath(this._job, this._bodypalette, this._sex);
+	// The palette has to be the one for the sprite being drawn. A mounted
+	// Knight is drawn from the Peco Knight body, and its palettes are its own
+	// files, covering the mount's colours too; the Knight's palette on that
+	// sprite paints the whole peco magenta. The same holds for every mount and
+	// for the wedding, Xmas and summer outfits, which all arrive as `costume`,
+	// and for a body style, which draws the `costume_1` body (see UpdateBodyStyle).
+	const job = this._bodyStyleJob && !hasTransformation.call(this) ? this._bodyStyleJob : getEffectiveJob.call(this);
+	this.files.body.pal = DB.getBodyPalPath(job, this._bodypalette, this._sex);
 }
 
 /**

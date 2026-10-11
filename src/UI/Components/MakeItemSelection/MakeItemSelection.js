@@ -237,7 +237,7 @@ MakeItemSelection.setIndex = function setIndex(id) {
 MakeItemSelection.selectIndex = function selectIndex() {
 	this.onIndexSelected(this.index, this.material, this.mkType);
 	if (this.index == -1) {
-		this.material.forEach(item => Inventory.getUI().addItem(item));
+		this.material.forEach(item => Inventory.addItem(item));
 	}
 	this.remove();
 };
@@ -293,7 +293,7 @@ MakeItemSelection.addMaterial = function AddMaterial(item, from) {
 		if (this.addItemSub(item)) {
 			switch (from) {
 				case 'Inventory':
-					Inventory.getUI().removeItem(item.index, 1);
+					Inventory.removeItem(item.index, 1);
 					break;
 			}
 			this.material.push(item);

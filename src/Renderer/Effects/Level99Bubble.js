@@ -98,10 +98,10 @@ function wrapDegrees(angle) {
  * Advance a phase angle toward a random target, reseed when reached.
  * Returns { angle, target }
  */
-function advancePhase(current, target) {
+function advancePhase(current, target, stepScale = 1.0) {
 	let diff = target - current;
 	diff = ((diff + 540) % 360) - 180; // Wrap to [-180,180]
-	const step = 2 + Math.random(); // 2–3 degrees/frame
+	const step = (2 + Math.random()) * stepScale; // 2–3 degrees/frame * stepScale
 
 	if (Math.abs(diff) <= step) {
 		current = target;
@@ -149,6 +149,7 @@ class Level99Bubble {
 		this.position = position;
 		this.textureName = textureName || 'whitelight.tga';
 		this.tick = tick || 0;
+		this._lastTick = tick || Date.now();
 		// Default to flag1 = 1 (blue variant) unless explicitly overridden
 		this.flag1 = flag1 === 0 || flag1 ? flag1 : 1;
 
@@ -230,9 +231,9 @@ class Level99Bubble {
 	/**
 	 * Update all phases in a column (advance toward random targets)
 	 */
-	updatePhases(column) {
+	updatePhases(column, stepScale = 1.0) {
 		for (let i = 0; i < 16; i++) {
-			const result = advancePhase(column.phases[i], column.phaseTargets[i]);
+			const result = advancePhase(column.phases[i], column.phaseTargets[i], stepScale);
 			column.phases[i] = result.angle;
 			column.phaseTargets[i] = result.target;
 		}
@@ -245,7 +246,7 @@ class Level99Bubble {
 	 * - Y drift: y -= v each frame
 	 * - Reset when y < resetY: x=z=0, y=rand[0,seedMax], reseed phases
 	 */
-	updateAnchor(column, anchorIndex) {
+	updateAnchor(column, anchorIndex, stepScale = 1.0) {
 		const anchor = column.anchors[anchorIndex];
 		const signs = ANCHOR_SIGNS[anchorIndex];
 		const phaseOffsets = ANCHOR_PHASE_OFFSETS[anchorIndex];
@@ -254,12 +255,12 @@ class Level99Bubble {
 		if (anchor.y < 0) {
 			const phaseA = column.phases[phaseOffsets.pa] * DEG_TO_RAD;
 			const phaseB = column.phases[phaseOffsets.pb] * DEG_TO_RAD;
-			anchor.x += signs.kx * this.driftK * Math.sin(phaseA);
-			anchor.z += signs.kz * this.driftK * Math.sin(phaseB);
+			anchor.x += signs.kx * this.driftK * Math.sin(phaseA) * stepScale;
+			anchor.z += signs.kz * this.driftK * Math.sin(phaseB) * stepScale;
 		}
 
 		// Drift downward
-		anchor.y -= this.fallSpeed * debugConfig.fallSpeedMult;
+		anchor.y -= this.fallSpeed * debugConfig.fallSpeedMult * stepScale;
 
 		// Reset when below threshold
 		const resetLimit = this.resetY * debugConfig.respawnDepthMult;
@@ -343,6 +344,11 @@ class Level99Bubble {
 		// Current billboard radius (in world units)
 		const radius = this.baseRadius * GAME_TO_WORLD * debugConfig.scaleMult;
 
+		const RAG_TICK_MS = 25;
+		const dt = Math.min(tick - (this._lastTick || tick), 250);
+		this._lastTick = tick;
+		const stepScale = dt / RAG_TICK_MS;
+
 		// Process each column
 		for (let ec = 0; ec < this.columns.length; ec++) {
 			const column = this.columns[ec];
@@ -351,12 +357,12 @@ class Level99Bubble {
 			}
 
 			// Update phases for this column
-			this.updatePhases(column);
+			this.updatePhases(column, stepScale);
 
 			// Process each anchor in the column
 			for (let ai = 0; ai < column.anchors.length; ai++) {
 				// Update anchor position (jitter + drift + reset)
-				this.updateAnchor(column, ai);
+				this.updateAnchor(column, ai, stepScale);
 
 				const anchor = column.anchors[ai];
 

@@ -66,7 +66,7 @@ function onAllQuestList(pkt) {
 		}
 		quest_list[local_quest.questID] = local_quest;
 	}
-	Quest.getUI().setQuestList(quest_list);
+	Quest.setQuestList(quest_list);
 }
 
 /**
@@ -113,7 +113,7 @@ function onAddQuest(pkt) {
 			quest.hunt_list[ID] = local_hunt; // prefer huntid over the mobGID
 		}
 	}
-	Quest.getUI().addQuest(quest, quest.questID);
+	Quest.addQuest(quest, quest.questID);
 }
 
 /**
@@ -128,8 +128,8 @@ function onUpdateMissionHunt(pkt) {
 
 		if (local_hunt.questID !== undefined) {
 			// server sent info with questID
-			if (Quest.getUI().questExists(local_hunt.questID)) {
-				Quest.getUI().updateMissionHunt(local_hunt, local_hunt.questID, ID);
+			if (Quest.questExists(local_hunt.questID)) {
+				Quest.updateMissionHunt(local_hunt, local_hunt.questID, ID);
 			} else {
 				// create new one
 				const quest_info = DB.getQuestInfo(local_hunt.questID);
@@ -163,14 +163,14 @@ function onUpdateMissionHunt(pkt) {
 					maxCount: local_hunt.maxCount || 0,
 					mobName: local_hunt.mobName || ''
 				};
-				Quest.getUI().addQuest(local_quest, local_quest.questID);
+				Quest.addQuest(local_quest, local_quest.questID);
 			}
 		} else {
 			// server sent info with huntID
-			const quest_saved_id = Quest.getUI().getQuestIDByServerID(ID);
+			const quest_saved_id = Quest.getQuestIDByServerID(ID);
 			if (quest_saved_id > 0) {
 				// update quest
-				Quest.getUI().updateMissionHunt(local_hunt, quest_saved_id, ID);
+				Quest.updateMissionHunt(local_hunt, quest_saved_id, ID);
 			}
 		}
 	}
@@ -182,7 +182,7 @@ function onUpdateMissionHunt(pkt) {
  * @param {object} pkt - PACKET.ZC.ACTIVE_QUEST
  */
 function onActiveQuest(pkt) {
-	Quest.getUI().toggleQuestActive(pkt.questID, pkt.active);
+	Quest.toggleQuestActive(pkt.questID, pkt.active);
 }
 
 /**
@@ -191,7 +191,7 @@ function onActiveQuest(pkt) {
  * @param {object} pkt - PACKET.ZC.DEL_QUEST
  */
 function onDeleteQuest(pkt) {
-	Quest.getUI().removeQuest(pkt.questID);
+	Quest.removeQuest(pkt.questID);
 }
 
 /**

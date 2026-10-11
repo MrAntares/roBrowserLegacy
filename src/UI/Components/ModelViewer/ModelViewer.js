@@ -125,7 +125,7 @@ Viewer.onAppend = function onAppend() {
  * @param {HTMLElement} select dropdown
  */
 function initDropDown(select) {
-	Client.search(/data\\[^\0]+\.rsm/gi, list => {
+	Client.search(/data\\[^\0]+\.rsm2?(?=\0|$)/gi, list => {
 		const hash = decodeURIComponent(location.hash);
 
 		for (let i = 0, count = list.length; i < count; ++i) {

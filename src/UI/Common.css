@@ -171,6 +171,8 @@ ui-button {
 }
 
 /* Hide native cursor inside Shadow DOM when custom cursor is active */
-:host-context(.custom-cursor) * {
-	cursor: none !important;
+@container style(--ro-game-cursor: on) {
+	* {
+		cursor: none !important;
+	}
 }

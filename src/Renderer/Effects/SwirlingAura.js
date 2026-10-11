@@ -79,14 +79,13 @@ class SwirlingAura {
 		for (let ec = 0; ec < 3; ec++) {
 			this.bands.push({
 				life: 1,
-				process: 0,
-				rotStart: ec * 90, // 0, 90, 180 degrees
+				initialRotStart: ec * 90, // 0, 90, 180 degrees
+				rotStart: ec * 90,
 				maxHeight: (15 - 2 * ec) * GAME_TO_WORLD, // 15, 13, 11 (unchanged)
 				distance: (3.9 + 0.2 * ec) * GAME_TO_WORLD * INNER_CIRCLE_SCALE, // 20% smaller
 				riseAngle: (55 - 5 * ec) * DEG_TO_RAD, // 55°, 50°, 45°
-				spinSpeed: ec + 3, // 3, 4, 5 degrees per frame
-				height: new Float32Array(E_DIVISION), // Height profile
-				flag1: new Uint8Array(E_DIVISION) // Reached max flag
+				spinSpeed: ec + 3, // 3, 4, 5 degrees per 25ms tick
+				height: new Float32Array(E_DIVISION) // Height profile
 			});
 		}
 
@@ -106,30 +105,22 @@ class SwirlingAura {
 	/**
 	 * Update height profile for a band
 	 */
-	updateHeightProfile(band) {
+	updateHeightProfile(band, process) {
 		const middle = 10;
 		const step = 9; // 90 / 10 = 9 degrees
 
 		for (let i = 0; i < E_DIVISION; i++) {
-			if (band.flag1[i] === 0) {
-				// SinLimit = 90° + (i - middle) * step
-				const sinLimit = (90 + (i - middle) * step) * DEG_TO_RAD;
-				const sinLimitValue = Math.sin(sinLimit);
-				const maxPossible = band.maxHeight * sinLimitValue;
+			// SinLimit = 90° + (i - middle) * step
+			const sinLimit = (90 + (i - middle) * step) * DEG_TO_RAD;
+			const sinLimitValue = Math.sin(sinLimit);
+			const maxPossible = band.maxHeight * sinLimitValue;
 
-				if (band.process <= 90) {
-					// Build up phase: height = max_height * sin(SinLimit) * sin(process°)
-					const sinProcess = Math.sin(band.process * DEG_TO_RAD);
-					band.height[i] = band.maxHeight * sinLimitValue * sinProcess;
-				}
-
-				// Clamp to [0, maxPossible]
-				band.height[i] = Math.max(0, Math.min(band.height[i], maxPossible));
-
-				// Mark as reached max
-				if (band.height[i] >= maxPossible * 0.99) {
-					band.flag1[i] = 1;
-				}
+			if (process <= 90) {
+				// Build up phase: height = max_height * sin(SinLimit) * sin(process°)
+				const sinProcess = Math.sin(process * DEG_TO_RAD);
+				band.height[i] = Math.max(0, Math.min(band.maxHeight * sinLimitValue * sinProcess, maxPossible));
+			} else {
+				band.height[i] = maxPossible;
 			}
 		}
 	}
@@ -265,6 +256,10 @@ class SwirlingAura {
 		gl.enableVertexAttribArray(attribute.aPosition);
 		gl.enableVertexAttribArray(attribute.aTextureCoord);
 		const self = this;
+		const RAG_TICK_MS = 25;
+		const elapsed = tick - this.tick;
+		const process = elapsed / RAG_TICK_MS;
+
 		SpriteRenderer.runWithDepth(true, false, false, function () {
 			// Render each band
 			for (let ec = 0; ec < self.bands.length; ec++) {
@@ -273,12 +268,11 @@ class SwirlingAura {
 					continue;
 				}
 
-				// Update animation (Prim3DCasting)
-				band.process++;
-				band.rotStart = (band.rotStart + band.spinSpeed) % 360;
+				// Update animation purely from elapsed time (Prim3DCasting)
+				band.rotStart = (band.initialRotStart + process * band.spinSpeed) % 360;
 
 				// Update height profile
-				self.updateHeightProfile(band);
+				self.updateHeightProfile(band, process);
 
 				// fill mesh for this band
 				self.fillBandMesh(band);

@@ -164,7 +164,11 @@ class RSW {
 			this.ground.right = fp.readLong();
 		}
 
-		if (version >= 2.7) {
+		// RSW 2.7 introduced this block only for the newer editor/client
+		// builds. Older 2.7 files go directly from the ground bounds to the
+		// object count; consuming the block unconditionally shifts the whole
+		// object list by an arbitrary number of bytes.
+		if (version >= 2.7 && this.files.buildnumber >= 221) {
 			count = fp.readLong();
 			fp.seek(4 * count, SEEK_CUR); // Moves the file pointer forward by 4 * count bytes
 		}

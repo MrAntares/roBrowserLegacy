@@ -801,7 +801,7 @@ function validateFieldsExist(event) {
  */
 function onItemPreview(pkt) {
 	if (pkt) {
-		const item = Inventory.getUI().getItemByIndex(pkt.index);
+		const item = Inventory.getItemByIndex(pkt.index);
 
 		if (!item) {
 			return false;
@@ -827,10 +827,10 @@ function onItemPreview(pkt) {
 		ItemInfo.setItem(item);
 
 		// Check if there is an equipped item in the same location
-		const compareItem = Equipment.getUI().isInEquipList(item.location);
+		const compareItem = Equipment.isInEquipList(item.location);
 
 		// If a comparison item is found, display comparison
-		if (compareItem && Inventory.getUI().itemcomp) {
+		if (compareItem && Inventory.itemcomp) {
 			ItemCompare.prepare();
 			ItemCompare.append();
 			ItemCompare.uid = compareItem.ITID;

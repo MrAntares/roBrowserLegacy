@@ -43,6 +43,7 @@ class Thread {
 	 * @param {string} type
 	 * @param {mixed} data
 	 * @param {function} callback
+	 * @return {number} request id, also carried by the hook events the request sends (0 without callback)
 	 */
 	static send = (type, data, callback) => {
 		let uid = 0;
@@ -53,6 +54,8 @@ class Thread {
 		}
 
 		_source.postMessage({ type, data, uid }, _origin);
+
+		return uid;
 	};
 
 	/**
@@ -73,7 +76,7 @@ class Thread {
 
 		// Hook Feature
 		if (type && _hook[type]) {
-			_hook[type].call(null, event.data.data);
+			_hook[type].call(null, event.data.data, event.data.request);
 		}
 	};
 

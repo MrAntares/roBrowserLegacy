@@ -3,6 +3,12 @@
 	height: 350px;
 }
 
+/* GUIComponent wraps the content in .ui-component-root: let it fill :host,
+   otherwise #Refine's 100% collapses to the titlebar and the window body is cut off */
+.ui-component-root {
+	height: 100%;
+}
+
 #Refine {
 	position: relative;
 	height: 100%;

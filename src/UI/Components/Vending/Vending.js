@@ -268,8 +268,7 @@ Vending.setType = function setType(type) {
 				el.style.display = '';
 			});
 			root.querySelector('.zenySpan').textContent = prettyZeny(Session.zeny);
-			root.querySelector('.weightSpan').textContent =
-				`${BasicInfo.getUI().weight}/${BasicInfo.getUI().weight_max}`;
+			root.querySelector('.weightSpan').textContent = `${BasicInfo.weight}/${BasicInfo.weight_max}`;
 			root.querySelector('.limitZeny').value = '0';
 			break;
 	}
@@ -749,8 +748,8 @@ Vending.onBuyingSkill = function onBuyingSkill(pkt) {
 
 	_slots = pkt.itemcount;
 	const buyable = [];
-	for (const key in Inventory.getUI().list) {
-		const item = Inventory.getUI().list[key];
+	for (const key in Inventory.list) {
+		const item = Inventory.list[key];
 		if (isItemStackable(item) && DB.isBuyable(item.ITID)) {
 			buyable.push(item);
 		}
@@ -845,8 +844,7 @@ function onItemOver() {
 	}
 
 	const idx = parseInt(this.getAttribute('data-index'), 10);
-	const item =
-		_type === Vending.Type.VENDING_STORE ? CartItems.getItemByIndex(idx) : Inventory.getUI().getItemByIndex(idx);
+	const item = _type === Vending.Type.VENDING_STORE ? CartItems.getItemByIndex(idx) : Inventory.getItemByIndex(idx);
 
 	if (!item) {
 		return;

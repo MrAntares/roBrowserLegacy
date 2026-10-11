@@ -300,6 +300,7 @@ ActionInformations[Cursor.ACTION.NOWALK] = { drawX: 13, drawY: 25, startX: 14, s
  */
 function bindMouseEvents() {
 	const cursorCSS = `
+		.custom-cursor { --ro-game-cursor: on; }
 		.custom-cursor * { cursor: none!important; }
 		.custom-cursor .cursor { display: block; }
 		.ro-touch-input .cursor { display: none !important; }

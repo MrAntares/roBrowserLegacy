@@ -110,6 +110,8 @@ class GroundAura {
 
 		this.cosCache = {};
 		this.sinCache = {};
+		this._lastTick = tick;
+		this._accumTime = 0;
 	}
 
 	/**
@@ -136,21 +138,36 @@ class GroundAura {
 
 		gl.bindTexture(gl.TEXTURE_2D, this.texture);
 
-		for (let i = 0; i < this.aura.length; i++) {
-			this.aura[i].riseAngle += 3;
-			if (this.aura[i].riseAngle && !(this.aura[i].riseAngle % 180)) {
-				this.aura[i].direction *= -1;
-				// Avoid aura getting bigger and bigger or smaller and smaller over time
-				if (
-					(this.aura[i].direction < 0 && this.aura[i].size[0] < this.aura[i].initialSize[0]) ||
-					(this.aura[i].direction > 0 && this.aura[i].size[0] > this.aura[i].initialSize[0])
-				) {
-					this.aura[i].size[0] = this.aura[i].initialSize[0];
-					this.aura[i].size[1] = this.aura[i].initialSize[1];
+		const RAG_TICK_MS = 25;
+		const dt = Math.min(tick - (this._lastTick || tick), 250);
+		this._lastTick = tick;
+		this._accumTime = (this._accumTime || 0) + dt;
+
+		while (this._accumTime >= RAG_TICK_MS) {
+			this._accumTime -= RAG_TICK_MS;
+			for (let i = 0; i < this.aura.length; i++) {
+				this.aura[i].riseAngle += 3;
+				if (this.aura[i].riseAngle && !(this.aura[i].riseAngle % 180)) {
+					this.aura[i].direction *= -1;
+					// Avoid aura getting bigger and bigger or smaller and smaller over time
+					if (
+						(this.aura[i].direction < 0 && this.aura[i].size[0] < this.aura[i].initialSize[0]) ||
+						(this.aura[i].direction > 0 && this.aura[i].size[0] > this.aura[i].initialSize[0])
+					) {
+						this.aura[i].size[0] = this.aura[i].initialSize[0];
+						this.aura[i].size[1] = this.aura[i].initialSize[1];
+					}
 				}
-			}
-			if (this.aura[i].riseAngle >= 360) {
-				this.aura[i].riseAngle -= 360;
+				if (this.aura[i].riseAngle >= 360) {
+					this.aura[i].riseAngle -= 360;
+				}
+
+				if (this.aura[i].life) {
+					const auraAngle = i * 23;
+					const sizeModifier = calculateSize(this, this.aura, auraAngle, i);
+					this.aura[i].size[0] += (sizeModifier[0] * this.aura[i].direction) / (this.size / 2);
+					this.aura[i].size[1] += (sizeModifier[1] * this.aura[i].direction) / (this.size / 2);
+				}
 			}
 		}
 
@@ -169,11 +186,6 @@ class GroundAura {
 				}
 
 				const auraAngle = i * 23;
-
-				const sizeModifier = calculateSize(self, self.aura, auraAngle, i);
-
-				self.aura[i].size[0] += (sizeModifier[0] * self.aura[i].direction) / (self.size / 2);
-				self.aura[i].size[1] += (sizeModifier[1] * self.aura[i].direction) / (self.size / 2);
 
 				// Set uniforms - size in SpriteRenderer units (shader converts to world units)
 				gl.uniform2f(uniform.uSize, self.aura[i].size[0], self.aura[i].size[1]);

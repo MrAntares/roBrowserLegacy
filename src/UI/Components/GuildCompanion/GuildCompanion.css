@@ -1,30 +1,30 @@
 :host {
-	top: 160px;
-	left: 260px;
 	z-index: 100;
 }
 
 #GuildCompanion {
 	position: relative;
-	font-family: Arial, sans-serif;
 	font-size: 12px;
 	white-space: nowrap;
 }
 
+/* The two panes are never shown together - open() hides one and shows the
+ * other - so they stack rather than sit side by side. The 1px frame edge is an
+ * inset shadow instead of a border: a shadow takes part in no layout, which is
+ * what lets the namebox below carry the client's own coordinates unshifted. */
 #GuildCompanion .win {
-	display: inline-block;
-	vertical-align: top;
+	display: block;
+	position: relative;
 	background-color: white;
-	border: 1px solid #a5a5a5;
+	box-shadow: inset 0 0 0 1px #a5a5a5;
 	border-radius: 3px;
-	margin-right: 6px;
 }
 
 #GuildCompanion .win.namebox {
 	display: none;
 }
 #GuildCompanion .win.namebox.visible {
-	display: inline-block;
+	display: block;
 }
 
 #GuildCompanion .win.companion.hidden {
@@ -45,12 +45,14 @@
 	vertical-align: middle;
 }
 #GuildCompanion .titlebar .base {
+	display: inline-block;
 	width: 11px;
 	height: 11px;
 	border: none;
 	background-color: transparent;
 	background-repeat: no-repeat;
 	vertical-align: middle;
+	cursor: pointer;
 }
 #GuildCompanion .titlebar .right {
 	float: right;
@@ -60,36 +62,89 @@
 	clear: both;
 }
 
-#GuildCompanion .body {
-	padding: 10px 12px 8px 12px;
+#GuildCompanion .btn {
+	display: inline-block;
+	height: 20px;
+	border: none;
+	background-color: transparent;
+	background-repeat: no-repeat;
+	cursor: pointer;
 }
 
+/* ---- The "no guild yet" pane -------------------------------------------
+ * No decoded geometry: the client's counterpart is a tip list, not this. Only
+ * the bitmaps and the caption come from the client. */
+
+#GuildCompanion .companion .body {
+	padding: 10px 12px 8px 12px;
+}
 #GuildCompanion .companion .msg {
 	margin-bottom: 12px;
 }
-
-#GuildCompanion .namebox .label {
-	margin-bottom: 4px;
-}
-#GuildCompanion .namebox input {
-	border: 1px solid #c1c6c2;
-	background-color: #efefef;
-	width: 150px;
-	height: 16px;
-	margin-bottom: 12px;
-}
-
-#GuildCompanion .btns {
+#GuildCompanion .companion .btns {
 	text-align: center;
 }
-#GuildCompanion .namebox .btns {
-	text-align: right;
+#GuildCompanion .companion .btn_create {
+	width: 71px;
+	margin-right: 6px;
+}
+#GuildCompanion .companion .btn_close {
+	width: 42px;
 }
 
-#GuildCompanion .btn {
-	font-family: Arial, sans-serif;
-	font-size: 11px;
-	padding: 2px 10px;
-	margin: 0 3px;
-	cursor: pointer;
+/* ---- Create / disband, on the client's box -----------------------------
+ * One window for both modes, at the client's own geometry: 150x100, edit
+ * 124x20 at (13, 42), OK and Cancel at (58, 76) and (104, 76). Children are
+ * absolute so each number appears once.
+ * See docs/reference/guild/create-disband-dialogs.md */
+#GuildCompanion .namebox {
+	width: 150px;
+	height: 100px;
+	/* The client's label has no box and is clipped by the window DC. An
+	 * absolute box has no such edge, and a localised label overran the frame. */
+	overflow: hidden;
+}
+/* An anchor, not a box - there is nothing to centre the label in, so left/top
+ * with no width and no text-align.
+ *
+ * 13 rather than the client's 16, deliberately: flush with the field's left
+ * edge rather than with the text inside it, which reads as an indent.
+ * See docs/reference/guild/create-disband-dialogs.md */
+#GuildCompanion .namebox .label {
+	position: absolute;
+	left: 13px;
+	top: 23px;
+}
+#GuildCompanion .namebox input {
+	position: absolute;
+	left: 13px;
+	top: 42px;
+	width: 124px;
+	height: 20px;
+	box-sizing: border-box;
+	padding: 0 2px;
+	border: 1px solid #c1c6c2;
+	/* The client's own near-white on this edit widget. */
+	background-color: #e6e6e6;
+	/* The UA's `font` shorthand on form controls drops the inherited family and
+	 * resets font-size-adjust, so an input opts out of the x-height
+	 * normalisation the rest of the window runs under. */
+	font-family: inherit;
+	font-size: 12px;
+	font-size-adjust: inherit;
+	/* The 18px content band, stated rather than left to the UA: without it the
+	 * value sits wherever the engine's default input line-height puts it, which
+	 * is not the same on every browser. */
+	line-height: 18px;
+}
+#GuildCompanion .namebox .btn {
+	position: absolute;
+	top: 76px;
+	width: 42px;
+}
+#GuildCompanion .namebox .btn_ok {
+	left: 58px;
+}
+#GuildCompanion .namebox .btn_cancel {
+	left: 104px;
 }

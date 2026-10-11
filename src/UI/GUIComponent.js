@@ -55,6 +55,78 @@ function _ensureDeps() {
 	return _depsPromise;
 }
 
+let _noCursorStyles;
+let _noCursorMedia = 'not all';
+
+function _supportsStyleQueries() {
+	const probe = document.createElement('div');
+	probe.innerHTML = '<style>@container style(--ro-probe: 1) { i { color: rgb(1, 2, 3); } }</style><i></i>';
+	probe.style.setProperty('--ro-probe', '1');
+	document.body.appendChild(probe);
+	const supported = getComputedStyle(probe.lastChild).color === 'rgb(1, 2, 3)';
+	probe.remove();
+	return supported;
+}
+
+function _syncNoCursorStyles() {
+	const media = document.body.classList.contains('custom-cursor') ? 'all' : 'not all';
+	if (media === _noCursorMedia) {
+		return;
+	}
+	_noCursorMedia = media;
+	for (let i = 0; i < _noCursorStyles.length; i++) {
+		_noCursorStyles[i].media = media;
+	}
+}
+
+/**
+ * Hides the native cursor in a shadow root where CSS style queries are
+ * missing, following body.custom-cursor; null where Common.css handles it.
+ * remove() lets go of it, so a closed window is not held.
+ *
+ * @param {ShadowRoot} shadow
+ * @return {?HTMLStyleElement}
+ */
+function _addNoCursorFallback(shadow) {
+	if (_noCursorStyles === undefined) {
+		_noCursorStyles = _supportsStyleQueries() ? null : [];
+		if (_noCursorStyles) {
+			_syncNoCursorStyles();
+			new MutationObserver(_syncNoCursorStyles).observe(document.body, {
+				attributes: true,
+				attributeFilter: ['class']
+			});
+		}
+	}
+	if (!_noCursorStyles) {
+		return null;
+	}
+
+	// `media` rather than `disabled`: a style element's sheet, and with it
+	// `disabled`, is rebuilt each time the window is appended again.
+	const style = document.createElement('style');
+	style.setAttribute('data-no-cursor', '');
+	style.media = _noCursorMedia;
+	style.textContent = '* { cursor: none !important; }';
+	shadow.appendChild(style);
+	_noCursorStyles.push(style);
+	return style;
+}
+
+function _trackNoCursorStyle(style) {
+	style.media = _noCursorMedia;
+	if (_noCursorStyles.indexOf(style) === -1) {
+		_noCursorStyles.push(style);
+	}
+}
+
+function _untrackNoCursorStyle(style) {
+	const index = _noCursorStyles.indexOf(style);
+	if (index !== -1) {
+		_noCursorStyles.splice(index, 1);
+	}
+}
+
 /**
  * Snap cache shared across all draggable instances (same as UIComponent)
  */
@@ -68,6 +140,11 @@ const MouseMode = Object.freeze({
 	STOP: 1, // Block scene intersection when mouse is over the UI
 	FREEZE: 2 // Block scene intersection while UI is alive
 });
+
+/**
+ * A clickable a component has marked as refusing the click
+ */
+const DENIED_SELECTOR = '.denied';
 
 /**
  * CSS properties that are unitless (don't need 'px')
@@ -167,6 +244,9 @@ class GUIComponent {
 		commonStyle.textContent = CommonCSS;
 		this._shadow.appendChild(commonStyle);
 
+		// Hide native cursor where style queries are missing
+		this._noCursorStyle = _addNoCursorFallback(this._shadow);
+
 		// Inject component CSS (hot-reloadable)
 		const compStyle = document.createElement('style');
 		compStyle.setAttribute('data-component', this.name);
@@ -228,6 +308,9 @@ class GUIComponent {
 		}
 
 		parent.appendChild(this._host);
+		if (this._noCursorStyle) {
+			_trackNoCursorStyle(this._noCursorStyle);
+		}
 
 		// Bind keydown
 		if (this.onKeyDown) {
@@ -299,6 +382,9 @@ class GUIComponent {
 
 			// Detach from DOM
 			this._host.remove();
+			if (this._noCursorStyle) {
+				_untrackNoCursorStyle(this._noCursorStyle);
+			}
 
 			// Freeze mode cleanup
 			if (this.mouseMode === MouseMode.FREEZE) {
@@ -759,6 +845,10 @@ class GUIComponent {
 			'label',
 			'select',
 			'textarea',
+			// Checkbox widgets built as a styled <div> rather than a control, so
+			// they would otherwise be the only clickable thing the cursor ignores.
+			// EquipmentV4's carry the class on a <button> and already matched.
+			'.checkbox',
 			'.item-link',
 			'.draggable',
 			'.ro-custom-scrollbar',
@@ -768,6 +858,13 @@ class GUIComponent {
 		let _hovering = false;
 		let _savedType = _Cursor?.ACTION?.DEFAULT ?? 0;
 
+		// A clickable a component has marked `denied` takes the game's own
+		// refusal cursor instead of the click one. CSS cannot answer this: the
+		// custom cursor forces `cursor: none` across the window, so `not-allowed`
+		// only shows when it is switched off.
+		const cursorFor = target =>
+			(target.closest(DENIED_SELECTOR) ? _Cursor?.ACTION?.NOWALK : _Cursor?.ACTION?.CLICK) ?? 0;
+
 		container.addEventListener('mouseover', e => {
 			const target = e.target;
 			if (target.closest && target.closest(CLICKABLE_SELECTOR)) {
@@ -775,8 +872,9 @@ class GUIComponent {
 					_savedType = _Cursor?.getActualType() ?? 0;
 					_hovering = true;
 				}
-				if ((_Cursor?.getActualType() ?? 0) !== (_Cursor?.ACTION?.CLICK ?? 0)) {
-					_Cursor?.setType(_Cursor?.ACTION?.CLICK ?? 0);
+				const wanted = cursorFor(target);
+				if ((_Cursor?.getActualType() ?? 0) !== wanted) {
+					_Cursor?.setType(wanted);
 				}
 			}
 		});
@@ -801,15 +899,21 @@ class GUIComponent {
 					_savedType = _Cursor?.getActualType() ?? 0;
 					_hovering = true;
 				}
-				_Cursor?.setType(_Cursor?.ACTION?.CLICK ?? 0, true, 1);
+				// No press animation on a refusal - there is nothing being pressed.
+				if (target.closest(DENIED_SELECTOR)) {
+					_Cursor?.setType(_Cursor?.ACTION?.NOWALK ?? 0);
+				} else {
+					_Cursor?.setType(_Cursor?.ACTION?.CLICK ?? 0, true, 1);
+				}
 			}
 		});
 
 		container.addEventListener('mouseup', e => {
 			const target = e.target;
 			if (target.closest && target.closest(CLICKABLE_SELECTOR)) {
-				if ((_Cursor?.getActualType() ?? 0) !== (_Cursor?.ACTION?.CLICK ?? 0)) {
-					_Cursor?.setType(_Cursor?.ACTION?.CLICK ?? 0);
+				const wanted = cursorFor(target);
+				if ((_Cursor?.getActualType() ?? 0) !== wanted) {
+					_Cursor?.setType(wanted);
 				}
 				return;
 			}
@@ -862,7 +966,21 @@ class GUIComponent {
 			});
 
 			// Focus on mousedown
-			element.addEventListener('mousedown', () => this.focus());
+			element.addEventListener('mousedown', () => {
+				this.focus();
+
+				// focus() only raises the zIndex. Without moving the real DOM
+				// focus too, clicking a window leaves the tab sequence wherever
+				// it was, so Tab walks the whole document instead of the window
+				// just clicked. Skip it when the focus is already inside, and
+				// let the browser's own default then land it on whatever
+				// focusable control was actually clicked.
+				const host = this._host;
+				if (host && !host.contains(document.activeElement)) {
+					host.tabIndex = -1;
+					host.focus({ preventScroll: true });
+				}
+			});
 		}
 
 		if (this.mouseMode !== GUIComponent.MouseMode.CROSS) {

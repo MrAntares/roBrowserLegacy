@@ -142,10 +142,19 @@ class PokJukWeatherEffect {
 	}
 
 	render(gl, tick) {
+		const dt = Math.min(tick - (this._lastTick || tick), 250);
+		this._lastTick = tick;
+		this._accumTime = (this._accumTime || 0) + dt;
+
+		while (this._accumTime >= 16) {
+			this._accumTime -= 16;
+			for (let i = 0; i < this.fireworks.length; i++) {
+				this.updateFirework(this.fireworks[i]);
+			}
+		}
+
 		for (let i = 0; i < this.fireworks.length; i++) {
-			const fw = this.fireworks[i];
-			this.updateFirework(fw);
-			this.drawFirework(fw);
+			this.drawFirework(this.fireworks[i]);
 		}
 	}
 

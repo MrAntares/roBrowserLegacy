@@ -84,7 +84,7 @@ SwitchEquip.init = function init() {
 	}
 
 	// Set the active tab based on Equipment UI's current tab
-	const currentEquipTabId = Equipment.getUI().getCurrentTabId();
+	const currentEquipTabId = Equipment.getCurrentTabId();
 	SwitchEquip.showSwapTab(currentEquipTabId);
 
 	// Bind items on swapcontent tables
@@ -140,7 +140,7 @@ SwitchEquip.showSwapTab = function showSwapTab(tabId) {
  */
 SwitchEquip.onAppend = function onAppend() {
 	// Set the active tab based on Equipment UI's current tab
-	const currentEquipTabId = Equipment.getUI().getCurrentTabId();
+	const currentEquipTabId = Equipment.getCurrentTabId();
 	SwitchEquip.showSwapTab(currentEquipTabId);
 
 	const root = SwitchEquip.getRoot();
@@ -281,7 +281,7 @@ const swaprender = (function swaprenderClosure() {
 			bodypalette: Session.Entity.bodypalette
 		});
 
-		const currentEquipTabId = Equipment.getUI().getCurrentTabId();
+		const currentEquipTabId = Equipment.getCurrentTabId();
 
 		if (currentEquipTabId === 'general') {
 			swap_character.accessory = SwitchEquip.checkEquipLoc(EquipLocation.HEAD_BOTTOM);
@@ -533,7 +533,7 @@ SwitchEquip.getNumber = function () {
  * @returns {number} The sprite number of the item in the specified location, or 0 if not equipped
  */
 SwitchEquip.checkEquipLoc = function checkEquipLoc(location) {
-	const switchList = Inventory.getUI().equipswitchlist;
+	const switchList = Inventory.equipswitchlist;
 	for (let i = 0; i < switchList.length; i++) {
 		const item = switchList[i];
 		if (item.location & location) {

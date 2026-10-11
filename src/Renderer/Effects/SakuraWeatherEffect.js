@@ -356,8 +356,9 @@ class SakuraWeatherEffect {
 			const driftY = leave.swayFacY * Math.sin(radY);
 
 			// Apply drift to current position
-			leave.x += driftX * 0.1; // Scale down for smoothness
-			leave.y += driftY * 0.1;
+			const driftScale = dt / RAG_TICK_MS;
+			leave.x += driftX * 0.1 * driftScale; // Scale down for smoothness
+			leave.y += driftY * 0.1 * driftScale;
 
 			leave._lastTick = tick;
 

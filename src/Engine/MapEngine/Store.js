@@ -126,7 +126,7 @@ function onBarterBuyList(pkt) {
 		const count = itemList.length;
 
 		for (let i = 0; i < count; ++i) {
-			const item = Inventory.getUI().getItemById(itemList[i].matcurrency);
+			const item = Inventory.getItemById(itemList[i].matcurrency);
 			const item_index = item ? item.index : -1;
 			_pkt.itemList.push({
 				itemId: itemList[i].ITID,

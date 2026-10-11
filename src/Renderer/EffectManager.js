@@ -88,18 +88,30 @@ function spamSTR(Params) {
 	const texturePath = Params.effect.texturePath || '';
 
 	// Get STR file
-	if (Preferences.mineffect && Params.effect.min) {
+	const minimal = !!(Preferences.mineffect && Params.effect.min);
+	if (minimal) {
 		filename = Params.effect.min;
 	} else {
 		filename = Params.effect.file;
 	}
 
-	// Randomize STR file name
+	// Randomize STR file name, the same pick for every candidate
+	let pick = name => name;
 	if (Params.effect.rand) {
-		filename = filename.replace(
-			'%d',
-			Math.round(Params.effect.rand[0] + (Params.effect.rand[1] - Params.effect.rand[0]) * Math.random())
-		);
+		const n = Math.round(Params.effect.rand[0] + (Params.effect.rand[1] - Params.effect.rand[0]) * Math.random());
+		pick = name => name.replace('%d', n);
+	}
+	filename = pick(filename);
+
+	// Where the client keeps the same art under another folder. A fallback's
+	// textures sit beside it, so its texture path is its own folder.
+	const fallbacks = (Params.effect.fallback || []).map(file => ({
+		filename: 'data/texture/effect/' + pick(file) + '.str',
+		texturePath: file.substring(0, file.lastIndexOf('/') + 1)
+	}));
+	if (minimal) {
+		// No minimal version: the full one is better than nothing.
+		fallbacks.unshift({ filename: 'data/texture/effect/' + pick(Params.effect.file) + '.str', texturePath });
 	}
 
 	// Start effect
@@ -108,7 +120,8 @@ function spamSTR(Params) {
 			'data/texture/effect/' + filename + '.str',
 			Params.Inst.position,
 			Params.Inst.startTick,
-			texturePath
+			texturePath,
+			fallbacks
 		),
 		Params
 	);

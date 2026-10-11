@@ -237,7 +237,7 @@ function stopPropagation(event) {
 EnchantGrade.onOpenEnchantGradeUI = function onOpenEnchantGradeUI() {
 	EnchantGrade.append();
 
-	const invUI = Inventory.getUI();
+	const invUI = Inventory;
 	const isInventoryOpen =
 		invUI && invUI._host ? invUI._host.isConnected && invUI._host.style.display !== 'none' : false;
 
@@ -412,7 +412,7 @@ function onEnchantGradeUIUpdateMaterials(pkt) {
 
 		EnchantGrade_item_index = pkt.index;
 		EnchantGrade_current_success = pkt.success_chance;
-		const item = Inventory.getUI().getItemByIndex(pkt.index);
+		const item = Inventory.getItemByIndex(pkt.index);
 
 		gradingMaterials = pkt.materialList;
 
@@ -475,7 +475,7 @@ function onEnchantGradeUIUpdateMaterials(pkt) {
 		}
 
 		const blessItem = DB.getItemInfo(bless.id);
-		const invBless = Inventory.getUI().getItemById(bless.id);
+		const invBless = Inventory.getItemById(bless.id);
 		const invCount = invBless ? invBless.count : 0;
 
 		const bedContainer = root.querySelector('.BED_container');
@@ -712,7 +712,7 @@ function onPopulateMaterials() {
 					zenyCost.textContent = price;
 				}
 
-				const item = Inventory.getUI().getItemById(material_ITID);
+				const item = Inventory.getItemById(material_ITID);
 				const material_count = item ? item.count : 0;
 
 				if (!item || material_count < material_amount) {
@@ -910,11 +910,11 @@ function onEnchantGradeResult(pkt) {
 			}
 		});
 
-		const item = Inventory.getUI().removeItem(pkt.index, 1);
+		const item = Inventory.removeItem(pkt.index, 1);
 		if (item) {
 			item.enchantgrade = pkt.grade;
 			item.RefiningLevel = pkt.result === 0 ? 0 : item.RefiningLevel;
-			Inventory.getUI().addItem(item);
+			Inventory.addItem(item);
 		}
 	}
 }
@@ -951,9 +951,7 @@ function onItemInfo(event) {
 	event.preventDefault();
 
 	const ITID = parseInt(this.getAttribute('data-index'), 10);
-	const item = Inventory.getUI().getItemById(ITID)
-		? Inventory.getUI().getItemById(ITID)
-		: Inventory.getUI().getItemByIndex(ITID);
+	const item = Inventory.getItemById(ITID) ? Inventory.getItemById(ITID) : Inventory.getItemByIndex(ITID);
 
 	if (!item) {
 		return false;
@@ -975,9 +973,9 @@ function onItemInfo(event) {
 	ItemInfo.uid = item.ITID;
 	ItemInfo.setItem(item);
 
-	const compareItem = Equipment.getUI().isInEquipList(item.location);
+	const compareItem = Equipment.isInEquipList(item.location);
 
-	if (compareItem && Inventory.getUI().itemcomp) {
+	if (compareItem && Inventory.itemcomp) {
 		ItemCompare.prepare();
 		ItemCompare.append();
 		ItemCompare.uid = compareItem.ITID;

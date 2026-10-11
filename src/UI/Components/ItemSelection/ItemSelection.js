@@ -103,7 +103,7 @@ ItemSelection.setList = function setList(list, isSkill) {
 				addElement(DB.INTERFACE_PATH + 'item/' + file + '.bmp', list[i], name);
 			}
 		} else {
-			const item = Inventory.getUI().getItemByIndex(list[i]);
+			const item = Inventory.getItemByIndex(list[i]);
 			if (item) {
 				const it = DB.getItemInfo(item.ITID);
 				if (it) {

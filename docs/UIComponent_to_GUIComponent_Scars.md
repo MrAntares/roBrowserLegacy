@@ -214,7 +214,7 @@ Not all pitfalls require action from the migrator. Some are already handled by t
 
 **Automatic (no action needed):**
 
-- §2: Global CSS penetration → Common.css `:host-context` rule
+- §2: Global CSS penetration → Common.css style query on `--ro-game-cursor`
 - §3: Scrollbar CSS injection → `applyDOMScrollbar()` auto-detects shadow
 - §4 (closest body): `isConnected` fix in Scrollbar.js
 - §5 (mouse events): `_setupShadowCursorEvents()` handles retargeting
@@ -616,19 +616,93 @@ $scrollbar[0].style.display = ''; // ← resets to CSS value (flex)
 
 ### 2. Global CSS does not penetrate Shadow DOM
 
-**Bug**: CSS rules in the global `<style>` tag (e.g., `.custom-cursor * { cursor: none !important; }` from CursorManager) do not affect elements inside Shadow DOM.
+**Bug**: CSS rules in the global `<style>` tag (e.g., `.custom-cursor * { cursor: none !important; }` from CursorManager) do not affect elements inside Shadow DOM. `:host-context(.custom-cursor)` does not help outside Chromium: Firefox and Safari ignore it and show the native cursor over any control with its own `cursor`.
 
-**Fix applied in `src/UI/Common.css`** (commit `f4183351`):
+**Fix applied in `src/UI/CursorManager.js` and `src/UI/Common.css`**:
 
 ```css
-:host-context(.custom-cursor) * {
-	cursor: none !important;
+/* CursorManager */
+.custom-cursor { --ro-game-cursor: on; }
+
+/* Common.css */
+@container style(--ro-game-cursor: on) {
+	* {
+		cursor: none !important;
+	}
 }
 ```
 
-This rule is inside `Common.css` which is injected into every Shadow DOM. `:host-context(.custom-cursor)` checks if any ancestor of the shadow host has the class `custom-cursor` (set on `document.body` by CursorManager).
+Custom properties inherit across the shadow boundary, so the style query sees `--ro-game-cursor` in every shadow root.
 
-**RULE**: Any global CSS that needs to affect Shadow DOM content must be added to `Common.css`.
+**Fallback applied in `src/UI/GUIComponent.js`**, for browsers without style queries (Firefox < 151, Safari < 18):
+
+```javascript
+// _prepare(): a <style data-no-cursor> in the shadow root, null when not needed
+this._noCursorStyle = _addNoCursorFallback(this._shadow);
+
+// append() / remove()
+_trackNoCursorStyle(this._noCursorStyle);
+_untrackNoCursorStyle(this._noCursorStyle);
+```
+
+A body `class` observer switches each tracked style's `media` between `all` and `not all` (`disabled` would reset when the window is appended again). No action needed from the component author.
+
+**Check in a browser**: jsdom evaluates neither container queries nor the cascade inside a shadow root, so the unit tests cannot see the rendered cursor. With any window open, paste this in the DevTools console of the game frame:
+
+```javascript
+(async () => {
+	const body = document.body;
+	const had = body.classList.contains('custom-cursor');
+	// Rendered windows only: a display:none one is not restyled, and cannot be hovered anyway.
+	const hosts = [...body.querySelectorAll('*')].filter(e => e.shadowRoot && e.getClientRects().length);
+	body.classList.remove('custom-cursor');
+	await Promise.resolve(); // lets the fallback's observer run
+	let el = null;
+	let off = null;
+	for (const h of hosts) {
+		for (const n of h.shadowRoot.querySelectorAll('*')) {
+			if (!n.getClientRects().length) continue;
+			const c = getComputedStyle(n).cursor;
+			if (c !== 'auto' && c !== 'default') {
+				el = n;
+				off = c;
+				break;
+			}
+		}
+		if (el) break;
+	}
+	// No control with its own cursor on screen: style a sample the way a component would.
+	let sample = null;
+	if (!el && hosts.length) {
+		sample = document.createElement('span');
+		sample.innerHTML = '<style>.cursor-check { cursor: pointer; }</style><b class="cursor-check"></b>';
+		hosts[0].shadowRoot.appendChild(sample);
+		el = sample.lastChild;
+		off = getComputedStyle(el).cursor;
+	}
+	body.classList.add('custom-cursor');
+	await Promise.resolve();
+	const on = el && getComputedStyle(el).cursor;
+	sample?.remove();
+	if (!had) body.classList.remove('custom-cursor');
+	const fallback = hosts.some(h => h.shadowRoot.querySelector('style[data-no-cursor]'));
+	console.log({ off, on, fallback, sample: !!sample, pass: !!el && on === 'none' && off !== 'none' });
+})();
+```
+
+It reads the computed cursor of a visible element in a window that sets its own, with the game cursor off then on. Expect `pass: true` (`off` such as `pointer`, `on` `none`); `fallback` is `true` only in browsers without style queries.
+
+Checked on 2026-10-08, in game, all on the style-query path:
+
+| Browser       | Element               | Game cursor off → on  |
+| ------------- | --------------------- | --------------------- |
+| Firefox 157   | ChatBox input         | `text` → `none`       |
+| Chrome 154    | ChatBox input         | `text` → `none`       |
+| Safari 26.6.1 | ChatBox resize handle | `ns-resize` → `none`  |
+
+The fallback path is covered by the unit tests only: no browser at hand lacked style queries.
+
+**RULE**: Any global CSS that needs to affect Shadow DOM content must be added to `Common.css`. To make it depend on page state, pass the state in through an inherited custom property — never `:host-context()`.
 
 ### 3. Scrollbar CSS injection into Shadow DOM
 

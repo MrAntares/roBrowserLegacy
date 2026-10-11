@@ -246,7 +246,7 @@ ItemReform.init = function init() {
  */
 function GetInventoryItemsById(id) {
 	const items = [];
-	const list = Inventory.getUI().list;
+	const list = Inventory.list;
 
 	for (let i = 0, count = list.length; i < count; ++i) {
 		if (list[i].ITID === id) {
@@ -268,7 +268,7 @@ function onOpenReformUI(pkt) {
 
 		const reformids = DB.findReformListByItemID(pkt.ITID);
 
-		const item = Inventory.getUI().getItemById(pkt.ITID);
+		const item = Inventory.getItemById(pkt.ITID);
 
 		if (!item) {
 			return false;
@@ -377,7 +377,7 @@ function onAddMaterialItem(item) {
  */
 function onMaterialSelect(element) {
 	const idx = parseInt(element.getAttribute('data-index'), 10);
-	const item = Inventory.getUI().getItemByIndex(idx);
+	const item = Inventory.getItemByIndex(idx);
 
 	if (!item) {
 		return;
@@ -402,7 +402,7 @@ function onMaterialSelect(element) {
 	availableMatList.querySelectorAll('.item').forEach(el => {
 		el.classList.remove('selected');
 		const resetIdx = parseInt(el.getAttribute('data-index'), 10);
-		const resetItem = Inventory.getUI().getItemByIndex(resetIdx);
+		const resetItem = Inventory.getItemByIndex(resetIdx);
 		if (resetItem) {
 			Client.loadFile(DB.INTERFACE_PATH + 'itemreform/btn_reform_item.bmp', function (data) {
 				const target = availableMatList.querySelector(`.item[data-index="${resetItem.index}"]`);
@@ -433,7 +433,7 @@ function onHoverContainer(element) {
 	}
 
 	const idx = parseInt(element.getAttribute('data-index'), 10);
-	const item = Inventory.getUI().getItemByIndex(idx);
+	const item = Inventory.getItemByIndex(idx);
 
 	if (!item) {
 		return;
@@ -462,7 +462,7 @@ function onHoverOutContainer(element) {
 	}
 
 	const idx = parseInt(element.getAttribute('data-index'), 10);
-	const item = Inventory.getUI().getItemByIndex(idx);
+	const item = Inventory.getItemByIndex(idx);
 
 	if (!item) {
 		return;
@@ -558,7 +558,7 @@ function UpdatePossibleReformUI(item, info) {
 	let withenoughMat = 0;
 	limitedMaterials.forEach(material => {
 		const mat_it = DB.getItemInfo(material.MaterialItemID);
-		const mat_item = Inventory.getUI().getItemById(material.MaterialItemID);
+		const mat_item = Inventory.getItemById(material.MaterialItemID);
 		let inventory_mat_count;
 
 		if (!mat_item) {
@@ -654,7 +654,7 @@ function onItemReformResult(pkt) {
 	if (pkt) {
 		switch (pkt.result) {
 			case 0: {
-				const item = Inventory.getUI().getItemByIndex(pkt.index);
+				const item = Inventory.getItemByIndex(pkt.index);
 
 				const EF_Init_Par = {
 					effectId: EffectConst.EF_NEW_SUCCESS,
@@ -733,7 +733,7 @@ function onItemOver(event, element) {
 	} else if (element.classList.contains('resultitem')) {
 		item = ReformUIState.resultItem;
 	} else {
-		item = Inventory.getUI().getItemByIndex(idx);
+		item = Inventory.getItemByIndex(idx);
 	}
 
 	const root = _root();
@@ -803,7 +803,7 @@ function onItemInfo(element) {
 	} else if (element.classList.contains('resultitem')) {
 		item = ReformUIState.resultItem;
 	} else {
-		item = Inventory.getUI().getItemByIndex(idx);
+		item = Inventory.getItemByIndex(idx);
 	}
 
 	if (!item) {
@@ -835,9 +835,9 @@ function showItemPreview(item) {
 	ItemInfo.uid = item.ITID;
 	ItemInfo.setItem(item);
 
-	const compareItem = Equipment.getUI().isInEquipList(item.location);
+	const compareItem = Equipment.isInEquipList(item.location);
 
-	if (compareItem && Inventory.getUI().itemcomp) {
+	if (compareItem && Inventory.itemcomp) {
 		ItemCompare.prepare();
 		ItemCompare.append();
 		ItemCompare.uid = compareItem.ITID;
