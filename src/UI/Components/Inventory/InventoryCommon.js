@@ -402,9 +402,8 @@ export function createInventory(config) {
 		this.magnet.RIGHT = _preferences.magnet_right;
 
 		_realSize = _preferences.reduce ? 0 : this._host.getBoundingClientRect().height;
-		const miniBtnAppend = root.querySelector('.titlebar .mini');
-		if (miniBtnAppend) {
-			miniBtnAppend.dispatchEvent(new Event('mousedown'));
+		if (root.querySelector('.titlebar .mini')) {
+			onToggleReduction();
 		}
 	};
 
