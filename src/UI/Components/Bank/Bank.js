@@ -23,6 +23,7 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import NpcBox from 'UI/Components/NpcBox/NpcBox.js';
 import NpcMenu from 'UI/Components/NpcMenu/NpcMenu.js';
 import InputBox from 'UI/Components/InputBox/InputBox.js';
+import { DEPOSITAR, RECUSA, SACAR, quantiaDoPedido } from './quantiaDoBanco.js';
 /**
  * Create Component
  */
@@ -35,11 +36,6 @@ Bank.render = () => htmlText;
 
 /* Janela entra/sai com a animacao unica (Fase 3, 01/09/2026). */
 Bank.riAnimaJanela = true;
-
-/**
- * Max Int
- */
-const maxInt = 2147483647;
 
 /**
  * @var {Preferences} structure
@@ -133,145 +129,82 @@ Bank.init = function init() {
 };
 
 /**
- * Check if input value is valid
+ * O AVISO DE CADA RECUSA (D-2307): [mensagem curta na janela, linha no chat].
+ *
+ * As do campo (vazio, letra, <= 0, acima do teto) sao as que `CheckValue`
+ * sempre deu. As do saldo sao as que o SERVIDOR daria ao mesmo pedido
+ * (`Engine/MapEngine/Bank.js`: deposito motivo 2 e 3, saque motivo 1) - a
+ * janela passa a recusar antes, e o jogador ve o mesmo aviso de antes. O
+ * saque que estoura a mao segue com o aviso que a janela ja dava.
+ * `saldo-ilegivel` nao esta aqui de proposito: sai calado.
  */
-function CheckValue(value) {
+const AVISO_DA_RECUSA = {
+	[RECUSA.VAZIO]: () => [2781, 2779],
+	[RECUSA.NAO_NUMERICO]: () => [2782, 2488],
+	[RECUSA.NAO_POSITIVO]: () => [2784, 2769],
+	[RECUSA.ACIMA_DO_TETO]: () => [2783, 2768],
+	[RECUSA.SEM_SALDO]: operacao => (operacao === DEPOSITAR ? [2785, 2770] : [2786, 2455]),
+	[RECUSA.ACIMA_DO_SALDO]: operacao => (operacao === DEPOSITAR ? [2780, 2456] : [2786, 2455]),
+	[RECUSA.ESTOURA_O_COFRE]: () => [2783, 2787],
+	[RECUSA.ESTOURA_A_MAO]: () => [2787, 2459]
+};
+
+/**
+ * O saldo do cofre como NUMERO, guardado de quem o recebeu do servidor
+ * (`updateBankDisplay`). Antes o "MAX" o relia do texto da tela, que esta no
+ * formato do locale (D-2307). `null` = ainda nao veio.
+ */
+let _saldoNoCofre = null;
+
+/**
+ * Pede ao cofre: so sai pacote com a quantia que `quantiaDoPedido` aprovou
+ * (inteiro finito > 0, ate o saldo). Recusa = o aviso de `AVISO_DA_RECUSA` e o
+ * campo limpo, como a janela sempre fez nas recusas dela.
+ */
+function pedirAoCofre(operacao, entrada) {
 	const root = Bank.getRoot();
-	const error = root.querySelector('.errorupdate');
+	const input = root.querySelector('.depo');
+	const decisao = quantiaDoPedido({
+		operacao,
+		entrada,
+		zenyNaMao: Session.zeny,
+		saldoNoCofre: _saldoNoCofre
+	});
 
-	if (value === '') {
-		if (error) {
-			error.textContent = DB.getMessage(2781);
+	if ('recusa' in decisao) {
+		const aviso = AVISO_DA_RECUSA[decisao.recusa];
+		if (aviso) {
+			const [curta, noChat] = aviso(operacao);
+			const error = root.querySelector('.errorupdate');
+			if (error) {
+				error.textContent = DB.getMessage(curta);
+			}
+			ChatBox.addText(DB.getMessage(noChat), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 		}
-		ChatBox.addText(DB.getMessage(2779), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
-		return false;
+		input.value = '';
+		return;
 	}
 
-	if (typeof value === 'string' && value !== 'MAX' && !/^\d+$/.test(value)) {
-		if (error) {
-			error.textContent = DB.getMessage(2782);
-		}
-		ChatBox.addText(DB.getMessage(2488), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
-		return false;
-	}
+	const pkt = operacao === DEPOSITAR ? new PACKET.CZ.REQ_BANKING_DEPOSIT() : new PACKET.CZ.REQ_BANKING_WITHDRAW();
+	pkt.AID = Session.AID;
+	pkt.money = decisao.quantia;
+	Network.sendPacket(pkt);
 
-	if (parseInt(value) <= 0) {
-		if (error) {
-			error.textContent = DB.getMessage(2784);
-		}
-		ChatBox.addText(DB.getMessage(2769), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
-		return false;
-	}
-
-	if (parseInt(value) > maxInt) {
-		if (error) {
-			error.textContent = DB.getMessage(2783);
-		}
-		ChatBox.addText(DB.getMessage(2768), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
-		return false;
-	}
-
-	return true;
+	input.value = '';
 }
 
 /**
  * Send Request to server to deposit
  */
 function sendDepositRequest(value) {
-	const root = Bank.getRoot();
-	const input = root.querySelector('.depo');
-
-	if (CheckValue(value) === false) {
-		input.value = '';
-		return;
-	}
-
-	if (value === 'MAX') {
-		const inbank = root.querySelector('.inbank.currency');
-		const getval = parseInt(getIntValueFromFormattedString(inbank.textContent));
-		if (Session.zeny + getval > maxInt && getval < maxInt) {
-			value = parseInt(maxInt) - getval;
-		} else {
-			if (Session.zeny === 0) {
-				const error = root.querySelector('.errorupdate');
-				if (error) {
-					error.textContent = DB.getMessage(2785);
-				}
-				ChatBox.addText(DB.getMessage(2770), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
-				input.value = '';
-				return;
-			} else {
-				value = Session.zeny;
-			}
-		}
-	}
-
-	const pkt = new PACKET.CZ.REQ_BANKING_DEPOSIT();
-	pkt.AID = Session.AID;
-	pkt.money = value;
-	Network.sendPacket(pkt);
-
-	input.value = '';
+	pedirAoCofre(DEPOSITAR, value);
 }
 
 /**
  * Send Request to server to withdraw
  */
 function sendWithdrawRequest(value) {
-	const root = Bank.getRoot();
-	const input = root.querySelector('.depo');
-	const error = root.querySelector('.errorupdate');
-
-	if (CheckValue(value) === false) {
-		input.value = '';
-		return;
-	}
-
-	if (value === 'MAX') {
-		const inbank = root.querySelector('.inbank.currency');
-		const getval = parseInt(getIntValueFromFormattedString(inbank.textContent));
-		if (Session.zeny + getval > maxInt && Session.zeny < maxInt) {
-			value = parseInt(maxInt) - Session.zeny;
-		} else if (getval === 0) {
-			if (error) {
-				error.textContent = DB.getMessage(2785);
-			}
-			ChatBox.addText(DB.getMessage(2770), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
-			input.value = '';
-			return;
-		} else {
-			value = getval;
-		}
-	}
-
-	if (parseInt(Session.zeny) + parseInt(value) > parseInt(maxInt)) {
-		if (error) {
-			error.textContent = DB.getMessage(2787);
-		}
-		ChatBox.addText(DB.getMessage(2459), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
-		input.value = '';
-		return;
-	}
-
-	const pkt = new PACKET.CZ.REQ_BANKING_WITHDRAW();
-	pkt.AID = Session.AID;
-	pkt.money = value;
-	Network.sendPacket(pkt);
-
-	input.value = '';
-}
-
-/**
- * Get int value from the input box
- */
-function getIntValueFromFormattedString(formattedString) {
-	const strippedString = formattedString.replace(/,/g, '').replace('z', '');
-	const intValue = parseInt(strippedString, 10);
-	if (!isNaN(intValue)) {
-		return intValue;
-	} else {
-		return null;
-	}
+	pedirAoCofre(SACAR, value);
 }
 
 /**
@@ -374,6 +307,7 @@ Bank.onRemove = function onRemove() {
 	_preferences.y = parseInt(this._host.style.top, 10);
 	_preferences.x = parseInt(this._host.style.left, 10);
 	_preferences.save();
+	_saldoNoCofre = null;
 
 	const root = this.getRoot();
 	const error = root.querySelector('.errorupdate');
@@ -389,6 +323,8 @@ Bank.updateBankDisplay = function updateBankDisplay(bankMoney, handMoney) {
 	const root = this.getRoot();
 	const inbank = root.querySelector('.inbank.currency');
 	const onhand = root.querySelector('.onhand.currency');
+	// O numero, e nao o texto formatado, e o que o MAX usa (D-2307).
+	_saldoNoCofre = bankMoney;
 	if (inbank) {
 		inbank.textContent = bankMoney.toLocaleString() + 'z';
 	}
