@@ -54,7 +54,8 @@ describe('conferirCadastro', () => {
 	it.each([
 		['nome', 'J', /nome/],
 		['email', 'sem-arroba', /e-mail/],
-		['telefone', '1234', /8 dígitos/],
+		['telefone', '1234', /DDD/],
+		['telefone', '98765-4321', /DDD/],
 		['usuario', 'ab', /usuário/],
 		['usuario', 'com espaco', /usuário/],
 		['senha', '123', /senha/]

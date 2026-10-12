@@ -14,15 +14,20 @@ import GUIComponent from 'UI/GUIComponent.js';
 import { montarOfertaNaEntrada, sincronizar as sincronizarOferta } from './ofertaNaEntrada.js';
 import { enderecoDoCadastro } from 'UI/enderecoDoCadastro.js';
 import { montarCadastroNaEntrada } from './cadastroNaEntrada.js';
+import { montarEsqueciASenha } from './esqueciASenha.js';
+import { montarEntradaSocial } from './entradaSocial.js';
 import IdiomaIdle from 'UI/Components/IdiomaIdle/IdiomaIdle.js';
 import cadastroHtml from './cadastroNaEntrada.html?raw';
 import cadastroCss from './cadastroNaEntrada.css?raw';
+import esqueciHtml from './esqueciASenha.html?raw';
+import esqueciCss from './esqueciASenha.css?raw';
 import 'UI/Elements/Elements.js';
 
 export function createWinLogin({ name, htmlText, cssText }) {
-	// A janela de cadastro (23/09/2026) vem junto em toda versao do login.
-	const Component = new GUIComponent(name, `${cssText}\n${cadastroCss}`);
-	Component.render = () => htmlText + cadastroHtml;
+	// A janela de cadastro (23/09/2026) e a de "esqueci minha senha"
+	// (08/10/2026) vem junto em toda versao do login.
+	const Component = new GUIComponent(name, `${cssText}\n${cadastroCss}\n${esqueciCss}`);
+	Component.render = () => htmlText + cadastroHtml + esqueciHtml;
 	Component.needFocus = false;
 
 	const _preferences = Preferences.get('WinLogin', { saveID: true, ID: '' }, 1.0);
@@ -31,6 +36,7 @@ export function createWinLogin({ name, htmlText, cssText }) {
 	let _inputPassword;
 	let _buttonSave;
 	let _cadastro = null;
+	let _esqueci = null;
 
 	Component.init = function init() {
 		// SEM this.draggable() de proposito (19/08/2026): GUIComponent#
@@ -73,6 +79,30 @@ export function createWinLogin({ name, htmlText, cssText }) {
 				_inputUsername.value = usuario;
 				Component.onConnectionRequest(usuario, senha);
 			}
+		});
+
+		// ESQUECI MINHA SENHA (08/10/2026): o codigo vai por e-mail, a senha
+		// troca e o jogador entra direto com a nova. So o template que tem o
+		// link (`.forgot`) o oferece.
+		_esqueci = montarEsqueciASenha(root, {
+			aoEntrar(usuario, senha) {
+				_inputUsername.value = usuario;
+				Component.onConnectionRequest(usuario, senha);
+			}
+		});
+		const forgot = root.querySelector('.forgot');
+		if (forgot && _esqueci) {
+			forgot.addEventListener('click', event => {
+				event.stopImmediatePropagation();
+				if (_cadastro) _cadastro.fechar();
+				_esqueci.abrir(_inputUsername.value);
+			});
+		}
+
+		// ENTRAR COM GOOGLE OU DISCORD (10/10/2026): a conta sem senha entra pelo
+		// provedor, e volta aqui com o passe de entrada (D-1379).
+		montarEntradaSocial(root, {
+			avisar: texto => UIManager.showMessageBox(texto, 'ok')
 		});
 
 		// A OFERTA DE INSTALACAO (D-945, 06/09/2026). A casca cala o banner do
@@ -143,25 +173,29 @@ export function createWinLogin({ name, htmlText, cssText }) {
 	Component.onKeyDown = function onKeyDown(event) {
 		if (this._host.style.display === 'none') return true;
 
-		const noCadastro = _cadastro !== null && _cadastro.aberta();
+		// A janela aberta por cima do login (cadastro ou esqueci a senha) fica
+		// com o Enter, o Esc e o Tab.
+		let aberta = null;
+		if (_esqueci !== null && _esqueci.aberta()) aberta = _esqueci;
+		else if (_cadastro !== null && _cadastro.aberta()) aberta = _cadastro;
 
 		switch (event.which) {
 			case KEYS.ENTER:
 				if (this._shadow.activeElement?.tagName === 'BUTTON') {
 					return true;
 				}
-				if (noCadastro) _cadastro.enviar();
+				if (aberta) aberta.enviar();
 				else connect();
 				event.stopImmediatePropagation();
 				return false;
 			case KEYS.ESCAPE:
-				if (noCadastro) _cadastro.fechar();
+				if (aberta) aberta.fechar();
 				else exit();
 				event.stopImmediatePropagation();
 				return false;
 			case KEYS.TAB: {
-				// Com o cadastro aberto, o Tab gira so dentro dele.
-				const escopo = noCadastro ? _cadastro.janela : this.getRoot();
+				// Com uma janela aberta, o Tab gira so dentro dela.
+				const escopo = aberta ? aberta.janela : this.getRoot();
 				const controls = [...escopo.querySelectorAll('input:not([type="file"]), button')].filter(
 					el => !el.disabled && el.getClientRects().length
 				);

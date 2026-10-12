@@ -1,0 +1,198 @@
+<!-- ESQUECI MINHA SENHA (08/10/2026). Mesma pele da janela de cadastro (as
+     classes `cad-*`), em dois passos: pedir o codigo por e-mail e trocar a
+     senha com ele. Ver `esqueciASenha.js`. -->
+<div class="cad esq" hidden>
+	<div class="cad-fundo" data-fechar-esq></div>
+
+	<div class="cad-janela esq-janela" role="dialog" aria-modal="true" aria-labelledby="esq-titulo">
+		<div class="cad-barra">
+			<span class="cad-gema" aria-hidden="true"></span>
+			<h2 class="cad-barra-titulo" id="esq-titulo">Esqueci minha senha</h2>
+			<button class="cad-fechar" type="button" data-fechar-esq aria-label="Fechar janela">
+				<svg
+					width="14"
+					height="14"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2.4"
+					stroke-linecap="round"
+					aria-hidden="true"
+				>
+					<path d="M6 6 18 18M18 6 6 18" />
+				</svg>
+			</button>
+		</div>
+
+		<div class="cad-corpo">
+			<!-- PASSO 1: pedir o codigo -->
+			<form class="cad-form esq-pedir" novalidate>
+				<p class="esq-texto cad-inteira">
+					Informe o usuário e o e-mail do cadastro. Vamos mandar um código para você criar uma senha nova.
+				</p>
+
+				<div class="cad-campo cad-inteira">
+					<label class="cad-rotulo" for="esq-usuario">Usuário</label>
+					<div class="cad-caixa">
+						<svg
+							class="cad-icone"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							aria-hidden="true"
+						>
+							<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+							<circle cx="12" cy="7" r="4" />
+						</svg>
+						<input
+							class="cad-input"
+							type="text"
+							id="esq-usuario"
+							name="usuario"
+							autocomplete="username"
+							maxlength="23"
+							spellcheck="false"
+							autocapitalize="off"
+							data-permitir-autofill
+						/>
+					</div>
+				</div>
+
+				<div class="cad-campo cad-inteira">
+					<label class="cad-rotulo" for="esq-email">E-mail</label>
+					<div class="cad-caixa">
+						<svg
+							class="cad-icone"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							aria-hidden="true"
+						>
+							<rect width="20" height="16" x="2" y="4" rx="2" />
+							<path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+						</svg>
+						<input
+							class="cad-input"
+							type="email"
+							id="esq-email"
+							name="email"
+							autocomplete="email"
+							maxlength="120"
+							placeholder="voce@exemplo.com"
+							data-permitir-autofill
+						/>
+					</div>
+				</div>
+
+				<p class="cad-recado cad-inteira" role="status" hidden></p>
+
+				<button class="cad-enviar cad-inteira" type="submit">Enviar código</button>
+				<button class="cad-ja cad-inteira esq-ja-tenho" type="button">Já tenho um código</button>
+			</form>
+
+			<!-- PASSO 2: trocar a senha com o codigo -->
+			<form class="cad-form esq-redefinir" novalidate hidden>
+				<p class="esq-texto esq-aviso cad-inteira" role="status"></p>
+
+				<div class="cad-campo cad-inteira">
+					<label class="cad-rotulo" for="esq-usuario2">Usuário</label>
+					<div class="cad-caixa">
+						<svg
+							class="cad-icone"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							aria-hidden="true"
+						>
+							<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+							<circle cx="12" cy="7" r="4" />
+						</svg>
+						<input
+							class="cad-input"
+							type="text"
+							id="esq-usuario2"
+							name="usuario"
+							autocomplete="username"
+							maxlength="23"
+							spellcheck="false"
+							autocapitalize="off"
+							data-permitir-autofill
+						/>
+					</div>
+				</div>
+
+				<div class="cad-campo">
+					<label class="cad-rotulo" for="esq-codigo">Código</label>
+					<div class="cad-caixa">
+						<svg
+							class="cad-icone"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							aria-hidden="true"
+						>
+							<circle cx="7.5" cy="15.5" r="5.5" />
+							<path d="m21 2-9.6 9.6M15.5 7.5l3 3L22 7l-3-3" />
+						</svg>
+						<input
+							class="cad-input esq-codigo"
+							type="text"
+							id="esq-codigo"
+							name="codigo"
+							inputmode="numeric"
+							autocomplete="one-time-code"
+							maxlength="6"
+							placeholder="6 dígitos"
+						/>
+					</div>
+				</div>
+
+				<div class="cad-campo">
+					<label class="cad-rotulo" for="esq-senha">Senha nova</label>
+					<div class="cad-caixa">
+						<svg
+							class="cad-icone"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							aria-hidden="true"
+						>
+							<rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+							<path d="M7 11V7a5 5 0 0 1 10 0v4" />
+						</svg>
+						<input
+							class="cad-input"
+							type="password"
+							id="esq-senha"
+							name="senha"
+							autocomplete="new-password"
+							maxlength="23"
+							placeholder="4 a 23 caracteres"
+							data-permitir-autofill
+						/>
+					</div>
+				</div>
+
+				<p class="cad-recado cad-inteira" role="status" hidden></p>
+
+				<button class="cad-enviar cad-inteira" type="submit">Trocar senha e entrar</button>
+				<button class="cad-ja cad-inteira esq-outro" type="button">Pedir outro código</button>
+			</form>
+		</div>
+	</div>
+</div>

@@ -155,7 +155,21 @@ export default defineConfig({
 		}
 	},
 	optimizeDeps: {  
-		include: ['bson', 'lodash', 'rijndael-js']  
+		include: ['bson', 'lodash', 'rijndael-js'],
+		/*
+		 * A VARREDURA DE DEPENDENCIAS NAO ENTRA EM `.claude/` (08/10/2026).
+		 *
+		 * Sem `entries`, o vite procura TODO `.html` debaixo da raiz para
+		 * pre-empacotar as dependencias - e as worktrees de agente moram em
+		 * `.claude/worktrees/`, cada uma com uma copia inteira do cliente (210
+		 * paginas). Medido nesta maquina com 26 delas, duas vezes: o vite chegou
+		 * a ~3 GB e nao respondeu a primeira pagina em 240 s (o `page.goto` da
+		 * `prove:e2e` estourava os 60 s; o `npm run dev` sobe este mesmo vite
+		 * nesta mesma raiz); com a varredura fora de `.claude/`, 200 em 1,6 s e
+		 * em 14 s, com ~0,5 GB. Os padroes sao os de sempre (todo `.html`)
+		 * menos o que nao e deste checkout.
+		 */
+		entries: ['**/*.html', '!**/.claude/**', '!**/node_modules/**', '!dist/**']
 	},
 	test: {
 		environment: 'jsdom',
@@ -202,12 +216,14 @@ export default defineConfig({
 		port: 3000,
 		open: !isDocker,
 		cors: true,  
-		...(isDocker && {  
-			watch: {  
-				usePolling: true, 
-				interval: 1000  
-			}  
-		}),
+		// O vigia tambem fica longe das worktrees de agente (ver `optimizeDeps.entries`).
+		watch: {
+			ignored: ['**/.claude/**'],
+			...(isDocker && {
+				usePolling: true,
+				interval: 1000
+			})
+		},
 		proxy: _proxy
 	}	
 });

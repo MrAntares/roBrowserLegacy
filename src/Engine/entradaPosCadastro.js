@@ -78,6 +78,12 @@ let _entrada = null;
 let _pendente = false;
 /** O servidor aceitou o passe, e a lista de personagens ainda nao chegou. */
 let _aceita = false;
+/**
+ * O usuario do passe aceito, guardado para o `eventID` da conversao: o estado
+ * de cima se apaga antes de a criacao abrir, e a conversao sai depois.
+ * @type {string | null}
+ */
+let _usuarioDaConversao = null;
 
 /**
  * Pega a entrada deixada pelo `api.html` (ou, na reserva, do fragmento), e a
@@ -156,6 +162,7 @@ export function loginAceito() {
 	_entrada = null;
 	_pendente = false;
 	_aceita = true;
+	_usuarioDaConversao = usuario;
 	return usuario;
 }
 
@@ -202,10 +209,49 @@ export function abrirCriacaoDireto(quantosPersonagens) {
 export function registrarConversaoDoCadastro(janela = window) {
 	try {
 		if (typeof janela.fbq !== 'function') return false;
-		janela.fbq('track', 'CompleteRegistration');
+		const usuario = _usuarioDaConversao;
+		_usuarioDaConversao = null;
+		const fbq = janela.fbq;
+		/*
+		 * O EVENTO E `Lead` (10/10/2026, decisao do dono): o conjunto de anuncios
+		 * otimiza por Lead, e o dataset fica so com PageView e Lead. Ate aqui ele
+		 * era o `CompleteRegistration`.
+		 *
+		 * O `eventID` (09/10/2026) e o MESMO do evento que o servidor manda pela
+		 * API de Conversoes (`servidor/web/conversoes-meta.ts`, no rag-idle):
+		 * `cadastro.<sha256 do usuario em minusculas>`. Com ele a Meta junta os
+		 * dois e conta o cadastro UMA vez. O hash e assincrono no navegador, por
+		 * isso o evento sai na volta dele; sem `crypto.subtle` (pagina sem
+		 * HTTPS) ou sem usuario, sai sem id, como antes.
+		 */
+		idDoEventoDeCadastro(usuario, janela)
+			.then(eventID => {
+				if (eventID) fbq('track', 'Lead', {}, { eventID });
+				else fbq('track', 'Lead');
+			})
+			.catch(() => {});
 		return true;
 	} catch (e) {
 		return false;
+	}
+}
+
+/**
+ * `cadastro.<sha256(usuario em minusculas)>`, ou null quando nao da para calcular.
+ *
+ * @param {string | null} usuario
+ * @param {Window} janela
+ * @returns {Promise<string | null>}
+ */
+export async function idDoEventoDeCadastro(usuario, janela = window) {
+	try {
+		const subtle = janela.crypto && janela.crypto.subtle;
+		if (!usuario || !subtle) return null;
+		const bytes = new TextEncoder().encode(usuario.trim().toLowerCase());
+		const resumo = new Uint8Array(await subtle.digest('SHA-256', bytes));
+		return 'cadastro.' + Array.from(resumo, b => b.toString(16).padStart(2, '0')).join('');
+	} catch (e) {
+		return null;
 	}
 }
 
@@ -214,4 +260,5 @@ export function _reiniciarParaTeste() {
 	_entrada = null;
 	_pendente = false;
 	_aceita = false;
+	_usuarioDaConversao = null;
 }

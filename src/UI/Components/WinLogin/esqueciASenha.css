@@ -1,0 +1,22 @@
+/* ESQUECI MINHA SENHA (08/10/2026). A janela usa a pele `cad-*` da janela de
+ * cadastro (os tokens moram em `.cad`); aqui so o que ela tem de diferente. */
+.esq-janela {
+	width: min(420px, 100%);
+}
+.esq-texto {
+	margin: 0;
+	font-size: 0.9rem;
+	line-height: 1.5;
+	color: var(--cad-texto-suave);
+	text-align: center;
+}
+.esq-codigo {
+	letter-spacing: 0.3em;
+	font-variant-numeric: tabular-nums;
+}
+.esq-codigo::placeholder {
+	letter-spacing: normal;
+}
+.cad-form[hidden] {
+	display: none;
+}

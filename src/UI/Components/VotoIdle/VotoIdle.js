@@ -737,7 +737,9 @@ function cartaoDePlataforma(plat, agora) {
 		'<div class="vi-plat-topo">' +
 		'<div><div class="vi-plat-nome">' +
 		escapeHtml(plat.nome) +
-		'</div><div class="vi-plat-ciclo">Ciclo de 24 horas</div></div>' +
+		'</div><div class="vi-plat-ciclo">Ciclo de ' +
+		escapeHtml(String(horasDoCiclo(plat))) +
+		' horas</div></div>' +
 		selo +
 		'</div>' +
 		// `data-proximo` carrega o instante-alvo para o tique reescrever SÓ este
@@ -763,6 +765,12 @@ function cartaoDePlataforma(plat, agora) {
 		'</div>' +
 		'</div>'
 	);
+}
+
+/** As horas do ciclo da plataforma; servidor antigo sem `intervaloMs` cai nas 24 h. */
+function horasDoCiclo(plat) {
+	const ms = plat.intervaloMs;
+	return typeof ms === 'number' && ms > 0 ? Math.round(ms / 3600000) : 24;
 }
 
 /** O link de verdade, para o toque do jogador abrir o que o `window.open` não abriu. */
@@ -791,7 +799,7 @@ function abaVotarHtml(estado, agora) {
 		'<li>Cada voto confirmado entrega <strong>+1 ' +
 		escapeHtml(estado.moeda) +
 		'</strong>, que você gasta na aba Loja.</li>' +
-		'<li>Cada plataforma tem o próprio ciclo de 24 horas e volta sozinha.</li>' +
+		'<li>Cada plataforma tem o próprio ciclo e volta sozinha.</li>' +
 		'</ol>'
 	);
 }

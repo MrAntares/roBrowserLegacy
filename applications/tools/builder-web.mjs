@@ -639,7 +639,14 @@ n.queue=[];t=b.createElement(e);t.async=!0;
 t.src=v;s=b.getElementsByTagName(e)[0];
 s.parentNode.insertBefore(t,s)}(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', '1538906837987135');
+// Correspondencia avancada (09/10/2026): as chaves JA em SHA-256 que o cadastro
+// do site deixou no cookie rci_am do dominio inteiro. Sem cookie, init vazio.
+var chavesDaMeta = {};
+try {
+  var cookieDaMeta = document.cookie.match(/(?:^|; )rci_am=([^;]*)/);
+  if (cookieDaMeta) chavesDaMeta = JSON.parse(decodeURIComponent(cookieDaMeta[1]));
+} catch (e) { chavesDaMeta = {}; }
+fbq('init', '1538906837987135', chavesDaMeta);
 fbq('track', 'PageView');
 `;
 const META_PIXEL = `<!-- Meta Pixel Code -->

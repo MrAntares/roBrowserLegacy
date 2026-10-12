@@ -1,5 +1,6 @@
 import { WebSocketServer } from 'ws';
 import net from 'net';
+import { alvoPermitido, descreverAlvos, lerAlvos } from './wsproxyAlvos.js';
 
 // Parse command line arguments
 const args = {};
@@ -91,9 +92,10 @@ if (redirectStr) {
  */
 const ALVOS_PADRAO = ['127.0.0.1:6900', '127.0.0.1:6121', '127.0.0.1:5121'];
 const aberto = process.env.WSPROXY_ABERTO === '1';
-const alvosPermitidos = new Set(
-	(process.env.WSPROXY_ALVOS ?? ALVOS_PADRAO.join(',')).split(',').map(t => t.trim()).filter(Boolean)
-);
+// C4 do multiprocesso (07/10/2026): uma entrada pode ser uma FAIXA de portas
+// (`127.0.0.1:5121-5124`), os map-servers de um servidor dividido. A regra e o
+// teto moram em `wsproxyAlvos.js`.
+const alvosPermitidos = lerAlvos(process.env.WSPROXY_ALVOS ?? ALVOS_PADRAO.join(','));
 
 /* ===========================================================================
  * OS TRES TETOS DE CONEXAO (11/09/2026).
@@ -582,7 +584,7 @@ if (aberto) {
 	console.log('[wsProxy] ATENCAO: WSPROXY_ABERTO=1 — a ponte aceita QUALQUER destino.');
 	console.log('[wsProxy] Nao exponha esta ponte na internet assim.');
 } else {
-	console.log('[wsProxy] destinos permitidos:', [...alvosPermitidos].join(', '));
+	console.log('[wsProxy] destinos permitidos:', descreverAlvos(alvosPermitidos).join(', '));
 }
 console.log(
 	`[wsProxy] tetos de conexao: ${porExtenso(TETO_TOTAL_DE_CONEXOES)} no total, ` +
@@ -730,7 +732,7 @@ function aceitarConexao(ws, req) {
 	// A tranca de D-540: destino fora da lista é recusado ANTES de qualquer
 	// socket ser aberto. O log diz o que foi pedido — quem administra precisa
 	// ver a tentativa; quem tentou não recebe nada além do fechamento.
-	if (!aberto && !alvosPermitidos.has(`${host}:${targetPort}`)) {
+	if (!aberto && !alvoPermitido(alvosPermitidos, host, targetPort)) {
 		const aviso = avisoDeRecusa('destino fora da lista', `${recortar(`${host}:${targetPort}`)} (de ${from})`);
 		if (aviso) console.log(aviso);
 		ws.close();
