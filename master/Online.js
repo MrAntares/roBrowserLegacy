@@ -338985,11 +338985,8 @@ function onRestartAnswer(pkt) {
 	if (!pkt.type) ChatBox_default.addText(DB.getMessage(502), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.PUBLIC_LOG);
 	else {
 		GuildEngine.guild_id = 0;
-		cleanGameUI();
 		SessionStorage_default.Achievement = null;
 		Mouse.intersect = false;
-		MapRenderer.free();
-		Renderer.stop();
 		onRestart();
 	}
 }
@@ -339248,7 +339245,11 @@ function onConfigUpdate(type, val) {
 * Go back from map-server to char-server
 */
 function onRestart() {
-	__vitePreload(() => Promise.resolve().then(() => (init_CharEngine(), CharEngine_exports)).then((m) => m.default.reload()), void 0, import.meta.url);
+	__vitePreload(() => Promise.resolve().then(() => (init_CharEngine(), CharEngine_exports)).then((m) => m.default.reload(() => {
+		cleanGameUI();
+		MapRenderer.free();
+		Renderer.stop();
+	})), void 0, import.meta.url);
 }
 /**
 * Reply to reassembly auth packet
@@ -342702,10 +342703,13 @@ var init_CharEngine = __esmMin((() => {
 		}
 		/**
 		* Reload Char-Select
+		*
+		* @param {function} [onBlack] - run once the fade has covered the screen
 		*/
-		static reload() {
+		static reload(onBlack) {
 			Network.close();
 			Background.setLoginBackground(() => {
+				if (onBlack) onBlack();
 				UIManager.removeComponents();
 				CharEngine.init(_server$1);
 			});
