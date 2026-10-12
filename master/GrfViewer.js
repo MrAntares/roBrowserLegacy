@@ -241888,8 +241888,8 @@ function createInventory(config) {
 	function transferItemToOtherUI(item) {
 		if (transferInventoryItemStack(item, UIManager.components)) return true;
 		const storageUI = StorageController;
-		const isStorageOpen = storageUI._host ? storageUI._host.style.display !== "none" : false;
-		const isCartOpen = CartItems_default._host ? CartItems_default._host.style.display !== "none" : false;
+		const isStorageOpen = storageUI._host ? storageUI._host.isConnected && storageUI._host.style.display !== "none" : false;
+		const isCartOpen = CartItems_default._host ? CartItems_default._host.isConnected && CartItems_default._host.style.display !== "none" : false;
 		if (!item) return false;
 		const count = item.count || 1;
 		if (isStorageOpen) StorageController.reqAddItem(item.index, count);
@@ -243346,8 +243346,8 @@ function onItemInfo$13(event) {
 function transferItemToOtherUI(item) {
 	const storageUI = StorageController;
 	const inventoryUI = InventoryController;
-	const isStorageOpen = storageUI._host ? storageUI._host.style.display !== "none" : false;
-	const isInventoryOpen = inventoryUI._host ? inventoryUI._host.style.display !== "none" : false;
+	const isStorageOpen = storageUI._host ? storageUI._host.isConnected && storageUI._host.style.display !== "none" : false;
+	const isInventoryOpen = inventoryUI._host ? inventoryUI._host.isConnected && inventoryUI._host.style.display !== "none" : false;
 	if (!item) return false;
 	const count = item.count || 1;
 	if (isStorageOpen) StorageController.reqAddItemFromCart(item.index, count);
