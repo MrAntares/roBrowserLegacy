@@ -32,6 +32,11 @@ SlotMachine.render = () => htmlText;
 let _sprite, _action;
 
 /**
+ * @var {boolean} sprite and action ready to render
+ */
+let _loaded = false;
+
+/**
  * @var {number} type
  */
 let _type = 0;
@@ -70,6 +75,7 @@ SlotMachine.init = function init() {
 		_sprite = spr;
 		_action = act;
 		_type = 0;
+		_loaded = true;
 		_start = Renderer.tick;
 
 		if (this._host.parentNode) {
@@ -78,7 +84,7 @@ SlotMachine.init = function init() {
 	});
 
 	canvas.addEventListener('mousedown', event => {
-		if (_type === 0) {
+		if (_loaded && _type === 0) {
 			SlotMachine.onTry();
 			event.stopImmediatePropagation();
 			event.preventDefault();
