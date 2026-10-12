@@ -351,6 +351,30 @@ function isCulled(culling, entity) {
 }
 
 /**
+ * Hide the entity overlays while culled, show them back once drawn
+ *
+ * @param {Entity} entity
+ * @param {boolean} culled
+ */
+function setCulled(entity, culled) {
+	if (entity.culled === culled) {
+		return;
+	}
+
+	entity.culled = culled;
+
+	const display = culled ? 'none' : '';
+	entity.life.canvas.style.display = display;
+	entity.emblem.canvas.style.display = display;
+	entity.display.canvas.style.display = display;
+	entity.dialog.canvas.style.display = display;
+	entity.cast.canvas.style.display = display;
+	if (entity.room.node) {
+		entity.room.node.ui[0].style.display = display;
+	}
+}
+
+/**
  * Render all entities (picking or not)
  *
  * @param {object} gl webgl context
@@ -409,8 +433,10 @@ function render(gl, modelView, projection, fog, renderEffects) {
 				continue;
 			}
 			if (isCulled(culling, _list[i])) {
+				setCulled(_list[i], true);
 				continue;
 			}
+			setCulled(_list[i], false);
 			_list[i].render(modelView, projection);
 		}
 	}
