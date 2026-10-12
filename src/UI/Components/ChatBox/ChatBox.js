@@ -161,7 +161,8 @@ ChatBox.sendTo = ChatBox.TYPE.PUBLIC;
  */
 ChatBox.PrivateMessageStorage = {
 	nick: '',
-	msg: ''
+	msg: '',
+	blockNick: ''
 };
 
 ChatBox.lastTabID = -1;
