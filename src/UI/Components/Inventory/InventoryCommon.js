@@ -1332,8 +1332,12 @@ export function createInventory(config) {
 		}
 
 		const storageUI = Storage;
-		const isStorageOpen = storageUI._host ? storageUI._host.style.display !== 'none' : false;
-		const isCartOpen = CartItems._host ? CartItems._host.style.display !== 'none' : false;
+		const isStorageOpen = storageUI._host
+			? storageUI._host.isConnected && storageUI._host.style.display !== 'none'
+			: false;
+		const isCartOpen = CartItems._host
+			? CartItems._host.isConnected && CartItems._host.style.display !== 'none'
+			: false;
 
 		if (!item) {
 			return false;

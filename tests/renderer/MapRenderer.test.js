@@ -207,3 +207,35 @@ describe('MapRenderer.cancelLoad', () => {
 		expect(MapRenderer.currentMap).toBe('payon.gat');
 	});
 });
+
+describe('MapRenderer.free', () => {
+	beforeEach(async () => {
+		vi.clearAllMocks();
+		mocks.entityManager.clearLifeCache = vi.fn();
+		const freed = await Promise.all(
+			[
+				'Renderer/Map/GridSelector.js',
+				'Renderer/Map/Sounds.js',
+				'Renderer/Map/Effects.js',
+				'Renderer/Map/Ground.js',
+				'Renderer/Map/Water.js',
+				'Renderer/Map/Models.js',
+				'Renderer/Map/AnimatedModels.js',
+				'Renderer/Map/OccluderFade.js',
+				'Renderer/GR2/GR2ModelRenderer.js',
+				'Renderer/SignboardManager.js'
+			].map(path => import(path))
+		);
+		freed.forEach(module => {
+			module.default.free = vi.fn();
+		});
+		const { default: PostProcess } = await import('Renderer/Effects/PostProcess.js');
+		PostProcess.clean = vi.fn();
+	});
+
+	it('puts the cursor back to the default arrow when leaving the map', () => {
+		MapRenderer.free();
+
+		expect(mocks.cursor.setType).toHaveBeenCalledWith(mocks.cursor.ACTION.DEFAULT);
+	});
+});
