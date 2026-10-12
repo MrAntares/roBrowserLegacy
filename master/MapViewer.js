@@ -260651,6 +260651,7 @@ var init_MapRenderer = __esmMin((() => {
 			BGM.stop();
 			PostProcess.clean(gl);
 			Mouse.intersect = false;
+			Cursor.setType(Cursor.ACTION.DEFAULT);
 			this.light = null;
 			this.water = null;
 			this.sounds = null;
@@ -261390,6 +261391,7 @@ var init_Renderer = __esmMin((() => {
 				}
 				this._lastFrameTime = 0;
 				this._renderBound = this._render.bind(this);
+				Cursor.setSceneDriven(true);
 				this.updateId = _requestAnimationFrame(this._renderBound);
 			}
 		}
@@ -261405,6 +261407,7 @@ var init_Renderer = __esmMin((() => {
 				} catch (e) {
 					console.error(e);
 				}
+				Cursor.setSceneDriven(false);
 				return;
 			}
 			const pos = this.renderCallbacks.indexOf(fn);
@@ -313469,6 +313472,7 @@ function free() {
 	});
 	_list.length = 0;
 	_gidMap.clear();
+	_over = null;
 	_pickList.length = 0;
 	_renderSortDirty = true;
 	_pickSortDirty = true;
@@ -313915,6 +313919,13 @@ function bindMouseEvents() {
 	}, true);
 }
 /**
+* Keep the cursor animated while the scene render loop is stopped (login, server list)
+*/
+function renderLoop() {
+	Cursor.render(Date.now());
+	_loopId = requestAnimationFrame(renderLoop);
+}
+/**
 * Start pre-compiling animation to avoid building sprites
 * during the rendering loop
 */
@@ -313999,7 +314010,7 @@ function createSpriteSheet() {
 	}
 	for (let i = 0; i < totalSprites; i++) drawSprite(i);
 }
-var _tick, _norepeat, _animation, _play, _lastStyleId, _lastX, _lastY, _compiledStyle, _sprite$2, _action$2, _selector, Cursor, _type$4, ActionInformations;
+var _tick, _norepeat, _animation, _play, _lastStyleId, _lastX, _lastY, _compiledStyle, _sceneDriven, _loopId, _sprite$2, _action$2, _selector, Cursor, _type$4, ActionInformations;
 var init_CursorManager = __esmMin((() => {
 	init_Client();
 	init_MemoryManager();
@@ -314019,6 +314030,8 @@ var init_CursorManager = __esmMin((() => {
 	_lastX = 0;
 	_lastY = 0;
 	_compiledStyle = [];
+	_sceneDriven = false;
+	_loopId = 0;
 	Cursor = class Cursor {
 		/**
 		* Cursor animation Constant
@@ -314077,6 +314090,7 @@ var init_CursorManager = __esmMin((() => {
 				bindMouseEvents();
 				preCompiledAnimations();
 				createSpriteSheet();
+				Cursor.setSceneDriven(_sceneDriven);
 				fn();
 			});
 		}
@@ -314107,6 +314121,18 @@ var init_CursorManager = __esmMin((() => {
 		*/
 		static getActualType() {
 			return _type$4;
+		}
+		/**
+		* Let the scene render loop draw the cursor after its frame, or draw it on its own while the scene is stopped
+		*
+		* @param {boolean} value
+		*/
+		static setSceneDriven(value) {
+			_sceneDriven = value;
+			if (value) {
+				cancelAnimationFrame(_loopId);
+				_loopId = 0;
+			} else if (!_loopId && _compiledStyle.length) _loopId = requestAnimationFrame(renderLoop);
 		}
 		/**
 		* Render the cursor (update)
@@ -314783,6 +314809,7 @@ var init_GUIComponent = __esmMin((() => {
 			if (this.mouseMode === MouseMode.FREEZE) {
 				Mouse.intersect = false;
 				SessionStorage_default.FreezeUI = true;
+				_EntityManager?.setOverEntity(null);
 				_Cursor?.setType(_Cursor?.ACTION?.DEFAULT ?? 0);
 			}
 			if (this.onAppend) this.onAppend();
@@ -347123,6 +347150,7 @@ function onServerClosed(pkt) {
 			break;
 		case 110: msg_id = 1589;
 	}
+	SkillTargetSelection_default.remove();
 	UIManager.showMessageBox(DB.getMessage(msg_id), "ok", () => {
 		Renderer.stop();
 		MapRenderer.cancelLoad();
@@ -347153,6 +347181,7 @@ var init_LoginEngine = __esmMin((() => {
 	init_UIManager();
 	init_WinList();
 	init_WinPopup();
+	init_SkillTargetSelection();
 	init_Queue();
 	init_Background();
 	init_spark_md5_min();
@@ -348426,6 +348455,7 @@ var init_UIManager = __esmMin((() => {
 		* @param {string} error message
 		*/
 		static showErrorBox(text) {
+			this.components.SkillTargetSelection?.remove();
 			const WinError = this.getComponent("WinPopup").clone("WinError");
 			let overlay;
 			WinError.init = function Init() {
