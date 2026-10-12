@@ -10,12 +10,12 @@ and for a halter-lead mount it also depends on the client build.
   client builds agree on that.
 - **A halter-lead mount (`AllMountTable`) is dyed with the mount's own palette
   files when the archive ships them, and with the rider's palette otherwise.**
-  The archive is asked once, through `MOUNT_PALETTE_SENTINEL` (the Creator
-  boar's female palette 1), and `hasMountPalettes` keeps the answer for the
-  session, by remote client, since a server of the list may serve another
-  archive: the file cache drops a file unused for 30 s, so it cannot hold it.
-  The cache keys files by name alone, so the sentinel is dropped from it
-  before a new remote client is asked.
+  `DB.hasMountPalettes` asks the archive once, through a sentinel (the
+  Creator boar's female palette 1), and keeps the answer itself: the file
+  cache drops a file unused for 30 s, so it cannot hold it. `DB.init` forgets
+  the answer and drops the sentinel from the file cache, which keys files by
+  name alone: `LoginEngine` runs it when the player picks a server whose
+  `remoteClient` may be another archive.
   One request per archive, and no file is ever requested per entity that the
   archive does not have. `PalNameTable` names the mount's own file for every
   halter-lead mount; those entries are only read when the sentinel loads.

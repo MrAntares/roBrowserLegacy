@@ -68,6 +68,12 @@ let default_HO_AI;
 let default_MER_AI;
 
 /**
+ * Whether the archive ships the halter-lead mounts' own palettes; undefined
+ * until it answers.
+ */
+let mountPalettes;
+
+/**
  * @const {Array} message string
  */
 const MsgStringTable = [];
@@ -290,6 +296,11 @@ class DB {
 		DB.isLoaded = false;
 		DB.count = 0;
 		DB.index = 0;
+
+		// The client loaded after a server switch may be another archive: ask
+		// it again, and drop the previous answer the file cache keeps by name.
+		mountPalettes = undefined;
+		MemoryManager.remove(null, DB.getBodyPalPath(JobId.PIG_CREATOR, 1, 0));
 
 		// Callback
 		let index = 0,
@@ -1295,6 +1306,28 @@ class DB {
 			'/\xbf\xee\xbf\xb5\xc0\xda_' +
 			SexTable[sex]
 		);
+	}
+
+	/**
+	 * Whether the archive ships the halter-lead mounts' own palettes, read off
+	 * a file only those archives have: asked once per archive.
+	 *
+	 * @param {function} onAnswer - called once the archive answers, if it has not yet
+	 * @return {boolean|undefined} undefined until the archive answers
+	 */
+	static hasMountPalettes(onAnswer) {
+		if (mountPalettes === undefined) {
+			const answer = present => {
+				mountPalettes = present;
+				onAnswer();
+			};
+			Client.loadFile(
+				DB.getBodyPalPath(JobId.PIG_CREATOR, 1, 0),
+				() => answer(true),
+				() => answer(false)
+			);
+		}
+		return mountPalettes;
 	}
 
 	/**

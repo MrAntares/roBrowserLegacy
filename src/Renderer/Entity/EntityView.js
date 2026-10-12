@@ -28,8 +28,6 @@
  */
 
 import Client from 'Core/Client.js';
-import Configs from 'Core/Configs.js';
-import Memory from 'Core/MemoryManager.js';
 import DB from 'DB/DBManager.js';
 import ShadowTable from 'DB/Monsters/ShadowTable.js';
 import MountTable from 'DB/Jobs/MountTable.js';
@@ -607,23 +605,6 @@ for (const baseJob in AllMountTable) {
 }
 
 /**
- * A palette file only the archives that ship the halter-lead mounts' own
- * palettes have; asked for once, then answered from the cache.
- */
-const MOUNT_PALETTE_SENTINEL = DB.getBodyPalPath(JobConst.PIG_CREATOR, 1, 0);
-
-/**
- * Whether the archive has the sentinel, by remote client: a server of the
- * list may serve another archive. No entry until that archive answers.
- */
-const hasMountPalettes = {};
-
-/**
- * The remote client the sentinel was last asked of.
- */
-let sentinelHost;
-
-/**
  * Update body palette
  *
  * @param {number} body palette number
@@ -657,31 +638,12 @@ function UpdateBodyPalette(pal) {
 
 	// A halter-lead mount has palette files of its own only in the newer
 	// archives; the older ones dye it with the rider's palette (the few
-	// mount files they ship hold the same colours). The archive decides,
-	// through the sentinel, once per archive: the file cache may drop it.
-	const host = Configs.get('remoteClient', '');
-	if (host in hasMountPalettes) {
-		this.files.body.pal = DB.getBodyPalPath(hasMountPalettes[host] ? job : this._job, pal, this._sex);
-		return;
+	// mount files they ship hold the same colours). The entity may have
+	// changed by the time the archive answers: dye it as it is then.
+	const own = DB.hasMountPalettes(() => UpdateBodyPalette.call(this, this._bodypalette));
+	if (own !== undefined) {
+		this.files.body.pal = DB.getBodyPalPath(own ? job : this._job, pal, this._sex);
 	}
-
-	// The file cache keys the sentinel by name alone: drop the previous
-	// archive's answer before asking this one.
-	if (sentinelHost !== host) {
-		sentinelHost = host;
-		Memory.remove(null, MOUNT_PALETTE_SENTINEL);
-	}
-
-	// The entity may have changed meanwhile: dye it as it is then.
-	const answer = present => {
-		hasMountPalettes[host] = present;
-		UpdateBodyPalette.call(this, this._bodypalette);
-	};
-	Client.loadFile(
-		MOUNT_PALETTE_SENTINEL,
-		() => answer(true),
-		() => answer(false)
-	);
 }
 
 /**

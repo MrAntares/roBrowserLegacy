@@ -4,19 +4,27 @@ import JobId from 'DB/Jobs/JobConst.js';
 import PalNameTable from 'DB/Jobs/PalNameTable.js';
 import MountTable from 'DB/Jobs/MountTable.js';
 import AllMountTable from 'DB/Jobs/AllMountTable.js';
+import DB from 'DB/DBManager.js';
+import Memory from 'Core/MemoryManager.js';
+import EntityViewInit from 'Renderer/Entity/EntityView.js';
 
 // Stands in for DB.getBodyPalPath: the part under test is which job
 // EntityView asks for, so the stub only needs to name the table entry.
+// The archive's answer and its reset on DB.init are the real ones.
 vi.mock('DB/DBManager.js', async () => {
 	const Pal = (await import('DB/Jobs/PalNameTable.js')).default;
+	const Actual = (await vi.importActual('DB/DBManager.js')).default;
 	const DB = {
 		getBodyPath: (id, sex, alt) => `body${id}_${alt}`,
-		getBodyPalPath: (id, pal, sex) => (id in Pal ? `${Pal[id]}_${sex}_${pal}.pal` : null)
+		getBodyPalPath: (id, pal, sex) => (id in Pal ? `${Pal[id]}_${sex}_${pal}.pal` : null),
+		hasMountPalettes: Actual.hasMountPalettes,
+		init: Actual.init
 	};
 	// Anything else the view asks for is not under test.
 	return { default: new Proxy(DB, { get: (t, k) => (k in t ? t[k] : () => null) }) };
 });
 // Answers every load at once, so a body that loads sets its dye again as it does in game.
+// The tables DB.init loads are not under test: they never answer.
 // The mount-palette sentinel goes through the real file cache, as Client.loadFile does: the
 // archive is asked only when the cache does not hold the file, and answers through
 // `archive.hasMountPalettes`; with `archive.later` set, it waits in `archive.pending` until `answer()`.
@@ -28,7 +36,7 @@ const Client = vi.hoisted(() => {
 		settle,
 		loadFile: vi.fn((path, onLoad, onError) => {
 			if (!path.includes('_1.pal')) {
-				return onLoad && onLoad();
+				return path.startsWith('data/') ? undefined : onLoad && onLoad();
 			}
 			const ask = !archive.Memory.exist(path);
 			archive.Memory.get(path, onLoad, onError);
@@ -44,22 +52,18 @@ const Client = vi.hoisted(() => {
 });
 vi.mock('Core/Client.js', () => ({ default: Client }));
 vi.mock('DB/Monsters/ShadowTable.js', () => ({ default: {} }));
-vi.mock('Network/PacketVerManager.js', () => ({ default: { value: 20221005 } }));
+vi.mock('Network/PacketVerManager.js', () => ({ default: { value: 20221005, addSupport: () => {} } }));
 vi.mock('Renderer/GR2/GR2ModelRenderer.js', () => ({ default: {} }));
 vi.mock('Renderer/Entity/EntityAction.js', () => ({ default: vi.fn() }));
 
-// EntityView keeps the archive's answer for the session: each test starts a new one.
-let EntityViewInit;
-let Configs;
-beforeEach(async () => {
-	vi.resetModules();
-	Configs = (await import('Core/Configs.js')).default;
-	archive.Memory = (await import('Core/MemoryManager.js')).default;
+// DB keeps the archive's answer until the next DB.init: each test loads a new client.
+beforeEach(() => {
+	archive.Memory = Memory;
 	archive.hasMountPalettes = true;
 	archive.later = false;
 	archive.pending = [];
+	DB.init();
 	Client.loadFile.mockClear();
-	EntityViewInit = (await import('Renderer/Entity/EntityView.js')).default;
 });
 
 function answer() {
@@ -136,12 +140,11 @@ describe('EntityView body palette', () => {
 		expect(creator.files.body.pal).toBe(`${PalNameTable[JobId.ALCHEMIST_H]}_1_4.pal`);
 	});
 
-	it('asks again when the server serves another archive', () => {
-		Configs.setServer({ remoteClient: 'https://old.example/' });
+	it("asks again once another server's client is loaded", () => {
 		archive.hasMountPalettes = false;
 		entity(JobId.ALCHEMIST_H, AllMountTable[JobId.ALCHEMIST_H]).bodypalette = 2;
-		Configs.setServer({ remoteClient: 'https://new.example/' });
 		archive.hasMountPalettes = true;
+		DB.init();
 		const creator = entity(JobId.ALCHEMIST_H, AllMountTable[JobId.ALCHEMIST_H]);
 		creator.bodypalette = 2;
 		expect(creator.files.body.pal).toBe(`${PalNameTable[JobId.PIG_CREATOR]}_1_2.pal`);
