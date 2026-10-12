@@ -49,7 +49,6 @@ vi.mock('UI/Components/HuntAnalyzer/registroDaCaca.js', () => ({
 	ehDropDeCaca: () => false,
 	registrarItem: () => {}
 }));
-vi.mock('UI/Components/IdleConfig/IdleConfig.js', () => ({ default: { contexto: null } }));
 vi.mock('UI/Components/ItemSelection/ItemSelection.js', () => ({ default: {} }));
 vi.mock('UI/Components/Inventory/Inventory.js', () => ({ default: { getUI: () => ({}) } }));
 vi.mock('UI/Components/CartItems/CartItems.js', () => ({ default: {} }));

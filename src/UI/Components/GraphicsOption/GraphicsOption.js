@@ -120,7 +120,6 @@ GraphicsOption.init = function init() {
 
 	bindChange('.details', onUpdateQualityDetails);
 	bindChange('.player-names', onTogglePlayerNames);
-	bindChange('.economia-automatica', onToggleEconomiaAutomatica);
 	bindChange('.cursor-option', onToggleGameCursor);
 	bindChange('.screensize', onUpdateScreenSize);
 	bindChange('.fpslimit', onUpdateFPSLimit);
@@ -170,7 +169,6 @@ GraphicsOption.onAppend = function onAppend() {
 	// `!== false` e o mesmo criterio de `NomesDosJogadores.ligado()`: preferencia
 	// gravada ANTES desta opcao existir nao tem o campo, e o padrao e LIGADO.
 	root.querySelector('.player-names').checked = GraphicsSettings.showPlayerNames !== false;
-	root.querySelector('.economia-automatica').checked = GraphicsSettings.economiaDeEnergiaAutomatica !== false;
 	root.querySelector('.cursor-option').checked = GraphicsSettings.cursor;
 	root.querySelector('.fpslimit').value = GraphicsSettings.fpslimit;
 	root.querySelector('.fps').checked = FPS._host ? FPS._host.style.display !== 'none' : false;
@@ -230,12 +228,6 @@ function onUpdateQualityDetails() {
  * quem entrasse na vista DEPOIS, e o jogador que acabou de clicar veria a tela
  * nao mudar — o que se le como opcao quebrada.
  */
-/** RAGIDLE (23/09/2026): liga/desliga a economia de energia automatica. */
-function onToggleEconomiaAutomatica() {
-	GraphicsSettings.economiaDeEnergiaAutomatica = !!this.checked;
-	GraphicsSettings.save();
-}
-
 function onTogglePlayerNames() {
 	GraphicsSettings.showPlayerNames = !!this.checked;
 	GraphicsSettings.save();

@@ -18,6 +18,7 @@ import UIManager from 'UI/UIManager.js';
 import MercenaryInformations from 'UI/Components/MercenaryInformations/MercenaryInformations.js';
 import SkillListMH from 'UI/Components/SkillListMH/SkillListMH.js';
 import Mouse from 'Controls/MouseEventHandler.js';
+import StatusProperty from 'DB/Status/StatusProperty.js';
 
 /**
  * Initialize Mercenary information
@@ -90,6 +91,31 @@ function onMercenaryProperty(pkt) {
  * @param {object} pkt - PACKET.ZC.MER_PAR_CHANGE
  */
 function onParameterChange(pkt) {
+	/*
+	 * SP_MERCKILLS/SP_MERCFAITH (map.hpp:527, valores 189/190) nao tem uma
+	 * entidade dona: a contagem de abates e a fe vivem SO na janela
+	 * (`MercenaryInformations.setKills`/`setFaith`, que ja existem porque
+	 * `setInformations` os chama no `ZC_MER_INIT`), nao no `entity.life`.
+	 * O emulador manda os dois pelo MESMO `ZC_MER_PAR_CHANGE`
+	 * (`clif_mercenary_updatestatus`, clif.cpp:18262-18267) que atualiza
+	 * HP/SP, mas este handler so tratava os quatro casos de baixo -- o
+	 * contador da janela nunca se mexia depois do abate que o servidor
+	 * credita (`servidor/mapa/servidor-mapa.ts:17832`,
+	 * `ZC_MER_PAR_CHANGE.codificar({ atributo: SP_MERCKILLS, ... })`).
+	 * Sem entidade a checagem sai ANTES do `EntityManager.get` de baixo, do
+	 * mesmo jeito que `Homun.js:onHomunParameterChange` atualiza a janela
+	 * mesmo sem achar a entidade em cena.
+	 */
+	if (pkt.param === StatusProperty.MER_KILLCOUNT) {
+		MercenaryInformations.setKills(pkt.value);
+		return;
+	}
+
+	if (pkt.param === StatusProperty.MER_FAITH) {
+		MercenaryInformations.setFaith(pkt.value);
+		return;
+	}
+
 	const entity = EntityManager.get(Session.mercId);
 	if (!entity) {
 		return;

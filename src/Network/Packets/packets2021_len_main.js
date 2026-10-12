@@ -5033,6 +5033,8 @@ function init(packetver) {
 	length_list[0x0fb5] = -1; // ZC_RAGIDLE_CACA_MEDIDA (variable, JSON payload) - a Caca Medida, 28/09/2026
 	length_list[0x0fb2] = -1; // CZ_RAGIDLE_TROCA_ACAO (variable, JSON payload) - a janela Trade, 02/10/2026
 	length_list[0x0fb3] = -1; // ZC_RAGIDLE_TROCA (variable, JSON payload) - a janela Trade, 02/10/2026
+	length_list[0x0fb0] = -1; // CZ_RAGIDLE_BOT_ACAO (variable, JSON payload) - o Bot novo, 07/10/2026
+	length_list[0x0fb1] = -1; // ZC_RAGIDLE_BOT (variable, JSON payload) - o Bot novo, 07/10/2026
 
 	return length_list;
 }

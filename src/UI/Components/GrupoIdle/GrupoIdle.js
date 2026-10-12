@@ -79,8 +79,6 @@ import cssText from './GrupoIdle.css?raw';
 import { fecharEEsquecer } from '../limpezaDeJanelaIdle.js';
 import { abaLembrada, lembrarAba } from '../memoriaDeAba.js';
 import { vidaDoMembro } from './vidaDoMembro.js';
-import { CAMPOS_DO_ENVIO_DO_GRUPO, criarReceptorDeJanela } from 'UI/janelaPorDiferenca.js';
-import { declararBaseNula } from 'Engine/declaracaoDasBases.js';
 
 /* Manter em sincronia com o ":host" do CSS — o mesmo papel do
    WINDOW_WIDTH/HEIGHT de LFGIdle.js. O JS supoe a caixa GRANDE de proposito:
@@ -1401,23 +1399,6 @@ GrupoIdle.aoAtualizar = null;
  * ATENCAO ao `hookPacket`: ele SOBRESCREVE o handler anterior daquele opcode.
  * Este e nosso e de mais ninguem.
  */
-/**
- * O PAINEL POR DIFERENCA (D-2077, `UI/janelaPorDiferenca.js`): o servidor que
- * numera manda, a quem declarou (`Engine/declaracaoDasBases.js`), so as trocas
- * sobre o ultimo envio - e nao manda o empurrao igual. O receptor monta o
- * corpo no formato do inteiro. Parcial que nao cai: declara `null` e pede de
- * novo (o pedido tambem reinscreve, como sempre).
- */
-const _receptorDoPainel = criarReceptorDeJanela(CAMPOS_DO_ENVIO_DO_GRUPO, function () {
-	declararBaseNula('grupo', { Network, PACKET });
-	Network.sendPacket(new PACKET.CZ.RAGIDLE_PEDIR_GRUPO());
-});
-
-/** A revisao do painel que esta memoria tem, para a declaracao da entrada (D-2077). */
-GrupoIdle.revisaoDoPainel = function revisaoDoPainel() {
-	return _receptorDoPainel.revisao();
-};
-
 Network.hookPacket(PACKET.ZC.RAGIDLE_GRUPO, function (pkt) {
 	let dados = null;
 	try {
@@ -1428,11 +1409,6 @@ Network.hookPacket(PACKET.ZC.RAGIDLE_GRUPO, function (pkt) {
 	if (!dados) {
 		return;
 	}
-	const recebido = _receptorDoPainel.receber(dados);
-	if (recebido.ignorado) {
-		return;
-	}
-	dados = recebido.dados;
 	GrupoIdle.estado = dados;
 
 	if (Array.isArray(dados.problemas) && dados.problemas.length) {
@@ -1461,8 +1437,6 @@ Network.hookPacket(PACKET.ZC.RAGIDLE_GRUPO, function (pkt) {
  * recarregam a pagina, entao todo estado de MODULO atravessa a troca.
  */
 GrupoIdle.limparEstadoDoPersonagem = function limparEstadoDoPersonagem() {
-	// D-2077: a base do painel e do personagem que saiu.
-	_receptorDoPainel.esquecer();
 	const r = raiz();
 	if (r.querySelector('.gi-window').classList.contains('is-open')) {
 		mandar({ acao: 'fechar' });

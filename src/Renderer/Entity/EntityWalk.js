@@ -10,7 +10,6 @@
 
 import PathFinding from 'Utils/PathFinding.js';
 import Altitude from 'Renderer/Map/Altitude.js';
-import Session from 'Engine/SessionStorage.js';
 
 /**
  * Direction look up table
@@ -75,27 +74,14 @@ function estimatePathDuration(path, total, baseSpeed, startPos) {
  * Convert a server moveStartTime to a client tick so we can fast-forward
  * the walk based on latency.
  */
-function computeWalkStartTick(nowTick, moveStartTime, pathDuration, maxClamp) {
-	if (!moveStartTime || !Session || !Session.serverTick) {
-		return nowTick;
-	}
-
-	let elapsed = Session.serverTick - moveStartTime;
-	if (!isFinite(elapsed) || elapsed <= 0) {
-		return nowTick;
-	}
-
-	if (pathDuration && pathDuration > 0) {
-		// If the delta is wildly larger than the path duration, serverTick is probably not aligned.
-		if (elapsed > pathDuration * 4) {
-			return nowTick;
-		}
-		elapsed = Math.min(elapsed, typeof maxClamp === 'number' ? maxClamp : pathDuration);
-	} else {
-		elapsed = Math.min(elapsed, typeof maxClamp === 'number' ? maxClamp : 1000);
-	}
-
-	return nowTick - elapsed;
+function computeWalkStartTick(nowTick) {
+	// RAGIDLE (modo classico, SEMPRE desde 07/10/2026): o roBrowser puro nunca
+	// adianta - o serverTick dele fica segundos atrasado e o `elapsed` sai
+	// sempre <= 0. Com o ping real (b0bdbfd6) o adiantamento passou a rodar, e
+	// uma estimativa acima do servidor punha o boneco A FRENTE dele: a rota
+	// seguinte o puxava para tras. Os chamadores ainda passam o
+	// moveStartTime/pathDuration/maxClamp; aqui eles nao decidem mais nada.
+	return nowTick;
 }
 
 /**

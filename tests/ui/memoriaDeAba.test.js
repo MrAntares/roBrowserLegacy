@@ -216,7 +216,6 @@ describe('PORTÃO: toda janela RAGIDLE com abas lembra a aba', () => {
 			'GrupoIdle/GrupoIdle.js',
 			'HuntAnalyzer/HuntAnalyzer.js',
 			'HuntMap/HuntMap.js',
-			'IdleConfig/IdleConfig.js',
 			'IdleSkills/IdleSkills.js',
 			'LFGIdle/LFGIdle.js',
 			'MissoesIdle/MissoesIdle.js',

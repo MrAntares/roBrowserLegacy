@@ -22,6 +22,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import SkillInfo from '../../src/DB/Skills/SkillInfo.js';
 import { aoLembrarNomes, lembrarNomesDasHabilidades, nomeLembrado, nomeNaBarra } from '../../src/UI/nivelDeUso.js';
 
 // `process.cwd()`, como nos vizinhos (`barraDeAtalhosNativa.test.js`): o vitest roda na raiz do fork.
@@ -71,6 +72,15 @@ describe('o nome que a barra desenha', () => {
 	});
 });
 
+describe('a Piada Congelante (BA_FROSTJOKE do cliente x BA_FROSTJOKER do servidor)', () => {
+	it('sem nome lembrado a barra mostra o nome em portugues, e nao o ingles "Unbarring Octave" (V7)', () => {
+		const info = Object.values(SkillInfo).find(i => i && i.Name === 'BA_FROSTJOKE');
+		expect(info).toBeDefined();
+		expect(nomeLembrado('BA_FROSTJOKE')).toBeNull();
+		expect(nomeNaBarra(info, info.ID ?? 394)).toBe('Piada Congelante');
+	});
+});
+
 describe('a costura: quem le e quem alimenta', () => {
 	const barra = FONTE('UI/Components/ShortCut/ShortCut.js');
 
@@ -84,8 +94,7 @@ describe('a costura: quem le e quem alimenta', () => {
 		expect(barra).toMatch(/aoLembrarNomes\(\(\) => ShortCut\.__loaded && ShortCut\.updateAllTooltips\(\)\)/);
 	});
 
-	it('a janela de Habilidades e a Configuracao idle alimentam a memoria', () => {
+	it('a janela de Habilidades alimenta a memoria (a Configuracao idle saiu em 07/10/2026)', () => {
 		expect(FONTE('UI/Components/IdleSkills/IdleSkills.js')).toMatch(/lembrarNomesDasHabilidades\(data\.skills\)/);
-		expect(FONTE('UI/Components/IdleConfig/nivelNaConfig.js')).toMatch(/lembrarNomesDasHabilidades\(\[\]\.concat\(/);
 	});
 });

@@ -215,17 +215,16 @@ describe('"Acordar agora" volta ao mundo, e nao ao login', () => {
 	});
 });
 
-describe('clicar em "Dormir" nao espera contagem nenhuma', () => {
-	it('o pedido sai direto, sem contagem regressiva', () => {
-		expect(ANALISADOR_CRU, 'a contagem de 5s voltou ao caminho do sono').not.toContain('showContagemRegressiva');
-		const i = ANALISADOR_CRU.indexOf("acao: 'iniciar'");
-		expect(i, "sumiu o pedido de 'iniciar'").toBeGreaterThan(-1);
+describe('o botao "Dormir" saiu da Analise de caca (Novo Bot V5, 07/10/2026)', () => {
+	it('a Analise nao pede mais o sono: o servidor recusa o `iniciar`, e so a tela de quem ja dormia fica', () => {
+		expect(ANALISADOR_CRU).not.toContain("acao: 'iniciar'");
+		expect(ANALISADOR_CRU).not.toContain('RAGIDLE_SONO_ACAO');
+		expect(ANALISADOR_CRU).not.toContain('showContagemRegressiva');
 	});
 
-	it('mas o aviso do evento de EXP FICA: ele e uma escolha, e nao uma espera', () => {
-		// A diferenca entre os dois e o ponto: a contagem nao perguntava nada
-		// (nem tinha cancelar); esta pergunta tem consequencia — a taxa congela.
-		expect(ANALISADOR_CRU, 'a confirmacao do evento de EXP foi junto por engano').toContain('showPromptBox');
+	it('o dono do ZC_RAGIDLE_SONO continua de pe no motor (um sono antigo ainda acorda)', () => {
+		expect(MOTOR_CRU).toMatch(/Network\.hookPacket\(PACKET\.ZC\.RAGIDLE_SONO, onSonoRecebido\);/);
+		expect(MOTOR_CRU.match(/hookPacket\(PACKET\.ZC\.RAGIDLE_SONO,/g)).toHaveLength(1);
 	});
 });
 

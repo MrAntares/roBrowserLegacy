@@ -1,0 +1,460 @@
+<div id="BotMenu">
+	<!--
+		O MENU DO BOT NO LAYOUT DO MOCKUP DO DONO (08/10/2026): moldura com titulo, tres cartoes no topo
+		(Auto Caca, mapa, perfil), barra de secoes a esquerda (icone, nome e subtitulo), painel com o
+		cabecalho da secao, faixa de status em tempo real e o rodape Salvar / Salvar e Iniciar.
+		Secao sem backend nao aparece (sem UI ficticia): a barra mostra so as que o servidor anunciou.
+	-->
+	<div class="bm-window ri-window ri-anima" role="dialog" aria-labelledby="bm-titulo">
+		<div class="bm-titlebar ri-header">
+			<img class="bm-mascote" src="/ragidle/mobs/1002.png" alt="" aria-hidden="true">
+			<span class="bm-title ri-title" id="bm-titulo">Configuração do Bot</span>
+			<button type="button" class="bm-close ri-close" title="Fechar">&times;</button>
+		</div>
+
+		<!-- O TOPO: ON/OFF confirmado pelo servidor (comando imediato, fora do Salvar), o mapa e o perfil. -->
+		<div class="bm-topo">
+			<div class="bm-cartao bm-cartao-liga">
+				<span class="bm-disco"><!--RI_ICONE:botEspadas--></span>
+				<span class="bm-cartao-rotulo">Auto Caça</span>
+				<button type="button" class="bm-liga" role="switch" aria-checked="false" aria-label="Ligar ou desligar o Bot">
+					<span class="bm-liga-texto">OFF</span>
+					<span class="bm-liga-ponto" aria-hidden="true"></span>
+				</button>
+			</div>
+			<div class="bm-cartao bm-cartao-mapa">
+				<span class="bm-disco"><!--RI_ICONE:botLocal--></span>
+				<span class="bm-cartao-texto">
+					<small class="bm-mapa-rotulo">Você está em</small>
+					<b class="bm-mapa" translate="no"></b>
+				</span>
+			</div>
+			<label class="bm-cartao bm-cartao-perfil">
+				<span class="bm-disco"><!--RI_ICONE:botPerfil--></span>
+				<span class="bm-cartao-texto">
+					<small>Perfil atual</small>
+					<select class="bm-perfil-escolha" aria-label="Perfil atual"></select>
+				</span>
+				<span class="bm-perfil-ativo" translate="no"></span>
+			</label>
+		</div>
+
+		<div class="bm-meio">
+			<!-- A BARRA DE SECOES: montada pelo JS so com as secoes anunciadas (icone, nome, subtitulo). -->
+			<nav class="bm-lateral" aria-label="Seções">
+				<span class="bm-lateral-titulo">Seções</span>
+				<div class="bm-abas" role="tablist"></div>
+			</nav>
+
+			<div class="bm-painel">
+				<header class="bm-secao-cabeca">
+					<span class="bm-emblema"></span>
+					<span class="bm-secao-textos">
+						<h2 class="bm-secao-titulo"></h2>
+						<p class="bm-secao-desc"></p>
+					</span>
+				</header>
+
+				<div class="bm-corpo ri-scroll">
+					<!-- CACADA -->
+					<section class="bm-secao" data-secao="cacada" role="tabpanel" hidden>
+						<div class="bm-cartao-secao">
+							<label class="bm-linha">
+								<input type="checkbox" class="bm-cacar">
+								<span>Caçar monstros</span>
+							</label>
+							<label class="bm-linha bm-linha--coluna">
+								<span class="bm-rotulo">Raio de busca <b class="bm-raio-valor"></b> células</span>
+								<input type="range" class="bm-raio" step="1">
+							</label>
+						</div>
+						<div class="bm-cartao-secao bm-bloco">
+							<span class="bm-rotulo">Monstros do mapa</span>
+							<p class="bm-dica">Todos os monstros deste mapa começam marcados: o Bot os ataca. Desmarque um para o Bot ignorá-lo. Seu clique manual continua livre.</p>
+							<ul class="bm-monstros" aria-label="Monstros do mapa"></ul>
+							<details class="bm-outros-mapas" hidden>
+								<summary>Ignorados em outros mapas (<b class="bm-outros-qtd">0</b>)</summary>
+								<p class="bm-dica">Estes monstros continuam ignorados, mas não estão neste mapa. Use Reativar para o Bot voltar a atacá-los.</p>
+								<ul class="bm-monstros bm-monstros-outros" aria-label="Ignorados em outros mapas"></ul>
+							</details>
+						</div>
+					</section>
+
+					<!-- ATAQUE (ajustes do dono, 09/10/2026): o modo, o RODIZIO na frente (quais skills, em que ordem, liga e
+						desliga cada uma), o cartao das Flechas e o Avancado recolhido (nivel fixo, alvos por skill, lista por
+						monstro). Sem mudanca de contrato: a lista geral e a ordem do rodizio. -->
+					<section class="bm-secao" data-secao="ataque" role="tabpanel" hidden>
+						<fieldset class="bm-cartao-secao bm-bloco bm-modo">
+							<legend class="bm-rotulo">Como atacar</legend>
+							<div class="bm-segmentos">
+								<label class="bm-segmento"><input type="radio" name="bm-modo" value="apenas-basico"><span>Só ataque básico</span></label>
+								<label class="bm-segmento"><input type="radio" name="bm-modo" value="skills-e-basico"><span>Habilidades e ataque básico</span></label>
+								<label class="bm-segmento"><input type="radio" name="bm-modo" value="apenas-skills"><span>Só habilidades</span></label>
+							</div>
+						</fieldset>
+						<p class="bm-indisponivel">Habilidades automáticas ainda não estão disponíveis neste servidor: o Bot usa o ataque básico, e em "Só habilidades" ele não ataca.</p>
+						<!-- O RODIZIO: a lista geral, numerada, com o liga/desliga de cada skill. -->
+						<div class="bm-cartao-secao bm-bloco bm-rodizio-caixa" hidden>
+							<span class="bm-rotulo">Habilidades que o Bot usa</span>
+							<p class="bm-dica bm-rodizio-explica">O Bot usa as habilidades ligadas em rodízio, na ordem da lista (1, 2, 3, 1, 2, 3...), e pula a que está em recarga.</p>
+							<p class="bm-dica bm-rodizio-teto">Até 3 habilidades de ataque equipadas por vez. Para pôr outra, tire uma da lista.</p>
+							<ol class="bm-rodizio"></ol>
+							<p class="bm-dica bm-rodizio-vazio" hidden>Nenhuma habilidade no rodízio: o Bot usa só o ataque básico (ou não ataca em "Só habilidades").</p>
+							<div class="bm-rodizio-outras" hidden>
+								<span class="bm-rotulo">Outras habilidades que o Bot sabe usar</span>
+								<ul class="bm-rodizio-fora"></ul>
+							</div>
+							<p class="bm-dica bm-rodizio-nao-aceitas" hidden></p>
+						</div>
+
+						<!-- FLECHAS (Fase 7): a escolha elemental da flecha pelo Bot (beneficio VIP; o servidor confere). -->
+						<div class="bm-cartao-secao bm-cartao-flechas" data-secao="flechas" hidden>
+							<div class="bm-cartao-cabeca">
+								<img class="bm-cartao-icone bm-flechas-icone" alt="" aria-hidden="true">
+								<span class="bm-secao-textos">
+									<span class="bm-titulo-com-selo"><b class="bm-cartao-titulo">Flechas Elementais Automáticas</b> <span class="bm-selo-vip" title="Benefício VIP">VIP</span></span>
+									<span class="bm-dica bm-flechas-vip-dica">A troca automática de flecha é benefício VIP: o Bot usa a flecha que fere mais cada monstro.</span>
+								</span>
+								<label class="bm-chave" title="Trocar para a flecha que fere mais o alvo">
+									<input type="checkbox" class="bm-flechas-ligada" aria-label="Trocar para a flecha que fere mais o alvo">
+									<span class="bm-chave-trilho" aria-hidden="true"><span class="bm-chave-texto"></span></span>
+								</label>
+							</div>
+							<p class="bm-dica bm-aviso bm-flechas-vip" hidden>A troca de flecha pelo elemento é benefício VIP. Sem VIP, o Bot luta com a flecha equipada e ignora o monstro que ela não fere.</p>
+							<div class="bm-bloco bm-flechas-manual" hidden>
+								<p class="bm-dica">Você equipou <b class="bm-flechas-manual-nome" translate="no"></b> à mão: o Bot não troca de flecha até você retomar.</p>
+								<button type="button" class="bm-retomar-municao ri-btn ri-btn--sec">Retomar automático</button>
+							</div>
+							<div class="bm-flechas-modo-caixa">
+								<span class="bm-rotulo">Modo de uso</span>
+								<div class="bm-flechas-opcoes">
+									<label class="bm-opcao">
+										<input type="radio" name="bm-flechas-modo" class="bm-flechas-auto" value="automatico">
+										<span><b>Melhor disponível</b><small>Usa a melhor flecha conforme a fraqueza do monstro (recomendado).</small></span>
+									</label>
+									<label class="bm-opcao">
+										<input type="radio" name="bm-flechas-modo" class="bm-flechas-fixa-radio" value="fixa">
+										<span><b>Flecha fixa</b><small>Usa sempre a flecha selecionada.</small></span>
+									</label>
+									<label class="bm-flechas-fixa-caixa">
+										<small>Flecha fixa</small>
+										<span class="bm-flechas-fixa-linha">
+											<img class="bm-flechas-fixa-icone" alt="" aria-hidden="true">
+											<select class="bm-flechas-fixa" aria-label="Flecha fixa"></select>
+										</span>
+									</label>
+								</div>
+							</div>
+							<details class="bm-mais">
+								<summary>Flechas permitidas e regra por monstro</summary>
+								<div class="bm-bloco">
+									<span class="bm-rotulo">Flechas permitidas no automático</span>
+									<p class="bm-dica">Nenhuma marcada: todas até o preço do automático. Flecha mais cara só entra como fixa.</p>
+									<ul class="bm-flechas-permitidas bm-lista-itens"></ul>
+									<p class="bm-dica bm-sem-flecha" hidden>Nenhuma flecha na mochila.</p>
+								</div>
+								<div class="bm-bloco">
+									<span class="bm-rotulo">Por monstro</span>
+									<ul class="bm-flechas-monstros bm-lista-itens"></ul>
+								</div>
+							</details>
+						</div>
+
+						<!-- O AVANCADO, recolhido: so para regras finas. -->
+						<details class="bm-cartao-secao bm-ataque-avancado">
+							<summary>Avançado: nível fixo, alvos de cada habilidade e lista por monstro</summary>
+							<p class="bm-dica">Só para regras finas. Sem nada aqui, o rodízio acima vale para todos os monstros.</p>
+							<span class="bm-rotulo">Por habilidade</span>
+							<div class="bm-por-skill"></div>
+							<span class="bm-rotulo">Por monstro</span>
+							<div class="bm-bloco bm-skills" hidden>
+								<label class="bm-linha bm-linha--coluna bm-escopo-linha">
+									<span class="bm-dica">Monstro</span>
+									<select class="bm-escopo"></select>
+								</label>
+								<label class="bm-linha bm-propria" hidden>
+									<input type="checkbox" class="bm-usar-propria">
+									<span>Lista própria para este monstro</span>
+								</label>
+								<p class="bm-dica bm-herda">Este monstro usa a lista geral, filtrada pelas regras de cada habilidade.</p>
+								<span class="bm-rotulo bm-skills-titulo">Lista deste monstro</span>
+								<ol class="bm-lista-skills"></ol>
+								<div class="bm-adicionar">
+									<select class="bm-nova-skill" aria-label="Habilidade para adicionar"></select>
+									<button type="button" class="bm-add ri-btn ri-btn--sec">Adicionar</button>
+								</div>
+								<p class="bm-dica bm-nao-aceitas"></p>
+							</div>
+							<p class="bm-dica bm-por-monstro-vazio" hidden></p>
+						</details>
+					</section>
+
+					<!-- SUPORTE (Fase 6): buffs mantidos e curas por limiar de HP, em mim ou no grupo. -->
+					<section class="bm-secao" data-secao="suporte" role="tabpanel" hidden>
+						<div class="bm-cartao-secao bm-bloco">
+							<span class="bm-rotulo">Habilidades de suporte</span>
+							<p class="bm-dica bm-rodizio-explica">O Bot usa na ordem da lista (1, 2, 3...): pula o buff que ainda está ativo e a habilidade em recarga ou sem SP. Buff: renova quando o efeito acaba. Cura: usa quando o HP cai abaixo do limiar.</p>
+							<ol class="bm-lista-suporte bm-rodizio"></ol>
+							<p class="bm-dica bm-suporte-vazio" hidden>Nenhuma habilidade de suporte na lista: o Bot não buffa nem cura sozinho.</p>
+							<div class="bm-rodizio-outras bm-suporte-outras" hidden>
+								<span class="bm-rotulo">Outras habilidades de suporte</span>
+								<ul class="bm-rodizio-fora bm-suporte-fora"></ul>
+							</div>
+							<p class="bm-dica bm-sem-suporte" hidden>Este personagem não tem habilidades de suporte que o Bot saiba usar.</p>
+						</div>
+					</section>
+
+					<!-- SOBREVIVENCIA (ajustes do dono, 09/10/2026, no modelo do menu antigo): por eixo, o interruptor, o
+						Automatico, o frasco com a quantidade e a barra; o descanso logo abaixo, no mesmo estilo. -->
+					<section class="bm-secao" data-secao="sobrevivencia" role="tabpanel" hidden>
+						<div class="bm-cartao-secao bm-bloco">
+							<span class="bm-rotulo">Poções</span>
+							<p class="bm-dica">O Bot bebe sozinho, do inventário. Escolha a poção e com quanto da barra beber.</p>
+							<div class="bm-duas">
+								<div class="bm-pocoes bm-eixo" data-eixo="hp">
+									<label class="bm-interruptor bm-interruptor--forte">
+										<input type="checkbox" class="bm-eixo-ligado" aria-label="Beber poção de HP sozinho">
+										<span class="bm-interruptor-trilho" aria-hidden="true"></span>
+										<span class="bm-interruptor-texto"><b>Poção de HP</b></span>
+									</label>
+									<label class="bm-interruptor">
+										<input type="checkbox" class="bm-eixo-auto">
+										<span class="bm-interruptor-trilho" aria-hidden="true"></span>
+										<span class="bm-interruptor-texto"><b>Automático (qualquer poção compatível)</b><small>Se a escolhida acabar, bebe outra poção de HP do inventário em vez de parar.</small></span>
+									</label>
+									<select class="bm-frasco" aria-label="Poção de HP escolhida"></select>
+									<p class="bm-dica bm-aviso bm-sem-frasco" hidden>Escolha uma poção ou ligue o Automático: sem isso o Bot não tem o que beber.</p>
+									<p class="bm-dica bm-aviso bm-frasco-acabou" hidden>A poção escolhida acabou no inventário. Ligue o Automático ou escolha outra.</p>
+									<label class="bm-faixa">
+										<span>Beber com <b class="bm-limiar-valor"></b> ou menos</span>
+										<input type="range" class="bm-limiar bm-slider bm-slider--hp" min="1" max="99" step="1" aria-label="Beber poção de HP com esta porcentagem de HP ou menos">
+									</label>
+								</div>
+								<div class="bm-pocoes bm-eixo" data-eixo="sp">
+									<label class="bm-interruptor bm-interruptor--forte">
+										<input type="checkbox" class="bm-eixo-ligado" aria-label="Beber poção de SP sozinho">
+										<span class="bm-interruptor-trilho" aria-hidden="true"></span>
+										<span class="bm-interruptor-texto"><b>Poção de SP</b></span>
+									</label>
+									<label class="bm-interruptor">
+										<input type="checkbox" class="bm-eixo-auto">
+										<span class="bm-interruptor-trilho" aria-hidden="true"></span>
+										<span class="bm-interruptor-texto"><b>Automático (qualquer poção compatível)</b><small>Se a escolhida acabar, bebe outra poção de SP do inventário em vez de parar.</small></span>
+									</label>
+									<select class="bm-frasco" aria-label="Poção de SP escolhida"></select>
+									<p class="bm-dica bm-aviso bm-sem-frasco" hidden>Escolha uma poção ou ligue o Automático: sem isso o Bot não tem o que beber.</p>
+									<p class="bm-dica bm-aviso bm-frasco-acabou" hidden>A poção escolhida acabou no inventário. Ligue o Automático ou escolha outra.</p>
+									<label class="bm-faixa">
+										<span>Beber com <b class="bm-limiar-valor"></b> ou menos</span>
+										<input type="range" class="bm-limiar bm-slider bm-slider--sp" min="1" max="99" step="1" aria-label="Beber poção de SP com esta porcentagem de SP ou menos">
+									</label>
+								</div>
+							</div>
+						</div>
+						<div class="bm-cartao-secao bm-bloco bm-descanso">
+							<span class="bm-rotulo">Descanso</span>
+							<p class="bm-dica">Fora da luta, o Bot senta para recuperar e levanta ao chegar no valor escolhido, ou se for atacado.</p>
+							<div class="bm-duas">
+								<div class="bm-eixo">
+									<label class="bm-interruptor">
+										<input type="checkbox" class="bm-sentar-hp-ligado">
+										<span class="bm-interruptor-trilho" aria-hidden="true"></span>
+										<span class="bm-interruptor-texto"><b>Sentar para recuperar HP</b></span>
+									</label>
+									<label class="bm-faixa">
+										<span>Sentar com <b class="bm-sentar-hp-valor"></b> de HP ou menos</span>
+										<input type="range" class="bm-sentar-hp bm-slider bm-slider--hp" min="1" max="99" step="1" aria-label="Sentar com esta porcentagem de HP ou menos">
+									</label>
+								</div>
+								<div class="bm-eixo">
+									<label class="bm-interruptor">
+										<input type="checkbox" class="bm-sentar-sp-ligado">
+										<span class="bm-interruptor-trilho" aria-hidden="true"></span>
+										<span class="bm-interruptor-texto"><b>Sentar para recuperar SP</b></span>
+									</label>
+									<label class="bm-faixa">
+										<span>Sentar com <b class="bm-sentar-sp-valor"></b> de SP ou menos</span>
+										<input type="range" class="bm-sentar-sp bm-slider bm-slider--sp" min="1" max="99" step="1" aria-label="Sentar com esta porcentagem de SP ou menos">
+									</label>
+								</div>
+							</div>
+							<label class="bm-faixa">
+								<span>Levantar ao chegar em <b class="bm-levantar-valor"></b></span>
+								<input type="range" class="bm-levantar bm-slider" min="2" max="100" step="1" aria-label="Levantar ao chegar nesta porcentagem">
+							</label>
+							<p class="bm-dica bm-aviso bm-descanso-aviso" hidden>"Levantar ao chegar em" precisa ficar acima dos dois limiares de sentar.</p>
+						</div>
+					</section>
+
+					<!-- COLETA (Fase 6): pegar itens do chao, o raio e os itens ignorados. -->
+					<section class="bm-secao" data-secao="coleta" role="tabpanel" hidden>
+						<div class="bm-cartao-secao bm-bloco">
+							<label class="bm-interruptor bm-interruptor--forte">
+								<input type="checkbox" class="bm-coletar">
+								<span class="bm-interruptor-trilho" aria-hidden="true"></span>
+								<span class="bm-interruptor-texto"><b>Coletar itens do chão</b><small>Fora da luta, o Bot pega o que cair dentro do raio.</small></span>
+							</label>
+							<label class="bm-faixa">
+								<span>Raio de coleta <b class="bm-raio-coleta-valor"></b> células</span>
+								<input type="range" class="bm-raio-coleta bm-slider" step="1" aria-label="Raio de coleta em células">
+							</label>
+						</div>
+						<div class="bm-cartao-secao bm-bloco">
+							<span class="bm-rotulo">Itens ignorados</span>
+							<p class="bm-dica">O Bot não pega estes itens. Escolha o item da mochila pelo nome.</p>
+							<ul class="bm-ignorados"></ul>
+							<div class="bm-escolher-ignorado bm-seletor-bloco">
+								<button type="button" class="bm-escolher ri-btn ri-btn--sec" aria-haspopup="listbox" aria-expanded="false">Escolher item para ignorar</button>
+								<div class="bm-seletor" hidden>
+									<input type="search" class="bm-seletor-filtro" placeholder="Filtrar pelo nome" aria-label="Filtrar os itens pelo nome">
+									<ul class="bm-seletor-lista" aria-label="Itens da mochila"></ul>
+								</div>
+							</div>
+						</div>
+					</section>
+
+					<!-- GRUPO (Fase 8): a postura de batalha e o posto de grupo em vigor. -->
+					<section class="bm-secao" data-secao="postura" role="tabpanel" hidden>
+						<fieldset class="bm-cartao-secao bm-bloco bm-posturas">
+							<legend class="bm-rotulo">Postura de batalha</legend>
+							<label class="bm-opcao"><input type="radio" name="bm-postura" value="tank"><span><b>Tanque</b><small>Protege o grupo, prefere quem ataca aliados.</small></span></label>
+							<label class="bm-opcao"><input type="radio" name="bm-postura" value="melee-dps"><span><b>Dano corpo a corpo</b><small>Aproxima e ataca.</small></span></label>
+							<label class="bm-opcao"><input type="radio" name="bm-postura" value="ranged-dps"><span><b>Dano à distância</b><small>Ataca de longe.</small></span></label>
+							<label class="bm-opcao"><input type="radio" name="bm-postura" value="ranged-buff-ataque"><span><b>Suporte e ataque</b><small>Cura e buffs primeiro, depois ataca.</small></span></label>
+							<label class="bm-opcao"><input type="radio" name="bm-postura" value="ranged-buff"><span><b>Só suporte</b><small>Cura e buffs, nunca ataca.</small></span></label>
+						</fieldset>
+						<label class="bm-linha bm-fallback-melee">
+							<input type="checkbox" class="bm-fallback">
+							<span>Usar o ataque corpo a corpo quando o ataque de longe não estiver disponível</span>
+						</label>
+						<div class="bm-cartao-secao bm-bloco">
+							<span class="bm-rotulo">Posto no grupo</span>
+							<p class="bm-dica bm-posto-atual"></p>
+							<p class="bm-dica">O posto é escolhido na janela Grupo. A postura vem antes do posto: no "Só suporte" o Bot nunca ataca, qualquer que seja o posto.</p>
+						</div>
+					</section>
+
+					<!-- CONSUMIVEIS (D3-C1; ajustes do dono, 09/10/2026): uma linha por coisa que o Bot faz. Tudo desligado por
+						padrao; a Asa automatica e beneficio VIP e diz isso. -->
+					<section class="bm-secao" data-secao="consumiveis" role="tabpanel" hidden>
+						<div class="bm-cartao-secao bm-bloco">
+							<span class="bm-rotulo">Poções de velocidade</span>
+							<label class="bm-interruptor bm-interruptor--forte">
+								<input type="checkbox" class="bm-buffs-ligado">
+								<span class="bm-interruptor-trilho" aria-hidden="true"></span>
+								<span class="bm-interruptor-texto"><b>Manter as poções marcadas sempre ativas</b><small>O Bot bebe de novo quando o efeito acaba, na ordem da lista. Só com o Auto Caça ligado.</small></span>
+							</label>
+							<ul class="bm-buffs-lista bm-lista-itens"></ul>
+							<p class="bm-dica bm-buffs-vazio" hidden>Nenhuma poção de velocidade na mochila.</p>
+						</div>
+						<div class="bm-cartao-secao bm-bloco bm-asa">
+							<span class="bm-rotulo bm-titulo-com-selo">Asa de Mosca automática <span class="bm-selo-vip" title="Benefício VIP">VIP</span> <b class="bm-asa-quantidade-rotulo">(<span class="bm-asa-quantidade">0</span> na mochila)</b></span>
+							<p class="bm-dica bm-asa-vip-dica">Benefício VIP: com o passe VIP, o Bot usa a Asa de Mosca sozinho para sair de uma situação ruim.</p>
+							<p class="bm-dica bm-aviso bm-asa-sem-vip" hidden>A Asa automática é benefício VIP. Sem o passe VIP ela não dispara; você continua usando a Asa à mão.</p>
+							<label class="bm-interruptor bm-interruptor--forte">
+								<input type="checkbox" class="bm-asa-ligada">
+								<span class="bm-interruptor-trilho" aria-hidden="true"></span>
+								<span class="bm-interruptor-texto"><b>Usar a Asa de Mosca sozinho</b><small>Quando um dos gatilhos ligados abaixo acontecer.</small></span>
+							</label>
+							<div class="bm-gatilhos">
+								<div class="bm-linha bm-gatilho bm-gatilho-hp">
+									<label class="bm-interruptor">
+										<input type="checkbox" aria-label="Gatilho: vida baixa">
+										<span class="bm-interruptor-trilho" aria-hidden="true"></span>
+									</label>
+									<span>Quando a vida cair para</span>
+									<input type="number" step="1" inputmode="numeric" aria-label="Vida abaixo de, em por cento">
+									<span>% ou menos</span>
+								</div>
+								<div class="bm-linha bm-gatilho bm-gatilho-cercado">
+									<label class="bm-interruptor">
+										<input type="checkbox" aria-label="Gatilho: cercado">
+										<span class="bm-interruptor-trilho" aria-hidden="true"></span>
+									</label>
+									<span>Quando estiver cercado por</span>
+									<input type="number" step="1" inputmode="numeric" aria-label="Cercado por quantos monstros">
+									<span>monstros ou mais</span>
+								</div>
+								<div class="bm-linha bm-gatilho bm-gatilho-sem-alvo">
+									<label class="bm-interruptor">
+										<input type="checkbox" aria-label="Gatilho: sem alvo">
+										<span class="bm-interruptor-trilho" aria-hidden="true"></span>
+									</label>
+									<span>Quando ficar</span>
+									<input type="number" step="1" inputmode="numeric" aria-label="Sem alvo por quantos segundos">
+									<span>segundos sem alvo</span>
+								</div>
+							</div>
+							<label class="bm-linha bm-asa-guardar">
+								<span>Guardar</span>
+								<input type="number" class="bm-asa-reserva" min="0" step="1" inputmode="numeric" aria-label="Asas que o Bot nunca usa">
+								<span>asas que o Bot nunca usa</span>
+							</label>
+							<p class="bm-dica">A Asa ligada precisa de ao menos um gatilho. Cada gatilho que você deixar desmarcado fica desligado.</p>
+						</div>
+					</section>
+
+					<!-- AVANCADO (D4-A3): o que o Bot esta fazendo e os contadores da sessao. So leitura. -->
+					<section class="bm-secao" data-secao="avancado" role="tabpanel" hidden>
+						<div class="bm-cartao-secao bm-bloco">
+							<span class="bm-rotulo">O que o Bot está fazendo agora</span>
+							<p class="bm-diag-status"></p>
+							<p class="bm-dica bm-diag-explicacao"></p>
+						</div>
+						<div class="bm-cartao-secao bm-bloco">
+							<span class="bm-rotulo">Nesta sessão</span>
+							<p class="bm-dica bm-diag-aguardando">Carregando...</p>
+							<div class="bm-diag-sessao" hidden>
+								<p class="bm-dica bm-diag-tempo"></p>
+								<ul class="bm-diag-contadores">
+									<li><span>Monstros derrotados</span> <b class="bm-diag-abates">0</b></li>
+									<li><span>Poções de cura usadas</span> <b class="bm-diag-pocoes">0</b></li>
+									<li><span>Trocas de flecha</span> <b class="bm-diag-flechas">0</b></li>
+									<li><span>Asas de Mosca usadas</span> <b class="bm-diag-asas">0</b></li>
+									<li><span>Poções de velocidade bebidas</span> <b class="bm-diag-buffs">0</b></li>
+								</ul>
+							</div>
+							<p class="bm-dica">A contagem recomeça cada vez que você liga o Auto Caça. Atualiza sozinha a cada poucos segundos enquanto esta aba está aberta.</p>
+						</div>
+					</section>
+
+					<!-- PERFIS (Fase 9): configuracoes nomeadas deste personagem; usar nunca liga o Bot. -->
+					<section class="bm-secao" data-secao="perfis" role="tabpanel" hidden>
+						<div class="bm-cartao-secao bm-bloco">
+							<span class="bm-rotulo">Perfis deste personagem</span>
+							<ul class="bm-perfis bm-lista-itens"></ul>
+							<p class="bm-dica bm-sem-perfil" hidden>Nenhum perfil salvo.</p>
+							<div class="bm-adicionar">
+								<input type="text" class="bm-perfil-nome" placeholder="Nome do perfil" aria-label="Nome do perfil">
+								<button type="button" class="bm-perfil-salvar ri-btn ri-btn--sec">Salvar atual</button>
+							</div>
+							<p class="bm-dica">Salvar guarda a configuração já salva. Para renomear, digite o nome novo e use Renomear no perfil.</p>
+						</div>
+					</section>
+				</div>
+
+				<!-- STATUS EM TEMPO REAL: o codigo do servidor vira frase; o alvo e a flecha vestida. -->
+				<div class="bm-tempo-real">
+					<span class="bm-tempo-real-titulo"><span class="bm-tempo-real-ponto" aria-hidden="true"></span>Status em tempo real</span>
+					<span class="bm-tempo-real-linha">
+						<span class="bm-tempo-real-passo"><!--RI_ICONE:botAlvo--><span class="bm-status" role="status" aria-live="polite">Controle manual</span></span>
+						<span class="bm-tempo-real-passo bm-flecha-atual-passo" hidden><!--RI_ICONE:slotMunicao--><span>Flecha atual: <b class="bm-flecha-atual" translate="no"></b></span></span>
+					</span>
+				</div>
+			</div>
+		</div>
+
+		<!-- O RODAPE: o recado do servidor e os botoes. Salvar confirma no servidor; Salvar e Iniciar salva e liga. -->
+		<div class="bm-rodape">
+			<p class="bm-recado" role="alert"></p>
+			<ul class="bm-problemas"></ul>
+			<div class="bm-botoes">
+				<button type="button" class="bm-recarregar ri-btn ri-btn--sec" hidden>Recarregar configuração</button>
+				<button type="button" class="bm-descartar ri-btn ri-btn--sec">Descartar</button>
+				<span class="bm-botoes-vao"></span>
+				<button type="button" class="bm-aplicar ri-btn ri-btn--sec"><!--RI_ICONE:botSalvar--><span class="bm-aplicar-texto">Salvar</span></button>
+				<button type="button" class="bm-iniciar ri-btn"><!--RI_ICONE:botPlay--><span class="bm-iniciar-texto">Salvar e Iniciar</span></button>
+			</div>
+		</div>
+	</div>
+</div>

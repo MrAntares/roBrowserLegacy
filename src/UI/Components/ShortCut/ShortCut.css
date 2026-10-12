@@ -323,17 +323,45 @@
 	display: block;
 }
 
-#ShortCut .cooldown-overlay {
+/* O RELOGIO DE RECARGA (item 3.10 do pedido do dono, 09/10/2026). Quem
+   escreve `--cd-fracao` (a parte que AINDA FALTA, 1 -> 0) e o numero e
+   `relogioDaBarra.js`, a cada passo de 80 ms, so enquanto ha recarga viva.
+   1. ".sc-recarga" e a SOMBRA da fatia que falta: `conic-gradient` a partir
+      do topo, os primeiros (1 - fracao) de volta transparentes (o icone ja
+      revelado) e o resto escuro; o icone volta em sentido horario.
+   2. ".sc-recarga-num" e o numero do centro, dourado sobre a sombra.
+   Nada aqui responde a mouse: o slot continua clicavel e arrastavel. */
+#ShortCut .sc-recarga {
+	--cd-fracao: 1;
 	position: absolute;
-	top: 0;
-	left: 0;
-	width: 32px;
-	height: 32px;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 3px;
+	overflow: hidden;
+	background: conic-gradient(
+		from 0deg,
+		transparent 0turn,
+		transparent calc((1 - var(--cd-fracao)) * 1turn),
+		rgba(10, 14, 24, 0.68) calc((1 - var(--cd-fracao)) * 1turn),
+		rgba(10, 14, 24, 0.68) 1turn
+	);
+	box-shadow: inset 0 0 0 1px rgba(240, 216, 155, 0.35);
 	pointer-events: none;
-	border-radius: var(--radius-card);
-	z-index: 999;
-	background: conic-gradient(rgba(18, 41, 74, 0.75) 0deg, transparent 0deg);
-	box-shadow: inset 0 0 0 1px rgba(240, 216, 155, 0.18);
+	z-index: 2;
+}
+#ShortCut .sc-recarga-num {
+	font-family: var(--font-numeric, var(--font-ui));
+	font-size: 12px;
+	font-weight: 700;
+	font-variant-numeric: tabular-nums;
+	line-height: 1;
+	color: #ffd76a;
+	text-shadow:
+		0 1px 2px rgba(0, 0, 0, 0.9),
+		0 0 4px rgba(0, 0, 0, 0.7);
+	white-space: nowrap;
 }
 
 @media (prefers-reduced-motion: reduce) {

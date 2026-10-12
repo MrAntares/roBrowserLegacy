@@ -612,40 +612,7 @@ if (Object.keys(redirects).length > 0) {
 const TETO_DE_FRAME = 256 * 1024;
 
 
-/*
- * A COMPRESSAO DO FIO (03/10/2026, `permessage-deflate`).
- *
- * Medido com o trafego de verdade (`scripts/diag-custo-do-tique.ts
- * --medir-compressao`, 60 jogadores de 2o grau num mapa, servidor do jogo):
- * 155 KB/s -> 60 KB/s, **62% a menos**, com deflate nivel 1 e o contexto
- * mantido entre mensagens. Os pacotes do RO sao pequenos e repetitivos (o
- * passo de cada monstro, as barras de HP), e e a repeticao ENTRE mensagens
- * que comprime: por isso o contexto fica (o padrao). Com o contexto mantido o
- * `ws` comprime TODA mensagem, inclusive as menores que o `threshold` — ele so
- * vale com `no_context_takeover` (`ws/lib/sender.js`, conferido na 8.21.3) —,
- * entao nao ha `threshold` a ajustar.
- *
- * O custo cai NESTE processo, e nao na thread do servidor do jogo, que e o
- * gargalo: a ponte roda noutro nucleo. Nivel 1 e o mais barato do zlib, e a
- * memoria e ~256 KiB por conexao (janela 15, memLevel 8) — ~50 MiB com 200.
- *
- * Quem nao negocia a extensao (navegador antigo, proxy no meio) recebe o fio
- * CRU, como antes: a compressao e oferta, e nao exigencia. O navegador
- * descomprime sozinho; o cliente do jogo nao muda uma linha.
- *
- * `WSPROXY_COMPRESSAO=0` DESLIGA (a volta em uma linha, sem deploy de codigo).
- */
-const COMPRESSAO_LIGADA = process.env.WSPROXY_COMPRESSAO !== '0';
-const OPCOES_DE_COMPRESSAO = {
-	zlibDeflateOptions: { level: 1, memLevel: 8 },
-};
-
-const wss = new WebSocketServer({
-	port,
-	host,
-	maxPayload: TETO_DE_FRAME,
-	perMessageDeflate: COMPRESSAO_LIGADA ? OPCOES_DE_COMPRESSAO : false,
-});
+const wss = new WebSocketServer({ port, host, maxPayload: TETO_DE_FRAME });
 
 /*
  * "Listening on" SO QUANDO ESCUTA (10/09/2026).
@@ -659,7 +626,7 @@ const wss = new WebSocketServer({
  * "Listening on" e morria logo em seguida.
  */
 wss.on('listening', () => {
-	console.log(`[wsProxy] Listening on ${host}:${port} (compressao ${COMPRESSAO_LIGADA ? 'ligada' : 'desligada'})`);
+	console.log(`[wsProxy] Listening on ${host}:${port}`);
 });
 
 /*

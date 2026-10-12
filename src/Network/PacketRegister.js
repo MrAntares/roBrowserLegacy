@@ -1084,6 +1084,9 @@ export default {
 	// 02/10/2026 - a TROCA PELO NOME (a janela "Trade" do menu). O CZ 0x0fb2 e
 	// ESCRITO pelo cliente, nao lido. Os dois ultimos slots da reserva.
 	0x0fb3: PACKET.ZC.RAGIDLE_TROCA,
+	// 07/10/2026 - o BOT NOVO (o menu do Bot). O CZ 0x0fb0 e ESCRITO pelo
+	// cliente, nao lido. Os dois ultimos slots da reserva.
+	0x0fb1: PACKET.ZC.RAGIDLE_BOT,
 
 	0xb1a: PACKET.ZC.USESKILL_ACK3 // USE SKILL 3
 };

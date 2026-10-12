@@ -35,26 +35,3 @@ export function corDoEncoberto({ ehOProprio, intravisao }) {
 	if (ehOProprio) return { r: 1, g: 1, b: 1, a: ALFA_DO_PROPRIO_ENCOBERTO };
 	return { r: 1, g: 1, b: 1, a: 0 };
 }
-
-/**
- * OS LETREIROS DE QUEM ESTA ENCOBERTO — nome, barra de HP e emblema (D-2024).
- *
- * A cor acima apaga o CORPO de quem os outros nao podem ver, mas o
- * `renderGUI` (`EntityRender.js`) desenhava os letreiros sem olhar o efeito: o
- * Gatuno escondido sumia e o nome dele ficava no chao, entregando onde ele
- * estava. Na fonte o servidor nem manda o ator escondido a quem nao o ve, e o
- * cliente oficial nao desenha letreiro de quem nao desenha.
- *
- * O criterio e o alfa que o EFEITO deu a entidade (`_effectStateColor[3]`), e
- * nao o `effectColor[3]` composto: o composto tambem leva o pisca-pisca e o
- * fade, e um quadro apagado por eles nao e "escondido". Alfa do efeito zero e
- * exatamente o que `corDoEncoberto` da aos OUTROS encobertos (e o INVISIBLE
- * sempre); o proprio (meio transparente) e a intravisao (silhueta opaca)
- * continuam com os letreiros.
- *
- * @param {number} alfaDoEfeito o `_effectStateColor[3]` da entidade
- * @returns {boolean} se nome, barra de HP e emblema podem ser desenhados
- */
-export function letreirosVisiveis(alfaDoEfeito) {
-	return alfaDoEfeito > 0;
-}

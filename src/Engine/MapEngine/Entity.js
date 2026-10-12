@@ -20,6 +20,7 @@ import StatusState from 'DB/Status/StatusState.js';
 import Emotions from 'DB/Emotions.js';
 import SkillEffect from 'DB/Skills/SkillEffect.js';
 import SkillActionTable from 'DB/Skills/SkillAction.js';
+import SkillUnitConst from 'DB/Skills/SkillUnitConst.js';
 import EffectConst from 'DB/Effects/EffectConst.js';
 import PetMessageConst from 'DB/Pets/PetMessageConst.js';
 import JobId from 'DB/Jobs/JobConst.js';
@@ -28,6 +29,7 @@ import Sound from 'Audio/SoundManager.js';
 import Events from 'Core/Events.js';
 import Guild from 'Engine/MapEngine/Guild.js';
 import Session from 'Engine/SessionStorage.js';
+import { descartarPedidoGuardado } from './pedidoGuardado.js';
 import Network from 'Network/NetworkManager.js';
 import PACKETVER from 'Network/PacketVerManager.js';
 import PACKET from 'Network/PacketStructure.js';
@@ -61,7 +63,6 @@ import Inventory from 'UI/Components/Inventory/Inventory.js';
 import ShortCut from 'UI/Components/ShortCut/ShortCut.js';
 import StatusIcons from 'UI/Components/StatusIcons/StatusIcons.js';
 import StatusIdle from 'UI/Components/StatusIdle/StatusIdle.js'; // RAGIDLE: a ficha ouve mudanca de status (D-853)
-import { aoMudarStatusDoDesejo } from 'UI/Components/IdleConfig/desejoArcano.js'; // RAGIDLE (D-2046): o relogio do Desejo no cartao
 import MiniMap from 'UI/Components/MiniMap/MiniMap.js';
 import PartyFriends from 'UI/Components/PartyFriends/PartyFriends.js';
 import Equipment from 'UI/Components/Equipment/Equipment.js';
@@ -317,6 +318,8 @@ function onEntityVanish(pkt) {
 	}
 	if (entity) {
 		if (entity.objecttype === Entity.TYPE_PC && pkt.GID === Session.meuGID) {
+			// C47 (C-1): morto nao solta o pedido de skill que esperava.
+			descartarPedidoGuardado(Session);
 			//death animation only for myself
 			const EF_Init_Par = {
 				effectId: EffectConst.EF_DEVIL,
@@ -1641,19 +1644,6 @@ function onNPCViewChange(pkt) {
 function onEntityUseSkill(pkt) {
 	const srcEntity = EntityManager.get(pkt.srcAID);
 	const dstEntity = EntityManager.get(pkt.targetAID);
-	/*
-	 * A CURA DE UMA UNIDADE DE CHAO (D-2036, 06/10/2026). O tique do Santuario e
-	 * da Macada de Idun chega como AL_HEAL com a UNIDADE como origem, como no
-	 * emulador (`clif_skill_nodamage(unit, *bl, AL_HEAL, heal)`, skill.cpp:6941).
-	 * A unidade desenhada e entidade aqui (`spamSkillZone`), e ela nao tem pose
-	 * nem rosto: sem esta guarda o efeito ganhava uma `setAction` por tique. O
-	 * numero verde, o som e a luz no ALVO seguem abaixo, como os da Cura.
-	 */
-	const origemEhUnidadeDeChao =
-		!!srcEntity &&
-		(srcEntity.objecttype === Entity.TYPE_EFFECT ||
-			srcEntity.objecttype === Entity.TYPE_UNIT ||
-			srcEntity.objecttype === Entity.TYPE_TRAP);
 
 	// Don't display skill names for mobs and hiding skills
 	if (
@@ -1673,8 +1663,8 @@ function onEntityUseSkill(pkt) {
 		}
 	}
 
-	//Action handling (a unidade de chao nao tem pose)
-	if (srcEntity && !origemEhUnidadeDeChao) {
+	//Action handling
+	if (srcEntity) {
 		if (srcEntity.action !== srcEntity.ACTION.DIE && srcEntity.action !== srcEntity.ACTION.SIT) {
 			if (pkt.SKID in SkillActionTable) {
 				const action = SkillActionTable[pkt.SKID];
@@ -1692,7 +1682,7 @@ function onEntityUseSkill(pkt) {
 	}
 
 	if (dstEntity) {
-		if (srcEntity && dstEntity !== srcEntity && !origemEhUnidadeDeChao) {
+		if (srcEntity && dstEntity !== srcEntity) {
 			srcEntity.lookTo(dstEntity.position[0], dstEntity.position[1]);
 		}
 
@@ -1758,6 +1748,34 @@ function onEntityUseSkill(pkt) {
  */
 function onSkillAppear(pkt) {
 	EffectManager.spamSkillZone(pkt.job, pkt.xPos, pkt.yPos, pkt.AID, pkt.creatorAID);
+
+	/*
+	 * RAGIDLE (28/09/2026): RG_GRAFFITI (UNT_GRAFFITI) nao tem sprite de efeito
+	 * (SkillUnit[UNT_GRAFFITI] = EF_NONE, DB/Skills/SkillUnit.js) -- entao o
+	 * spamSkillZone acima e um no-op: sua guarda `effectId in EffectDB` falha
+	 * ANTES de criar a Entity, e o texto do grafite (pkt.msg, so existe no
+	 * PACKET.ZC.SKILL_ENTRY5) nunca chegava a lugar nenhum.
+	 *
+	 * Aqui reaproveitamos o MESMO balao de fala que ja desenha o nome da skill
+	 * acima do personagem (`entity.dialog`, Renderer/Entity/EntityDialog.js,
+	 * usado poucas linhas abaixo em onEntityUseSkillToAttack) -- so para este
+	 * unit type, sem tocar no EF_NONE nem no spamSkillZone. Como o AID do
+	 * grafite e o mesmo GID usado por onSkillDisapear, a Entity criada aqui e
+	 * removida do jeito normal quando o servidor manda o SKILL_DISAPPEAR.
+	 */
+	if (pkt.job === SkillUnitConst.UNT_GRAFFITI && pkt.msg) {
+		let entity = EntityManager.get(pkt.AID);
+		if (!entity) {
+			entity = new Entity();
+			entity.GID = pkt.AID;
+			entity.position = [pkt.xPos, pkt.yPos, Altitude.getCellHeight(pkt.xPos, pkt.yPos)];
+			entity.hideShadow = true;
+			entity.objecttype = Entity.TYPE_EFFECT;
+			entity.creatorGID = pkt.creatorAID;
+			EntityManager.add(entity);
+		}
+		entity.dialog.set(pkt.msg);
+	}
 }
 
 /**
@@ -2736,13 +2754,6 @@ function onEntityStatusChange(pkt) {
 		 * trafego que ninguem desenha.
 		 */
 		StatusIdle.aoMudarStatus();
-		/*
-		 * O CARTAO DO DESEJO ARCANO na Config Idle (D-2046) acerta o relogio pelo
-		 * mesmo pacote: o 0983 leva o que falta, o 0196 o apaga. Aqui, e nao num
-		 * `hookPacket` proprio, pela razao do paragrafo acima. Ele so olha o
-		 * EFST_AUTOSPELL; o resto passa calado.
-		 */
-		aoMudarStatusDoDesejo(pkt.index, pkt.state, pkt.RemainMS, Date.now());
 	}
 }
 

@@ -94,7 +94,6 @@ import htmlText from './LFGIdle.html?raw';
 import cssText from './LFGIdle.css?raw';
 import { fecharEEsquecer } from '../limpezaDeJanelaIdle.js';
 import { abaLembrada, lembrarAba } from '../memoriaDeAba.js';
-import { criarJuntadorDePaginas } from 'Network/juntarPaginas.js'; // D-2071
 
 /*
  * Manter em sincronia com o ":host"/".lfg-window" do CSS -- mesmo papel do
@@ -1086,18 +1085,11 @@ LFGIdle.teleportarParaOLider = function teleportarParaOLider() {
  * ATENÇÃO ao `hookPacket`: ele SOBRESCREVE o handler anterior daquele opcode.
  * Estes dois são nossos e de mais ninguém.
  */
-/** O quadro grande desce em paginas (D-2071): os grupos so trocam quando a ultima chega. */
-const juntarPaginasDoQuadro = criarJuntadorDePaginas('grupos');
-
 Network.hookPacket(PACKET.ZC.RAGIDLE_LFG_LISTA, function (pkt) {
 	let dados = null;
 	try {
 		dados = JSON.parse(pkt.json);
 	} catch (_erro) {
-		return;
-	}
-	dados = juntarPaginasDoQuadro(dados);
-	if (dados === null) {
 		return;
 	}
 	LFGIdle.grupos = dados && Array.isArray(dados.grupos) ? dados.grupos : [];

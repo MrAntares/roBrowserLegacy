@@ -76,47 +76,38 @@ vi.mock('UI/Components/ChatBox/ChatBox.js', () => ({
 	}
 }));
 
-const { default: htmlDoIdleConfig } = await import('UI/Components/IdleConfig/IdleConfig.html?raw');
-const { default: IdleConfig } = await import('UI/Components/IdleConfig/IdleConfig.js');
+/*
+ * O contexto do mapa saiu da janela "Idle" (IdleConfig, retirada em
+ * 07/10/2026) para `UI/contextoDoMapa.js`, alimentado pelo `ZC_RAGIDLE_BOT`
+ * que o BotMenu recebe. A regra do M7 e a mesma: na troca de mapa o contexto
+ * fica OBSOLETO ate a resposta do mapa novo, e quem le recebe `null`.
+ */
+const contextoDoMapa = await import('UI/contextoDoMapa.js');
 
 describe('M7: o rotulo do botao de caca nao pode vir do mapa anterior', () => {
 	beforeEach(() => {
-		mocks.enviados.length = 0;
-		// O host e o HTML REAL do componente: o caminho da resposta atravessa
-		// `aplicarEstadoDeCidade`, `renderTabs`, `renderBody` e `updateFooter`,
-		// que juntos tocam quase a janela inteira. Esqueleto escrito a mao mente
-		// assim que a janela ganha um no novo.
-		IdleConfig._host = document.createElement('div');
-		IdleConfig._host.innerHTML = htmlDoIdleConfig;
-		IdleConfig._shadow = null;
-		IdleConfig.contexto = { ehCidade: false };
-		IdleConfig.contextoObsoleto = false;
+		contextoDoMapa.esquecer();
+		contextoDoMapa.receberDoServidor({ ehCidade: false }, false);
 	});
 
-	it('sondar o mapa marca o contexto como OBSOLETO', () => {
-		/*
-		 * Na troca de mapa, `sondarMapa()` e `HuntButtonIdle.append()` saem no
-		 * MESMO bloco sincrono (Engine/MapEngine.js), entao a resposta nao pode
-		 * ter chegado. Quem lesse `contexto` ali lia o mapa de onde o jogador
-		 * saiu — e a guarda que existia para isso testava a AUSENCIA de
-		 * contexto, que so acontece no boot do modulo.
-		 */
-		IdleConfig.sondarMapa();
-		expect(IdleConfig.contextoObsoleto, 'a sondagem nao marcou o contexto').toBe(true);
-		expect(mocks.enviados.length, 'a sondagem nao saiu no fio').toBe(1);
+	it('a troca de mapa marca o contexto como OBSOLETO: quem le recebe null, e nao o mapa anterior', () => {
+		expect(contextoDoMapa.contextoDoMapa()).toEqual({ ehCidade: false });
+		contextoDoMapa.marcarObsoleto();
+		expect(contextoDoMapa.contextoDoMapa(), 'a troca nao marcou o contexto').toBeNull();
 	});
 
 	it('a resposta LIMPA a marca', () => {
-		IdleConfig.sondarMapa();
-		mocks.hooks[0]({
-			json: JSON.stringify({
-				v: 1,
-				config: { cacaAutomatica: false, coletarItens: true, rotacao: [], alvosDesabilitados: [] },
-				contexto: { ehCidade: true }
-			})
-		});
-		expect(IdleConfig.contextoObsoleto, 'a marca ficou pendurada depois da resposta').toBe(false);
-		expect(IdleConfig.contexto.ehCidade).toBe(true);
+		contextoDoMapa.marcarObsoleto();
+		contextoDoMapa.receberDoServidor({ ehCidade: true }, false);
+		expect(contextoDoMapa.contextoDoMapa(), 'a marca ficou pendurada depois da resposta').toEqual({ ehCidade: true });
+	});
+
+	it('quem marca a troca de mapa e o BotMenu, a cada append', async () => {
+		const fs = await import('node:fs');
+		const fonte = semComentarios(fs.readFileSync('src/UI/Components/BotMenu/BotMenu.js', 'utf8'));
+		const inicio = fonte.indexOf('BotMenu.onAppend = function');
+		expect(inicio, 'onAppend sumiu').toBeGreaterThan(-1);
+		expect(fonte.slice(inicio, fonte.indexOf(NL + '}', inicio))).toContain('marcarObsoleto()');
 	});
 
 	it('a guarda do botao olha a marca, e nao so a ausencia', async () => {
@@ -130,29 +121,21 @@ describe('M7: o rotulo do botao de caca nao pode vir do mapa anterior', () => {
 		const inicio = fonte.indexOf('function syncLabel()');
 		expect(inicio, 'syncLabel sumiu').toBeGreaterThan(-1);
 		const corpo = fonte.slice(inicio, fonte.indexOf(NL + '}', inicio));
-		expect(corpo, 'a guarda voltou a testar so a ausencia de contexto').toContain(
-			'contextoObsoleto'
-		);
+		/* `contextoDoMapa()` devolve null tambem quando o contexto e do mapa
+		   anterior (obsoleto): a guarda que le a funcao olha a marca. */
+		expect(corpo, 'a guarda voltou a testar so a ausencia de contexto').toContain('if (!contextoDoMapa())');
 	});
 });
 
 describe('M8: a troca de personagem esquece o anterior', () => {
-	it('`limparEstadoDoPersonagem` zera TUDO o que e por personagem', () => {
-		IdleConfig.serverConfig = { cacaAutomatica: true };
-		IdleConfig.editConfig = { cacaAutomatica: true };
-		IdleConfig.contexto = { ehCidade: false };
-		IdleConfig.contextoObsoleto = true;
-		IdleConfig.dirty = true;
-		IdleConfig.problemas = ['algo'];
+	it('a troca de personagem esquece o contexto e o estado do Bot', () => {
+		contextoDoMapa.receberDoServidor({ ehCidade: false }, true);
+		expect(contextoDoMapa.botLigado()).toBe(true);
 
-		IdleConfig.limparEstadoDoPersonagem();
+		contextoDoMapa.esquecer();
 
-		expect(IdleConfig.serverConfig).toBeNull();
-		expect(IdleConfig.editConfig, 'o rascunho do personagem anterior ficou').toBeNull();
-		expect(IdleConfig.contexto).toBeNull();
-		expect(IdleConfig.contextoObsoleto).toBe(false);
-		expect(IdleConfig.dirty).toBe(false);
-		expect(IdleConfig.problemas).toEqual([]);
+		expect(contextoDoMapa.contextoDoMapa()).toBeNull();
+		expect(contextoDoMapa.botLigado()).toBe(false);
 	});
 
 	it('`cleanGameUI` CHAMA a limpeza dos tres modulos RAGIDLE', async () => {
@@ -169,7 +152,7 @@ describe('M8: a troca de personagem esquece o anterior', () => {
 		expect(corpo, 'cleanGameUI voltou a ignorar os componentes RAGIDLE').toContain(
 			'limparEstadoDoPersonagem'
 		);
-		for (const modulo of ['IdleConfig', 'MissoesIdle', 'HuntMap']) {
+		for (const modulo of ['BotMenu', 'MissoesIdle', 'HuntMap']) {
 			expect(corpo, `${modulo} saiu da limpeza`).toContain(modulo);
 		}
 	});

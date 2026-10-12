@@ -73,7 +73,7 @@ const NOME_PT_POR_CONSTANTE = {
 	"AS_VENOMKNIFE": "Faca Envenenada",
 	"BA_APPLEIDUN": "Maçãs de Idun",
 	"BA_ASSASSINCROSS": "Crepúsculo Sangrento",
-	"BA_FROSTJOKER": "Piada Congelante",
+	"BA_FROSTJOKE": "Piada Congelante",
 	"BA_DISSONANCE": "Dissonância",
 	"BA_MUSICALLESSON": "Lições de Música",
 	"BA_MUSICALSTRIKE": "Flecha Melódica",

@@ -120,7 +120,7 @@ describe('a costura da janela', () => {
 
 	it('e sai da tela na troca de personagem', () => {
 		expect(js).toContain('PainelComandoIdle.limparEstadoDoPersonagem = function');
-		expect(mapEngine).toMatch(/RankingIdle,\r?\n\t\tPainelComandoIdle,/);
+		expect(mapEngine).toMatch(/RankingIdle,\r?\n\t\tBotMenu,\r?\n\t\tPainelComandoIdle,/);
 	});
 
 	it('o arrasto e por PONTEIRO — o `draggable()` nao anda no dedo', () => {

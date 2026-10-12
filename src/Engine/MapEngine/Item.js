@@ -22,9 +22,9 @@ import ItemObtain from 'UI/Components/ItemObtain/ItemObtain.js';
 /* Ver a nota em Engine/MapEngine/Entity.js: o registro e alimentado por quem
    ja recebe o pacote, nunca por um hook que sobrescreveria este handler. */
 import { ehDropDeCaca, registrarItem } from 'UI/Components/HuntAnalyzer/registroDaCaca.js';
-/* So pelo `contexto.ehCidade` -- ver a nota em onItemPickAnswer. Sem ciclo:
-   IdleConfig nao importa nada de Engine/, e MapEngine.js:103 ja o importa. */
-import IdleConfig from 'UI/Components/IdleConfig/IdleConfig.js';
+/* So pelo `contexto.ehCidade` -- ver a nota em onItemPickAnswer. Desde o Bot novo
+   (07/10/2026) o contexto mora em `UI/contextoDoMapa.js`, sem janela. */
+import { contextoDoMapa } from 'UI/contextoDoMapa.js';
 import ItemSelection from 'UI/Components/ItemSelection/ItemSelection.js';
 import Inventory from 'UI/Components/Inventory/Inventory.js';
 import CartItems from 'UI/Components/CartItems/CartItems.js';
@@ -141,8 +141,8 @@ function onItemPickAnswer(pkt) {
 	 * servidor-mapa.ts:6864). O sinal e o mesmo que HuntButtonIdle ja le.
 	 *
 	 * O TESTE E "SEI QUE E CIDADE", E NAO "NAO SEI SE E CACA" -- de proposito.
-	 * `contexto` chega por resposta do servidor (IdleConfig.sondarMapa(), ao
-	 * entrar no mapa) e pode estar ausente ou atrasado por um instante. Com a
+	 * `contexto` chega por resposta do servidor (o `ZC_RAGIDLE_BOT` que o menu do
+	 * Bot pede ao entrar no mapa) e pode estar ausente ou atrasado por um instante. Com a
 	 * condicao invertida, esse instante DESCARTARIA drop de verdade, em
 	 * silencio, e ninguem descobriria. Errar contando a mais aparece na tela;
 	 * errar descartando nao aparece em lugar nenhum.
@@ -151,7 +151,7 @@ function onItemPickAnswer(pkt) {
 	 * de caca. Fechar isso exige o servidor dizer a origem -- pacote novo, que
 	 * hoje custa um slot da reserva `0x0fce..0x0feb`.
 	 */
-	if (Session.Entity && ehDropDeCaca(IdleConfig.contexto)) {
+	if (Session.Entity && ehDropDeCaca(contextoDoMapa())) {
 		/* O ITID vai junto (D-943): e ele que deixa a janela desenhar o icone
 		   do drop, pelo mesmo caminho de icone da Mochila (setItemIcon). */
 		registrarItem(Session.Entity.GID, getTextItem, pkt.count, pkt.ITID);

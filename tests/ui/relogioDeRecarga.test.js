@@ -1,13 +1,15 @@
 /**
- * As contas do relogio de recarga dos orbes (D-916): a fracao que falta, o
- * rotulo do centro e as bordas (fim, duracao zero, passado).
+ * As contas do relogio de recarga da barra de atalhos (item 3.10 do pedido do
+ * dono, 09/10/2026): a fracao que falta, o rotulo do centro e as bordas (fim,
+ * duracao zero, passado). As contas sao as do relogio dos orbes do DockIdle
+ * (D-916), que saiu com o idle antigo (df1636c9) e voltam aqui para a barra.
  */
 import { describe, expect, it } from 'vitest';
 import {
 	PASSO_DO_RELOGIO_MS,
 	estadoDaRecarga,
 	rotuloDeRecarga
-} from '../../src/UI/Components/DockIdle/relogioDeRecarga.js';
+} from '../../src/UI/Components/ShortCut/relogioDeRecarga.js';
 
 describe('a fracao que falta', () => {
 	const recarga = { ate: 12000, duracao: 2000 }; // disparou em 10000
@@ -33,12 +35,10 @@ describe('a fracao que falta', () => {
 	});
 
 	it('um relogio que chega ANTES do disparo nao passa de 1', () => {
-		// `ate - agora` maior que a duracao (relogio do cliente atrasado): a
-		// fatia cheia, nunca uma fatia maior que o orbe.
 		expect(estadoDaRecarga({ ate: 20000, duracao: 2000 }, 10000).fracao).toBe(1);
 	});
 
-	it('duracao zero nao divide por zero — nada a desenhar', () => {
+	it('duracao zero nao divide por zero: nada a desenhar', () => {
 		expect(estadoDaRecarga({ ate: 12000, duracao: 0 }, 11000).fracao).toBe(0);
 	});
 });

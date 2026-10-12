@@ -10013,11 +10013,11 @@ PACKET.ZC.FAILED_TRADE_BUYING_STORE_TO_BUYER.size = 4;
 
 // 0x81b
 PACKET.ZC.UPDATE_ITEM_FROM_BUYING_STORE = function PACKET_ZC_UPDATE_ITEM_FROM_BUYING_STORE(fp, end) {
-	this.ITID = fp.readUShort();
+	this.ITID = PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort();
 	this.count = fp.readShort();
 	this.limitZeny = fp.readLong();
 };
-PACKET.ZC.UPDATE_ITEM_FROM_BUYING_STORE.size = 10;
+PACKET.ZC.UPDATE_ITEM_FROM_BUYING_STORE.size = PACKETVER.value >= 20181121 ? 12 : 10;
 
 // 0x81c
 PACKET.ZC.ITEM_DELETE_BUYING_STORE = function PACKET_ZC_ITEM_DELETE_BUYING_STORE(fp, end) {
@@ -10074,9 +10074,9 @@ PACKET.AC.OTP_AUTH_ACK.size = 6;
 // 0x824
 PACKET.ZC.FAILED_TRADE_BUYING_STORE_TO_SELLER = function PACKET_ZC_FAILED_TRADE_BUYING_STORE_TO_SELLER(fp, end) {
 	this.Result = fp.readShort();
-	this.ITID = fp.readUShort();
+	this.ITID = PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort();
 };
-PACKET.ZC.FAILED_TRADE_BUYING_STORE_TO_SELLER.size = 6;
+PACKET.ZC.FAILED_TRADE_BUYING_STORE_TO_SELLER.size = PACKETVER.value >= 20181121 ? 8 : 6;
 
 // 0x826
 PACKET.AC.SSO_LOGIN_ACK = function PACKET_AC_SSO_LOGIN_ACK(fp, end) {
@@ -17159,6 +17159,42 @@ PACKET.ZC.RAGIDLE_TROCA = function PACKET_ZC_RAGIDLE_TROCA(fp, end) {
 	this.json = fp.readString(end - fp.tell());
 };
 PACKET.ZC.RAGIDLE_TROCA.size = -1;
+
+// ---------------------------------------------------------------------------
+// O BOT NOVO - 07/10/2026 (pacote "Novo Bot V5").
+//
+// O menu do Bot (`UI/Components/BotMenu`): ON/OFF imediatos, aplicar
+// transacional com revisao, e o status operacional que o servidor manda so
+// quando muda. Os dois ultimos slots da reserva RAGIDLE (0x0fb0/0x0fb1). A
+// outra ponta: `servidor/bot/protocolo-do-bot.ts` no rag-idle-master.
+// ---------------------------------------------------------------------------
+
+// 0x0fb0 - RAGIDLE: CZ_RAGIDLE_BOT_ACAO (client -> server)
+// Variable size: u16 opcode + u16 total length + JSON UTF-8 payload.
+// { v: 1, requestId, verbo: 'pedir'|'ligar'|'desligar'|'aplicar', baseRevision?, config? }.
+PACKET.CZ.RAGIDLE_BOT_ACAO = function PACKET_CZ_RAGIDLE_BOT_ACAO() {
+	this.json = '{}';
+};
+PACKET.CZ.RAGIDLE_BOT_ACAO.prototype.build = function () {
+	const bytes = TextEncoding.encode(this.json, 'utf-8');
+	const pkt_len = 2 + 2 + bytes.length;
+	const pkt_buf = new BinaryWriter(pkt_len);
+	pkt_buf.writeShort(0x0fb0);
+	pkt_buf.writeUShort(pkt_len);
+	pkt_buf.writeString(this.json, bytes.length);
+	return pkt_buf;
+};
+
+// 0x0fb1 - RAGIDLE: ZC_RAGIDLE_BOT (server -> client)
+// Variable size: u16 opcode + u16 total length + JSON UTF-8 payload.
+// { v: 1, tipo: 'resposta'|'status', requestId, personagemId, mapa, ok, erro,
+//   problemas, revisao, config, ligado, situacao, status, statusRevision,
+//   agora, capacidades }. Quem le e `UI/Components/BotMenu/BotMenu.js`, o
+// unico dono.
+PACKET.ZC.RAGIDLE_BOT = function PACKET_ZC_RAGIDLE_BOT(fp, end) {
+	this.json = fp.readString(end - fp.tell());
+};
+PACKET.ZC.RAGIDLE_BOT.size = -1;
 
 // ---------------------------------------------------------------------------
 // O MENU LFG (Looking For Group) — D-634, 25/08/2026.

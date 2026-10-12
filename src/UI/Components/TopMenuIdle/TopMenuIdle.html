@@ -140,24 +140,17 @@
 			<span class="tm-label">Correio</span>
 		</button>
 
-		<!-- IDLE (21/08/2026, pedido do dono): o antigo "Configuracoes" saiu do
-		     leque e subiu para o cluster, com o nome que descreve o que ele abre.
-		     A janela e a MESMA (IdleConfig) e o "data-action" continua "config"
-		     DE PROPOSITO: e a chave que o portao prova-clique-nao-vaza.ts e os
-		     roteiros de foto ja miram, e renomea-la trocaria o nome do mesmo
-		     destino em varios arquivos sem ganho nenhum.
-		
-		     Por que ele merece o cluster e nao a gaveta: e o painel que se mexe
-		     ENTRE uma sessao idle e outra (coleta, lista negra, pocao), nao um
-		     destino ocasional como Loja ou Leilao. E o leque fica com 10 itens,
-		     que e a divisao 5+5 que o dono desenhou. -->
-		<button type="button" class="tm-item" data-action="config" title="Idle">
-			<span class="tm-icon-wrap ri-disc"><!--RI_ICONE:config--></span>
-			<span class="tm-label">Idle</span>
-			<!-- D-939: no trilho do celular em pe o mockup do dono escreve
-			     "Config." — "Idle" solto num trilho sem contexto nao se le.
-			     Escondido por padrao (.tm-label--v), so a HUD vertical o mostra. -->
-			<span class="tm-label tm-label--v" aria-hidden="true">Config.</span>
+		<!-- O "Idle" (data-action="config", a janela IdleConfig) SAIU em
+		     07/10/2026 com o Novo Bot V5: o "Bot" logo abaixo e quem ocupa o
+		     lugar dele no cluster. -->
+		<!-- BOT (07/10/2026, pacote "Novo Bot V5"): o menu do Bot novo, que
+		     substitui o "Idle". Nasce ESCONDIDO e so aparece quando o servidor
+		     anunciou a capacidade (`BotMenu.temCapacidade`) - nao depende do
+		     modo classico. Mesmo lugar do cluster: e o painel que se mexe entre
+		     uma sessao e outra. -->
+		<button type="button" class="tm-item tm-item-bot" data-action="bot" title="Bot" style="display: none">
+			<span class="tm-icon-wrap ri-disc"><!--RI_ICONE:auto--></span>
+			<span class="tm-label">Bot</span>
 		</button>
 
 		<!-- HUNT ANALYZER: a leitura da cacada em curso (exp/hora, abates/hora,

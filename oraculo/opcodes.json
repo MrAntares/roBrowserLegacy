@@ -30,19 +30,19 @@
 		},
 		"map": {
 			"entrada": {
-				"total": 747,
+				"total": 748,
 				"semTamanho": 0
 			},
 			"saida": {
-				"total": 563,
+				"total": 564,
 				"semTamanho": 0
 			}
 		}
 	},
 	"comprimentosDoCliente": {
 		"arquivo": "src/Network/Packets/packets2021_len_main.js",
-		"declarados": 1663,
-		"preencheram": 107,
+		"declarados": 1665,
+		"preencheram": 109,
 		"divergencias": [
 			{
 				"opcode": "0x0276",
@@ -1693,14 +1693,6 @@
 				"cliente": 12
 			},
 			{
-				"opcode": "0x0824",
-				"nome": "ZC_FAILED_TRADE_BUYING_STORE_TO_SELLER",
-				"servidor": "map",
-				"sentido": "entrada",
-				"struct": 6,
-				"cliente": 8
-			},
-			{
 				"opcode": "0x084b",
 				"nome": "ZC_ITEM_FALL_ENTRY2",
 				"servidor": "map",
@@ -3163,7 +3155,7 @@
 		"arquivo": "rathena/src/map/clif_packetdb.hpp",
 		"lido": true,
 		"declarados": 822,
-		"preencheram": 5,
+		"preencheram": 6,
 		"adicionadosNoC2s": 585,
 		"conflitos": [
 			{
@@ -11094,7 +11086,7 @@
 					"nome": "ZC_FAILED_TRADE_BUYING_STORE_TO_SELLER",
 					"tamanho": 8,
 					"desde": null,
-					"fonteDoTamanho": "cliente (venceu a struct do rathena)"
+					"fonteDoTamanho": "cliente"
 				},
 				"0x0836": {
 					"nome": "ZC_SEARCH_STORE_INFO_ACK",
@@ -12454,6 +12446,11 @@
 				"0x0beb": {
 					"nome": "ZC_EMOTION_FAIL",
 					"tamanho": 10,
+					"desde": null
+				},
+				"0x0fb1": {
+					"nome": "ZC_RAGIDLE_BOT",
+					"tamanho": -1,
 					"desde": null
 				},
 				"0x0fb3": {
@@ -15519,6 +15516,12 @@
 				"0x0ba0": {
 					"nome": "CZ_CLOSE_UI_ENCHANT",
 					"tamanho": 2,
+					"desde": null,
+					"fonteDoTamanho": "cliente"
+				},
+				"0x0fb0": {
+					"nome": "CZ_RAGIDLE_BOT_ACAO",
+					"tamanho": -1,
 					"desde": null,
 					"fonteDoTamanho": "cliente"
 				},

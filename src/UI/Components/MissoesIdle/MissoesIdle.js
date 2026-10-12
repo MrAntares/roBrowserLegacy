@@ -63,14 +63,6 @@ import {
 	redesenharInfoDaMissao
 } from './infoDaMissao.js';
 import infoCss from './infoDaMissao.css?raw';
-// A LISTA POR DIFERENCA (D-2071): a revisao, o pedido com ela e o parcial `v: 4`.
-import {
-	aplicarParcialDaLista,
-	caiSobreARevisao,
-	ehParcialDaLista,
-	pedidoDaLista,
-	revisaoDoCorpo
-} from './parcialDaLista.js';
 
 /** Manter em sincronia com o ":host"/".mi-window" do CSS (mesmo papel do
  * WINDOW_WIDTH/HEIGHT de IdleConfig.js:47-48). */
@@ -113,17 +105,6 @@ MissoesIdle.execucao = null;
  * ate ela chegar, e nao uma por abate.
  */
 let _pediuAListaInteira = false;
-
-/**
- * A REVISAO DA LISTA (D-2071): o `rev` do ultimo corpo aplicado, ou `null` -
- * servidor que nao numera, ou lista que ainda nao chegou. E ela que vai no
- * pedido da janela e na declaracao da entrada (`MissoesIdle.revisaoDaLista`),
- * e e contra ela que o `de` de todo parcial confere.
- */
-let _revDaLista = null;
-
-/** O servidor numera a lista (o ultimo corpo inteiro trouxe `rev`)? */
-let _servidorNumera = false;
 
 /** As abas que existem, na ordem do HTML — a lista que valida o que veio do
  * `localStorage` (ver memoriaDeAba.js). */
@@ -229,8 +210,6 @@ MissoesIdle.limparEstadoDoPersonagem = function limparEstadoDoPersonagem() {
 	_jaRolouAteODestaque = false;
 	MissoesIdle.execucao = null;
 	_pediuAListaInteira = false;
-	_revDaLista = null;
-	_servidorNumera = false;
 	// O painel "(i)" aberto por esta janela fala de uma missao do personagem
 	// anterior (01/10/2026).
 	fecharInfoDaMissao(conteinerDoInfo());
@@ -326,60 +305,9 @@ MissoesIdle.toggle = function toggle() {
 		   FECHADA (ele chega a cada abate). Abrir desenha o que esta em memoria
 		   AGORA, e o pedido logo abaixo traz a lista inteira por cima. */
 		render();
-		MissoesIdle.pedirLista();
+		Network.sendPacket(new PACKET.CZ.RAGIDLE_PEDIR_MISSOES());
 	}
 };
-
-/**
- * A REVISAO QUE A LISTA TEM NA MAO (D-2071), para a declaracao da entrada no
- * mapa (`Engine/declaracaoDasBases.js`). `null` sem lista ou com servidor que
- * nao numera.
- */
-MissoesIdle.revisaoDaLista = function revisaoDaLista() {
-	// Com a inteira ja pedida, a lista daqui nao vale como base: a conexao nova
-	// recebe a inteira na entrada (sem isto, um parcial herdado seria
-	// descartado pela espera da inteira, e a espera nunca acabaria).
-	return MissoesIdle.recebeuAlgumaVez && !_pediuAListaInteira ? _revDaLista : null;
-};
-
-/**
- * PEDE A LISTA AO SERVIDOR (D-2071). Com servidor que numera, pelo verbo
- * `pedir` com a revisao na mao: a resposta e so o que mudou. Sem revisao (o
- * servidor antigo), o 0x0fec de sempre, que responde a lista inteira. Quem
- * mais pede a lista (a aba "Missoes Gerais" do Codex) chama esta.
- */
-MissoesIdle.pedirLista = function pedirLista() {
-	if (_servidorNumera && _revDaLista !== null && MissoesIdle.recebeuAlgumaVez) {
-		mandarAcaoDeMissaoCorpo(pedidoDaLista(_revDaLista));
-		return;
-	}
-	Network.sendPacket(new PACKET.CZ.RAGIDLE_PEDIR_MISSOES());
-};
-
-/**
- * A LISTA INTEIRA, uma vez ate ela chegar: um parcial nao caiu sobre a lista
- * daqui (a revisao nao confere, ou o progresso nao casa). Com servidor que
- * numera, `pedir` com `base: null`; sem, o 0x0fec.
- */
-function pedirListaInteira(motivo) {
-	if (_pediuAListaInteira) {
-		return;
-	}
-	_pediuAListaInteira = true;
-	console.warn('[MissoesIdle] ' + motivo + '; pedindo a lista inteira');
-	if (_servidorNumera) {
-		mandarAcaoDeMissaoCorpo(pedidoDaLista(null));
-		return;
-	}
-	Network.sendPacket(new PACKET.CZ.RAGIDLE_PEDIR_MISSOES());
-}
-
-/** Um corpo JSON qualquer no 0x0feb (o pedido e a declaracao, D-2071). */
-function mandarAcaoDeMissaoCorpo(corpo) {
-	const pkt = new PACKET.CZ.RAGIDLE_MISSAO_ACAO();
-	pkt.json = JSON.stringify(corpo);
-	Network.sendPacket(pkt);
-}
 
 /**
  * ABRE A JANELA JÁ NA MISSÃO PEDIDA — o outro lado do pedido do dono de
@@ -407,7 +335,7 @@ MissoesIdle.abrirEmMissao = function abrirEmMissao(id, tipo) {
 		win.classList.add('is-open');
 		MissoesIdle.focus();
 	}
-	MissoesIdle.pedirLista();
+	Network.sendPacket(new PACKET.CZ.RAGIDLE_PEDIR_MISSOES());
 	// Com a lista já em memória isto destaca AGORA; sem ela, o `render()` que a
 	// resposta dispara consome o mesmo `_missaoADestacar`.
 	render();
@@ -841,16 +769,7 @@ function onMissoesRecebidas(pkt) {
 	 * aberta; o cartao da HUD le o rastreador no proprio polling).
 	 */
 	if (ehCorpoParcialDoRastreador(dados)) {
-		// D-2071: com revisao, o parcial so cai sobre a MESMA lista.
-		if (_pediuAListaInteira && typeof dados.de === 'number') {
-			return;
-		}
-		if (!caiSobreARevisao(_revDaLista, dados)) {
-			pedirListaInteira('o parcial do rastreador nao cai sobre a revisao da lista');
-			return;
-		}
 		anotarRastreadorDoCodex(dados.codexRastreado);
-		_revDaLista = revisaoDoCorpo(dados) ?? _revDaLista;
 		return;
 	}
 	/*
@@ -862,54 +781,7 @@ function onMissoesRecebidas(pkt) {
 	 * mudanca pela assinatura.
 	 */
 	if (ehCorpoParcialDeProgresso(dados)) {
-		// D-2071: com revisao, o parcial so cai sobre a MESMA lista; sem lista
-		// ainda, ele e descartado (a inteira esta a caminho, ou e pedida).
-		if (_pediuAListaInteira && typeof dados.de === 'number') {
-			return;
-		}
-		if (typeof dados.de === 'number' && (!MissoesIdle.recebeuAlgumaVez || !caiSobreARevisao(_revDaLista, dados))) {
-			pedirListaInteira('o parcial de progresso nao cai sobre a revisao da lista');
-			return;
-		}
 		fundirProgressoParcial(dados);
-		_revDaLista = revisaoDoCorpo(dados) ?? _revDaLista;
-		return;
-	}
-	/*
-	 * O PARCIAL DE LISTA (`v: 4`, D-2071): a mudanca de estrutura e a resposta
-	 * ao pedido, so com o que mudou. Ele cai sobre a lista daqui (a revisao
-	 * `de`) e vira a MESMA lista que a inteira seria - dai em diante o caminho
-	 * e o dela.
-	 */
-	if (ehParcialDaLista(dados)) {
-		if (_pediuAListaInteira) {
-			return;
-		}
-		const montado =
-			MissoesIdle.recebeuAlgumaVez && caiSobreARevisao(_revDaLista, dados)
-				? aplicarParcialDaLista(MissoesIdle.missoes, dados)
-				: null;
-		if (!montado) {
-			pedirListaInteira('o parcial da lista nao cai sobre a lista daqui');
-			return;
-		}
-		MissoesIdle.missoes = montado.missoes;
-		if (Object.prototype.hasOwnProperty.call(montado.campos, 'execucao')) {
-			const execucao = montado.campos.execucao;
-			MissoesIdle.execucao = execucao && typeof execucao === 'object' ? execucao : null;
-		}
-		if (Object.prototype.hasOwnProperty.call(montado.campos, 'codexComNovidade')) {
-			anotarAvisoDoCodex(montado.campos.codexComNovidade === true);
-		}
-		if (montado.temRastreador) {
-			anotarRastreadorDoCodex(montado.codexRastreado);
-		}
-		_revDaLista = revisaoDoCorpo(dados);
-		render();
-		redesenharInfoDaMissao();
-		if (dados.ondeCai) {
-			receberOndeCai(dados.ondeCai);
-		}
 		return;
 	}
 	if (!dados || dados.v !== 1) {
@@ -918,9 +790,6 @@ function onMissoesRecebidas(pkt) {
 	MissoesIdle.missoes = Array.isArray(dados.missoes) ? dados.missoes : [];
 	MissoesIdle.execucao = dados.execucao && typeof dados.execucao === 'object' ? dados.execucao : null;
 	_pediuAListaInteira = false;
-	// D-2071: a revisao da lista inteira; sem ela, o servidor nao numera.
-	_revDaLista = revisaoDoCorpo(dados);
-	_servidorNumera = _revDaLista !== null;
 	/*
 	 * A BOLINHA DO CODEX PEGA CARONA NESTE PACOTE (D-1232).
 	 *
@@ -965,8 +834,10 @@ function fundirProgressoParcial(dados) {
 		return;
 	}
 	const r = aplicarProgressoParcial(MissoesIdle.missoes, dados);
-	if (r.divergentes.length) {
-		pedirListaInteira('o parcial de progresso nao casa com a lista (' + r.divergentes.join(', ') + ')');
+	if (r.divergentes.length && !_pediuAListaInteira) {
+		_pediuAListaInteira = true;
+		console.warn('[MissoesIdle] o parcial de progresso nao casa com a lista; pedindo a lista inteira:', r.divergentes);
+		Network.sendPacket(new PACKET.CZ.RAGIDLE_PEDIR_MISSOES());
 	}
 	if (!r.mudou) {
 		return;

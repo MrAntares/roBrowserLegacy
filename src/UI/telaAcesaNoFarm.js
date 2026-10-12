@@ -60,10 +60,10 @@
  * pelo resto da sessao, em silencio.
  */
 
-import IdleConfig from 'UI/Components/IdleConfig/IdleConfig.js';
-/* A CONDICAO mora sozinha porque este arquivo nao e testavel: ele importa o
-   `IdleConfig`, que arrasta a cadeia de render, e o teste morria em WebGL
-   dentro do jsdom. Ver o cabecalho de `decisaoDoModoLeitura.js`. */
+/* Desde o Bot novo (07/10/2026) o estado vem de `UI/contextoDoMapa.js` (sem
+   janela): o Bot LIGADO, confirmado pelo servidor, faz o papel da antiga caca
+   automatica. A CONDICAO continua sozinha em `decisaoDoModoLeitura.js`. */
+import { botLigado, contextoDoMapa } from 'UI/contextoDoMapa.js';
 import { deveManterAcesa, esperaAposRecusa } from 'UI/decisaoDoModoLeitura.js';
 
 /**
@@ -98,12 +98,11 @@ export function haSuporte() {
 
 /** Le o estado de agora das fontes de verdade. */
 function estadoDeAgora() {
-	const cfg = IdleConfig.serverConfig;
-	const ctx = IdleConfig.contexto;
+	const ctx = contextoDoMapa();
 	return {
-		cacaAutomatica: !!(cfg && cfg.cacaAutomatica),
+		cacaAutomatica: botLigado(),
 		ehCidade: !!(ctx && ctx.ehCidade),
-		contextoObsoleto: !!IdleConfig.contextoObsoleto,
+		contextoObsoleto: ctx === null,
 		estavaAcesa: _sentinela !== null,
 	};
 }
