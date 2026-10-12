@@ -27,11 +27,12 @@ vi.mock('DB/DBManager.js', async () => {
 // The tables DB.init loads are not under test: they never answer.
 // The mount-palette sentinel goes through the real file cache, as Client.loadFile does: the
 // archive is asked only when the cache does not hold the file, and answers through
-// `archive.hasMountPalettes`; with `archive.later` set, it waits in `archive.pending` until `answer()`.
+// `archive.hasMountPalettes` as it is when asked; with `archive.later` set, that answer waits in
+// `archive.pending` until `answer()`.
 const archive = vi.hoisted(() => ({ hasMountPalettes: true, later: false, pending: [], Memory: null }));
 const Client = vi.hoisted(() => {
-	const settle = path =>
-		archive.hasMountPalettes ? archive.Memory.set(path, {}) : archive.Memory.set(path, null, 'not found');
+	const settle = (path, present) =>
+		present ? archive.Memory.set(path, {}) : archive.Memory.set(path, null, 'not found');
 	return {
 		settle,
 		loadFile: vi.fn((path, onLoad, onError) => {
@@ -42,9 +43,9 @@ const Client = vi.hoisted(() => {
 			archive.Memory.get(path, onLoad, onError);
 			if (ask) {
 				if (archive.later) {
-					archive.pending.push(path);
+					archive.pending.push([path, archive.hasMountPalettes]);
 				} else {
-					settle(path);
+					settle(path, archive.hasMountPalettes);
 				}
 			}
 		})
@@ -70,8 +71,8 @@ function answer() {
 	const pending = archive.pending;
 	archive.later = false;
 	archive.pending = [];
-	for (const path of pending) {
-		Client.settle(path);
+	for (const [path, present] of pending) {
+		Client.settle(path, present);
 	}
 }
 
@@ -148,6 +149,42 @@ describe('EntityView body palette', () => {
 		const creator = entity(JobId.ALCHEMIST_H, AllMountTable[JobId.ALCHEMIST_H]);
 		creator.bodypalette = 2;
 		expect(creator.files.body.pal).toBe(`${PalNameTable[JobId.PIG_CREATOR]}_1_2.pal`);
+	});
+
+	it("does not take the previous client's answer still on its way", () => {
+		archive.later = true;
+		entity(JobId.ALCHEMIST_H, AllMountTable[JobId.ALCHEMIST_H]).bodypalette = 2;
+		archive.hasMountPalettes = false;
+		DB.init();
+		answer();
+		const creator = entity(JobId.ALCHEMIST_H, AllMountTable[JobId.ALCHEMIST_H]);
+		creator.bodypalette = 2;
+		expect(creator.files.body.pal).toBe(`${PalNameTable[JobId.ALCHEMIST_H]}_1_2.pal`);
+	});
+
+	it("does not answer the next client's question with the previous client's answer", () => {
+		archive.later = true;
+		entity(JobId.ALCHEMIST_H, AllMountTable[JobId.ALCHEMIST_H]).bodypalette = 2;
+		archive.hasMountPalettes = false;
+		DB.init();
+		const creator = entity(JobId.ALCHEMIST_H, AllMountTable[JobId.ALCHEMIST_H]);
+		creator.bodypalette = 2;
+		answer();
+		expect(creator.files.body.pal).toBe(`${PalNameTable[JobId.ALCHEMIST_H]}_1_2.pal`);
+	});
+
+	it('asks the next client once, however many entities waited on the previous one', () => {
+		archive.later = true;
+		entity(JobId.ALCHEMIST_H, AllMountTable[JobId.ALCHEMIST_H]).bodypalette = 2;
+		entity(JobId.ALCHEMIST_H, AllMountTable[JobId.ALCHEMIST_H]).bodypalette = 3;
+		archive.hasMountPalettes = false;
+		DB.init();
+		Client.settle(...archive.pending.shift());
+		expect(archive.pending).toHaveLength(1);
+		answer();
+		const creator = entity(JobId.ALCHEMIST_H, AllMountTable[JobId.ALCHEMIST_H]);
+		creator.bodypalette = 2;
+		expect(creator.files.body.pal).toBe(`${PalNameTable[JobId.ALCHEMIST_H]}_1_2.pal`);
 	});
 
 	it('keeps the internal palette for palette 0', () => {

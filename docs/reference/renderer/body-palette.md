@@ -15,7 +15,8 @@ and for a halter-lead mount it also depends on the client build.
   cache drops a file unused for 30 s, so it cannot hold it. `DB.init` forgets
   the answer and drops the sentinel from the file cache, which keys files by
   name alone: `LoginEngine` runs it when the player picks a server whose
-  `remoteClient` may be another archive.
+  `remoteClient` may be another archive. A request still on its way then is
+  left to land, its answer dropped, and the new archive asked once.
   One request per archive, and no file is ever requested per entity that the
   archive does not have. `PalNameTable` names the mount's own file for every
   halter-lead mount; those entries are only read when the sentinel loads.

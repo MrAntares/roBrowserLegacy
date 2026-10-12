@@ -74,6 +74,12 @@ let default_MER_AI;
 let mountPalettes;
 
 /**
+ * The sentinel request on its way, if any; `stale` once DB.init has loaded
+ * another client, whose archive it was not asked of.
+ */
+let mountPalettesProbe = null;
+
+/**
  * @const {Array} message string
  */
 const MsgStringTable = [];
@@ -299,8 +305,14 @@ class DB {
 
 		// The client loaded after a server switch may be another archive: ask
 		// it again, and drop the previous answer the file cache keeps by name.
+		// A request still on its way would land in the file cache under that
+		// name: it is dropped once it lands instead.
 		mountPalettes = undefined;
-		MemoryManager.remove(null, DB.getBodyPalPath(JobId.PIG_CREATOR, 1, 0));
+		if (mountPalettesProbe) {
+			mountPalettesProbe.stale = true;
+		} else {
+			MemoryManager.remove(null, DB.getBodyPalPath(JobId.PIG_CREATOR, 1, 0));
+		}
 
 		// Callback
 		let index = 0,
@@ -1317,12 +1329,25 @@ class DB {
 	 */
 	static hasMountPalettes(onAnswer) {
 		if (mountPalettes === undefined) {
+			const sentinel = DB.getBodyPalPath(JobId.PIG_CREATOR, 1, 0);
+			if (!mountPalettesProbe) {
+				mountPalettesProbe = { stale: false };
+			}
+			const probe = mountPalettesProbe;
 			const answer = present => {
-				mountPalettes = present;
+				if (probe === mountPalettesProbe) {
+					mountPalettesProbe = null;
+					if (probe.stale) {
+						// It answered for the previous client: onAnswer asks this one.
+						MemoryManager.remove(null, sentinel);
+					} else {
+						mountPalettes = present;
+					}
+				}
 				onAnswer();
 			};
 			Client.loadFile(
-				DB.getBodyPalPath(JobId.PIG_CREATOR, 1, 0),
+				sentinel,
 				() => answer(true),
 				() => answer(false)
 			);
