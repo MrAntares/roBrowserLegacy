@@ -8,6 +8,7 @@ Each subdirectory covers one subsystem:
 | directory | subsystem |
 |---|---|
 | [guild/](guild/) | the guild window, its six tabs, and the create / disband dialogs |
+| [chat/](chat/) | the chat window: what a received line keeps, drops and breaks on |
 
 ## Where the details come from
 

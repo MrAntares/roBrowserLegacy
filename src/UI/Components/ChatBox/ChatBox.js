@@ -1255,19 +1255,53 @@ function extractChatMessage(inputEl) {
 	return result;
 }
 
+const ITEM_LINK = /(<ITEMLINK>.*?<\/ITEMLINK>|<ITEML>.*?<\/ITEML>|<ITEM>.*?<\/ITEM>)/i;
+
+/**
+ * Escape text for use in HTML content and quoted attributes.
+ * @param {string} text
+ * @returns {string}
+ */
+ChatBox.escapeHTML = function escapeHTML(text) {
+	return text.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+};
+
+/**
+ * Render a received message as HTML: colour codes dropped, item links clickable, the rest as text.
+ *
+ * @param {string} text
+ * @returns {string}
+ * @see docs/reference/chat/text-parsing.md
+ */
+ChatBox.messageToHTML = function messageToHTML(text) {
+	return text
+		.replace(/\^[0-9A-Fa-f]{6}/g, '')
+		.split(ITEM_LINK)
+		.map((part, i) => {
+			if (!(i % 2)) {
+				return ChatBox.escapeHTML(part);
+			}
+			const item = DB.parseItemLink(part);
+			return (
+				`<span data-item="${ChatBox.escapeHTML(part)}" class="item-link" style="color:#FFFF63; cursor:pointer;">` +
+				`&lt;${ChatBox.escapeHTML(item.name)}&gt;</span>`
+			);
+		})
+		.join('');
+};
+
 /**
  * Add text to chatbox
+ *
+ * @see docs/reference/chat/text-parsing.md
  */
 ChatBox.addText = function addText(text, colorType, filterType, color, override) {
-	text = text.replace(/<ITEMLINK>.*?<\/ITEMLINK>|<ITEML>.*?<\/ITEML>|<ITEM>.*?<\/ITEM>/gi, function (match) {
-		const item = DB.parseItemLink(match);
-		const span = `<span data-item="${match}" class="item-link" style="color:#FFFF63;">&lt;${item.name}&gt;</span>`;
-		override = true;
-		return span;
-	});
+	// The client drops ^RRGGBB codes: a chat line has one colour.
+	text = text.replace(/\^[0-9A-Fa-f]{6}/g, '');
 
-	// Auto-detect client-generated HTML (nickname links in whispers)
-	if (!override && /<span\s+class="nickname-link"/.test(text)) {
+	// An item link turns the line into HTML: the text around it must stay text.
+	if (!override && ITEM_LINK.test(text)) {
+		text = ChatBox.messageToHTML(text);
 		override = true;
 	}
 

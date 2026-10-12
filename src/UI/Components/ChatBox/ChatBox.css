@@ -72,6 +72,8 @@
 	height: 100%;
 	overflow-y: auto;
 	line-height: 14px;
+	/* A newline in a message is a line break. See docs/reference/chat/text-parsing.md */
+	white-space: pre-line;
 	display: none;
 }
 #chatbox .content.active {
