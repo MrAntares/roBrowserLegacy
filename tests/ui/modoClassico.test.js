@@ -74,15 +74,17 @@ describe('o interruptor do modo classico NAO existe mais', () => {
 });
 
 describe('a interface do idle saiu do cliente', () => {
-	it('as pastas da janela "Idle", do "Ataque auto" e da Dock nao existem', () => {
-		for (const pasta of ['IdleConfig', 'CombatCornerIdle', 'DockIdle']) {
+	// O "Ataque auto" (CombatCornerIdle) saiu junto e VOLTOU em 12/10/2026, a pedido do dono, como o
+	// ON/OFF do Bot novo: ver o teste dele em barraDeAtalhosNativa.test.js.
+	it('as pastas da janela "Idle" e da Dock nao existem', () => {
+		for (const pasta of ['IdleConfig', 'DockIdle']) {
 			expect(existsSync(join(raiz, 'src', 'UI', 'Components', pasta)), pasta).toBe(false);
 		}
 	});
 
-	it('nenhum arquivo de src/ importa um dos tres', () => {
+	it('nenhum arquivo de src/ importa uma das duas', () => {
 		const culpados = fontesDoCliente().filter(f =>
-			/from ['"][^'"]*(IdleConfig|CombatCornerIdle|DockIdle)\//.test(readFileSync(f, 'utf8'))
+			/from ['"][^'"]*(IdleConfig|DockIdle)\//.test(readFileSync(f, 'utf8'))
 		);
 		expect(culpados).toEqual([]);
 	});

@@ -69,9 +69,15 @@ describe('barra de atalhos nativa como unica hotbar', () => {
 		expect(shortcutCss).not.toContain('background: var(--surface-dark-glass)');
 	});
 
-	it('o antigo "Ataque auto" (CombatCornerIdle) saiu com o Novo Bot V5 (07/10/2026)', () => {
-		expect(fs.existsSync('src/UI/Components/CombatCornerIdle')).toBe(false);
-		expect(mapEngine).not.toMatch(/import CombatCornerIdle|CombatCornerIdle\.(prepare|append)\(\)/);
+	it('o "Ataque auto" (CombatCornerIdle) voltou em 12/10/2026 como o ON/OFF do Bot, sem barra de skills', () => {
+		const corner = fs.readFileSync('src/UI/Components/CombatCornerIdle/CombatCornerIdle.js', 'utf8');
+		expect(mapEngine).toContain('CombatCornerIdle.prepare();');
+		expect(mapEngine).toContain('CombatCornerIdle.append();');
+		// Depois do BotMenu: o botao le e muda o estado DELE.
+		expect(mapEngine.indexOf('CombatCornerIdle.prepare();')).toBeGreaterThan(mapEngine.indexOf('BotMenu.prepare();'));
+		expect(mapEngine.indexOf('CombatCornerIdle.append();')).toBeGreaterThan(mapEngine.indexOf('BotMenu.append();'));
+		expect(corner).toContain('BotMenu.alternarLigado()');
+		expect(corner).not.toMatch(/IdleConfig|DockIdle|ShortCut/);
 	});
 
 	it('aceita habilidades aprendidas arrastadas da arvore nova', () => {
