@@ -40,7 +40,6 @@ vi.mock('UI/Components/ChatBox/ChatBox.js', () => ({
 }));
 vi.mock('UI/Components/ItemObtain/ItemObtain.js', () => ({ default: { append: () => {}, set: () => {} } }));
 vi.mock('UI/Components/HuntAnalyzer/registroDaCaca.js', () => ({ ehDropDeCaca: () => false, registrarItem: () => {} }));
-vi.mock('UI/Components/IdleConfig/IdleConfig.js', () => ({ default: { contexto: null } }));
 vi.mock('UI/Components/ItemSelection/ItemSelection.js', () => ({ default: {} }));
 vi.mock('UI/Components/Inventory/Inventory.js', () => ({ default: { getUI: () => mocks.inventoryUI } }));
 vi.mock('UI/Components/CartItems/CartItems.js', () => ({ default: {} }));

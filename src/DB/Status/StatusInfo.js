@@ -1390,6 +1390,19 @@ StatusInfo[SC.DEFENDER] = {
 	]
 };
 
+StatusInfo[SC.MAGICROD] = {
+	// Sem icone: nao existe em StateIconImgInfo.lua (oficial, extraido do data.grf) nem em nenhum fork do roBrowser.
+	// Cai no fallback de StatusIcons.js (quadrado com iniciais) em vez de um nome inventado.
+	haveTimeLimit: 1,
+	posTimeLimitStr: 2,
+	descript: [
+		['Magic Rod', COLOR_TITLE_BUFF],
+		['%s', COLOR_TIME],
+		['Absorbs the next magic attack received'],
+		['and converts it into SP']
+	]
+};
+
 StatusInfo[SC.WEAPONPROPERTY] = {
 	icon: '\xbf\xac\xb8\xb6\xc1\xa6.tga', //CUSTOM
 	haveTimeLimit: 0,
@@ -2653,6 +2666,19 @@ StatusInfo[SC.WEAKNESS] = {
 		['Reduces Max HP'],
 		['When evaded, weapon, shield is taken off.'],
 		['Cannot equip weapons and shield']
+	]
+};
+
+StatusInfo[SC.EXPLOSIONSPIRITS] = {
+	// Sem icone: nao existe em StateIconImgInfo.lua (oficial, extraido do data.grf) nem em nenhum fork do roBrowser.
+	// Cai no fallback de StatusIcons.js (quadrado com iniciais) em vez de um nome inventado.
+	haveTimeLimit: 1,
+	posTimeLimitStr: 2,
+	descript: [
+		['Fury', COLOR_TITLE_BUFF],
+		['%s', COLOR_TIME],
+		['Increases Critical Rate'],
+		['Allows using Asura Strike without Spirit Spheres']
 	]
 };
 

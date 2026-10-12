@@ -96,8 +96,9 @@
  *   - Correio     -> CorreioIdle.toggle()    — a caixa do SISTEMA
  *                 (rag-idle-master/servidor/caixa.ts, D-366). O toggle
  *                 tambem PEDE a caixa ao abrir (0x09e6).
- *   - Configuracoes -> IdleConfig.toggle()   (IdleConfig.js, mesmo metodo
- *                 que DockIdle.js:235 usava)
+ *   - (o item "Idle"/"config", que abria o IdleConfig, SAIU em 07/10/2026:
+ *                 a janela foi retirada com o Novo Bot V5; o "Bot" ocupa o
+ *                 lugar dele no cluster)
  *   - Guilda      -> Guild.toggle()          (Guild.js:404-418) — metodo
  *                 PUBLICO nativo. ATENCAO ao comportamento nativo: sem
  *                 guilda (!Session.hasGuild), Guild.toggle() NAO abre a
@@ -180,7 +181,6 @@ import GUIComponent from 'UI/GUIComponent.js';
 import Preferences from 'Core/Preferences.js';
 import Session from 'Engine/SessionStorage.js';
 import IdleSkills from 'UI/Components/IdleSkills/IdleSkills.js';
-import IdleConfig from 'UI/Components/IdleConfig/IdleConfig.js';
 import Guild from 'UI/Components/Guild/Guild.js';
 // A janela NATIVA de party saiu deste arquivo em D-960: o item "Grupo"
 // passou a abrir a `GrupoIdle`, e nao havia mais nenhum uso de
@@ -210,7 +210,6 @@ import { fecharEEsquecer } from '../limpezaDeJanelaIdle.js'; // a troca de perso
 import { pontoDoMenuAceso } from './pontoDoMenu.js'; // a bolinha do botao Menu (29/09/2026)
 import TemporadaIdle from 'UI/Components/TemporadaIdle/TemporadaIdle.js'; // RAGIDLE: a janela da Temporada (Season 1, 21/09/2026) - no cluster desde a noite do mesmo dia
 import VotoIdle from 'UI/Components/VotoIdle/VotoIdle.js'; // RAGIDLE: janela de Voto (D-1159)
-import CombatCornerIdle from 'UI/Components/CombatCornerIdle/CombatCornerIdle.js'; // RAGIDLE: o aro "Ataque auto" (16/09/2026 — some enquanto o leque esta aberto)
 import CodexIdle from 'UI/Components/CodexIdle/CodexIdle.js'; // RAGIDLE: Codex (D-851)
 import { temAvisoDoCodex } from 'UI/Components/avisoDoCodex.js'; // D-1232
 import PresencaIdle from 'UI/Components/PresencaIdle/PresencaIdle.js'; // RAGIDLE: Presenca (D-1162)
@@ -218,6 +217,7 @@ import IndicacaoIdle from 'UI/Components/IndicacaoIdle/IndicacaoIdle.js'; // RAG
 import RankingIdle from 'UI/Components/RankingIdle/RankingIdle.js'; // RAGIDLE: o Ranking
 import AmigosIdle from 'UI/Components/AmigosIdle/AmigosIdle.js'; // RAGIDLE: a janela Amigos (05/10/2026)
 import TrocaIdle from 'UI/Components/TrocaIdle/TrocaIdle.js'; // RAGIDLE: a janela "Trade" (02/10/2026)
+import BotMenu from 'UI/Components/BotMenu/BotMenu.js'; // RAGIDLE: o menu do Bot novo (07/10/2026)
 import AdminPanel from 'UI/Components/AdminPanel/AdminPanel.js';
 import Escape from 'UI/Components/Escape/Escape.js'; // RAGIDLE: a janela de sistema (D-1416)
 import RoShop from 'UI/Components/RoShop/RoShop.js'; // RAGIDLE: o RO Shop (22/09/2026) - a porta do item "RO Shop" (era a CashShop nativa, I5)
@@ -338,6 +338,25 @@ function movimentoReduzido() {
  * 250 ms chama isto sempre, porque a marca pode chegar depois do menu, e um
  * `#adjgroup` promove sem relogar.
  */
+/**
+ * O ITEM "Bot" (07/10/2026): so com a capacidade que o SERVIDOR anunciou no
+ * `ZC_RAGIDLE_BOT`. Devolve `true` quando a visibilidade mudou (a grade e
+ * refeita, como no Admin).
+ */
+function sincronizarItemDoBot() {
+	const root = _root();
+	const btn = root && root.querySelector('.tm-item-bot');
+	if (!btn) {
+		return false;
+	}
+	const display = BotMenu.temCapacidade() ? '' : 'none';
+	if (btn.style.display === display) {
+		return false;
+	}
+	btn.style.display = display;
+	return true;
+}
+
 function sincronizarItemDeAdmin() {
 	const root = _root();
 	const adminBtn = root && root.querySelector('.tm-item-admin');
@@ -379,12 +398,16 @@ TopMenuIdle.init = function init() {
  */
 TopMenuIdle.onAppend = function onAppend() {
 	hideReplacedControls();
+	// O interruptor do modo classico SAIU (07/10/2026): o item "Idle" foi
+	// retirado do HTML com a janela, e a "Analise" de caca (sem o "Dormir")
+	// volta a aparecer - ela mede a caca do Bot.
 	applyCollapsedState();
 
 	// Admin: so quem o servidor marcou como administrador ve o item (D-1367).
 	// Precisa vir ANTES de distribuirColunas() e de escalonarLeque(), que
 	// contam so os itens visiveis — e o laco reconfere, se a marca chegar tarde.
 	sincronizarItemDeAdmin();
+	sincronizarItemDoBot();
 
 	distribuirColunas();
 	distribuirFileiras();
@@ -590,10 +613,6 @@ function onClickAction(e) {
 			   lista so existe no cliente depois que o servidor a manda. */
 			CorreioIdle.toggle();
 			break;
-		case 'config':
-			/* "Configuracoes" = a fusao de Config + Menu (ver cabecalho). */
-			IdleConfig.toggle();
-			break;
 		case 'sistema':
 			/*
 			 * A JANELA DE SISTEMA do cliente (D-1479): video, audio, atalho,
@@ -699,6 +718,10 @@ function onClickAction(e) {
 		case 'troca':
 			/* 02/10/2026: a janela "Trade" - o nome do jogador e "Confirmar". */
 			TrocaIdle.toggle();
+			break;
+		case 'bot':
+			/* 07/10/2026: o menu do Bot novo (ON/OFF, cacada e ataque). */
+			BotMenu.toggle();
 			break;
 		/* O `case 'passe'` (a janela de Recompensas, D-813) morou aqui de
 		   29/08 a 21/09/2026. Saiu por ordem do dono: o Passe Semanal e o VIP
@@ -1007,7 +1030,6 @@ function aplicarEstadoDoLeque(imediato) {
 	}
 
 	fab.classList.toggle('is-open', _lequeAberto);
-	ocultarAtaqueAutoEnquantoOLequeEstaAberto();
 	/* D-939: a HUD vertical desenha o menu aberto como FOLHA (cluster +
 	   leque em cartoes), e o CSS dela le esta classe no elemento raiz — o
 	   mesmo gesto que abre o leque e o que muda a apresentacao, sem um
@@ -1813,8 +1835,6 @@ function isActionOpen(action) {
 			return isRagIdleWindowOpen(HuntMap, '.hm-window');
 		case 'correio':
 			return isRagIdleWindowOpen(CorreioIdle, '.co-window');
-		case 'config':
-			return isRagIdleWindowOpen(IdleConfig, '.ic-window');
 		case 'analyzer':
 			return isRagIdleWindowOpen(HuntAnalyzer, '.ha-window');
 		case 'admin':
@@ -1873,6 +1893,8 @@ function isActionOpen(action) {
 			return isRagIdleWindowOpen(IndicacaoIdle, '.in-window');
 		case 'troca':
 			return isRagIdleWindowOpen(TrocaIdle, '.tr-window');
+		case 'bot':
+			return isRagIdleWindowOpen(BotMenu, '.bm-window');
 		/*
 		 * PASSE (D-813): a TERCEIRA vez do mesmo defeito, achado em 29/08/2026
 		 * ao somar o Codex. Ele tinha `case 'passe'` no switch de ABRIR e
@@ -1936,7 +1958,8 @@ function pollEstado() {
 	hideReplacedControls();
 	// D-1367: o item "Admin" pela marca do servidor, que pode chegar depois do
 	// menu. Quando ele aparece ou some, a grade e refeita como no onAppend.
-	if (sincronizarItemDeAdmin()) {
+	// `|` e nao `||`: os dois sincronizam sempre, e qualquer mudanca refaz a grade.
+	if (sincronizarItemDeAdmin() | sincronizarItemDoBot()) {
 		distribuirColunas();
 		distribuirFileiras();
 		publicarTopoDoCluster();
@@ -1978,7 +2001,6 @@ function pollEstado() {
 function hideReplacedControls() {
 	for (const [component, selector] of [
 		[HuntMap, '.hm-button'],
-		[IdleConfig, '.ic-button'],
 		[IdleSkills, '.is-button']
 	]) {
 		const root = component.getRoot();
@@ -1992,34 +2014,6 @@ function hideReplacedControls() {
 	if (jobLevelButton) {
 		jobLevelButton.style.display = 'none';
 	}
-}
-
-/**
- * O "Ataque auto" (`CombatCornerIdle`) SOME enquanto o leque esta aberto
- * (16/09/2026, pedido do dono, com print: o leque abre por cima do botao de
- * ataque automatico).
- *
- * Os dois moram no MESMO canto — o aro do Ataque Auto fica logo ACIMA do
- * botao Menu (CombatCornerIdle.css, `bottom: 90px` contra o Menu em
- * `bottom: 16px`) — e o leque, ao abrir, cresce PARA CIMA a partir do Menu
- * atravessando exatamente essa faixa. Reposicionar os dois para nunca se
- * tocarem exigiria reproduzir aqui a mesma conta de breakpoint que
- * CombatCornerIdle.css ja faz sozinho (ela muda de novo abaixo de 600px de
- * largura); esconder um dos dois enquanto o outro esta em uso e a saida mais
- * simples, e foi a que o dono pediu.
- *
- * Mesmo molde de `hideReplacedControls()` acima: pega a raiz do OUTRO
- * componente por `getRoot()` e alterna o `display` do elemento visivel dele
- * (`:host` tem `pointer-events:none`, entao escondido ele tambem nao intercepta
- * clique nenhum).
- */
-function ocultarAtaqueAutoEnquantoOLequeEstaAberto() {
-	const root = CombatCornerIdle.getRoot && CombatCornerIdle.getRoot();
-	const corner = root && root.querySelector('.cc-corner');
-	if (!corner) {
-		return;
-	}
-	corner.style.display = _lequeAberto ? 'none' : '';
 }
 
 /**

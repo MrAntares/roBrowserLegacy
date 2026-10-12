@@ -29,13 +29,11 @@ import { join } from 'node:path';
 
 const mocks = vi.hoisted(() => ({
 	huntMap: { catalog: null, toggle: vi.fn(), travelToCity: vi.fn() },
-	idleConfig: { contexto: null, contextoObsoleto: false },
 	avisos: []
 }));
 
 vi.mock('UI/UIManager.js', () => ({ default: { addComponent: (c) => c } }));
 vi.mock('UI/Components/HuntMap/HuntMap.js', () => ({ default: mocks.huntMap }));
-vi.mock('UI/Components/IdleConfig/IdleConfig.js', () => ({ default: mocks.idleConfig }));
 vi.mock('UI/Components/AdminPanel/AdminPanel.js', () => ({ default: { getRoot: () => null } }));
 vi.mock('UI/Components/ChatBox/ChatBox.js', () => ({
 	default: { addText: (t) => mocks.avisos.push(t), TYPE: { ERROR: 1 }, FILTER: { PUBLIC_LOG: 1 } }
@@ -48,6 +46,8 @@ vi.mock('UI/escalaDaHud.js', () => ({ emUnidadesDaHud: (x) => x, ehDedo: () => f
 const { default: htmlDoBotao } = await import('UI/Components/HuntButtonIdle/HuntButtonIdle.html?raw');
 const { default: HuntButtonIdle } = await import('UI/Components/HuntButtonIdle/HuntButtonIdle.js');
 const { estadoDoRodape } = await import('UI/Components/HuntMap/rodapeDoDossie.js');
+// O contexto do mapa mora em UI/contextoDoMapa.js desde 07/10/2026 (era o IdleConfig).
+const { receberDoServidor, esquecer: esquecerContexto } = await import('UI/contextoDoMapa.js');
 
 const ler = (rel) => readFileSync(join(process.cwd(), 'src', rel), 'utf8');
 
@@ -66,8 +66,8 @@ describe('HuntButtonIdle: os dois botoes existem sempre e cada um diz por que es
 		mocks.huntMap.toggle.mockClear();
 		mocks.huntMap.travelToCity.mockClear();
 		mocks.huntMap.catalog = { cidade: { mapa: 'prontera', rotulo: 'Prontera' } };
-		mocks.idleConfig.contexto = { mapa: 'prontera', ehCidade: true };
-		mocks.idleConfig.contextoObsoleto = false;
+		esquecerContexto();
+		receberDoServidor({ mapa: 'prontera', ehCidade: true }, false);
 		HuntButtonIdle.limparEstadoDoPersonagem();
 		montar();
 	});
@@ -95,7 +95,7 @@ describe('HuntButtonIdle: os dois botoes existem sempre e cada um diz por que es
 	});
 
 	it('num mapa de caca: os dois ativos e o motivo some', () => {
-		mocks.idleConfig.contexto = { mapa: 'prt_fild08', ehCidade: false };
+		receberDoServidor({ mapa: 'prt_fild08', ehCidade: false }, false);
 		HuntButtonIdle.onAppend();
 		const root = HuntButtonIdle._host;
 		expect(root.querySelector('.hb-voltar').disabled).toBe(false);
@@ -107,7 +107,7 @@ describe('HuntButtonIdle: os dois botoes existem sempre e cada um diz por que es
 		HuntButtonIdle.onAppend();
 		const root = HuntButtonIdle._host;
 		expect(root.querySelector('.hb-voltar').disabled).toBe(true);
-		mocks.idleConfig.contexto = { mapa: 'gef_fild07', ehCidade: false };
+		receberDoServidor({ mapa: 'gef_fild07', ehCidade: false }, false);
 		HuntButtonIdle.onAppend();
 		expect(root.querySelector('.hb-voltar').disabled).toBe(false);
 		root.querySelector('.hb-voltar').click();

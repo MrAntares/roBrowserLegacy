@@ -1151,30 +1151,3 @@
 		inset: -12px -6px;
 	}
 }
-
-/* ─── O botao de desmontar (D-2052) ─────────────────────────────────────────
-   O "off" da janela de equipamento do RO, embaixo do nome do boneco — onde o
-   RO o poe, ao lado do retrato. So existe com o Peco (`syncBotaoDeDesmontar`).
-
-   O `[hidden]` explicito e o do carrinho: `.ri-btn` declara `display:
-   inline-flex`, e isso venceria o `hidden` do navegador.
-
-   O ALVO DE 44px e o mesmo `::before` do botao do carrinho: so a AREA do toque
-   cresce, e a caixa desenhada fica pequena para caber na coluna do boneco. */
-.mo-desmontar {
-	position: relative;
-	margin: 6px 0 0;
-	padding: 2px 10px;
-	min-height: 24px;
-	font-size: 12px;
-}
-.mo-desmontar[hidden] {
-	display: none;
-}
-@media (pointer: coarse) {
-	.mo-desmontar::before {
-		content: '';
-		position: absolute;
-		inset: -12px -6px;
-	}
-}

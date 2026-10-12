@@ -29,6 +29,11 @@ import Trade from 'UI/Components/Trade/Trade.js';
 import NpcBox from 'UI/Components/NpcBox/NpcBox.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import {
+	TEXTO_LONGE_DEMAIS_PARA_ATACAR,
+	TEXTO_LONGE_DEMAIS_PARA_PEGAR,
+	caminhoDoPathFindingCabe
+} from 'Engine/MapEngine/tetoDaCaminhadaDaSkill.js';
 import Equipment from 'UI/Components/Equipment/Equipment.js';
 import CaptchaSelector from 'UI/Components/Captcha/CaptchaSelector.js';
 import Guild from 'Engine/MapEngine/Guild.js';
@@ -36,6 +41,9 @@ import PartyFriends from 'UI/Components/PartyFriends/PartyFriends.js';
 import Group from 'Engine/MapEngine/Group.js';
 import HomunInformations from 'UI/Components/HomunInformations/HomunInformations.js';
 import MercenaryInformations from 'UI/Components/MercenaryInformations/MercenaryInformations.js';
+
+/** `CELL_CHKNOPASS` do mapa carregado, para o teto do andar (lote 5). */
+const naoAndavelNoMapa = (x, y) => !(Altitude.getCellType(x, y) & Altitude.TYPE.WALKABLE);
 
 /**
  * Import
@@ -183,6 +191,22 @@ class EntityControl {
 
 				// Too far, walking to it
 				if (vec2.distance(Session.Entity.position, this.position) > 2) {
+					// Lote 5: a coleta so anda o que o servidor aceita (unit.cpp:855-869) -
+					// o caminho ate a celula clicada, a mesma do CZ_REQUEST_MOVE abaixo.
+					const caminho = [];
+					const passos = PathFinding.search(
+						Session.Entity.position[0] | 0,
+						Session.Entity.position[1] | 0,
+						Mouse.world.x | 0,
+						Mouse.world.y | 0,
+						0,
+						caminho
+					);
+					if (passos && !caminhoDoPathFindingCabe(Session.Entity.position, caminho, passos, naoAndavelNoMapa)) {
+						ChatBox.addText(TEXTO_LONGE_DEMAIS_PARA_PEGAR, ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
+						return true;
+					}
+
 					Session.moveAction = pkt;
 
 					if (PACKETVER.value >= 20180307) {
@@ -352,6 +376,13 @@ class EntityControl {
 					// in range send packet
 					if (count < 2) {
 						Network.sendPacket(pkt);
+						return true;
+					}
+
+					// Lote 5: o ataque so anda o que o servidor aceita (unit.cpp:855-869,
+					// 17 passos; 14 sem a reta livre) - ver tetoDaCaminhadaDaSkill.js.
+					if (!caminhoDoPathFindingCabe(main.position, out, count, naoAndavelNoMapa)) {
+						ChatBox.addText(TEXTO_LONGE_DEMAIS_PARA_ATACAR, ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 						return true;
 					}
 

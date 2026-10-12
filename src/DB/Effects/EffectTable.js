@@ -3840,9 +3840,12 @@ export default {
 			attachedEntity: true
 		}],*/
 
+	// V7 (07/10): era type 'SPR' file 'shockwave' = data/sprite/<pasta de efeitos>/shockwave.spr, que NAO existe
+	// (o shockwave.spr do GRF mora na pasta de ITENS e e o sprite do objeto-armadilha). Volta o STR acima,
+	// que existe: data/texture/effect/shockwave.str (+ shockwave_a..e.bmp).
 	145: [
 		{
-			type: 'SPR',
+			type: 'STR',
 			file: 'shockwave',
 			wav: 'effect/hunter_shockwavetrap',
 			attachedEntity: true
@@ -5585,7 +5588,8 @@ export default {
 			//endow wind on target	//EF_LIGHTNINGLOADER	Elemental Endow (Wind)
 			type: 'STR',
 			file: 'enc_wind',
-			wav: 'effect/_enemy_hit_wind1',
+			// V7 (07/10): era 'effect/_enemy_hit_wind1' (404); o arquivo mora em data/wav/_enemy_hit_wind1.wav, como nos irmaos 255/256/258.
+			wav: '_enemy_hit_wind1',
 			attachedEntity: true
 		}
 	],

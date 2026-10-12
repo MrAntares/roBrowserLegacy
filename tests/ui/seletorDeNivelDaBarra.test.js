@@ -210,7 +210,6 @@ describe('tocar e segurar (o celular)', () => {
 describe('as costuras com as tres telas', () => {
 	const shortcut = fs.readFileSync('src/UI/Components/ShortCut/ShortCut.js', 'utf8');
 	const idleSkills = fs.readFileSync('src/UI/Components/IdleSkills/IdleSkills.js', 'utf8');
-	const idleConfig = fs.readFileSync('src/UI/Components/IdleConfig/IdleConfig.js', 'utf8');
 	const pilha = fs.readFileSync('src/UI/pilhaDeJanelas.js', 'utf8');
 	const common = fs.readFileSync('src/UI/Common.css', 'utf8');
 
@@ -230,13 +229,6 @@ describe('as costuras com as tres telas', () => {
 	it('a janela de Habilidades: o payload da barra leva o nivel escolhido', () => {
 		expect(idleSkills).toContain('selectedLevel: nivelParaABarra(IdleSkills.nivelParaBarra, skill)');
 		expect(idleSkills).toContain('IdleSkills.nivelParaBarra = {};');
-	});
-
-	it('a Configuracao: as duas listas e a cura desenham o seletor, e o clique e ligado nas duas secoes', () => {
-		expect(idleConfig).toContain("seletorDaEntrada({ chave: `rotacao.${i}`");
-		expect(idleConfig).toContain("seletorDaEntrada({ chave: `rotacaoDeBuffs.${i}`");
-		expect(idleConfig).toContain('seletorDaCura({');
-		expect(idleConfig.match(/bindNiveis\(pane\);/g)).toHaveLength(2);
 	});
 
 	it('a pilha pergunta pelo seletor DEPOIS do "algo na mao" e ANTES das janelas', () => {

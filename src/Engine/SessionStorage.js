@@ -44,6 +44,20 @@ export default {
 
 	moveAction: null,
 
+	/**
+	 * Lote 5 (resto do C23): o alcance da skill guardada em `moveAction` - o
+	 * `onWalkEnd` re-confere com a regua da fonte antes de soltar. Ver
+	 * MapEngine/alcanceNoFimDaCaminhada.js e `armarAlcanceNoFim` (Skill.js).
+	 */
+	moveActionAlcance: null,
+
+	/**
+	 * C47: a espera do `ZC_NOTIFY_PLAYERMOVE` que confirma a caminhada do
+	 * pedido em `moveAction` - o `onWalkEnd` so solta depois dela. Ver
+	 * MapEngine/confirmacaoDaCaminhada.js.
+	 */
+	moveActionEspera: null,
+
 	// weight and max_weight now live on the player entity (Session.Entity)
 
 	/**

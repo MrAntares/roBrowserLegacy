@@ -140,6 +140,11 @@ StatusIcons.update = function update(index, state, life) {
 	// Save tick for progressbar
 	_status[index].start = Renderer.tick;
 	_status[index].end = getStatusEnd(Renderer.tick, life);
+	// C9 (29/09/2026): status re-emitido com o icone ja na tela ganha o relogio
+	// novo AGORA, sem esperar o passo de 500 ms do `rendering`.
+	if (_status[index].img) {
+		renderStatus(_status[index], Renderer.tick);
+	}
 
 	// O cliente desta instalacao roda com loadLua:false porque o conjunto de
 	// dados nao possui todos os LUBs. Um EFST legitimo sem entrada hardcoded
@@ -261,13 +266,24 @@ function addFallbackStatusIcon(index) {
 
 	_status[index].loading = false;
 	_status[index].img = canvas;
+	mostrarIcone(index);
+}
+
+/**
+ * O icone entra na tela JA com o relogio pintado (C9, 29/09/2026). Antes a
+ * faixa so era escrita no proximo passo do laco `rendering`, que e global e de
+ * 500 ms: um status curto (o Contra-Ataque dura 2 s) passava ate meio segundo
+ * sem numero, e a auditoria de tela o fotografava vazio.
+ */
+function mostrarIcone(index) {
 	addElement(_status[index].element);
+	renderStatus(_status[index], Renderer.tick);
 }
 
 function addResizedStatusIcon(img, index) {
 	if (img.width < 33 && img.height < 33) {
 		_status[index].img = img;
-		addElement(_status[index].element);
+		mostrarIcone(index);
 		return;
 	}
 
@@ -297,7 +313,7 @@ function addResizedStatusIcon(img, index) {
 			return;
 		}
 		_status[index].img = resizedImg;
-		addElement(_status[index].element);
+		mostrarIcone(index);
 	};
 }
 

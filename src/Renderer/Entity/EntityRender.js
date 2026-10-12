@@ -32,7 +32,6 @@ import JobId from 'DB/Jobs/JobConst.js';
 import DB from 'DB/DBManager.js';
 import GraphicsSettings from 'Preferences/Graphics.js';
 import GR2ModelRenderer from 'Renderer/GR2/GR2ModelRenderer.js';
-import { letreirosVisiveis } from 'Renderer/Entity/corDoEncoberto.js';
 
 /**
  * Load dependencies
@@ -102,18 +101,6 @@ function render(modelView, projection) {
 }
 
 /**
- * Tira o canvas de um letreiro da camada, se ele estiver nela.
- *
- * @param {{ canvas?: HTMLCanvasElement }} peca
- */
-function tirarDaCamada(peca) {
-	const canvas = peca && peca.canvas;
-	if (canvas && canvas.parentNode) {
-		canvas.remove();
-	}
-}
-
-/**
  * Calculate zIndex and render UI elements
  *
  * @param {Entity}
@@ -160,25 +147,14 @@ const renderGUI = (function renderGUIClosure() {
 		vec4.transformMat4(_vector, _vector, _matrix);
 		entity.depth = _vector[3];
 
-		// Display UI. Nome, barra de HP e emblema de quem esta encoberto para
-		// quem olha nao aparecem: o corpo some e o nome no chao o entregava (D-2024).
-		// Pular o `render` nao basta: eles sao canvas na camada do `EntityOverlay`
-		// e ficariam pregados no ultimo pixel. Sai o canvas, e os interruptores
-		// `display` ficam como estao — o `render` o reanexa quando ele reaparece
-		// (o mesmo corte de `esconderLetreirosDoDescartado`, EntityManager.js).
-		const letreiros = letreirosVisiveis(entity._effectStateColor[3]);
-		if (!letreiros) {
-			tirarDaCamada(entity.life);
-			tirarDaCamada(entity.emblem);
-			tirarDaCamada(entity.display);
-		}
-		if (letreiros && entity.life.display) {
+		// Display UI
+		if (entity.life.display) {
 			entity.life.render(_matrix);
 		}
-		if (letreiros && entity.emblem.display) {
+		if (entity.emblem.display) {
 			entity.emblem.render(_matrix);
 		}
-		if (letreiros && entity.display.display) {
+		if (entity.display.display) {
 			entity.display.render(_matrix);
 		}
 		if (entity.dialog.display) {

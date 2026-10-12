@@ -187,7 +187,6 @@ import {
 	temCarrinho,
 	textoDaQuantidadeRecusada
 } from 'UI/Components/CartItems/transferenciaDoCarrinho.js';
-import { montadoNoPeco } from './montariaNaMochila.js';
 
 /**
  * Mantido em sincronia com ":host"/".mo-window"/".mo-frame" em
@@ -406,24 +405,6 @@ MochilaIdle.init = function init() {
 		});
 	}
 
-	/*
-	 * O BOTAO DE DESMONTAR (D-2052): o "off" da janela de equipamento do RO,
-	 * o MESMO `CZ_REQ_CARTOFF` (EquipmentCommon.js `onRemoveOption`). Quem decide
-	 * o que sai e o servidor (a montaria antes do carrinho, clif.cpp:12619-12633);
-	 * o botao so aparece montado (`syncBotaoDeDesmontar`), entao o mesmo pacote
-	 * nunca vira aqui a devolucao do carrinho do Mercador.
-	 */
-	const botaoDeDesmontar = root.querySelector('.mo-desmontar');
-	if (botaoDeDesmontar) {
-		botaoDeDesmontar.addEventListener('click', e => {
-			e.stopImmediatePropagation();
-			if (!montadoNoPeco(Session.Entity)) {
-				return;
-			}
-			Network.sendPacket(new PACKET.CZ.REQ_CARTOFF());
-		});
-	}
-
 	// A resposta da comparação de equipamento (08/09/2026) — ver abrirDetalhes.
 	Network.hookPacket(PACKET.ZC.RAGIDLE_ITEM, aoChegarComparacao);
 
@@ -639,7 +620,6 @@ function syncAll() {
 	syncGrade();
 	syncRodape();
 	syncBotaoDoCarrinho();
-	syncBotaoDeDesmontar();
 }
 
 /**
@@ -654,23 +634,6 @@ function syncBotaoDoCarrinho() {
 		return;
 	}
 	const esconder = !temCarrinho(Session.Entity);
-	if (botao.hidden !== esconder) {
-		botao.hidden = esconder;
-	}
-}
-
-/**
- * O botao de desmontar (D-2052) aparece SO com o Peco. O bit chega depois da
- * janela (o `ZC_STATE_CHANGE` do Breeder ou do login) e some sem relogar (o
- * proprio botao), por isso o laco de 250 ms confere de novo a cada tique com a
- * janela aberta, como o do carrinho logo acima.
- */
-function syncBotaoDeDesmontar() {
-	const botao = _root().querySelector('.mo-desmontar');
-	if (!botao) {
-		return;
-	}
-	const esconder = !montadoNoPeco(Session.Entity);
 	if (botao.hidden !== esconder) {
 		botao.hidden = esconder;
 	}

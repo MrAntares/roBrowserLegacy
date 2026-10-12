@@ -126,9 +126,8 @@ describe('o que a desmontagem desfaz, e quem passa por ela (H07, fonte)', () => 
 		expect(corpo).toContain('Session.Playing = false;');
 		expect(corpo).toContain('TelaAcesaNoFarm.desligar();');
 		expect(corpo).toContain('BackgroundTicker.stop();');
-		expect(corpo).toContain("document.removeEventListener('visibilitychange', onVisibilidadeMudouParaEconomia);");
-		expect(corpo).toContain('clearTimeout(_atrasoDaEconomia);');
-		expect(corpo).toContain('fecharTelaDaEconomia();');
+		// A economia de energia saiu do cliente (07/10/2026): nada dela a desfazer.
+		expect(corpo).not.toMatch(/Economia/);
 		expect(corpo).toContain('_janelaDoSonoAtiva.remove();');
 		expect(corpo).toContain('cleanGameUI();');
 	});

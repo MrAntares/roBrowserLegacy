@@ -1,0 +1,1754 @@
+/*
+ * BotMenu - o menu do Bot novo no layout do MOCKUP DO DONO (08/10/2026):
+ * moldura com titulo em serifa, tres cartoes no topo (Auto Caca, mapa, perfil),
+ * barra de secoes a esquerda (icone, nome, subtitulo), painel com cabecalho da
+ * secao, faixa de status em tempo real e rodape com Salvar e Salvar e Iniciar.
+ *
+ * Moldura e pecas do design system (`.ri-window`, `.ri-header`, `.ri-title`,
+ * `.ri-close`, `.ri-btn`, `.ri-tab` - `UI/Common.css`): azul de acao, aro
+ * dourado, papel claro - tudo por token, sem cor literal nova. Aqui so o layout.
+ */
+:host {
+	position: absolute;
+	width: min(980px, calc(100vw - 16px));
+	height: min(720px, calc(100vh - 24px));
+	pointer-events: none;
+}
+/* A altura atravessa o `.ui-component-root` (a cicatriz de `PresencaIdle.css`). */
+.ui-component-root {
+	height: 100%;
+}
+
+#BotMenu {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	color: var(--text-body);
+	font: var(--type-info);
+	-webkit-font-smoothing: antialiased;
+}
+/*
+ * O ATRIBUTO `hidden` VENCE SEMPRE (Fase 11, sonda de tela de 08/10/2026): `.ri-btn`, `.bm-linha` e
+ * `.bm-bloco` declaram `display`, e uma regra de autor com `display` derruba o `[hidden]` do
+ * navegador. O "Recarregar" aparecia sem conflito, e o fallback da Postura e os avisos escondidos
+ * apareciam. Os testes jsdom olhavam so a propriedade.
+ */
+#BotMenu [hidden] {
+	display: none !important;
+}
+#BotMenu *,
+#BotMenu *::before,
+#BotMenu *::after {
+	box-sizing: border-box;
+}
+#BotMenu .bm-window {
+	display: none;
+	position: absolute;
+	inset: 0;
+	pointer-events: auto;
+	flex-direction: column;
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(180deg, var(--paper-1), var(--paper-2));
+}
+#BotMenu .bm-window.is-open {
+	display: flex;
+}
+#BotMenu svg {
+	width: 18px;
+	height: 18px;
+	flex: 0 0 auto;
+}
+
+/* ---------- titulo ---------- */
+#BotMenu .bm-titlebar {
+	height: 52px;
+	flex: 0 0 auto;
+	/*
+	 * As asas do `.ri-title` sao pseudo-elementos: no celular (375) o titulo + as duas asas passam da
+	 * caixa do titulo e a janela ganhava 3px de rolagem de lado (sonda de tela, 08/10/2026).
+	 */
+	overflow: hidden;
+}
+#BotMenu .bm-title {
+	font-family: var(--font-display);
+	font-size: 24px;
+}
+#BotMenu .bm-mascote {
+	position: absolute;
+	left: 14px;
+	top: 50%;
+	width: 40px;
+	height: 40px;
+	object-fit: contain;
+	transform: translateY(-50%);
+	pointer-events: none;
+}
+#BotMenu .bm-close {
+	width: 30px;
+	height: 30px;
+	font-size: 18px;
+}
+
+/* ---------- topo: tres cartoes ---------- */
+#BotMenu .bm-topo {
+	flex: 0 0 auto;
+	display: grid;
+	grid-template-columns: 1.1fr 1fr 1fr;
+	gap: var(--sp-3);
+	padding: var(--sp-4) var(--sp-5) var(--sp-3);
+	border-bottom: 1px solid var(--border-gold);
+}
+#BotMenu .bm-cartao {
+	display: flex;
+	align-items: center;
+	gap: var(--sp-3);
+	min-width: 0;
+	padding: var(--sp-2) var(--sp-3);
+	border-radius: var(--radius-panel, 8px);
+	border: 1px solid var(--border-gold);
+	background: var(--surface-card);
+	box-shadow: var(--shadow-card);
+}
+/*
+ * AJUSTES DO DONO (09/10/2026): as fontes do topo, do titulo da secao e da lista de secoes ficaram 20 a 25 por
+ * cento menores (estavam grandes demais), alinhadas ao menu antigo. Discos e interruptor encolhem junto.
+ */
+#BotMenu .bm-disco {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 34px;
+	height: 34px;
+	flex: 0 0 auto;
+	border-radius: 50%;
+	color: var(--accent-strong);
+	background: var(--sky-50);
+	box-shadow: inset 0 0 0 1px var(--border-hairline);
+}
+#BotMenu .bm-cartao-liga .bm-disco {
+	color: var(--text-on-accent);
+	background: var(--tab-active-fill);
+}
+#BotMenu .bm-disco svg {
+	width: 18px;
+	height: 18px;
+}
+#BotMenu .bm-cartao-rotulo {
+	flex: 1 1 auto;
+	font-family: var(--font-display);
+	font-size: 14px;
+	color: var(--text-title);
+	white-space: nowrap;
+}
+#BotMenu .bm-cartao-texto {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	flex: 1 1 auto;
+}
+#BotMenu .bm-cartao-texto small {
+	font: var(--type-desc);
+	color: var(--text-muted);
+}
+#BotMenu .bm-mapa {
+	font-family: var(--font-display);
+	font-size: 14px;
+	color: var(--text-title);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+#BotMenu .bm-perfil-escolha {
+	min-width: 0;
+	width: 100%;
+	padding: 2px 0;
+	border: 0;
+	background: transparent;
+	font-family: var(--font-display);
+	font-size: 14px;
+	color: var(--text-title);
+	cursor: pointer;
+}
+#BotMenu .bm-perfil-ativo {
+	display: none;
+}
+
+/* O interruptor ON/OFF (Auto Caca): pilula azul com a bolinha, como no mockup. */
+#BotMenu .bm-liga {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: flex-start;
+	flex: 0 0 auto;
+	width: 84px;
+	height: 32px;
+	padding: 0 11px;
+	border-radius: var(--radius-pill);
+	border: 1px solid var(--border-hairline);
+	background: var(--bar-track, var(--sky-50));
+	color: var(--text-muted);
+	font-family: var(--font-ui);
+	font-weight: var(--fw-bold);
+	font-size: 12px;
+	cursor: pointer;
+	transition: background var(--dur-fast) var(--ease-out);
+}
+#BotMenu .bm-liga-texto {
+	margin-left: auto;
+}
+#BotMenu .bm-liga-ponto {
+	position: absolute;
+	left: 4px;
+	top: 50%;
+	width: 24px;
+	height: 24px;
+	border-radius: 50%;
+	background: var(--white);
+	box-shadow: var(--shadow-card);
+	transform: translateY(-50%);
+	transition: left var(--dur-fast) var(--ease-out);
+}
+#BotMenu .bm-liga[aria-checked='true'] {
+	background: var(--tab-active-fill);
+	border-color: var(--blue-600);
+	color: var(--text-on-accent);
+}
+#BotMenu .bm-liga[aria-checked='true'] .bm-liga-texto {
+	margin-left: 0;
+	margin-right: auto;
+}
+#BotMenu .bm-liga[aria-checked='true'] .bm-liga-ponto {
+	left: calc(100% - 28px);
+}
+#BotMenu .bm-liga.is-pendente {
+	opacity: 0.7;
+	cursor: progress;
+}
+
+/* ---------- meio: barra de secoes e painel ---------- */
+#BotMenu .bm-meio {
+	flex: 1 1 auto;
+	min-height: 0;
+	display: flex;
+	gap: var(--sp-4);
+	padding: var(--sp-4) var(--sp-5);
+}
+#BotMenu .bm-lateral {
+	flex: 0 0 190px;
+	display: flex;
+	flex-direction: column;
+	gap: var(--sp-3);
+	min-height: 0;
+	overflow-y: auto;
+}
+#BotMenu .bm-lateral-titulo {
+	text-align: center;
+	font: var(--type-badge);
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: var(--text-muted);
+}
+#BotMenu .bm-abas {
+	display: flex;
+	flex-direction: column;
+	gap: var(--sp-2);
+}
+#BotMenu .bm-abas:empty {
+	display: none;
+}
+#BotMenu .bm-aba.ri-tab {
+	display: grid;
+	grid-template-columns: 24px 1fr;
+	grid-template-rows: auto auto;
+	column-gap: var(--sp-2);
+	align-items: center;
+	padding: var(--sp-2) var(--sp-3);
+	border-radius: var(--radius-panel, 8px);
+	border: 1px solid var(--border-hairline);
+	background: var(--surface-card);
+	text-align: left;
+	font-family: var(--font-display);
+	font-size: 12.5px;
+	color: var(--text-title);
+}
+#BotMenu .bm-aba svg {
+	grid-row: 1 / span 2;
+	width: 20px;
+	height: 20px;
+	color: var(--accent-strong);
+}
+#BotMenu .bm-aba::after {
+	content: attr(data-sub);
+	grid-column: 2;
+	font-family: var(--font-ui);
+	font-size: var(--fs-desc);
+	color: var(--text-muted);
+}
+#BotMenu .bm-aba.is-active {
+	background: var(--tab-active-fill);
+	border-color: var(--gold-500);
+	color: var(--tab-active-text);
+	box-shadow: var(--glow-gold);
+}
+#BotMenu .bm-aba.is-active svg,
+#BotMenu .bm-aba.is-active::after {
+	color: var(--tab-active-text);
+}
+
+#BotMenu .bm-painel {
+	flex: 1 1 auto;
+	min-width: 0;
+	min-height: 0;
+	display: flex;
+	flex-direction: column;
+	gap: var(--sp-3);
+}
+#BotMenu .bm-secao-cabeca {
+	flex: 0 0 auto;
+	display: flex;
+	align-items: center;
+	gap: var(--sp-3);
+	padding: var(--sp-2) var(--sp-3);
+	border-radius: var(--radius-panel, 8px);
+	border: 1px solid var(--border-gold);
+	background: var(--surface-card);
+	box-shadow: var(--shadow-card);
+}
+#BotMenu .bm-emblema {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 46px;
+	height: 46px;
+	flex: 0 0 auto;
+	border-radius: 50%;
+	color: var(--accent-strong);
+	background: radial-gradient(circle at 50% 40%, var(--white), var(--gold-200));
+	box-shadow: inset 0 0 0 2px var(--border-gold);
+}
+#BotMenu .bm-emblema img {
+	width: 36px;
+	height: 36px;
+	object-fit: contain;
+}
+#BotMenu .bm-emblema svg {
+	width: 24px;
+	height: 24px;
+}
+#BotMenu .bm-secao-textos {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	flex: 1 1 auto;
+}
+#BotMenu .bm-secao-titulo {
+	margin: 0;
+	font-family: var(--font-display);
+	font-size: 17px;
+	font-weight: normal;
+	color: var(--text-title);
+}
+#BotMenu .bm-secao-desc {
+	margin: 0;
+	font: var(--type-desc);
+	color: var(--text-muted);
+}
+
+/* ---------- corpo ---------- */
+#BotMenu .bm-corpo {
+	flex: 1 1 auto;
+	min-height: 0;
+	overflow-y: auto;
+	overflow-x: hidden;
+	padding-right: var(--sp-1);
+}
+#BotMenu .bm-secao {
+	display: flex;
+	flex-direction: column;
+	gap: var(--sp-3);
+}
+#BotMenu .bm-cartao-secao {
+	display: flex;
+	flex-direction: column;
+	gap: var(--sp-3);
+	margin: 0;
+	padding: var(--sp-4);
+	border-radius: var(--radius-panel, 8px);
+	border: 1px solid var(--border-gold);
+	background: var(--surface-card);
+	box-shadow: var(--shadow-card);
+	min-width: 0;
+}
+#BotMenu fieldset.bm-cartao-secao > legend {
+	float: left;
+	width: 100%;
+	margin-bottom: var(--sp-2);
+}
+#BotMenu .bm-linha {
+	display: flex;
+	align-items: center;
+	gap: var(--sp-3);
+	min-height: 28px;
+	cursor: pointer;
+}
+#BotMenu .bm-linha--coluna {
+	flex-direction: column;
+	align-items: stretch;
+	gap: var(--sp-2);
+}
+#BotMenu .bm-rotulo {
+	font: var(--type-label, var(--type-info));
+	font-weight: var(--fw-semibold);
+	color: var(--text-title);
+}
+#BotMenu .bm-bloco {
+	display: flex;
+	flex-direction: column;
+	gap: var(--sp-2);
+}
+#BotMenu .bm-dica,
+#BotMenu .bm-indisponivel {
+	margin: 0;
+	font: var(--type-desc);
+	color: var(--text-muted);
+}
+#BotMenu .bm-indisponivel {
+	padding: var(--sp-3);
+	border-radius: var(--radius-card, 8px);
+	background: var(--surface-card);
+}
+#BotMenu .bm-aviso {
+	color: var(--amber-600);
+}
+#BotMenu .bm-opcao {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--sp-3);
+	cursor: pointer;
+}
+#BotMenu .bm-opcao input {
+	margin-top: 3px;
+}
+#BotMenu .bm-opcao span {
+	display: flex;
+	flex-direction: column;
+}
+#BotMenu .bm-opcao small {
+	font: var(--type-desc);
+	color: var(--text-muted);
+}
+#BotMenu select,
+#BotMenu input[type='number'],
+#BotMenu input[type='text'] {
+	min-width: 0;
+	max-width: 100%;
+	padding: 4px 8px;
+	border-radius: var(--radius-card, 4px);
+	border: 1px solid var(--border-hairline);
+	background: var(--white);
+	color: var(--text-body);
+	font-family: var(--font-ui);
+}
+#BotMenu .bm-linha input[type='number'],
+#BotMenu .bm-limiar-cura input {
+	width: 4.5em;
+}
+
+/* Caca: monstros ignorados com o avatar real. */
+#BotMenu .bm-monstros {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+	gap: var(--sp-2);
+}
+#BotMenu .bm-monstros:empty::after {
+	content: 'Nenhum monstro conhecido neste mapa.';
+	grid-column: 1 / -1;
+	font: var(--type-desc);
+	color: var(--text-muted);
+}
+#BotMenu .bm-monstro {
+	display: flex;
+	align-items: center;
+	gap: var(--sp-2);
+	min-width: 0;
+	padding: var(--sp-2) var(--sp-3);
+	border-radius: var(--radius-panel, 8px);
+	border: 1px solid var(--border-hairline);
+	background: var(--white);
+	cursor: pointer;
+}
+/* Ignorado (item 4.4): a borda vermelha PREMIUM, o par do dourado dos cartoes premium, so com tokens do design
+   system. A cor nao e o unico sinal: o texto "Ignorado" e o aria-checked=false dizem o mesmo. */
+#BotMenu .bm-monstro.is-ignorado {
+	background: var(--surface-card-hover);
+	border-color: var(--red-600);
+	box-shadow:
+		inset 0 0 0 1px var(--red-600),
+		0 0 14px color-mix(in srgb, var(--red-300) 45%, transparent);
+}
+#BotMenu .bm-monstro-estado {
+	margin-left: auto;
+	flex: 0 0 auto;
+	font: var(--type-desc);
+	font-weight: 600;
+	color: var(--red-600);
+}
+#BotMenu .bm-outros-mapas {
+	margin-top: var(--sp-3);
+}
+#BotMenu .bm-outros-mapas > summary {
+	cursor: pointer;
+	font: var(--type-desc);
+	color: var(--text-muted);
+}
+#BotMenu .bm-monstro img,
+#BotMenu .bm-chip img {
+	width: 32px;
+	height: 32px;
+	object-fit: contain;
+	flex: 0 0 auto;
+}
+/* QA final 08/10/2026: o nome do monstro QUEBRA em ate duas linhas. Cortado numa linha so,
+   "Besouro-Ladrao Femea", "Macho" e "Dourado" viravam tres "Besouro-Ladrao ..." iguais (e no
+   celular nao ha dica de mouse para saber qual se veta). */
+#BotMenu .bm-monstro span {
+	overflow: hidden;
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+	line-clamp: 2;
+	overflow-wrap: anywhere;
+	line-height: 1.25;
+}
+#BotMenu .bm-raio {
+	width: 100%;
+}
+
+/* ---------- ataque: o modo em segmentos, o rodizio, o Avancado (ajustes do dono, 09/10/2026) ---------- */
+#BotMenu .bm-segmentos {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: var(--sp-2);
+}
+#BotMenu .bm-segmento {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 34px;
+	padding: var(--sp-1) var(--sp-2);
+	border-radius: var(--radius-panel, 8px);
+	border: 1px solid var(--border-hairline);
+	background: var(--white);
+	color: var(--text-title);
+	text-align: center;
+	cursor: pointer;
+}
+#BotMenu .bm-segmento input {
+	position: absolute;
+	opacity: 0;
+	width: 1px;
+	height: 1px;
+}
+#BotMenu .bm-segmento:has(input:checked) {
+	background: var(--tab-active-fill);
+	border-color: var(--gold-500);
+	color: var(--tab-active-text);
+}
+#BotMenu .bm-segmento:has(input:focus-visible) {
+	outline: 2px solid var(--accent);
+	outline-offset: 2px;
+}
+#BotMenu .bm-rodizio {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: var(--sp-2);
+}
+#BotMenu .bm-rodizio-item,
+#BotMenu .bm-rodizio-fora-item {
+	display: flex;
+	align-items: center;
+	gap: var(--sp-2);
+	min-width: 0;
+	padding: var(--sp-2) var(--sp-3);
+	border-radius: var(--radius-panel, 8px);
+	border: 1px solid var(--border-hairline);
+	background: var(--white);
+}
+#BotMenu .bm-rodizio-ordem {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+	flex: 0 0 auto;
+	border-radius: 50%;
+	background: var(--tab-active-fill);
+	color: var(--tab-active-text);
+	font-weight: var(--fw-bold);
+	font-size: 12px;
+}
+#BotMenu .bm-rodizio-icone {
+	width: 28px;
+	height: 28px;
+	flex: 0 0 auto;
+	object-fit: contain;
+}
+#BotMenu .bm-rodizio-textos {
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 auto;
+	min-width: 0;
+}
+#BotMenu .bm-rodizio-nome {
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	color: var(--text-title);
+}
+#BotMenu .bm-rodizio-detalhe {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0 var(--sp-2);
+	font: var(--type-desc);
+	color: var(--text-muted);
+}
+#BotMenu .bm-rodizio-off {
+	color: var(--amber-600);
+}
+/* Suporte (item 4.5): os seletores do buff cabem na linha de detalhe do rodizio. */
+#BotMenu .bm-rodizio-detalhe select,
+#BotMenu .bm-rodizio-detalhe .bm-limiar {
+	font: var(--type-desc);
+	max-width: 9em;
+}
+#BotMenu .bm-rodizio-detalhe .bm-limiar {
+	width: 4em;
+}
+#BotMenu .bm-rodizio-item.is-desligada .bm-rodizio-ordem {
+	background: var(--sky-50);
+	color: var(--text-muted);
+}
+#BotMenu .bm-rodizio-item.is-desligada .bm-rodizio-icone,
+#BotMenu .bm-rodizio-item.is-desligada .bm-rodizio-nome {
+	opacity: 0.55;
+}
+#BotMenu .bm-rodizio-acoes {
+	display: inline-flex;
+	gap: var(--sp-1);
+	flex: 0 0 auto;
+}
+#BotMenu .bm-rodizio-acoes .ri-btn {
+	min-width: 30px;
+	padding: 2px 6px;
+}
+#BotMenu .bm-rodizio-outras {
+	display: flex;
+	flex-direction: column;
+	gap: var(--sp-2);
+}
+#BotMenu .bm-rodizio-fora {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+	gap: var(--sp-2);
+}
+#BotMenu .bm-rodizio-fora-item {
+	border-style: dashed;
+}
+#BotMenu .bm-rodizio-usar {
+	margin-left: auto;
+	flex: 0 0 auto;
+}
+#BotMenu .bm-ataque-avancado {
+	gap: var(--sp-2);
+}
+#BotMenu .bm-ataque-avancado > summary {
+	font-weight: var(--fw-semibold);
+	color: var(--text-link);
+	cursor: pointer;
+}
+#BotMenu .bm-ataque-avancado:not([open]) {
+	padding-top: var(--sp-3);
+	padding-bottom: var(--sp-3);
+}
+/* No Avancado a chave "Habilidade ativada" do cartao repetiria a do rodizio: o liga/desliga mora na frente. */
+#BotMenu .bm-ataque-avancado .bm-ps-chave,
+#BotMenu .bm-ataque-avancado .bm-nao-aceitas {
+	display: none;
+}
+#BotMenu .bm-escopo,
+#BotMenu .bm-nova-skill,
+#BotMenu .bm-skill-nivel {
+	min-width: 0;
+	max-width: 100%;
+}
+#BotMenu .bm-lista-skills {
+	list-style: decimal inside;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: var(--sp-2);
+}
+#BotMenu .bm-lista-skills:empty::after {
+	content: 'Nenhuma habilidade na lista: o Bot usa só o ataque básico (ou não ataca em "Só habilidades").';
+	font: var(--type-desc);
+	color: var(--text-muted);
+}
+#BotMenu .bm-skill {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--sp-2);
+	padding: var(--sp-2) var(--sp-3);
+	border-radius: var(--radius-panel, 8px);
+	border: 1px solid var(--border-hairline);
+	background: var(--white);
+}
+#BotMenu .bm-skill.is-filtrada .bm-skill-nome {
+	opacity: 0.55;
+	text-decoration: line-through;
+}
+#BotMenu .bm-skill-nome {
+	flex: 1 1 120px;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+#BotMenu .bm-skill-motivo {
+	font: var(--type-desc);
+	color: var(--amber-600);
+}
+#BotMenu .bm-skill-escopo {
+	flex: 1 1 100%;
+	font: var(--type-desc);
+}
+#BotMenu .bm-adicionar {
+	display: flex;
+	gap: var(--sp-2);
+}
+#BotMenu .bm-adicionar select,
+#BotMenu .bm-adicionar input {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+#BotMenu .bm-nao-aceitas:empty {
+	display: none;
+}
+#BotMenu .bm-por-skill {
+	display: flex;
+	flex-direction: column;
+	gap: var(--sp-3);
+}
+#BotMenu .bm-ps-cartao {
+	display: flex;
+	flex-direction: column;
+	gap: var(--sp-3);
+	padding: var(--sp-4);
+	border-radius: var(--radius-panel, 8px);
+	border: 1px solid var(--border-gold);
+	background: var(--surface-card);
+	box-shadow: var(--shadow-card);
+}
+#BotMenu .bm-ps-cabeca {
+	display: flex;
+	align-items: center;
+	gap: var(--sp-3);
+	cursor: pointer;
+	list-style: none;
+}
+#BotMenu .bm-ps-cabeca::-webkit-details-marker {
+	display: none;
+}
+#BotMenu .bm-ps-icone,
+#BotMenu .bm-cartao-icone {
+	width: 40px;
+	height: 40px;
+	flex: 0 0 auto;
+	border-radius: var(--radius-card, 4px);
+	border: 1px solid var(--border-gold);
+	background: var(--white);
+	object-fit: contain;
+}
+#BotMenu .bm-ps-nome {
+	font-family: var(--font-display);
+	font-size: 15px;
+	color: var(--text-title);
+}
+#BotMenu .bm-ps-nivel-texto {
+	font: var(--type-desc);
+	color: var(--text-muted);
+}
+#BotMenu .bm-ps-ativa {
+	margin-left: auto;
+	display: flex;
+	align-items: center;
+	gap: var(--sp-2);
+	font: var(--type-desc);
+}
+#BotMenu .bm-ps-corpo {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	gap: var(--sp-4);
+}
+#BotMenu .bm-passo {
+	display: inline-flex;
+	align-items: stretch;
+}
+#BotMenu .bm-passo button {
+	min-width: 40px;
+	border: 1px solid var(--border-hairline);
+	background: var(--sky-50);
+	color: var(--text-link);
+	cursor: pointer;
+}
+#BotMenu .bm-passo button:first-child {
+	border-radius: var(--radius-card, 4px) 0 0 var(--radius-card, 4px);
+}
+#BotMenu .bm-passo button:last-child {
+	border-radius: 0 var(--radius-card, 4px) var(--radius-card, 4px) 0;
+}
+#BotMenu .bm-passo output {
+	min-width: 56px;
+	padding: 6px 10px;
+	text-align: center;
+	border-top: 1px solid var(--border-hairline);
+	border-bottom: 1px solid var(--border-hairline);
+	background: var(--white);
+	font-weight: var(--fw-bold);
+}
+#BotMenu .bm-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--sp-2);
+	padding: var(--sp-3);
+	border-radius: var(--radius-panel, 8px);
+	border: 1px solid var(--border-hairline);
+	background: var(--sky-50);
+}
+#BotMenu .bm-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--sp-2);
+	max-width: 100%;
+	padding: var(--sp-1) var(--sp-2);
+	border-radius: var(--radius-panel, 8px);
+	border: 1px solid var(--border-hairline);
+	background: var(--white);
+}
+#BotMenu .bm-chip button {
+	border: 0;
+	background: transparent;
+	color: var(--text-muted);
+	cursor: pointer;
+}
+
+#BotMenu .bm-chip button {
+	min-width: 28px;
+	font-size: 18px;
+	line-height: 1;
+}
+#BotMenu .bm-chip button:hover {
+	color: var(--red-600);
+}
+#BotMenu .bm-chip--add {
+	border-style: dashed;
+	background: transparent;
+	padding: 0;
+}
+#BotMenu .bm-chip--add select {
+	border: 0;
+	background: transparent;
+	color: var(--text-link);
+	font-weight: var(--fw-bold);
+	padding: var(--sp-2) var(--sp-3);
+	cursor: pointer;
+}
+#BotMenu .bm-ps-cartao.is-desligada .bm-ps-icone,
+#BotMenu .bm-ps-cartao.is-desligada .bm-ps-nome {
+	opacity: 0.55;
+}
+#BotMenu .bm-ps-textos {
+	display: flex;
+	flex-direction: column;
+	gap: var(--sp-1);
+	min-width: 0;
+}
+#BotMenu .bm-ps-linha-nome {
+	display: flex;
+	align-items: baseline;
+	gap: var(--sp-2);
+	flex-wrap: wrap;
+}
+#BotMenu .bm-ps-nv {
+	font: var(--type-desc);
+	font-weight: var(--fw-bold);
+	color: var(--text-muted);
+}
+#BotMenu .bm-ps-etiquetas {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--sp-1);
+}
+#BotMenu .bm-etiqueta {
+	padding: 2px var(--sp-2);
+	border-radius: var(--radius-pill);
+	border: 1px solid var(--border-hairline);
+	background: var(--sky-50);
+	font-size: 12px;
+	color: var(--text-muted);
+}
+#BotMenu .bm-etiqueta--ok {
+	border-color: var(--border-gold);
+	background: var(--paper-2, var(--white));
+	color: var(--gold-700, var(--text-title));
+}
+#BotMenu .bm-ps-chave {
+	margin-left: auto;
+}
+#BotMenu .bm-ps-bloco {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: var(--sp-2);
+	min-width: 0;
+}
+#BotMenu .bm-ps-alvos {
+	align-items: stretch;
+}
+#BotMenu .bm-ps-radio {
+	gap: var(--sp-2);
+}
+#BotMenu .bm-ps-vazio {
+	padding: var(--sp-4);
+	text-align: center;
+}
+#BotMenu .bm-item-icone {
+	width: 24px;
+	height: 24px;
+	object-fit: contain;
+	flex: 0 0 auto;
+}
+
+/* CONSUMIVEIS (D3-C1) e AVANCADO (D4-A3). */
+#BotMenu .bm-buff.is-indisponivel {
+	opacity: 0.7;
+}
+#BotMenu .bm-buff-nota {
+	margin-left: auto;
+}
+#BotMenu .bm-linha input[type='number'] {
+	width: 4.5em;
+	min-width: 0;
+}
+#BotMenu .bm-aviso.bm-asa-sem-vip {
+	margin: 0;
+}
+#BotMenu .bm-diag-status {
+	margin: 0;
+	font: var(--type-info);
+	font-weight: var(--fw-bold);
+}
+#BotMenu .bm-diag-contadores {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: var(--sp-2);
+}
+#BotMenu .bm-diag-contadores li {
+	display: flex;
+	justify-content: space-between;
+	gap: var(--sp-3);
+}
+
+/* O SELETOR DE ITEM (correcoes pos-QA, 08/10/2026; 05 secao 3): escolher pelo nome e pelo icone, sem ID. */
+#BotMenu .bm-seletor-bloco {
+	display: flex;
+	flex-direction: column;
+	gap: var(--sp-2);
+}
+#BotMenu .bm-seletor-bloco > .bm-escolher {
+	align-self: flex-start;
+}
+#BotMenu .bm-seletor {
+	display: flex;
+	flex-direction: column;
+	gap: var(--sp-2);
+	padding: var(--sp-2);
+	border-radius: var(--radius-panel, 8px);
+	border: 1px solid var(--border-hairline);
+	background: var(--white);
+}
+#BotMenu .bm-seletor-filtro {
+	width: 100%;
+	min-width: 0;
+}
+#BotMenu .bm-seletor-lista {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: var(--sp-1);
+	max-height: 220px;
+	overflow-y: auto;
+	overscroll-behavior: contain;
+}
+#BotMenu .bm-opcao-item {
+	display: flex;
+	align-items: center;
+	gap: var(--sp-2);
+	width: 100%;
+	padding: var(--sp-1) var(--sp-2);
+	border: 1px solid transparent;
+	border-radius: var(--radius-panel, 8px);
+	background: transparent;
+	color: inherit;
+	font: inherit;
+	text-align: left;
+	cursor: pointer;
+}
+#BotMenu .bm-opcao-item:hover,
+#BotMenu .bm-opcao-item:focus-visible {
+	border-color: var(--border-hairline);
+	background: var(--sky-50);
+}
+#BotMenu .bm-seletor-vazio {
+	font: var(--type-desc);
+	color: var(--text-muted);
+	padding: var(--sp-1) var(--sp-2);
+}
+
+/*
+ * O INTERRUPTOR do menu antigo (ajustes do dono, 09/10/2026; print 4 das referencias): trilho recuado e a
+ * bolinha que anda e fica azul quando liga. Usado na Sobrevivencia, no Descanso, na Coleta, nos Consumiveis e
+ * no liga/desliga de cada skill do rodizio.
+ */
+#BotMenu .bm-interruptor {
+	position: relative;
+	display: flex;
+	align-items: center;
+	gap: var(--sp-3);
+	min-width: 0;
+	cursor: pointer;
+}
+#BotMenu .bm-interruptor > input {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 40px;
+	height: 22px;
+	margin: 0;
+	opacity: 0;
+	cursor: pointer;
+	z-index: 1;
+}
+#BotMenu .bm-interruptor-trilho {
+	position: relative;
+	display: inline-block;
+	width: 40px;
+	height: 22px;
+	flex: 0 0 auto;
+	border-radius: var(--radius-pill);
+	border: 1px solid var(--border-hairline);
+	background: var(--well-fill, var(--sky-50));
+	box-shadow: var(--well-shadow, none);
+	transition: background var(--dur-fast) var(--ease-out);
+}
+#BotMenu .bm-interruptor-trilho::before {
+	content: '';
+	position: absolute;
+	left: 1px;
+	top: 1px;
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	border: 1px solid var(--border-hairline);
+	background: var(--white);
+	box-shadow: var(--shadow-card);
+	transition:
+		transform var(--dur-fast) var(--ease-out),
+		background var(--dur-fast) var(--ease-out);
+}
+#BotMenu .bm-interruptor > input:checked + .bm-interruptor-trilho {
+	background: color-mix(in srgb, var(--blue-500) 18%, var(--well-fill, var(--white)));
+}
+#BotMenu .bm-interruptor > input:checked + .bm-interruptor-trilho::before {
+	transform: translateX(18px);
+	background: var(--tab-active-fill);
+	border-color: var(--blue-600);
+}
+#BotMenu .bm-interruptor > input:disabled + .bm-interruptor-trilho {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+#BotMenu .bm-interruptor > input:focus-visible + .bm-interruptor-trilho {
+	outline: 2px solid var(--accent);
+	outline-offset: 2px;
+}
+#BotMenu .bm-interruptor-texto {
+	display: flex;
+	flex-direction: column;
+	gap: 1px;
+	min-width: 0;
+}
+#BotMenu .bm-interruptor-texto b {
+	font-weight: var(--fw-semibold);
+	color: var(--text-body);
+}
+#BotMenu .bm-interruptor--forte .bm-interruptor-texto b {
+	color: var(--text-title);
+}
+#BotMenu .bm-interruptor-texto small {
+	font: var(--type-desc);
+	color: var(--text-muted);
+}
+/* Duas colunas (HP | SP), como o menu antigo; no celular, uma. */
+#BotMenu .bm-duas {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: var(--sp-3);
+}
+#BotMenu .bm-eixo {
+	display: flex;
+	flex-direction: column;
+	gap: var(--sp-2);
+	min-width: 0;
+	padding: var(--sp-3);
+	border-radius: var(--radius-card, 8px);
+	border: 1px solid var(--border-hairline);
+	background: var(--surface-inset, var(--sky-50));
+}
+#BotMenu .bm-eixo.is-desligado .bm-frasco,
+#BotMenu .bm-eixo.is-desligado .bm-faixa,
+#BotMenu .bm-eixo.is-desligado .bm-pocoes-auto {
+	opacity: 0.55;
+}
+#BotMenu .bm-frasco {
+	width: 100%;
+}
+/* A barra deslizante do menu antigo: trilho fino, bolinha branca com o aro da cor do eixo. */
+#BotMenu .bm-faixa {
+	display: flex;
+	flex-direction: column;
+	gap: var(--sp-1);
+	min-width: 0;
+	color: var(--text-body);
+}
+#BotMenu .bm-faixa b {
+	color: var(--blue-600);
+	font-weight: var(--fw-bold);
+}
+#BotMenu .bm-slider {
+	appearance: none;
+	-webkit-appearance: none;
+	width: 100%;
+	height: 18px;
+	margin: 0;
+	background: transparent;
+	cursor: pointer;
+	--bm-bolinha: var(--blue-500);
+}
+#BotMenu .bm-slider--hp {
+	--bm-bolinha: var(--ri-hp, var(--red-600));
+}
+#BotMenu .bm-slider--sp {
+	--bm-bolinha: var(--ri-sp, var(--blue-500));
+}
+#BotMenu .bm-slider::-webkit-slider-runnable-track {
+	height: 6px;
+	border-radius: var(--radius-pill);
+	border: 1px solid var(--border-hairline);
+	background: var(--well-fill, var(--sky-50));
+	box-shadow: var(--well-shadow, none);
+}
+#BotMenu .bm-slider::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	width: 16px;
+	height: 16px;
+	margin-top: -6px;
+	border-radius: 50%;
+	border: 2px solid var(--bm-bolinha);
+	background: var(--white);
+	box-shadow: var(--shadow-card);
+}
+#BotMenu .bm-slider::-moz-range-track {
+	height: 6px;
+	border-radius: var(--radius-pill);
+	border: 1px solid var(--border-hairline);
+	background: var(--well-fill, var(--sky-50));
+}
+#BotMenu .bm-slider::-moz-range-thumb {
+	width: 14px;
+	height: 14px;
+	border-radius: 50%;
+	border: 2px solid var(--bm-bolinha);
+	background: var(--white);
+}
+#BotMenu .bm-slider:disabled {
+	opacity: 0.55;
+	cursor: not-allowed;
+}
+/* O SELO VIP (Asa de Mosca automatica, Flechas): o beneficio dito na cara, com ou sem o passe. */
+#BotMenu .bm-titulo-com-selo {
+	display: inline-flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--sp-1) var(--sp-2);
+}
+#BotMenu .bm-selo-vip {
+	display: inline-flex;
+	align-items: center;
+	padding: 0 var(--sp-2);
+	border-radius: var(--radius-pill);
+	border: 1px solid var(--gold-500);
+	background: linear-gradient(180deg, var(--gold-200), var(--paper-2, var(--white)));
+	color: var(--gold-700, var(--text-title));
+	font: var(--type-badge);
+	letter-spacing: 0.08em;
+}
+#BotMenu .bm-gatilhos {
+	display: flex;
+	flex-direction: column;
+	gap: var(--sp-2);
+	padding-left: var(--sp-3);
+	border-left: 2px solid var(--border-hairline);
+}
+#BotMenu .bm-gatilho {
+	flex-wrap: wrap;
+	gap: var(--sp-2);
+}
+#BotMenu .bm-gatilho .bm-interruptor {
+	flex: 0 0 auto;
+}
+
+/* O interruptor generico (Flechas, Habilidade ativada). */
+#BotMenu .bm-chave {
+	position: relative;
+	display: inline-flex;
+	flex: 0 0 auto;
+	cursor: pointer;
+}
+#BotMenu .bm-chave input {
+	position: absolute;
+	opacity: 0;
+	width: 1px;
+	height: 1px;
+}
+#BotMenu .bm-chave-trilho {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	width: 92px;
+	height: 38px;
+	padding: 0 12px;
+	border-radius: var(--radius-pill);
+	border: 1px solid var(--border-hairline);
+	background: var(--sky-50);
+	color: var(--text-muted);
+	font-weight: var(--fw-bold);
+}
+#BotMenu .bm-chave-trilho::after {
+	content: '';
+	position: absolute;
+	left: 4px;
+	top: 50%;
+	width: 28px;
+	height: 28px;
+	border-radius: 50%;
+	background: var(--white);
+	box-shadow: var(--shadow-card);
+	transform: translateY(-50%);
+	transition: left var(--dur-fast) var(--ease-out);
+}
+#BotMenu .bm-chave-texto {
+	margin-left: auto;
+}
+#BotMenu .bm-chave-texto::before {
+	content: 'OFF';
+}
+#BotMenu .bm-chave input:checked + .bm-chave-trilho {
+	background: var(--tab-active-fill);
+	border-color: var(--blue-600);
+	color: var(--text-on-accent);
+}
+#BotMenu .bm-chave input:checked + .bm-chave-trilho .bm-chave-texto {
+	margin-left: 0;
+	margin-right: auto;
+}
+#BotMenu .bm-chave input:checked + .bm-chave-trilho .bm-chave-texto::before {
+	content: 'ON';
+}
+#BotMenu .bm-chave input:checked + .bm-chave-trilho::after {
+	left: calc(100% - 32px);
+}
+#BotMenu .bm-chave input:focus-visible + .bm-chave-trilho {
+	outline: 2px solid var(--accent);
+	outline-offset: 2px;
+}
+
+/* QA final 08/10/2026: o FOCO DE TECLADO visivel em todo controle do menu. O `Common.css` zera o
+   outline de todo `:focus`, e o Tab andava pelas abas, caixas e o slider sem marca nenhuma. */
+#BotMenu button:focus-visible,
+#BotMenu input:focus-visible,
+#BotMenu select:focus-visible,
+#BotMenu summary:focus-visible,
+#BotMenu [tabindex]:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 2px;
+}
+
+/* Flechas (Fase 7), o cartao dentro de Ataque. */
+#BotMenu .bm-cartao-cabeca {
+	display: flex;
+	align-items: center;
+	gap: var(--sp-3);
+}
+#BotMenu .bm-cartao-titulo {
+	font-family: var(--font-display);
+	font-size: 15px;
+	font-weight: normal;
+	color: var(--text-title);
+}
+#BotMenu .bm-flechas-modo-caixa {
+	display: flex;
+	flex-direction: column;
+	gap: var(--sp-2);
+	padding: var(--sp-3);
+	border-radius: var(--radius-panel, 8px);
+	border: 1px solid var(--border-hairline);
+	background: var(--white);
+}
+#BotMenu .bm-flechas-opcoes {
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+	gap: var(--sp-3);
+	align-items: start;
+}
+#BotMenu .bm-flechas-fixa-caixa {
+	display: flex;
+	flex-direction: column;
+	gap: var(--sp-1);
+	padding: var(--sp-2);
+	border-radius: var(--radius-panel, 8px);
+	background: var(--sky-50);
+}
+#BotMenu .bm-flechas-fixa-caixa small {
+	font: var(--type-desc);
+	color: var(--text-muted);
+}
+#BotMenu .bm-flechas-fixa-linha {
+	display: flex;
+	align-items: center;
+	gap: var(--sp-2);
+}
+#BotMenu .bm-flechas-fixa-icone {
+	width: 32px;
+	height: 32px;
+	flex: 0 0 auto;
+	object-fit: contain;
+}
+#BotMenu .bm-flechas-fixa {
+	flex: 1 1 auto;
+}
+#BotMenu .bm-mais summary {
+	font: var(--type-desc);
+	color: var(--text-link);
+	cursor: pointer;
+}
+#BotMenu .bm-mais[open] {
+	display: flex;
+	flex-direction: column;
+	gap: var(--sp-3);
+}
+
+/* ---------- listas de itens (pocoes de velocidade, suporte, perfis, flechas) ---------- */
+#BotMenu .bm-lista-itens {
+	list-style: decimal inside;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: var(--sp-2);
+}
+#BotMenu .bm-lista-pocoes:empty::after {
+	content: 'Nenhuma poção na lista.';
+	font: var(--type-desc);
+	color: var(--text-muted);
+}
+#BotMenu .bm-lista-suporte:empty::after {
+	content: 'Nenhuma habilidade de suporte na lista.';
+	font: var(--type-desc);
+	color: var(--text-muted);
+}
+#BotMenu .bm-item {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--sp-2);
+	padding: var(--sp-2) var(--sp-3);
+	border-radius: var(--radius-panel, 8px);
+	border: 1px solid var(--border-hairline);
+	background: var(--white);
+}
+#BotMenu .bm-item-nome {
+	flex: 1 1 120px;
+	min-width: 0;
+	overflow: hidden;
+	/* QA final 08/10/2026: ate duas linhas, pelo mesmo motivo do nome do monstro acima. */
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+	line-clamp: 2;
+	overflow-wrap: anywhere;
+	line-height: 1.25;
+}
+#BotMenu .bm-quantidade {
+	font: var(--type-desc);
+	color: var(--text-muted);
+}
+#BotMenu .bm-quantidade.is-vazio {
+	color: var(--amber-600);
+}
+#BotMenu .bm-tipo {
+	font: var(--type-badge);
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	padding: 0 var(--sp-2);
+	border-radius: var(--radius-pill);
+	box-shadow: inset 0 0 0 1px var(--border-hairline);
+}
+#BotMenu .bm-tipo--cura {
+	color: var(--green-600);
+}
+#BotMenu .bm-tipo--buff,
+#BotMenu .bm-tipo--especial {
+	color: var(--amber-600);
+}
+#BotMenu .bm-tipo--vestida {
+	color: var(--green-600);
+}
+#BotMenu .bm-limiar-cura {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--sp-1, 4px);
+	font: var(--type-desc);
+}
+#BotMenu .bm-ignorados {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--sp-2);
+}
+#BotMenu .bm-ignorados:empty::after {
+	content: 'Nenhum item ignorado: o Bot pega tudo dentro do raio.';
+	font: var(--type-desc);
+	color: var(--text-muted);
+}
+#BotMenu .bm-ignorado {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--sp-2);
+	max-width: 100%;
+	padding: var(--sp-1, 4px) var(--sp-1, 4px) var(--sp-1, 4px) var(--sp-3);
+	border-radius: var(--radius-pill);
+	background: var(--white);
+	border: 1px solid var(--border-hairline);
+}
+#BotMenu .bm-perfil.is-ativo .bm-item-nome {
+	font-weight: 700;
+}
+
+/* ---------- status em tempo real ---------- */
+#BotMenu .bm-tempo-real {
+	flex: 0 0 auto;
+	display: flex;
+	flex-direction: column;
+	gap: var(--sp-2);
+	padding: var(--sp-3) var(--sp-4);
+	border-radius: var(--radius-panel, 8px);
+	border: 1px solid var(--border-hairline);
+	background: var(--surface-card);
+}
+#BotMenu .bm-tempo-real-titulo {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--sp-2);
+	font-weight: var(--fw-semibold);
+	color: var(--text-title);
+}
+#BotMenu .bm-tempo-real-ponto {
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	background: var(--text-muted);
+}
+#BotMenu .bm-window.is-ligado .bm-tempo-real-ponto {
+	background: var(--green-600);
+	box-shadow: 0 0 6px var(--green-300);
+}
+#BotMenu .bm-tempo-real-linha {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--sp-2) var(--sp-5);
+}
+#BotMenu .bm-tempo-real-passo {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--sp-2);
+	min-width: 0;
+	color: var(--text-body);
+}
+#BotMenu .bm-tempo-real-passo svg {
+	color: var(--accent-strong);
+}
+#BotMenu .bm-status {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+#BotMenu .bm-status.is-suspenso {
+	color: var(--amber-600);
+}
+
+/* ---------- rodape ---------- */
+#BotMenu .bm-rodape {
+	flex: 0 0 auto;
+	padding: var(--sp-3) var(--sp-5) var(--sp-4);
+	border-top: 1px solid var(--border-gold);
+	background: var(--surface-card);
+}
+#BotMenu .bm-recado {
+	margin: 0 0 var(--sp-2);
+	font: var(--type-desc);
+	color: var(--red-600);
+}
+#BotMenu .bm-recado:empty {
+	display: none;
+}
+#BotMenu .bm-recado.is-aviso {
+	color: var(--amber-600);
+}
+#BotMenu .bm-problemas {
+	margin: 0 0 var(--sp-2);
+	padding-left: var(--sp-5);
+	font: var(--type-desc);
+	color: var(--red-600);
+}
+#BotMenu .bm-problemas:empty {
+	display: none;
+}
+#BotMenu .bm-botoes {
+	display: flex;
+	align-items: center;
+	gap: var(--sp-3);
+}
+#BotMenu .bm-botoes-vao {
+	flex: 1 1 auto;
+}
+#BotMenu .bm-aplicar,
+#BotMenu .bm-iniciar {
+	min-width: 200px;
+	min-height: 48px;
+	font-family: var(--font-display);
+	font-size: 18px;
+}
+#BotMenu .bm-botoes svg {
+	width: 20px;
+	height: 20px;
+}
+
+/*
+ * CELULAR EM PE e janela estreita (< 720px): uma coluna. A barra de secoes vira
+ * uma faixa rolavel no topo do painel (icone e nome, sem subtitulo), os cartoes
+ * do topo ficam em duas linhas e os botoes do rodape dividem a largura.
+ */
+@media (max-width: 720px) {
+	:host {
+		width: calc(100vw - 8px);
+		height: calc(100vh - 16px);
+	}
+	#BotMenu .bm-title {
+		font-size: 20px;
+	}
+	#BotMenu .bm-mascote {
+		width: 32px;
+		height: 32px;
+		left: 8px;
+	}
+	#BotMenu .bm-title {
+		font-size: 20px;
+		gap: var(--sp-1);
+	}
+	#BotMenu .bm-title::before,
+	#BotMenu .bm-title::after {
+		width: 26px;
+	}
+	#BotMenu .bm-topo {
+		grid-template-columns: 1fr 1fr;
+		padding: var(--sp-3);
+		gap: var(--sp-2);
+	}
+	#BotMenu .bm-cartao-liga {
+		grid-column: 1 / span 2;
+	}
+	#BotMenu .bm-cartao {
+		padding: var(--sp-2) var(--sp-3);
+	}
+	#BotMenu .bm-cartao-mapa .bm-disco,
+	#BotMenu .bm-cartao-perfil .bm-disco {
+		display: none;
+	}
+	#BotMenu .bm-mapa,
+	#BotMenu .bm-perfil-escolha {
+		font-size: 12.5px;
+	}
+	#BotMenu .bm-cartao-rotulo {
+		font-size: 13px;
+	}
+	#BotMenu .bm-meio {
+		flex-direction: column;
+		gap: var(--sp-2);
+		padding: var(--sp-2) var(--sp-3);
+	}
+	#BotMenu .bm-lateral {
+		flex: 0 0 auto;
+		overflow: visible;
+	}
+	#BotMenu .bm-lateral-titulo {
+		display: none;
+	}
+	#BotMenu .bm-abas {
+		flex-direction: row;
+		overflow-x: auto;
+		padding-bottom: 2px;
+	}
+	#BotMenu .bm-aba.ri-tab {
+		flex: 0 0 auto;
+		grid-template-columns: 18px auto;
+		padding: var(--sp-1) var(--sp-2);
+		font-size: 11px;
+	}
+	#BotMenu .bm-aba svg {
+		grid-row: 1;
+		width: 16px;
+		height: 16px;
+	}
+	#BotMenu .bm-aba::after {
+		display: none;
+	}
+	#BotMenu .bm-secao-cabeca {
+		display: none;
+	}
+	#BotMenu .bm-ps-corpo,
+	#BotMenu .bm-flechas-opcoes,
+	#BotMenu .bm-duas {
+		grid-template-columns: 1fr;
+	}
+	#BotMenu .bm-segmento {
+		font-size: 12px;
+		line-height: 1.2;
+	}
+	/* No celular a linha do rodizio vira duas: o nome e a chave em cima; o nivel e as setas embaixo. */
+	#BotMenu .bm-rodizio-item {
+		display: grid;
+		grid-template-columns: auto auto minmax(0, 1fr) auto;
+		grid-template-areas:
+			'ordem icone nome chave'
+			'ordem icone detalhe acoes';
+		align-items: center;
+		column-gap: var(--sp-2);
+	}
+	#BotMenu .bm-rodizio-ordem {
+		grid-area: ordem;
+	}
+	#BotMenu .bm-rodizio-icone {
+		grid-area: icone;
+	}
+	#BotMenu .bm-rodizio-textos {
+		display: contents;
+	}
+	#BotMenu .bm-rodizio-item .bm-rodizio-nome {
+		grid-area: nome;
+	}
+	#BotMenu .bm-rodizio-detalhe {
+		grid-area: detalhe;
+	}
+	#BotMenu .bm-rodizio-chave {
+		grid-area: chave;
+		justify-self: end;
+	}
+	#BotMenu .bm-rodizio-acoes {
+		grid-area: acoes;
+	}
+	#BotMenu .bm-rodape {
+		padding: var(--sp-2) var(--sp-3) var(--sp-3);
+	}
+	#BotMenu .bm-botoes {
+		flex-wrap: wrap;
+	}
+	#BotMenu .bm-botoes-vao {
+		display: none;
+	}
+	#BotMenu .bm-aplicar,
+	#BotMenu .bm-iniciar {
+		min-width: 0;
+		flex: 1 1 0;
+		font-size: 16px;
+	}
+	#BotMenu .bm-descartar {
+		flex: 1 1 100%;
+	}
+}
+
+/*
+ * NO DEDO (celular em pe, tablet): alvos de 44px, o mesmo criterio
+ * (`pointer: coarse`) de `ehDedo()`. O rodape fica preso embaixo do painel
+ * (o corpo rola), para o teclado/visualViewport nao esconder Salvar nem OFF.
+ */
+@media (pointer: coarse) {
+	#BotMenu .bm-liga,
+	#BotMenu .bm-botoes button,
+	#BotMenu .bm-linha,
+	#BotMenu .bm-monstro,
+	#BotMenu .bm-skill button,
+	#BotMenu .bm-ignorado,
+	#BotMenu .bm-skill select,
+	#BotMenu .bm-item button,
+	#BotMenu .bm-item select,
+	#BotMenu .bm-item input,
+	#BotMenu .bm-ignorado button,
+	#BotMenu .bm-linha input[type='number'],
+	#BotMenu .bm-adicionar > *,
+	#BotMenu .bm-escolher,
+	#BotMenu .bm-opcao-item,
+	#BotMenu .bm-aba,
+	#BotMenu .bm-segmento,
+	#BotMenu .bm-interruptor,
+	#BotMenu .bm-rodizio-acoes .ri-btn,
+	#BotMenu .bm-rodizio-usar,
+	#BotMenu .bm-frasco {
+		min-height: var(--hit-touch, 44px);
+	}
+	#BotMenu .bm-monstros {
+		grid-template-columns: 1fr 1fr;
+	}
+}

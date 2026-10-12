@@ -37,6 +37,9 @@
  * voltar do Android fecharem o seletor da barra antes de qualquer janela.
  */
 
+import NOME_PT_POR_CONSTANTE from 'DB/Skills/SkillNamePtBr.js';
+import { emIngles } from 'Core/Idioma.js';
+
 /* ═══════════════════════════════════════════════════════════════════════
    A REGRA (o espelho do servidor)
    ═══════════════════════════════════════════════════════════════════════ */
@@ -318,7 +321,9 @@ export function nomeNaBarra(info, ID) {
 	if (!info) {
 		return String(ID);
 	}
-	return nomeLembrado(info.Name) || info.SkillName;
+	// O nome lembrado e indexado pelo id do SERVIDOR (BA_FROSTJOKER) e `info.Name` e o do CLIENTE (BA_FROSTJOKE): sem acerto,
+	// a tabela em portugues do cliente vem antes do `SkillName` ingles (nao mostra "Unbarring Octave").
+	return nomeLembrado(info.Name) || (!emIngles() && NOME_PT_POR_CONSTANTE[info.Name]) || info.SkillName;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════

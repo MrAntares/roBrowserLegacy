@@ -19,12 +19,11 @@ import Network from 'Network/NetworkManager.js';
 import Reconexao from 'Network/reconexao.js';
 import BackgroundTicker from 'Network/BackgroundTicker.js';
 import { criarVigiaDeSilencio } from 'Network/vigiaDeSilencio.js';
-import { ler as lerRegistroDaCaca } from 'UI/Components/HuntAnalyzer/registroDaCaca.js';
 import PACKETVER from 'Network/PacketVerManager.js';
 import PACKET from 'Network/PacketStructure.js';
 import Renderer from 'Renderer/Renderer.js';
 import Camera from 'Renderer/Camera.js';
-import MapRenderer, { stripMapExtension } from 'Renderer/MapRenderer.js';
+import MapRenderer from 'Renderer/MapRenderer.js';
 import EntityManager from 'Renderer/EntityManager.js';
 import Entity from 'Renderer/Entity/Entity.js';
 import Altitude from 'Renderer/Map/Altitude.js';
@@ -67,6 +66,9 @@ import Guild from 'UI/Components/Guild/Guild.js';
 import WorldMap from 'UI/Components/WorldMap/WorldMap.js';
 import SkillListMH from 'UI/Components/SkillListMH/SkillListMH.js';
 import MobileUI from 'UI/Components/MobileUI/MobileUI.js';
+import { decidirNoFimDaCaminhada } from 'Engine/MapEngine/alcanceNoFimDaCaminhada.js';
+import { fimDaCaminhadaEhDoPedido, TEXTO_FORA_DO_ALCANCE } from 'Engine/MapEngine/confirmacaoDaCaminhada.js';
+import { descartarPedidoGuardado } from 'Engine/MapEngine/pedidoGuardado.js';
 import CashShop from 'UI/Components/CashShop/CashShop.js';
 import Bank from 'UI/Components/Bank/Bank.js';
 import ItemReform from 'UI/Components/ItemReform/ItemReform.js';
@@ -114,10 +116,10 @@ import VotoIdle from 'UI/Components/VotoIdle/VotoIdle.js'; // RAGIDLE: janela de
 import PresencaIdle from 'UI/Components/PresencaIdle/PresencaIdle.js'; // RAGIDLE: janela de presenca (D-1162)
 import IndicacaoIdle from 'UI/Components/IndicacaoIdle/IndicacaoIdle.js'; // RAGIDLE: Indique & Ganhe (D-1164)
 import TrocaIdle from 'UI/Components/TrocaIdle/TrocaIdle.js'; // RAGIDLE: a janela "Trade" do menu (02/10/2026)
+import BotMenu from 'UI/Components/BotMenu/BotMenu.js'; // RAGIDLE: o menu do Bot novo (07/10/2026)
 import RankingIdle from 'UI/Components/RankingIdle/RankingIdle.js'; // RAGIDLE: o Ranking (09/09/2026)
 import AmigosIdle from 'UI/Components/AmigosIdle/AmigosIdle.js'; // RAGIDLE: a janela Amigos (05/10/2026)
 import PainelComandoIdle from 'UI/Components/PainelComandoIdle/PainelComandoIdle.js'; // RAGIDLE: o painel de comando (D-1563)
-import GraphicsSettings from 'Preferences/Graphics.js'; // RAGIDLE: a economia automatica pode ser desligada (23/09/2026)
 import { medidorDePing } from 'Network/medidorDePing.js'; // RAGIDLE: o ping real (23/09/2026)
 import TemporadaIdle from 'UI/Components/TemporadaIdle/TemporadaIdle.js'; // RAGIDLE: a janela da Temporada (Season 1, 21/09/2026)
 import RoShop from 'UI/Components/RoShop/RoShop.js'; // RAGIDLE: o RO Shop (22/09/2026) - a loja de RO Cash que substitui a CashShop nativa como caminho de compra
@@ -129,10 +131,8 @@ import LFGIdle from 'UI/Components/LFGIdle/LFGIdle.js'; // RAGIDLE: janela de Pr
 import GrupoIdle from 'UI/Components/GrupoIdle/GrupoIdle.js'; // RAGIDLE: janela de Grupo (D-960)
 import PortaDoGrupo from 'UI/Components/portaDoGrupo.js'; // RAGIDLE: qual das duas janelas de grupo abre (D-984)
 import MissoesTrackerIdle from 'UI/Components/MissoesTrackerIdle/MissoesTrackerIdle.js'; // RAGIDLE: tracker estilo Origin (D-601)
-import IdleConfig from 'UI/Components/IdleConfig/IdleConfig.js'; // RAGIDLE: "Configuração idle"
 import AdminPanel from 'UI/Components/AdminPanel/AdminPanel.js'; // RAGIDLE: "Painel de admin"
 import IdleSkills from 'UI/Components/IdleSkills/IdleSkills.js'; // RAGIDLE: "Skills de {classe}"
-import { declararBasesDasJanelas } from 'Engine/declaracaoDasBases.js'; // RAGIDLE: D-2071
 import BasicInfoIdle from 'UI/Components/BasicInfoIdle/BasicInfoIdle.js'; // RAGIDLE: "Informações básicas"
 import StatusIdle from 'UI/Components/StatusIdle/StatusIdle.js'; // RAGIDLE: "Status"
 import MochilaIdle from 'UI/Components/MochilaIdle/MochilaIdle.js'; // RAGIDLE: "Mochila" (inventario + equipamento numa janela so)
@@ -142,10 +142,11 @@ import MochilaIdle from 'UI/Components/MochilaIdle/MochilaIdle.js'; // RAGIDLE: 
 // UI/Components/BasicInfoIdle). Nenhuma fonte de dado mudou de lugar junto —
 // os dois liam o MESMO Session.zeny, entao o que sumiu foi a segunda leitura,
 // nao o dado.
-// DockIdle segue aposentada: a hotbar nativa ShortCut e a unica barra de
-// skills. CombatCornerIdle voltou somente como o botao de ataque automatico
-// no canto inferior direito, sem segunda barra/rotacao.
-import CombatCornerIdle from 'UI/Components/CombatCornerIdle/CombatCornerIdle.js';
+// RAGIDLE (07/10/2026, Novo Bot V5): a janela "Idle" (IdleConfig), o botao
+// "Ataque auto" (CombatCornerIdle) e a DockIdle aposentada foram RETIRADOS do
+// cliente. A hotbar nativa ShortCut e a unica barra de skills; o automatico
+// novo e o menu do Bot (BotMenu), e o contexto do mapa mora em
+// UI/contextoDoMapa.js.
 import DeathWindow from 'UI/Components/DeathWindow/DeathWindow.js'; // RAGIDLE: "Você morreu"
 import TopMenuIdle from 'UI/Components/TopMenuIdle/TopMenuIdle.js'; // RAGIDLE: "Menu superior direito (constelação)"
 import { agendarRedeDaHud } from 'Engine/redeDaHud.js'; // RAGIDLE: a HUD que a entrada interrompida deixava de fora (05/10/2026)
@@ -426,16 +427,6 @@ class MapEngine {
 				// the map-server's own resync-on-gap logic kicks in promptly.
 				BackgroundTicker.start(sendKeepAlive);
 
-				/*
-				 * A ECONOMIA DE ENERGIA (D-1389/D-1390, 14/09/2026) — o gatilho
-				 * do cliente pro modo automatico. `visibilitychange` e o MESMO
-				 * evento que o BackgroundTicker ja escuta pra ressincronizar; ele
-				 * nunca e estrangulado por aba escondida (ao contrario de
-				 * setInterval), entao "a aba foi pro fundo" chega ao servidor na
-				 * hora, com o socket ainda respondendo normal.
-				 */
-				document.addEventListener('visibilitychange', onVisibilidadeMudouParaEconomia);
-
 				Session.Playing = true;
 
 				/*
@@ -500,8 +491,8 @@ class MapEngine {
 			// muda em nada o caminho normal de entrada. Ver o cabecalho de
 			// onSonoRecebido, abaixo.
 			Network.hookPacket(PACKET.ZC.RAGIDLE_SONO, onSonoRecebido);
-			// A ECONOMIA DE ENERGIA (D-1389/D-1390) — ver o cabecalho de
-			// onEconomiaRecebida, abaixo.
+			// A ECONOMIA DE ENERGIA SAIU (07/10/2026); o gancho fica so para
+			// encerrar uma sessao antiga - ver o cabecalho de onEconomiaRecebida.
 			Network.hookPacket(PACKET.ZC.RAGIDLE_ECONOMIA, onEconomiaRecebida);
 
 			// hook reassembly packets and map the responses
@@ -594,9 +585,6 @@ class MapEngine {
 					Equipment: Equipment,
 					DB: DB,
 					MochilaIdle: MochilaIdle,
-					// RAGIDLE: a sonda da Config idle continua usando o mesmo
-					// estado publico, independente da DockIdle aposentada.
-					IdleConfig: IdleConfig,
 					// RAGIDLE: acrescentado 20/08/2026 pra prova Playwright do
 					// Correio (gauntlet item 3) -- inspecionar o estado REAL do
 					// correio (Rodex.list veio do servidor; RodexIcon apendado
@@ -630,6 +618,7 @@ class MapEngine {
 					PresencaIdle: PresencaIdle,
 					IndicacaoIdle: IndicacaoIdle,
 					TrocaIdle: TrocaIdle,
+					BotMenu: BotMenu,
 					RankingIdle: RankingIdle,
 					AmigosIdle: AmigosIdle,
 					PartyHud: PartyHud,
@@ -674,10 +663,8 @@ class MapEngine {
 			CaptchaPreview.prepare();
 			Clan.prepare();
 			HuntMap.prepare(); // RAGIDLE: "Mapa de Caça"
-			IdleConfig.prepare(); // RAGIDLE: "Configuração idle"
 			AdminPanel.prepare(); // RAGIDLE: "Painel de admin"
 			IdleSkills.prepare(); // RAGIDLE: "Skills de {classe}"
-			CombatCornerIdle.prepare(); // RAGIDLE: botao de ataque automatico, canto inferior direito
 			ClassChangeNotice.prepare(); // RAGIDLE: aviso de evolução de classe (D-410)
 			MissoesIdle.prepare(); // RAGIDLE: janela de Missões (D-551) — sem dependência de ordem: só escuta 0x0fed
 			PasseIdle.prepare(); // RAGIDLE: janela do Passe (D-813) — idem, só escuta 0x0fe5
@@ -687,6 +674,8 @@ class MapEngine {
 			PresencaIdle.prepare(); // RAGIDLE: janela de presenca (D-1162) — escuta 0x0fde e abre sozinha quando o servidor manda
 			IndicacaoIdle.prepare(); // RAGIDLE: Indique & Ganhe (D-1164) — escuta 0x0fdc
 			TrocaIdle.prepare(); // RAGIDLE: a janela "Trade" (02/10/2026) - escuta 0x0fb3
+			BotMenu.prepare(); // RAGIDLE: o menu do Bot novo (07/10/2026) - escuta 0x0fb1
+			BotMenu.lerMochila = () => Inventory.getUI().list || []; // RAGIDLE: o Armazem do Bot escolhe da mochila (sem ID digitado)
 			RankingIdle.prepare(); // RAGIDLE: o Ranking — escuta 0x0fca
 			AmigosIdle.prepare(); // RAGIDLE: a janela Amigos (05/10/2026) - ouve Friends.js/Group.js, nenhum pacote proprio
 			PainelComandoIdle.prepare(); // RAGIDLE: o painel de comando — escuta 0x0fbc e abre SOZINHO quando o servidor manda (D-1563)
@@ -705,8 +694,8 @@ class MapEngine {
 			DeathWindow.prepare(); // RAGIDLE: "Você morreu"
 			CorreioIdle.prepare(); // RAGIDLE: "Correio" — DEPOIS de Rodex.prepare()/RodexIcon.prepare() (linhas acima): CorreioIdle.onAppend() esconde os _host nativos de Rodex/ReadRodex/RodexIcon, e os tres precisam ja existir. O ReadRodex e a excecao: ele so ganha _host quando o motor o apenda no primeiro 0x09eb, e por isso CorreioIdle tambem reconfere no tique
 			HuntAnalyzer.prepare(); // RAGIDLE: "Hunt Analyzer" — ANTES de TopMenuIdle.prepare(): o menu le isRagIdleWindowOpen(HuntAnalyzer, '.ha-window') no proprio tique de estado, e isso exige a shadow DOM ja pronta. Nao esconde nativo nenhum (e tela nova), entao nao depende de mais ninguem
-			TopMenuIdle.prepare(); // RAGIDLE: "Menu superior direito (constelação)" — chama IdleSkills.toggle()/IdleConfig.toggle() (RAGIDLE, ja preparados acima) e Guild.toggle()/PartyFriends.toggle() (nativos, ja preparados bem antes deste bloco); a shadow DOM de todos precisa existir antes do proprio prepare() de TopMenuIdle so por padrao do arquivo, nao por uso direto do DOM deles
-			HuntButtonIdle.prepare(); // RAGIDLE: "Botão de caça contextual" — le IdleConfig.contexto.ehCidade e chama HuntMap.toggle()/HuntMap.travelToCity(); tambem esconde AdminPanel.getRoot() ".ap-button", por isso fica depois de IdleConfig.prepare()/HuntMap.prepare()/AdminPanel.prepare() acima (precisa da shadow DOM dos tres ja pronta)
+			TopMenuIdle.prepare(); // RAGIDLE: "Menu superior direito (constelação)" — chama IdleSkills.toggle()/BotMenu.toggle() (RAGIDLE, ja preparados acima) e Guild.toggle()/PartyFriends.toggle() (nativos, ja preparados bem antes deste bloco); a shadow DOM de todos precisa existir antes do proprio prepare() de TopMenuIdle so por padrao do arquivo, nao por uso direto do DOM deles
+			HuntButtonIdle.prepare(); // RAGIDLE: "Botão de caça contextual" — le o contexto do mapa (UI/contextoDoMapa.js) e chama HuntMap.toggle()/HuntMap.travelToCity(); tambem esconde AdminPanel.getRoot() ".ap-button", por isso fica depois de HuntMap.prepare()/AdminPanel.prepare() acima (precisa da shadow DOM dos dois ja pronta)
 			religarAtalhosParaUiNova(); // RAGIDLE (27/08/2026): Alt+A/E/S/Q/U/V abrem as janelas NOVAS — depois de TODO prepare(), porque getComponent lanca para quem ainda nao existe. Ver o porque da delegacao (Preferences persistida) em UI/atalhos-da-ui-nova.js
 
 			if (Configs.get('enableMapName')) {
@@ -921,21 +910,6 @@ function onConnectionAccepted(pkt) {
 		/* medir nao e caminho critico */
 	}
 
-	/*
-	 * A ECONOMIA DE ENERGIA NA REENTRADA (F29, auditoria de 22/09/2026). O
-	 * servidor DESARMA a economia em toda entrada no mundo; o cliente seguia
-	 * com a tela preta aberta e sem avisar de novo. Quem reconectava com a aba
-	 * ainda oculta ficava sem economia, e a proxima queda tirava o personagem
-	 * do mundo na hora. Fecha a tela velha e, se a aba continua oculta,
-	 * reagenda o `entrar` pelo MESMO caminho do evento de visibilidade.
-	 */
-	fecharTelaDaEconomia();
-	if (_atrasoDaEconomia) {
-		clearTimeout(_atrasoDaEconomia);
-		_atrasoDaEconomia = null;
-	}
-	if (document.visibilityState === 'hidden') onVisibilidadeMudouParaEconomia();
-
 	Session.Entity.onWalkEnd = onWalkEnd;
 
 	if ('sex' in pkt && pkt.sex < 2) {
@@ -995,19 +969,6 @@ function onConnectionAccepted(pkt) {
 		yPos: pkt.PosDir[1],
 		mapName: _mapName
 	}, true);
-
-	/*
-	 * A DECLARACAO DAS BASES (D-2071): a revisao da lista de missoes e da
-	 * arvore de habilidades que esta memoria ainda tem, para o lote de entrada
-	 * descer so o que mudou. DEPOIS de `onMapChange` e em `try/catch`: o
-	 * `CZ_NOTIFY_ACTORINIT` sai no `onLoad` do mapa, num `setTimeout`, e nada
-	 * daqui o alcanca (o aviso de D-993). Ver `Engine/declaracaoDasBases.js`.
-	 */
-	try {
-		declararBasesDasJanelas({ MissoesIdle, IdleSkills, IdleConfig, GrupoIdle, Network, PACKET });
-	} catch (erro) {
-		console.error('[bases] a declaracao falhou - o lote de entrada desce inteiro:', erro);
-	}
 }
 
 /**
@@ -1231,174 +1192,20 @@ function onSonoRecebido(pkt) {
 	UIManager.showResumoDoSono(resumo, voltarAoMundoDepoisDoSono);
 }
 
-/* ---------------- A ECONOMIA DE ENERGIA (D-1389/D-1390, 14/09/2026) ---------------- */
-
-/** A tela preta aberta agora, se houver ({atualizar, remove} de UIManager.showEconomiaDeEnergia). */
-let _janelaDaEconomia = null;
-/** O laco de 1s que reatualiza o timer e os numeros ao vivo, enquanto a tela esta aberta. */
-let _tiqueDaEconomia = null;
-/** O retrato de `registroDaCaca` no instante em que entrou — os numeros mostrados sao DELTA contra isto. */
-let _snapshotDaEconomia = null;
-/** O relogio LOCAL, so mostrador — a mesma ressalva de `showDormindo`: a verdade e do servidor. */
-let _restanteDaEconomiaMs = 0;
-/**
- * O personagem morreu NESTA sessao de economia de energia (D-1398,
- * 14/09/2026)? Uma vez `true` por `onEconomiaRecebida`, fica `true` ate
- * `fecharTelaDaEconomia` — o relogio de 1s (`_tiqueDaEconomia`) reusa este
- * valor em toda repintura, entao o aviso nao precisa de um pacote novo do
- * servidor a cada segundo pra continuar visivel.
- */
-let _personagemMorreuEmEconomia = false;
+/* ---------------- A ECONOMIA DE ENERGIA: SO A SAIDA (07/10/2026) ---------------- */
 
 /**
- * Os numeros da tela preta: o quanto foi ganho DESDE que entrou em economia
- * de energia, nunca a caçada inteira — por isso o delta contra o snapshot
- * tirado em `abrirTelaDaEconomia`. Sem personagem ou sem snapshot (corrida
- * entre a resposta do servidor e `Session.Entity` ainda nao existir), so o
- * relogio aparece.
- */
-function statsDaEconomia() {
-	const base = { restanteMs: _restanteDaEconomiaMs, morreu: _personagemMorreuEmEconomia };
-	if (!Session.Entity || !_snapshotDaEconomia) return base;
-	const agora = lerRegistroDaCaca(Session.Entity.GID);
-	return {
-		...base,
-		expBase: Math.max(0, (agora.expBase || 0) - (_snapshotDaEconomia.expBase || 0)),
-		expClasse: Math.max(0, (agora.expClasse || 0) - (_snapshotDaEconomia.expClasse || 0)),
-		abates: Math.max(0, (agora.abatesTotal || 0) - (_snapshotDaEconomia.abatesTotal || 0)),
-		itensTotal: Math.max(0, (agora.itensTotal || 0) - (_snapshotDaEconomia.itensTotal || 0))
-	};
-}
-
-/** Abre a tela preta (idempotente — reentrar com a tela ja aberta so reatualiza o relogio). */
-function abrirTelaDaEconomia(restanteMs) {
-	_restanteDaEconomiaMs = restanteMs;
-	if (_janelaDaEconomia) {
-		_janelaDaEconomia.atualizar(statsDaEconomia());
-		return;
-	}
-	_snapshotDaEconomia = Session.Entity ? lerRegistroDaCaca(Session.Entity.GID) : null;
-	_janelaDaEconomia = UIManager.showEconomiaDeEnergia(restanteMs, sairDaEconomiaDeEnergia);
-	_janelaDaEconomia.atualizar(statsDaEconomia());
-	_tiqueDaEconomia = setInterval(() => {
-		_restanteDaEconomiaMs = Math.max(0, _restanteDaEconomiaMs - 1000);
-		if (_janelaDaEconomia) _janelaDaEconomia.atualizar(statsDaEconomia());
-	}, 1000);
-}
-
-/** Fecha a tela preta, se houver — seguro chamar mesmo sem nenhuma aberta. */
-function fecharTelaDaEconomia() {
-	if (_tiqueDaEconomia) {
-		clearInterval(_tiqueDaEconomia);
-		_tiqueDaEconomia = null;
-	}
-	if (_janelaDaEconomia) {
-		_janelaDaEconomia.remove();
-		_janelaDaEconomia = null;
-	}
-	_snapshotDaEconomia = null;
-	_personagemMorreuEmEconomia = false;
-}
-
-/**
- * O CLIQUE EM "Voltar a jogar" (D-1392, 14/09/2026, correção do dono).
+ * A ECONOMIA DE ENERGIA SAIU DO CLIENTE (07/10/2026, Novo Bot V5). O combate e
+ * o do Modo Classico, o personagem nao joga sozinho, e o servidor ja RECUSA o
+ * `entrar`. Sairam: o pedido automatico na aba escondida
+ * (`visibilitychange`), a opcao nas Configuracoes de Video e a tela preta.
  *
- * Ate aqui `onVisibilidadeMudouParaEconomia` mandava "sair" sozinho assim
- * que `visibilitychange` via a aba voltar — e um relance rapido na aba (ver
- * uma notificacao, por exemplo) ja tirava o personagem do modo sem o
- * jogador ter pedido isso. Agora SAIR e SEMPRE este botao: a tela preta
- * fica de pe ate o jogador clicar, mesmo com a aba em primeiro plano — ele
- * pode deliberadamente continuar em economia de energia olhando pra ela.
- */
-function sairDaEconomiaDeEnergia() {
-	const pkt = new PACKET.CZ.RAGIDLE_ECONOMIA_ACAO();
-	pkt.json = JSON.stringify({ acao: 'sair' });
-	Network.sendPacket(pkt);
-	// Fecha na hora, sem esperar o ack: o jogador ja pediu, e a resposta do
-	// servidor (ativa:false) so confirmaria o que a tela ja fez.
-	fecharTelaDaEconomia();
-}
-
-/**
- * Quanto esperar, com a aba escondida, antes de avisar o servidor (D-1394,
- * 14/09/2026) — o suficiente pra distinguir "so foi pro fundo" (alt-tab,
- * troca de app) de "fechou de vez": se a aba fechar, o JavaScript da pagina
- * MORRE antes deste atraso disparar, e o aviso nunca sai — nao ha timer
- * pendurado sobrevivendo ao fechamento, e por isso nao precisa de sinal
- * nenhum de "beforeunload"/"pagehide" tentando avisar na saida (que nem tem
- * garantia de chegar a tempo pela rede). Pedido do dono, com as palavras
- * dele: *"essa economia de energia automática é feita somente caso a pessoa
- * dê alt tab OU troque de aplicativo no mobile. Se ele FECHAR a aba ou o
- * aplicativo, deve encerrar."*
- */
-// 14 s desde 23/09/2026 (era 3 s, ordem do dono no open beta: *"Aumente
-// esse tempo para 14 segundos"*) - um alt-tab curto nao tira mais o jogador
-// da tela do jogo.
-const MS_DE_ATRASO_ANTES_DE_ENTRAR_NA_ECONOMIA = 14000;
-
-/** O atraso agendado, se houver — cancelado se a aba voltar antes de disparar. */
-let _atrasoDaEconomia = null;
-
-/**
- * onVisibilidadeMudouParaEconomia (D-1389/D-1390, 14/09/2026 — so 'entrar'
- * desde D-1392; o atraso de confirmacao desde D-1394) — o gatilho automatico
- * de ENTRADA. Voltar a aba NAO manda "sair" mais (ver
- * `sairDaEconomiaDeEnergia`, o unico lugar que manda): `visibilitychange` so
- * avisa o servidor quando a aba vai pro FUNDO — e so depois de confirmar,
- * pelo atraso acima, que a pagina continua viva. O SERVIDOR decide se o
- * pedido de entrar e elegivel (regra 1 — nunca confia no cliente sozinho);
- * voltar a olhar a aba, sozinho, nao decide nada.
- */
-function onVisibilidadeMudouParaEconomia() {
-	/* A economia AUTOMATICA desligada nas Configuracoes de Video (23/09/2026):
-	   a aba escondida nao pede nada ao servidor. Um atraso ja agendado cai. */
-	if (GraphicsSettings.economiaDeEnergiaAutomatica === false) {
-		if (_atrasoDaEconomia) {
-			clearTimeout(_atrasoDaEconomia);
-			_atrasoDaEconomia = null;
-		}
-		return;
-	}
-	if (document.visibilityState === 'hidden') {
-		if (_atrasoDaEconomia) return; // ja agendado — nao empilha um segundo
-		_atrasoDaEconomia = setTimeout(() => {
-			_atrasoDaEconomia = null;
-			// Confere de novo: pode ter voltado no instante exato do disparo, ou o
-			// jogador pode ter desligado a economia automatica nesse meio tempo.
-			if (document.visibilityState !== 'hidden') return;
-			if (GraphicsSettings.economiaDeEnergiaAutomatica === false) return;
-			const pkt = new PACKET.CZ.RAGIDLE_ECONOMIA_ACAO();
-			pkt.json = JSON.stringify({ acao: 'entrar' });
-			Network.sendPacket(pkt);
-		}, MS_DE_ATRASO_ANTES_DE_ENTRAR_NA_ECONOMIA);
-	} else if (_atrasoDaEconomia) {
-		// Voltou antes do atraso disparar: cancela — nunca chegou a avisar,
-		// entao nao ha "entrar" pra desfazer.
-		clearTimeout(_atrasoDaEconomia);
-		_atrasoDaEconomia = null;
-	}
-}
-
-/**
- * onEconomiaRecebida (D-1389/D-1390, 14/09/2026) — a resposta do servidor a
- * `entrar`/`sair`, e tambem o aviso de "venceu o teto com a conexao viva"
- * (`expulso:true`), sem pedido nenhum do cliente.
- *
- * `ativa:true` abre/reatualiza a tela preta. `ativa:false` fecha — seja o ack
- * normal de "sair", seja uma recusa silenciosa de "entrar" (ninguem ve a
- * tela mesmo: o jogador nao esta olhando a aba, entao nao ha erro pra
- * mostrar). `expulso:true` e o caso especial: o personagem ja saiu do mundo
- * do lado do servidor, que vai fechar o socket a seguir — o mesmo padrao do
- * "Acordar agora" do Dormir, reentrando pelo caminho unico de sempre
- * (CZ_ENTER2) em vez de uma segunda rota escrita a mao.
- *
- * `morreu:true` (D-1398, 14/09/2026) chega SEM o cliente ter pedido nada —
- * o servidor empurra este mesmo pacote na hora em que o personagem morre
- * dentro de uma sessao de economia. Uma vez visto, o aviso fica marcado ate
- * a tela fechar (`_personagemMorreuEmEconomia`, nunca sobrescrito de volta
- * pra `false` por uma resposta SEM o campo — o servidor manda `morreu` em
- * TODA resposta da sessao depois que ele vira `true` uma vez, mas o cliente
- * nao depende disso: ele so soma, nunca some com o proprio aviso).
+ * O que FICA e o dono do `ZC_RAGIDLE_ECONOMIA` (hookPacket: um dono por
+ * opcode), so para nao deixar ninguem preso numa sessao de economia aberta
+ * ANTES da retirada: se o servidor disser `ativa:true`, o cliente pede a saida
+ * na hora (o mesmo `sair` que o antigo "Voltar a jogar" mandava); se disser
+ * `expulso:true` (o personagem ja saiu do mundo e o socket vai fechar), volta
+ * pelo boot, como antes.
  */
 function onEconomiaRecebida(pkt) {
 	let corpo;
@@ -1407,15 +1214,17 @@ function onEconomiaRecebida(pkt) {
 	} catch {
 		return;
 	}
-	if (!corpo) return;
-
-	if (corpo.ativa === true) {
-		if (corpo.morreu === true) _personagemMorreuEmEconomia = true;
-		abrirTelaDaEconomia(Number(corpo.restanteMs) || 0);
+	if (!corpo) {
 		return;
 	}
 
-	fecharTelaDaEconomia();
+	if (corpo.ativa === true) {
+		const sair = new PACKET.CZ.RAGIDLE_ECONOMIA_ACAO();
+		sair.json = JSON.stringify({ acao: 'sair' });
+		Network.sendPacket(sair);
+		return;
+	}
+
 	if (corpo.expulso === true) {
 		import('Engine/GameEngine.js').then(m => m.default.reload());
 	}
@@ -1466,17 +1275,8 @@ function ligarAcessorioDaHud(nome, ligar) {
  *   (teleporte dentro da MESMA conexão — Asa de Mosca, viagem por menu).
  */
 function onMapChange(pkt, ehEntradaNoMundo) {
-	/*
-	 * O MAPA ANTES DESTE PACOTE (D-1385, 13/09/2026) — capturado ANTES de
-	 * `MapRenderer.setMap` rodar, porque `setMap` só reatribui
-	 * `MapRenderer.currentMap` quando é uma troca de mapa DE VERDADE
-	 * (`MapRenderer.js`, o teleporte no mesmo mapa nunca toca nele). Um
-	 * `ZC_NPCACK_MAPMOVE` da Asa de Mosca chega aqui do MESMO jeito que uma
-	 * troca real — é o mesmo pacote, o rAthena não distingue os dois — e sem
-	 * este valor não havia como `onLoad` (abaixo) responder "isto mudou de
-	 * mapa mesmo?" sem reescrever a comparação de `setMap` uma terceira vez.
-	 */
-	const mapaAntesDoLoad = MapRenderer.currentMap;
+	// C47 (C-1): o pedido de skill guardado e do mapa de antes (x,y velhos).
+	descartarPedidoGuardado(Session);
 	MapRenderer.onLoad = () => {
 		/*
 		 * O ESTOU-PRONTO SAI MESMO QUE ALGO ANTES DELE LANCE (F28, auditoria de
@@ -1513,7 +1313,7 @@ function onMapChange(pkt, ehEntradaNoMundo) {
 		 * ela anexa os controles que o jogador nao tem como reabrir e RELATA o que
 		 * parou a lista. O porque inteiro esta em `Engine/redeDaHud.js`.
 		 */
-		agendarRedeDaHud([BasicInfoIdle, CombatCornerIdle, DeathWindow, MissoesTrackerIdle, TopMenuIdle, HuntButtonIdle], {
+		agendarRedeDaHud([BasicInfoIdle, DeathWindow, MissoesTrackerIdle, TopMenuIdle, HuntButtonIdle], {
 			relatar: relatarErro
 		});
 		/*
@@ -1683,10 +1483,6 @@ function onMapChange(pkt, ehEntradaNoMundo) {
 		// same unconditional append() as ChatBox/Escape/etc above.
 		HuntMap.append();
 
-		// RAGIDLE: "Configuração idle" floating button — same unconditional
-		// append() as HuntMap right above.
-		IdleConfig.append();
-		CombatCornerIdle.append(); // RAGIDLE: controle persistente do ataque automatico
 
 		// RAGIDLE (D-410): o aviso de evolução de classe. Ele nasce ESCONDIDO —
 		// quem o mostra é o servidor, mandando ZC_RAGIDLE_MUDANCA_DE_CLASSE com
@@ -1704,6 +1500,7 @@ function onMapChange(pkt, ehEntradaNoMundo) {
 		PresencaIdle.append(); // RAGIDLE: janela de presenca (D-1162)
 		IndicacaoIdle.append(); // RAGIDLE: Indique & Ganhe (D-1164)
 		TrocaIdle.append(); // RAGIDLE: a janela "Trade" (02/10/2026) - anexada sempre, fechada
+		BotMenu.append(); // RAGIDLE: o menu do Bot novo (07/10/2026) - anexada sempre, fechada; pede o estado ao servidor
 		RankingIdle.append(); // RAGIDLE: o Ranking
 		AmigosIdle.append(); // RAGIDLE: a janela Amigos (05/10/2026) - anexada sempre, fechada
 		PartyHud.append(); // RAGIDLE: a HUD de party
@@ -1721,46 +1518,22 @@ function onMapChange(pkt, ehEntradaNoMundo) {
 		// DEPOIS dele no append para o primeiro syncPosition já achar o host.
 		MissoesTrackerIdle.append();
 		/*
-		 * RAGIDLE: pergunta se este mapa e cidade (D-355) para desabilitar o
-		 * botao quando nao ha caca. A resposta cai no mesmo handler do pedir.
-		 *
-		 * SO QUANDO O MAPA MUDOU DE VERDADE (D-1385, 13/09/2026) — sem esta
-		 * checagem, todo teleporte no MESMO mapa (a Asa de Mosca; o `pc_setpos`
-		 * do rAthena chama `clif_changemap` mesmo quando o destino e igual ao
-		 * mapa atual) sondava de novo, marcando `IdleConfig.contextoObsoleto`
-		 * por um instante — e o relato do dono foi exatamente esse instante
-		 * sendo lido como "saiu da cacada": a "Duracao" do Hunt Analyzer
-		 * resetava a cada uso da asa.
-		 *
-		 * ...MAS TAMBEM SEMPRE NUMA ENTRADA NO MUNDO (D-1400, 14/09/2026),
-		 * mesmo se o mapa "nao mudou" pela leitura de `mapaAntesDoLoad` —
-		 * relato do dono: o botao "Dormir" ficava HABILITADO mesmo depois do
-		 * servidor recusar por amostra insuficiente. A causa: o servidor
-		 * reinicia `amostrasDeSono` em TODA entrada no mundo, reconexao
-		 * inclusive (`servidor-mapa.ts`, comentario gemeo de `viajar()`) — e
-		 * uma reconexao (a queda de rede real que a economia de energia
-		 * tolera em segundo plano, D-1389/D-1394, ou qualquer outra) para o
-		 * MESMO mapa nunca mexe em `MapRenderer.currentMap` (a pagina nao
-		 * recarrega), entao o guard acima calava a sondagem justamente
-		 * quando o relogio do servidor tinha acabado de reiniciar sem o
-		 * cliente saber. `ehEntradaNoMundo` distingue as duas origens do
-		 * MESMO pacote (`ZC_NPCACK_MAPMOVE` de teleporte vs `onConnectionAccepted`
-		 * de login/reconexao) — so a segunda forca a sondagem mesmo sem o
-		 * nome do mapa ter mudado.
+		 * RAGIDLE: o contexto do mapa (cidade ou caca) NAO e mais sondado aqui
+		 * (07/10/2026): a janela "Idle" que perguntava (`IdleConfig.sondarMapa`)
+		 * foi retirada, e quem marca o contexto como obsoleto e pede o estado
+		 * novo e o `BotMenu.append()` acima (ver UI/contextoDoMapa.js).
+		 * O parametro `ehEntradaNoMundo` de `onMapChange` fica, sem leitor.
 		 */
-		if (ehEntradaNoMundo || stripMapExtension(mapaAntesDoLoad) !== stripMapExtension(pkt.mapName)) {
-			IdleConfig.sondarMapa();
-		}
 
 		// RAGIDLE: "Painel de admin" floating button — same unconditional
-		// append() as HuntMap/IdleConfig right above; AdminPanel.onAppend()
+		// append() as HuntMap right above; AdminPanel.onAppend()
 		// (UI/Components/AdminPanel/AdminPanel.js) hides the whole component
 		// again for every account except the owner's (Session.AID ===
 		// 2000000).
 		AdminPanel.append();
 
 		// RAGIDLE: "Skills de {classe}" floating button — same unconditional
-		// append() as HuntMap/IdleConfig/AdminPanel right above.
+		// append() as HuntMap/AdminPanel right above.
 		IdleSkills.append();
 
 		// RAGIDLE: "Informações básicas" — always-visible HUD replacing the
@@ -1808,7 +1581,7 @@ function onMapChange(pkt, ehEntradaNoMundo) {
 
 		// RAGIDLE: "Menu superior direito (constelação)" — duas fileiras de
 		// botoes circulares abaixo do minimapa (TopMenuIdle.js/.css).
-		// Funcionais chamam IdleSkills.toggle()/IdleConfig.toggle()
+		// Funcionais chamam IdleSkills.toggle()/BotMenu.toggle()
 		// (RAGIDLE) e Guild.toggle()/PartyFriends.toggle() (nativos, metodo
 		// publico ja existente nos dois, nenhum alias novo precisou ser
 		// criado). needFocus=false — ordem de append aqui nao afeta
@@ -1816,10 +1589,9 @@ function onMapChange(pkt, ehEntradaNoMundo) {
 		TopMenuIdle.append();
 
 		// RAGIDLE: "Botão de caça contextual" — fixo logo abaixo do minimapa
-		// (HuntButtonIdle.js/.css); precisa vir DEPOIS de IdleConfig.append()/
-		// IdleConfig.sondarMapa() e de HuntMap.append()/AdminPanel.append()
-		// acima, so por clareza de leitura (a leitura de IdleConfig.contexto e
-		// o esconderijo de AdminPanel ".ap-button" nao dependem de ORDEM de
+		// (HuntButtonIdle.js/.css); precisa vir DEPOIS de BotMenu.append() e de
+		// HuntMap.append()/AdminPanel.append() acima, so por clareza de leitura
+		// (a leitura do contexto do mapa e o esconderijo de AdminPanel ".ap-button" nao dependem de ORDEM de
 		// append, so da shadow DOM ja existir — garantida no prepare()).
 		HuntButtonIdle.append();
 
@@ -1864,13 +1636,14 @@ function onMapChange(pkt, ehEntradaNoMundo) {
 			['personagem', StatusIdle, '.st-window'],
 			['mochila', MochilaIdle, '.mo-window'],
 			['skills', IdleSkills, '.is-window'],
-			['config', IdleConfig, '.ic-window'],
 			['caca', HuntMap, '.hm-window'],
 			['codex', CodexIdle, '.cx-window'],
 			['presenca', PresencaIdle, '.pr-window'],
 			['indicacao', IndicacaoIdle, '.in-window'],
 			// 02/10/2026 - a janela "Trade": toggle() + `.tr-window`/`is-open`, a forma das outras.
 			['troca', TrocaIdle, '.tr-window'],
+			// 07/10/2026 - o menu do Bot novo: toggle() + `.bm-window`/`is-open`, a forma das outras.
+			['bot', BotMenu, '.bm-window'],
 			['ranking', RankingIdle, '.rk-window'],
 			// 05/10/2026 - a janela Amigos: toggle() + `.am-window`/`is-open`, a forma das outras.
 			['amigos', AmigosIdle, '.am-window'],
@@ -2156,9 +1929,9 @@ function onMapChange(pkt, ehEntradaNoMundo) {
 		 * O MODO LEITURA (09/09/2026, pedido do dono): a tela nao apaga
 		 * enquanto o personagem esta em farm automatico.
 		 *
-		 * Ligado AQUI, e nao no `CombatCornerIdle` que ja pesquisa o mesmo
-		 * `cacaAutomatica`: aquele componente e desenho, sai de cena na troca
-		 * de mapa, e o wake lock nao pode piscar a cada viagem. Este e o
+		 * Ligado AQUI, e nao num componente de desenho (o antigo
+		 * `CombatCornerIdle`, retirado em 07/10/2026): componente sai de cena
+		 * na troca de mapa, e o wake lock nao pode piscar a cada viagem. Este e o
 		 * mesmo lugar onde a escala e a HUD vertical se ligam — o que vive
 		 * enquanto a sessao vive mora aqui.
 		 */
@@ -2296,7 +2069,6 @@ function cleanGameUI() {
 	 * e a pasta de componentes, e reprova quando as duas divergem.
 	 */
 	for (const modulo of [
-		IdleConfig,
 		MissoesIdle,
 		HuntMap,
 		IdleSkills,
@@ -2318,6 +2090,7 @@ function cleanGameUI() {
 		IndicacaoIdle,
 		TrocaIdle,
 		RankingIdle,
+		BotMenu,
 		PainelComandoIdle,
 		AmigosIdle,
 		PartyHud,
@@ -2400,19 +2173,13 @@ function desmontarSessaoDeMapa() {
 	 * O MODO LEITURA SOLTA AQUI (09/09/2026).
 	 *
 	 * Voltar ao login e o caminho em que a condicao dele deixa de existir sem
-	 * nunca virar falsa: o `IdleConfig` para de receber resposta, entao
-	 * `cacaAutomatica` congela no ultimo valor e o relogio do modulo seguiria
+	 * nunca virar falsa: o servidor para de mandar o estado do Bot, entao
+	 * `botLigado` congela no ultimo valor e o relogio do modulo seguiria
 	 * renovando o lock numa tela de login. Trocar de MAPA nao passa por aqui,
 	 * e e proposital — o lock nao pode piscar a cada viagem.
 	 */
 	TelaAcesaNoFarm.desligar();
 	BackgroundTicker.stop();
-	document.removeEventListener('visibilitychange', onVisibilidadeMudouParaEconomia);
-	if (_atrasoDaEconomia) {
-		clearTimeout(_atrasoDaEconomia);
-		_atrasoDaEconomia = null;
-	}
-	fecharTelaDaEconomia();
 	// A tela do sono e a outra tela preta crua em `document.body`: uma reconexao
 	// que desiste com ela aberta a deixaria por cima do login.
 	if (_janelaDoSonoAtiva) {
@@ -2791,6 +2558,11 @@ function isFreeCell(x, y) {
  * If the character moved to attack, once it finished to move ask to attack
  */
 function onWalkEnd() {
+	// C47: a caminhada que terminou e mais velha que o pedido guardado (o
+	// servidor ainda nao confirmou a dele) - ver confirmacaoDaCaminhada.js.
+	if (!fimDaCaminhadaEhDoPedido(Session)) {
+		return;
+	}
 	// No action to do ?
 	if (Session.moveAction) {
 		// Not sure why, but there is a synchronization error with the
@@ -2799,8 +2571,42 @@ function onWalkEnd() {
 		// performing an action
 		Events.setTimeout(() => {
 			if (Session.moveAction) {
+				/*
+				 * Lote 5 (resto do C23): a skill guardada re-confere o alcance
+				 * com a regua da fonte onde o boneco PAROU (rAthena
+				 * battle_check_range, unit.cpp:2362 e :2695) - ver
+				 * alcanceNoFimDaCaminhada.js.
+				 */
+				const pendente = Session.moveActionAlcance;
+				if (pendente && pendente.pacote === Session.moveAction && Session.Entity) {
+					const decisao = decidirNoFimDaCaminhada({
+						pos: Session.Entity.position,
+						alvo: pendente.alvo(),
+						alcance: pendente.alcance,
+						repeticoes: pendente.repeticoes
+					});
+					if (decisao === 'andar') {
+						pendente.repeticoes++;
+						if (pendente.andar()) {
+							return;
+						}
+					}
+					if (decisao !== 'soltar') {
+						Session.moveAction = null;
+						Session.moveActionAlcance = null;
+						Session.moveActionEspera = null;
+						// C47 (C-2): desistir avisa, como a C19 (o `andar()` que nao
+						// coube no teto ja avisou por conta propria).
+						if (decisao === 'desistir') {
+							ChatBox.addText(TEXTO_FORA_DO_ALCANCE, ChatBox.TYPE.ERROR, ChatBox.FILTER.SKILL_FAIL);
+						}
+						return;
+					}
+				}
 				Network.sendPacket(Session.moveAction);
 				Session.moveAction = null;
+				Session.moveActionAlcance = null;
+				Session.moveActionEspera = null;
 			}
 		}, 50);
 	}

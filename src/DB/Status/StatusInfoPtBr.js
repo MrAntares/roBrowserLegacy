@@ -105,8 +105,6 @@ const PT_BR = {
 	'(for all monster attacks)': '(para todo golpe de monstro)',
 	'Damage received is reduced by 1/2': 'O dano recebido cai pela metade',
 	'You receive the other 1/2 of damage': 'A outra metade você recebe',
-	// D-2052 (06/10/2026): o icone EFST_RIDING (27) passou a descer com o Peco.
-	'Riding Vehicle': 'Montado no Peco Peco',
 
 	/* -------- Arqueiro / Cacador -------- */
 	'Attention Concentration': 'Concentração',
@@ -262,13 +260,69 @@ const PT_BR = {
 	'Job Experience Manual': 'Manual de Experiência de Classe',
 	'Increases Job EXP acquired.': 'Mais EXP de classe',
 	'Experience Manual': 'Manual de Experiência',
+	'EXP Manual': 'Manual de Experiência',
 	'Increases acquired Base EXP': 'Mais EXP de base',
 
-	/* -------- as pocoes de ASPD (D-1989, 05/10/2026): o icone passou a descer -------- */
-	'Concentration Potion': 'Poção da Concentração',
-	'Awakening Potion': 'Poção do Despertar',
-	'Berserk Potion': 'Poção da Fúria Selvagem',
-	'Increases ASPD': 'Aumenta a velocidade de ataque'
+	/* -------- os que o servidor manda e ainda saiam em ingles (C1b, 29/09/2026) --------
+	 * A lista saiu de uma sonda: cada EFST de `EFST_POR_STATUS` (servidor), cada linha
+	 * da sua descricao (ou o rotulo do `getStatusLabel` quando nao ha descricao). O
+	 * nome do status e o nome da habilidade em `SkillNamePtBr.js`. Portao:
+	 * `tests/ui/dicaDoStatusEmPortugues.test.js`. */
+	Suffragium: 'Suffragium',
+	Hiding: 'Esconderijo',
+	'Avoids enemy attacks by hiding in the ground': 'Evita ataques escondido no chão',
+	'Can be discovered with detection skills': 'Pode ser revelado por habilidades de detecção',
+	Anklesnare: 'Armadilha Imobilizante',
+	Agiup: 'Agilidade aumentada',
+	Powerup: 'Força aumentada',
+	Splasher: 'Explosão Tóxica',
+	'Poison React': 'Refletir Veneno',
+	'Counters a Poison attack with a one-time attack': 'Revida um ataque venenoso com um golpe',
+	'When hit by a physical non-poison attack,': 'Ao sofrer um ataque físico sem veneno,',
+	'there is a chance to cast Envenom on target': 'tem chance de usar Envenenar no agressor',
+	Autocounter: 'Contra-Ataque',
+	'Auto Spell': 'Desejo Arcano',
+	'When physically attacking': 'Ao atacar fisicamente,',
+	'the selected skill will automatically cast without casting time.': 'a magia escolhida sai sozinha, sem tempo de conjuração.',
+	'SP consumed is 2/3 the regular amount': 'Gasta 2/3 do SP normal',
+	'Skill will not cast without sufficient SP': 'Sem SP suficiente, a magia não sai',
+	'Enchants Armor with Holy Property': 'Encanta a armadura com a propriedade Sagrado',
+	'Loud Exclamation (Crazy Uproar)': 'Grito de Guerra',
+	'Increases STR': 'Aumenta a FOR',
+	'Energy Coat': 'Proteção Arcana',
+	'Reduces damage in proportion': 'Reduz o dano recebido conforme',
+	'to the amount of SP remaining': 'o SP que resta',
+	'Auto Berserk': 'Instinto de Sobrevivência',
+	'Rage when close to death': 'Fúria quando perto da morte',
+	Bleeding: 'Sangramento',
+	'HP, SP recovery disabled': 'Impede a regeneração de HP e SP',
+	'HP lost every 10 seconds': 'Perde HP a cada 10 segundos',
+	'Dc Winkcharm': 'Piscadela',
+	'Armor Property': 'Propriedade da Armadura',
+	'Changes your Elemental Property': 'Muda a sua propriedade elemental',
+	'Trick Dead (Play Dead)': 'Fingir de Morto',
+	'Pretend Dead Status': 'Fingindo de morto',
+	Shrink: 'Submissão',
+	'When Autoguarding attacks': 'Ao bloquear com Bloqueio,',
+	'there is a chance to push the attack back': 'tem chance de empurrar o agressor',
+	'Sight Blaster': 'Explosão Protetora',
+	'Attacks an enemy with a single attack': 'Ataca uma vez o inimigo',
+	'that ventures too close': 'que chegar perto demais',
+	'Close Confine': 'Confinamento',
+	'Both Players cannot Move': 'Os dois ficam sem poder se mover',
+	'Increases FLEE': 'Aumenta a Esquiva',
+	'Does not affect boss monsters': 'Não afeta chefes',
+	'Does not affect Boss': 'Não afeta chefes',
+	Longing: 'Anseio por Liberdade',
+	'Critical Wounds': 'Ferimento Mortal',
+	'Reduces effects of healing skills': 'Reduz o efeito das curas',
+	'Magic Rod': 'Espelho Mágico',
+	'Absorbs the next magic attack received': 'Absorve a próxima magia recebida',
+	'and converts it into SP': 'e a converte em SP',
+	Fury: 'Fúria Interior',
+	'Increases Critical Rate': 'Aumenta a taxa de crítico',
+	'Allows using Asura Strike without Spirit Spheres': 'Permite o Punho Supremo de Asura sem esferas espirituais',
+	Stop: 'Imobilizado'
 };
 
 /**

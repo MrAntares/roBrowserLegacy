@@ -225,13 +225,8 @@ describe('o corpo PARCIAL do rastreador (D-1853): o contador anda sem a lista de
 		expect(parcial).toBeGreaterThan(0);
 		expect(parcial).toBeLessThan(corpo.indexOf('dados.v !== 1'));
 		// O ramo do parcial: anota e retorna, sem `MissoesIdle.missoes =` nem `render()`.
-		// D-2071: o ramo confere a revisao antes (`caiSobreARevisao`), entao ele vai
-		// ate o `}` que o fecha, e nao ate o primeiro `}` de dentro.
-		const fim = corpo.slice(parcial).search(/\r?\n\t\}/);
-		expect(fim).toBeGreaterThan(0);
-		const ramo = corpo.slice(parcial, parcial + fim);
+		const ramo = corpo.slice(parcial, corpo.indexOf('}', parcial) + 1);
 		expect(ramo).toContain('anotarRastreadorDoCodex(dados.codexRastreado)');
-		expect(ramo).toContain('caiSobreARevisao(_revDaLista, dados)');
 		expect(ramo).toContain('return');
 		expect(ramo).not.toContain('render(');
 		expect(ramo).not.toContain('MissoesIdle.missoes');

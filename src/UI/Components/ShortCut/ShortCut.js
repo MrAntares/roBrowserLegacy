@@ -11,6 +11,7 @@
 import DB from 'DB/DBManager.js';
 import ItemType from 'DB/Items/ItemType.js';
 import SkillInfo from 'DB/Skills/SkillInfo.js';
+import { nomeDaHabilidadeParaOJogador } from 'DB/Skills/SkillNamePtBr.js'; // RAGIDLE (29/09/2026): dica da barra em portugues (C1)
 import Client from 'Core/Client.js';
 import Preferences from 'Core/Preferences.js';
 import Session from 'Engine/SessionStorage.js';
@@ -33,6 +34,7 @@ import PACKETVER from 'Network/PacketVerManager.js';
 import SkillWindow from 'UI/Components/SkillList/SkillList.js';
 import { aoLembrarNomes, dicaDoAtalho, fecharSeletorDeNivel, nomeNaBarra, spLembrado } from 'UI/nivelDeUso.js';
 import { criarSeletorDeNivelDaBarra } from './seletorDeNivelDaBarra.js';
+import { criarRelogioDaBarra } from './relogioDaBarra.js';
 import htmlText from './ShortCut.html?raw';
 import cssText from './ShortCut.css?raw';
 
@@ -149,9 +151,30 @@ function aplicarPaginaVertical(pagina) {
 let _lastServerHotkeys = null;
 
 /**
- * Cache for active animation frames
+ * O RELOGIO DE RECARGA dos slots (item 3.10 do pedido do dono, 09/10/2026):
+ * sombra que revela o icone em sentido horario e o numero no centro, por
+ * skill, enquanto o `Cooldown` dela corre. A regra e o desenho moram em
+ * `relogioDaBarra.js` (contas em `relogioDeRecarga.js`); aqui so como ler os
+ * slots. Substitui o relogio antigo da barra, um quadro de animacao por slot
+ * (60 por segundo) que se perdia quando o `.icon` era redesenhado e nao
+ * mostrava numero.
  */
-const _activeAnimations = new Map();
+const _relogioDaBarra = criarRelogioDaBarra({
+	slots: () => {
+		const slots = [];
+		const root = ShortCut.getRoot();
+		if (!root) {
+			return slots;
+		}
+		for (let i = 0; i < _list.length; ++i) {
+			const s = _list[i];
+			if (s && s.isSkill) {
+				slots.push({ skillId: Number(s.ID), icone: root.querySelector(`.container[data-index="${i}"] .icon`) });
+			}
+		}
+		return slots;
+	}
+});
 
 /**
  * Desassinar de "toqueParaAtalho" (D-938). Guarda a funcao devolvida por
@@ -458,11 +481,9 @@ ShortCut.onRemove = function onRemove() {
 		_desassinarToque = null;
 	}
 
-	// Cancels all active animation loops defensively to prevent leaks in unattached elements
-	for (const [index, animationId] of _activeAnimations.entries()) {
-		cancelAnimationFrame(animationId);
-	}
-	_activeAnimations.clear();
+	// O relogio de recarga NAO e limpo aqui: a troca de mapa tira e repoe a
+	// barra (UIManager.removeComponents) e a recarga segue valendo no servidor.
+	// Quem esquece e o `clean` (troca de personagem).
 
 	// Save preferences
 	_preferences.size = this._host.classList.contains('is-collapsed')
@@ -476,11 +497,8 @@ ShortCut.onRemove = function onRemove() {
  * Used only from MapEngine when exiting the game
  */
 ShortCut.clean = function clean() {
-	// Cancels all active animation loops immediately to prevent post-logout TypeError
-	for (const [index, animationId] of _activeAnimations.entries()) {
-		cancelAnimationFrame(animationId);
-	}
-	_activeAnimations.clear();
+	// Troca de personagem: as recargas do anterior nao valem para o proximo.
+	_relogioDaBarra.limpar();
 
 	_list.length = 0;
 	const root = ShortCut.getRoot();
@@ -621,7 +639,7 @@ ShortCut.updateAllTooltips = function updateAllTooltips() {
 		else if (_list[i] && (_list[i].isSkill || _list[i].ID)) {
 			let name = '';
 			if (_list[i].isSkill && SkillInfo[_list[i].ID]) {
-				name = SkillInfo[_list[i].ID].SkillName;
+				name = nomeDaHabilidadeParaOJogador(_list[i].ID);
 			} else if (_list[i].ID) {
 				const item = Inventory.getUI().getItemById(_list[i].ID);
 				if (item) {
@@ -882,7 +900,7 @@ ShortCut.addElement = function addElement(index, isSkill, ID, count) {
 		} else {
 			_list[index].count = count;
 			file = SkillInfo[ID].Name;
-			name = SkillInfo[ID].SkillName;
+			name = nomeDaHabilidadeParaOJogador(ID);
 		}
 	} else {
 		_list[index].count = count;
@@ -923,113 +941,35 @@ ShortCut.addElement = function addElement(index, isSkill, ID, count) {
 		ui.querySelector('.img').style.backgroundImage = `url(${url})`;
 		ui.querySelector('.amount').textContent = count;
 		ui.setAttribute('data-tooltip', tooltipText);
+		// O `.icon` nasceu de novo: se a skill esta em recarga, o relogio volta ja.
+		_relogioDaBarra.desenhar();
 	});
 };
 
 /**
- * Displays the cooldown overlay on an icon
- *
- * @param {number} index of the icon
- * @param {number} delay in ms
- */
-function setDelayOnIndex(index, delay) {
-	// Safety validation to ensure the index exists in the list
-	if (!_list[index]) {
-		return;
-	}
-
-	// do nothing, the new delay would end sooner.
-	if (_list[index].Delay && _list[index].Delay >= Renderer.tick + delay) {
-		return;
-	}
-
-	_list[index].Delay = Renderer.tick + delay;
-	const root = ShortCut.getRoot();
-	const ui = root.querySelector(`.container[data-index="${index}"]`);
-	if (!ui) return;
-	const existing = ui.querySelector('.cooldown-overlay');
-	if (existing) {
-		existing.remove();
-	}
-
-	const overlay = document.createElement('div');
-	overlay.className = 'cooldown-overlay';
-	const icon = ui.querySelector('.icon');
-	if (icon) {
-		icon.appendChild(overlay);
-		const img = icon.querySelector('.img');
-		if (img) {
-			img.style.filter = 'none';
-		}
-	}
-
-	// Cancel any previous animation frame scheduled for the same index
-	if (_activeAnimations.has(index)) {
-		cancelAnimationFrame(_activeAnimations.get(index));
-		_activeAnimations.delete(index);
-	}
-
-	function updateCooldown() {
-		// Safety check against post-destruction or logout leaks
-		if (!_list || !_list[index]) {
-			overlay.remove();
-			if (_activeAnimations.has(index)) {
-				cancelAnimationFrame(_activeAnimations.get(index));
-				_activeAnimations.delete(index);
-			}
-			return;
-		}
-
-		const now = Renderer.tick;
-		const remaining = _list[index].Delay - now;
-
-		if (remaining <= 0 || !_list[index].Delay) {
-			overlay.remove();
-			_list[index].Delay = 0;
-			if (_activeAnimations.has(index)) {
-				cancelAnimationFrame(_activeAnimations.get(index));
-				_activeAnimations.delete(index);
-			}
-			return;
-		}
-
-		const percentage = remaining / delay;
-		const degrees = (1 - percentage) * 360;
-		overlay.style.background = `conic-gradient(transparent 0deg, transparent ${degrees}deg, rgba(0,0,0,0.75) ${degrees}deg)`;
-
-		const animationId = requestAnimationFrame(updateCooldown);
-		_activeAnimations.set(index, animationId);
-	}
-
-	const animationId = requestAnimationFrame(updateCooldown);
-	_activeAnimations.set(index, animationId);
-}
-
-/**
- * Displays the cooldown over every skill
+ * O atraso de TODAS as skills (status POSTDELAY, `Entity.js`).
  *
  * @param {number} delay in ms
  */
 ShortCut.setGlobalSkillDelay = function setGlobalSkillDelay(delay) {
-	_list.forEach((element, index) => {
-		if (element.isSkill) {
-			setDelayOnIndex(index, delay);
-		}
-	});
+	_relogioDaBarra.recargaGlobal(delay);
 };
 
 /**
- * Displays the cooldown over a single skill
+ * O `Cooldown` de uma skill (`ZC_SKILL_POSTDELAY`, 0x043d, por
+ * `Skill.js:onSetSkillDelay`): acende o relogio em todo slot que a tem. Vale
+ * para a skill usada a mao e para a pedida pelo Bot.
  *
  * @param {number} ID of the skill
  * @param {number} delay in ms
  */
 ShortCut.setSkillDelay = function setSkillDelay(ID, delay) {
-	_list.forEach((element, index) => {
-		if (element.isSkill && element.ID == ID) {
-			setDelayOnIndex(index, delay);
-		}
-	});
+	_relogioDaBarra.recarga(Number(ID), delay);
+};
+
+/** As skills com recarga guardada agora (exposto para a prova de tela). */
+ShortCut.recargasVivas = function recargasVivas() {
+	return _relogioDaBarra.vivas();
 };
 
 /**

@@ -1,0 +1,31 @@
+{
+	"_origem": "V7 07/10/2026: conferido com tools/grf (list) em data.grf e Data Custons/data.grf do Rag-idle; os dois tem os 13 arquivos (D18 07/10: +7 de efeitos reutilizados, conferidos com tools/grf nos dois GRFs: data.grf e Data Custons/data.grf). Caminhos em minusculas, barra normal.",
+	"arquivos": [
+		"data/texture/effect/shockwave.str",
+		"data/texture/effect/shockwave_a.bmp",
+		"data/texture/effect/shockwave_b.bmp",
+		"data/texture/effect/shockwave_c.bmp",
+		"data/texture/effect/shockwave_d.bmp",
+		"data/texture/effect/shockwave_e.bmp",
+		"data/texture/effect/shockwavehit.str",
+		"data/texture/effect/enc_wind.str",
+		"data/wav/effect/hunter_shockwavetrap.wav",
+		"data/wav/effect/ef_hit6.wav",
+		"data/wav/_enemy_hit_wind1.wav",
+		"data/sprite/\u00c0\u00cc\u00c6\u00d1\u00c6\u00ae/cconfine.spr",
+		"data/sprite/\u00c0\u00cc\u00c6\u00d1\u00c6\u00ae/cconfine.act",
+		"data/texture/effect/enc_fire.str",
+		"data/texture/effect/enc_ice.str",
+		"data/texture/effect/enc_earth.str",
+		"data/texture/effect/earthhit.str",
+		"data/wav/_heal_effect.wav",
+		"data/wav/effect/ef_hit2.wav",
+		"data/wav/effect/ef_teleportation.wav",
+		"data/wav/effect/ef_bash.wav",
+		"data/wav/effect/ef_endure.wav",
+		"data/wav/effect/priest_resurrection.wav",
+		"data/wav/effect/sage_spell breake.wav",
+		"data/texture/effect/resurrection.str",
+		"data/texture/effect/spell.str"
+	]
+}

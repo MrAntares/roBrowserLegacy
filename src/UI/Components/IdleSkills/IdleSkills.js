@@ -45,7 +45,6 @@
  *                                     `{ skillId }` para um nível, ou
  *                                     `{ lote: [{skillId, niveis}] }` para o
  *                                     "Aplicar")
- *   CZ_RAGIDLE_PRIORIZAR     (rotação de ataque, D-6xx)
  *
  * Declarados em `Network/PacketStructure.js` (busque "RAGIDLE:") e registrados
  * para o enquadramento de recepção em `Network/PacketRegister.js` e
@@ -67,6 +66,7 @@ import { habilidadesNoIdioma } from './habilidadesNoIdioma.js';
 import { traduzir } from 'Core/Traducao.js';
 import Preferences from 'Core/Preferences.js';
 import SkillInfo from 'DB/Skills/SkillInfo.js';
+import { montarMapaNomeParaId } from 'DB/Skills/apelidosDoServidor.js'; // N4 da auditoria de tela
 import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
 import UIManager from 'UI/UIManager.js';
@@ -92,16 +92,6 @@ import {
 	pontosNoRascunho
 } from './arvoreDeSkills.js';
 import { linhaDaMissaoNoRequisito } from './requisitoDeMissao.js';
-import {
-	aplicarParcialDasSkills,
-	comBase,
-	dadosDoEnvio,
-	ehParcialDasSkills,
-	estadoDoInteiro,
-	precisaDeclarar,
-	servidorNumera
-} from './parcialDasSkills.js';
-import { criarJuntadorDePaginas } from 'Network/juntarPaginas.js'; // D-2071
 
 /**
  * A versão do contrato que esta janela sabe ler.
@@ -113,11 +103,9 @@ import { criarJuntadorDePaginas } from 'Network/juntarPaginas.js'; // D-2071
  */
 const VERSAO_DO_CONTRATO = 5;
 
-const NUMERIC_SKILL_ID_BY_NAME = new Map(
-	Object.entries(SkillInfo)
-		.filter(([, info]) => info && info.Name)
-		.map(([numericId, info]) => [info.Name, Number(numericId)])
-);
+// N4 da auditoria de tela: o servidor manda o nome do rAthena (BA_FROSTJOKER) e o
+// `SkillInfo.Name` do cliente e BA_FROSTJOKE; sem o apelido a skill nao ia a barra.
+const NUMERIC_SKILL_ID_BY_NAME = montarMapaNomeParaId(SkillInfo);
 
 /**
  * Mantenha em sincronia com o ":host" / ".is-window" do IdleSkills.css e com
@@ -160,24 +148,6 @@ IdleSkills.mouseMode = GUIComponent.MouseMode.CROSS;
  *      estado corrente completo).
  */
 IdleSkills.serverData = null;
-
-/**
- * O PARCIAL (06/10/2026, a banda das janelas) - ver `parcialDasSkills.js`.
- *
- * @var {object|null} `_estadoDoServidor`: o estado como o servidor o mandou
- *      (sem traducao, sem `aplicado`/`problemas`, com `rev`), sobre o qual o
- *      parcial cai. `serverData` e a copia que a janela desenha (traduzida).
- * @var {number|null} `_revDeclarada`: a ultima revisao mandada como `base` -
- *      o servidor ja sabe que esta janela entende o parcial.
- * @var {boolean} `_inteiroPedido`: um parcial nao coube e o inteiro esta no
- *      ar; os parciais que chegarem ate ele sao descartados.
- */
-IdleSkills._estadoDoServidor = null;
-IdleSkills._revDeclarada = null;
-IdleSkills._inteiroPedido = false;
-
-/** As paginas da arvore grande (D-2071), juntadas antes de o inteiro ser tratado. */
-const juntarPaginasDaArvore = criarJuntadorDePaginas('skills');
 
 /** @var {string|null} a habilidade selecionada (dirige o painel de detalhe). */
 IdleSkills.selectedSkillId = null;
@@ -486,41 +456,7 @@ function clearProblemasTimeout() {
  */
 function requestSkills() {
 	setStatus(IdleSkills.serverData ? 'Atualizando…' : 'Carregando…');
-	/*
-	 * O PARCIAL (06/10/2026): com o servidor que numera, o pedido vai pelo verbo
-	 * `pedir` do 0x0ffb com a revisao na mao, e a resposta e so o que mudou. O
-	 * 0x0ff9 e fixo e nao leva `base`: fica para o servidor que nao numera.
-	 */
-	if (servidorNumera(IdleSkills._estadoDoServidor)) {
-		enviarComBase(new PACKET.CZ.RAGIDLE_APRENDER(), { acao: 'pedir' });
-		return;
-	}
 	Network.sendPacket(new PACKET.CZ.RAGIDLE_PEDIR_SKILLS());
-}
-
-/**
- * Todo pedido JSON da janela leva `base` (a revisao na mao, ou `null`): e o que
- * diz ao servidor que esta janela aplica o parcial. Um servidor que nao numera
- * ignora a chave.
- */
-function enviarComBase(pkt, corpo) {
-	const comARevisao = comBase(corpo, IdleSkills._estadoDoServidor);
-	if (typeof comARevisao.base === 'number') {
-		IdleSkills._revDeclarada = comARevisao.base;
-	}
-	pkt.json = JSON.stringify(comARevisao);
-	Network.sendPacket(pkt);
-}
-
-/**
- * O parcial nao coube no que a janela tem: o inteiro. Uma vez so - quem chama
- * ja descarta todo parcial enquanto `_inteiroPedido` estiver ligado.
- */
-function pedirInteiro() {
-	IdleSkills._inteiroPedido = true;
-	const pkt = new PACKET.CZ.RAGIDLE_APRENDER();
-	pkt.json = JSON.stringify({ acao: 'pedir', base: null });
-	Network.sendPacket(pkt);
 }
 
 /**
@@ -559,7 +495,9 @@ function sendAplicar() {
 	}, MS_ATE_SOLTAR_O_APLICAR);
 	renderFooter();
 
-	enviarComBase(new PACKET.CZ.RAGIDLE_APRENDER(), { lote: lote });
+	const pkt = new PACKET.CZ.RAGIDLE_APRENDER();
+	pkt.json = JSON.stringify({ lote: lote });
+	Network.sendPacket(pkt);
 }
 
 /** A resposta chegou (ou o personagem trocou): o "Aplicar" pode sair de novo. */
@@ -588,20 +526,9 @@ function soltarOAplicar() {
  */
 function sendEsquecer(skillId, niveis) {
 	setStatus(niveis === 'tudo' ? 'Desaprendendo…' : 'Regredindo…');
-	enviarComBase(new PACKET.CZ.RAGIDLE_APRENDER(), { acao: 'esquecer', skillId: skillId, niveis: niveis });
-}
-
-/**
- * Liga ou desliga a habilidade na ROTAÇÃO de ataque.
- *
- * `ligar` vai EXPLÍCITO, e não como um alterna calculado no servidor: esta
- * janela sabe o estado que desenhou, e um alterna com dois cliques rápidos numa
- * rede lenta faria o jogador ligar o que queria desligar.
- */
-function sendPriorizar(skillId, ligar) {
-	setStatus(ligar ? 'Pondo na rotação…' : 'Tirando da rotação…');
-
-	enviarComBase(new PACKET.CZ.RAGIDLE_PRIORIZAR(), { skillId: skillId, ligar: ligar });
+	const pkt = new PACKET.CZ.RAGIDLE_APRENDER();
+	pkt.json = JSON.stringify({ acao: 'esquecer', skillId: skillId, niveis: niveis });
+	Network.sendPacket(pkt);
 }
 
 function setStatus(text) {
@@ -641,47 +568,6 @@ function onSkillsReceived(pkt) {
 		setStatus('Dados incompatíveis.');
 		soltarOAplicar();
 		return;
-	}
-
-	/*
-	 * AS PAGINAS (D-2071): a arvore que passa do teto de um pacote desce em
-	 * paginas, cada uma com uma fatia de `skills`; o inteiro so e tratado
-	 * quando a ultima chega. O parcial nunca vem paginado.
-	 */
-	if (!ehParcialDasSkills(data)) {
-		data = juntarPaginasDaArvore(data);
-		if (data === null) {
-			return;
-		}
-	}
-
-	/*
-	 * O PARCIAL (06/10/2026, a banda das janelas): as trocas caem sobre o estado
-	 * guardado e viram o MESMO objeto que o inteiro seria - dai em diante o
-	 * caminho e o dele. O que nao cai (a revisao de partida nao e a nossa) pede
-	 * o inteiro; o "Aplicar" que ja passou do outro lado leva o rascunho junto.
-	 */
-	if (ehParcialDasSkills(data)) {
-		if (IdleSkills._inteiroPedido) {
-			return;
-		}
-		const montado = aplicarParcialDasSkills(IdleSkills._estadoDoServidor, data);
-		if (!montado) {
-			if (IdleSkills._esperandoAplicar && data.aplicado === true) {
-				IdleSkills.rascunho = {};
-			}
-			soltarOAplicar();
-			pedirInteiro();
-			return;
-		}
-		IdleSkills._estadoDoServidor = montado;
-		data = dadosDoEnvio(montado, data);
-	} else if (data && data.v === VERSAO_DO_CONTRATO) {
-		IdleSkills._inteiroPedido = false;
-		IdleSkills._estadoDoServidor = estadoDoInteiro(data);
-		if (precisaDeclarar(IdleSkills._estadoDoServidor, IdleSkills._revDeclarada)) {
-			enviarComBase(new PACKET.CZ.RAGIDLE_APRENDER(), { acao: 'pedir' });
-		}
 	}
 
 	if (
@@ -1099,15 +985,6 @@ function renderNo(no, contexto) {
 	}
 
 	const selo = [];
-	if (typeof skill.naRotacao === 'number') {
-		selo.push(
-			'<span class="is-no-selo is-no-selo--rotacao" title="Rotação de ataque, ' +
-				skill.naRotacao +
-				'º lugar">' +
-				skill.naRotacao +
-				'</span>'
-		);
-	}
 	if (no.forasteiros.length) {
 		const texto = no.forasteiros.map(f => f.nome + ' Nv. ' + f.nivel).join(', ');
 		selo.push(
@@ -1858,26 +1735,10 @@ function renderDetail() {
 	}
 
 	/*
-	 * A ROTAÇÃO DE ATAQUE. Três estados, e os três dizem algo: dentro (o botão
-	 * TIRA), fora e pode (o botão PÕE), fora e não pode (o botão morre com o
-	 * motivo do servidor no title).
+	 * A ROTAÇÃO DE ATAQUE SAIU (07/10/2026, Novo Bot V5): o combate e o do Modo
+	 * Classico, sem rotacao automatica, e o servidor recusa o
+	 * `CZ_RAGIDLE_PRIORIZAR`. Nem selo nem botao de por/tirar.
 	 */
-	const naRotacao = typeof skill.naRotacao === 'number';
-	const podeRotacionar = naRotacao || !skill.motivoDaRotacao;
-	const rotacaoHtml =
-		'<button type="button" class="is-btn-rotacao ri-btn ri-btn--sec' +
-		(naRotacao ? ' is-btn-rotacao--dentro' : '') +
-		'" data-skill-rotacao="' +
-		escapeHtml(skill.skillId) +
-		'" data-skill-ligar="' +
-		(naRotacao ? '0' : '1') +
-		'"' +
-		(podeRotacionar ? '' : ' disabled') +
-		' title="' +
-		escapeHtml(skill.motivoDaRotacao || (naRotacao ? 'Tirar da rotação de ataque' : 'Pôr na rotação de ataque')) +
-		'">' +
-		(naRotacao ? 'Na rotação (' + skill.naRotacao + ')' : 'Pôr na rotação') +
-		'</button>';
 
 	/*
 	 * O botão de TOQUE (D-938). Só existe se a habilidade serve para a barra
@@ -1965,7 +1826,6 @@ function renderDetail() {
 		acaoHtml +
 		nivelUsoHtml +
 		'<div class="is-detail-acoes">' +
-		rotacaoHtml +
 		atalhoHtml +
 		esquecerHtml(skill) +
 		'</div>' +
@@ -1974,10 +1834,6 @@ function renderDetail() {
 	const seletorDeUso = footerEl.querySelector('[data-nivel-chave]');
 	if (seletorDeUso) {
 		seletorDeUso.addEventListener('click', e => onPassoDoNivelDeUso(e, skill));
-	}
-	const btnRot = footerEl.querySelector('[data-skill-rotacao]');
-	if (btnRot) {
-		btnRot.addEventListener('click', onClickRotacao);
 	}
 	const btnAtalho = footerEl.querySelector('[data-skill-atalho]');
 	if (btnAtalho) {
@@ -2135,20 +1991,6 @@ function onClickEsquecer(e) {
 }
 
 /**
- * O botão da ROTAÇÃO. `motivoDaRotacao` vem do servidor e diz por que ela não
- * entra — botão morto sem explicação manda o jogador procurar defeito onde há
- * regra, que é o mesmo argumento do `motivo` do aprendizado.
- */
-function onClickRotacao(e) {
-	e.stopImmediatePropagation();
-	const skillId = e.currentTarget.dataset.skillRotacao;
-	if (!skillId) {
-		return;
-	}
-	sendPriorizar(skillId, e.currentTarget.dataset.skillLigar === '1');
-}
-
-/**
  * O botão de TOQUE (D-938, lado do "pegar"): monta o MESMO payload que
  * `onSkillDragStart` monta e chama `pegar()` de `UI/toqueParaAtalho.js`. Quem
  * "põe" na barra é a BARRA DE ATALHOS (`ShortCut.js`) — este módulo só entrega
@@ -2280,9 +2122,6 @@ Network.hookPacket(PACKET.ZC.RAGIDLE_SKILLS, onSkillsReceived);
  */
 IdleSkills.limparEstadoDoPersonagem = function limparEstadoDoPersonagem() {
 	IdleSkills.serverData = null;
-	IdleSkills._estadoDoServidor = null;
-	IdleSkills._revDeclarada = null;
-	IdleSkills._inteiroPedido = false;
 	IdleSkills.selectedSkillId = null;
 	IdleSkills.problemas = [];
 	IdleSkills.rascunho = {};
@@ -2294,20 +2133,6 @@ IdleSkills.limparEstadoDoPersonagem = function limparEstadoDoPersonagem() {
 	 * troca. Ver `UI/Components/limpezaDeJanelaIdle.js`.
 	 */
 	fecharEEsquecer(_root(), '.is-window', { corpo: '.is-tela', texto: 'Carregando…' });
-};
-
-/**
- * A REVISAO QUE A ARVORE TEM NA MAO (D-2071), para a declaracao da entrada no
- * mapa (`Engine/declaracaoDasBases.js`): com a mesma revisao da conexao
- * anterior, o servidor manda no lote so o que mudou. `null` sem arvore, com
- * servidor que nao numera, ou com o inteiro ja pedido - um parcial herdado
- * seria descartado pela espera do inteiro, e a espera nunca acabaria.
- */
-IdleSkills.revisaoDaArvore = function revisaoDaArvore() {
-	if (IdleSkills._inteiroPedido || !servidorNumera(IdleSkills._estadoDoServidor)) {
-		return null;
-	}
-	return IdleSkills._estadoDoServidor.rev;
 };
 
 /**

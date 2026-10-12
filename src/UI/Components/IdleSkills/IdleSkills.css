@@ -556,13 +556,6 @@
 	box-shadow: var(--shadow-card);
 }
 
-#IdleSkills .is-no-selo--rotacao {
-	right: 2px;
-	background: linear-gradient(180deg, var(--gold-300) 0%, var(--gold-500) 100%);
-	border: 1px solid var(--gold-700);
-	color: var(--gold-700);
-}
-
 #IdleSkills .is-no-selo--fora {
 	left: 2px;
 	background: var(--surface-glass);
@@ -1132,17 +1125,6 @@
 	flex: 1 1 100%;
 	font: var(--type-label);
 	color: var(--text-body);
-}
-
-#IdleSkills .is-btn-rotacao {
-	flex: 1 1 auto;
-	padding: 6px 12px;
-	font-size: 11px;
-}
-
-#IdleSkills .is-btn-rotacao--dentro {
-	border-color: var(--gold-500);
-	color: var(--gold-700);
 }
 
 /* ─── Rodapé da janela ───────────────────────────────────────────────── */

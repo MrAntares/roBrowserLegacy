@@ -51,7 +51,7 @@
 import UIManager from 'UI/UIManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
 import HuntMap from 'UI/Components/HuntMap/HuntMap.js';
-import IdleConfig from 'UI/Components/IdleConfig/IdleConfig.js';
+import { contextoDoMapa } from 'UI/contextoDoMapa.js';
 import AdminPanel from 'UI/Components/AdminPanel/AdminPanel.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import ProcessCommand from 'Controls/ProcessCommand.js';
@@ -256,10 +256,11 @@ function hideAdminButton() {
  */
 function jaEstaNaCidadeDeDestino() {
 	const cidade = HuntMap.catalog && HuntMap.catalog.cidade;
-	if (!cidade || !IdleConfig.contexto || IdleConfig.contextoObsoleto) {
+	const ctx = contextoDoMapa();
+	if (!cidade || !ctx) {
 		return false;
 	}
-	return IdleConfig.contexto.mapa === cidade.mapa;
+	return ctx.mapa === cidade.mapa;
 }
 
 /**
@@ -278,7 +279,7 @@ function rotuloDaCidade() {
  * `title`.
  */
 function syncLabel() {
-	if (!IdleConfig.contexto || IdleConfig.contextoObsoleto) {
+	if (!contextoDoMapa()) {
 		/*
 		 * Ainda sem resposta do servidor pra esta troca de mapa (sondada em
 		 * IdleConfig.sondarMapa(), chamada em Engine/MapEngine.js a cada

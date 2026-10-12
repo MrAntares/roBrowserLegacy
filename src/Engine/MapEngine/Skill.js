@@ -24,6 +24,25 @@ import EffectManager from 'Renderer/EffectManager.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import ShortCut from 'UI/Components/ShortCut/ShortCut.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import { ehFaltaDeItem, textoDeFaltaDeItem } from './faltaDeItemNaSkill.js';
+import { pedidoNoGolpe } from './pedidoGuardado.js';
+import { raioDaBuscaDoChao } from './alcanceDaSkillNoChao.js';
+import { TEXTO_GERAL, textoDaCausaSemMensagem } from './textoDaFalhaDeSkill.js';
+import { TEXTO_LONGE_DEMAIS, caminhoCabeNoTetoDoServidor } from './tetoDaCaminhadaDaSkill.js';
+import {
+	ESPERA_DA_CONFIRMACAO_MS,
+	TEXTO_CAMINHADA_RECUSADA,
+	armarEspera,
+	vencerEspera
+} from './confirmacaoDaCaminhada.js';
+import Events from 'Core/Events.js';
+
+// C32 (29/09/2026): o pedido dentro da janela do golpe espera, em vez de sumir.
+// C47 (C-1): o singleton mora em pedidoGuardado.js, para o clique de andar, a
+// troca de mapa e a morte poderem cancelar o pedido que espera.
+// Lote 8 (C-4): um slot POR ATOR (`entity.GID`); cada unidade tem a janela e o
+// delay dela (rAthena clif.cpp:12937, :12776 e :12833: `ud.canact_tick`).
+const _pedidoNoGolpe = pedidoNoGolpe;
 import SkillTargetSelection from 'UI/Components/SkillTargetSelection/SkillTargetSelection.js';
 import Guild from 'UI/Components/Guild/Guild.js';
 import SkillListMH from 'UI/Components/SkillListMH/SkillListMH.js';
@@ -153,6 +172,22 @@ function onSkillResult(pkt) {
 		return;
 	}
 
+	// USESKILL_FAIL_NEED_ITEM (71): falta o catalisador - diga qual (faltaDeItemNaSkill.js).
+	if (ehFaltaDeItem(pkt.cause)) {
+		const info = pkt.itemId ? DB.getItemInfo(pkt.itemId) : null;
+		const nome = info ? info.identifiedDisplayName : '';
+		ChatBox.addText(textoDeFaltaDeItem(nome, pkt.NUM), ChatBox.TYPE.ERROR, ChatBox.FILTER.SKILL_FAIL);
+		return;
+	}
+
+	// C3B: as causas que o switch abaixo nao cobre (0, 11, 57, 74) - ver
+	// textoDaFalhaDeSkill.js. O CG_TAROTCARD fica no ramo proprio dele.
+	const textoProprio = pkt.SKID == SkillId.CG_TAROTCARD ? null : textoDaCausaSemMensagem(pkt.cause, pkt.NUM);
+	if (textoProprio !== null) {
+		ChatBox.addText(textoProprio, ChatBox.TYPE.ERROR, ChatBox.FILTER.SKILL_FAIL);
+		return;
+	}
+
 	let error = 0;
 	/*var entity = Session.Entity;
 		let srcEntity = EntityManager.get(entity.GID);*/
@@ -230,7 +265,7 @@ function onSkillResult(pkt) {
 	}
 
 	if (error) {
-		ChatBox.addText(DB.getMessage(error), ChatBox.TYPE.ERROR, ChatBox.FILTER.SKILL_FAIL);
+		ChatBox.addText(DB.getMessage(error, TEXTO_GERAL), ChatBox.TYPE.ERROR, ChatBox.FILTER.SKILL_FAIL);
 		// all skills fails that i tested not executed skill action
 		// maybe there is some edge case that i missed
 		// so i'm commenting out for now
@@ -246,6 +281,9 @@ function onSkillResult(pkt) {
 		//		srcEntity.setAction(SkillActionTable['DEFAULT'](srcEntity, Renderer.tick));
 		//	}
 		//}
+	} else {
+		// C3B: causa sem texto nenhum nao sai muda.
+		ChatBox.addText(TEXTO_GERAL, ChatBox.TYPE.ERROR, ChatBox.FILTER.SKILL_FAIL);
 	}
 }
 
@@ -611,6 +649,91 @@ Guild.onIncreaseSkill =
 		onIncreaseSkill;
 
 /**
+ * Lote 5 (resto do C23): guarda, junto do `Session.moveAction`, o alcance e o
+ * alvo da skill - o `onWalkEnd` (MapEngine.js) re-confere com a regua da fonte
+ * (alcanceNoFimDaCaminhada.js) e, se o boneco parou fora, anda mais uma vez por
+ * `andar()`. So o jogador: homunculo e mercenario andam por outro pacote.
+ *
+ * @param {object} pacote - o pacote guardado em Session.moveAction
+ * @param {number} alcance - o alcance da skill (a regua, e nao o raio da busca)
+ * @param {() => ({x: number, y: number} | null)} alvo - onde o alvo esta agora
+ */
+function armarAlcanceNoFim(pacote, alcance, alvo) {
+	Session.moveActionAlcance = {
+		pacote,
+		alcance,
+		alvo,
+		repeticoes: 0,
+		andar() {
+			const onde = alvo();
+			const ent = Session.Entity;
+			if (!onde || !ent) {
+				return false;
+			}
+			const out = [];
+			const count = PathFinding.search(
+				ent.position[0] | 0,
+				ent.position[1] | 0,
+				onde.x,
+				onde.y,
+				raioDaBuscaDoChao(alcance),
+				out,
+				Altitude.TYPE.WALKABLE
+			);
+			if (count < 2 || !caminhoDaSkillCabe(ent.position, out, count)) {
+				return false;
+			}
+			const mover = PACKETVER.value >= 20180307 ? new PACKET.CZ.REQUEST_MOVE2() : new PACKET.CZ.REQUEST_MOVE();
+			mover.dest[0] = out[(count - 1) * 2 + 0];
+			mover.dest[1] = out[(count - 1) * 2 + 1];
+			Network.sendPacket(mover);
+			esperarConfirmacao(pacote);
+			return true;
+		}
+	};
+}
+
+/**
+ * C47 (auditoria de tela, 30/09/2026): a skill guardada so sai no fim da
+ * caminhada que o servidor CONFIRMOU (`ZC_NOTIFY_PLAYERMOVE` depois do
+ * pedido); sem confirmacao no prazo, o pedido e descartado e o jogador e
+ * avisado. Ver confirmacaoDaCaminhada.js.
+ *
+ * @param {object} pacote - o pacote guardado em Session.moveAction
+ */
+function esperarConfirmacao(pacote) {
+	const espera = armarEspera(Session, pacote);
+	Events.setTimeout(() => {
+		if (vencerEspera(Session, espera)) {
+			ChatBox.addText(TEXTO_CAMINHADA_RECUSADA, ChatBox.TYPE.ERROR, ChatBox.FILTER.SKILL_FAIL);
+		}
+	}, ESPERA_DA_CONFIRMACAO_MS);
+}
+
+/**
+ * C19 (auditoria de tela, 29/09/2026): o caminho ate o alcance cabe no teto
+ * que o servidor anda (unit.cpp:855-869, 17 passos; 14 sem a reta livre)? Se
+ * nao cabe, a skill nao e armada em `Session.moveAction` (o servidor recusaria
+ * o andar calado e ela nunca sairia) e o jogador e avisado no chat. Ver
+ * tetoDaCaminhadaDaSkill.js.
+ *
+ * @param {Array} pos - posicao de quem anda
+ * @param {Array} out - o caminho do PathFinding.search
+ * @param {number} count - o que o PathFinding.search devolveu
+ * @returns {boolean}
+ */
+function caminhoDaSkillCabe(pos, out, count) {
+	const origem = { x: pos[0] | 0, y: pos[1] | 0 };
+	const destino = { x: out[(count - 1) * 2 + 0], y: out[(count - 1) * 2 + 1] };
+	const naoAndavel = (x, y) => !(Altitude.getCellType(x, y) & Altitude.TYPE.WALKABLE);
+	if (caminhoCabeNoTetoDoServidor(count, origem, destino, naoAndavel)) {
+		return true;
+	}
+	ChatBox.addText(TEXTO_LONGE_DEMAIS, ChatBox.TYPE.ERROR, ChatBox.FILTER.SKILL_FAIL);
+	return false;
+}
+
+/**
  * Cast a skill on someone
  *
  * @param {number} skill id
@@ -640,9 +763,14 @@ function onUseSkill(id, level, targetID) {
 			}*/
 	}
 
-	// Client side minimum delay
-	if (entity && entity.amotionTick > Renderer.tick) {
-		// Can't spam skills faster than amotion
+	// Client side minimum delay. C32: o pedido espera a janela vencer e sai,
+	// em vez de sumir calado (ver pedidoAdiadoPeloGolpe.js).
+	if (
+		entity &&
+		_pedidoNoGolpe.adiarSeNaJanela(entity.GID, entity.amotionTick, Renderer.tick, () =>
+			onUseSkill(id, level, targetID)
+		)
+	) {
 		return;
 	}
 
@@ -650,11 +778,17 @@ function onUseSkill(id, level, targetID) {
 	const skill = SkillWindow.getUI().getSkillById(id);
 	const out = [];
 
+	// C37: a skill no alvo mede com a MESMA regua circular da fonte que a de
+	// chao (battle_check_range, rAthena battle.cpp:8224-8229; ver alcanceDaSkillNoChao.js).
+	let alcanceDaRegua;
 	if (skill) {
-		range = skill.attackRange + 1;
+		alcanceDaRegua = skill.attackRange;
+		range = raioDaBuscaDoChao(skill.attackRange);
 	} else if (SkillInfo[id]) {
-		range = SkillInfo[id].AttackRange[level - 1] + 1;
+		alcanceDaRegua = SkillInfo[id].AttackRange[level - 1];
+		range = raioDaBuscaDoChao(SkillInfo[id].AttackRange[level - 1]);
 	} else {
+		alcanceDaRegua = entity.attack_range;
 		range = entity.attack_range;
 	}
 
@@ -694,8 +828,21 @@ function onUseSkill(id, level, targetID) {
 		return;
 	}
 
+	// C19: o jogador so anda o que o servidor aceita (o homunculo e o
+	// mercenario andam por outro pacote, CZ_REQUEST_MOVENPC).
+	if (!isHomun && !isMerc && !caminhoDaSkillCabe(entity.position, out, count)) {
+		return;
+	}
+
 	// Save the packet
 	Session.moveAction = pkt;
+	Session.moveActionAlcance = null;
+	if (!isHomun && !isMerc) {
+		armarAlcanceNoFim(pkt, alcanceDaRegua, () => {
+			const alvoAgora = EntityManager.get(targetID);
+			return alvoAgora ? { x: Math.round(alvoAgora.position[0]), y: Math.round(alvoAgora.position[1]) } : null;
+		});
+	}
 
 	// Move to position
 	if (isHomun) {
@@ -714,6 +861,9 @@ function onUseSkill(id, level, targetID) {
 	pkt.dest[0] = out[(count - 1) * 2 + 0];
 	pkt.dest[1] = out[(count - 1) * 2 + 1];
 	Network.sendPacket(pkt);
+	if (!isHomun && !isMerc) {
+		esperarConfirmacao(Session.moveAction);
+	}
 }
 Guild.onUseSkill =
 	SkillListMH.homunculus.onUseSkill =
@@ -745,9 +895,13 @@ SkillTargetSelection.onUseSkillToPos = function onUseSkillToPos(id, level, x, y)
 		}
 	}
 
-	// Client side minimum delay
-	if (entity && entity.amotionTick > Renderer.tick) {
-		// Can't spam skills faster than amotion
+	// Client side minimum delay. C32: espera e sai (ver pedidoAdiadoPeloGolpe.js).
+	if (
+		entity &&
+		_pedidoNoGolpe.adiarSeNaJanela(entity.GID, entity.amotionTick, Renderer.tick, () =>
+			SkillTargetSelection.onUseSkillToPos(id, level, x, y)
+		)
+	) {
 		return;
 	}
 
@@ -755,11 +909,16 @@ SkillTargetSelection.onUseSkillToPos = function onUseSkillToPos(id, level, x, y)
 	const skill = SkillWindow.getUI().getSkillById(id);
 	const out = [];
 
+	// C23: para onde a regua CIRCULAR da fonte aceita a celula (ver alcanceDaSkillNoChao.js).
+	let alcanceDaRegua;
 	if (skill) {
-		range = skill.attackRange + 1;
+		alcanceDaRegua = skill.attackRange;
+		range = raioDaBuscaDoChao(skill.attackRange);
 	} else if (SkillInfo[id]) {
-		range = SkillInfo[id].AttackRange[level - 1] + 1;
+		alcanceDaRegua = SkillInfo[id].AttackRange[level - 1];
+		range = raioDaBuscaDoChao(SkillInfo[id].AttackRange[level - 1]);
 	} else {
+		alcanceDaRegua = entity.attack_range;
 		range = entity.attack_range;
 	}
 
@@ -792,8 +951,17 @@ SkillTargetSelection.onUseSkillToPos = function onUseSkillToPos(id, level, x, y)
 		return;
 	}
 
+	// C19: o mesmo teto da skill no alvo (ver caminhoDaSkillCabe).
+	if (!isHomun && !caminhoDaSkillCabe(pos, out, count)) {
+		return;
+	}
+
 	// Save the packet
 	Session.moveAction = pkt;
+	Session.moveActionAlcance = null;
+	if (!isHomun) {
+		armarAlcanceNoFim(pkt, alcanceDaRegua, () => ({ x: x | 0, y: y | 0 }));
+	}
 
 	// Move to the position
 	if (isHomun) {
@@ -809,6 +977,9 @@ SkillTargetSelection.onUseSkillToPos = function onUseSkillToPos(id, level, x, y)
 	pkt.dest[0] = out[(count - 1) * 2 + 0];
 	pkt.dest[1] = out[(count - 1) * 2 + 1];
 	Network.sendPacket(pkt);
+	if (!isHomun) {
+		esperarConfirmacao(Session.moveAction);
+	}
 };
 
 function onSpiritSphere(pkt) {

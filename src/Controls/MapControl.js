@@ -23,6 +23,7 @@ import Renderer from 'Renderer/Renderer.js';
 import Camera from 'Renderer/Camera.js';
 import EntityManager from 'Renderer/EntityManager.js';
 import Session from 'Engine/SessionStorage.js';
+import { jogadorPediuParaAndar } from 'Engine/MapEngine/pedidoGuardado.js';
 import Preferences from 'Preferences/Controls.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 import AIDriver from 'Core/AIDriver.js';
@@ -144,7 +145,9 @@ function onMouseDown(event) {
 					AIDriver.setmsg(Session.mercId, '1,' + Mouse.world.x + ',' + Mouse.world.y);
 				}
 			} else {
-				Session.moveAction = null;
+				// C47 (C-1): o clique de andar/mirar desiste do pedido de skill guardado
+				// (lote 7: pela funcao unica de todo gesto de andar).
+				jogadorPediuParaAndar(Session);
 				Session.autoFollow = false;
 
 				let stop = false;
@@ -207,6 +210,9 @@ function onMouseDown(event) {
 				) {
 					if (KEYS.SHIFT) {
 						// Shift + Right click on an entity
+						// Lote 7, achado #6: ligar o seguir e pedir para andar - desiste da skill
+						// guardada (o laco onAutoFollow, a cada 500 ms, NAO descarta).
+						jogadorPediuParaAndar(Session);
 						Session.autoFollowTarget = entityOver;
 						Session.autoFollow = true;
 						onAutoFollow();

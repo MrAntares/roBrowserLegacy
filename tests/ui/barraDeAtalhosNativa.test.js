@@ -8,9 +8,6 @@ const shortcutHtml = fs.readFileSync('src/UI/Components/ShortCut/ShortCut.html',
 const shortcutCss = fs.readFileSync('src/UI/Components/ShortCut/ShortCut.css', 'utf8');
 const idleSkills = fs.readFileSync('src/UI/Components/IdleSkills/IdleSkills.js', 'utf8');
 const idleSkillsCss = fs.readFileSync('src/UI/Components/IdleSkills/IdleSkills.css', 'utf8');
-const combatCorner = fs.readFileSync('src/UI/Components/CombatCornerIdle/CombatCornerIdle.js', 'utf8');
-const combatCornerHtml = fs.readFileSync('src/UI/Components/CombatCornerIdle/CombatCornerIdle.html', 'utf8');
-const combatCornerCss = fs.readFileSync('src/UI/Components/CombatCornerIdle/CombatCornerIdle.css', 'utf8');
 
 describe('barra de atalhos nativa como unica hotbar', () => {
 	it('continua preparando e anexando a ShortCut original', () => {
@@ -72,20 +69,9 @@ describe('barra de atalhos nativa como unica hotbar', () => {
 		expect(shortcutCss).not.toContain('background: var(--surface-dark-glass)');
 	});
 
-	it('restaura o ataque automatico sozinho no canto inferior direito', () => {
-		expect(mapEngine).toContain("import CombatCornerIdle from 'UI/Components/CombatCornerIdle/CombatCornerIdle.js'");
-		expect(mapEngine).toContain('CombatCornerIdle.prepare();');
-		expect(mapEngine).toContain('CombatCornerIdle.append();');
-		expect(combatCornerHtml).toContain('class="cc-btn cc-btn--auto"');
-		expect(combatCornerHtml).toContain('aria-pressed="false"');
-		expect(combatCornerHtml).not.toContain('cc-btn--bag');
-		expect(combatCornerHtml).not.toContain('cc-rotacao');
-		expect(combatCorner).toContain('IdleConfig.alternarCacaAutomatica()');
-		expect(combatCorner).toContain('IdleConfig.serverConfig');
-		expect(combatCornerCss).toContain('right: 24px');
-		expect(combatCornerCss).toContain('bottom: 90px');
-		// No celular o "Menu" sai de bottom:16 e sobe; este botao acompanha.
-		expect(combatCornerCss).toContain('bottom: calc(var(--hud-acima-da-doca, 104px) + 74px)');
+	it('o antigo "Ataque auto" (CombatCornerIdle) saiu com o Novo Bot V5 (07/10/2026)', () => {
+		expect(fs.existsSync('src/UI/Components/CombatCornerIdle')).toBe(false);
+		expect(mapEngine).not.toMatch(/import CombatCornerIdle|CombatCornerIdle\.(prepare|append)\(\)/);
 	});
 
 	it('aceita habilidades aprendidas arrastadas da arvore nova', () => {

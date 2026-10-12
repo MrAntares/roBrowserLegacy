@@ -268,6 +268,38 @@ function fecharAsOutrasNoCelular(nome) {
 	}
 }
 
+/*
+ * QUEM QUER SABER QUANDO A PILHA MUDA (decisao D13, 08/10/2026): o martelo do `MobileUI` (o botao que mostra
+ * as teclas de toque) ficava por cima do canto do titulo das janelas de tela cheia no celular em pe (z-index
+ * 1000, a sonda de tela do QA final, V-09). Quem esta FORA da pilha (o `MobileUI`) assina aqui e se esconde
+ * enquanto uma janela cobre a HUD; a pilha nao conhece o `MobileUI`.
+ */
+const _ouvintesDaPilha = new Set();
+
+/** Assina as mudancas da pilha (abriu, fechou). Devolve a funcao que cancela a assinatura. */
+export function aoMudarAPilha(fn) {
+	_ouvintesDaPilha.add(fn);
+	return () => _ouvintesDaPilha.delete(fn);
+}
+
+function avisarQuemAssinou() {
+	for (const fn of _ouvintesDaPilha) {
+		try {
+			fn();
+		} catch (erro) {
+			console.error('[pilhaDeJanelas] um assinante da pilha falhou', erro);
+		}
+	}
+}
+
+/**
+ * Alguma janela de TELA CHEIA cobre a HUD agora? So no celular em pe (D-932: la a janela vira folha); no
+ * desktop e no celular deitado as janelas flutuam e nao cobrem o canto.
+ */
+export function janelaCobreAHud() {
+	return ehCelularEmPe() && temAberta();
+}
+
 /** Avisa a pilha que a janela abriu (o embrulho chama sozinho). */
 export function aoAbrir(nome) {
 	if (!_registro.has(nome)) {
@@ -279,6 +311,7 @@ export function aoAbrir(nome) {
 		_pilha.splice(i, 1);
 	}
 	_pilha.push(nome);
+	avisarQuemAssinou();
 }
 
 /** Avisa a pilha que a janela fechou (o embrulho chama sozinho). */
@@ -287,6 +320,7 @@ export function aoFechar(nome) {
 	if (i !== -1) {
 		_pilha.splice(i, 1);
 	}
+	avisarQuemAssinou();
 }
 
 /**
@@ -600,6 +634,8 @@ export default {
 	registrar,
 	aoAbrir,
 	aoFechar,
+	aoMudarAPilha,
+	janelaCobreAHud,
 	abertas,
 	temAberta,
 	topo,
