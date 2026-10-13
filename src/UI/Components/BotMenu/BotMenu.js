@@ -252,6 +252,11 @@ function avisarLigado() {
 /** Para os testes da costura e as provas de tela. */
 BotMenu._estado = _estado;
 
+/** Conexao nova com o mesmo personagem (reconexao, volta do "Dormir"): ver `estadoDoBot.novaConexao`. */
+BotMenu.novaConexaoDoServidor = function novaConexaoDoServidor() {
+	_estado.novaConexao();
+};
+
 BotMenu.limparEstadoDoPersonagem = function limparEstadoDoPersonagem() {
 	_estado.reiniciar();
 	_escopoDasSkills = 'geral';

@@ -8,6 +8,7 @@
  * estado novo." e "Trocar personagem encerra requests/subscriptions e carrega o contexto proprio."
  */
 import { describe, expect, it } from 'vitest';
+import { readFileSync } from 'node:fs';
 import { criarEstadoDoBot } from 'UI/Components/BotMenu/estadoDoBot.js';
 
 const CONFIG = { v: 1, cacar: true, especiesVetadas: [], modoDeAtaque: 'skills-e-basico', raioDePercepcao: 15, skills: { geral: [], porSkill: {}, porMonstro: {} } };
@@ -37,6 +38,53 @@ function montar() {
 	});
 	return { e, enviados, pacote };
 }
+
+describe('estado do Bot: conexao nova com o mesmo personagem (12/10/2026)', () => {
+	/*
+	 * O "Dormir" de volta tornou deterministico um caminho que a queda de rede ja abria: o
+	 * servidor recria o executor do Bot na conexao nova e o `statusRevision` recomeca do zero.
+	 */
+	function sessaoLongaComOBotLigado() {
+		const m = montar();
+		m.e.receber(m.pacote(m.e.pedirEstado()), 7);
+		m.e.receber(m.pacote(m.e.ligar(), { ligado: true, situacao: 'ativo', statusRevision: 250, status: { codigo: 'atacando', alvo: null } }), 7);
+		expect(m.e.estado().ligado).toBe(true);
+		return m;
+	}
+
+	it('depois da conexao nova, o primeiro pedir (revisao 1) diz a verdade: o Bot esta desligado', () => {
+		const { e, pacote } = sessaoLongaComOBotLigado();
+		e.novaConexao();
+		e.receber(pacote(e.pedirEstado(), { ligado: false, situacao: 'desligado', statusRevision: 1 }), 7);
+		expect(e.estado().ligado).toBe(false);
+		expect(e.estado().status.codigo).toBe('controle-manual');
+		// E o status seguinte da sessao nova nao e descartado.
+		e.receber(pacote(null, { ligado: true, situacao: 'ativo', statusRevision: 2, status: { codigo: 'procurando-alvo', alvo: null } }), 7);
+		expect(e.estado().ligado).toBe(true);
+	});
+
+	it('CONTROLE: sem avisar a conexao nova, a revisao velha prende o ON (o defeito)', () => {
+		const { e, pacote } = sessaoLongaComOBotLigado();
+		e.receber(pacote(e.pedirEstado(), { ligado: false, situacao: 'desligado', statusRevision: 1 }), 7);
+		expect(e.estado().ligado).toBe(true);
+	});
+
+	it('a conexao nova guarda o rascunho e a config: e o mesmo personagem', () => {
+		const { e } = sessaoLongaComOBotLigado();
+		e.editar(c => ({ ...c, raioDePercepcao: 21 }));
+		e.novaConexao();
+		expect(e.estado().editConfig.raioDePercepcao).toBe(21);
+		expect(e.estado().dirty).toBe(true);
+	});
+
+	it('o motor avisa a conexao nova SO na entrada no mundo, e antes do BotMenu pedir o estado', () => {
+		const motor = readFileSync('src/Engine/MapEngine.js', 'utf8');
+		const i = motor.indexOf('BotMenu.novaConexaoDoServidor();');
+		expect(i).toBeGreaterThan(-1);
+		expect(motor.slice(Math.max(0, i - 120), i)).toContain('if (ehEntradaNoMundo) {');
+		expect(i).toBeLessThan(motor.indexOf('BotMenu.append();'));
+	});
+});
 
 describe('estado do Bot: respostas fora de ordem', () => {
 	it('a resposta de um "pedir" mais antigo que chega DEPOIS do Aplicar aceito nao volta a config nem a revisao', () => {

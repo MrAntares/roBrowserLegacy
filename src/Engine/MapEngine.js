@@ -1505,6 +1505,11 @@ function onMapChange(pkt, ehEntradaNoMundo) {
 		PresencaIdle.append(); // RAGIDLE: janela de presenca (D-1162)
 		IndicacaoIdle.append(); // RAGIDLE: Indique & Ganhe (D-1164)
 		TrocaIdle.append(); // RAGIDLE: a janela "Trade" (02/10/2026) - anexada sempre, fechada
+		// RAGIDLE (12/10/2026): conexao nova = executor do Bot novo no servidor, com o
+		// `statusRevision` recomecando do zero. Antes do `append()`, que pede o estado.
+		if (ehEntradaNoMundo) {
+			BotMenu.novaConexaoDoServidor();
+		}
 		BotMenu.append(); // RAGIDLE: o menu do Bot novo (07/10/2026) - anexada sempre, fechada; pede o estado ao servidor
 		CombatCornerIdle.append(); // RAGIDLE: o botao "Ataque auto" (12/10/2026) - o ON/OFF do Bot fora da janela
 		RankingIdle.append(); // RAGIDLE: o Ranking
@@ -1528,7 +1533,8 @@ function onMapChange(pkt, ehEntradaNoMundo) {
 		 * (07/10/2026): a janela "Idle" que perguntava (`IdleConfig.sondarMapa`)
 		 * foi retirada, e quem marca o contexto como obsoleto e pede o estado
 		 * novo e o `BotMenu.append()` acima (ver UI/contextoDoMapa.js).
-		 * O parametro `ehEntradaNoMundo` de `onMapChange` fica, sem leitor.
+		 * O parametro `ehEntradaNoMundo` de `onMapChange` voltou a ter leitor em
+		 * 12/10/2026: a linha de base do Bot antes do `BotMenu.append()`.
 		 */
 
 		// RAGIDLE: "Painel de admin" floating button — same unconditional
