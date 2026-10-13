@@ -5035,6 +5035,7 @@ function init(packetver) {
 	length_list[0x0fb3] = -1; // ZC_RAGIDLE_TROCA (variable, JSON payload) - a janela Trade, 02/10/2026
 	length_list[0x0fb0] = -1; // CZ_RAGIDLE_BOT_ACAO (variable, JSON payload) - o Bot novo, 07/10/2026
 	length_list[0x0fb1] = -1; // ZC_RAGIDLE_BOT (variable, JSON payload) - o Bot novo, 07/10/2026
+	length_list[0x0faf] = 10; // ZC_RAGIDLE_ABATE (fixed: GID + mobId) - o abate e seu, a Analise de Caca, 13/10/2026 (D-2322)
 
 	return length_list;
 }

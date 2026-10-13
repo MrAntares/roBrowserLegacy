@@ -17196,6 +17196,20 @@ PACKET.ZC.RAGIDLE_BOT = function PACKET_ZC_RAGIDLE_BOT(fp, end) {
 };
 PACKET.ZC.RAGIDLE_BOT.size = -1;
 
+// 0x0faf - RAGIDLE: ZC_RAGIDLE_ABATE (server -> client), D-2322, 13/10/2026.
+// Fixed 10 bytes: u16 opcode + u32 GID do mob + u32 mobId.
+//
+// O ABATE E SEU: o servidor manda so ao MATADOR (o dono do golpe fatal, com o
+// do mercenario e o do homunculo ja trocados pelo dono). A Analise de Caca
+// conta por ele (Engine/MapEngine/Entity.js, onAbateProprio), e nao mais pelo
+// VANISH de morte, que vem de todo bicho do mapa - inclusive o do vizinho.
+// O slot de cima da reserva RAGIDLE de 07/10/2026.
+PACKET.ZC.RAGIDLE_ABATE = function PACKET_ZC_RAGIDLE_ABATE(fp) {
+	this.GID = fp.readULong();
+	this.mobId = fp.readULong();
+};
+PACKET.ZC.RAGIDLE_ABATE.size = 10;
+
 // ---------------------------------------------------------------------------
 // O MENU LFG (Looking For Group) — D-634, 25/08/2026.
 //
