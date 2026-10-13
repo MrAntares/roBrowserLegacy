@@ -43,6 +43,7 @@ import WinStats from 'UI/Components/WinStats/WinStats.js';
 import RankingTypes from 'DB/Jobs/RankingTypes.js';
 import { contaNaLista } from 'UI/Components/ChatBox/marcaNoNome.js'; // RAGIDLE (25/09/2026): a marca de VIP no eco da propria fala
 import { confirmarPeloServidor } from './confirmacaoDaCaminhada.js';
+import { petComemoraONivel, petLamentaAMorte } from './falaDoPetNaFicha.js'; // RAGIDLE: D-2374, a ficha reenviada nao e nivel novo
 
 /**
  * Move main player to the position specify
@@ -309,7 +310,10 @@ function onParameterChange(pkt) {
 		case StatusProperty.HONOR:
 			break;
 
-		case StatusProperty.HP:
+		case StatusProperty.HP: {
+			// D-2374: o HP de ANTES deste pacote decide se a morte e nova (a
+			// ficha reenviada traz o mesmo 0 enquanto o personagem segue morto).
+			const hpAnterior = Session.Entity.life.hp;
 			Session.Entity.life.hp = amount;
 			Session.Entity.life.update();
 
@@ -339,7 +343,10 @@ function onParameterChange(pkt) {
 				}
 			}
 			//Died
-			if (Session.Entity.life.hp <= 1) {
+			// D-2374: so na PASSAGEM para morto (`petLamentaAMorte`). Sem isto,
+			// todo reenvio da ficha com o personagem morto repetia o "morri" ao
+			// mapa inteiro (o servidor difunde o `CZ_PET_ACT`).
+			if (petLamentaAMorte(hpAnterior, Session.Entity.life.hp)) {
 				//Pet Talk
 				if (Session.pet.friendly > 900) {
 					const hunger = DB.getPetHungryState(Session.pet.oldHungry);
@@ -352,6 +359,7 @@ function onParameterChange(pkt) {
 				}
 			}
 			break;
+		}
 
 		case StatusProperty.MAXHP:
 			Session.Entity.life.hp_max = amount;
@@ -393,8 +401,11 @@ function onParameterChange(pkt) {
 			WinStats.getUI().update('statuspoint', amount);
 			break;
 
-		case StatusProperty.CLEVEL:
+		case StatusProperty.CLEVEL: {
 			progressoDaCaca('nivel', amount, nivel => `Nv. ${nivel} alcançado.`, ChatBox.FILTER.FARM_NIVEL);
+			// D-2374: o nivel de ANTES deste pacote. O servidor reenvia a ficha
+			// inteira a cada ficha suja do tique, sempre com o nivel IGUAL.
+			const nivelAnterior = Session.Entity.clevel;
 			Session.Entity.clevel = amount;
 			// load aura on levelup
 			Session.Entity.aura.load(EffectManager);
@@ -403,7 +414,10 @@ function onParameterChange(pkt) {
 			ChangeCart.onLevelUp(amount);
 
 			//Pet Talk
-			if (Session.pet.friendly > 900) {
+			// D-2374: so quando o nivel SUBIU (`petComemoraONivel`). Antes, todo
+			// reenvio da ficha mandava um `CZ_PET_ACT` de "subi de nivel", que o
+			// servidor difunde ao mapa: o pet comemorava nivel que nao veio.
+			if (Session.pet.friendly > 900 && petComemoraONivel(nivelAnterior, amount)) {
 				const hunger = DB.getPetHungryState(Session.pet.oldHungry);
 				const talk = DB.getPetTalkNumber(Session.pet.job, PetMessageConst.PM_LEVELUP, hunger);
 
@@ -413,6 +427,7 @@ function onParameterChange(pkt) {
 				Session.pet.lastTalk = Date.now();
 			}
 			break;
+		}
 
 		case StatusProperty.SKPOINT:
 			SkillList.getUI().setPoints(amount);
