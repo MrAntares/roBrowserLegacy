@@ -10,6 +10,7 @@
 
 import KEYS from 'Controls/KeyEventHandler.js';
 import { trechoTraduzido } from './trechoDaFala.js';
+import { textoDoNpcEmHtml } from './textoDoNpc.js'; // 12/10/2026: a fala inteira escapada, menos as tags do RO
 import Renderer from 'Renderer/Renderer.js';
 import UIManager from 'UI/UIManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
@@ -20,7 +21,6 @@ import htmlText from './NpcBox.html?raw';
 import cssText from './NpcBox.css?raw';
 import NpcMenu from 'UI/Components/NpcMenu/NpcMenu.js';
 import InputBox from 'UI/Components/InputBox/InputBox.js';
-import { escaparHtml } from 'Utils/escaparHtml.js'; // D-1308: dialogo de NPC vai a innerHTML/atributo (XSS)
 import { ehDedo } from 'UI/escalaDaHud.js';
 import { posicaoHorizontal } from 'UI/Components/NpcMenu/posicaoDoMenu.js';
 import { registrarConversa, componenteNaTela } from 'UI/conversaNaTela.js';
@@ -49,69 +49,6 @@ let _needCleanUp = false;
  * @var {integer} NPC GID
  */
 NpcBox.ownerID = 0;
-
-/**
- * Process NAVI tags in text
- */
-function processNAVITags(text) {
-	if (!text) {
-		return '';
-	}
-	text = String(text);
-	return text.replace(/<NAVI>([^<]+)<INFO>([^<]+)<\/INFO><\/NAVI>/g, (match, displayName, naviInfo) => {
-		// D-1308: `naviInfo`/`displayName` vem do dialogo de NPC e caem em ATRIBUTO
-		// (`data-navi-info="..."`) e em texto; uma aspa quebrava o atributo. Escapa
-		// os dois nos dois contextos.
-		return `<span class="navi-link" data-navi-info="${escaparHtml(naviInfo)}" data-navi-name="${escaparHtml(displayName)}">${escaparHtml(displayName)}</span>`;
-	});
-}
-
-/**
- * Process ITEM tags in text
- */
-function processItemTags(text) {
-	if (!text) {
-		return '';
-	}
-	if (typeof text !== 'string') {
-		text = String(text);
-	}
-	return text.replace(
-		/<(ITEMLINK|ITEM)>([\s\S]*?)<INFO>([\s\S]*?)<\/INFO><\/\1>/g,
-		(match, tag, itemName, itemId) => {
-			// D-1308: `itemId` cai em ATRIBUTO e `itemName` em texto; escapa os dois.
-			return `<span class="item-link" data-item-id="${escaparHtml(itemId)}">${escaparHtml(itemName)}</span>`;
-		}
-	);
-}
-
-/**
- * Process color codes in text (^RRGGBB)
- */
-function processColorCodes(text) {
-	if (!text) {
-		return '';
-	}
-	text = String(text);
-	return text
-		.replace(/\^([0-9A-Fa-f]{6})/g, (match, color) => {
-			return `<span style="color:#${color}">`;
-		})
-		.replace(/\^000000/g, '</span>');
-}
-
-/**
- * Process all text formatting
- */
-function processText(text) {
-	if (!text) {
-		return '';
-	}
-	text = processItemTags(text);
-	text = processNAVITags(text);
-	text = processColorCodes(text);
-	return text;
-}
 
 /**
  * Initialize Component
@@ -313,7 +250,7 @@ NpcBox.setText = function setText(text, gid) {
 	}
 
 	const div = document.createElement('div');
-	div.innerHTML = processText(text);
+	div.innerHTML = textoDoNpcEmHtml(text);
 	content.appendChild(div);
 
 	/*
@@ -335,7 +272,7 @@ NpcBox.setText = function setText(text, gid) {
 		}
 		const bloco = document.createElement('div');
 		bloco.setAttribute('translate', 'no');
-		bloco.innerHTML = processText(achado.traducao);
+		bloco.innerHTML = textoDoNpcEmHtml(achado.traducao);
 		content.appendChild(bloco);
 		_linhasDaPagina = [..._linhasDaPagina.slice(0, achado.inicio), { texto: achado.texto, div: bloco }];
 	}
