@@ -260,6 +260,12 @@ class SpriteBatcher {
 
 		const nextTexture = isArray ? null : state.image.texture;
 
+		// Same invariant as the sprite array: don't let a palette eviction
+		// recycle a layer referenced by in-flight instances.
+		if (!isArray && state.image.palette && this._count > 0 && this._paletteManager.atCapacity) {
+			this.flush(gl);
+		}
+
 		// --- Palette layer (non-array palette sprites only) ----------------
 		let paletteLayer = 0;
 		if (!isArray && state.image.palette) {
@@ -282,12 +288,12 @@ class SpriteBatcher {
 		const depthChanged = depthTest !== this._depthTest || depthMask !== this._depthMask;
 		const arrayChanged = this._count > 0 && isArray !== this._isArrayBatch;
 		const textureChanged = this._count > 0 && !isArray && nextTexture !== this._texture;
+		this._blendMode = blendMode;
 
 		if (this._count > 0 && (blendChanged || depthChanged || arrayChanged || textureChanged)) {
 			this.flush(gl);
 		}
 
-		this._blendMode = blendMode;
 		this._depthTest = depthTest;
 		this._depthMask = depthMask;
 		this._texture = nextTexture;
@@ -352,6 +358,13 @@ class SpriteBatcher {
 
 		// Depth state first: applyDepthState is a no-op if the cached GL state matches.
 		this.applyDepthState(gl, this._depthTest, this._depthMask);
+
+		// --- Blend --------------------------------------------------------
+		if (this._blendMode === BLEND_ONE) {
+			gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+		} else {
+			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+		}
 
 		// --- Upload -------------------------------------------------------
 		gl.bindBuffer(gl.ARRAY_BUFFER, this._instanceBuffer);
