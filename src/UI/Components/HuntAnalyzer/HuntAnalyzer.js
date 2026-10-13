@@ -64,6 +64,11 @@ import DB from 'DB/DBManager.js';
 import Client from 'Core/Client.js';
 import GUIComponent from 'UI/GUIComponent.js';
 import BasicInfo from 'UI/Components/BasicInfo/BasicInfo.js';
+import Network from 'Network/NetworkManager.js';
+import PACKET from 'Network/PacketStructure.js';
+import UIManager from 'UI/UIManager.js';
+import StatusIcons from 'UI/Components/StatusIcons/StatusIcons.js';
+import SC from 'DB/Status/StatusConst.js';
 import { atualizarSituacao, estimarMsAteONivel, ler, lerHistorico, zerarCacadaAtual } from './registroDaCaca.js';
 import htmlText from './HuntAnalyzer.html?raw';
 import cssText from './HuntAnalyzer.css?raw';
@@ -91,6 +96,13 @@ const POLL_INTERVAL_MS = 250;
  */
 const OCIOSO_VISIVEL_MS = 15_000;
 
+/**
+ * O "DORMIR" (D-1381, 13/09/2026; de volta em 12/10/2026, pedido do dono) -
+ * 10 minutos de caça contínua NESTE mapa destravam o botão. Este número so
+ * decide se o botao APARECE; a verificacao que VALE e a do servidor
+ * (`amostraQualifica`, `servidor/idle/farm-por-estimativa.ts`).
+ */
+const MS_MINIMOS_PARA_DORMIR = 10 * 60 * 1000;
 
 const HuntAnalyzer = new GUIComponent('HuntAnalyzer', cssText);
 
@@ -326,6 +338,89 @@ function desenharEstado(root, r, aoVivo) {
 		zerar.hidden = !aoVivo;
 	}
 
+	sincronizarDormir(root, r, aoVivo);
+}
+
+/**
+ * O botao "Dormir" fica habilitado so quando as DUAS condicoes batem: a caçada
+ * esta ATIVA neste mapa ha pelo menos 10 minutos, e o servidor ja disse que
+ * este mapa e elegivel (`mapaElegivelParaDormir`). NENHUMA das duas e a fonte
+ * da verdade: o `iniciar` no servidor confere a MESMA amostra e o MESMO mapa
+ * de novo (regra 1: nada de decisao de jogo so no cliente).
+ *
+ * Os campos vem no `contexto` do `ZC_RAGIDLE_BOT` (`UI/contextoDoMapa.js`)
+ * desde 12/10/2026; antes da retirada do idle antigo vinham da janela Idle.
+ *
+ * O PONTO DE PARTIDA E O RELOGIO DO SERVIDOR (`faltamMsParaDormir`, D-1396),
+ * nunca um contado so aqui. E o numero do servidor NAO congela na tela
+ * (D-1398): `faltamMsParaDormirAoVivo` ANCORA nele toda vez que chega um
+ * contexto novo (identidade do objeto mudou) e daí CONTA em `Date.now()`
+ * local ate a proxima ancora - nunca inventa o ponto de partida, só o ritmo
+ * entre uma atualização do servidor e a próxima.
+ */
+let _ctxDaUltimaAncoraDeSono = null;
+let _faltamMsNaAncoraDeSono = 0;
+let _ancoraDeSonoRecebidaEm = 0;
+function faltamMsParaDormirAoVivo(ctx) {
+	if (!ctx || typeof ctx.faltamMsParaDormir !== 'number') {
+		// Servidor sem amostra para este mapa (ou antigo): trata como "faltam
+		// os 10 minutos inteiros" -- nunca como zero, que destravaria o botao
+		// sem o servidor ter medido nada.
+		_ctxDaUltimaAncoraDeSono = null;
+		return MS_MINIMOS_PARA_DORMIR;
+	}
+	if (ctx !== _ctxDaUltimaAncoraDeSono) {
+		_ctxDaUltimaAncoraDeSono = ctx;
+		_faltamMsNaAncoraDeSono = ctx.faltamMsParaDormir;
+		_ancoraDeSonoRecebidaEm = Date.now();
+	}
+	return Math.max(0, _faltamMsNaAncoraDeSono - (Date.now() - _ancoraDeSonoRecebidaEm));
+}
+
+function sincronizarDormir(root, r, aoVivo) {
+	const botao = root.querySelector('.ha-dormir');
+	const status = root.querySelector('.ha-dormir-status');
+	if (!botao) {
+		return;
+	}
+
+	/* Na aba de HISTÓRICO o botão nem faz sentido (a cacada acabou) -- some
+	   de vez, do mesmo jeito que o Zerar. Na aba Atual ele fica SEMPRE
+	   visível, desabilitado com o motivo escrito: sumir com o botão foi o
+	   relato do Jhow em produção ("não achei o botão"). */
+	botao.hidden = !aoVivo;
+	if (status) {
+		status.hidden = !aoVivo;
+	}
+	if (!aoVivo) {
+		return;
+	}
+
+	const ctx = contextoDoMapa();
+	const emCaca = r.fase === 'ativa';
+	const mapaElegivel = !!ctx && ctx.mapaElegivelParaDormir === true;
+	const faltamMs = faltamMsParaDormirAoVivo(ctx);
+	const pronto = emCaca && mapaElegivel && faltamMs <= 0;
+
+	/*
+	 * A ORDEM DOS MOTIVOS é a ordem em que o jogador resolve: primeiro
+	 * precisa estar caçando, depois o mapa precisa servir, só então o
+	 * relógio conta.
+	 */
+	let motivo = '';
+	if (!emCaca) {
+		motivo = 'comece a caçar';
+	} else if (!mapaElegivel) {
+		motivo = 'só em mapa ≥1 nível abaixo do seu';
+	} else if (faltamMs > 0) {
+		motivo = `disponível em ${duracao(faltamMs)}`;
+	}
+
+	botao.disabled = !pronto;
+	botao.title = pronto ? 'Pode fechar o jogo: dormindo, o personagem não luta nem morre e ganha só EXP, até 8 h. Loot e zeny só caçando online.' : motivo;
+	if (status) {
+		status.textContent = pronto ? '' : motivo;
+	}
 }
 
 /**
@@ -626,6 +721,53 @@ function tique() {
 	}
 }
 
+/**
+ * O CLIQUE EM "DORMIR" (D-1381; avisos de UX em D-1386; sem a contagem de
+ * 5 s desde D-1485). Se um bonus temporario de EXP esta ativo, avisa e pede
+ * confirmacao - a EXP do sono e calculada SEM ele; senao o pacote sai direto.
+ * A tela preta de "Dormindo..." abre quando o servidor confirma, pelo handler
+ * CENTRAL de `Engine/MapEngine.js` (`onSonoRecebido`). O servidor confere
+ * tudo de novo; a decisao de jogo mora em `farm-por-estimativa.ts`.
+ */
+function pedirParaDormir() {
+	/*
+	 * OS BONUS TEMPORARIOS NAO ENTRAM NO SONO (24/09/2026, ordem do dono). A
+	 * lista vem do SERVIDOR (`bonusTemporariosAtivos` no contexto), as mesmas
+	 * funcoes que o abate consulta.
+	 */
+	const ctx = contextoDoMapa();
+	const temporarios = ctx && Array.isArray(ctx.bonusTemporariosAtivos) ? ctx.bonusTemporariosAtivos : [];
+	const eventoAtivo = temporarios.length === 0 && StatusIcons.estaAtivo(SC.CASH_PLUSEXP);
+
+	function dormir() {
+		const pkt = new PACKET.CZ.RAGIDLE_SONO_ACAO();
+		pkt.json = JSON.stringify({ acao: 'iniciar' });
+		Network.sendPacket(pkt);
+	}
+
+	if (temporarios.length > 0) {
+		UIManager.showPromptBox(
+			'Você está com bônus temporário de EXP (' + temporarios.join(', ') + '). ' +
+				'Dormindo, eles NÃO contam: a EXP do sono é calculada sem eles. Dormir mesmo assim?',
+			'yes',
+			'no',
+			dormir,
+			null
+		);
+	} else if (eventoAtivo) {
+		UIManager.showPromptBox(
+			'Há um evento de EXP ativo agora. Dormindo, ele NÃO conta: a EXP do sono é calculada sem ele. ' +
+				'Dormir mesmo assim?',
+			'yes',
+			'no',
+			dormir,
+			null
+		);
+	} else {
+		dormir();
+	}
+}
+
 /* ─── Ciclo de vida ────────────────────────────────────────────────────── */
 
 HuntAnalyzer.init = function init() {
@@ -658,6 +800,15 @@ HuntAnalyzer.init = function init() {
 		if (aba && !aba.disabled) {
 			trocarDeAba(parseInt(aba.dataset.aba, 10));
 		}
+	});
+
+	root.querySelector('.ha-dormir').addEventListener('click', e => {
+		// O `disabled` nativo já barra o clique; a guarda é so para o dia em
+		// que o atributo e o estado visual saírem de sincronia (D-1381).
+		if (e.currentTarget.disabled) {
+			return;
+		}
+		pedirParaDormir();
 	});
 
 
@@ -782,6 +933,11 @@ HuntAnalyzer.limparEstadoDoPersonagem = function limparEstadoDoPersonagem() {
 	_aba = 0;
 	_sigRanking = null;
 	_sigDrops = null;
+	/* A ANCORA do "Dormir" (D-1396) é por PERSONAGEM: sem zerar aqui, o
+	   personagem novo herdaria o "faltam X" medido para o anterior. */
+	_ctxDaUltimaAncoraDeSono = null;
+	_faltamMsNaAncoraDeSono = 0;
+	_ancoraDeSonoRecebidaEm = 0;
 	/*
 	 * ZERAR O DADO NAO BASTA: `GUIComponent.remove()` so DESANEXA o host,
 	 * entao o shadow DOM (com `is-open` e o HTML do personagem anterior)

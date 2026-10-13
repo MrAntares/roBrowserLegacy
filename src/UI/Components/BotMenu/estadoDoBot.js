@@ -120,6 +120,18 @@ export function criarEstadoDoBot({ enviar }) {
 			emVoo.clear();
 			s = estadoVazio();
 		},
+		/**
+		 * CONEXAO NOVA COM O MESMO PERSONAGEM (12/10/2026): a reconexao e a volta do "Dormir".
+		 * O servidor recria o executor do Bot quando a conexao muda, e o `statusRevision`
+		 * dele RECOMECA do zero. Sem zerar a linha de base aqui, a resposta do primeiro
+		 * `pedir` (revisao 1) contava como observacao VELHA diante da revisao da sessao
+		 * anterior: o cliente seguia mostrando o Bot ligado com ele desligado no servidor,
+		 * e o ON/OFF so mandava `desligar` ate o F5. O rascunho e a config ficam: e o mesmo
+		 * personagem.
+		 */
+		novaConexao() {
+			s.statusRevision = -1;
+		},
 		pedirEstado() {
 			return pedir('pedir');
 		},

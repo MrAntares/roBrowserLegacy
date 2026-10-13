@@ -45,6 +45,13 @@
 					</div>
 					<div class="ha-cabine-acoes">
 						<button type="button" class="ha-zerar ri-btn ri-btn--sec" data-acao="zerar">Zerar</button>
+						<!-- ─── O "DORMIR" (D-1381; de volta em 12/10/2026, pedido do dono):
+						     SEMPRE visível na aba Atual, para dar para achar. Fica
+						     DESABILITADO com o motivo em `.ha-dormir-status` (e no `title`)
+						     até as 10 min de caça NESTE mapa e o mapa ser elegível -
+						     `sincronizarDormir` decide os dois. -->
+						<button type="button" class="ha-dormir ri-btn" data-acao="dormir" disabled title="Pode fechar o jogo: dormindo, o personagem não luta nem morre e ganha só EXP, até 8 h. Loot e zeny só caçando online.">Dormir</button>
+						<span class="ha-dormir-status"></span>
 					</div>
 				</div>
 
