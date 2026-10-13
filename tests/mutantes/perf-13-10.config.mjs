@@ -11,8 +11,10 @@
 // aplicam juntos (e assim que sai o "ANTES" de `fichaRepetidaNasJanelas`).
 //
 // O `wsproxy.js` NAO entra aqui: a ponte do teste e um processo filho que le o
-// arquivo do DISCO, e a mutacao em memoria nao chega a ele. Os mutantes dele
-// foram rodados a mao, por copia (ver `docs/perf-13-10/cliente.md`).
+// arquivo do DISCO, e a mutacao em memoria nao chega a ele. O mesmo vale para
+// `equipCru`/`skillCru` abaixo: o teste deles le o FONTE por `readFileSync`,
+// entao em memoria eles SOBREVIVEM de proposito — rode-os por copia no disco,
+// como os da ponte (ver `docs/perf-13-10/cliente.md`).
 import base from '../../vite.config.js';
 
 const MAIN = 'src/Engine/MapEngine/Main.js';
