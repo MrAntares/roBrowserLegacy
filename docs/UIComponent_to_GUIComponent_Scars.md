@@ -17,9 +17,12 @@ L0 contains:
 Do not use L0 to derive default behavior.
 Use L1 first.
 
+> [!NOTE]
+> **Migration Complete**: All 100 UI components have been fully migrated to `GUIComponent`, and legacy `UIComponent.js` has been removed from the repository. This document is preserved strictly as a historical archive and postmortem reference. For current component guidelines, refer to [UIComponent_to_GUIComponent.md](UIComponent_to_GUIComponent.md) (L1).
+
 ## Architecture Overview
 
-### UIComponent (legacy) — `src/UI/UIComponent.js`
+### UIComponent (legacy) — formerly `src/UI/UIComponent.js` (removed)
 
 - jQuery-based: DOM manipulation, events, CSS, animations all use jQuery
 - CSS injected into a global `<style>` tag in `<head>` via `jQuery('style:first').append(...)`
@@ -27,13 +30,13 @@ Use L1 first.
 - Lives in the Light DOM (direct child of `document.body`)
 - `this.ui` is a jQuery object wrapping the root element
 
-### GUIComponent (new) — `src/UI/GUIComponent.js`
+### GUIComponent (current standard) — `src/UI/GUIComponent.js`
 
 - Native DOM + Shadow DOM (`attachShadow({ mode: 'open' })`)
 - CSS injected inside the Shadow DOM via a `<style>` element (Common.css + component CSS)
 - HTML returned by `render()` method as a string, inserted into `this._container.innerHTML`
-- Uses Custom Elements (`<ui-button>`, `<ui-text>`, `<ui-image>`) instead of `data-*` attributes (see docs/CustomElements.md) [OPTIONAL]
-- `this.ui` is a jQuery-compatible proxy that exists **only** for interoperability with `UIManager` and legacy `UIComponent` instances — **new code inside a GUIComponent should always use native DOM and Shadow DOM APIs directly**
+- Uses Custom Elements (`<ui-button>`, `<ui-text>`, `<ui-image>`) instead of `data-*` attributes (see docs/CustomElements.md)
+- `this.ui` is a jQuery-compatible proxy that exists for interoperability with `UIManager` and external scripts/controls — **new code inside a GUIComponent should always use native DOM and Shadow DOM APIs directly**
 
 ### DOM Structure
 
