@@ -382,6 +382,9 @@ export const FRASE_DO_STATUS = Object.freeze({
 	'sem-municao-compativel': 'Sem flecha que fira o alvo',
 	'flecha-fixa-indisponivel': 'Flecha escolhida acabou',
 	'alvo-imune': 'Alvo imune ao seu ataque',
+	'sem-sp-para-habilidade': 'Sem SP para a habilidade',
+	'habilidade-em-recarga': 'Habilidade em recarga',
+	'habilidade-vetada-na-area': 'Habilidade vetada na área',
 	'seguindo-lider': 'Seguindo o líder',
 	apoiando: 'Apoiando o grupo',
 	'indo-ao-armazem': 'Indo ao armazém',
@@ -424,6 +427,11 @@ export const EXPLICACAO_DO_STATUS = Object.freeze({
 	'sem-municao-compativel': 'Nenhuma flecha da mochila fere este monstro. O Bot procura outro alvo.',
 	'flecha-fixa-indisponivel': 'A flecha que você escolheu como fixa acabou. O Bot não troca por outra sozinho.',
 	'alvo-imune': 'Este monstro é imune ao ataque que você tem agora. O Bot procura outro alvo.',
+	'sem-sp-para-habilidade':
+		'O SP acabou e você escolheu "Só habilidades": o Bot não ataca no básico. Ele conjura de novo assim que o SP voltar (regeneração, poção ou descanso).',
+	'habilidade-em-recarga': 'A habilidade ainda está em recarga. O Bot conjura de novo assim que ela ficar pronta.',
+	'habilidade-vetada-na-area':
+		'Há um monstro que você mandou ignorar na área da habilidade, então o Bot espera ele sair da área ou escolhe outro alvo.',
 	'seguindo-lider': 'O Bot está seguindo o líder do grupo, como o seu posto pede.',
 	apoiando: 'O Bot está apoiando o grupo (buffs e curas) sem atacar, como a sua postura pede.',
 	'indo-ao-armazem': 'A mochila pesou ou o estoque baixou, então o Bot está indo à cidade que você escolheu.',
