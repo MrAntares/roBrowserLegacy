@@ -348,10 +348,10 @@ class EntityControl {
 						return true;
 					}
 
-					if (main.isOverWeight) {
-						ChatBox.addText(DB.getMessage(243), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
-						return true;
-					}
+					// R119 (D-2324, regra do dono): com 90% do peso o personagem ATACA.
+					// O cliente oficial recusa o clique aqui (msg 243, com o SC_WEIGHT90
+					// aceso); no Ragnarok Classic Idle so a coleta automatica para, e
+					// quem decide e o servidor. O icone de 90% continua aceso.
 
 					// send look to target
 					main.lookTo(this.position[0], this.position[1]);
