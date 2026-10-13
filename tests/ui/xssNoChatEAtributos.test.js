@@ -171,7 +171,9 @@ describe('os sinks foram reescritos', () => {
 	});
 
 	it('NpcBox escapa os atributos e nomes do dialogo', () => {
-		const js = ler('src/UI/Components/NpcBox/NpcBox.js');
+		// Desde 12/10/2026 a fala inteira passa por `textoDoNpc.js` (o texto fora
+		// das tags tambem e escapado; portao `textoDoNpcEscapado.test.js`).
+		const js = ler('src/UI/Components/NpcBox/textoDoNpc.js');
 		expect(js).toContain('escaparHtml(naviInfo)');
 		expect(js).toContain('escaparHtml(itemId)');
 		expect(js).toContain('escaparHtml(itemName)');
