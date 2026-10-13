@@ -226,14 +226,8 @@ describe('a janela de habilidades aplica o parcial', () => {
 		expect(corpos('RAGIDLE_APRENDER')).toEqual([{ acao: 'pedir', base: 3 }]);
 	});
 
-	it('a rotacao leva a base', () => {
-		receber(inteiro({ rev: 4, skills: [Object.assign(skill('SM_BASH', 1), { naRotacao: 1 })] }));
-		mocks.enviados.length = 0;
-		const botao = IdleSkills._shadow.querySelector('[data-rotacao], .is-btn-rotacao');
-		expect(botao, 'o botao da rotacao sumiu do detalhe').not.toBeNull();
-		botao.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-		expect(corpos('RAGIDLE_PRIORIZAR')).toEqual([{ skillId: 'SM_BASH', ligar: false, base: 4 }]);
-	});
+	// (D-2372, porte de 29de4270: o caso 'a rotacao leva a base' saiu — a janela de
+	// habilidades de hoje nao tem o botao da rotacao; a rotacao mora no Bot.)
 
 	it('a troca de personagem esquece a revisao e a declaracao', () => {
 		receber(inteiro({ rev: 5 }));
