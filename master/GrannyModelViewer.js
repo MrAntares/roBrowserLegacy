@@ -85053,13 +85053,13 @@ var init_PalNameTable = __esmMin((() => {
 	PalNameTable[JobConst_default.PIG_BLACKSMITH] = JobNameTable[JobConst_default.PIG_BLACKSMITH];
 	PalNameTable[JobConst_default.LION_KNIGHT] = JobNameTable[JobConst_default.LION_KNIGHT];
 	PalNameTable[JobConst_default.DOG_ASSASSIN] = JobNameTable[JobConst_default.DOG_ASSASSIN];
-	PalNameTable[JobConst_default.SHEEP_MONK] = JobNameTable[JobConst_default.MONK];
-	PalNameTable[JobConst_default.OSTRICH_BARD] = JobNameTable[JobConst_default.BARD];
-	PalNameTable[JobConst_default.OSTRICH_DANCER] = JobNameTable[JobConst_default.DANCER];
-	PalNameTable[JobConst_default.FOX_SAGE] = JobNameTable[JobConst_default.SAGE];
-	PalNameTable[JobConst_default.PIG_ALCHE] = JobNameTable[JobConst_default.ALCHEMIST];
-	PalNameTable[JobConst_default.LION_CRUSADER] = "Å©·ç";
-	PalNameTable[JobConst_default.DOG_ROGUE] = JobNameTable[JobConst_default.ROGUE];
+	PalNameTable[JobConst_default.SHEEP_MONK] = JobNameTable[JobConst_default.SHEEP_MONK];
+	PalNameTable[JobConst_default.OSTRICH_BARD] = JobNameTable[JobConst_default.OSTRICH_BARD];
+	PalNameTable[JobConst_default.OSTRICH_DANCER] = JobNameTable[JobConst_default.OSTRICH_DANCER];
+	PalNameTable[JobConst_default.FOX_SAGE] = JobNameTable[JobConst_default.FOX_SAGE];
+	PalNameTable[JobConst_default.PIG_ALCHE] = JobNameTable[JobConst_default.PIG_ALCHE];
+	PalNameTable[JobConst_default.LION_CRUSADER] = JobNameTable[JobConst_default.LION_CRUSADER];
+	PalNameTable[JobConst_default.DOG_ROGUE] = JobNameTable[JobConst_default.DOG_ROGUE];
 	PalNameTable[JobConst_default.SHEEP_ARCB] = JobNameTable[JobConst_default.SHEEP_ARCB];
 	PalNameTable[JobConst_default.OSTRICH_RANGER] = JobNameTable[JobConst_default.OSTRICH_RANGER];
 	PalNameTable[JobConst_default.FOX_WARLOCK] = JobNameTable[JobConst_default.FOX_WARLOCK];
@@ -85074,27 +85074,27 @@ var init_PalNameTable = __esmMin((() => {
 	PalNameTable[JobConst_default.LION_ROYAL_GUARD] = JobNameTable[JobConst_default.LION_ROYAL_GUARD];
 	PalNameTable[JobConst_default.DOG_CHASER] = JobNameTable[JobConst_default.DOG_CHASER];
 	PalNameTable[JobConst_default.PORING_SNOVICE] = JobNameTable[JobConst_default.PORING_SNOVICE];
-	PalNameTable[JobConst_default.FROG_NINJA] = JobNameTable[JobConst_default.FROG_NINJA];
+	PalNameTable[JobConst_default.FROG_NINJA] = "µÎ²¨ºñ´ÑÀÚ";
 	PalNameTable[JobConst_default.PECO_GUNNER] = JobNameTable[JobConst_default.PECO_GUNNER];
 	PalNameTable[JobConst_default.PORING_TAEKWON] = JobNameTable[JobConst_default.PORING_TAEKWON];
-	PalNameTable[JobConst_default.PORING_STAR] = JobNameTable[JobConst_default.STAR];
+	PalNameTable[JobConst_default.PORING_STAR] = JobNameTable[JobConst_default.PORING_STAR];
 	PalNameTable[JobConst_default.FROG_LINKER] = JobNameTable[JobConst_default.FROG_LINKER];
 	PalNameTable[JobConst_default.FROG_KAGEROU] = JobNameTable[JobConst_default.FROG_KAGEROU];
 	PalNameTable[JobConst_default.FROG_OBORO] = JobNameTable[JobConst_default.FROG_OBORO];
 	PalNameTable[JobConst_default.PECO_REBELLION] = JobNameTable[JobConst_default.PECO_REBELLION];
-	PalNameTable[JobConst_default.SHEEP_HPRIEST] = "ÇÏÀÌÇÁ¸®½ºÆ®";
-	PalNameTable[JobConst_default.OSTRICH_SNIPER] = JobNameTable[JobConst_default.HUNTER_H];
-	PalNameTable[JobConst_default.FOX_HWIZ] = JobNameTable[JobConst_default.WIZARD_H];
-	PalNameTable[JobConst_default.PIG_WHITESMITH] = JobNameTable[JobConst_default.BLACKSMITH_H];
+	PalNameTable[JobConst_default.SHEEP_HPRIEST] = JobNameTable[JobConst_default.SHEEP_HPRIEST];
+	PalNameTable[JobConst_default.OSTRICH_SNIPER] = JobNameTable[JobConst_default.OSTRICH_SNIPER];
+	PalNameTable[JobConst_default.FOX_HWIZ] = JobNameTable[JobConst_default.FOX_HWIZ];
+	PalNameTable[JobConst_default.PIG_WHITESMITH] = JobNameTable[JobConst_default.PIG_WHITESMITH];
 	PalNameTable[JobConst_default.LION_KNIGHT_H] = JobNameTable[JobConst_default.LION_KNIGHT_H];
-	PalNameTable[JobConst_default.DOG_ASSA_X] = "¾î¼¼½ÅÅ©·Î½º";
-	PalNameTable[JobConst_default.SHEEP_CHAMP] = JobNameTable[JobConst_default.MONK_H];
-	PalNameTable[JobConst_default.OSTRICH_CROWN] = "Å©¶ó¿î";
-	PalNameTable[JobConst_default.OSTRICH_ZIPSI] = "Áý½Ã";
-	PalNameTable[JobConst_default.FOX_PROF] = JobNameTable[JobConst_default.SAGE_H];
-	PalNameTable[JobConst_default.PIG_CREATOR] = JobNameTable[JobConst_default.ALCHEMIST_H];
-	PalNameTable[JobConst_default.LION_CRUSADER_H] = JobNameTable[JobConst_default.CRUSADER_H];
-	PalNameTable[JobConst_default.DOG_STALKER] = JobNameTable[JobConst_default.ROGUE_H];
+	PalNameTable[JobConst_default.DOG_ASSA_X] = JobNameTable[JobConst_default.DOG_ASSA_X];
+	PalNameTable[JobConst_default.SHEEP_CHAMP] = JobNameTable[JobConst_default.SHEEP_CHAMP];
+	PalNameTable[JobConst_default.OSTRICH_CROWN] = JobNameTable[JobConst_default.OSTRICH_CROWN];
+	PalNameTable[JobConst_default.OSTRICH_ZIPSI] = JobNameTable[JobConst_default.OSTRICH_ZIPSI];
+	PalNameTable[JobConst_default.FOX_PROF] = JobNameTable[JobConst_default.FOX_PROF];
+	PalNameTable[JobConst_default.PIG_CREATOR] = JobNameTable[JobConst_default.PIG_CREATOR];
+	PalNameTable[JobConst_default.LION_CRUSADER_H] = JobNameTable[JobConst_default.LION_CRUSADER_H];
+	PalNameTable[JobConst_default.DOG_STALKER] = JobNameTable[JobConst_default.DOG_STALKER];
 	PalNameTable[JobConst_default.DRAGON_KNIGHT] = JobNameTable[JobConst_default.DRAGON_KNIGHT];
 	PalNameTable[JobConst_default.MEISTER] = JobNameTable[JobConst_default.MEISTER];
 	PalNameTable[JobConst_default.SHADOW_CROSS] = JobNameTable[JobConst_default.SHADOW_CROSS];
@@ -85193,7 +85193,7 @@ var init_PalNameTable = __esmMin((() => {
 	duplicateEntry$5(JobConst_default.OSTRICH_DANCER, JobConst_default.OSTRICH_DANCER_B);
 	duplicateEntry$5(JobConst_default.FOX_SAGE, JobConst_default.FOX_SAGE_B);
 	duplicateEntry$5(JobConst_default.PIG_ALCHE, JobConst_default.PIG_ALCHE_B);
-	duplicateEntry$5(JobConst_default.LION_CRUSADER, JobConst_default.LION_CRUSADER_B);
+	PalNameTable[JobConst_default.LION_CRUSADER_B] = "Å©·ç";
 	duplicateEntry$5(JobConst_default.DOG_ROGUE, JobConst_default.DOG_ROGUE_B);
 	duplicateEntry$5(JobConst_default.SHEEP_ARCB, JobConst_default.SHEEP_ARCB_B);
 	duplicateEntry$5(JobConst_default.OSTRICH_RANGER, JobConst_default.OSTRICH_RANGER_B);
@@ -85209,7 +85209,7 @@ var init_PalNameTable = __esmMin((() => {
 	duplicateEntry$5(JobConst_default.LION_ROYAL_GUARD, JobConst_default.LION_ROYAL_GUARD_B);
 	duplicateEntry$5(JobConst_default.DOG_CHASER, JobConst_default.DOG_CHASER_B);
 	duplicateEntry$5(JobConst_default.PORING_SNOVICE, JobConst_default.PORING_SNOVICE_B, JobConst_default.PORING_SNOVICE2, JobConst_default.PORING_SNOVICE2_B);
-	duplicateEntry$5(JobConst_default.FROG_NINJA, JobConst_default.FROG_NINJA_B);
+	PalNameTable[JobConst_default.FROG_NINJA_B] = PalNameTable[JobConst_default.FROG_NINJA];
 	duplicateEntry$5(JobConst_default.PECO_GUNNER, JobConst_default.PECO_GUNNER_B);
 	duplicateEntry$5(JobConst_default.PORING_TAEKWON, JobConst_default.PORING_TAEKWON_B);
 	duplicateEntry$5(JobConst_default.PORING_STAR, JobConst_default.PORING_STAR_B);
@@ -304579,7 +304579,7 @@ function updateMapTable() {
 		else MapTable[key] = { name: MapInfo[key].displayName };
 	}
 }
-var lua, HO_AI, MER_AI, default_HO_AI, default_MER_AI, MsgStringTable, JokeTable, ScreamTable, MapTable, SkillDescription, SexTable, PetTalkTable, CheckAttendanceTable, buyingStoreItemList, LaphineSysTable, LaphineUpgTable, ItemDBNameTbl, ItemReformTable, EnchantListTable, SignBoardTranslatedTable, SignBoardTable, NaviMapTable, NaviMobTable, NaviNpcTable, NaviLinkTable, NaviLinkDistanceTable, NaviNpcDistanceTable, QuestInfo, TitleTable, PetDBTable, EggIDToJobID, ReputeGroup, ReputeInfo, AchievementTable, MsgEmotionCSV, HatEffectID, HatEffectInfo, FootPrintEffectInfo, CashShopBannerTable, Ez2streffect, unknownItem, servers, langType, userCharpage, userStringDecoder, DB, SUFFIX_TO_FIELD, HARDCODED_FIELD_MAPPING;
+var lua, HO_AI, MER_AI, default_HO_AI, default_MER_AI, mountPalettes, mountPalettesProbe, MsgStringTable, JokeTable, ScreamTable, MapTable, SkillDescription, SexTable, PetTalkTable, CheckAttendanceTable, buyingStoreItemList, LaphineSysTable, LaphineUpgTable, ItemDBNameTbl, ItemReformTable, EnchantListTable, SignBoardTranslatedTable, SignBoardTable, NaviMapTable, NaviMobTable, NaviNpcTable, NaviLinkTable, NaviLinkDistanceTable, NaviNpcDistanceTable, QuestInfo, TitleTable, PetDBTable, EggIDToJobID, ReputeGroup, ReputeInfo, AchievementTable, MsgEmotionCSV, HatEffectID, HatEffectInfo, FootPrintEffectInfo, CashShopBannerTable, Ez2streffect, unknownItem, servers, langType, userCharpage, userStringDecoder, DB, SUFFIX_TO_FIELD, HARDCODED_FIELD_MAPPING;
 var init_DBManager = __esmMin((() => {
 	init_Client();
 	init_Configs();
@@ -304628,6 +304628,7 @@ var init_DBManager = __esmMin((() => {
 	init_PacketVerManager();
 	init_MemoryManager();
 	init_preload_helper();
+	mountPalettesProbe = null;
 	MsgStringTable = [];
 	JokeTable = [];
 	ScreamTable = [];
@@ -304712,6 +304713,9 @@ var init_DBManager = __esmMin((() => {
 			DB.isLoaded = false;
 			DB.count = 0;
 			DB.index = 0;
+			mountPalettes = void 0;
+			if (mountPalettesProbe) mountPalettesProbe.stale = true;
+			else MemoryManager.remove(null, DB.getBodyPalPath(JobConst_default.PIG_CREATOR, 1, 0));
 			let index = 0, count = 0;
 			function onLoad() {
 				count++;
@@ -305245,6 +305249,30 @@ var init_DBManager = __esmMin((() => {
 		*/
 		static getAdminPath(sex) {
 			return "data/sprite/ÀÎ°£Á·/¸öÅë/" + SexTable[sex] + "/¿î¿µÀÚ_" + SexTable[sex];
+		}
+		/**
+		* Whether the archive ships the halter-lead mounts' own palettes, read off
+		* a file only those archives have: asked once per archive.
+		*
+		* @param {function} onAnswer - called once the archive answers, if it has not yet
+		* @return {boolean|undefined} undefined until the archive answers
+		*/
+		static hasMountPalettes(onAnswer) {
+			if (mountPalettes === void 0) {
+				const sentinel = DB.getBodyPalPath(JobConst_default.PIG_CREATOR, 1, 0);
+				if (!mountPalettesProbe) mountPalettesProbe = { stale: false };
+				const probe = mountPalettesProbe;
+				const answer = (present) => {
+					if (probe === mountPalettesProbe) {
+						mountPalettesProbe = null;
+						if (probe.stale) MemoryManager.remove(null, sentinel);
+						else mountPalettes = present;
+					}
+					onAnswer();
+				};
+				Client.loadFile(sentinel, () => answer(true), () => answer(false));
+			}
+			return mountPalettes;
 		}
 		/**
 		* @return {string} path to body palette
@@ -310189,6 +310217,7 @@ function UpdateBodyStyle(look) {
 * Update body palette
 *
 * @param {number} body palette number
+* @see docs/reference/renderer/body-palette.md
 */
 function UpdateBodyPalette(pal) {
 	this._bodypalette = pal;
@@ -310198,7 +310227,12 @@ function UpdateBodyPalette(pal) {
 	}
 	if (this._job === -1) return;
 	const job = this._bodyStyleJob && !hasTransformation.call(this) ? this._bodyStyleJob : getEffectiveJob.call(this);
-	this.files.body.pal = DB.getBodyPalPath(job, this._bodypalette, this._sex);
+	if (!AllMountJobs[job]) {
+		this.files.body.pal = DB.getBodyPalPath(job, this._bodypalette, this._sex);
+		return;
+	}
+	const own = DB.hasMountPalettes(() => UpdateBodyPalette.call(this, this._bodypalette));
+	if (own !== void 0) this.files.body.pal = DB.getBodyPalPath(own ? job : this._job, pal, this._sex);
 }
 /**
 * Update head
@@ -310414,7 +310448,7 @@ function Init$5() {
 	createTransformationProperty("active_monster_transform");
 	createTransformationProperty("job_transform");
 }
-var GR2_MODEL_ROOT, GR2_FALLBACK_JOB, HeadParts;
+var GR2_MODEL_ROOT, GR2_FALLBACK_JOB, HeadParts, AllMountJobs;
 var init_EntityView = __esmMin((() => {
 	init_Client();
 	init_DBManager();
@@ -310433,6 +310467,8 @@ var init_EntityView = __esmMin((() => {
 		"accessory2",
 		"accessory3"
 	];
+	AllMountJobs = {};
+	for (const baseJob in AllMountTable) AllMountJobs[AllMountTable[baseJob]] = true;
 }));
 //#endregion
 //#region src/Renderer/Entity/EntityWalk.js
