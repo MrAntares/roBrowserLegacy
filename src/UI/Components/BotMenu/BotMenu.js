@@ -775,7 +775,12 @@ function desenharMonstros(s, c) {
 	const vetadas = new Set(c.especiesVetadas || []);
 	const noMapa = new Map();
 	const fora = new Map();
+	// Bug #16 de 13/10/2026: a copia de praca ([EXP]/[ZENY], ids 31xxx) mostra a imagem da especie original.
+	const avatarDe = new Map();
 	for (const m of s.monstros || []) {
+		if (typeof m.avatar === 'number') {
+			avatarDe.set(m.especie, m.avatar);
+		}
 		// `noMapa` ausente (servidor antigo) vale como "esta no mapa".
 		if (m.noMapa === false) {
 			fora.set(m.especie, m.nome);
@@ -793,14 +798,14 @@ function desenharMonstros(s, c) {
 			fora.delete(e);
 		}
 	}
-	preencherMonstros(el('.bm-monstros:not(.bm-monstros-outros)'), noMapa, vetadas, false);
-	preencherMonstros(el('.bm-monstros-outros'), fora, vetadas, true);
+	preencherMonstros(el('.bm-monstros:not(.bm-monstros-outros)'), noMapa, vetadas, false, avatarDe);
+	preencherMonstros(el('.bm-monstros-outros'), fora, vetadas, true, avatarDe);
 	el('.bm-outros-mapas').hidden = fora.size === 0;
 	el('.bm-outros-qtd').textContent = String(fora.size);
 }
 
-function preencherMonstros(lista, especies, vetadas, reativar) {
-	const chave = [...especies].map(([e, n]) => e + ':' + n + ':' + vetadas.has(e)).join(',');
+function preencherMonstros(lista, especies, vetadas, reativar, avatarDe = new Map()) {
+	const chave = [...especies].map(([e, n]) => e + ':' + n + ':' + vetadas.has(e) + ':' + (avatarDe.get(e) ?? '')).join(',');
 	if (lista.getAttribute('data-chave') === chave) {
 		return;
 	}
@@ -819,7 +824,7 @@ function preencherMonstros(lista, especies, vetadas, reativar) {
 		const avatar = document.createElement('img');
 		avatar.alt = '';
 		avatar.loading = 'lazy';
-		avatar.src = '/ragidle/mobs/' + especie + '.png';
+		avatar.src = '/ragidle/mobs/' + (avatarDe.get(especie) ?? especie) + '.png';
 		avatar.onerror = () => {
 			avatar.style.display = 'none';
 		};
