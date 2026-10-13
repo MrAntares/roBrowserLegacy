@@ -1317,8 +1317,14 @@ function onMapChange(pkt, ehEntradaNoMundo) {
 		 * caminho normal, ve todos ativos e nao faz nada. Se algo na lista lancar,
 		 * ela anexa os controles que o jogador nao tem como reabrir e RELATA o que
 		 * parou a lista. O porque inteiro esta em `Engine/redeDaHud.js`.
+		 *
+		 * D-2323 (13/10/2026, "ao morrer/teleportado para cidade, precisa
+		 * relogar"): o menu do Bot e o botao "Ataque auto" tambem sao controles
+		 * que o jogador nao reabre sozinho, e moram no MEIO da lista - qualquer
+		 * `append()` anterior que lance os deixa de fora ate o F5. Entram na
+		 * rede na ordem da lista: o BotMenu antes do botao, que le o estado dele.
 		 */
-		agendarRedeDaHud([BasicInfoIdle, DeathWindow, MissoesTrackerIdle, TopMenuIdle, HuntButtonIdle], {
+		agendarRedeDaHud([BotMenu, CombatCornerIdle, BasicInfoIdle, DeathWindow, MissoesTrackerIdle, TopMenuIdle, HuntButtonIdle], {
 			relatar: relatarErro
 		});
 		/*
