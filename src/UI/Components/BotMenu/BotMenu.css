@@ -625,6 +625,13 @@
 #BotMenu .bm-rodizio-off {
 	color: var(--amber-600);
 }
+/* D-2325: a cura no ataque so sai contra o morto-vivo (ou o Demonio, no Santuario). O nome e o aviso empilham. */
+#BotMenu .bm-rodizio-fora-textos {
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 auto;
+	min-width: 0;
+}
 /* Suporte (item 4.5): os seletores do buff cabem na linha de detalhe do rodizio. */
 #BotMenu .bm-rodizio-detalhe select,
 #BotMenu .bm-rodizio-detalhe .bm-limiar {
