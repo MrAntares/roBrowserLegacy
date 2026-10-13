@@ -217,12 +217,17 @@ export function adicionarSuporte(config, skill, teto) {
 		return config;
 	}
 	const cura = skill.suporte === 'cura';
+	// Bug #5 de 13/10: a Redencao (soGrupo) nao se lanca em si; o servidor recusaria o destino 'eu'.
+	const destino = skill.soGrupo ? 'grupo' : 'eu';
+	if (repetida(lista, skill.skillId, destino, -1) && destino !== 'eu') {
+		return config;
+	}
 	return comSuporte(config, [
 		...lista,
 		{
 			skillId: skill.skillId,
 			nivel: 'aprendido',
-			destino: 'eu',
+			destino,
 			gatilho: cura ? 'hp' : 'manter',
 			limiar: cura ? LIMIAR_PADRAO_DA_CURA : 0
 		}
@@ -267,6 +272,9 @@ function trocarEntrada(config, indice, fn) {
 
 /** Os destinos que a skill aceita: 'grupo' so com `alcancaGrupo`. */
 export function destinosDaSkill(skill) {
+	if (skill && skill.soGrupo) {
+		return ['grupo'];
+	}
 	return skill && skill.alcancaGrupo ? ['eu', 'grupo'] : ['eu'];
 }
 

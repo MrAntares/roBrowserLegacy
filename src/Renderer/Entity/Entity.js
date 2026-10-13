@@ -33,6 +33,7 @@ import entityAura from './EntityAura.js';
 import entityDropEffect from './EntityDropEffect.js';
 import entityEmblem from './EntityEmblem.js';
 import EntityManager from 'Renderer/EntityManager.js';
+import { fadeDoCorpo } from './tempoDoCorpo.js';
 
 const vec3 = glMatrix.vec3;
 const mat4 = glMatrix.mat4;
@@ -478,10 +479,12 @@ class Entity {
 						next: false
 					});
 
-					if (!is_pc && !is_wug) {
+					// RAGIDLE (bug #9 de 13/10/2026): o corpo do monstro some em 1,5 s, e nao em 5 s (ver tempoDoCorpo.js).
+					const fade = fadeDoCorpo({ ehJogador: is_pc, ehWug: is_wug, ehMonstro: this.objecttype === Entity.TYPE_MOB });
+					if (fade !== null) {
 						this.clean();
 						this.remove_tick = +Date.now();
-						this.remove_delay = 5000;
+						this.remove_delay = fade;
 					}
 				}
 				break;

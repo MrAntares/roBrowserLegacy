@@ -26,6 +26,8 @@ import Damage from 'Renderer/Effects/Damage.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import { anotarFalaDoSistema } from 'UI/Components/MochilaIdle/recusaDoServidor.js';
+import { avisoDaRecusaDoEncarte } from 'UI/Components/MochilaIdle/recusaDoEncarte.js'; // RAGIDLE: bug #1 de 13/10/2026
+import { traduzir } from 'Core/Traducao.js'; // RAGIDLE: a faixa nao passa pelo chat, entao traduz aqui
 import { repassarFalaDoSistema } from 'UI/Components/AmigosIdle/ouvidoDaFala.js'; // RAGIDLE: a janela Amigos (05/10/2026)
 import ChatRoom from 'UI/Components/ChatRoom/ChatRoom.js';
 import Announce from 'UI/Components/Announce/Announce.js';
@@ -709,6 +711,13 @@ function onParameterChange(pkt) {
 function onFalaDoSistema(pkt) {
 	// A recusa de vestir tambem vai ao aviso da Mochila (recusaDoServidor.js).
 	anotarFalaDoSistema(pkt.msg, Date.now());
+	// A recusa de encaixar carta sobe tambem na faixa de aviso: no Logs ninguem a via (recusaDoEncarte.js).
+	const avisoDoEncarte = avisoDaRecusaDoEncarte(pkt.msg);
+	if (avisoDoEncarte) {
+		Announce.append();
+		// O servidor fala portugues e a regex acima le o PT cru; o ingles sai so na hora de mostrar (Core/Traducao.js).
+		Announce.set(traduzir(avisoDoEncarte), '#FFD27A');
+	}
 	// A resposta do /friend (nome que nao existe, ja amigos) vai tambem a janela "Amigos".
 	repassarFalaDoSistema(pkt.msg);
 	ChatBox.addText(pkt.msg, ChatBox.TYPE.PUBLIC, ChatBox.FILTER.SISTEMA);

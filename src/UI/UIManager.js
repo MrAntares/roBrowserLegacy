@@ -771,12 +771,74 @@ class UIManager {
 		return WinResumo;
 	}
 
-	/*
-	 * `showEconomiaDeEnergia` SAIU em 07/10/2026 (Novo Bot V5): a economia de
-	 * energia saiu do cliente com o combate do Modo Classico (ver o cabecalho
-	 * de `onEconomiaRecebida` em `Engine/MapEngine.js`). A tela preta de espera
-	 * (`_telaPretaDeEspera`) segue viva para o "Dormindo..." de um sono antigo.
+	/**
+	 * A TELA DA ECONOMIA DE ENERGIA (D-1389/D-1390, 14/09/2026 — sair virou
+	 * escolha do jogador em D-1392) — pedido do dono, no estilo dos idles de
+	 * mobile: quando a aba vai pro fundo (`visibilitychange`, `MapEngine.js`),
+	 * cobre tudo com uma tela preta mostrando o tempo restante e um resumo AO
+	 * VIVO (EXP, mobs mortos, itens) — quem chama (`MapEngine.js`) reatualiza
+	 * com `.atualizar(...)` a cada segundo, puxando os numeros de
+	 * `registroDaCaca`.
+	 *
+	 * VOLTAR PRA ABA NAO FECHA SOZINHO (D-1392, correção do dono no mesmo
+	 * dia): a primeira versão mandava "sair" automático assim que a aba
+	 * ficava visível de novo — e um relance rápido na aba (checar uma
+	 * notificação, por exemplo) já tirava o personagem do modo sem o jogador
+	 * ter escolhido isso. Agora só o clique em "Voltar a jogar" sai; olhar a
+	 * aba sozinho não muda nada, e o jogador pode ficar deliberadamente na
+	 * economia de energia mesmo olhando a tela.
+	 *
+	 * NAO usa o clone de `WinPopup` das outras telas do "Dormir": aquela é
+	 * uma caixa pequena com moldura do RO, pensada pra diálogo. Esta é tela
+	 * CHEIA, sem moldura nenhuma — o pedido foi explícito ("pode ser uma
+	 * tela preta mesmo") — então é um `<div>` simples cobrindo o viewport,
+	 * sem Shadow DOM.
+	 *
+	 * O relógio que ESTE componente mostra é só mostrador, como em
+	 * `showDormindo` — quem manda a verdade é o servidor; `MapEngine.js`
+	 * ressincroniza a cada resposta de `ZC_RAGIDLE_ECONOMIA`.
+	 *
+	 * @param {number} restanteMs tempo restante, em ms
+	 * @param {function(): void} onVoltar chamado quando o jogador clica em "Voltar a jogar" —
+	 *   quem chama manda o `sair` e fecha esta tela; ela nunca se fecha sozinha
+	 * @returns {{atualizar: function({restanteMs:number, expBase?:number, expClasse?:number,
+	 *   abates?:number, itensTotal?:number, morreu?:boolean}): void, remove: function(): void}}
+	 *   `morreu` (D-1398) liga um aviso fixo de que o personagem morreu nesta
+	 *   sessao — o relogio continua contando do mesmo jeito, e sem o aviso o
+	 *   jogador nao teria como saber que parou de render nada
 	 */
+	static showEconomiaDeEnergia(restanteMs, onVoltar) {
+		const tela = _telaPretaDeEspera({
+			titulo: 'MODO DE ECONOMIA DE ENERGIA',
+			rodape: 'Clique em "Voltar a jogar" quando quiser retomar. Olhar a aba sozinho não sai do modo.',
+			textoDoBotao: 'Voltar a jogar',
+			onBotao: () => {
+				if (onVoltar) {
+					onVoltar();
+				}
+			}
+		});
+
+		tela.aviso.textContent =
+			'⚠ Seu personagem morreu. O Bot parou, mas o relógio continua contando. Clique em "Voltar a jogar" para não perder o resto do tempo.';
+
+		function atualizar(stats) {
+			tela.timer.textContent = _relogioDeEspera(stats?.restanteMs);
+			tela.aviso.hidden = stats?.morreu !== true;
+			const expBase = Math.round(Number(stats?.expBase) || 0).toLocaleString(localeDoIdioma());
+			const expClasse = Math.round(Number(stats?.expClasse) || 0).toLocaleString(localeDoIdioma());
+			const abates = Math.round(Number(stats?.abates) || 0).toLocaleString(localeDoIdioma());
+			const itens = Math.round(Number(stats?.itensTotal) || 0).toLocaleString(localeDoIdioma());
+			tela.resumo.textContent = `EXP base +${expBase} · EXP classe +${expClasse} · Mobs mortos: ${abates} · Itens: ${itens}`;
+		}
+
+		atualizar({ restanteMs });
+
+		return {
+			atualizar,
+			remove: tela.remove
+		};
+	}
 
 	/**
 	 * Prompt a message to the user
