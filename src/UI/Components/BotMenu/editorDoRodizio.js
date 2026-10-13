@@ -37,6 +37,21 @@ function botao(classe, texto, titulo, aoClicar, desligado) {
 	return b;
 }
 
+/*
+ * A CURA NO ATAQUE (D-2325, 13/10/2026: "toda a linha do acolito"). A lista ofensiva do servidor aceita as curas que
+ * FEREM (a Cura contra morto-vivo, o Santuario contra morto-vivo e Demonio), e o Bot so as usa contra esses monstros.
+ * O servidor diz contra quem (`soContra`); a linha diz isso ao jogador, para a cura no rodizio nao parecer um golpe
+ * que o Bot esquece de usar no Poring.
+ */
+const AVISO_SO_CONTRA = {
+	'morto-vivo': 'Só contra morto-vivo',
+	impuro: 'Só contra morto-vivo e Demônio'
+};
+
+function avisoSoContra(s) {
+	return (s && AVISO_SO_CONTRA[s.soContra]) || null;
+}
+
 function icone(chave) {
 	const img = criar('img', 'bm-rodizio-icone');
 	img.alt = '';
@@ -90,6 +105,10 @@ export function desenharRodizio(raiz, dados, editar) {
 		if (Array.isArray(regra.especies)) {
 			detalhe.appendChild(criar('span', '', 'Só em ' + regra.especies.length + ' monstro(s)'));
 		}
+		const soContra = avisoSoContra(s);
+		if (soContra) {
+			detalhe.appendChild(criar('span', 'bm-rodizio-so-contra', soContra));
+		}
 		if (!ativa) {
 			detalhe.appendChild(criar('span', 'bm-rodizio-off', 'Desligada: o Bot pula esta'));
 		}
@@ -120,7 +139,10 @@ export function desenharRodizio(raiz, dados, editar) {
 	});
 	raiz.querySelector('.bm-rodizio-vazio').hidden = geral.length > 0;
 
-	// AS DE FORA: as que o Bot sabe usar sozinho e ainda nao estao no rodizio.
+	// AS DE FORA: as que o Bot sabe usar sozinho e ainda nao estao no rodizio, menos as de SUPORTE. A Cura contra
+	// morto-vivo (`suporte: 'cura'`) tem o cartao proprio "Cura contra morto-vivo" (bug #12 de 13/10, a versao do Jhow
+	// que venceu a juncao com a D-2325): oferece-la aqui tambem a poria duas vezes no menu. O Santuario (D-2325) nao e
+	// suporte (`suporte: null`, `soContra: 'impuro'`) e entra pelo rodizio, com o aviso de contra quem sai.
 	const naLista = new Set(geral.map(e => e.skillId));
 	const outras = skills.filter(s => s.aceita && !s.suporte && !naLista.has(s.skillId));
 	for (const s of outras) {
@@ -129,7 +151,15 @@ export function desenharRodizio(raiz, dados, editar) {
 		li.appendChild(icone(s.chave));
 		const n = criar('span', 'bm-rodizio-nome', s.nome);
 		n.setAttribute('translate', 'no');
-		li.appendChild(n);
+		const soContra = avisoSoContra(s);
+		if (soContra) {
+			const textos = criar('span', 'bm-rodizio-fora-textos');
+			textos.appendChild(n);
+			textos.appendChild(criar('small', 'bm-rodizio-detalhe bm-rodizio-so-contra', soContra));
+			li.appendChild(textos);
+		} else {
+			li.appendChild(n);
+		}
 		li.appendChild(
 			botao(
 				'bm-rodizio-usar',

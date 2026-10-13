@@ -18,6 +18,15 @@ export const CAUSA_NIVEL = 0;
 export const CAUSA_ALVO = 11;
 export const CAUSA_CARRINHO = 57;
 export const CAUSA_ESFERAS = 74;
+/**
+ * CAUSA NOSSA (D-2326, pedido do dono de 13/10/2026), fora do `useskill_fail_cause` da fonte: a Explosao Toxica
+ * (AS_SPLASHER) que falhou porque o alvo estava acima de 3/4 do HP (venomsplasher.cpp:32-41). Na fonte essa falha e a
+ * causa 0, o texto geral; o servidor (`CAUSA_DE_FALHA.alvoComHpAlto`, servidor/falha-de-habilidade.ts) manda esta
+ * para o jogador ler o motivo. O cliente antigo nao a conhece e cai no texto geral (o `else` de `onSkillResult`).
+ */
+export const CAUSA_ALVO_COM_HP_ALTO = 200;
+
+export const TEXTO_ALVO_COM_HP_ALTO = 'Explosão Tóxica: o alvo precisa estar com 3/4 do HP ou menos.';
 
 export const TEXTO_GERAL = 'Não foi possível usar a habilidade.';
 
@@ -39,6 +48,8 @@ export function textoDaCausaSemMensagem(causa, num) {
 			return 'Não é possível usar esta habilidade neste alvo.';
 		case CAUSA_CARRINHO:
 			return 'É preciso ter um carrinho para usar esta habilidade.';
+		case CAUSA_ALVO_COM_HP_ALTO:
+			return TEXTO_ALVO_COM_HP_ALTO;
 		case CAUSA_ESFERAS:
 			return num > 0
 				? `São necessárias ${num} esferas espirituais para usar esta habilidade.`

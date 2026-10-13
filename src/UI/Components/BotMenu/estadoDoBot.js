@@ -444,10 +444,30 @@ export const EXPLICACAO_DO_STATUS = Object.freeze({
 	'mapa-sem-bot': 'Esta cidade não aceita o Bot, então ele foi desligado. Vá para um mapa de caça e ligue o Auto Caça de novo.'
 });
 
+/**
+ * O status que o DETALHE refina (D-2326, pedido do dono de 13/10/2026): o servidor manda o MESMO codigo de sempre
+ * (`sem-acao-viavel`, que o cliente antigo le como "Sem acao possivel") com o motivo no `detalhe`. Aqui a frase e a
+ * explicacao do motivo; detalhe desconhecido cai na frase do codigo.
+ */
+const FRASE_POR_DETALHE = Object.freeze({
+	'sem-acao-viavel:nenhuma-skill-pega-no-alvo': 'Nenhuma habilidade pega neste alvo'
+});
+const EXPLICACAO_POR_DETALHE = Object.freeze({
+	'sem-acao-viavel:nenhuma-skill-pega-no-alvo':
+		'Nenhuma habilidade da lista funciona contra este alvo agora (a Explosão Tóxica só pega com o alvo em 3/4 do HP ou menos) e, em "Só habilidades", o Bot não usa o ataque básico. Ele espera parado: troque o modo de ataque ou ponha outra habilidade na lista.'
+});
+function porDetalhe(tabela, status) {
+	return status.detalhe ? tabela[status.codigo + ':' + status.detalhe] : undefined;
+}
+
 /** A explicacao do status, com o alvo e o detalhe no lugar. */
 export function explicacaoDoStatus(status) {
 	if (!status) {
 		return EXPLICACAO_DO_STATUS['controle-manual'];
+	}
+	const refinada = porDetalhe(EXPLICACAO_POR_DETALHE, status);
+	if (refinada) {
+		return refinada;
 	}
 	const modelo = EXPLICACAO_DO_STATUS[status.codigo] || EXPLICACAO_DO_STATUS['falha-operacional'];
 	const nome = status.alvo && status.alvo.nome ? status.alvo.nome : 'o alvo';
@@ -468,6 +488,10 @@ const DETALHE_DO_ARMAZEM = Object.freeze({
 export function fraseDoStatus(status) {
 	if (!status) {
 		return FRASE_DO_STATUS['controle-manual'];
+	}
+	const refinada = porDetalhe(FRASE_POR_DETALHE, status);
+	if (refinada) {
+		return refinada;
 	}
 	const modelo = FRASE_DO_STATUS[status.codigo] || FRASE_DO_STATUS['falha-operacional'];
 	const nome = status.alvo && status.alvo.nome ? status.alvo.nome : 'o alvo';

@@ -34,10 +34,11 @@
  * evento por burocracia de contexto seria sumir com drop de verdade.
  *
  * ── DE ONDE VEM CADA DADO, E O QUE ELE GARANTE ───────────────────────────
- *   - ABATE: `onEntityVanish` com `pkt.type === Entity.VT.DEAD` sobre uma
- *     entidade `TYPE_MOB` (Engine/MapEngine/Entity.js). A identidade sai de
- *     `entity.job` -> `DB.getMonsterName(job)`, que e o nome do proprio
- *     cliente -- nao ha tabela escrita aqui.
+ *   - ABATE: `onAbateProprio` (Engine/MapEngine/Entity.js), o
+ *     ZC_RAGIDLE_ABATE (0x0faf) que o servidor manda SO ao matador (D-2322).
+ *     A identidade e o nome que o servidor deu ao mob na entrada, e na falta
+ *     dele `DB.getMonsterName(mobId)`, o nome do proprio cliente -- nao ha
+ *     tabela escrita aqui.
  *   - EXP: `onNotifyExp` (0x07f6), que o servidor de mapa manda A CADA ABATE
  *     em servidor/mapa/servidor-mapa.ts:1569-1573. `varID === 1` e base,
  *     `varID === 2` e classe; `expType === 0` e o abate (1 e missao, e NAO
@@ -66,13 +67,16 @@
  *      Fora, ate existir pacote que distinga.
  *   3. **Ritmo antes de haver tempo medido.** Ver `MS_MINIMOS_PARA_RITMO`.
  *
- * ── UMA RESSALVA HONESTA SOBRE A CONTAGEM DE ABATES ──────────────────────
- * `VT.DEAD` conta todo mob que morre A VISTA, e nao "todo mob que EU matei".
- * Hoje as duas coisas coincidem porque a caca e solo (D-246), mas num mapa
- * compartilhado a contagem incluiria a morte alheia. A alternativa -- contar
- * por ZC_NOTIFY_EXP, que so chega pelo MEU abate -- nao carrega identidade
- * nenhuma, entao nao da ranking. A escolha e essa, e esta escrita para quem
- * mexer nisso depois do multiplayer saber o que esta trocando.
+ * ── A CONTAGEM DE ABATES E A DO PROPRIO PERSONAGEM (D-2322, 13/10/2026) ──
+ * Ate aqui o abate vinha do `VT.DEAD`, que conta todo mob que morre A VISTA, e
+ * nao "todo mob que EU matei". A ressalva escrita aqui desde D-943 ("as duas
+ * coisas coincidem porque a caca e solo") deixou de valer com os mapas
+ * compartilhados, e o dono viu: *"Analise contando monstros que nao estou
+ * cacando"*. O ZC_NOTIFY_EXP tambem nao servia: alem de nao carregar
+ * identidade, ele chega pela partilha de EXP do grupo e pelo dano de quem nao
+ * deu o golpe final. O servidor passou a dizer de quem foi o abate
+ * (ZC_RAGIDLE_ABATE, so ao matador). A EXP continua sendo a que chegou ao
+ * personagem, inclusive a da partilha do grupo: e EXP que ele ganhou.
  */
 
 /**

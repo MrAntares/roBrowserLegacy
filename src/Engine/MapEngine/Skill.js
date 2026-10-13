@@ -889,10 +889,9 @@ SkillTargetSelection.onUseSkillToPos = function onUseSkillToPos(id, level, x, y)
 		entity = EntityManager.get(Session.homunId);
 	} else {
 		entity = Session.Entity;
-		if (entity.isOverWeight) {
-			ChatBox.addText(DB.getMessage(243), ChatBox.TYPE.ERROR, ChatBox.FILTER.SKILL_FAIL);
-			return true;
-		}
+		// R119 (D-2324, regra do dono): com 90% do peso a habilidade de chao sai,
+		// como a de alvo (que o cliente nunca barrou: o `isOverWeight` de cima e
+		// comentario). Quem recusaria e o servidor, e a regra do dono o desliga.
 	}
 
 	// Client side minimum delay. C32: espera e sai (ver pedidoAdiadoPeloGolpe.js).
