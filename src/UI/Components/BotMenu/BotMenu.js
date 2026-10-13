@@ -31,6 +31,7 @@ import { fecharEEsquecer } from '../limpezaDeJanelaIdle.js';
 import { criarEstadoDoBot, fraseDoErro, fraseDoStatus } from './estadoDoBot.js';
 import { desenharEditorDeSkills } from './editorDeSkills.js';
 import { desenharRodizio } from './editorDoRodizio.js';
+import { definirCuraComoAtaque, temCuraQueFereMortoVivo } from './edicaoDeSkills.js';
 import { desenharColeta, desenharSobrevivencia, desenharSuporte } from './editorDeManutencao.js';
 import { desenharFlechas } from './editorDeFlechas.js';
 import { desenharPerfis } from './editorDePerfis.js';
@@ -312,6 +313,7 @@ BotMenu.init = function init() {
 	root.querySelectorAll('input[name="bm-modo"]').forEach(r =>
 		r.addEventListener('change', e => editar(c => ({ ...c, modoDeAtaque: e.target.value })))
 	);
+	el('.bm-cura-ataque-ligada').addEventListener('change', e => editar(c => definirCuraComoAtaque(c, e.target.checked)));
 	for (const lista of _root().querySelectorAll('.bm-monstros')) {
 		lista.addEventListener('click', onClickMonstro);
 		// Teclado: Espaco e Enter fazem o mesmo gesto do clique.
@@ -588,6 +590,10 @@ function desenharAtaque(s, c, lim) {
 	const monstros = s.monstros || [];
 	const tetoGeral = lim.skillsNaListaGeral || 3;
 	desenharRodizio(secao.querySelector('.bm-rodizio-caixa'), { config: c, skills: s.skills, teto: tetoGeral }, editar);
+	// Bug #12 de 13/10: o interruptor da Cura contra morto-vivo (so com uma cura que fere morto-vivo e um servidor que o cumpre).
+	const cartaoCura = secao.querySelector('.bm-cura-ataque');
+	cartaoCura.hidden = !temCuraQueFereMortoVivo(s.skills);
+	secao.querySelector('.bm-cura-ataque-ligada').checked = c.curaComoAtaque === true;
 
 	// AVANCADO, lista por monstro: so especies (a lista geral e o rodizio da frente).
 	const comRegra = Object.keys(c.skills.porMonstro || {}).map(Number);
