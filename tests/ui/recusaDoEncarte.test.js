@@ -3,7 +3,8 @@
  * Ver src/UI/Components/MochilaIdle/recusaDoEncarte.js.
  */
 import { readFileSync } from 'node:fs';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
+import { absorverCatalogo, desligarTraducao, traduzir } from 'Core/Traducao.js';
 import { avisoDaRecusaDoEncarte } from 'UI/Components/MochilaIdle/recusaDoEncarte.js';
 
 describe('a recusa do encaixe de carta', () => {
@@ -33,6 +34,31 @@ describe('a recusa do encaixe de carta', () => {
 	});
 });
 
+describe('em modo EN o servidor ainda manda PT: a regex le o PT cru e a faixa traduz ao mostrar', () => {
+	afterEach(() => desligarTraducao());
+	const FALA = 'Sistema : Nao deu para encaixar a carta: esta carta ainda nao tem efeito no jogo e nao pode ser encaixada.\0';
+	const CATALOGO = {
+		v: 1,
+		exatos: {
+			'Nao deu para encaixar a carta: esta carta ainda nao tem efeito no jogo e nao pode ser encaixada.':
+				"Couldn't insert the card: this card has no effect in the game yet, so it can't be inserted."
+		},
+		modelos: [{ pt: 'Nao deu para encaixar a carta: {0}', en: "Couldn't insert the card: {0}", cru: [] }]
+	};
+	it('o catalogo ligado nao atrapalha a regex: ela ainda casa o PT e o aviso sai em ingles', () => {
+		absorverCatalogo(CATALOGO);
+		const aviso = avisoDaRecusaDoEncarte(FALA);
+		expect(aviso).not.toBeNull();
+		expect(traduzir(aviso)).toBe("Couldn't insert the card: this card has no effect in the game yet, so it can't be inserted.");
+	});
+	it('em PT o aviso sai igual', () => {
+		expect(traduzir(avisoDaRecusaDoEncarte(FALA))).toBe(avisoDaRecusaDoEncarte(FALA));
+	});
+	it('a fala ja em ingles NAO casa (nunca chega assim: o servidor so manda PT)', () => {
+		expect(avisoDaRecusaDoEncarte("Sistema : Couldn't insert the card: this card has no effect")).toBeNull();
+	});
+});
+
 describe('a costura: o tratador da fala do sistema acende a faixa', () => {
 	const MAIN = readFileSync('src/Engine/MapEngine/Main.js', 'utf8').replaceAll('\r\n', '\n');
 	it('onFalaDoSistema chama avisoDaRecusaDoEncarte e mostra no Announce', () => {
@@ -41,7 +67,7 @@ describe('a costura: o tratador da fala do sistema acende a faixa', () => {
 		const corpo = MAIN.slice(i, MAIN.indexOf('\n}\n', i));
 		expect(corpo).toContain('avisoDaRecusaDoEncarte(pkt.msg)');
 		expect(corpo).toContain('Announce.append();');
-		expect(corpo).toContain('Announce.set(avisoDoEncarte');
+		expect(corpo).toContain('Announce.set(traduzir(avisoDoEncarte)');
 		// a fala continua indo ao chat: a faixa e reforco, nao troca
 		expect(corpo).toContain('ChatBox.addText(pkt.msg, ChatBox.TYPE.PUBLIC, ChatBox.FILTER.SISTEMA);');
 	});

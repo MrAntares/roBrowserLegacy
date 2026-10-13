@@ -27,6 +27,7 @@ import Altitude from 'Renderer/Map/Altitude.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import { anotarFalaDoSistema } from 'UI/Components/MochilaIdle/recusaDoServidor.js';
 import { avisoDaRecusaDoEncarte } from 'UI/Components/MochilaIdle/recusaDoEncarte.js'; // RAGIDLE: bug #1 de 13/10/2026
+import { traduzir } from 'Core/Traducao.js'; // RAGIDLE: a faixa nao passa pelo chat, entao traduz aqui
 import { repassarFalaDoSistema } from 'UI/Components/AmigosIdle/ouvidoDaFala.js'; // RAGIDLE: a janela Amigos (05/10/2026)
 import ChatRoom from 'UI/Components/ChatRoom/ChatRoom.js';
 import Announce from 'UI/Components/Announce/Announce.js';
@@ -714,7 +715,8 @@ function onFalaDoSistema(pkt) {
 	const avisoDoEncarte = avisoDaRecusaDoEncarte(pkt.msg);
 	if (avisoDoEncarte) {
 		Announce.append();
-		Announce.set(avisoDoEncarte, '#FFD27A');
+		// O servidor fala portugues e a regex acima le o PT cru; o ingles sai so na hora de mostrar (Core/Traducao.js).
+		Announce.set(traduzir(avisoDoEncarte), '#FFD27A');
 	}
 	// A resposta do /friend (nome que nao existe, ja amigos) vai tambem a janela "Amigos".
 	repassarFalaDoSistema(pkt.msg);
