@@ -92,6 +92,19 @@
 								<label class="bm-segmento"><input type="radio" name="bm-modo" value="apenas-skills"><span>Só habilidades</span></label>
 							</div>
 						</fieldset>
+						<!-- CURA CONTRA MORTO-VIVO (bug #12 de 13/10, D-1963/D-1990): o mesmo interruptor que o idle antigo tinha na aba Ataque. -->
+						<div class="bm-cartao-secao bm-bloco bm-cura-ataque" hidden>
+							<div class="bm-cartao-cabeca">
+								<span class="bm-secao-textos">
+									<b class="bm-cartao-titulo">Cura contra morto-vivo</b>
+									<span class="bm-dica">Usa a Cura como ataque contra monstros mortos-vivos. Com o HP acima do limite de cura, ataca com a Cura; abaixo, cura você primeiro.</span>
+								</span>
+								<label class="bm-chave" title="Usar a Cura como ataque contra morto-vivo">
+									<input type="checkbox" class="bm-cura-ataque-ligada" aria-label="Usar a Cura como ataque contra morto-vivo">
+									<span class="bm-chave-trilho" aria-hidden="true"><span class="bm-chave-texto"></span></span>
+								</label>
+							</div>
+						</div>
 						<p class="bm-indisponivel">Habilidades automáticas ainda não estão disponíveis neste servidor: o Bot usa o ataque básico, e em "Só habilidades" ele não ataca.</p>
 						<!-- O RODIZIO: a lista geral, numerada, com o liga/desliga de cada skill. -->
 						<div class="bm-cartao-secao bm-bloco bm-rodizio-caixa" hidden>
