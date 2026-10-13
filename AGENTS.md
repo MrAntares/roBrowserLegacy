@@ -7,10 +7,10 @@ roBrowserLegacy is a web-based Ragnarok Online client built with ES6 modules and
 ### Key Statistics
 
 - **14 subsystems** in `src/` (App, Audio, Controls, Core, DB, Engine, Loaders, Network, Plugins, Preferences, Renderer, UI, Utils, Vendors)
-- **7 application entry points** in `src/App/`
-- **99 UI Components** in `src/UI/Components/`
-- **40 Renderer Effect modules** (31 effect JS files + 9 post-processing shaders)
-- **17 Entity modules** in `src/Renderer/Entity/`
+- **7 application entry points** in `src/App/` (1 game client: `Online.js` + 6 viewers: `EffectViewer.js`, `GrannyModelViewer.js`, `GrfViewer.js`, `MapViewer.js`, `ModelViewer.js`, `StrViewer.js`; plus `PreLoader.js` utility and `ThreadEventHandler.js` Web Worker in `src/Core/`)
+- **100 UI Components** in `src/UI/Components/` (all migrated to `GUIComponent`)
+- **42 Renderer Effect modules** (33 effect JS files in `src/Renderer/Effects/` + 9 post-processing shaders in `src/Renderer/Effects/Shaders/`, plus companion GLSL shaders)
+- **19 Entity modules** in `src/Renderer/Entity/` (`Entity.js`, `Player.js`, `EntityOverlay.js`, and 16 entity mixins; 17 mixins composed dynamically into `Entity` with `Controls/EntityControl.js`)
 - **28 MapEngine subsystems** in `src/Engine/MapEngine/`
 - **23 packet versions** supported (kRO 2003–2025) in `src/Network/Packets/`
 
@@ -52,12 +52,12 @@ Example: `import Sprite from 'Loaders/Sprite.js';`
 
 ### Core Service Layers
 
-1. **Engine** (`src/Engine/`): GameEngine (orchestrator), LoginEngine (auth), CharEngine (character), MapEngine (28 subsystems), SessionStorage
+1. **Engine** (`src/Engine/`): GameEngine (orchestrator), LoginEngine (auth), CharEngine (character), MapEngine (28 subsystems), SessionStorage, Replay (ReplayParser, ReplayPlayer, ReplaySocket, ReplayTypes), State
 2. **Network** (`src/Network/`): PacketRegister, PacketStructure, PacketCrypt, PacketVersions.js, PacketVerManager, PacketLength, NetworkManager, SocketHelpers (WebSocket/NodeSocket)
-3. **Loaders** (`src/Loaders/`): 12 asset parsers — GameFileDecrypt, GameFile, Sprite, Action, Ground (.gnd), Altitude (.gat), World (.rsw), Str (.str effects), Model, GrannyModel, MapLoader, Targa
+3. **Loaders** (`src/Loaders/`): 12 asset parsers — GameFileDecrypt, GameFile, Sprite, Action, Ground (.gnd), Altitude (.gat), World (.rsw), Str (.str effects), Model, GR2Loader (.gr2 3D skeletal models via granny-ro-js), MapLoader, Targa
 4. **Database** (`src/DB/`): DBManager + data subdirectories (Effects, Items, Jobs, Map, Monsters, Pets, Skills, Status) + Emotions, TownInfo
-5. **Renderer** (`src/Renderer/`): Renderer.js (WebGL context), MapRenderer, EntityManager, EffectManager, ScreenEffectManager, SignboardManager, Camera, SpriteRenderer, ItemObject + subdirectories (Effects, Entity, Map)
-6. **UI** (`src/UI/`): UIManager, UIVersionManager, GUIComponent (new base class, Shadow DOM), Custom Elements (`src/UI/Elements/`), CursorManager, Scrollbar, Background, 95 component directories
+5. **Renderer** (`src/Renderer/`): Renderer.js (WebGL context), MapRenderer, EntityManager, EffectManager, ScreenEffectManager, SignboardManager, Camera, SpriteRenderer, ItemObject + subdirectories (Effects, Entity, GR2, Map)
+6. **UI** (`src/UI/`): UIManager, UIVersionManager, GUIComponent (base class, Shadow DOM), Custom Elements (`src/UI/Elements/`), CursorManager, Scrollbar, Background, 100 component directories
 7. **Controls** (`src/Controls/`): EntityControl, MapControl, KeyEventHandler, MouseEventHandler, ProcessCommand, BattleMode, ScreenShot
 8. **Audio** (`src/Audio/`): BGM.js, SoundManager.js
 9. **Core** (`src/Core/`): Client, Configs, Context, Events, FileManager, FileSystem, MemoryItem, MemoryManager, Mobile, Preferences, Thread, ThreadEventHandler, AIDriver
@@ -67,7 +67,7 @@ Example: `import Sprite from 'Loaders/Sprite.js';`
 
 ### Data Flow
 
-1. **Init**: GameEngine loads config → Client loads GRFs/executable → PacketVerManager detects PACKETVER from executable date
+1. **Init**: GameEngine loads config → Client loads GRFs/executable → PACKETVER is set from config or auto-detected from executable PE timestamp
 2. **Login**: LoginEngine → NetworkManager connects via WebSocket (browser) or NodeSocket (Electron) → authenticates with versioned packets
 3. **Map Entry**: MapEngine loads map/entity data → Renderer displays → Controls enable input → 28 MapEngine subsystems manage live state
 4. **Runtime**: InputHandler → ProcessCommand → NetworkManager sends → packet handlers update state → EntityManager updates → Renderer draws
@@ -80,27 +80,27 @@ Example: `import Sprite from 'Loaders/Sprite.js';`
 
 ## Key Architectural Decisions
 
-- **Entity system uses composition, not inheritance.** 17 mixin modules (`EntityWalk`, `EntityCast`, `EntityState`, `EntityRender`, etc.) are mixed into `Entity.js`. Do not refactor to class inheritance — the mixins are applied dynamically at runtime.
-- **Packet versioning is date-based.** PACKETVER is auto-detected from the kRO executable's PE timestamp. `PacketVersions.js` uses date-range switches. Changing detection logic in `PacketVerManager.js` can break compatibility with 23 packet versions.
+- **Entity system uses composition, not inheritance.** 17 mixin modules (16 in `src/Renderer/Entity/` + `Controls/EntityControl.js`) are composed into `Entity.js`. Do not refactor to class inheritance — the mixins are applied dynamically at runtime via `.call(this)`.
+- **Packet versioning is date-based.** PACKETVER is configured per server (`packetver`) or auto-detected from the kRO executable PE timestamp. `PacketVersions.js` maps dates to packet definitions (`PACKETVER.addSupport`), and `PacketLength.js` maps dates to packet lengths across 23 packet versions. Changing detection logic in `PacketVerManager.js` can break compatibility.
 - **Two socket paths exist by design.** Browser uses `WebSocket.js` (requires wsProxy for TCP↔WS translation). Electron uses `NodeSocket.js` (direct TCP via preload contextBridge). Both implement the same interface for `NetworkManager`.
 - **Vendors are frozen.** `src/Vendors/` is excluded from ESLint. Never modify vendored files.
-- **UI has one component system** `GUIComponent` uses Shadow DOM + native DOM + Custom Elements. New components must use GUIComponent. Primary guide: `docs/UIComponent_to_GUIComponent.md` (L1). For edge cases see `docs/UIComponent_to_GUIComponent_Scars.md` (L0, archive); for quick reflex lookup `docs/UIComponent_to_GUIComponent_Firmware.md` (L2).
-- **UI is asset-driven, not CSS-driven.** Window frames, buttons, and backgrounds come from BMP images in GRF files. Legacy components use `data-background` HTML attributes processed by `GUIComponent.parseHTML()`. New components use `<ui-button>`, `<ui-text>`, `<ui-image>` Custom Elements, both are useful. CSS is structural/positional only.
+- **UI is 100% GUIComponent.** All 100 UI components use `GUIComponent` (Shadow DOM + native DOM + Custom Elements). Legacy `UIComponent` has been completely removed; `UIManager.addComponent()` strictly requires `GUIComponent` instances. All versioned component siblings have been deduplicated into shared `*Common.js` factories. Primary guide: `docs/UIComponent_to_GUIComponent.md` (L1). For reflex lookup see `docs/UIComponent_to_GUIComponent_Firmware.md` (L2); for historical edge cases see `docs/UIComponent_to_GUIComponent_Scars.md` (L0, archive); for factory pattern rules see `docs/GUIComponent_Version_Dedup_Factory.md`.
+- **UI is asset-driven, not CSS-driven.** Window frames, buttons, and backgrounds come from BMP images in GRF files. Components use Custom Elements (`<ui-button>`, `<ui-text>`, `<ui-image>`) or legacy `data-*` attributes processed by `GUIComponent.processDataAttrs()`. CSS is structural/positional only.
 
 ## Subsystem Reference
 
 ### Network Packet Handling
 
-- **NetworkManager.js**: Connection management and packet dispatch
-- **PacketRegister.js**: Maps packet IDs (0x69, 0x6a, etc.) to handlers
-- **PacketStructure.js**: Defines AC/ZC/HC packet schemas
-- **PacketVersions.js**: Per-version packet definitions (large switch on date)
-- **PacketLength.js**: Packet length definitions
+- **NetworkManager.js**: Connection management, packet dispatch, and packet handler hooking (`Network.hookPacket`)
+- **PacketRegister.js**: Maps packet opcode IDs (`0x69`, `0x6a`, etc.) to packet schema constructors in `PacketStructure.js`
+- **PacketStructure.js**: Defines AC/ZC/HC/CZ packet schemas and data structures
+- **PacketVersions.js**: Packet definition tables keyed by client date (registered via `PACKETVER.addSupport`)
+- **PacketLength.js**: Packet length lookup and initialization for each PACKETVER
 - **PacketCrypt.js**: Packet encryption/decryption
-- **PacketVerManager.js**: Automatic PACKETVER detection from executable metadata
+- **PacketVerManager.js**: Active PACKETVER state manager, packet length coordinator, and character info parser
 - **Packets/**: 23 version-specific length files (`packets2003_len_main.js` through `packets2025_len_main.js`)
 - **SocketHelpers/**: WebSocket.js (browser), NodeSocket.js (Electron desktop)
-- Pattern: Add handler in PacketRegister → define structure in PacketStructure → implement response in appropriate engine
+- Pattern: Define schema in `PacketStructure.js` → map opcode in `PacketRegister.js` → define lengths in `Packets/` (and outbound tables in `PacketVersions.js` if needed) → hook response handler via `Network.hookPacket(PACKET.<FAMILY>.*, handler)` in the appropriate engine (e.g., `PACKET.ZC.*` for MapEngine, `PACKET.AC.*` / `PACKET.SC.*` for LoginEngine, `PACKET.HC.*` for CharEngine)
 
 ### Asset Loaders (`src/Loaders/`)
 
@@ -113,7 +113,7 @@ Example: `import Sprite from 'Loaders/Sprite.js';`
 - **World.js**: Parse .rsw (resource world — models, lights, sounds)
 - **Str.js**: Parse .str (visual effect files, compiled .ezv format)
 - **Model.js**: Parse .rsm (3D model data)
-- **GrannyModel.js**: Parse Granny RSAC format (3D skeletal models)
+- **GR2Loader.js**: Parse Granny3D .gr2 skeletal model files via `granny-ro-js` (superseded legacy `GrannyModel.js`)
 - **MapLoader.js**: Map loading orchestration
 - **Targa.js**: Parse .tga (image format)
 
@@ -132,19 +132,21 @@ Example: `import Sprite from 'Loaders/Sprite.js';`
 - **Mail.js, Rodex.js**: Messaging systems
 - **Captcha.js, PCGoldTimer.js**: Security/timer systems
 
-### GUI Components (`src/UI/Components/`, 95 directories)
+### GUI Components (`src/UI/Components/`, 100 directories)
 
-- GUIComponent uses `<ui-button>`, `<ui-text>`, `<ui-image>` (registered in `src/UI/Elements/Elements.js`) instead of `data-background`/`data-hover`/`data-down`/`data-text` attributes
-- `this.ui` proxy on GUIComponent provides jQuery-compatible API for UIManager interop
-- Both types coexist in UIManager — `addComponent()` accepts either
+- All 100 components are built with `GUIComponent` using Shadow DOM + native DOM + Custom Elements (`<ui-button>`, `<ui-text>`, `<ui-image>`)
+- `UIManager.addComponent()` requires a `GUIComponent` instance
+- `this.ui` proxy on `GUIComponent` provides a minimal jQuery-compatible API for legacy interop; internal component code must use native DOM and Shadow DOM APIs directly (`this.getRoot().querySelector(...)`)
+- All 13 multi-version component families have been deduplicated into shared `*Common.js` factories (see `docs/GUIComponent_Version_Dedup_Factory.md`)
 
-    > **Migration docs (3-layer memory):**
+    > **UI Reference & Architecture Docs:**
     >
-    > - **L1 — Primary** [`docs/UIComponent_to_GUIComponent.md`](docs/UIComponent_to_GUIComponent.md): consolidated operational memory (invariants, rules, failure matrix). **Start here.**
-    > - **L2 — Reflex** [`docs/UIComponent_to_GUIComponent_Firmware.md`](docs/UIComponent_to_GUIComponent_Firmware.md): compressed decision matrix for rapid lookup. Not for reasoning.
-    > - **L0 — Archive** [`docs/UIComponent_to_GUIComponent_Scars.md`](docs/UIComponent_to_GUIComponent_Scars.md): full historical guide, postmortems, per-component reference. Consult only for edge cases / when L1 is insufficient.
-    >   **Custom Elements**: [`docs/CustomElements.md`](docs/CustomElements.md) — reference for `<ui-button>`, `<ui-text>`, `<ui-image>` and how to create new ones
-    >   **For Migrated & Remaining components list see:** https://github.com/MrAntares/roBrowserLegacy/issues/1140
+    > - **L1 — Primary** [`docs/UIComponent_to_GUIComponent.md`](docs/UIComponent_to_GUIComponent.md): consolidated operational memory (invariants, rules, failure matrix, custom elements). **Start here.**
+    > - **L2 — Reflex** [`docs/UIComponent_to_GUIComponent_Firmware.md`](docs/UIComponent_to_GUIComponent_Firmware.md): compressed decision matrix for rapid lookup.
+    > - **L0 — Archive** [`docs/UIComponent_to_GUIComponent_Scars.md`](docs/UIComponent_to_GUIComponent_Scars.md): full historical guide, postmortems, per-component migration reference.
+    > - **Factory Deduplication** [`docs/GUIComponent_Version_Dedup_Factory.md`](docs/GUIComponent_Version_Dedup_Factory.md): rules and patterns for unified `*Common.js` factories.
+    > - **Custom Elements**: [`docs/CustomElements.md`](docs/CustomElements.md) — reference for `<ui-button>`, `<ui-text>`, `<ui-image>`.
+    > - **Historical Issue:** [Issue #1140](https://github.com/MrAntares/roBrowserLegacy/issues/1140) tracked the completed UIComponent→GUIComponent migration.
 
 - **Intro.js**: File upload & server selection
 - **WinList.js**: Character selection
@@ -259,20 +261,24 @@ Key options: `servers` (address/port/version), `packetDump` (packet logging), `s
 ## Build & Development
 
 ```bash
-npm run dev             # Vite dev server
-npm run build:online    # Build full client (Online.js)
-npm run build:all       # Build all 7 apps
+npm run dev             # Vite dev server (demo.html)
+npm test                # Vitest test runner (tests/**/*.test.js)
+npm run build           # Build Web client via custom builder (builder-web.mjs)
+npm run build:online    # Build full online client (Online.js)
+npm run build:all       # Build all 7 apps (Online + 6 viewers)
 npm run build:pwa       # Build PWA (Online + Thread + manifest)
 npm run electron        # Run Electron desktop app
 npm run electron:dev    # Run Electron in dev mode (with DevTools)
 npm run electron:build  # Package Electron app (output: dist/Desktop/)
 npm run lint            # ESLint check
 npm run lint:fix        # ESLint auto-fix
+npm run lint:check      # ESLint check with zero-warning threshold
 npm run format          # Prettier format
+npm run format:check    # Prettier formatting check
 npm run ci              # lint + format:check (CI pipeline)
 ```
 
-Full script list in `package.json`. `ThreadEventHandler.js` (Web Worker) is built separately via `npm run build:threadhandler`.
+Node.js engine requirement: `>=22` (Node 22 is pinned in `.nvmrc`; GitHub Actions CI runs on Node 24). Full script list in `package.json`. `ThreadEventHandler.js` (Web Worker) is built separately via `npm run build:threadhandler`.
 
 ### Infrastructure Requirements
 
@@ -285,32 +291,31 @@ Full script list in `package.json`. `ThreadEventHandler.js` (Web Worker) is buil
 
 ### Adding a New UI Component
 
-**New components should use GUIComponent (Shadow DOM):**
+**All components use GUIComponent (Shadow DOM):**
 
 1. Create directory in `src/UI/Components/NewComponent/`
 2. Create `NewComponent.js`, `NewComponent.html`, `NewComponent.css`
-3. Use `new GUIComponent('Name', cssText)` with `render()` returning HTML
+3. Instantiate `new GUIComponent('Name', cssText)` with `Component.render = () => htmlText`
 4. Use Custom Elements (`<ui-button>`, `<ui-text>`, `<ui-image>`) instead of `data-*` attributes
 5. CSS: dimensions/position on `:host`, inner layout on `#Name`
-6. Register with `UIManager.addComponent()`
+6. Register with `UIManager.addComponent(Component)`
 7. Add keyboard shortcut in `src/Controls/ProcessCommand.js` if needed
-    > Consult **L1** [`docs/UIComponent_to_GUIComponent.md`](docs/UIComponent_to_GUIComponent.md) first; fall back to **L0** [`_Scars.md`](docs/UIComponent_to_GUIComponent_Scars.md) for the full step-by-step checklist and pitfalls.  
-    > See [`docs/CustomElements.md`](docs/CustomElements.md) for element reference
-    > **Migrating an existing UIComponent:** Follow the step-by-step checklist in the migration guide. Key pitfalls: jQuery `.show()`/`.hide()` inside Shadow DOM, `$el.closest('body')` → `el.isConnected`, CSS `:host` dimensions.
+    > Consult **L1** [`docs/UIComponent_to_GUIComponent.md`](docs/UIComponent_to_GUIComponent.md) first; fall back to **L2** [`docs/UIComponent_to_GUIComponent_Firmware.md`](docs/UIComponent_to_GUIComponent_Firmware.md) for quick lookups and **L0** [`docs/UIComponent_to_GUIComponent_Scars.md`](docs/UIComponent_to_GUIComponent_Scars.md) for historical edge cases.  
+    > See [`docs/CustomElements.md`](docs/CustomElements.md) for element reference.
 
 ### Implementing a New Packet Handler
 
 1. Define packet structure in `src/Network/PacketStructure.js`
-2. Register handler in `src/Network/PacketRegister.js`
-3. Implement handler in appropriate engine (MapEngine, LoginEngine, etc.)
-4. Handle version-specific differences via PacketVersions.js
-5. Test with `packetDump` enabled in config
+2. Map packet opcode ID to structure in `src/Network/PacketRegister.js`
+3. Define packet length in `src/Network/Packets/packetsYYYY_len_main.js` (and add date-specific tables in `src/Network/PacketVersions.js` if outbound CZ packet)
+4. Implement handler in appropriate engine (`MapEngine`, `LoginEngine`, `CharEngine`, etc.) and hook with `Network.hookPacket(PACKET.<FAMILY>.*, handler)` (e.g., `PACKET.ZC.*` for MapEngine, `PACKET.AC.*` / `PACKET.SC.*` for LoginEngine, `PACKET.HC.*` for CharEngine)
+5. Test with `packetDump: true` enabled in config
 
 ### Adding a New Packet Version
 
 1. Create file in `src/Network/Packets/` (e.g., `packets2026_len_main.js`)
 2. Define packet lengths for all known packets in that version
-3. Update `PacketVerManager.js` to include the new date range
+3. Update `PacketLength.js` (add module import and year range) and `PacketVerManager.js`
 4. Test against server with matching PACKETVER
 
 ### Creating a New Renderer Effect
@@ -324,9 +329,12 @@ Full script list in `package.json`. `ThreadEventHandler.js` (Web Worker) is buil
 
 **Before starting, you MUST read `docs/GUIComponent_Version_Dedup_Factory.md` — it contains invariants that cannot be violated.**
 
-1. Create a ComponentNameCommon.js in Component Folder
-2. Move all JS code from `V0` or `V1` to new Common Factory
-3. Add each JS variation from other versions, creating a new entry on the factory function header
+All 13 existing versioned component families (`BasicInfo`, `CharCreate`, `CharSelect`, `Equipment`, `Inventory`, `MiniMap`, `PartyFriends`, `PlayerViewEquip`, `Quest`, `SkillList`, `Storage`, `WinLogin`, `WinStats`) have been unified into `*Common.js` factories. For any new multi-version components:
+
+1. Create a `ComponentNameCommon.js` in the component folder
+2. Export `createComponentName({ name, htmlText, cssText, ...flags })`
+3. Move shared JS into the factory, parametrizing version differences with flags
+4. Thin each version file to imports + `createComponentName(...)`
 
 ## Troubleshooting
 
@@ -368,7 +376,7 @@ Full script list in `package.json`. `ThreadEventHandler.js` (Web Worker) is buil
 
 - Set `packetDump: true` in ROConfig to log all packets
 - Compare hex dumps against PacketStructure.js definitions
-- Check PACKETVER detection: NetworkManager logs the detected version on connect
+- Check PACKETVER detection: PacketVerManager logs `[PACKETVER] Set packet version <date>` when PACKETVER is set
 
 ### Common Bug Hotspots
 
@@ -376,7 +384,7 @@ Full script list in `package.json`. `ThreadEventHandler.js` (Web Worker) is buil
   creation/removal edge cases, especially during map transitions
 - **Effect rendering** (`src/Renderer/Effects/`): 3 TODOs — damage display  
   edge cases (Damage.js) and sky rendering (Sky.js)
-- **DB tables** (`src/DB/DBManager.js`): 12 TODOs — incomplete data mappings  
+- **DB tables** (`src/DB/DBManager.js`): 11 TODOs — incomplete data mappings  
   for newer kRO content
 - **Packet handling**: Version-specific edge cases where packet structure  
   changed between kRO dates

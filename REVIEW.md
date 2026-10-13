@@ -12,7 +12,7 @@ For architecture, conventions, and subsystem details, see [AGENTS.md](AGENTS.md)
 | -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **DB Constants** (`src/DB/`)           | Changing numeric IDs (skills, jobs, items, status, emotions) breaks server compatibility. CI tests pin these values — if a constant test fails, the change is wrong unless intentionally updating to match a new kRO version. |
 | **Packet structures** (`src/Network/`) | Any change to `PacketStructure.js`, `PacketVersions.js`, or `PacketLength.js` can break one of 23 supported packet versions. Verify the change targets the correct PACKETVER date range and doesn't affect others.            |
-| **Binary parsers** (`src/Loaders/`)    | Offset/endianness errors in GRF, SPR, GAT, GND, RSW, RSM, TGA parsers corrupt game assets silently.                                                                                                                           |
+| **Binary parsers** (`src/Loaders/`)    | Offset/endianness errors in GRF, SPR, GAT, GND, RSW, RSM, GR2, TGA parsers corrupt game assets silently.                                                                                                                      |
 | **No proprietary files**               | Game assets (GRF, SPR, BMP, BGM) must never be committed. Test fixtures must be synthetic (built in-memory).                                                                                                                  |
 
 ### 🟡 Important — Request changes
@@ -73,39 +73,20 @@ npm test          # Vitest — runs all tests in tests/**/*.test.js
 - **Canvas API** must be mocked for tests that touch `Texture.js` or any 2D context
 - **All fixtures must be synthetic** — built in-memory from `ArrayBuffer`/`DataView`, no game files
 - **DB constant tests are regression guards** — they pin numeric IDs so accidental changes are caught by CI
-- **Node.js**: `>=22` required (CI uses Node 24). See `.nvmrc` for pinned version.
+- **Node.js**: `>=22` required (`.nvmrc` pins Node 22; CI uses Node 24). Note: Node 25+ has experimental native `localStorage` on `globalThis` that can conflict with `jsdom`.
 
 ### Test file organization
 
 ```
 tests/
-├── db/           # DB constants (9 files)
-├── loaders/      # Binary parsers (10 files)
-│   ├── Action.test.js
-│   ├── Altitude.test.js
-│   ├── GameFile.test.js
-│   ├── GameFileDecrypt.test.js
-│   ├── Ground.test.js
-│   ├── Model.test.js
-│   ├── Sprite.test.js
-│   ├── Str.test.js
-│   ├── Targa.test.js
-│   └── World.test.js
+├── db/           # DB constants & tables (12 files)
+├── engine/       # LoginEngine & MapEngine tests (2 files)
+├── fixtures/     # Synthetic test fixtures & mock helpers (2 files)
+├── loaders/      # Binary parsers (11 files, including GR2Loader.test.js)
+├── network/      # Packet structure, registration & handler tests (4 files)
+├── renderer/     # Renderer & GR2 tests (11 files, including 5 in GR2/)
+├── ui/           # GUIComponent & UI subsystem tests (22 files)
 └── util/         # Utilities (14 files)
-    ├── Base62.test.js
-    ├── BinaryReader.test.js
-    ├── BinaryWriter.test.js
-    ├── CRC32.test.js
-    ├── CodepageManager.test.js
-    ├── Executable.test.js
-    ├── HTMLEntity.test.js
-    ├── Inflate.test.js           # zlib decompression
-    ├── PathFinding.test.js
-    ├── Queue.test.js
-    ├── Struct.test.js
-    ├── Texture.test.js           # requires canvas mock
-    ├── colors.test.js
-    └── partyColors.test.js
 ```
 
 ---
@@ -136,7 +117,7 @@ Both `npm test` (Vitest) and `npm run build` (custom builder) resolve imports th
 - Lock files (`package-lock.json`) — unless dependencies changed intentionally
 - `window.electronAPI` in Electron files — platform requirement, not removable
 - `docs/*.md` — reference/prose docs (skip), EXCEPT agent operational memory (AGENTS.md, UIComponent_to_GUIComponent\*.md, GUIComponent_Version_Dedup_Factory.md) which is reviewed for correctness, not prose.
-- `window._OBJ_DRAG_` — shared drag-and-drop state across ~27 files (Inventory, Storage, Cart, Mail, SkillList, Equipment, ShortCut, etc.). The HTML5 DnD `dataTransfer` API can't read its payload during `dragover`, which is why this global exists. Don't flag it as removable global state in single-file PRs; it requires a coordinated migration (e.g. a shared `DragDropState` module).
+- `window._OBJ_DRAG_` — shared drag-and-drop state across ~20 source components (Inventory, Storage, Cart, Mail, SkillList, Equipment, ShortCut, etc.). The HTML5 DnD `dataTransfer` API can't read its payload during `dragover`, which is why this global exists. Don't flag it as removable global state in single-file PRs; it requires a coordinated migration (e.g. a shared `DragDropState` module).
 
 ---
 
