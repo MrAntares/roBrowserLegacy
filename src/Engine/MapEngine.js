@@ -1014,7 +1014,9 @@ const TEXTO_DA_RECUSA_DE_SONO = {
 	praca: 'Nas Praças não dá para dormir: o tempo delas é contado por dia. Durma num mapa de caça.',
 	'sem-mundo': 'Não foi possível iniciar o sono agora — você não está numa caçada.',
 	// RAGIDLE (24/09/2026, ordem do dono): um sono por conta.
-	'outro-personagem-dormindo': 'Só um personagem por conta pode dormir por vez.'
+	'outro-personagem-dormindo': 'Só um personagem por conta pode dormir por vez.',
+	// RAGIDLE (12/10/2026): o acerto do sono anterior ainda indo ao disco - dura instantes.
+	'acerto-pendente': 'O último sono ainda está sendo salvo. Tente de novo em alguns segundos.'
 };
 
 /**
@@ -1503,6 +1505,11 @@ function onMapChange(pkt, ehEntradaNoMundo) {
 		PresencaIdle.append(); // RAGIDLE: janela de presenca (D-1162)
 		IndicacaoIdle.append(); // RAGIDLE: Indique & Ganhe (D-1164)
 		TrocaIdle.append(); // RAGIDLE: a janela "Trade" (02/10/2026) - anexada sempre, fechada
+		// RAGIDLE (12/10/2026): conexao nova = executor do Bot novo no servidor, com o
+		// `statusRevision` recomecando do zero. Antes do `append()`, que pede o estado.
+		if (ehEntradaNoMundo) {
+			BotMenu.novaConexaoDoServidor();
+		}
 		BotMenu.append(); // RAGIDLE: o menu do Bot novo (07/10/2026) - anexada sempre, fechada; pede o estado ao servidor
 		CombatCornerIdle.append(); // RAGIDLE: o botao "Ataque auto" (12/10/2026) - o ON/OFF do Bot fora da janela
 		RankingIdle.append(); // RAGIDLE: o Ranking
@@ -1526,7 +1533,8 @@ function onMapChange(pkt, ehEntradaNoMundo) {
 		 * (07/10/2026): a janela "Idle" que perguntava (`IdleConfig.sondarMapa`)
 		 * foi retirada, e quem marca o contexto como obsoleto e pede o estado
 		 * novo e o `BotMenu.append()` acima (ver UI/contextoDoMapa.js).
-		 * O parametro `ehEntradaNoMundo` de `onMapChange` fica, sem leitor.
+		 * O parametro `ehEntradaNoMundo` de `onMapChange` voltou a ter leitor em
+		 * 12/10/2026: a linha de base do Bot antes do `BotMenu.append()`.
 		 */
 
 		// RAGIDLE: "Painel de admin" floating button — same unconditional
