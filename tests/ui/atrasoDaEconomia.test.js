@@ -11,15 +11,19 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { MS_DE_ATRASO_ANTES_DE_ENTRAR_NA_ECONOMIA, criarGatilhoDaEconomia } from '../../src/Engine/gatilhoDaEconomia.js';
 
-function montar({ oculta = true, ligada = true } = {}) {
-	const estado = { oculta, ligada };
+function montar({ oculta = true, ligada = true, dedo = false } = {}) {
+	const estado = { oculta, ligada, dedo };
 	const pedidos = [];
+	const telas = [];
 	const gatilho = criarGatilhoDaEconomia({
 		oculta: () => estado.oculta,
 		automaticaLigada: () => estado.ligada,
-		pedirEntrar: () => pedidos.push('entrar')
+		armarNaHora: () => estado.dedo,
+		pedirEntrar: () => pedidos.push('entrar'),
+		pedirSair: () => pedidos.push('sair'),
+		abrirTela: restante => telas.push(restante)
 	});
-	return { estado, pedidos, gatilho };
+	return { estado, pedidos, telas, gatilho };
 }
 
 describe('o atraso da economia de energia', () => {
@@ -129,7 +133,119 @@ describe('o atraso da economia de energia', () => {
 		const motor = readFileSync('src/Engine/MapEngine.js', 'utf8');
 		expect(motor).toContain("document.addEventListener('visibilitychange', onVisibilidadeMudouParaEconomia);");
 		expect(motor).toContain("document.removeEventListener('visibilitychange', onVisibilidadeMudouParaEconomia);");
-		expect(motor).toContain("pkt.json = JSON.stringify({ acao: 'entrar' });");
+		expect(motor).toContain("pedirEntrar: () => pedirAcaoDaEconomia('entrar'),");
 		expect(motor).toContain('criarGatilhoDaEconomia({');
+		// O criterio de celular e o do projeto (`ehDedo`), nao um `matchMedia` novo; e o `pagehide` esta ligado.
+		expect(motor).toContain('armarNaHora: () => ehDedo(),');
+		expect(motor).toContain("window.addEventListener('pagehide', onPaginaEscondida);");
+	});
+});
+
+describe('o celular arma na hora (decisao do dono, 13/10/2026)', () => {
+	beforeEach(() => vi.useFakeTimers());
+	afterEach(() => vi.useRealTimers());
+
+	it('no dedo o `entrar` sai NO INSTANTE em que a aba some, sem esperar os 14 s', () => {
+		const { pedidos, gatilho } = montar({ dedo: true });
+		gatilho.aoMudarVisibilidade();
+		expect(pedidos).toEqual(['entrar']);
+		vi.advanceTimersByTime(60_000);
+		expect(pedidos, 'um aviso so').toEqual(['entrar']);
+	});
+
+	it('no desktop o `entrar` continua so depois dos 14 s (D-1394)', () => {
+		const { pedidos, gatilho } = montar({ dedo: false });
+		gatilho.aoMudarVisibilidade();
+		expect(pedidos).toEqual([]);
+		vi.advanceTimersByTime(14_000);
+		expect(pedidos).toEqual(['entrar']);
+	});
+
+	it('a TELA PRETA do celular so abre depois dos 14 s, mesmo com a resposta do servidor ja ter chegado', () => {
+		const { telas, gatilho } = montar({ dedo: true });
+		gatilho.aoMudarVisibilidade();
+		expect(gatilho.aoResponderAtiva(14_400_000), 'a resposta chega na hora: a tela espera').toBe(false);
+		vi.advanceTimersByTime(13_999);
+		expect(telas).toEqual([]);
+		vi.advanceTimersByTime(1);
+		expect(telas, 'passou o atraso: abre com o restante guardado').toEqual([14_400_000]);
+		expect(gatilho.aoResponderAtiva(14_399_000), 'depois do atraso a tela abre direto').toBe(true);
+	});
+
+	it('se a resposta chega DEPOIS do atraso, a tela abre direto (nada guardado)', () => {
+		const { telas, gatilho } = montar({ dedo: true });
+		gatilho.aoMudarVisibilidade();
+		vi.advanceTimersByTime(14_000);
+		expect(telas).toEqual([]);
+		expect(gatilho.aoResponderAtiva(1)).toBe(true);
+	});
+
+	it('voltar antes dos 14 s manda `sair` e a tela nunca abre', () => {
+		const { estado, pedidos, telas, gatilho } = montar({ dedo: true });
+		gatilho.aoMudarVisibilidade();
+		gatilho.aoResponderAtiva(14_400_000);
+		vi.advanceTimersByTime(8_000);
+		estado.oculta = false;
+		gatilho.aoMudarVisibilidade();
+		expect(pedidos).toEqual(['entrar', 'sair']);
+		// A resposta atrasada do `entrar` (ativa:true) e ignorada ate o ack do `sair`.
+		expect(gatilho.aoResponderAtiva(14_400_000)).toBe(false);
+		vi.advanceTimersByTime(60_000);
+		expect(telas).toEqual([]);
+		gatilho.aoResponderInativa();
+		expect(gatilho.fase()).toBe('livre');
+	});
+
+	it('voltar DEPOIS que a tela abriu nao manda `sair` (D-1392)', () => {
+		const { estado, pedidos, gatilho } = montar({ dedo: true });
+		gatilho.aoMudarVisibilidade();
+		vi.advanceTimersByTime(14_000);
+		estado.oculta = false;
+		gatilho.aoMudarVisibilidade();
+		expect(pedidos).toEqual(['entrar']);
+	});
+
+	it('o `pagehide` arma na hora no dedo, uma vez, e nao no desktop', () => {
+		const dedo = montar({ dedo: true });
+		dedo.gatilho.aoEsconderPagina();
+		dedo.gatilho.aoEsconderPagina();
+		expect(dedo.pedidos).toEqual(['entrar']);
+		const mouse = montar({ dedo: false });
+		mouse.gatilho.aoEsconderPagina();
+		expect(mouse.pedidos).toEqual([]);
+	});
+
+	it('o `pagehide` seguido do visibilitychange nao manda dois `entrar`', () => {
+		const { pedidos, gatilho } = montar({ dedo: true });
+		gatilho.aoEsconderPagina();
+		gatilho.aoMudarVisibilidade();
+		expect(pedidos).toEqual(['entrar']);
+	});
+
+	it('com a opcao desligada o celular nao arma nem no `pagehide`', () => {
+		const { pedidos, gatilho } = montar({ dedo: true, ligada: false });
+		gatilho.aoMudarVisibilidade();
+		gatilho.aoEsconderPagina();
+		expect(pedidos).toEqual([]);
+	});
+
+	it('a opcao desligada com o aviso ja mandado (celular) desfaz com `sair`', () => {
+		const { estado, pedidos, gatilho } = montar({ dedo: true });
+		gatilho.aoMudarVisibilidade();
+		estado.ligada = false;
+		gatilho.aoMudarVisibilidade();
+		expect(pedidos).toEqual(['entrar', 'sair']);
+	});
+
+	it('o ack tardio do `sair` nao apaga um novo `entrar` cedo (esconder, voltar, esconder)', () => {
+		const { estado, pedidos, gatilho } = montar({ dedo: true });
+		gatilho.aoMudarVisibilidade();
+		estado.oculta = false;
+		gatilho.aoMudarVisibilidade();
+		estado.oculta = true;
+		gatilho.aoMudarVisibilidade();
+		expect(pedidos).toEqual(['entrar', 'sair', 'entrar']);
+		gatilho.aoResponderInativa();
+		expect(gatilho.fase(), 'o ack do sair velho nao desfaz o entrar novo').toBe('cedo');
 	});
 });

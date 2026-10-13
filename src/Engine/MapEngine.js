@@ -195,7 +195,7 @@ import AchievementEngine from './MapEngine/Achievement.js';
 import RagidleRelatorioEngine from './MapEngine/RagidleRelatorio.js';
 import RagidleCashEngine from './MapEngine/RagidleCash.js';
 import RagidleConfirmarEngine from './MapEngine/RagidleConfirmar.js'; // RAGIDLE: janela de confirmacao do `#` destrutivo
-import EscalaDaHud from 'UI/escalaDaHud.js'; // RAGIDLE: a HUD diminui junto com a janela (D-934)
+import EscalaDaHud, { ehDedo } from 'UI/escalaDaHud.js'; // RAGIDLE: a HUD diminui junto com a janela (D-934)
 import HudVertical from 'UI/hudVertical.js'; // RAGIDLE: a HUD vertical do celular em pe (D-939)
 import TelaAcesaNoFarm from 'UI/telaAcesaNoFarm.js'; // RAGIDLE: o modo leitura — a tela nao apaga no farm
 
@@ -439,6 +439,9 @@ class MapEngine {
 				 * setInterval), entao "a aba foi pro fundo" chega ao servidor com o socket ainda respondendo.
 				 */
 				document.addEventListener('visibilitychange', onVisibilidadeMudouParaEconomia);
+				// O celular congela a pagina logo depois de esconder: `pagehide` e o ultimo aviso, `pageshow` a volta.
+				window.addEventListener('pagehide', onPaginaEscondida);
+				window.addEventListener('pageshow', onPaginaVoltou);
 
 				Session.Playing = true;
 
@@ -1304,26 +1307,41 @@ function sairDaEconomiaDeEnergia() {
 	Network.sendPacket(pkt);
 	// Fecha na hora, sem esperar o ack: o jogador ja pediu, e a resposta do
 	// servidor (ativa:false) so confirmaria o que a tela ja fez.
+	_gatilhoDaEconomia.cancelar();
 	fecharTelaDaEconomia();
 }
 
 /**
- * O gatilho (D-1389/D-1390, 14/09/2026; de volta em 13/10/2026, bug #10, para o Bot novo): `visibilitychange` so
- * avisa o servidor quando a aba vai pro FUNDO, e so depois do atraso de confirmacao de D-1394 (14 s, ver
- * `Engine/gatilhoDaEconomia.js`, onde a regra e provada com relogio falso). Voltar a aba NAO manda "sair" (ver
- * `sairDaEconomiaDeEnergia`, o unico lugar que manda). O SERVIDOR decide se o pedido de entrar e elegivel (regra
- * 1: nunca confia no cliente sozinho): so com o Bot ligado; sem ele a recusa `sem-bot` chega e nada abre.
+ * O gatilho (D-1389/D-1390, 14/09/2026; de volta em 13/10/2026, bug #10, para o Bot novo). Desktop: `entrar` so
+ * depois do atraso de confirmacao de D-1394 (14 s). Celular (`ehDedo()`, o criterio do projeto): `entrar` NO INSTANTE
+ * em que a aba some (e no `pagehide`), porque o iPhone congela a pagina antes dos 14 s; a tela preta continua so
+ * depois dos 14 s, e voltar antes manda `sair` sem efeito visivel (ver `Engine/gatilhoDaEconomia.js`, provado com
+ * relogio falso). Voltar a aba depois que a tela abriu NAO sai (D-1392: so o botao). O SERVIDOR decide (regra 1) e
+ * arma com ou sem o Bot ligado (desenho de 16/09).
  */
+function pedirAcaoDaEconomia(acao) {
+	const pkt = new PACKET.CZ.RAGIDLE_ECONOMIA_ACAO();
+	pkt.json = JSON.stringify({ acao });
+	Network.sendPacket(pkt);
+}
+
 const _gatilhoDaEconomia = criarGatilhoDaEconomia({
 	oculta: () => document.visibilityState === 'hidden',
 	// A economia AUTOMATICA desligada nas Configuracoes de Video (23/09/2026): a aba escondida nao pede nada.
 	automaticaLigada: () => GraphicsSettings.economiaDeEnergiaAutomatica !== false,
-	pedirEntrar: () => {
-		const pkt = new PACKET.CZ.RAGIDLE_ECONOMIA_ACAO();
-		pkt.json = JSON.stringify({ acao: 'entrar' });
-		Network.sendPacket(pkt);
-	}
+	armarNaHora: () => ehDedo(),
+	pedirEntrar: () => pedirAcaoDaEconomia('entrar'),
+	pedirSair: () => pedirAcaoDaEconomia('sair'),
+	abrirTela: restanteMs => abrirTelaDaEconomia(restanteMs)
 });
+
+function onPaginaEscondida() {
+	_gatilhoDaEconomia.aoEsconderPagina();
+}
+
+function onPaginaVoltou() {
+	_gatilhoDaEconomia.aoMudarVisibilidade();
+}
 
 function onVisibilidadeMudouParaEconomia() {
 	_gatilhoDaEconomia.aoMudarVisibilidade();
@@ -1361,10 +1379,14 @@ function onEconomiaRecebida(pkt) {
 
 	if (corpo.ativa === true) {
 		if (corpo.morreu === true) _personagemMorreuEmEconomia = true;
-		abrirTelaDaEconomia(Number(corpo.restanteMs) || 0);
+		// No celular o servidor responde na hora e a tela preta espera o atraso de 14 s (ou nunca abre, se voltou).
+		if (_gatilhoDaEconomia.aoResponderAtiva(Number(corpo.restanteMs) || 0)) {
+			abrirTelaDaEconomia(Number(corpo.restanteMs) || 0);
+		}
 		return;
 	}
 
+	_gatilhoDaEconomia.aoResponderInativa();
 	fecharTelaDaEconomia();
 	if (corpo.expulso === true) {
 		import('Engine/GameEngine.js').then(m => m.default.reload());
@@ -2329,6 +2351,8 @@ function desmontarSessaoDeMapa() {
 	TelaAcesaNoFarm.desligar();
 	BackgroundTicker.stop();
 	document.removeEventListener('visibilitychange', onVisibilidadeMudouParaEconomia);
+	window.removeEventListener('pagehide', onPaginaEscondida);
+	window.removeEventListener('pageshow', onPaginaVoltou);
 	_gatilhoDaEconomia.cancelar();
 	fecharTelaDaEconomia();
 	// A tela do sono e a outra tela preta crua em `document.body`: uma reconexao
