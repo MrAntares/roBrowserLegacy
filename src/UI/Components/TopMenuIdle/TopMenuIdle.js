@@ -210,6 +210,7 @@ import { fecharEEsquecer } from '../limpezaDeJanelaIdle.js'; // a troca de perso
 import { pontoDoMenuAceso } from './pontoDoMenu.js'; // a bolinha do botao Menu (29/09/2026)
 import TemporadaIdle from 'UI/Components/TemporadaIdle/TemporadaIdle.js'; // RAGIDLE: a janela da Temporada (Season 1, 21/09/2026) - no cluster desde a noite do mesmo dia
 import VotoIdle from 'UI/Components/VotoIdle/VotoIdle.js'; // RAGIDLE: janela de Voto (D-1159)
+import CombatCornerIdle from 'UI/Components/CombatCornerIdle/CombatCornerIdle.js'; // RAGIDLE: o aro "Ataque auto" (16/09/2026, de volta em 12/10/2026 — some enquanto o leque esta aberto)
 import CodexIdle from 'UI/Components/CodexIdle/CodexIdle.js'; // RAGIDLE: Codex (D-851)
 import { temAvisoDoCodex } from 'UI/Components/avisoDoCodex.js'; // D-1232
 import PresencaIdle from 'UI/Components/PresencaIdle/PresencaIdle.js'; // RAGIDLE: Presenca (D-1162)
@@ -1030,6 +1031,7 @@ function aplicarEstadoDoLeque(imediato) {
 	}
 
 	fab.classList.toggle('is-open', _lequeAberto);
+	ocultarAtaqueAutoEnquantoOLequeEstaAberto();
 	/* D-939: a HUD vertical desenha o menu aberto como FOLHA (cluster +
 	   leque em cartoes), e o CSS dela le esta classe no elemento raiz — o
 	   mesmo gesto que abre o leque e o que muda a apresentacao, sem um
@@ -2014,6 +2016,32 @@ function hideReplacedControls() {
 	if (jobLevelButton) {
 		jobLevelButton.style.display = 'none';
 	}
+}
+
+/**
+ * O "Ataque auto" (`CombatCornerIdle`) SOME enquanto o leque esta aberto
+ * (16/09/2026, pedido do dono, com print: o leque abre por cima do botao de
+ * ataque automatico). O botao saiu com o Novo Bot V5 e voltou em 12/10/2026
+ * como o ON/OFF do Bot; a regra voltou com ele.
+ *
+ * Os dois moram no MESMO canto — o aro do Ataque Auto fica logo ACIMA do
+ * botao Menu (CombatCornerIdle.css, `bottom: 90px` contra o Menu em
+ * `bottom: 16px`) — e o leque, ao abrir, cresce PARA CIMA a partir do Menu
+ * atravessando exatamente essa faixa. Esconder um dos dois enquanto o outro
+ * esta em uso e a saida mais simples, e foi a que o dono pediu.
+ *
+ * Mesmo molde de `hideReplacedControls()` acima: pega a raiz do OUTRO
+ * componente por `getRoot()` e alterna o `display` do elemento visivel dele
+ * (`:host` tem `pointer-events:none`, entao escondido ele tambem nao intercepta
+ * clique nenhum).
+ */
+function ocultarAtaqueAutoEnquantoOLequeEstaAberto() {
+	const root = CombatCornerIdle.getRoot && CombatCornerIdle.getRoot();
+	const corner = root && root.querySelector('.cc-corner');
+	if (!corner) {
+		return;
+	}
+	corner.style.display = _lequeAberto ? 'none' : '';
 }
 
 /**
