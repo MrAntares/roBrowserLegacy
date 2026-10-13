@@ -18,7 +18,9 @@ import Session from 'Engine/SessionStorage.js';
 import Network from 'Network/NetworkManager.js';
 import Reconexao from 'Network/reconexao.js';
 import BackgroundTicker from 'Network/BackgroundTicker.js';
+import { criarGatilhoDaEconomia } from 'Engine/gatilhoDaEconomia.js'; // RAGIDLE: o gatilho da economia de energia (bug #10, 13/10/2026)
 import { criarVigiaDeSilencio } from 'Network/vigiaDeSilencio.js';
+import { ler as lerRegistroDaCaca } from 'UI/Components/HuntAnalyzer/registroDaCaca.js';
 import PACKETVER from 'Network/PacketVerManager.js';
 import PACKET from 'Network/PacketStructure.js';
 import Renderer from 'Renderer/Renderer.js';
@@ -120,6 +122,7 @@ import BotMenu from 'UI/Components/BotMenu/BotMenu.js'; // RAGIDLE: o menu do Bo
 import RankingIdle from 'UI/Components/RankingIdle/RankingIdle.js'; // RAGIDLE: o Ranking (09/09/2026)
 import AmigosIdle from 'UI/Components/AmigosIdle/AmigosIdle.js'; // RAGIDLE: a janela Amigos (05/10/2026)
 import PainelComandoIdle from 'UI/Components/PainelComandoIdle/PainelComandoIdle.js'; // RAGIDLE: o painel de comando (D-1563)
+import GraphicsSettings from 'Preferences/Graphics.js'; // RAGIDLE: a economia automatica pode ser desligada (23/09/2026)
 import { medidorDePing } from 'Network/medidorDePing.js'; // RAGIDLE: o ping real (23/09/2026)
 import TemporadaIdle from 'UI/Components/TemporadaIdle/TemporadaIdle.js'; // RAGIDLE: a janela da Temporada (Season 1, 21/09/2026)
 import RoShop from 'UI/Components/RoShop/RoShop.js'; // RAGIDLE: o RO Shop (22/09/2026) - a loja de RO Cash que substitui a CashShop nativa como caminho de compra
@@ -429,6 +432,14 @@ class MapEngine {
 				// the map-server's own resync-on-gap logic kicks in promptly.
 				BackgroundTicker.start(sendKeepAlive);
 
+				/*
+				 * A ECONOMIA DE ENERGIA (D-1389/D-1390, 14/09/2026; de volta em 13/10/2026, bug #10, para o Bot
+				 * novo) - o gatilho do cliente. `visibilitychange` e o MESMO evento que o BackgroundTicker ja
+				 * escuta pra ressincronizar; ele nunca e estrangulado por aba escondida (ao contrario de
+				 * setInterval), entao "a aba foi pro fundo" chega ao servidor com o socket ainda respondendo.
+				 */
+				document.addEventListener('visibilitychange', onVisibilidadeMudouParaEconomia);
+
 				Session.Playing = true;
 
 				/*
@@ -493,8 +504,8 @@ class MapEngine {
 			// muda em nada o caminho normal de entrada. Ver o cabecalho de
 			// onSonoRecebido, abaixo.
 			Network.hookPacket(PACKET.ZC.RAGIDLE_SONO, onSonoRecebido);
-			// A ECONOMIA DE ENERGIA SAIU (07/10/2026); o gancho fica so para
-			// encerrar uma sessao antiga - ver o cabecalho de onEconomiaRecebida.
+			// A ECONOMIA DE ENERGIA (D-1389/D-1390; de volta em 13/10/2026, bug #10) - ver o
+			// cabecalho de onEconomiaRecebida, abaixo.
 			Network.hookPacket(PACKET.ZC.RAGIDLE_ECONOMIA, onEconomiaRecebida);
 
 			// hook reassembly packets and map the responses
@@ -906,6 +917,17 @@ function onConnectionAccepted(pkt) {
 	// curso, zera a escalada e avisa "reconectado"; se nao, e' um no-op
 	// seguro (ver Reconexao.aoEntrarComSucesso).
 	Reconexao.aoEntrarComSucesso();
+
+	/*
+	 * A ECONOMIA DE ENERGIA NA REENTRADA (F29, auditoria de 22/09/2026). O servidor DESARMA a economia em toda
+	 * entrada no mundo; o cliente seguia com a tela preta aberta e sem avisar de novo. Quem reconectava com a
+	 * aba ainda oculta ficava sem economia, e a proxima queda tirava o personagem do mundo na hora. Fecha a
+	 * tela velha e, se a aba continua oculta, reagenda o `entrar` pelo MESMO caminho do evento de visibilidade.
+	 */
+	fecharTelaDaEconomia();
+	_gatilhoDaEconomia.cancelar();
+	if (document.visibilityState === 'hidden') onVisibilidadeMudouParaEconomia();
+
 	// D-2055: o fim da espera pelo servidor de mapa (a medida da entrada).
 	try {
 		marcarEntradaAceita();
@@ -1197,20 +1219,136 @@ function onSonoRecebido(pkt) {
 	UIManager.showResumoDoSono(resumo, voltarAoMundoDepoisDoSono);
 }
 
-/* ---------------- A ECONOMIA DE ENERGIA: SO A SAIDA (07/10/2026) ---------------- */
+/* ---------------- A ECONOMIA DE ENERGIA (D-1389/D-1390, 14/09/2026) ---------------- */
+
+/** A tela preta aberta agora, se houver ({atualizar, remove} de UIManager.showEconomiaDeEnergia). */
+let _janelaDaEconomia = null;
+/** O laco de 1s que reatualiza o timer e os numeros ao vivo, enquanto a tela esta aberta. */
+let _tiqueDaEconomia = null;
+/** O retrato de `registroDaCaca` no instante em que entrou — os numeros mostrados sao DELTA contra isto. */
+let _snapshotDaEconomia = null;
+/** O relogio LOCAL, so mostrador — a mesma ressalva de `showDormindo`: a verdade e do servidor. */
+let _restanteDaEconomiaMs = 0;
+/**
+ * O personagem morreu NESTA sessao de economia de energia (D-1398,
+ * 14/09/2026)? Uma vez `true` por `onEconomiaRecebida`, fica `true` ate
+ * `fecharTelaDaEconomia` — o relogio de 1s (`_tiqueDaEconomia`) reusa este
+ * valor em toda repintura, entao o aviso nao precisa de um pacote novo do
+ * servidor a cada segundo pra continuar visivel.
+ */
+let _personagemMorreuEmEconomia = false;
 
 /**
- * A ECONOMIA DE ENERGIA SAIU DO CLIENTE (07/10/2026, Novo Bot V5). O combate e
- * o do Modo Classico, o personagem nao joga sozinho, e o servidor ja RECUSA o
- * `entrar`. Sairam: o pedido automatico na aba escondida
- * (`visibilitychange`), a opcao nas Configuracoes de Video e a tela preta.
+ * Os numeros da tela preta: o quanto foi ganho DESDE que entrou em economia
+ * de energia, nunca a caçada inteira — por isso o delta contra o snapshot
+ * tirado em `abrirTelaDaEconomia`. Sem personagem ou sem snapshot (corrida
+ * entre a resposta do servidor e `Session.Entity` ainda nao existir), so o
+ * relogio aparece.
+ */
+function statsDaEconomia() {
+	const base = { restanteMs: _restanteDaEconomiaMs, morreu: _personagemMorreuEmEconomia };
+	if (!Session.Entity || !_snapshotDaEconomia) return base;
+	const agora = lerRegistroDaCaca(Session.Entity.GID);
+	return {
+		...base,
+		expBase: Math.max(0, (agora.expBase || 0) - (_snapshotDaEconomia.expBase || 0)),
+		expClasse: Math.max(0, (agora.expClasse || 0) - (_snapshotDaEconomia.expClasse || 0)),
+		abates: Math.max(0, (agora.abatesTotal || 0) - (_snapshotDaEconomia.abatesTotal || 0)),
+		itensTotal: Math.max(0, (agora.itensTotal || 0) - (_snapshotDaEconomia.itensTotal || 0))
+	};
+}
+
+/** Abre a tela preta (idempotente — reentrar com a tela ja aberta so reatualiza o relogio). */
+function abrirTelaDaEconomia(restanteMs) {
+	_restanteDaEconomiaMs = restanteMs;
+	if (_janelaDaEconomia) {
+		_janelaDaEconomia.atualizar(statsDaEconomia());
+		return;
+	}
+	_snapshotDaEconomia = Session.Entity ? lerRegistroDaCaca(Session.Entity.GID) : null;
+	_janelaDaEconomia = UIManager.showEconomiaDeEnergia(restanteMs, sairDaEconomiaDeEnergia);
+	_janelaDaEconomia.atualizar(statsDaEconomia());
+	_tiqueDaEconomia = setInterval(() => {
+		_restanteDaEconomiaMs = Math.max(0, _restanteDaEconomiaMs - 1000);
+		if (_janelaDaEconomia) _janelaDaEconomia.atualizar(statsDaEconomia());
+	}, 1000);
+}
+
+/** Fecha a tela preta, se houver — seguro chamar mesmo sem nenhuma aberta. */
+function fecharTelaDaEconomia() {
+	if (_tiqueDaEconomia) {
+		clearInterval(_tiqueDaEconomia);
+		_tiqueDaEconomia = null;
+	}
+	if (_janelaDaEconomia) {
+		_janelaDaEconomia.remove();
+		_janelaDaEconomia = null;
+	}
+	_snapshotDaEconomia = null;
+	_personagemMorreuEmEconomia = false;
+}
+
+/**
+ * O CLIQUE EM "Voltar a jogar" (D-1392, 14/09/2026, correção do dono).
  *
- * O que FICA e o dono do `ZC_RAGIDLE_ECONOMIA` (hookPacket: um dono por
- * opcode), so para nao deixar ninguem preso numa sessao de economia aberta
- * ANTES da retirada: se o servidor disser `ativa:true`, o cliente pede a saida
- * na hora (o mesmo `sair` que o antigo "Voltar a jogar" mandava); se disser
- * `expulso:true` (o personagem ja saiu do mundo e o socket vai fechar), volta
- * pelo boot, como antes.
+ * Ate aqui `onVisibilidadeMudouParaEconomia` mandava "sair" sozinho assim
+ * que `visibilitychange` via a aba voltar — e um relance rapido na aba (ver
+ * uma notificacao, por exemplo) ja tirava o personagem do modo sem o
+ * jogador ter pedido isso. Agora SAIR e SEMPRE este botao: a tela preta
+ * fica de pe ate o jogador clicar, mesmo com a aba em primeiro plano — ele
+ * pode deliberadamente continuar em economia de energia olhando pra ela.
+ */
+function sairDaEconomiaDeEnergia() {
+	const pkt = new PACKET.CZ.RAGIDLE_ECONOMIA_ACAO();
+	pkt.json = JSON.stringify({ acao: 'sair' });
+	Network.sendPacket(pkt);
+	// Fecha na hora, sem esperar o ack: o jogador ja pediu, e a resposta do
+	// servidor (ativa:false) so confirmaria o que a tela ja fez.
+	fecharTelaDaEconomia();
+}
+
+/**
+ * O gatilho (D-1389/D-1390, 14/09/2026; de volta em 13/10/2026, bug #10, para o Bot novo): `visibilitychange` so
+ * avisa o servidor quando a aba vai pro FUNDO, e so depois do atraso de confirmacao de D-1394 (14 s, ver
+ * `Engine/gatilhoDaEconomia.js`, onde a regra e provada com relogio falso). Voltar a aba NAO manda "sair" (ver
+ * `sairDaEconomiaDeEnergia`, o unico lugar que manda). O SERVIDOR decide se o pedido de entrar e elegivel (regra
+ * 1: nunca confia no cliente sozinho): so com o Bot ligado; sem ele a recusa `sem-bot` chega e nada abre.
+ */
+const _gatilhoDaEconomia = criarGatilhoDaEconomia({
+	oculta: () => document.visibilityState === 'hidden',
+	// A economia AUTOMATICA desligada nas Configuracoes de Video (23/09/2026): a aba escondida nao pede nada.
+	automaticaLigada: () => GraphicsSettings.economiaDeEnergiaAutomatica !== false,
+	pedirEntrar: () => {
+		const pkt = new PACKET.CZ.RAGIDLE_ECONOMIA_ACAO();
+		pkt.json = JSON.stringify({ acao: 'entrar' });
+		Network.sendPacket(pkt);
+	}
+});
+
+function onVisibilidadeMudouParaEconomia() {
+	_gatilhoDaEconomia.aoMudarVisibilidade();
+}
+
+/**
+ * onEconomiaRecebida (D-1389/D-1390, 14/09/2026) — a resposta do servidor a
+ * `entrar`/`sair`, e tambem o aviso de "venceu o teto com a conexao viva"
+ * (`expulso:true`), sem pedido nenhum do cliente.
+ *
+ * `ativa:true` abre/reatualiza a tela preta. `ativa:false` fecha — seja o ack
+ * normal de "sair", seja uma recusa silenciosa de "entrar" (ninguem ve a
+ * tela mesmo: o jogador nao esta olhando a aba, entao nao ha erro pra
+ * mostrar). `expulso:true` e o caso especial: o personagem ja saiu do mundo
+ * do lado do servidor, que vai fechar o socket a seguir — o mesmo padrao do
+ * "Acordar agora" do Dormir, reentrando pelo caminho unico de sempre
+ * (CZ_ENTER2) em vez de uma segunda rota escrita a mao.
+ *
+ * `morreu:true` (D-1398, 14/09/2026) chega SEM o cliente ter pedido nada —
+ * o servidor empurra este mesmo pacote na hora em que o personagem morre
+ * dentro de uma sessao de economia. Uma vez visto, o aviso fica marcado ate
+ * a tela fechar (`_personagemMorreuEmEconomia`, nunca sobrescrito de volta
+ * pra `false` por uma resposta SEM o campo — o servidor manda `morreu` em
+ * TODA resposta da sessao depois que ele vira `true` uma vez, mas o cliente
+ * nao depende disso: ele so soma, nunca some com o proprio aviso).
  */
 function onEconomiaRecebida(pkt) {
 	let corpo;
@@ -1219,17 +1357,15 @@ function onEconomiaRecebida(pkt) {
 	} catch {
 		return;
 	}
-	if (!corpo) {
-		return;
-	}
+	if (!corpo) return;
 
 	if (corpo.ativa === true) {
-		const sair = new PACKET.CZ.RAGIDLE_ECONOMIA_ACAO();
-		sair.json = JSON.stringify({ acao: 'sair' });
-		Network.sendPacket(sair);
+		if (corpo.morreu === true) _personagemMorreuEmEconomia = true;
+		abrirTelaDaEconomia(Number(corpo.restanteMs) || 0);
 		return;
 	}
 
+	fecharTelaDaEconomia();
 	if (corpo.expulso === true) {
 		import('Engine/GameEngine.js').then(m => m.default.reload());
 	}
@@ -2192,6 +2328,9 @@ function desmontarSessaoDeMapa() {
 	 */
 	TelaAcesaNoFarm.desligar();
 	BackgroundTicker.stop();
+	document.removeEventListener('visibilitychange', onVisibilidadeMudouParaEconomia);
+	_gatilhoDaEconomia.cancelar();
+	fecharTelaDaEconomia();
 	// A tela do sono e a outra tela preta crua em `document.body`: uma reconexao
 	// que desiste com ela aberta a deixaria por cima do login.
 	if (_janelaDoSonoAtiva) {

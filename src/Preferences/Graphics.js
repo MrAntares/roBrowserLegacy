@@ -43,6 +43,15 @@ const defaultGraphicsSettings = {
 	showPlayerNames: true,
 
 	/**
+	 * RAGIDLE (23/09/2026, ordem do dono no open beta): a ECONOMIA DE ENERGIA
+	 * AUTOMATICA pode ser desligada. Ligada (o padrao, o comportamento de
+	 * sempre), a aba escondida por 14 s pede ao servidor a economia. Desligada,
+	 * trocar de aba nao faz nada: o personagem continua no mundo, cacando, e a
+	 * conexao se sustenta pelo keepalive (e reconecta sozinha se cair).
+	 */
+	economiaDeEnergiaAutomatica: true,
+
+	/**
 	 * Performance Mode
 	 *
 	 * O `viewArea` e o RAIO DE CULLING do cliente: com o modo ligado,
