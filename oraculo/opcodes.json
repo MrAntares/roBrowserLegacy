@@ -30,7 +30,7 @@
 		},
 		"map": {
 			"entrada": {
-				"total": 748,
+				"total": 749,
 				"semTamanho": 0
 			},
 			"saida": {
@@ -41,7 +41,7 @@
 	},
 	"comprimentosDoCliente": {
 		"arquivo": "src/Network/Packets/packets2021_len_main.js",
-		"declarados": 1665,
+		"declarados": 1666,
 		"preencheram": 109,
 		"divergencias": [
 			{
@@ -12445,6 +12445,11 @@
 				},
 				"0x0beb": {
 					"nome": "ZC_EMOTION_FAIL",
+					"tamanho": 10,
+					"desde": null
+				},
+				"0x0faf": {
+					"nome": "ZC_RAGIDLE_ABATE",
 					"tamanho": 10,
 					"desde": null
 				},

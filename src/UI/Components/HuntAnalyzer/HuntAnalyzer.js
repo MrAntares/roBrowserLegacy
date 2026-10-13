@@ -24,7 +24,8 @@
  * ── DE ONDE VEM O DADO ───────────────────────────────────────────────────
  * Esta janela nao fisga pacote nenhum. Quem acumula e
  * `registroDaCaca.js`, alimentado pelos handlers que JA recebem os pacotes:
- *   - abate  -> Engine/MapEngine/Entity.js, onEntityVanish (VT.DEAD, TYPE_MOB)
+ *   - abate  -> Engine/MapEngine/Entity.js, onAbateProprio (ZC_RAGIDLE_ABATE,
+ *     so o do proprio personagem, D-2322)
  *   - exp    -> Engine/MapEngine/Entity.js, onNotifyExp (0x07f6)
  *   - item   -> Engine/MapEngine/Item.js, onItemPickup (com o ITID, D-943)
  *

@@ -1087,6 +1087,9 @@ export default {
 	// 07/10/2026 - o BOT NOVO (o menu do Bot). O CZ 0x0fb0 e ESCRITO pelo
 	// cliente, nao lido. Os dois ultimos slots da reserva.
 	0x0fb1: PACKET.ZC.RAGIDLE_BOT,
+	// 13/10/2026 - O ABATE E SEU (D-2322): a Analise de Caca conta so o
+	// proprio. So desce; o slot de cima da reserva.
+	0x0faf: PACKET.ZC.RAGIDLE_ABATE,
 
 	0xb1a: PACKET.ZC.USESKILL_ACK3 // USE SKILL 3
 };
