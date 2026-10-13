@@ -77,12 +77,24 @@ describe('estado do Bot: conexao nova com o mesmo personagem (12/10/2026)', () =
 		expect(e.estado().dirty).toBe(true);
 	});
 
-	it('o motor avisa a conexao nova SO na entrada no mundo, e antes do BotMenu pedir o estado', () => {
+	it('o motor avisa a conexao nova NO ACEITE da entrada, antes do onMapChange que monta a HUD e pede o estado', () => {
+		/*
+		 * Bug #17 de 13/10/2026: o aviso morava no `MapRenderer.onLoad` de `onMapChange(.., true)`, guardado por
+		 * `ehEntradaNoMundo`. O servidor manda o `ZC_NPCACK_MAPMOVE` logo atras do `ZC_ACCEPT_ENTER2`, e o
+		 * `onMapChange` desse MAPMOVE troca o `onLoad` (sem a marca) antes de a carga terminar: o aviso nunca rodava
+		 * numa reconexao de verdade (medido na tela: a revisao da conexao morta ficava e o botao congelava).
+		 */
 		const motor = readFileSync('src/Engine/MapEngine.js', 'utf8');
-		const i = motor.indexOf('BotMenu.novaConexaoDoServidor();');
-		expect(i).toBeGreaterThan(-1);
-		expect(motor.slice(Math.max(0, i - 120), i)).toContain('if (ehEntradaNoMundo) {');
-		expect(i).toBeLessThan(motor.indexOf('BotMenu.append();'));
+		const inicio = motor.indexOf('function onConnectionAccepted(');
+		expect(inicio, 'onConnectionAccepted sumiu').toBeGreaterThan(-1);
+		const corpo = motor.slice(inicio, motor.indexOf('\n}', inicio));
+		const i = corpo.indexOf('BotMenu.novaConexaoDoServidor();');
+		expect(i, 'o aceite da entrada nao avisa o BotMenu').toBeGreaterThan(-1);
+		const montagem = corpo.indexOf('onMapChange({');
+		expect(montagem, 'o aceite nao chama mais o onMapChange').toBeGreaterThan(-1);
+		expect(i).toBeLessThan(montagem);
+		// So ali: no `onLoad` ele nao roda na reconexao, e em toda troca de mapa soltaria pedidos que ainda tem resposta.
+		expect(motor.split('BotMenu.novaConexaoDoServidor();').length).toBe(2);
 	});
 });
 

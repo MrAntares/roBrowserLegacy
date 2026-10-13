@@ -128,9 +128,22 @@ export function criarEstadoDoBot({ enviar }) {
 		 * anterior: o cliente seguia mostrando o Bot ligado com ele desligado no servidor,
 		 * e o ON/OFF so mandava `desligar` ate o F5. O rascunho e a config ficam: e o mesmo
 		 * personagem.
+		 *
+		 * E OS PEDIDOS EM VOO MORREM COM A CONEXAO (bug #17 de 13/10/2026, "o auto congela e nao
+		 * ativa nem desativa"): o servidor responde na conexao que recebeu o pedido, entao o
+		 * ON/OFF (ou o Salvar, o perfil) que saiu para o socket que ja tinha morrido - o jogador
+		 * volta da aba minimizada e toca o botao antes de o cliente perceber a queda - nunca tera
+		 * resposta. Ficava `pendenteLigarDesligar` para sempre: o botao "..." e o `alternarLigado`
+		 * recusando todo toque. A conexao nova os solta; o `pedir` que o BotMenu manda em seguida
+		 * traz o que o servidor confirma.
 		 */
 		novaConexao() {
 			s.statusRevision = -1;
+			emVoo.clear();
+			s.pendenteLigarDesligar = null;
+			s.pendenteAplicar = false;
+			s.ligarAposAplicar = false;
+			s.pendentePerfil = false;
 		},
 		pedirEstado() {
 			return pedir('pedir');
