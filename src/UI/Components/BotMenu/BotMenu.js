@@ -202,6 +202,53 @@ BotMenu.aoMudarCapacidade = function aoMudarCapacidade(fn) {
 	return () => _ouvintesDaCapacidade.delete(fn);
 };
 
+/** Quem ouve o ON/OFF fora da janela (o botao "Ataque auto", CombatCornerIdle). */
+const _ouvintesDoLigado = new Set();
+
+/**
+ * O ON/OFF DO BOT PARA QUEM FICA FORA DA JANELA (12/10/2026, pedido do dono: o botao "Ataque auto"
+ * voltou). `ligado` e so o que o servidor CONFIRMOU; `pendente` = um ON/OFF em voo; `erro` = o da
+ * ultima resposta (o `ligar` e o `desligar` o zeram ao pedir).
+ */
+BotMenu.estadoDoLigado = function estadoDoLigado() {
+	const s = _estado.estado();
+	return { ligado: s.ligado, pendente: s.pendenteLigarDesligar !== null, erro: s.erro };
+};
+
+/**
+ * O MESMO gesto do interruptor ON/OFF da janela: liga se desligado, desliga se ligado. Com um ON/OFF
+ * em voo, nao pede outro (devolve false). O interruptor e o botao "Ataque auto" passam os dois por aqui.
+ */
+BotMenu.alternarLigado = function alternarLigado() {
+	const s = _estado.estado();
+	if (s.pendenteLigarDesligar !== null) {
+		return false;
+	}
+	if (s.ligado) {
+		_estado.desligar();
+	} else {
+		_estado.ligar();
+	}
+	desenhar();
+	return true;
+};
+
+BotMenu.aoMudarLigado = function aoMudarLigado(fn) {
+	_ouvintesDoLigado.add(fn);
+	return () => _ouvintesDoLigado.delete(fn);
+};
+
+function avisarLigado() {
+	const estado = BotMenu.estadoDoLigado();
+	for (const fn of _ouvintesDoLigado) {
+		try {
+			fn(estado);
+		} catch (err) {
+			console.error('[BotMenu] ouvinte do ligado falhou', err);
+		}
+	}
+}
+
 /** Para os testes da costura e as provas de tela. */
 BotMenu._estado = _estado;
 
@@ -211,6 +258,7 @@ BotMenu.limparEstadoDoPersonagem = function limparEstadoDoPersonagem() {
 	esquecerContexto();
 	fecharEEsquecer(_root(), '.bm-window');
 	avisarCapacidade();
+	avisarLigado();
 };
 
 BotMenu.init = function init() {
@@ -332,16 +380,7 @@ function editar(fn) {
 
 function onClickLiga(e) {
 	e.stopImmediatePropagation();
-	const s = _estado.estado();
-	if (s.pendenteLigarDesligar !== null) {
-		return;
-	}
-	if (s.ligado) {
-		_estado.desligar();
-	} else {
-		_estado.ligar();
-	}
-	desenhar();
+	BotMenu.alternarLigado();
 }
 
 function onClickMonstro(e) {
@@ -458,6 +497,8 @@ function sincronizarAtualizacaoDoAvancado(secoes) {
 }
 
 function desenhar() {
+	// Todo gesto e toda resposta do servidor passam por aqui: o botao "Ataque auto" segue o mesmo estado.
+	avisarLigado();
 	const root = _root();
 	if (!root) {
 		return;

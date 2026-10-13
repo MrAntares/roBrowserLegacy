@@ -142,11 +142,13 @@ import MochilaIdle from 'UI/Components/MochilaIdle/MochilaIdle.js'; // RAGIDLE: 
 // UI/Components/BasicInfoIdle). Nenhuma fonte de dado mudou de lugar junto —
 // os dois liam o MESMO Session.zeny, entao o que sumiu foi a segunda leitura,
 // nao o dado.
-// RAGIDLE (07/10/2026, Novo Bot V5): a janela "Idle" (IdleConfig), o botao
-// "Ataque auto" (CombatCornerIdle) e a DockIdle aposentada foram RETIRADOS do
-// cliente. A hotbar nativa ShortCut e a unica barra de skills; o automatico
-// novo e o menu do Bot (BotMenu), e o contexto do mapa mora em
-// UI/contextoDoMapa.js.
+// RAGIDLE (07/10/2026, Novo Bot V5): a janela "Idle" (IdleConfig) e a DockIdle
+// aposentada foram RETIRADAS do cliente. A hotbar nativa ShortCut e a unica
+// barra de skills; o automatico novo e o menu do Bot (BotMenu), e o contexto
+// do mapa mora em UI/contextoDoMapa.js.
+// O botao "Ataque auto" (CombatCornerIdle) saiu junto e VOLTOU em 12/10/2026,
+// a pedido do dono: agora e o ON/OFF do Bot novo (BotMenu.alternarLigado).
+import CombatCornerIdle from 'UI/Components/CombatCornerIdle/CombatCornerIdle.js';
 import DeathWindow from 'UI/Components/DeathWindow/DeathWindow.js'; // RAGIDLE: "Você morreu"
 import TopMenuIdle from 'UI/Components/TopMenuIdle/TopMenuIdle.js'; // RAGIDLE: "Menu superior direito (constelação)"
 import { agendarRedeDaHud } from 'Engine/redeDaHud.js'; // RAGIDLE: a HUD que a entrada interrompida deixava de fora (05/10/2026)
@@ -676,6 +678,7 @@ class MapEngine {
 			TrocaIdle.prepare(); // RAGIDLE: a janela "Trade" (02/10/2026) - escuta 0x0fb3
 			BotMenu.prepare(); // RAGIDLE: o menu do Bot novo (07/10/2026) - escuta 0x0fb1
 			BotMenu.lerMochila = () => Inventory.getUI().list || []; // RAGIDLE: o Armazem do Bot escolhe da mochila (sem ID digitado)
+			CombatCornerIdle.prepare(); // RAGIDLE: o botao "Ataque auto" (12/10/2026) - liga e desliga o Bot pelo BotMenu, preparado acima
 			RankingIdle.prepare(); // RAGIDLE: o Ranking — escuta 0x0fca
 			AmigosIdle.prepare(); // RAGIDLE: a janela Amigos (05/10/2026) - ouve Friends.js/Group.js, nenhum pacote proprio
 			PainelComandoIdle.prepare(); // RAGIDLE: o painel de comando — escuta 0x0fbc e abre SOZINHO quando o servidor manda (D-1563)
@@ -1501,6 +1504,7 @@ function onMapChange(pkt, ehEntradaNoMundo) {
 		IndicacaoIdle.append(); // RAGIDLE: Indique & Ganhe (D-1164)
 		TrocaIdle.append(); // RAGIDLE: a janela "Trade" (02/10/2026) - anexada sempre, fechada
 		BotMenu.append(); // RAGIDLE: o menu do Bot novo (07/10/2026) - anexada sempre, fechada; pede o estado ao servidor
+		CombatCornerIdle.append(); // RAGIDLE: o botao "Ataque auto" (12/10/2026) - o ON/OFF do Bot fora da janela
 		RankingIdle.append(); // RAGIDLE: o Ranking
 		AmigosIdle.append(); // RAGIDLE: a janela Amigos (05/10/2026) - anexada sempre, fechada
 		PartyHud.append(); // RAGIDLE: a HUD de party
@@ -1929,8 +1933,8 @@ function onMapChange(pkt, ehEntradaNoMundo) {
 		 * O MODO LEITURA (09/09/2026, pedido do dono): a tela nao apaga
 		 * enquanto o personagem esta em farm automatico.
 		 *
-		 * Ligado AQUI, e nao num componente de desenho (o antigo
-		 * `CombatCornerIdle`, retirado em 07/10/2026): componente sai de cena
+		 * Ligado AQUI, e nao num componente de desenho (como o botao
+		 * `CombatCornerIdle`, que le o mesmo ON/OFF): componente sai de cena
 		 * na troca de mapa, e o wake lock nao pode piscar a cada viagem. Este e o
 		 * mesmo lugar onde a escala e a HUD vertical se ligam — o que vive
 		 * enquanto a sessao vive mora aqui.
