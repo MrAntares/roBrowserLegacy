@@ -123,3 +123,17 @@ export function listaEfetiva(config, especie) {
 }
 
 export { lerLista };
+
+/**
+ * Bug #12 de 13/10 (D-1963/D-1990): o interruptor "Cura contra morto-vivo" da aba Ataque. So grava o booleano
+ * `curaComoAtaque`; a lista manual de ataque nao e tocada. Sem mudanca, devolve a MESMA config.
+ */
+export function definirCuraComoAtaque(config, ligada) {
+	const novo = !!ligada;
+	return config.curaComoAtaque === novo ? config : { ...config, curaComoAtaque: novo };
+}
+
+/** O interruptor so aparece quando o personagem tem uma cura que fere morto-vivo (o servidor marca `fereMortoVivo`). */
+export function temCuraQueFereMortoVivo(skills) {
+	return Array.isArray(skills) && skills.some(s => s && s.fereMortoVivo === true);
+}

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
 	adicionarSkill,
+	definirCuraComoAtaque,
 	definirEscopoDaSkill,
 	definirNivel,
 	definirSkillAtiva,
@@ -9,6 +10,7 @@ import {
 	listaEfetiva,
 	moverSkill,
 	removerSkill,
+	temCuraQueFereMortoVivo,
 	usarListaPropria
 } from 'UI/Components/BotMenu/edicaoDeSkills.js';
 
@@ -64,5 +66,24 @@ describe('edicao das listas de skills do Bot', () => {
 		adicionarSkill(c, 'geral', 5);
 		usarListaPropria(c, 1002);
 		expect(c).toEqual(base());
+	});
+});
+
+describe('Cura contra morto-vivo (bug #12 de 13/10): o interruptor da aba Ataque', () => {
+	it('grava so o booleano, sem tocar a lista manual, e devolve a mesma config quando nada muda', () => {
+		const c0 = adicionarSkill(base(), 'geral', 28, 3);
+		const c1 = definirCuraComoAtaque(c0, true);
+		expect(c1.curaComoAtaque).toBe(true);
+		expect(c1.skills).toBe(c0.skills);
+		expect(definirCuraComoAtaque(c1, true)).toBe(c1);
+		expect(definirCuraComoAtaque(c1, false).curaComoAtaque).toBe(false);
+		expect(definirCuraComoAtaque(base(), false).curaComoAtaque).toBe(false);
+	});
+
+	it('o cartao so aparece com uma cura que fere morto-vivo', () => {
+		expect(temCuraQueFereMortoVivo([{ skillId: 28, fereMortoVivo: true }])).toBe(true);
+		expect(temCuraQueFereMortoVivo([{ skillId: 28 }, { skillId: 5, fereMortoVivo: false }])).toBe(false);
+		expect(temCuraQueFereMortoVivo(null)).toBe(false);
+		expect(temCuraQueFereMortoVivo([])).toBe(false);
 	});
 });

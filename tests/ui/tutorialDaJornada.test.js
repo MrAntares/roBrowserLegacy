@@ -322,16 +322,15 @@ describe('a etapa 12 ensina a desligar a economia de energia', () => {
 	it('é a última, e o furo final é a janela de Vídeo onde a caixa mora', () => {
 		expect(etapa.numero).toBe(TOTAL_DE_ETAPAS);
 		expect(etapa.alvos[0]).toMatchObject({ host: 'GraphicsOption', seletor: '.ri-window' });
-		/* A caixa da economia SAIU das Configuracoes de Video em 07/10/2026
-		   (Novo Bot V5), e o tutorial esta desligado de vez (TutorialIdle.js).
-		   A etapa fica na tabela so pela numeracao, que e a do servidor: a mao
-		   ainda aponta o seletor antigo, e ele nao existe mais na janela. */
+		/* A caixa da economia saiu das Configuracoes de Video em 07/10/2026
+		   (Novo Bot V5) e VOLTOU em 13/10/2026 (bug #10, decisao do dono): a mao
+		   da etapa aponta de novo um seletor que existe na janela. */
 		expect(etapa.maoEm[0]).toMatchObject({ host: 'GraphicsOption', seletor: '.economia-automatica' });
 		const html = readFileSync(
 			resolve(process.cwd(), 'src/UI/Components/GraphicsOption/GraphicsOption.html'),
 			'utf-8'
 		);
-		expect(html).not.toContain('economia-automatica');
+		expect(html).toContain('economia-automatica');
 	});
 
 	it('o caminho de volta é o que o jogador de fato percorre: Vídeo, sistema, Codex, leque, Menu', () => {
