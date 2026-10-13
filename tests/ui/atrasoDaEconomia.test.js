@@ -249,3 +249,65 @@ describe('o celular arma na hora (decisao do dono, 13/10/2026)', () => {
 		expect(gatilho.fase(), 'o ack do sair velho nao desfaz o entrar novo').toBe('cedo');
 	});
 });
+
+describe('rodada 3 do bug #10: achados do critico', () => {
+	beforeEach(() => vi.useFakeTimers());
+	afterEach(() => vi.useRealTimers());
+
+	it('A1: com a tela preta ja aberta, esconder de novo e voltar em menos de 14 s NAO manda `sair` (D-1392)', () => {
+		const { estado, pedidos, telas, gatilho } = montar({ dedo: true });
+		gatilho.aoMudarVisibilidade();
+		gatilho.aoResponderAtiva(14_400_000);
+		vi.advanceTimersByTime(14_000);
+		expect(telas).toEqual([14_400_000]);
+		// Voltou sem clicar no botao, escondeu de novo e voltou depressa.
+		estado.oculta = false;
+		gatilho.aoMudarVisibilidade();
+		estado.oculta = true;
+		gatilho.aoMudarVisibilidade();
+		vi.advanceTimersByTime(5_000);
+		estado.oculta = false;
+		gatilho.aoMudarVisibilidade();
+		expect(pedidos, 'so o botao fecha a tela: nada de `sair` nem de `entrar` repetido').toEqual(['entrar']);
+		expect(gatilho.fase()).toBe('liberada');
+	});
+
+	it('A1 no desktop: a tela liberada tambem nao reagenda um segundo `entrar`', () => {
+		const { estado, pedidos, gatilho } = montar({ dedo: false });
+		gatilho.aoMudarVisibilidade();
+		vi.advanceTimersByTime(14_000);
+		estado.oculta = false;
+		gatilho.aoMudarVisibilidade();
+		estado.oculta = true;
+		gatilho.aoMudarVisibilidade();
+		vi.advanceTimersByTime(60_000);
+		expect(pedidos).toEqual(['entrar']);
+	});
+
+	it('A1: o botao "Voltar a jogar" (`cancelar`) devolve o gatilho ao comeco', () => {
+		const { pedidos, gatilho } = montar({ dedo: true });
+		gatilho.aoMudarVisibilidade();
+		vi.advanceTimersByTime(14_000);
+		gatilho.cancelar();
+		gatilho.aoMudarVisibilidade();
+		expect(pedidos, 'depois do botao, esconder arma de novo').toEqual(['entrar', 'entrar']);
+	});
+
+	it('A2: o `pagehide` sozinho arma e AGENDA a tela como o esconder: abre depois dos 14 s se a aba estiver oculta', () => {
+		const { estado, telas, gatilho } = montar({ dedo: true, oculta: false });
+		gatilho.aoEsconderPagina();
+		gatilho.aoResponderAtiva(14_400_000);
+		expect(gatilho.agendado()).toBe(true);
+		estado.oculta = true; // a aba ficou oculta sem passar pelo visibilitychange
+		vi.advanceTimersByTime(14_000);
+		expect(telas).toEqual([14_400_000]);
+	});
+
+	it('A2: o `pagehide` com a aba ainda visivel no disparo nao abre tela nenhuma', () => {
+		const { telas, gatilho } = montar({ dedo: true, oculta: false });
+		gatilho.aoEsconderPagina();
+		gatilho.aoResponderAtiva(14_400_000);
+		vi.advanceTimersByTime(60_000);
+		expect(telas).toEqual([]);
+	});
+});

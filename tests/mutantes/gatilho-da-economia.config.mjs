@@ -16,7 +16,7 @@ const mutantes = {
 	// o atraso deixa de ser 14 s (volta aos 3 s de D-1394)
 	atraso3s: [ALVO, 'export const MS_DE_ATRASO_ANTES_DE_ENTRAR_NA_ECONOMIA = 14000;', 'export const MS_DE_ATRASO_ANTES_DE_ENTRAR_NA_ECONOMIA = 3000;'],
 	// a aba escondida avisa na hora (sem atraso de confirmacao: fechar a aba tambem armaria)
-	semAtraso: [ALVO, '\t\t\t}, atrasoMs);', '\t\t\t}, 0);'],
+	semAtraso: [ALVO, '\t\t}, atrasoMs);', '\t\t}, 0);'],
 	// um segundo evento com a aba oculta empilha outro atraso
 	empilha: [ALVO, '\t\t\tif (atraso !== null) {\n\t\t\t\treturn; // ja agendado: nao empilha um segundo\n\t\t\t}\n', ''],
 	// voltar a aba antes do atraso nao cancela
@@ -24,9 +24,9 @@ const mutantes = {
 	// a opcao desligada nao cancela o atraso ja agendado
 	desligadaNaoCancela: [ALVO, '\t\tif (!deps.automaticaLigada()) {\n\t\t\tlimparTimer();\n', '\t\tif (!deps.automaticaLigada()) {\n'],
 	// o disparo nao reconfere a visibilidade
-	semReconferirAba: [ALVO, '\t\t\t\tif (!deps.oculta()) {\n\t\t\t\t\treturn;\n\t\t\t\t}\n\t\t\t\tif (!deps.automaticaLigada()) {', '\t\t\t\tif (!deps.automaticaLigada()) {'],
+	semReconferirAba: [ALVO, '\t\t\tif (!deps.oculta()) {\n\t\t\t\treturn;\n\t\t\t}\n\t\t\tif (!deps.automaticaLigada()) {', '\t\t\tif (!deps.automaticaLigada()) {'],
 	// o disparo nao reconfere a opcao
-	semReconferirOpcao: [ALVO, '\t\t\t\tif (!deps.automaticaLigada()) {\n\t\t\t\t\treturn;\n\t\t\t\t}\n\t\t\t\tif (fase === \'cedo\') {', '\t\t\t\tif (fase === \'cedo\') {'],
+	semReconferirOpcao: [ALVO, '\t\t\tif (!deps.automaticaLigada()) {\n\t\t\t\treturn;\n\t\t\t}\n\t\t\tif (fase === \'cedo\') {', '\t\t\tif (fase === \'cedo\') {'],
 	// `cancelar` esquece de desagendar
 	cancelarNaoDesagenda: [ALVO, '\t\t\tdesagendar(atraso);\n', ''],
 	// `cancelar` esquece de zerar o estado (o gatilho nunca mais agenda)
@@ -39,11 +39,15 @@ const mutantes = {
 	// voltar antes dos 14 s nao desfaz o aviso cedo
 	voltarNaoDesarmaCedo: [ALVO, '\t\t} else {\n\t\t\tlimparTimer();\n\t\t\tif (fase === \'cedo\') {\n\t\t\t\tdesarmarCedo();\n\t\t\t}\n\t\t}\n\t}', '\t\t} else {\n\t\t\tlimparTimer();\n\t\t}\n\t}'],
 	// o pagehide nao arma
-	semPagehide: [ALVO, "\t\tif (fase === 'livre') {\n\t\t\tentrarCedo();\n\t\t}\n\t}\n\n\t/** O servidor respondeu `ativa:true`", "\t}\n\n\t/** O servidor respondeu `ativa:true`"],
+	semPagehide: [ALVO, "\t\tif (fase === 'livre') {\n\t\t\tentrarCedo();\n", "\t\tif (fase === 'livre') {\n"],
 	// o ack tardio do sair apaga o entrar novo
 	ackApagaOEntradaNova: [ALVO, "\t\tif (fase !== 'cedo') {\n\t\t\tfase = 'livre';\n\t\t\tpendente = null;\n\t\t}\n\t}\n\n\treturn", "\t\tfase = 'livre';\n\t\tpendente = null;\n\t}\n\n\treturn"],
 	// a resposta tardia do entrar reabre a tela depois do sair
 	ignoraDesarmando: [ALVO, "return fase !== 'desarmando';", 'return true;'],
+	// A1: esconder de novo com a tela liberada volta a armar cedo (e o `sair` fecha a tela sem o botao)
+	telaLiberadaRearma: [ALVO, '\t\t\tif (fase === \'liberada\') {\n\t\t\t\treturn;\n\t\t\t}\n', ''],
+	// A2: o pagehide sozinho nao agenda a tela
+	pagehideSemAgenda: [ALVO, '\t\t\tif (atraso === null) {\n\t\t\t\tagendarAtraso();\n\t\t\t}\n', ''],
 	ignoraAOpcao: [ALVO, '\t\tif (!deps.automaticaLigada()) {\n\t\t\tlimparTimer();\n\t\t\tif (fase === \'cedo\') {\n\t\t\t\tdesarmarCedo();\n\t\t\t}\n\t\t\treturn;\n\t\t}\n', '']
 };
 const mutante = mutantes[process.env.RAG_MUTANTE_GATILHO];
