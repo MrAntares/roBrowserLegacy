@@ -38,6 +38,7 @@ import GraphicsSettings from 'Preferences/Graphics.js';
 import Inventory from 'UI/Components/Inventory/Inventory.js';
 import Entity from 'Renderer/Entity/Entity.js';
 import { itemIconUrl, preferirArtePublicada } from 'Utils/ItemArt.js';
+import { anexarAoCorpoSeSolto } from 'UI/anexarAoCorpoSeSolto.js'; // RAGIDLE: D-2374
 
 function escapeHTML(str) {
 	const div = document.createElement('div');
@@ -669,8 +670,11 @@ export function createEquipment({
 	};
 
 	Component.onLevelUp = function onLevelUp() {
+		// D-2374: so anexa quando o botao esta FORA do body. O servidor reenvia
+		// o nivel a cada ficha suja, e reanexar o que ja estava la era mutacao
+		// do DOM para deixar a tela igual (`UI/anexarAoCorpoSeSolto.js`).
 		if (UIVersionManager.getEquipmentVersion() > 0 && _btnLevelUp) {
-			document.body.appendChild(_btnLevelUp);
+			anexarAoCorpoSeSolto(_btnLevelUp);
 		}
 	};
 
