@@ -12,6 +12,13 @@ import Events from 'Core/Events.js';
 import Renderer from 'Renderer/Renderer.js';
 import UIManager from 'UI/UIManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
+import { emUnidadesDaHud } from 'UI/escalaDaHud.js';
+import {
+	ehHudVertical,
+	larguraDaFaixaNaVertical,
+	posicionarNaVertical,
+	soltarDaVertical
+} from './posicaoDaFaixa.js';
 import htmlText from './Announce.html?raw';
 import cssText from './Announce.css?raw';
 
@@ -34,6 +41,18 @@ Announce.needFocus = false;
  * @var {TimeOut} timer
  */
 let _timer = 0;
+
+/**
+ * @var {Function|null} desliga o acompanhamento do cartao de missoes (so na HUD vertical)
+ */
+let _pararDeAcompanhar = null;
+
+function pararDeAcompanhar() {
+	if (_pararDeAcompanhar) {
+		_pararDeAcompanhar();
+		_pararDeAcompanhar = null;
+	}
+}
 
 /**
  * Quanto tempo a faixa fica na tela.
@@ -74,6 +93,7 @@ Announce.onRemove = function onRemove() {
 		Events.clearTimeout(_timer);
 		_timer = 0;
 	}
+	pararDeAcompanhar();
 };
 
 /**
@@ -102,12 +122,23 @@ Announce.set = function set(text, color, options = {}) {
 		targetWidth = opts.width;
 	}
 
+	// RAGIDLE (bug #1 de 13/10/2026): no celular em pe a faixa caia SOBRE a barra do
+	// topo da HUD e o botao do menu cobria o fim da 1a linha. Na HUD vertical ela vive
+	// na coluna do canto, debaixo do cartao de missoes (posicaoDaFaixa.js): a largura
+	// da quebra de linha e a da coluna, e o `top` sai de `Common.css`. No desktop e no
+	// celular deitado nada disto vale e o `top: 40px` de `Announce.css` continua.
+	const naVertical = ehHudVertical(document);
+	if (naVertical && targetWidth) {
+		targetWidth = larguraDaFaixaNaVertical(Renderer.width, targetWidth);
+	}
+	const larguraDeQuebra = naVertical ? larguraDaFaixaNaVertical(Renderer.width, null) : Renderer.width;
+
 	// RAGIDLE (13/09/2026, D-1376): o teto de 500px nao olhava a TELA. Num
 	// celular em pe (393px) a faixa do anuncio do evento de EXP saia com 514px,
 	// comecando em x=-61 e cortada dos dois lados (medido em `diag-evento-de-exp`).
 	// A quebra de linha abaixo ja existia; faltava o teto caber na tela. No
 	// desktop nada muda: a tela e maior que 520px.
-	const maxWidth = targetWidth ? targetWidth - 20 : Math.max(100, Math.min(500, Renderer.width - 20));
+	const maxWidth = targetWidth ? targetWidth - 20 : Math.max(100, Math.min(500, larguraDeQuebra - 20));
 	const lines = [];
 
 	this.ctx.font = `${fontSize}px Arial`;
@@ -151,10 +182,19 @@ Announce.set = function set(text, color, options = {}) {
 	this.canvas.width = targetWidth || 20 + Math.max(...lines.map(line => this.ctx.measureText(line).width));
 	this.canvas.height = opts.height || 10 + (fontSize + 5) * lines.length;
 
+	// Na HUD vertical o `left` vem do CSS (`html.ri-vertical #Announce`, com !important,
+	// que vence este inline); o `top` e medido debaixo do cartao de missoes.
 	if (opts.width === '100%') {
 		this._host.style.left = '0px';
 	} else {
 		this._host.style.left = `${(Renderer.width - this.canvas.width) >> 1}px`;
+	}
+
+	pararDeAcompanhar();
+	if (naVertical) {
+		_pararDeAcompanhar = posicionarNaVertical(this._host, document, emUnidadesDaHud);
+	} else {
+		soltarDaVertical(this._host);
 	}
 
 	this.ctx.font = `${fontSize}px Arial`;

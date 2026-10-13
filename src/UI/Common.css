@@ -2599,6 +2599,31 @@ html.ri-vertical #ItemObtain {
 	top: var(--vr-item-obtido-topo, calc(var(--vr-abaixo-do-topo) + 130px)) !important;
 }
 
+/* A FAIXA DE AVISO (UI Announce) no celular em pe (bug #1 de 13/10/2026).
+
+   Ela nascia em `top: 40px` (o alto da tela no desktop, `Announce.css`) e na
+   vertical isso cai SOBRE a barra do personagem, que mora de 6 a 76px: o nome, o
+   Base Lv e as barras ficavam sob o texto, e o botao do menu (z 55) cobria o fim da
+   1a linha ("...tem efe[...] jogo e nao pode ser encaixada").
+
+   Agora ela mora na COLUNA do canto, debaixo do cartao de missoes, como o placar do
+   MVP: nunca encosta na barra do topo, no botao do menu, no trilho de botoes da
+   direita, no cartao nem na barra de atalhos. A regra de posicao (largura da
+   coluna, fileira livre para o aviso de item) esta em
+   `Components/Announce/posicaoDaFaixa.js`, com teste e bateria de mutacao.
+
+   `--vr-aviso-topo` e MEDIDA pelo componente (a borda de baixo do cartao, que cresce
+   com o numero de missoes) e acompanha o cartao enquanto a faixa esta na tela. O
+   `calc` de nascenca vale sem cartao: a fileira de 44px do aviso de item (48 = 44 +
+   o vao de 4) abaixo do vao da barra do topo. O `left` e a margem da moldura mais a
+   borda segura. As duas !important pelo mesmo motivo de `#ItemObtain`: o host leva
+   `left` inline (o centro do desktop). O host segue `pointer-events: none`
+   (`Announce.css`, D-1493): a faixa nao pega toque. */
+html.ri-vertical #Announce {
+	top: var(--vr-aviso-topo, calc(var(--vr-abaixo-do-topo) + 48px)) !important;
+	left: calc(var(--safe-esq, 0px) + var(--vr-margem)) !important;
+}
+
 /* ═══════════════════════════════════════════════════════════════════════
    D-941 — JANELA ENCAIXADA, SEM BARRA DE ROLAGEM (05/09/2026)
 
