@@ -121,4 +121,20 @@ describe('a costura em Engine/MapEngine.js', () => {
 		expect(chamada).toContain('TopMenuIdle');
 		expect(chamada).toContain('relatar: relatarErro');
 	});
+
+	it('D-2323: o menu do Bot e o botao "Ataque auto" estao na rede, o menu antes do botao', () => {
+		const chamada = fonte.slice(rede, fonte.indexOf('});', rede));
+		const menu = chamada.indexOf('BotMenu');
+		const botao = chamada.indexOf('CombatCornerIdle');
+		expect(menu).toBeGreaterThan(-1);
+		expect(botao).toBeGreaterThan(menu);
+	});
+
+	it('D-2323: os dois moram no meio da lista de append(), depois do primeiro componente da HUD', () => {
+		// Se um dia subirem para o topo da lista, a rede deixa de ser a unica volta deles - mas continua valendo.
+		const primeiro = fonte.indexOf('MiniMap.getUI().append();', inicioDoOnLoad);
+		const doMenu = fonte.indexOf('BotMenu.append();', inicioDoOnLoad);
+		expect(primeiro).toBeGreaterThan(-1);
+		expect(doMenu).toBeGreaterThan(primeiro);
+	});
 });
