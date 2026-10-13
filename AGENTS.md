@@ -100,7 +100,7 @@ Example: `import Sprite from 'Loaders/Sprite.js';`
 - **PacketVerManager.js**: Active PACKETVER state manager, packet length coordinator, and character info parser
 - **Packets/**: 23 version-specific length files (`packets2003_len_main.js` through `packets2025_len_main.js`)
 - **SocketHelpers/**: WebSocket.js (browser), NodeSocket.js (Electron desktop)
-- Pattern: Define schema in `PacketStructure.js` → map opcode in `PacketRegister.js` → define lengths in `Packets/` (and outbound tables in `PacketVersions.js` if needed) → hook response handler via `Network.hookPacket(PACKET.ZC.*, handler)` in the appropriate engine
+- Pattern: Define schema in `PacketStructure.js` → map opcode in `PacketRegister.js` → define lengths in `Packets/` (and outbound tables in `PacketVersions.js` if needed) → hook response handler via `Network.hookPacket(PACKET.<FAMILY>.*, handler)` in the appropriate engine (e.g., `PACKET.ZC.*` for MapEngine, `PACKET.AC.*` / `PACKET.SC.*` for LoginEngine, `PACKET.HC.*` for CharEngine)
 
 ### Asset Loaders (`src/Loaders/`)
 
@@ -308,7 +308,7 @@ Node.js engine requirement: `>=22` (Node 22 is pinned in `.nvmrc`; GitHub Action
 1. Define packet structure in `src/Network/PacketStructure.js`
 2. Map packet opcode ID to structure in `src/Network/PacketRegister.js`
 3. Define packet length in `src/Network/Packets/packetsYYYY_len_main.js` (and add date-specific tables in `src/Network/PacketVersions.js` if outbound CZ packet)
-4. Implement handler in appropriate engine (`MapEngine`, `LoginEngine`, etc.) and hook with `Network.hookPacket(PACKET.ZC.*, handler)`
+4. Implement handler in appropriate engine (`MapEngine`, `LoginEngine`, `CharEngine`, etc.) and hook with `Network.hookPacket(PACKET.<FAMILY>.*, handler)` (e.g., `PACKET.ZC.*` for MapEngine, `PACKET.AC.*` / `PACKET.SC.*` for LoginEngine, `PACKET.HC.*` for CharEngine)
 5. Test with `packetDump: true` enabled in config
 
 ### Adding a New Packet Version

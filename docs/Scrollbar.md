@@ -58,19 +58,15 @@ Add a new object to the `skinsToLoad` array in `ScrollBar.init`:
 
 Once the skin is added to `Scrollbar.js`, tag your component's element with `data-scrollbar-skin="myskin"`.
 
-## 4. Manual Updates & Programmatic Scrolling
+## 4. Manual Updates & Dynamic Content
 
-If your component's content changes dynamically or programmatic scroll (`scrollTop`) is applied, use the following:
+- **Programmatic Scrolling (`scrollTop`)**:
+  Programmatic changes to `element.scrollTop` (such as auto-scrolling to bottom, keyboard navigation, or scroll clamping) automatically trigger the native `scroll` event listener attached by `Scrollbar.js` (`element._roScrollHandler`). The scroll thumb position is synchronized immediately without requiring any manual notification or timer restarts.
 
-- **After programmatic `scrollTop` change**:
-  ```javascript
-  if (myElement._roScrollbarRestart) {
-      myElement._roScrollbarRestart();
-  }
-  ```
-
-- **After dynamic DOM element insertion/removal**:
+- **Dynamic Content & Layout Changes**:
+  If your component's content changes dynamically (e.g., elements inserted, removed, or resized) and you need to immediately refresh the scrollbar track and thumb dimensions without waiting for the automatic 300ms polling interval, call:
   ```javascript
   import ScrollBar from 'UI/Scrollbar.js';
   ScrollBar.applyDOMScrollbar(myElement);
   ```
+  *(Note: If the scrollbar is already applied, `applyDOMScrollbar` safely refreshes the thumb geometry via its internal restart hook.)*

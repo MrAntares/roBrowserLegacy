@@ -72,7 +72,7 @@ TextEncoding.decode(bytes, 'utf-8');
 Internally:
 
 ```javascript
-UTF-8 → if contains '' → fallback
+UTF-8 → if contains '' (\uFFFD) → fallback
 ```
 
 ---

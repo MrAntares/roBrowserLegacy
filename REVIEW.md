@@ -85,7 +85,7 @@ tests/
 ├── loaders/      # Binary parsers (11 files, including GR2Loader.test.js)
 ├── network/      # Packet structure, registration & handler tests (4 files)
 ├── renderer/     # Renderer & GR2 tests (11 files, including 5 in GR2/)
-├── ui/           # GUIComponent & UI subsystem tests (19 files)
+├── ui/           # GUIComponent & UI subsystem tests (22 files)
 └── util/         # Utilities (14 files)
 ```
 
