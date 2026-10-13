@@ -7,15 +7,15 @@ import base from '../../vite.config.js';
 
 const ALVO = 'src/UI/Components/BotMenu/editorDoRodizio.js';
 const mutantes = {
-	// o defeito do pedido: a cura (suporte 'cura') some das outras
+	// a Cura volta ao rodizio e fica DUAS vezes no menu (o cartao do Jhow, bug #12, e o rodizio; juncao de 13/10)
 	filtroAntigo: [
-		"const outras = skills.filter(s => s.aceita && s.suporte !== 'buff' && !naLista.has(s.skillId));",
-		'const outras = skills.filter(s => s.aceita && !s.suporte && !naLista.has(s.skillId));'
+		'const outras = skills.filter(s => s.aceita && !s.suporte && !naLista.has(s.skillId));',
+		"const outras = skills.filter(s => s.aceita && s.suporte !== 'buff' && !naLista.has(s.skillId));"
 	],
 	// o que o servidor recusa entra no rodizio
 	semAceita: [
-		"const outras = skills.filter(s => s.aceita && s.suporte !== 'buff' && !naLista.has(s.skillId));",
-		"const outras = skills.filter(s => s.suporte !== 'buff' && !naLista.has(s.skillId));"
+		'const outras = skills.filter(s => s.aceita && !s.suporte && !naLista.has(s.skillId));',
+		'const outras = skills.filter(s => !s.suporte && !naLista.has(s.skillId));'
 	],
 	// as outras sem o aviso
 	semAvisoNasOutras: ["\t\tconst soContra = avisoSoContra(s);\n\t\tif (soContra) {\n\t\t\tconst textos", "\t\tconst soContra = avisoSoContra(s);\n\t\tif (false) {\n\t\t\tconst textos"],

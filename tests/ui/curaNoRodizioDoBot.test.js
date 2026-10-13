@@ -45,10 +45,9 @@ beforeEach(() => {
 });
 
 describe('a cura no rodizio do Bot', () => {
-	it('a Cura e o Santuario aparecem nas outras, com o aviso de contra quem saem', () => {
+	it('o Santuario aparece nas outras, com o aviso; a Cura NAO (ela tem o cartao proprio, bug #12 do Jhow)', () => {
 		desenhar();
 		expect(fora()).toEqual([
-			{ id: 28, aviso: 'Só contra morto-vivo' },
 			{ id: 70, aviso: 'Só contra morto-vivo e Demônio' },
 			{ id: 156, aviso: null }
 		]);
@@ -65,14 +64,14 @@ describe('a cura no rodizio do Bot', () => {
 		expect(aviso).not.toContain('Primeiros Socorros');
 	});
 
-	it('o "+ Usar" poe a Cura no rodizio, e a linha dela repete o aviso', () => {
+	it('o "+ Usar" poe o Santuario no rodizio, e a linha dele repete o aviso', () => {
 		desenhar();
-		raiz.querySelector('.bm-rodizio-fora-item[data-skill="28"] .bm-rodizio-usar').click();
-		expect(config.skills.geral).toEqual([{ skillId: 28, nivel: 'aprendido' }]);
-		const linha = raiz.querySelector('.bm-rodizio-item[data-skill="28"]');
+		raiz.querySelector('.bm-rodizio-fora-item[data-skill="70"] .bm-rodizio-usar').click();
+		expect(config.skills.geral).toEqual([{ skillId: 70, nivel: 'aprendido' }]);
+		const linha = raiz.querySelector('.bm-rodizio-item[data-skill="70"]');
 		expect(linha).not.toBeNull();
-		expect(linha.querySelector('.bm-rodizio-so-contra').textContent).toBe('Só contra morto-vivo');
-		expect(fora().map(x => x.id)).toEqual([70, 156]);
+		expect(linha.querySelector('.bm-rodizio-so-contra').textContent).toBe('Só contra morto-vivo e Demônio');
+		expect(fora().map(x => x.id)).toEqual([156]);
 	});
 
 	it('a linha de um golpe comum no rodizio nao leva aviso', () => {

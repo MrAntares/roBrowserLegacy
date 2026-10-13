@@ -139,11 +139,12 @@ export function desenharRodizio(raiz, dados, editar) {
 	});
 	raiz.querySelector('.bm-rodizio-vazio').hidden = geral.length > 0;
 
-	// AS DE FORA: as que o Bot sabe usar sozinho e ainda nao estao no rodizio. A cura que o servidor aceita no ataque
-	// entra tambem (D-2325): `aceita` e a palavra do servidor, e a cura que fere vem com `suporte: 'cura'` porque ela
-	// segue no Suporte. O buff (`suporte: 'buff'`) nunca e aceito no ataque; o filtro o deixa de fora de qualquer jeito.
+	// AS DE FORA: as que o Bot sabe usar sozinho e ainda nao estao no rodizio, menos as de SUPORTE. A Cura contra
+	// morto-vivo (`suporte: 'cura'`) tem o cartao proprio "Cura contra morto-vivo" (bug #12 de 13/10, a versao do Jhow
+	// que venceu a juncao com a D-2325): oferece-la aqui tambem a poria duas vezes no menu. O Santuario (D-2325) nao e
+	// suporte (`suporte: null`, `soContra: 'impuro'`) e entra pelo rodizio, com o aviso de contra quem sai.
 	const naLista = new Set(geral.map(e => e.skillId));
-	const outras = skills.filter(s => s.aceita && s.suporte !== 'buff' && !naLista.has(s.skillId));
+	const outras = skills.filter(s => s.aceita && !s.suporte && !naLista.has(s.skillId));
 	for (const s of outras) {
 		const li = criar('li', 'bm-rodizio-fora-item');
 		li.setAttribute('data-skill', String(s.skillId));
