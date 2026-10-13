@@ -18,21 +18,33 @@ const mutantes = {
 	// a aba escondida avisa na hora (sem atraso de confirmacao: fechar a aba tambem armaria)
 	semAtraso: [ALVO, '\t\t\t}, atrasoMs);', '\t\t\t}, 0);'],
 	// um segundo evento com a aba oculta empilha outro atraso
-	empilha: [ALVO, '\t\t\tif (atraso !== null) return; // ja agendado: nao empilha um segundo\n', ''],
+	empilha: [ALVO, '\t\t\tif (atraso !== null) {\n\t\t\t\treturn; // ja agendado: nao empilha um segundo\n\t\t\t}\n', ''],
 	// voltar a aba antes do atraso nao cancela
-	voltarNaoCancela: [ALVO, '\t\t} else {\n\t\t\tcancelar();\n\t\t}\n\t}\n\n\treturn', '\t\t}\n\t}\n\n\treturn'],
+	voltarNaoCancela: [ALVO, '\t\t} else {\n\t\t\tlimparTimer();\n\t\t\tif (fase === \'cedo\') {\n\t\t\t\tdesarmarCedo();\n\t\t\t}\n\t\t}', '\t\t} else {\n\t\t\tif (fase === \'cedo\') {\n\t\t\t\tdesarmarCedo();\n\t\t\t}\n\t\t}'],
 	// a opcao desligada nao cancela o atraso ja agendado
-	desligadaNaoCancela: [ALVO, '\t\tif (!deps.automaticaLigada()) {\n\t\t\tcancelar();\n\t\t\treturn;\n\t\t}', '\t\tif (!deps.automaticaLigada()) {\n\t\t\treturn;\n\t\t}'],
+	desligadaNaoCancela: [ALVO, '\t\tif (!deps.automaticaLigada()) {\n\t\t\tlimparTimer();\n', '\t\tif (!deps.automaticaLigada()) {\n'],
 	// o disparo nao reconfere a visibilidade
-	semReconferirAba: [ALVO, '\t\t\t\tif (!deps.oculta()) return;\n', ''],
+	semReconferirAba: [ALVO, '\t\t\t\tif (!deps.oculta()) {\n\t\t\t\t\treturn;\n\t\t\t\t}\n\t\t\t\tif (!deps.automaticaLigada()) {', '\t\t\t\tif (!deps.automaticaLigada()) {'],
 	// o disparo nao reconfere a opcao
-	semReconferirOpcao: [ALVO, '\t\t\t\tif (!deps.automaticaLigada()) return;\n\t\t\t\tdeps.pedirEntrar();', '\t\t\t\tdeps.pedirEntrar();'],
+	semReconferirOpcao: [ALVO, '\t\t\t\tif (!deps.automaticaLigada()) {\n\t\t\t\t\treturn;\n\t\t\t\t}\n\t\t\t\tif (fase === \'cedo\') {', '\t\t\t\tif (fase === \'cedo\') {'],
 	// `cancelar` esquece de desagendar
 	cancelarNaoDesagenda: [ALVO, '\t\t\tdesagendar(atraso);\n', ''],
 	// `cancelar` esquece de zerar o estado (o gatilho nunca mais agenda)
 	cancelarNaoZera: [ALVO, '\t\t\tdesagendar(atraso);\n\t\t\tatraso = null;', '\t\t\tdesagendar(atraso);'],
 	// a opcao desligada ainda agenda
-	ignoraAOpcao: [ALVO, '\t\tif (!deps.automaticaLigada()) {\n\t\t\tcancelar();\n\t\t\treturn;\n\t\t}\n\t\tif (deps.oculta()) {', '\t\tif (deps.oculta()) {']
+	// o celular volta a esperar os 14 s para armar (o iPhone congela antes)
+	celularEspera: [ALVO, '\t\t\tif (naHora()) {\n\t\t\t\tentrarCedo();\n\t\t\t}\n', ''],
+	// a tela preta do celular abre na hora, sem esperar os 14 s
+	telaSemEspera: [ALVO, "\t\tif (fase === 'cedo') {\n\t\t\tpendente = restanteMs;\n\t\t\treturn false;\n\t\t}", "\t\tif (fase === 'cedo') {\n\t\t\treturn true;\n\t\t}"],
+	// voltar antes dos 14 s nao desfaz o aviso cedo
+	voltarNaoDesarmaCedo: [ALVO, '\t\t} else {\n\t\t\tlimparTimer();\n\t\t\tif (fase === \'cedo\') {\n\t\t\t\tdesarmarCedo();\n\t\t\t}\n\t\t}\n\t}', '\t\t} else {\n\t\t\tlimparTimer();\n\t\t}\n\t}'],
+	// o pagehide nao arma
+	semPagehide: [ALVO, "\t\tif (fase === 'livre') {\n\t\t\tentrarCedo();\n\t\t}\n\t}\n\n\t/** O servidor respondeu `ativa:true`", "\t}\n\n\t/** O servidor respondeu `ativa:true`"],
+	// o ack tardio do sair apaga o entrar novo
+	ackApagaOEntradaNova: [ALVO, "\t\tif (fase !== 'cedo') {\n\t\t\tfase = 'livre';\n\t\t\tpendente = null;\n\t\t}\n\t}\n\n\treturn", "\t\tfase = 'livre';\n\t\tpendente = null;\n\t}\n\n\treturn"],
+	// a resposta tardia do entrar reabre a tela depois do sair
+	ignoraDesarmando: [ALVO, "return fase !== 'desarmando';", 'return true;'],
+	ignoraAOpcao: [ALVO, '\t\tif (!deps.automaticaLigada()) {\n\t\t\tlimparTimer();\n\t\t\tif (fase === \'cedo\') {\n\t\t\t\tdesarmarCedo();\n\t\t\t}\n\t\t\treturn;\n\t\t}\n', '']
 };
 const mutante = mutantes[process.env.RAG_MUTANTE_GATILHO];
 if (!mutante) throw new Error(`Escolha RAG_MUTANTE_GATILHO: ${Object.keys(mutantes).join(', ')}.`);
