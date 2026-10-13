@@ -597,9 +597,18 @@ function UpdateBodyStyle(look) {
 }
 
 /**
+ * Job ids of the halter-lead mounts, the values of AllMountTable.
+ */
+const AllMountJobs = {};
+for (const baseJob in AllMountTable) {
+	AllMountJobs[AllMountTable[baseJob]] = true;
+}
+
+/**
  * Update body palette
  *
  * @param {number} body palette number
+ * @see docs/reference/renderer/body-palette.md
  */
 function UpdateBodyPalette(pal) {
 	this._bodypalette = pal;
@@ -622,7 +631,19 @@ function UpdateBodyPalette(pal) {
 	// for the wedding, Xmas and summer outfits, which all arrive as `costume`,
 	// and for a body style, which draws the `costume_1` body (see UpdateBodyStyle).
 	const job = this._bodyStyleJob && !hasTransformation.call(this) ? this._bodyStyleJob : getEffectiveJob.call(this);
-	this.files.body.pal = DB.getBodyPalPath(job, this._bodypalette, this._sex);
+	if (!AllMountJobs[job]) {
+		this.files.body.pal = DB.getBodyPalPath(job, this._bodypalette, this._sex);
+		return;
+	}
+
+	// A halter-lead mount has palette files of its own only in the newer
+	// archives; the older ones dye it with the rider's palette (the few
+	// mount files they ship hold the same colours). The entity may have
+	// changed by the time the archive answers: dye it as it is then.
+	const own = DB.hasMountPalettes(() => UpdateBodyPalette.call(this, this._bodypalette));
+	if (own !== undefined) {
+		this.files.body.pal = DB.getBodyPalPath(own ? job : this._job, pal, this._sex);
+	}
 }
 
 /**
