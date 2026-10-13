@@ -15,6 +15,7 @@ import {
 	definirNivelDoSuporte,
 	definirRaioDeColeta,
 	deixarDeIgnorar,
+	destinosDaSkill,
 	descansoCoerente,
 	ignorarItem,
 	ligarColeta,
@@ -167,5 +168,21 @@ describe('coleta do Bot', () => {
 		expect(adicionarPocao(velha, 'sp', 505).sobrevivencia.pocoesSp.itens).toEqual([505]);
 		expect(adicionarSuporte(velha, CURA).suporte.lista).toHaveLength(1);
 		expect(velha).toEqual({ v: 1, cacar: true });
+	});
+});
+
+describe('Redencao (soGrupo, bug #5 de 13/10): so existe no aliado', () => {
+	const REDENCAO = { skillId: 255, chave: 'CR_DEVOTION', nome: 'Redenção', aprendido: 5, aceita: false, suporte: 'buff', alcancaGrupo: true, soGrupo: true };
+
+	it('entra com destino grupo e gatilho manter, e nao entra duas vezes', () => {
+		const c = adicionarSuporte({ suporte: { lista: [] } }, REDENCAO, 8);
+		expect(c.suporte.lista).toEqual([{ skillId: 255, nivel: 'aprendido', destino: 'grupo', gatilho: 'manter', limiar: 0 }]);
+		expect(adicionarSuporte(c, REDENCAO, 8)).toBe(c);
+	});
+
+	it('so oferece o destino grupo, e nao troca para eu', () => {
+		expect(destinosDaSkill(REDENCAO)).toEqual(['grupo']);
+		const c = adicionarSuporte({ suporte: { lista: [] } }, REDENCAO, 8);
+		expect(definirDestinoDoSuporte(c, 0, 'eu', REDENCAO)).toBe(c);
 	});
 });
