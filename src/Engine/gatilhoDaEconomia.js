@@ -97,6 +97,31 @@ export function criarGatilhoDaEconomia(deps) {
 		pendente = null;
 	}
 
+	/** O atraso de 14 s: confere de novo e, no celular, abre a tela guardada; no desktop manda o `entrar`. */
+	function agendarAtraso() {
+		atraso = agendar(() => {
+			atraso = null;
+			// Confere de novo: pode ter voltado no instante exato do disparo, ou o jogador pode ter desligado
+			// a economia automatica nesse meio tempo.
+			if (!deps.oculta()) {
+				return;
+			}
+			if (!deps.automaticaLigada()) {
+				return;
+			}
+			if (fase === 'cedo') {
+				fase = 'liberada';
+				if (pendente !== null && deps.abrirTela) {
+					deps.abrirTela(pendente);
+				}
+				pendente = null;
+			} else {
+				deps.pedirEntrar();
+				fase = 'liberada';
+			}
+		}, atrasoMs);
+	}
+
 	/**
 	 * `visibilitychange`: a ida pro FUNDO agenda o aviso (desktop) ou o manda ja (celular). Voltar a aba NAO fecha a
 	 * tela que ja abriu (D-1392: quem sai e o botao "Voltar a jogar"); so desfaz o que ainda nao apareceu.
@@ -114,30 +139,15 @@ export function criarGatilhoDaEconomia(deps) {
 			if (atraso !== null) {
 				return; // ja agendado: nao empilha um segundo
 			}
+			// D-1392: com a tela preta ja liberada so o botao "Voltar a jogar" fecha. Esconder de novo nao recomeca o
+			// aviso cedo (voltar em menos de 14 s mandaria `sair` e fecharia a tela sem o botao).
+			if (fase === 'liberada') {
+				return;
+			}
 			if (naHora()) {
 				entrarCedo();
 			}
-			atraso = agendar(() => {
-				atraso = null;
-				// Confere de novo: pode ter voltado no instante exato do disparo, ou o jogador pode ter desligado
-				// a economia automatica nesse meio tempo.
-				if (!deps.oculta()) {
-					return;
-				}
-				if (!deps.automaticaLigada()) {
-					return;
-				}
-				if (fase === 'cedo') {
-					fase = 'liberada';
-					if (pendente !== null && deps.abrirTela) {
-						deps.abrirTela(pendente);
-					}
-					pendente = null;
-				} else {
-					deps.pedirEntrar();
-					fase = 'liberada';
-				}
-			}, atrasoMs);
+			agendarAtraso();
 		} else {
 			limparTimer();
 			if (fase === 'cedo') {
@@ -153,6 +163,10 @@ export function criarGatilhoDaEconomia(deps) {
 		}
 		if (fase === 'livre') {
 			entrarCedo();
+			// A tela preta segue a mesma regra do esconder: so depois do atraso (e so se a aba estiver oculta nessa hora).
+			if (atraso === null) {
+				agendarAtraso();
+			}
 		}
 	}
 
