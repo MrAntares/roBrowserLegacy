@@ -215,11 +215,40 @@ describe('"Acordar agora" volta ao mundo, e nao ao login', () => {
 	});
 });
 
-describe('o botao "Dormir" saiu da Analise de caca (Novo Bot V5, 07/10/2026)', () => {
-	it('a Analise nao pede mais o sono: o servidor recusa o `iniciar`, e so a tela de quem ja dormia fica', () => {
-		expect(ANALISADOR_CRU).not.toContain("acao: 'iniciar'");
-		expect(ANALISADOR_CRU).not.toContain('RAGIDLE_SONO_ACAO');
-		expect(ANALISADOR_CRU).not.toContain('showContagemRegressiva');
+/*
+ * O BOTAO "DORMIR" VOLTOU A ANALISE DE CACA (12/10/2026, pedido do dono: "a opcao
+ * dormir sumiu do menu"). Ele saiu com o idle antigo no Novo Bot V5 (07/10); o
+ * servidor voltou a aceitar o `iniciar`, e os campos do botao chegam no `contexto`
+ * do Bot (`UI/contextoDoMapa.js`), e nao mais da janela Idle retirada.
+ */
+describe('o botao "Dormir" esta na Analise de caca e o clique nao espera contagem', () => {
+	const HTML_DA_ANALISE = readFileSync('src/UI/Components/HuntAnalyzer/HuntAnalyzer.html', 'utf8');
+
+	it('o botao existe na aba Atual, com o lugar do motivo', () => {
+		expect(HTML_DA_ANALISE).toMatch(/<button[^>]*class="ha-dormir[^"]*"[^>]*data-acao="dormir"/);
+		expect(HTML_DA_ANALISE).toContain('class="ha-dormir-status"');
+		expect(ANALISADOR_CRU).toContain("root.querySelector('.ha-dormir').addEventListener('click'");
+	});
+
+	it('o pedido sai direto, sem contagem regressiva', () => {
+		expect(ANALISADOR_CRU, 'a contagem de 5s voltou ao caminho do sono').not.toContain('showContagemRegressiva');
+		const i = ANALISADOR_CRU.indexOf("acao: 'iniciar'");
+		expect(i, "sumiu o pedido de 'iniciar'").toBeGreaterThan(-1);
+		expect(ANALISADOR_CRU.slice(i - 200, i)).toContain('new PACKET.CZ.RAGIDLE_SONO_ACAO()');
+	});
+
+	it('mas o aviso do bonus de EXP FICA: ele e uma escolha, e nao uma espera', () => {
+		expect(ANALISADOR_CRU, 'a confirmacao do evento de EXP foi junto por engano').toContain('showPromptBox');
+		expect(ANALISADOR_CRU).toContain('ctx.bonusTemporariosAtivos');
+	});
+
+	it('o botao le o contexto do Bot, e nao a janela Idle retirada', () => {
+		const i = ANALISADOR_CRU.indexOf('function sincronizarDormir(');
+		const corpo = ANALISADOR_CRU.slice(i, ANALISADOR_CRU.indexOf('function ', i + 10));
+		expect(i).toBeGreaterThan(-1);
+		expect(corpo).toContain('contextoDoMapa()');
+		expect(corpo).toContain('ctx.mapaElegivelParaDormir === true');
+		expect(ANALISADOR_CRU).not.toContain('IdleConfig');
 	});
 
 	it('o dono do ZC_RAGIDLE_SONO continua de pe no motor (um sono antigo ainda acorda)', () => {

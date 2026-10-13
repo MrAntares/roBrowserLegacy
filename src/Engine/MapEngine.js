@@ -1014,7 +1014,9 @@ const TEXTO_DA_RECUSA_DE_SONO = {
 	praca: 'Nas Praças não dá para dormir: o tempo delas é contado por dia. Durma num mapa de caça.',
 	'sem-mundo': 'Não foi possível iniciar o sono agora — você não está numa caçada.',
 	// RAGIDLE (24/09/2026, ordem do dono): um sono por conta.
-	'outro-personagem-dormindo': 'Só um personagem por conta pode dormir por vez.'
+	'outro-personagem-dormindo': 'Só um personagem por conta pode dormir por vez.',
+	// RAGIDLE (12/10/2026): o acerto do sono anterior ainda indo ao disco - dura instantes.
+	'acerto-pendente': 'O último sono ainda está sendo salvo. Tente de novo em alguns segundos.'
 };
 
 /**
