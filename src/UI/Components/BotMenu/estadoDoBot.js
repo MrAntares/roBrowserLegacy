@@ -428,7 +428,7 @@ export const EXPLICACAO_DO_STATUS = Object.freeze({
 	'flecha-fixa-indisponivel': 'A flecha que você escolheu como fixa acabou. O Bot não troca por outra sozinho.',
 	'alvo-imune': 'Este monstro é imune ao ataque que você tem agora. O Bot procura outro alvo.',
 	'sem-sp-para-habilidade':
-		'O SP acabou e você escolheu "Só habilidades": o Bot não ataca no básico. Ele conjura de novo assim que o SP voltar (regeneração, poção ou descanso).',
+		'O SP acabou e você escolheu "Só habilidades": o Bot não ataca no básico. O SP volta devagar sozinho (também em luta) ou mais rápido com uma poção de SP automática, e o Bot conjura de novo assim que der.',
 	'habilidade-em-recarga': 'A habilidade ainda está em recarga. O Bot conjura de novo assim que ela ficar pronta.',
 	'habilidade-vetada-na-area':
 		'Há um monstro que você mandou ignorar na área da habilidade, então o Bot espera ele sair da área ou escolhe outro alvo.',
