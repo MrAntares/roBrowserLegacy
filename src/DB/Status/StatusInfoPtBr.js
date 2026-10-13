@@ -322,7 +322,13 @@ const PT_BR = {
 	Fury: 'Fúria Interior',
 	'Increases Critical Rate': 'Aumenta a taxa de crítico',
 	'Allows using Asura Strike without Spirit Spheres': 'Permite o Punho Supremo de Asura sem esferas espirituais',
-	Stop: 'Imobilizado'
+	Stop: 'Imobilizado',
+
+	/* -------- as pocoes de ASPD (D-1989, 05/10/2026; de volta em 13/10/2026, bug #7): o icone passou a descer -------- */
+	'Concentration Potion': 'Poção da Concentração',
+	'Awakening Potion': 'Poção do Despertar',
+	'Berserk Potion': 'Poção da Fúria Selvagem',
+	'Increases ASPD': 'Aumenta a velocidade de ataque'
 };
 
 /**
