@@ -867,16 +867,15 @@ export function createInventory(config) {
 			return null;
 		}
 
-		if (item.count) {
+		// An entry removed whole keeps its count, for the callers that put it back
+		if (item.count > count) {
 			item.count -= count;
-			if (item.count > 0) {
-				const countEl = root.querySelector(`.item[data-index="${item.index}"] .count`);
-				if (countEl) {
-					countEl.textContent = item.count;
-				}
-				this.onUpdateItem(item.ITID, item.count);
-				return item;
+			const countEl = root.querySelector(`.item[data-index="${item.index}"] .count`);
+			if (countEl) {
+				countEl.textContent = item.count;
 			}
+			this.onUpdateItem(item.ITID, item.count);
+			return item;
 		}
 
 		this.list.splice(this.list.indexOf(item), 1);
