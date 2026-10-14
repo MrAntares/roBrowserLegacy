@@ -220281,7 +220281,8 @@ var init_ChatBox = __esmMin((() => {
 	*/
 	ChatBox.PrivateMessageStorage = {
 		nick: "",
-		msg: ""
+		msg: "",
+		blockNicks: []
 	};
 	ChatBox.lastTabID = -1;
 	ChatBox.tabCount = 0;
@@ -251413,6 +251414,19 @@ function loadAliases() {
 	for (const cmd in CommandStore) if (CommandStore[cmd].aliases) for (let i = 0; i < CommandStore[cmd].aliases.length; i++) aliases[CommandStore[cmd].aliases[i]] = cmd;
 }
 /**
+* Block or allow whispers from a character
+*
+* @param {string} name
+* @param {number} type - 0 block, 1 allow
+*/
+function requestWhisperSetting(name, type) {
+	const pkt = new PACKET.CZ.SETTING_WHISPER_PC();
+	pkt.name = name;
+	pkt.type = type;
+	Network.sendPacket(pkt);
+	ChatBox_default.PrivateMessageStorage.blockNicks.push(name);
+}
+/**
 * Process command
 */
 function processCommand(text) {
@@ -251835,6 +251849,45 @@ var init_ProcessCommand = __esmMin((() => {
 			description: "Sends the specified message to everyone on your friend list",
 			callback: function() {
 				FriendEngine.sayHi();
+			}
+		},
+		ex: {
+			description: "Blocks whispers from <Character Name>, or lists the blocked characters",
+			callback: function(text) {
+				const matches = text.match(/^ex\s+(.*\S)/);
+				if (matches) {
+					requestWhisperSetting(matches[1], 0);
+					return;
+				}
+				const pkt = new PACKET.CZ.REQ_WHISPER_LIST();
+				Network.sendPacket(pkt);
+			}
+		},
+		in: {
+			description: "Allows whispers from <Character Name>",
+			callback: function(text) {
+				const matches = text.match(/^in\s+(.*\S)/);
+				if (matches) {
+					requestWhisperSetting(matches[1], 1);
+					return;
+				}
+				this.addText(DB.getMessage(44), this.TYPE.INFO, this.FILTER.PUBLIC_LOG);
+			}
+		},
+		exall: {
+			description: "Blocks whispers from everyone",
+			callback: function() {
+				const pkt = new PACKET.CZ.SETTING_WHISPER_STATE();
+				pkt.type = 0;
+				Network.sendPacket(pkt);
+			}
+		},
+		inall: {
+			description: "Allows whispers from everyone",
+			callback: function() {
+				const pkt = new PACKET.CZ.SETTING_WHISPER_STATE();
+				pkt.type = 1;
+				Network.sendPacket(pkt);
 			}
 		},
 		guild: {
@@ -332412,6 +332465,37 @@ function onPrivateMessageSent(pkt) {
 	ChatBox_default.PrivateMessageStorage.msg = "";
 }
 /**
+* Result of a /ex or /in request
+*
+* @param {object} pkt - PACKET.ZC.SETTING_WHISPER_PC
+*/
+function onWhisperSettingResult(pkt) {
+	const name = ChatBox_default.PrivateMessageStorage.blockNicks.shift() || "";
+	if (pkt.type > 1 || pkt.result > 2 || pkt.type === 0 && pkt.result === 0) return;
+	const msg = DB.getMessage(193 + pkt.type * 3 + pkt.result);
+	ChatBox_default.addText(`${name}${msg}`, ChatBox_default.TYPE.PRIVATE, ChatBox_default.FILTER.WHISPER);
+}
+/**
+* Result of a /exall or /inall request
+*
+* @param {object} pkt - PACKET.ZC.SETTING_WHISPER_STATE
+*/
+function onWhisperStateResult(pkt) {
+	if (pkt.type > 1 || pkt.result > 1) return;
+	ChatBox_default.addText(DB.getMessage(58 + pkt.type * 2 + pkt.result), ChatBox_default.TYPE.PRIVATE, ChatBox_default.FILTER.WHISPER);
+}
+/**
+* Received the whisper block list
+*
+* @param {object} pkt - PACKET.ZC.WHISPER_LIST
+*/
+function onWhisperList(pkt) {
+	const list = pkt.wisperList;
+	const count = list.length;
+	ChatBox_default.addText(DB.getMessage(count ? 63 : 62), ChatBox_default.TYPE.BLUE, ChatBox_default.FILTER.WHISPER);
+	for (let i = 0; i < count; ++i) ChatBox_default.addText(list[i].name, ChatBox_default.TYPE.BLUE, ChatBox_default.FILTER.WHISPER);
+}
+/**
 * Initialize
 */
 function PrivateMessageEngine() {
@@ -332419,6 +332503,9 @@ function PrivateMessageEngine() {
 	Network.hookPacket(PACKET.ZC.WHISPER2, onPrivateMessage);
 	Network.hookPacket(PACKET.ZC.ACK_WHISPER, onPrivateMessageSent);
 	Network.hookPacket(PACKET.ZC.ACK_WHISPER2, onPrivateMessageSent);
+	Network.hookPacket(PACKET.ZC.SETTING_WHISPER_PC, onWhisperSettingResult);
+	Network.hookPacket(PACKET.ZC.SETTING_WHISPER_STATE, onWhisperStateResult);
+	Network.hookPacket(PACKET.ZC.WHISPER_LIST, onWhisperList);
 	WhisperBox.onRequestTalk = function(nickname, text) {
 		const pkt = new PACKET.CZ.WHISPER();
 		pkt.receiver = nickname;
@@ -338147,6 +338234,7 @@ function onConnectionAccepted$2(pkt) {
 	SessionStorage_default.hasGuild = false;
 	SessionStorage_default.guildPermission = 0;
 	GuildEngine.resetForNewCharacter();
+	ChatBox_default.PrivateMessageStorage.blockNicks.length = 0;
 	SessionStorage_default.homunId = 0;
 	SessionStorage_default.mapState = {
 		property: 0,
