@@ -37,6 +37,8 @@ import 'UI/Elements/Elements.js';
 import PACKETVER from 'Network/PacketVerManager.js';
 import PartyHelper from './PartyHelper/PartyHelper.js';
 import PartyMemberExternal from './PartyMemberExternal/PartyMemberExternal.js';
+import { desenharBarraDoMembro } from './barraDoMembro.js';
+import { escreverEstilo, escreverTexto } from 'UI/escreverSeMudou.js';
 import ContextMenu from 'UI/Components/ContextMenu/ContextMenu.js';
 import Mail from 'UI/Components/Mail/Mail.js';
 import Rodex from 'UI/Components/Rodex/Rodex.js';
@@ -1526,29 +1528,25 @@ export function createPartyFriends(config) {
 	 */
 	function updateCanvasLife(node, hp, maxhp) {
 		const hasLife = hp !== undefined && maxhp !== undefined && maxhp > 0;
-		const lifeRatio = hasLife ? hp / maxhp : 0;
 		const barVisibility = hasLife ? 'visible' : 'hidden';
 
+		// D-2385: o HP e o HP maximo da MESMA ficha chegam em dois pacotes, e a ficha e reenviada a cada
+		// tique sujo: a mesma barra nao e pintada de novo, e o texto e a visibilidade iguais nao sao
+		// reescritos (`barraDoMembro.js`).
 		const hpBarContainer = node.querySelector('.hp-bar-container');
-		if (hpBarContainer) hpBarContainer.style.visibility = barVisibility;
+		if (hpBarContainer) escreverEstilo(hpBarContainer, 'visibility', barVisibility);
 
 		const hpEl = node.querySelector('.hp');
-		if (hpEl) hpEl.style.visibility = barVisibility;
+		if (hpEl) escreverEstilo(hpEl, 'visibility', barVisibility);
 
 		if (hasLife) {
 			const canvas = node.querySelector('canvas');
 			if (canvas) {
-				const ctx = canvas.getContext('2d');
-				const width = Math.floor(lifeRatio * 75);
-				canvas.width = 75;
-				canvas.height = 5;
-				ctx.clearRect(0, 0, 75, 5);
-				ctx.fillStyle = lifeRatio <= 0.25 ? '#ef1010' : '#32cd32';
-				ctx.fillRect(0, 0, width, 5);
+				desenharBarraDoMembro(canvas, hp, maxhp);
 			}
-			if (hpEl) hpEl.textContent = `${hp}/${maxhp}`;
+			if (hpEl) escreverTexto(hpEl, `${hp}/${maxhp}`);
 		} else {
-			if (hpEl) hpEl.textContent = '';
+			if (hpEl) escreverTexto(hpEl, '');
 		}
 	}
 

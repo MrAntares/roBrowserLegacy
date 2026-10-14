@@ -301,6 +301,8 @@ describe('a costura das abas de manutencao na janela real', () => {
 		BotMenu._shadow = null;
 		BotMenu.draggable = () => {};
 		BotMenu.init();
+		// D-2385: a janela FECHADA nao desenha (so guarda e suja); estes casos olham a janela aberta.
+		BotMenu._host.querySelector('.bm-window').classList.add('is-open');
 		const chamada = Network.hookPacket.mock.calls.at(-1);
 		const receber = d => chamada[1]({ json: JSON.stringify(d) });
 		return { BotMenu, Network, receber };

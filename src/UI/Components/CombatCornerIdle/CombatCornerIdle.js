@@ -14,6 +14,7 @@ import BotMenu from 'UI/Components/BotMenu/BotMenu.js';
 import { fraseDoErro } from 'UI/Components/BotMenu/estadoDoBot.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import RiIcones from 'UI/ri-icones.js';
+import { escreverTitulo } from 'UI/escreverSeMudou.js';
 import htmlText from './CombatCornerIdle.html?raw';
 import cssText from './CombatCornerIdle.css?raw';
 
@@ -70,6 +71,12 @@ function syncVisibilidade(temBot) {
 	}
 }
 
+function escreverAtributo(el, nome, valor) {
+	if (el.getAttribute(nome) !== valor) {
+		el.setAttribute(nome, valor);
+	}
+}
+
 function syncAutoState(estado) {
 	const button = root() && root().querySelector('.cc-btn--auto');
 	if (!button) {
@@ -80,11 +87,13 @@ function syncAutoState(estado) {
 	const pendente = Boolean(estado && estado.pendente);
 	button.classList.toggle('is-on', enabled);
 	button.classList.toggle('is-pendente', pendente);
-	button.setAttribute('aria-pressed', String(enabled));
-	button.setAttribute('aria-busy', String(pendente));
+	// D-2385: isto roda a cada pacote do Bot (~0,4 por segundo com ele ligado), quase sempre com o mesmo
+	// estado; o atributo igual nao e reescrito (cada `setAttribute` gera um registro de mutacao).
+	escreverAtributo(button, 'aria-pressed', String(enabled));
+	escreverAtributo(button, 'aria-busy', String(pendente));
 	const dica = enabled ? 'Ataque automático ligado: clique para desligar' : 'Ataque automático desligado: clique para ligar';
-	button.title = dica;
-	button.setAttribute('aria-label', dica);
+	escreverTitulo(button, dica);
+	escreverAtributo(button, 'aria-label', dica);
 
 	if (aguardandoResposta && !pendente) {
 		aguardandoResposta = false;

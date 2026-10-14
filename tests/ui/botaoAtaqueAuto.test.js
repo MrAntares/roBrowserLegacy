@@ -65,6 +65,8 @@ async function montar() {
 	BotMenu._shadow = null;
 	BotMenu.draggable = () => {};
 	BotMenu.init();
+	// D-2385: a janela FECHADA nao desenha (so guarda e suja); estes casos olham a janela aberta.
+	BotMenu._host.querySelector('.bm-window').classList.add('is-open');
 	// O mock do Network sobrevive ao `resetModules`: o gancho DESTE BotMenu e o ultimo registrado.
 	const chamada = Network.hookPacket.mock.calls.filter(c => c[1] && c[1].name === 'onBotRecebido').at(-1);
 	const receber = d => chamada[1]({ json: JSON.stringify(d) });

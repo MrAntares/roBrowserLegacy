@@ -21,6 +21,8 @@ import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import Session from 'Engine/SessionStorage.js';
 import WhisperBox from 'UI/Components/WhisperBox/WhisperBox.js';
 import PartyFriends from 'UI/Components/PartyFriends/PartyFriends.js';
+import { desenharBarraDoMembro, esquecerBarraDoMembro } from '../barraDoMembro.js';
+import { escreverEstilo, escreverTexto } from 'UI/escreverSeMudou.js';
 
 /**
  * Create Component
@@ -326,32 +328,29 @@ PartyMemberExternal.updateMemberLife = function updateMemberLife(hp, maxhp) {
  */
 function updateCanvasLife(root, hp, maxhp) {
 	const hasLife = hp !== undefined && maxhp !== undefined && maxhp > 0;
-	const lifeRatio = hasLife ? hp / maxhp : 0;
 
+	// D-2385: a mesma barra nao e pintada de novo, e o texto e a visibilidade iguais nao sao reescritos
+	// (`../barraDoMembro.js`): o HP e o HP maximo da mesma ficha chegam em dois pacotes.
 	const hpBarContainer = root.querySelector('.hp-bar-container');
-	if (hpBarContainer) hpBarContainer.style.visibility = 'visible';
+	if (hpBarContainer) escreverEstilo(hpBarContainer, 'visibility', 'visible');
 
 	if (hasLife) {
 		const canvas = root.querySelector('canvas');
 		if (canvas) {
-			const ctx = canvas.getContext('2d');
-			const width = Math.floor(lifeRatio * 75);
-			canvas.width = 75;
-			canvas.height = 5;
-			ctx.clearRect(0, 0, 75, 5);
-			ctx.fillStyle = lifeRatio <= 0.25 ? '#ef1010' : '#32cd32';
-			ctx.fillRect(0, 0, width, 5);
+			desenharBarraDoMembro(canvas, hp, maxhp);
 		}
 		const hpText = root.querySelector('.hp-text');
-		if (hpText) hpText.textContent = `${hp}/${maxhp}`;
+		if (hpText) escreverTexto(hpText, `${hp}/${maxhp}`);
 	} else {
 		const canvas = root.querySelector('canvas');
 		if (canvas) {
 			const ctx = canvas.getContext('2d');
 			ctx.clearRect(0, 0, 75, 5);
+			// Pintado por fora do modulo da barra: a proxima com vida desenha.
+			esquecerBarraDoMembro(canvas);
 		}
 		const hpText = root.querySelector('.hp-text');
-		if (hpText) hpText.textContent = '';
+		if (hpText) escreverTexto(hpText, '');
 	}
 }
 

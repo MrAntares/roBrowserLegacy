@@ -54,8 +54,12 @@ describe('BasicInfoIdle: escrever no DOM so quando o texto MUDA', () => {
 		 * sempre — inclusive com o mesmo valor. Escrever o mesmo texto nao e de
 		 * graca: invalida o layout daquele no e o quadro seguinte paga o reflow.
 		 */
+		// D-2385: a comparacao mudou de casa — `setText` acha o elemento e `escreverNoTexto` (que as barras e a
+		// inicial tambem usam) compara.
 		const corpo = corpoDaFuncao(basicInfo, 'function setText(');
-		expect(corpo).toMatch(/if\s*\(\s*el\.textContent\s*!==/);
+		expect(corpo).toMatch(/escreverNoTexto\(el, text\)/);
+		const escrita = corpoDaFuncao(basicInfo, 'function escreverNoTexto(');
+		expect(escrita).toMatch(/if\s*\(\s*el\.textContent\s*!==/);
 	});
 
 	it('e o padrao ja existia no arquivo: o retrato so troca o src quando o job muda', () => {

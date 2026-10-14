@@ -26,6 +26,7 @@ import SkillTargetSelection from 'UI/Components/SkillTargetSelection/SkillTarget
 import SkillTreeView from 'DB/Skills/SkillTreeView.js';
 import UIManager from 'UI/UIManager.js';
 import { anexarAoCorpoSeSolto } from 'UI/anexarAoCorpoSeSolto.js'; // RAGIDLE: D-2374
+import { escreverTexto } from 'UI/escreverSeMudou.js'; // RAGIDLE: D-2385
 
 function _escapeHTML(text) {
 	const div = document.createElement('div');
@@ -1100,10 +1101,9 @@ export function createSkillList({
 
 	Component.setPoints = function setPoints(amount) {
 		const root = this.getRoot();
-		const el = root.querySelector('.skpoints_count');
-		if (el) {
-			el.textContent = amount;
-		}
+		// D-2385: o `SKPOINT` vem em toda ficha reenviada (D-2374) com o mesmo numero; o texto igual nao e
+		// reescrito (o `textContent` igual troca o no de texto).
+		escreverTexto(root.querySelector('.skpoints_count'), amount);
 
 		if (!_points === !amount) {
 			_points = amount;

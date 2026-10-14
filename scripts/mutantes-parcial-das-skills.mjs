@@ -43,7 +43,7 @@ const MUTANTES = [
 	['PS17 declara a cada inteiro', P, 'return revDeclarada === null || inteiro.rev <= revDeclarada;', 'return true;'],
 	['PS18 abrir vai sempre pelo 0x0ff9', J, "\tif (servidorNumera(IdleSkills._estadoDoServidor)) {\n\t\tenviarComBase(new PACKET.CZ.RAGIDLE_APRENDER(), { acao: 'pedir' });\n\t\treturn;\n\t}\n", ''],
 	['PS19 o lote vai sem base', J, 'enviarComBase(new PACKET.CZ.RAGIDLE_APRENDER(), { lote: lote });', 'Network.sendPacket(Object.assign(new PACKET.CZ.RAGIDLE_APRENDER(), { json: JSON.stringify({ lote: lote }) }));'],
-	['PS20 a rotacao vai sem base', J, 'enviarComBase(new PACKET.CZ.RAGIDLE_PRIORIZAR(), { skillId: skillId, ligar: ligar });', 'Network.sendPacket(Object.assign(new PACKET.CZ.RAGIDLE_PRIORIZAR(), { json: JSON.stringify({ skillId: skillId, ligar: ligar }) }));'],
+	// PS20 (a rotacao vai sem base) saiu em 14/10/2026 (D-2385): o alvo dele, o `CZ_RAGIDLE_PRIORIZAR` da rotacao, nao existe mais na janela (a rotacao saiu com o idle antigo, D-1931; o teste dela saiu em 0eedbdd0). Mutante que nao casa e bateria cega, nao morto.
 	['PS21 o parcial que chega antes do inteiro pedido e aplicado', J, '\t\tif (IdleSkills._inteiroPedido) {\n\t\t\treturn;\n\t\t}\n\t\tconst montado', '\t\tconst montado'],
 	['PS23 o parcial que nao cai e desenhado', J, '\t\t\tsoltarOAplicar();\n\t\t\tpedirInteiro();\n\t\t\treturn;\n', '\t\t\tsoltarOAplicar();\n\t\t\tpedirInteiro();\n'],
 	['PS24 o Aplicar perdido guarda o rascunho', J, '\t\t\tif (IdleSkills._esperandoAplicar && data.aplicado === true) {\n\t\t\t\tIdleSkills.rascunho = {};\n\t\t\t}\n', ''],

@@ -46,6 +46,18 @@ ChangeCart.render = () => htmlText;
 const _carts = {};
 const _layerEntity = new Entity();
 
+/*
+ * O NIVEL QUE A LISTA DE CARRINHOS MOSTRA (D-2385, 14/10/2026).
+ *
+ * O servidor reenvia a ficha inteira a cada ficha suja do tique (D-2374), e o `CLEVEL` dela chama
+ * `onLevelUp` com o MESMO nivel: `updateList` reescrevia o `display` dos nove carrinhos (ate dezoito
+ * escritas de estilo e ate nove consultas) para deixar a janela igual. A lista e uma funcao SO do nivel, e so
+ * `updateList` e `init` (que esconde todos) escrevem esse `display`: com o nivel igual ao que a lista ja
+ * mostra, nao ha o que escrever. `null` = a lista nao mostra nivel nenhum (antes da primeira, ou depois do
+ * `init`). O gesto da habilidade (`onChangeCartSkill`) refaz sempre: e raro e e o jogador abrindo a janela.
+ */
+let _nivelDaLista = null;
+
 /**
  * Initialize UI
  */
@@ -69,6 +81,9 @@ ChangeCart.init = function init() {
 			onCart(parseInt(event.currentTarget.getAttribute('data-id'), 10));
 		});
 	});
+
+	// D-2385: os carrinhos acabaram de ser escondidos; a lista nao mostra nivel nenhum.
+	_nivelDaLista = null;
 
 	// Pre-load carts
 	loadCartData();
@@ -131,6 +146,9 @@ ChangeCart.onChangeCartSkill = function onChangeCartSkill() {
 };
 
 ChangeCart.onLevelUp = function onLevelUp(blvl) {
+	if (blvl === _nivelDaLista) {
+		return;
+	}
 	updateList(blvl);
 };
 
@@ -170,6 +188,7 @@ function updateList(blvl) {
 	}
 
 	root.querySelector(".cart[data-id='1']").style.display = '';
+	_nivelDaLista = blvl;
 }
 
 /**

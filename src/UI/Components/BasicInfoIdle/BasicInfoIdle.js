@@ -426,6 +426,18 @@ function setText(root, selector, text) {
 	 * chamada — dez por volta de 250 ms, contra as dezenas de milhares de
 	 * operacoes que ele decide evitar.
 	 */
+	escreverNoTexto(el, text);
+}
+
+/**
+ * O `setText` para o elemento JA ACHADO (D-2385, 14/10/2026), com o mesmo interruptor de medicao.
+ *
+ * A auditoria de 11/09 levou a comparacao ao `setText`, mas a barra de HP e de SP (`updateLifeBar`) e a
+ * inicial do avatar seguiram escrevendo `textContent` cru a cada volta de 250 ms: quatro textos das barras
+ * e a inicial, quatro vezes por segundo, a cacada inteira, com o HP parado. E o HP que o `ZC_PAR_CHANGE`
+ * poe na entidade: o pacote nao toca o DOM, este polling sim.
+ */
+function escreverNoTexto(el, text) {
 	const novo = String(text);
 	if (typeof window !== 'undefined' && window.__ri_hud_compara === false) {
 		el.textContent = novo;
@@ -433,6 +445,20 @@ function setText(root, selector, text) {
 	}
 	if (el.textContent !== novo) {
 		el.textContent = novo;
+	}
+}
+
+/**
+ * A largura de um preenchimento, so se a lida for outra (D-2385). O navegador pode ler de volta outra forma
+ * do mesmo numero (casas decimais): ai a comparacao falha e a escrita acontece, como antes.
+ */
+function escreverLargura(el, largura) {
+	if (typeof window !== 'undefined' && window.__ri_hud_compara === false) {
+		el.style.width = largura;
+		return;
+	}
+	if (el.style.width !== largura) {
+		el.style.width = largura;
 	}
 }
 
@@ -495,13 +521,13 @@ function updateLifeBar(root, type, val, max) {
 	const text = bar.querySelector('.bi-bar-text');
 	const pct = bar.querySelector('.bi-bar-pct');
 	if (fill) {
-		fill.style.width = perc + '%';
+		escreverLargura(fill, perc + '%');
 	}
 	if (text) {
-		text.textContent = `${val} / ${max}`;
+		escreverNoTexto(text, `${val} / ${max}`);
 	}
 	if (pct) {
-		pct.textContent = formatPercent(val, max);
+		escreverNoTexto(pct, formatPercent(val, max));
 	}
 }
 
@@ -533,7 +559,7 @@ function updateExpBar(root, selector, val, max, pctSelector) {
 		return;
 	}
 	const perc = max > 0 ? Math.max(0, Math.min(100, (val / max) * 100)) : 0;
-	el.style.width = perc + '%';
+	escreverLargura(el, perc + '%');
 	if (pctSelector) {
 		setText(root, pctSelector, formatPercent(val, max));
 	}
@@ -562,7 +588,7 @@ function syncFromNativeState() {
 
 	const initialEl = root.querySelector('.bi-avatar-initial');
 	if (initialEl) {
-		initialEl.textContent = name ? name.trim().charAt(0).toUpperCase() : '?';
+		escreverNoTexto(initialEl, name ? name.trim().charAt(0).toUpperCase() : '?');
 	}
 
 	syncAvatarPortrait(root, entity.job);
@@ -647,7 +673,8 @@ function ligarPing() {
 		const ms = medidorDePing.valor();
 		const faixa = faixaDoPing(ms);
 		for (const el of root.querySelectorAll('.bi-ping')) {
-			el.textContent = ms === null ? '— ms' : `${ms} ms`;
+			// D-2385: a cada 2 s, quase sempre o mesmo numero; o texto igual nao e reescrito.
+			escreverNoTexto(el, ms === null ? '— ms' : `${ms} ms`);
 			el.classList.toggle('is-bom', faixa === 'bom');
 			el.classList.toggle('is-medio', faixa === 'medio');
 			el.classList.toggle('is-ruim', faixa === 'ruim');

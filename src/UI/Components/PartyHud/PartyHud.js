@@ -51,6 +51,7 @@ import EntityManager from 'Renderer/EntityManager.js';
 import DB from 'DB/DBManager.js';
 import GrupoIdle from '../GrupoIdle/GrupoIdle.js';
 import { vidaDoMembro } from '../GrupoIdle/vidaDoMembro.js';
+import { escreverEstilo, escreverTexto } from 'UI/escreverSeMudou.js';
 import htmlText from './PartyHud.html?raw';
 import cssText from './PartyHud.css?raw';
 
@@ -284,13 +285,17 @@ function vidaAoVivo() {
 		if (!barra) {
 			return;
 		}
+		// D-2385: a cada volta (400 ms) com o HP parado, a largura e o numero eram reescritos iguais; o
+		// `textContent` igual troca o no de texto (mutacao de verdade). Escreve so o que mudou. A largura
+		// '45.0%' o navegador le de volta como '45%': as duas formas valem como "igual".
 		const fill = linha.querySelector('.ph-hp .fill');
 		if (fill) {
-			fill.style.width = (barra.fracao * 100).toFixed(1) + '%';
+			const largura = (barra.fracao * 100).toFixed(1);
+			escreverEstilo(fill, 'width', largura + '%', Number(largura) + '%');
 		}
 		const numero = linha.querySelector('.ph-hp-num');
 		if (numero) {
-			numero.textContent = barra.texto;
+			escreverTexto(numero, barra.texto);
 		}
 	});
 }

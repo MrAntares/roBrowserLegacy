@@ -79,6 +79,7 @@ import cssText from './GrupoIdle.css?raw';
 import { fecharEEsquecer } from '../limpezaDeJanelaIdle.js';
 import { abaLembrada, lembrarAba } from '../memoriaDeAba.js';
 import { vidaDoMembro } from './vidaDoMembro.js';
+import { escreverEstilo, escreverTexto, escreverTitulo } from 'UI/escreverSeMudou.js';
 
 /* Manter em sincronia com o ":host" do CSS — o mesmo papel do
    WINDOW_WIDTH/HEIGHT de LFGIdle.js. O JS supoe a caixa GRANDE de proposito:
@@ -1000,19 +1001,23 @@ function vidaAoVivo() {
 		if (!barra) {
 			return;
 		}
+		// D-2385: a cada volta (400 ms) com o HP parado, a largura e o numero eram reescritos iguais; o
+		// `textContent` igual troca o no de texto (mutacao de verdade). Escreve so o que mudou. A largura
+		// '45.0%' o navegador le de volta como '45%': as duas formas valem como "igual".
 		const fill = linha.querySelector('.gi-membro-hp .fill');
 		if (fill) {
-			fill.style.width = (barra.fracao * 100).toFixed(1) + '%';
+			const largura = (barra.fracao * 100).toFixed(1);
+			escreverEstilo(fill, 'width', largura + '%', Number(largura) + '%');
 		}
 		const numero = linha.querySelector('.gi-membro-hp-num');
 		if (numero) {
-			numero.textContent = barra.texto;
+			escreverTexto(numero, barra.texto);
 		}
 		const estado = linha.querySelector('.gi-estado');
 		if (estado && !linha.classList.contains('is-offline')) {
 			estado.classList.toggle('is-vivo', barra.vivo);
 			estado.classList.toggle('is-morto', !barra.vivo);
-			estado.title = barra.vivo ? 'No mundo' : 'Caido';
+			escreverTitulo(estado, barra.vivo ? 'No mundo' : 'Caido');
 		}
 	});
 }
