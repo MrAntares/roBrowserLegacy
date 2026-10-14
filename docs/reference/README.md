@@ -10,6 +10,7 @@ Each subdirectory covers one subsystem:
 | [guild/](guild/) | the guild window, its six tabs, and the create / disband dialogs |
 | [chat/](chat/) | the chat window: what a received line keeps, drops and breaks on |
 | [renderer/](renderer/) | entity rendering: the body palette of a mounted player |
+| [pet/](pet/) | pets: the name in front of a pet's talk line |
 
 ## Where the details come from
 
