@@ -109,7 +109,7 @@ vi.mock('UI/Components/InputBox/InputBox.js', () => ({
 vi.mock('UI/Components/GuildCompanion/GuildCompanion.js', () => ({ default: { openDisband: vi.fn() } }));
 vi.mock('UI/Components/SkillTargetSelection/SkillTargetSelection.js', () => ({ default: {} }));
 vi.mock('UI/Components/SkillDescription/SkillDescription.js', () => ({ default: {} }));
-vi.mock('UI/Components/WinStats/WinStats.js', () => ({ default: { getUI: () => ({ update: vi.fn() }) } }));
+vi.mock('UI/Components/WinStats/WinStats.js', () => ({ default: { update: vi.fn() } }));
 
 // jsdom ships no 2d context, and the component paints its tendency graph on init.
 HTMLCanvasElement.prototype.getContext = function () {

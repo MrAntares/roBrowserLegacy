@@ -277,7 +277,7 @@ function onOpenLaphineUI(pkt) {
  * Updates the Laphine UI with the current state information.
  */
 function onUpdateLaphineUI() {
-	const item = Inventory.getUI().getItemById(LaphineUIState.itemId);
+	const item = Inventory.getItemById(LaphineUIState.itemId);
 
 	if (!item) {
 		return false;
@@ -297,7 +297,7 @@ function onUpdateLaphineUI() {
  */
 function GetInventoryItemsById(id) {
 	const items = [];
-	const list = Inventory.getUI().list;
+	const list = Inventory.list;
 
 	for (let i = 0, count = list.length; i < count; ++i) {
 		if (list[i].ITID === id) {
@@ -414,7 +414,7 @@ function onItemSelect(e) {
 	}
 
 	const idx = parseInt(this.getAttribute('data-index'), 10);
-	const item = Inventory.getUI().getItemByIndex(idx);
+	const item = Inventory.getItemByIndex(idx);
 
 	if (!item) {
 		e.preventDefault();
@@ -451,7 +451,7 @@ function onSubmitItem() {
 		idx = parseInt(this.getAttribute('data-index'), 10);
 	}
 
-	const item = Inventory.getUI().getItemByIndex(idx);
+	const item = Inventory.getItemByIndex(idx);
 
 	if (!item) {
 		return;
@@ -568,7 +568,7 @@ function adjustSubmittedMatList() {
  */
 function onItemRemove() {
 	const idx = parseInt(this.getAttribute('data-index'), 10);
-	const item = Inventory.getUI().getItemByIndex(idx);
+	const item = Inventory.getItemByIndex(idx);
 
 	if (item) {
 		onRemoveItemSubmitList(item, this);
@@ -614,7 +614,7 @@ function updateAvailableMatList(itemId, itemIndex, countChange, increase) {
 
 	availableMatList.querySelectorAll('.item').forEach(el => {
 		const idx = parseInt(el.getAttribute('data-index'), 10);
-		const item = Inventory.getUI().getItemByIndex(idx);
+		const item = Inventory.getItemByIndex(idx);
 
 		if (item.ITID === itemId && idx === itemIndex) {
 			itemExists = true;
@@ -647,7 +647,7 @@ function updateAvailableMatList(itemId, itemIndex, countChange, increase) {
 	});
 
 	if (increase && !itemExists) {
-		const item = Inventory.getUI().getItemByIndex(itemIndex);
+		const item = Inventory.getItemByIndex(itemIndex);
 		if (item) {
 			const inventory_count = item.type === ItemType.WEAPON || item.type === ItemType.ARMOR ? 1 : item.count;
 			const sourceItem = LaphineUIState.sourceItems.find(si => si.id === itemId);
@@ -704,7 +704,7 @@ function onRequestSynthesis() {
  */
 function onItemOver() {
 	const idx = parseInt(this.getAttribute('data-index'), 10);
-	const item = Inventory.getUI().getItemByIndex(idx);
+	const item = Inventory.getItemByIndex(idx);
 
 	if (!item) {
 		return;
@@ -759,7 +759,7 @@ function stopPropagation(event) {
  */
 function onItemDragStart(event) {
 	const index = parseInt(this.getAttribute('data-index'), 10);
-	const item = Inventory.getUI().getItemByIndex(index);
+	const item = Inventory.getItemByIndex(index);
 
 	if (!item) {
 		return;
@@ -878,7 +878,7 @@ function onItemInfo(event) {
 	event.preventDefault();
 
 	const idx = parseInt(this.getAttribute('data-index'), 10);
-	const item = Inventory.getUI().getItemByIndex(idx);
+	const item = Inventory.getItemByIndex(idx);
 
 	if (!item) {
 		return;
@@ -900,9 +900,9 @@ function onItemInfo(event) {
 	ItemInfo.uid = item.ITID;
 	ItemInfo.setItem(item);
 
-	const compareItem = Equipment.getUI().isInEquipList(item.location);
+	const compareItem = Equipment.isInEquipList(item.location);
 
-	if (compareItem && Inventory.getUI().itemcomp) {
+	if (compareItem && Inventory.itemcomp) {
 		ItemCompare.prepare();
 		ItemCompare.append();
 		ItemCompare.uid = compareItem.ITID;

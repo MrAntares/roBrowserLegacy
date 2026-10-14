@@ -1019,7 +1019,7 @@ Guild.setGuildInformations = function setGuildInformations(info) {
 	updateSkillFooter(root, getActiveTab(root));
 	updateMemberSort(root, getActiveTab(root));
 
-	WinStats.getUI().update('guildname', info.guildname);
+	WinStats.update('guildname', info.guildname);
 
 	updateInfoOptions(root);
 	if (_showsTendency()) {

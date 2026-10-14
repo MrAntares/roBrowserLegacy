@@ -33,7 +33,7 @@ const _selectUIVersion = WinStatsController.selectUIVersion;
 WinStatsController.selectUIVersion = function () {
 	_selectUIVersion();
 
-	const component = WinStatsController.getUI();
+	const component = WinStatsController;
 
 	// Escape to close the UI
 	component.onKeyDown = function onKeyDown(e) {

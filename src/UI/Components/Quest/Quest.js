@@ -29,7 +29,7 @@ const _selectUIVersion = Controller.selectUIVersion;
 Controller.selectUIVersion = function () {
 	_selectUIVersion();
 
-	const component = Controller.getUI();
+	const component = Controller;
 
 	// Escape to close the UI
 	component.onKeyDown = function onKeyDown(e) {

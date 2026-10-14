@@ -25,7 +25,6 @@ export default createBasicInfo({
 	buttonsSelector: '.buttons button',
 	buttonsEvent: 'click',
 	buttonKeyBy: 'id',
-	partyViaGetUI: true,
 	hasToolbarToggle: true,
 	hideIds: ['battle', 'replay', 'tipbox', 'shortcut', 'agency'],
 	barScale: 1.27

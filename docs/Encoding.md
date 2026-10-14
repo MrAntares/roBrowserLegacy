@@ -8,7 +8,7 @@ There is **NO global encoding**.
 All encoding logic is centralized in:
 
 ```javascript
-Utils / CodepageManager.js;
+import TextEncoding from 'Utils/CodepageManager.js';
 ```
 
 ---
@@ -63,7 +63,7 @@ TextEncoding.decode(bytes, userCharpage);
 ### 3. Hybrid / Unknown data (network, binary blobs)
 
 - Attempt UTF-8 first
-- Fallback to user charset if invalid (each new instance of require() have the own userCharpage/default[windows-1252])
+- Fallback to user charset if invalid (defaults to `windows-1252` if user charset is not specified)
 
 ```javascript
 TextEncoding.decode(bytes, 'utf-8');
@@ -101,8 +101,8 @@ Decoded string (final)
 ## Correct Pattern for User-facing text in DB
 
 ```javascript
-Client.loadFile(filename, function (buffer) {
-	var text = TextEncoding.decode(buffer, userCharpage);
+Client.loadFile(filename, buffer => {
+	const text = TextEncoding.decode(buffer, userCharpage);
 });
 ```
 

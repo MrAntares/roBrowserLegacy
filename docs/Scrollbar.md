@@ -1,13 +1,15 @@
 # Custom Scrollbar Usage Guide
 
-The custom scrollbar system in RO Browser provides a way to have stylized scrollbars that match the RO interface while solving common issues like layout jitter and browser inconsistencies.
+The custom scrollbar system in roBrowserLegacy provides stylized scrollbars that match the Ragnarok Online interface while solving common issues like layout jitter and browser inconsistencies.
 
 ## 1. Basic Usage
 
-The system automatically applies a scrollbar to any element inside a `UIComponent` that has:
+The system automatically applies a scrollbar to any scrollable element inside a `GUIComponent` during `_setupScrollbars()` if it has:
 
 - `overflow-y: auto;`
 - `overflow-y: scroll;`
+
+When attached to an element within a Shadow DOM, `ScrollBar.applyDOMScrollbar()` automatically injects `<style data-scrollbar>` into the component's `ShadowRoot`.
 
 ### Dynamic Padding
 
@@ -24,7 +26,7 @@ To use a non-default skin (like the **ChatBox** skin), add the `data-scrollbar-s
 
 ## 3. Adding a New Skin
 
-To add a new skin, modify [ScrollBar.js](../src/UI/Scrollbar.js).
+To add a new skin, modify [Scrollbar.js](../src/UI/Scrollbar.js).
 
 ### Step 1: Update `skinsToLoad`
 
@@ -34,12 +36,12 @@ Add a new object to the `skinsToLoad` array in `ScrollBar.init`:
 {
     name: 'myskin',
     files: [
-        'path/to/down.bmp',  // [0] Down Button
-        'path/to/mid.bmp',   // [1] Track (Repeated Y)
-        'path/to/up.bmp',    // [2] Up Button
-        'path/to/bdown.bmp', // [3] Thumb Bottom Part
-        'path/to/bmid.bmp',  // [4] Thumb Middle Part
-        'path/to/bup.bmp'    // [5] Thumb Top Part
+        `${DB.INTERFACE_PATH}path/to/down.bmp`,  // [0] Down Button
+        `${DB.INTERFACE_PATH}path/to/mid.bmp`,   // [1] Track (Repeated Y)
+        `${DB.INTERFACE_PATH}path/to/up.bmp`,    // [2] Up Button
+        `${DB.INTERFACE_PATH}path/to/bdown.bmp`, // [3] Thumb Bottom Part
+        `${DB.INTERFACE_PATH}path/to/bmid.bmp`,  // [4] Thumb Middle Part
+        `${DB.INTERFACE_PATH}path/to/bup.bmp`    // [5] Thumb Top Part
     ],
     colors: {
         track: '#000000', // Optional: Used if mid file is null
@@ -54,13 +56,17 @@ Add a new object to the `skinsToLoad` array in `ScrollBar.init`:
 
 ### Step 2: Component Tagging
 
-Once the skin is added to `ScrollBar.js`, tag your component's element with `data-scrollbar-skin="myskin"`.
+Once the skin is added to `Scrollbar.js`, tag your component's element with `data-scrollbar-skin="myskin"`.
 
-## 4. Manual Updates
+## 4. Manual Updates & Dynamic Content
 
-If your component's content changes significantly but is not detected by the automatic `MutationObserver`, you can manually trigger a refresh:
+- **Programmatic Scrolling (`scrollTop`)**:
+  Programmatic changes to `element.scrollTop` (such as auto-scrolling to bottom, keyboard navigation, or scroll clamping) automatically trigger the native `scroll` event listener attached by `Scrollbar.js` (`element._roScrollHandler`). The scroll thumb position is synchronized immediately without requiring any manual notification or timer restarts.
 
-```javascript
-var ScrollBar = require('UI/Scrollbar');
-ScrollBar.applyDOMScrollbar(myElement);
-```
+- **Dynamic Content & Layout Changes**:
+  If your component's content changes dynamically (e.g., elements inserted, removed, or resized) and you need to immediately refresh the scrollbar track and thumb dimensions without waiting for the automatic 300ms polling interval, call:
+  ```javascript
+  import ScrollBar from 'UI/Scrollbar.js';
+  ScrollBar.applyDOMScrollbar(myElement);
+  ```
+  *(Note: If the scrollbar is already applied, `applyDOMScrollbar` safely refreshes the thumb geometry via its internal restart hook.)*

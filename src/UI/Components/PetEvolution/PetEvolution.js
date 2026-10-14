@@ -225,7 +225,7 @@ PetEvolution.hasEnoughMaterials = function () {
 	}
 
 	for (const mat of currentMaterials) {
-		const item = Inventory.getUI().getItemById(mat.MaterialID);
+		const item = Inventory.getItemById(mat.MaterialID);
 		const count = item ? item.count : 0;
 
 		if (count < mat.Amount) {

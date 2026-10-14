@@ -294,17 +294,17 @@ function onMinimapMarker(pkt) {
 	switch (pkt.type) {
 		// Add a mark for 15 seconds
 		case 0:
-			MiniMap.getUI().addNpcMark(pkt.id, pkt.xPos, pkt.yPos, pkt.color, 15000);
+			MiniMap.addNpcMark(pkt.id, pkt.xPos, pkt.yPos, pkt.color, 15000);
 			break;
 
 		// Add a mark
 		case 1:
-			MiniMap.getUI().addNpcMark(pkt.id, pkt.xPos, pkt.yPos, pkt.color, Infinity);
+			MiniMap.addNpcMark(pkt.id, pkt.xPos, pkt.yPos, pkt.color, Infinity);
 			break;
 
 		// Remove a mark
 		case 2:
-			MiniMap.getUI().removeNpcMark(pkt.id);
+			MiniMap.removeNpcMark(pkt.id);
 			break;
 	}
 }

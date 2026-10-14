@@ -59,7 +59,7 @@ class GroupEngine {
 		Network.hookPacket(PACKET.ZC.ACK_MAKE_GROUP, onPartyCreate);
 		Network.hookPacket(PACKET.ZC.GROUP_ISALIVE, onPartyIsAlive);
 
-		const PartyUI = PartyFriends.getUI();
+		const PartyUI = PartyFriends;
 
 		PartyUI.onExpelMember = GroupEngine.onRequestExpel;
 		PartyUI.onRequestChangeLeader = GroupEngine.onRequestChangeLeader;
@@ -239,7 +239,7 @@ function onPartyCreate(pkt) {
 				}
 			}
 
-			PartyFriends.getUI().setParty(_partyName, [memberData]);
+			PartyFriends.setParty(_partyName, [memberData]);
 			break;
 		}
 		case 1: // party name already exists
@@ -262,7 +262,7 @@ function onPartyCreate(pkt) {
  * @param {object} pkt - PACKET.ZC.GROUP_ISALIVE
  */
 function onPartyIsAlive(pkt) {
-	PartyFriends.getUI().updateMemberDead(pkt.AID, pkt.isDead);
+	PartyFriends.updateMemberDead(pkt.AID, pkt.isDead);
 }
 
 /**
@@ -293,7 +293,7 @@ function onPartyList(pkt) {
 		}
 	}
 
-	PartyFriends.getUI().setParty(pkt.groupName, pkt.groupInfo);
+	PartyFriends.setParty(pkt.groupName, pkt.groupInfo);
 	WorldMap.updatePartyMembers(pkt);
 }
 
@@ -318,13 +318,11 @@ function onPartyMemberJoin(pkt) {
 		}
 	}
 
-	const PartyUI = PartyFriends.getUI();
-
 	if (pkt.AID === Session.AID) {
 		Session.hasParty = true;
 	}
-	PartyUI.setOptions(pkt.expOption, pkt.ItemPickupRule, pkt.ItemDivisionRule);
-	PartyUI.addPartyMember(pkt);
+	PartyFriends.setOptions(pkt.expOption, pkt.ItemPickupRule, pkt.ItemDivisionRule);
+	PartyFriends.addPartyMember(pkt);
 }
 
 /**
@@ -353,7 +351,7 @@ function onPartyMemberLeave(pkt) {
 		Session.hasParty = false;
 	}
 
-	PartyFriends.getUI().removePartyMember(pkt.AID, pkt.characterName);
+	PartyFriends.removePartyMember(pkt.AID, pkt.characterName);
 }
 
 /**
@@ -371,7 +369,7 @@ function onMemberLifeUpdate(pkt) {
 		entity.life.update();
 
 		if (entity && entity.life && entity.life.canvas) {
-			PartyFriends.getUI().updateMemberLife(pkt.AID, entity.life.canvas, pkt.hp, pkt.maxhp);
+			PartyFriends.updateMemberLife(pkt.AID, entity.life.canvas, pkt.hp, pkt.maxhp);
 		}
 	}
 }
@@ -399,9 +397,9 @@ function onMemberTalk(pkt) {
 function onMemberMove(pkt) {
 	// Server remove mark with "-1" as position
 	if (pkt.xPos < 0 || pkt.yPos < 0) {
-		MiniMap.getUI().removePartyMemberMark(pkt.AID);
+		MiniMap.removePartyMemberMark(pkt.AID);
 	} else {
-		MiniMap.getUI().addPartyMemberMark(pkt.AID, pkt.xPos, pkt.yPos);
+		MiniMap.addPartyMemberMark(pkt.AID, pkt.xPos, pkt.yPos);
 	}
 }
 
@@ -411,7 +409,7 @@ function onMemberMove(pkt) {
  * @param {object} pkt - PACKET.ZC.GROUPINFO_CHANGE
  */
 function onPartyOption(pkt) {
-	PartyFriends.getUI().setOptions(pkt.expOption, pkt.ItemPickupRule, pkt.ItemDivisionRule);
+	PartyFriends.setOptions(pkt.expOption, pkt.ItemPickupRule, pkt.ItemDivisionRule);
 
 	ChatBox.addText(
 		DB.getMessage(291) + '  - ' + DB.getMessage(292) + '  : ' + DB.getMessage(287 + pkt.expOption),

@@ -58,6 +58,7 @@ function init(gl) {
 		uFogFar: gl.getUniformLocation(_program, 'uFogFar'),
 		uFogColor: gl.getUniformLocation(_program, 'uFogColor'),
 		uDiffuse: gl.getUniformLocation(_program, 'uDiffuse'),
+		uMatrixTexture: gl.getUniformLocation(_program, 'uMatrixTexture'),
 		uOccluderFadeMode: gl.getUniformLocation(_program, 'uOccluderFadeMode'),
 		uOccluderFadeEye: gl.getUniformLocation(_program, 'uOccluderFadeEye'),
 		uOccluderFadeFocus: gl.getUniformLocation(_program, 'uOccluderFadeFocus'),
@@ -70,7 +71,8 @@ function init(gl) {
 		aPosition: gl.getAttribLocation(_program, 'aPosition'),
 		aNormal: gl.getAttribLocation(_program, 'aNormal'),
 		aTextureCoord: gl.getAttribLocation(_program, 'aTextureCoord'),
-		aAlpha: gl.getAttribLocation(_program, 'aAlpha')
+		aAlpha: gl.getAttribLocation(_program, 'aAlpha'),
+		aMatrixIndex: gl.getAttribLocation(_program, 'aMatrixIndex')
 	};
 }
 
@@ -86,6 +88,9 @@ function free(gl) {
 		if (model.buffer) {
 			gl.deleteBuffer(model.buffer);
 		}
+		if (model.matrixTexture) {
+			gl.deleteTexture(model.matrixTexture);
+		}
 		for (const tex in model.textureObjects) {
 			if (model.textureObjects[tex]) {
 				gl.deleteTexture(model.textureObjects[tex]);
@@ -93,6 +98,109 @@ function free(gl) {
 		}
 	}
 	_animatedModels = [];
+}
+
+/**
+ * Precompute face flat normals in node model-space
+ */
+function precalcFlatNormals(node) {
+	const faces = node.faces;
+	const vertices = node.vertices;
+	const normals = new Float32Array(faces.length * 3);
+
+	for (let f = 0; f < faces.length; f++) {
+		const face = faces[f];
+		const v0 = vertices[face.vertidx[0]];
+		const v1 = vertices[face.vertidx[1]];
+		const v2 = vertices[face.vertidx[2]];
+
+		const ax = v1[0] - v0[0];
+		const ay = v1[1] - v0[1];
+		const az = v1[2] - v0[2];
+		const bx = v2[0] - v0[0];
+		const by = v2[1] - v0[1];
+		const bz = v2[2] - v0[2];
+
+		let nx = ay * bz - az * by;
+		let ny = az * bx - ax * bz;
+		let nz = ax * by - ay * bx;
+
+		let len = nx * nx + ny * ny + nz * nz;
+		if (len > 0) {
+			len = 1.0 / Math.sqrt(len);
+			nx *= len;
+			ny *= len;
+			nz *= len;
+		}
+
+		const base = f * 3;
+		normals[base] = nx;
+		normals[base + 1] = ny;
+		normals[base + 2] = nz;
+	}
+
+	return normals;
+}
+
+/**
+ * Precompute smooth normals per smoothGroup in node model-space
+ */
+function precalcSmoothNormals(node, flatNormals) {
+	const faces = node.faces;
+	const vertices = node.vertices;
+	const groupUsed = [];
+
+	for (let f = 0; f < faces.length; f++) {
+		const sg = faces[f].smoothGroup;
+		if (sg !== undefined && sg >= 0 && sg < 32) {
+			groupUsed[sg] = true;
+		}
+	}
+
+	const groups = [];
+	const numVerts = vertices.length;
+
+	for (let j = 0; j < 32; j++) {
+		if (!groupUsed[j]) {
+			continue;
+		}
+
+		const norm = new Float32Array(numVerts * 3);
+		groups[j] = norm;
+
+		for (let v = 0; v < numVerts; v++) {
+			let x = 0;
+			let y = 0;
+			let z = 0;
+
+			for (let f = 0; f < faces.length; f++) {
+				const face = faces[f];
+				if (
+					face.smoothGroup === j &&
+					(face.vertidx[0] === v || face.vertidx[1] === v || face.vertidx[2] === v)
+				) {
+					const base = f * 3;
+					x += flatNormals[base];
+					y += flatNormals[base + 1];
+					z += flatNormals[base + 2];
+				}
+			}
+
+			let len = x * x + y * y + z * z;
+			if (len > 0) {
+				len = 1.0 / Math.sqrt(len);
+				x *= len;
+				y *= len;
+				z *= len;
+			}
+			const l = v * 3;
+			norm[l] = x;
+			norm[l + 1] = y;
+			norm[l + 2] = z;
+		}
+	}
+
+	return groups;
 }
 
 function isNodeStatic(node) {
@@ -238,6 +346,15 @@ function add(gl, modelData) {
 		// Add some frames to ensure last keyframe is reached
 		animLen = animLen + 1;
 	}
+	// Precompute normals for all nodes
+	for (let n = 0; n < nodes.length; n++) {
+		const node = nodes[n];
+		node._flatNormals = precalcFlatNormals(node);
+		if (modelData.shadeType === 2) {
+			node._smoothGroups = precalcSmoothNormals(node, node._flatNormals);
+		}
+	}
+
 	// Calculate size per texture
 	// Iterate all nodes to find which textures they use and how many faces
 	for (let n = 0; n < nodes.length; n++) {
@@ -261,15 +378,13 @@ function add(gl, modelData) {
 			// For every instance of this node
 			for (let inst = 0; inst < instances.length; inst++) {
 				const vertCount = facesPerTex[tid] * 3; // 3 verts per face
-				const floatCount = vertCount * 9; // 9 floats per vert (3 pos, 3 norm, 2 uv, 1 alpha)
+				const floatCount = vertCount * 10; // 10 floats per vert (3 pos, 3 norm, 2 uv, 1 alpha, 1 matrixIndex)
 
 				// Create a write instruction
 				textureGroups[tid].writePlan.push({
 					nodeIndex: n,
 					instanceIndex: inst,
 					faceCount: facesPerTex[tid],
-					startFaceIndex: 0, // Need to find where faces for this tex start in node.faces? No, faces are mixed.
-					// We will need to iterate faces in update and pick matches
 					targetOffset: 0 // Will be calculated below
 				});
 
@@ -290,15 +405,55 @@ function add(gl, modelData) {
 		for (let wp = 0; wp < group.writePlan.length; wp++) {
 			const plan = group.writePlan[wp];
 			plan.targetOffset = currentOffset;
-			currentOffset += plan.faceCount * 3 * 9;
+			currentOffset += plan.faceCount * 3 * 10;
 		}
 
 		meshInfos.push({
 			textureIdx: parseInt(tid),
-			vertOffset: startOffset / 9,
-			vertCount: (currentOffset - startOffset) / 9
+			vertOffset: startOffset / 10,
+			vertCount: (currentOffset - startOffset) / 10
 		});
 	}
+
+	// Build static model-space geometry once into Float32Array
+	const staticBuffer = new Float32Array(totalFloats);
+	const numInstances = instances.length;
+
+	for (const tid in textureGroups) {
+		const group = textureGroups[tid];
+		const plans = group.writePlan;
+		const textureId = parseInt(tid);
+
+		for (let p = 0; p < plans.length; p++) {
+			const plan = plans[p];
+			const node = nodes[plan.nodeIndex];
+			const matrixIndex = plan.nodeIndex * numInstances + plan.instanceIndex;
+
+			writeNodeGeometry(
+				node,
+				textureId,
+				plan.targetOffset,
+				staticBuffer,
+				modelData.alpha,
+				matrixIndex,
+				modelData.shadeType
+			);
+		}
+	}
+
+	const totalMatrices = nodes.length * numInstances;
+	const matrixData = new Float32Array(totalMatrices * 16);
+
+	// Create float matrix texture
+	const matrixTexture = gl.createTexture();
+	gl.bindTexture(gl.TEXTURE_2D, matrixTexture);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+	// Total pixels = totalMatrices * 4, height = 1
+	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, totalMatrices * 4, 1, 0, gl.RGBA, gl.FLOAT, matrixData);
+	gl.bindTexture(gl.TEXTURE_2D, null);
 
 	// Create Model Object
 	const animModel = {
@@ -319,11 +474,12 @@ function add(gl, modelData) {
 		},
 		textureObjects: {},
 
-		// WebGL & Caching
+		// WebGL & Matrices
 		buffer: gl.createBuffer(),
-		_gpuBuffer: new Float32Array(totalFloats), // Allocate once
+		matrixTexture: matrixTexture,
+		matrixData: matrixData,
+		totalMatrices: totalMatrices,
 		meshInfos: meshInfos,
-		writePlans: textureGroups, // Instructions for update
 
 		// State
 		lastFrame: -1,
@@ -339,9 +495,9 @@ function add(gl, modelData) {
 		animModel._globalMatrices[n] = mat4.create();
 	}
 
-	// Allocate Buffer on GPU immediately (Empty but sized)
+	// Upload static geometry buffer once with gl.STATIC_DRAW
 	gl.bindBuffer(gl.ARRAY_BUFFER, animModel.buffer);
-	gl.bufferData(gl.ARRAY_BUFFER, animModel._gpuBuffer.byteLength, gl.DYNAMIC_DRAW);
+	gl.bufferData(gl.ARRAY_BUFFER, staticBuffer, gl.STATIC_DRAW);
 
 	// Load textures
 	for (let t = 0; t < modelData.textures.length; t++) {
@@ -355,7 +511,7 @@ function add(gl, modelData) {
 	gl.bindBuffer(gl.ARRAY_BUFFER, animModel.buffer);
 
 	const attribute = _program.attribute;
-	const stride = 36; // 9 floats * 4 bytes
+	const stride = 40; // 10 floats * 4 bytes
 
 	gl.enableVertexAttribArray(attribute.aPosition);
 	gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, stride, 0);
@@ -369,11 +525,14 @@ function add(gl, modelData) {
 	gl.enableVertexAttribArray(attribute.aAlpha);
 	gl.vertexAttribPointer(attribute.aAlpha, 1, gl.FLOAT, false, stride, 32);
 
+	gl.enableVertexAttribArray(attribute.aMatrixIndex);
+	gl.vertexAttribPointer(attribute.aMatrixIndex, 1, gl.FLOAT, false, stride, 36);
+
 	gl.bindVertexArray(null);
 
 	_animatedModels.push(animModel);
 
-	// Force first update to populate buffer
+	// Force first update to calculate and upload initial matrices
 	updateModelBuffer(gl, animModel, 0, true);
 }
 
@@ -476,115 +635,69 @@ function getScaleAtFrame(keyframes, frame, out) {
 }
 
 /**
- * Transform a specific node's geometry for a specific texture and instance
- * Writes directly to the monolithic buffer
+ * Write static geometry (model space positions, precomputed normals, UVs, alpha, matrixIndex)
  */
-function transformAndWrite(node, finalMatrix, textureId, offset, buffer, alpha) {
-	// Extract Rotation for normals
-	// Optimization: Don't use mat4.extractRotation/invert/transpose every face.
-	// Just use the upper 3x3 of finalMatrix if uniform scaling.
-	// For non-uniform, we strictly need normal matrix, but RSMs usually handle normals simpler.
-	// Let's stick to standard logic: Extract rotation from finalMatrix.
-
-	const normalMat = node._cache.normalMat || mat4.create();
-	node._cache.normalMat = normalMat;
-	mat4.extractRotation(normalMat, finalMatrix);
-
-	const m = finalMatrix;
-	const n = normalMat;
-
-	// Cache Matrix access
-	const m0 = m[0],
-		m1 = m[1],
-		m2 = m[2],
-		m4 = m[4],
-		m5 = m[5],
-		m6 = m[6],
-		m8 = m[8],
-		m9 = m[9],
-		m10 = m[10],
-		m12 = m[12],
-		m13 = m[13],
-		m14 = m[14];
-	const n0 = n[0],
-		n1 = n[1],
-		n2 = n[2],
-		n4 = n[4],
-		n5 = n[5],
-		n6 = n[6],
-		n8 = n[8],
-		n9 = n[9],
-		n10 = n[10];
-
+function writeNodeGeometry(node, textureId, offset, buffer, alpha, matrixIndex, shadeType) {
 	const faces = node.faces;
 	const vertices = node.vertices;
 	const tvertices = node.tvertices;
 	const textures = node.textures;
-	const output = buffer;
+	const flatNormals = node._flatNormals;
+	const smoothGroups = node._smoothGroups;
+	const isSmooth = shadeType === 2 && smoothGroups;
+
 	let o = offset;
 
-	// Iterate faces, process only those matching textureId
 	for (let f = 0; f < faces.length; f++) {
 		const face = faces[f];
 		if (textures[face.texid] !== textureId) {
 			continue;
 		}
 
-		// Compute Face Normal (using Original Vertices)
-		const v0 = vertices[face.vertidx[0]];
-		const v1 = vertices[face.vertidx[1]];
-		const v2 = vertices[face.vertidx[2]];
+		let fnx = 0;
+		let fny = 0;
+		let fnz = 0;
+		let smoothNorm = null;
 
-		const ax = v1[0] - v0[0],
-			ay = v1[1] - v0[1],
-			az = v1[2] - v0[2];
-		const bx = v2[0] - v0[0],
-			by = v2[1] - v0[1],
-			bz = v2[2] - v0[2];
-
-		let nx = ay * bz - az * by;
-		let ny = az * bx - ax * bz;
-		let nz = ax * by - ay * bx;
-
-		// Normalize
-		let len = nx * nx + ny * ny + nz * nz;
-		if (len > 0) {
-			len = 1.0 / Math.sqrt(len);
-			nx *= len;
-			ny *= len;
-			nz *= len;
+		if (isSmooth && face.smoothGroup !== undefined && smoothGroups[face.smoothGroup]) {
+			smoothNorm = smoothGroups[face.smoothGroup];
+		} else {
+			const fBase = f * 3;
+			fnx = flatNormals[fBase];
+			fny = flatNormals[fBase + 1];
+			fnz = flatNormals[fBase + 2];
 		}
 
-		// Transform Normal
-		const tnx = n0 * nx + n4 * ny + n8 * nz;
-		const tny = n1 * nx + n5 * ny + n9 * nz;
-		const tnz = n2 * nx + n6 * ny + n10 * nz;
-
-		// Process 3 Vertices
 		for (let vi = 0; vi < 3; vi++) {
 			const vIdx = face.vertidx[vi];
 			const tIdx = face.tvertidx[vi];
 
-			const vx = vertices[vIdx][0];
-			const vy = vertices[vIdx][1];
-			const vz = vertices[vIdx][2];
+			// Model-space original position
+			buffer[o++] = vertices[vIdx][0];
+			buffer[o++] = vertices[vIdx][1];
+			buffer[o++] = vertices[vIdx][2];
 
-			// Position (Transformed)
-			output[o++] = m0 * vx + m4 * vy + m8 * vz + m12;
-			output[o++] = m1 * vx + m5 * vy + m9 * vz + m13;
-			output[o++] = m2 * vx + m6 * vy + m10 * vz + m14;
-
-			// Normal (Transformed)
-			output[o++] = tnx;
-			output[o++] = tny;
-			output[o++] = tnz;
+			// Precomputed model-space normal
+			if (smoothNorm) {
+				const nBase = vIdx * 3;
+				buffer[o++] = smoothNorm[nBase];
+				buffer[o++] = smoothNorm[nBase + 1];
+				buffer[o++] = smoothNorm[nBase + 2];
+			} else {
+				buffer[o++] = fnx;
+				buffer[o++] = fny;
+				buffer[o++] = fnz;
+			}
 
 			// UV
-			output[o++] = tvertices[tIdx * 6 + 4];
-			output[o++] = tvertices[tIdx * 6 + 5];
+			buffer[o++] = tvertices[tIdx * 6 + 4];
+			buffer[o++] = tvertices[tIdx * 6 + 5];
 
 			// Alpha
-			output[o++] = alpha;
+			buffer[o++] = alpha;
+
+			// Matrix index for GPU skinning
+			buffer[o++] = matrixIndex;
 		}
 	}
 }
@@ -659,39 +772,26 @@ function updateModelBuffer(gl, model, frame, force) {
 		node.finalMatrix = finalNodeMatrix;
 	}
 
-	// 2. Pre-calculate Instance Matrices
-	// We do this to avoid recalculating Node * Instance for every texture group
+	// 2. Pre-calculate Instance Matrices and copy into Float32Array for GPU upload
+	const matrixData = model.matrixData;
+	const numInstances = model.instances.length;
+
 	for (let n = 0; n < model.nodes.length; n++) {
 		const node = model.nodes[n];
-		for (let i = 0; i < model.instances.length; i++) {
+		for (let i = 0; i < numInstances; i++) {
+			const destMat = node._cache.instances[i];
 			// Instance Final = InstanceWorld * NodeFinal
-			mat4.multiply(node._cache.instances[i], model.instances[i], node.finalMatrix);
+			mat4.multiply(destMat, model.instances[i], node.finalMatrix);
+
+			const matrixIndex = n * numInstances + i;
+			matrixData.set(destMat, matrixIndex * 16);
 		}
 	}
 
-	// 3. Write Geometry to Buffer (Using WritePlan)
-	// This ensures the buffer is ordered by Texture, maximizing batching
-	const buffer = model._gpuBuffer;
-	const writePlans = model.writePlans;
-
-	for (const tid in writePlans) {
-		const group = writePlans[tid];
-		const plans = group.writePlan;
-		const textureId = parseInt(tid);
-
-		for (let p = 0; p < plans.length; p++) {
-			const plan = plans[p];
-			const node = model.nodes[plan.nodeIndex];
-			const finalInstanceMatrix = node._cache.instances[plan.instanceIndex];
-
-			transformAndWrite(node, finalInstanceMatrix, textureId, plan.targetOffset, buffer, model.alpha);
-		}
-	}
-
-	// 4. Upload to GPU
-	// Use bufferSubData to avoid reallocation
-	gl.bindBuffer(gl.ARRAY_BUFFER, model.buffer);
-	gl.bufferSubData(gl.ARRAY_BUFFER, 0, buffer);
+	// 3. Upload Matrix Texture to GPU (1 row of width totalMatrices * 4)
+	gl.bindTexture(gl.TEXTURE_2D, model.matrixTexture);
+	gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, model.totalMatrices * 4, 1, gl.RGBA, gl.FLOAT, matrixData);
+	gl.bindTexture(gl.TEXTURE_2D, null);
 }
 
 /**
@@ -722,6 +822,9 @@ function bind(gl, modelView, projection, normalMat, fog, light) {
 
 	gl.activeTexture(gl.TEXTURE0);
 	gl.uniform1i(uniform.uDiffuse, 0);
+
+	gl.activeTexture(gl.TEXTURE1);
+	gl.uniform1i(uniform.uMatrixTexture, 1);
 }
 
 /**
@@ -734,6 +837,13 @@ function drawModels(gl) {
 		if (!model.buffer || model.meshInfos.length === 0) {
 			continue;
 		}
+
+		// Bind model's matrix texture to TEXTURE1
+		gl.activeTexture(gl.TEXTURE1);
+		gl.bindTexture(gl.TEXTURE_2D, model.matrixTexture);
+
+		// Model diffuses are sampled from TEXTURE0
+		gl.activeTexture(gl.TEXTURE0);
 
 		gl.bindVertexArray(model.vao);
 

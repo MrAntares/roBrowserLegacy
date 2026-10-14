@@ -324,14 +324,14 @@ function onDrop(event) {
 	}
 
 	// Can't drop an item on map if Equipment window is open
-	if (Equipment.getUI().ui.is(':visible')) {
+	if (Equipment.ui.is(':visible')) {
 		ChatBox.addText(DB.getMessage(189), ChatBox.TYPE.ERROR, ChatBox.FILTER.ITEM);
 		return;
 	}
 
 	// Item Drop Lock
 	const InventoryVersion = UIManager.getComponent('Inventory').name;
-	if (InventoryVersion !== 'InventoryV0' && Inventory.getUI().itemlock === true) {
+	if (InventoryVersion !== 'InventoryV0' && Inventory.itemlock === true) {
 		return;
 	}
 

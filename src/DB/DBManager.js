@@ -68,6 +68,18 @@ let default_HO_AI;
 let default_MER_AI;
 
 /**
+ * Whether the archive ships the halter-lead mounts' own palettes; undefined
+ * until it answers.
+ */
+let mountPalettes;
+
+/**
+ * The sentinel request on its way, if any; `stale` once DB.init has loaded
+ * another client, whose archive it was not asked of.
+ */
+let mountPalettesProbe = null;
+
+/**
  * @const {Array} message string
  */
 const MsgStringTable = [];
@@ -290,6 +302,17 @@ class DB {
 		DB.isLoaded = false;
 		DB.count = 0;
 		DB.index = 0;
+
+		// The client loaded after a server switch may be another archive: ask
+		// it again, and drop the previous answer the file cache keeps by name.
+		// A request still on its way would land in the file cache under that
+		// name: it is dropped once it lands instead.
+		mountPalettes = undefined;
+		if (mountPalettesProbe) {
+			mountPalettesProbe.stale = true;
+		} else {
+			MemoryManager.remove(null, DB.getBodyPalPath(JobId.PIG_CREATOR, 1, 0));
+		}
 
 		// Callback
 		let index = 0,
@@ -1295,6 +1318,41 @@ class DB {
 			'/\xbf\xee\xbf\xb5\xc0\xda_' +
 			SexTable[sex]
 		);
+	}
+
+	/**
+	 * Whether the archive ships the halter-lead mounts' own palettes, read off
+	 * a file only those archives have: asked once per archive.
+	 *
+	 * @param {function} onAnswer - called once the archive answers, if it has not yet
+	 * @return {boolean|undefined} undefined until the archive answers
+	 */
+	static hasMountPalettes(onAnswer) {
+		if (mountPalettes === undefined) {
+			const sentinel = DB.getBodyPalPath(JobId.PIG_CREATOR, 1, 0);
+			if (!mountPalettesProbe) {
+				mountPalettesProbe = { stale: false };
+			}
+			const probe = mountPalettesProbe;
+			const answer = present => {
+				if (probe === mountPalettesProbe) {
+					mountPalettesProbe = null;
+					if (probe.stale) {
+						// It answered for the previous client: onAnswer asks this one.
+						MemoryManager.remove(null, sentinel);
+					} else {
+						mountPalettes = present;
+					}
+				}
+				onAnswer();
+			};
+			Client.loadFile(
+				sentinel,
+				() => answer(true),
+				() => answer(false)
+			);
+		}
+		return mountPalettes;
 	}
 
 	/**
