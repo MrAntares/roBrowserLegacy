@@ -16,8 +16,14 @@ vi.mock('Preferences/Graphics.js', () => ({ default: mocks.graphics }));
 vi.mock('Renderer/Map/Altitude.js', () => ({ default: {} }));
 vi.mock('Renderer/Map/Water.js', () => ({ default: {} }));
 vi.mock('Renderer/GR2/GR2ModelRenderer.js', () => ({ default: { detach: vi.fn() } }));
+vi.mock('Core/Client.js', () => ({ default: {} }));
+vi.mock('DB/DBManager.js', () => ({ default: {} }));
+vi.mock('UI/Components/EntityRoom/EntityRoom.js', () => ({
+	default: { clone: () => ({ ui: [{ style: {} }], append: vi.fn() }) }
+}));
 
 import EntityManager from 'Renderer/EntityManager.js';
+import entityRoom from 'Renderer/Entity/EntityRoom.js';
 
 const OVERLAYS = ['life', 'emblem', 'display', 'dialog', 'cast', 'room'];
 
@@ -147,5 +153,19 @@ describe('EntityManager culling hides entity overlays', () => {
 
 		expect(() => renderFrame()).not.toThrow();
 		expect(mob.life.canvas.style.display).toBe('none');
+	});
+
+	it('hides a room created while the entity is culled', () => {
+		entityRoom.call(mob);
+		mob.position[0] = 80;
+		renderFrame();
+
+		mob.room.create('shop', 1, 0, true);
+		renderFrame();
+		expect(mob.room.node.ui[0].style.display).toBe('none');
+
+		mob.position[0] = 52;
+		renderFrame();
+		expect(mob.room.node.ui[0].style.display).toBe('');
 	});
 });
