@@ -29,22 +29,28 @@ SlotMachine.render = () => htmlText;
 /**
  * @var {Sprite,Action} objects
  */
-let _sprite, _action;
+SlotMachine._sprite = null;
+SlotMachine._action = null;
+
+/**
+ * @var {boolean} sprite and action ready to render
+ */
+SlotMachine._loaded = false;
 
 /**
  * @var {number} type
  */
-let _type = 0;
+SlotMachine._type = 0;
 
 /**
  * @var {boolean} result
  */
-let _result = false;
+SlotMachine._result = false;
 
 /**
  * @var {CanvasRenderingContext2D}
  */
-let _ctx;
+SlotMachine._ctx = null;
 
 /**
  * @var {Entity}
@@ -54,7 +60,7 @@ const _entity = new Entity();
 /**
  * @var {number} start tick
  */
-let _start = 0;
+SlotMachine._start = 0;
 
 /**
  * Initialize UI
@@ -62,15 +68,16 @@ let _start = 0;
 SlotMachine.init = function init() {
 	const root = this.getRoot();
 	const canvas = root.querySelector('canvas');
-	_ctx = canvas.getContext('2d');
+	SlotMachine._ctx = canvas.getContext('2d');
 
 	this._host.style.zIndex = '500';
 
 	Client.loadFiles(['data/sprite/slotmachine.spr', 'data/sprite/slotmachine.act'], (spr, act) => {
-		_sprite = spr;
-		_action = act;
-		_type = 0;
-		_start = Renderer.tick;
+		SlotMachine._sprite = spr;
+		SlotMachine._action = act;
+		SlotMachine._type = 0;
+		SlotMachine._loaded = true;
+		SlotMachine._start = Renderer.tick;
 
 		if (this._host.parentNode) {
 			Renderer.render(rendering);
@@ -78,7 +85,7 @@ SlotMachine.init = function init() {
 	});
 
 	canvas.addEventListener('mousedown', event => {
-		if (_type === 0) {
+		if (SlotMachine._loaded && SlotMachine._type === 0) {
 			SlotMachine.onTry();
 			event.stopImmediatePropagation();
 			event.preventDefault();
@@ -90,13 +97,13 @@ SlotMachine.init = function init() {
  * Once append to body
  */
 SlotMachine.onAppend = function onAppend() {
-	_type = 0;
-	_start = Renderer.tick;
+	SlotMachine._type = 0;
+	SlotMachine._start = Renderer.tick;
 
 	this._host.style.top = `${Renderer.height / 2 - 130}px`;
 	this._host.style.left = `${Renderer.width / 2 - 135}px`;
 
-	if (_sprite && _action) {
+	if (SlotMachine._sprite && SlotMachine._action) {
 		Renderer.render(rendering);
 	}
 };
@@ -114,9 +121,9 @@ SlotMachine.onRemove = function onRemove() {
  * @param {boolean} result
  */
 SlotMachine.setResult = function setResult(result) {
-	_type = 1;
-	_result = result;
-	_start = Renderer.tick;
+	SlotMachine._type = 1;
+	SlotMachine._result = result;
+	SlotMachine._start = Renderer.tick;
 };
 
 /**
@@ -128,23 +135,23 @@ const rendering = (() => {
 	return () => {
 		let action, anim;
 
-		switch (_type) {
+		switch (SlotMachine._type) {
 			case 0: // waiting
-				action = _action.actions[0];
-				anim = Math.floor(((Renderer.tick - _start) / action.delay) * 2);
+				action = SlotMachine._action.actions[0];
+				anim = Math.floor(((Renderer.tick - SlotMachine._start) / action.delay) * 2);
 				break;
 
 			case 1: {
 				// pending
-				action = _action.actions[1];
-				const max = action.animations.length + (_result ? 7 : 3);
-				anim = Renderer.tick - _start;
+				action = SlotMachine._action.actions[1];
+				const max = action.animations.length + (SlotMachine._result ? 7 : 3);
+				anim = Renderer.tick - SlotMachine._start;
 				anim = Math.floor(anim / action.delay);
 				anim = Math.min(anim, max);
 
 				if (anim === max) {
-					_type = _result ? 2 : 3;
-					_start = Renderer.tick;
+					SlotMachine._type = SlotMachine._result ? 2 : 3;
+					SlotMachine._start = Renderer.tick;
 				}
 				break;
 			}
@@ -152,9 +159,9 @@ const rendering = (() => {
 			case 2: // success
 			case 3: {
 				// fail
-				action = _action.actions[_type];
+				action = SlotMachine._action.actions[SlotMachine._type];
 				const max = action.animations.length;
-				anim = Renderer.tick - _start;
+				anim = Renderer.tick - SlotMachine._start;
 				anim = Math.floor(anim / action.delay);
 
 				if (anim >= max) {
@@ -169,11 +176,11 @@ const rendering = (() => {
 
 		const animation = action.animations[anim % action.animations.length];
 
-		SpriteRenderer.bind2DContext(_ctx, 140, 165);
-		_ctx.clearRect(0, 0, _ctx.canvas.width, _ctx.canvas.height);
+		SpriteRenderer.bind2DContext(SlotMachine._ctx, 140, 165);
+		SlotMachine._ctx.clearRect(0, 0, SlotMachine._ctx.canvas.width, SlotMachine._ctx.canvas.height);
 
 		for (let i = 0, count = animation.layers.length; i < count; ++i) {
-			_entity.renderLayer(animation.layers[i], _sprite, _sprite, 1.0, position, false);
+			_entity.renderLayer(animation.layers[i], SlotMachine._sprite, SlotMachine._sprite, 1.0, position, false);
 		}
 	};
 })();
