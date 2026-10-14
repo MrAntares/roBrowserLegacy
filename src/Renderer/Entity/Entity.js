@@ -187,6 +187,9 @@ class Entity {
 		this.gr2 = null;
 		this.gr2Model = null;
 
+		// Overlays hidden while out of the view area (EntityManager)
+		this.culled = false;
+
 		// Apply mixins (adds methods from each module)
 		entityControl.call(this);
 		entityAction.call(this);

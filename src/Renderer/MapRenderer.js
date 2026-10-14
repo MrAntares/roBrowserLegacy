@@ -328,6 +328,9 @@ class MapRenderer {
 		OccluderFade.beginFrame(gl, modelView, tick);
 		Models.render(gl, modelView, projection, normalMat, fog, light);
 		AnimatedModels.render(gl, modelView, projection, normalMat, fog, light, tick);
+		// Entities out of the view area, decided once for both the GR2 and the entity passes
+		EntityManager.cull();
+
 		// GR2 mobs render here with the opaque world models, before EntityManager.render below
 		// -- hence the 1-frame lag documented in GR2ModelRenderer.render (syncFromEntity reads the
 		// entity pose one frame stale). Ordering is intentional (opaque geometry pass).

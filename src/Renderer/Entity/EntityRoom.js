@@ -112,6 +112,11 @@ class Room {
 		this.node = EntityRoom.clone('EntityRoom', true);
 		this.node.init = init;
 		this.node.append();
+
+		// Out of the view area: hidden until the entity is drawn again
+		if (this.owner.culled) {
+			this.node.ui[0].style.display = 'none';
+		}
 	}
 
 	/**
