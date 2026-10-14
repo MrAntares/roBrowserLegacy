@@ -128,6 +128,78 @@ describe('estadoDoBot: a conexao nova solta o que estava em voo na conexao que c
 	});
 });
 
+/*
+ * O SALVAR CUJA RESPOSTA MORREU COM A CONEXAO (bug #17 de 13/10/2026, ressalva 3 do critico da rodada 1): o Salvar
+ * saiu, o servidor APLICOU (revisao 0 -> 1) e a resposta foi para o socket morto. A conexao nova solta o Salvar
+ * (`novaConexao`) e o `pedir` traz a revisao 1 com a config IGUAL ao rascunho. Sem adotar essa config como base, a
+ * janela dizia "A configuracao mudou no servidor enquanto voce editava" e o Salvar seguinte ia com a `baseRevision`
+ * 0: o servidor responde `conflito-de-revisao` (servidor-mapa.ts, `pedido.baseRevision !== atual`) - um conflito
+ * FALSO, porque a "outra versao" e a do proprio jogador.
+ */
+describe('estadoDoBot: o Salvar que o servidor aplicou com a resposta perdida na queda', () => {
+	/** Sessao com a config confirmada, o rascunho editado e o Salvar que sai para o socket que ja morreu. */
+	function salvarPerdido(configDoServidor = CONFIG) {
+		const enviados = [];
+		const e = criarEstadoDoBot({ enviar: c => enviados.push(c) });
+		e.receber(pacote({ tipo: 'resposta', requestId: e.pedirEstado(), config: configDoServidor, statusRevision: 3 }), 7);
+		e.editar(c => ({ ...c, raioDePercepcao: 21 }));
+		e.aplicar();
+		expect(enviados.at(-1)).toMatchObject({ verbo: 'aplicar', baseRevision: 0 });
+		e.novaConexao();
+		return { e, enviados };
+	}
+
+	it('a config que volta IGUAL ao rascunho vira a base: sem aviso de mudanca e sem conflito falso no proximo Salvar', () => {
+		const { e, enviados } = salvarPerdido();
+		e.receber(pacote({ tipo: 'resposta', requestId: e.pedirEstado(), revisao: 1, config: { ...CONFIG, raioDePercepcao: 21 }, statusRevision: 1 }), 7);
+		expect(e.estado().mudouNoServidor, 'a janela acusa "mudou no servidor" com a config do proprio jogador').toBe(false);
+		expect(e.estado().baseRevision, 'o rascunho segue apoiado na revisao que o Salvar perdido ja superou').toBe(1);
+		expect(e.estado().dirty).toBe(false);
+		expect(e.estado().editConfig.raioDePercepcao).toBe(21);
+		// O jogador edita de novo e salva: vai com a revisao que o servidor tem (1), nao com a 0 (conflito falso).
+		e.editar(c => ({ ...c, raioDePercepcao: 25 }));
+		e.aplicar();
+		expect(enviados.at(-1)).toMatchObject({ verbo: 'aplicar', baseRevision: 1, config: { raioDePercepcao: 25 } });
+	});
+
+	it('o armazem gravado antes de 09/10 nao conta: o Salvar nao manda o bloco e o servidor grava o padrao no lugar', () => {
+		// Medido contra a validacao do servidor (relatorio O-impl-r2): `validarArmazem(undefined)` = ARMAZEM_PADRAO.
+		const ARMAZEM_ANTIGO = { ligado: false, cidade: 'prontera', pesoAcimaDe: 80, depositar: [909], reservas: [], repor: [], tetoDeGasto: 0, voltar: true };
+		const ARMAZEM_PADRAO = { ligado: false, cidade: null, pesoAcimaDe: 0, depositar: [], reservas: [], repor: [], tetoDeGasto: 0, voltar: true };
+		const { e, enviados } = salvarPerdido({ ...CONFIG, armazem: ARMAZEM_ANTIGO });
+		expect(enviados.at(-1).config).not.toHaveProperty('armazem');
+		e.receber(pacote({ tipo: 'resposta', requestId: e.pedirEstado(), revisao: 1, config: { ...CONFIG, raioDePercepcao: 21, armazem: ARMAZEM_PADRAO }, statusRevision: 1 }), 7);
+		expect(e.estado().mudouNoServidor, 'o armazem que o jogador nao edita (e o Salvar nao manda) acusou mudanca').toBe(false);
+		expect(e.estado().baseRevision).toBe(1);
+		expect(e.estado().dirty).toBe(false);
+		expect(e.estado().editConfig.armazem).toEqual(ARMAZEM_PADRAO);
+	});
+
+	it('CONTROLE: o Salvar perdido que NAO chegou ao servidor deixa o rascunho sujo, sem aviso, e o Salvar de novo vale', () => {
+		const { e, enviados } = salvarPerdido();
+		e.receber(pacote({ tipo: 'resposta', requestId: e.pedirEstado(), revisao: 0, config: CONFIG, statusRevision: 1 }), 7);
+		expect(e.estado().dirty).toBe(true);
+		expect(e.estado().mudouNoServidor).toBe(false);
+		expect(e.estado().editConfig.raioDePercepcao).toBe(21);
+		e.aplicar();
+		expect(enviados.at(-1)).toMatchObject({ verbo: 'aplicar', baseRevision: 0, config: { raioDePercepcao: 21 } });
+	});
+
+	it('CONTROLE: a config nova DIFERENTE do rascunho continua avisando e nao apaga a edicao (o aviso de verdade)', () => {
+		const { e, enviados } = salvarPerdido();
+		// O Salvar nao chegou, e outra janela mudou OUTRA coisa no servidor (revisao 1).
+		e.receber(pacote({ tipo: 'resposta', requestId: e.pedirEstado(), revisao: 1, config: { ...CONFIG, cacar: false }, statusRevision: 1 }), 7);
+		expect(e.estado().mudouNoServidor).toBe(true);
+		expect(e.estado().dirty).toBe(true);
+		expect(e.estado().editConfig.raioDePercepcao).toBe(21);
+		expect(e.estado().editConfig.cacar).toBe(true);
+		expect(e.estado().baseRevision).toBe(0);
+		// O Salvar segue com a base antiga: o servidor responde conflito e o jogador escolhe recarregar.
+		e.aplicar();
+		expect(enviados.at(-1)).toMatchObject({ verbo: 'aplicar', baseRevision: 0 });
+	});
+});
+
 const pasta = join(__dirname, '..', '..', 'src', 'UI', 'Components');
 const htmlDoMenu = readFileSync(join(pasta, 'BotMenu', 'BotMenu.html'), 'utf8');
 const htmlDoBotao = readFileSync(join(pasta, 'CombatCornerIdle', 'CombatCornerIdle.html'), 'utf8');
@@ -253,6 +325,32 @@ describe('o botao "Ataque auto" depois da conexao que caiu (os dois relatos)', (
 		expect(ultimoPedido().verbo).toBe('desligar');
 		receber(pacote({ tipo: 'resposta', requestId: ultimoPedido().requestId, statusRevision: 3, ligado: false }));
 		expect(botao.classList.contains('is-on'), 'o toque desligou no servidor e a tela nao mudou').toBe(false);
+	});
+
+	it('O SALVAR APLICADO COM A RESPOSTA PERDIDA: a janela do Bot nao acusa mudanca e o Salvar seguinte sai com a revisao nova', async () => {
+		const { BotMenu, receber, ultimoPedido, reconectar } = await montar();
+		const q = seletor => BotMenu._host.querySelector(seletor);
+		receber(pacote());
+		// O jogador muda o raio e salva; o socket ja morreu, o servidor aplica e a resposta se perde.
+		const raio = q('.bm-raio');
+		raio.value = '21';
+		raio.dispatchEvent(new Event('input'));
+		q('.bm-aplicar').click();
+		expect(ultimoPedido()).toMatchObject({ verbo: 'aplicar', baseRevision: 0, config: { raioDePercepcao: 21 } });
+		expect(q('.bm-aplicar-texto').textContent).toBe('Salvando...');
+		reconectar();
+		const pedir = ultimoPedido();
+		expect(pedir.verbo).toBe('pedir');
+		receber(pacote({ tipo: 'resposta', requestId: pedir.requestId, revisao: 1, config: { ...CONFIG, raioDePercepcao: 21 }, statusRevision: 1 }));
+		expect(q('.bm-recado').textContent, 'a janela acusa "mudou no servidor" com a config que o proprio jogador salvou').toBe('');
+		expect(q('.bm-recarregar').hidden).toBe(true);
+		expect(q('.bm-aplicar').disabled, 'o Salvar ja esta no servidor: nao ha rascunho').toBe(true);
+		expect(q('.bm-aplicar-texto').textContent).toBe('Salvar');
+		// O jogador edita de novo e salva: o pedido vai com a revisao 1 (com a 0, o servidor responde conflito).
+		raio.value = '25';
+		raio.dispatchEvent(new Event('input'));
+		q('.bm-aplicar').click();
+		expect(ultimoPedido(), 'o Salvar seguinte levaria um conflito de revisao falso').toMatchObject({ verbo: 'aplicar', baseRevision: 1, config: { raioDePercepcao: 25 } });
 	});
 
 	it('CONTROLE: sem conexao nova (troca de mapa na mesma conexao) o botao espera a resposta do proprio pedido', async () => {

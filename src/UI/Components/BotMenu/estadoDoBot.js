@@ -29,6 +29,15 @@ function iguais(a, b) {
 }
 
 /**
+ * A config sem o armazem, para comparar o que o Salvar MANDA: `aplicar` tira o bloco (a secao saiu do menu em
+ * 09/10/2026) e o servidor grava o padrao no lugar (`validarArmazem` de `servidor/bot/config-do-bot.ts`). O
+ * `JSON.stringify` omite a chave com `undefined` e mantem a ordem das outras.
+ */
+function semArmazem(config) {
+	return Object.assign({}, config, { armazem: undefined });
+}
+
+/**
  * @param {{ enviar: (corpo: object) => void }} deps
  */
 export function criarEstadoDoBot({ enviar }) {
@@ -100,7 +109,15 @@ export function criarEstadoDoBot({ enviar }) {
 		const mudou = revisao !== s.revisao || !iguais(config, s.serverConfig);
 		s.serverConfig = clonar(config);
 		s.revisao = revisao;
-		if (!s.dirty || s.editConfig === null) {
+		/*
+		 * O RASCUNHO QUE O SERVIDOR JA TEM (bug #17 de 13/10/2026, ressalva 3 do critico): o Salvar cuja resposta
+		 * morreu com a conexao (a reconexao o solta, `novaConexao`) foi APLICADO, e o `pedir` da conexao nova traz a
+		 * revisao nova com a config igual ao rascunho. Sem adotar, a janela dizia "A configuracao mudou no servidor
+		 * enquanto voce editava" e o Salvar seguinte ia com a `baseRevision` velha: conflito de revisao FALSO, porque
+		 * a "outra versao" e a do proprio jogador. Igual ao rascunho nao ha o que avisar: vira a base. Rascunho
+		 * DIFERENTE segue no aviso abaixo. (A comparacao so roda com rascunho sujo: o status chega a todo instante.)
+		 */
+		if (!s.dirty || s.editConfig === null || iguais(semArmazem(s.editConfig), semArmazem(config))) {
 			s.editConfig = clonar(config);
 			s.baseRevision = revisao;
 			s.mudouNoServidor = false;
