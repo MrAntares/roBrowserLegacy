@@ -1,10 +1,12 @@
 // Mutacao somente na memoria do Vitest: nunca altera o cliente servido pelo Vite.
 //
-// A FAIXA DE AVISO NO CELULAR EM PE (bug #1 de 13/10/2026, rodadas 1 e 2). Cada mutante e um jeito
+// A FAIXA DE AVISO NO CELULAR EM PE (bug #1 de 13/10/2026, rodadas 1, 2 e 3). Cada mutante e um jeito
 // de a faixa voltar a cair sobre a HUD: coluna mais larga que o cartao, banner sem teto passando por
 // baixo dos buffs, altura fixa cortando o titulo, topo que nao olha o placar do MVP ou a faixa de
 // grupo, lugar fora da tela, acompanhamento que nao remede ou que vaza depois que a faixa sai, e a
-// costura do `Announce.js` (a rodada 1 a vigiava lendo texto, e 5 de 6 mutantes sobreviviam).
+// costura do `Announce.js` (a rodada 1 a vigiava lendo texto, e 5 de 6 mutantes sobreviviam). A rodada 3
+// soma a janela de morte (o cartao "Voce morreu" e peca, com a prioridade mais alta), o ultimo recurso
+// SOBRE o cartao de missoes (nunca nas pecas da luta) e o rotulo do botao de caca.
 //
 //   RAG_MUTANTE_FAIXA=<nome> npx vitest run --config tests/mutantes/faixa-de-aviso.config.mjs
 //
@@ -65,7 +67,7 @@ export const mutantes = {
 	listaSemBuffs: [ALVO, "\t{ nome: 'buff', host: 'StatusIcons', dentro: '.state' },\n", ''],
 	listaSemChat: [ALVO, "\t{ nome: 'chat', host: 'ChatBox', dentro: '#chatbox' },\n", ''],
 	listaChatPeloHost: [ALVO, "host: 'ChatBox', dentro: '#chatbox' }", "host: 'ChatBox' }"],
-	listaSemCartao: [ALVO, "\t{ nome: 'cartao-de-missoes', host: 'MissoesTrackerIdle' },\n", ''],
+	listaSemCartao: [ALVO, "\t{ nome: 'cartao-de-missoes', host: 'MissoesTrackerIdle', prioridade: CEDE },\n", ''],
 
 	// ---- o comeco da coluna ----
 	inicioSemFileira: [ALVO, 'Math.max(...bases) + VAO + FILEIRA_DO_AVISO_DE_ITEM', 'Math.max(...bases) + VAO'],
@@ -83,8 +85,50 @@ export const mutantes = {
 	candidatoAcimaDoInicio: [ALVO, 'if (logoAbaixo > inicio) {', 'if (true) {'],
 	semOrdenar: [ALVO, 'candidatos.sort((a, b) => a - b);', ''],
 	semPeDaTela: [ALVO, 'if (topo + altura > fim) {', 'if (false) {'],
-	empateVaiParaBaixo: [ALVO, 'if (area < menorArea) {', 'if (area <= menorArea) {'],
+	empateVaiParaBaixo: [ALVO, 'if (menor === null || custaMenos(custo, menor)) {', 'if (menor === null || !custaMenos(menor, custo)) {'],
 	semLugarSemInicio: [ALVO, 'let melhor = inicio;', 'let melhor = null;'],
+
+	// ---- rodada 3, D1: a janela de morte ----
+	// o cartao da morte sai da lista (a faixa volta para tras dele)
+	listaSemMorte: [ALVO, "\t{ nome: 'janela-de-morte', host: 'DeathWindow', dentro: '.dw-card', prioridade: DECISAO }\n", ''],
+	// a morte medida pelo HOST (que cobre a tela inteira o jogo todo)
+	morteMedidaPeloHost: [ALVO, "host: 'DeathWindow', dentro: '.dw-card', prioridade: DECISAO }", "host: 'DeathWindow', prioridade: DECISAO }"],
+	// o cartao da morte vira peca comum da HUD
+	morteSemPrioridade: [ALVO, "dentro: '.dw-card', prioridade: DECISAO }", "dentro: '.dw-card' }"],
+	// a prioridade da decisao deixa de valer
+	prioridadeSemDecisao: [ALVO, 'peca.prioridade === CEDE || peca.prioridade === DECISAO ? peca.prioridade : HUD', 'peca.prioridade === CEDE ? peca.prioridade : HUD'],
+
+	// ---- rodada 3, D2: o ultimo recurso sobre o cartao de missoes ----
+	// o cartao de missoes vira peca comum (o ultimo recurso volta a ser "o que menos cobre")
+	cartaoSemPrioridade: [ALVO, "host: 'MissoesTrackerIdle', prioridade: CEDE }", "host: 'MissoesTrackerIdle' }"],
+	// a prioridade do cartao deixa de valer
+	prioridadeSemCede: [ALVO, 'peca.prioridade === CEDE || peca.prioridade === DECISAO ? peca.prioridade : HUD', 'peca.prioridade === DECISAO ? peca.prioridade : HUD'],
+	// qualquer numero vale como prioridade
+	prioridadeQualquer: [ALVO, 'peca.prioridade === CEDE || peca.prioridade === DECISAO ? peca.prioridade : HUD', 'peca.prioridade === undefined ? HUD : peca.prioridade'],
+	// a medida perde a prioridade da tabela
+	medirSemPrioridade: [ALVO, '\t\t\t\t\tpeca.prioridade === undefined\n\t\t\t\t\t\t? { nome: peca.nome, ...caixa }\n\t\t\t\t\t\t: { nome: peca.nome, prioridade: peca.prioridade, ...caixa }', '\t\t\t\t\t{ nome: peca.nome, ...caixa }'],
+	// sem o candidato rente ao topo do cartao (nao ha ultimo recurso fora da coluna)
+	semCandidatoSobreOCartao: [ALVO, '\t\tif (prioridadeDe(p) === CEDE) {\n\t\t\tcandidatos.push(p.y);\n\t\t}\n', ''],
+	// o topo de TODA peca vira candidato
+	candidatoNoTopoDeToda: [ALVO, 'if (prioridadeDe(p) === CEDE) {', 'if (true) {'],
+	// o custo compara a SOMA das areas, e nao a ordem das prioridades
+	custoPelaSoma: [ALVO, '\tfor (let i = 0; i < a.length; i++) {\n\t\tif (a[i] !== b[i]) {\n\t\t\treturn a[i] < b[i];\n\t\t}\n\t}\n\treturn false;', '\treturn a[0] + a[1] + a[2] < b[0] + b[1] + b[2];'],
+	// a ordem das prioridades se inverte (o cartao de missoes pesa mais que a luta)
+	custoOrdemInvertida: [ALVO, 'custo[DECISAO - prioridadeDe(p)]', 'custo[prioridadeDe(p)]'],
+	// so a ultima peca de cada prioridade conta
+	custoSemAcumular: [ALVO, 'custo[DECISAO - prioridadeDe(p)] += areaCoberta(faixa, [p]);', 'custo[DECISAO - prioridadeDe(p)] = areaCoberta(faixa, [p]);'],
+	// a comparacao se inverte
+	custaMaisVence: [ALVO, 'return a[i] < b[i];', 'return a[i] > b[i];'],
+	// empate inteiro conta como "custa menos"
+	custaMenosNoEmpate: [ALVO, '\t\t}\n\t}\n\treturn false;\n}', '\t\t}\n\t}\n\treturn true;\n}'],
+	// o primeiro candidato nunca e aceito sozinho
+	menorNuncaNulo: [ALVO, 'let menor = null;', 'let menor = [0, 0, 0];'],
+
+	// ---- rodada 3, D3: o rotulo do botao de caca ----
+	// o rotulo sai da lista (em 320 a faixa volta a cobrir o "Retor")
+	listaSemRotulo: [ALVO, "\t{ nome: 'rotulo-de-caca', host: 'HuntButtonIdle', dentro: '.hb-rotulo' },\n", ''],
+	// o seletor do rotulo nao casa mais com o HTML do botao
+	rotuloSeletorErrado: [ALVO, "host: 'HuntButtonIdle', dentro: '.hb-rotulo' }", "host: 'HuntButtonIdle', dentro: '.hb-rotulo-x' }"],
 
 	// ---- publicar ----
 	publicarSemConverter: [ALVO, 'Math.round(converter(lugar))', 'Math.round(lugar)'],
@@ -101,7 +145,23 @@ export const mutantes = {
 	acompanharUmaVez: [ALVO, 'pendente = relogio.setTimeout(remedir, PASSO_DO_ACOMPANHAMENTO_MS);', ''],
 	acompanharNaoDesliga: [ALVO, 'return () => relogio.clearTimeout(pendente);', 'return () => {};'],
 	passoDe1s: [ALVO, 'PASSO_DO_ACOMPANHAMENTO_MS = 250', 'PASSO_DO_ACOMPANHAMENTO_MS = 1000'],
-	soltarNaoSolta: [ALVO, 'host.style.removeProperty(VARIAVEL_DO_TOPO);\n}', '}'],
+	soltarNaoSolta: [ALVO, '\thost.style.removeProperty(VARIAVEL_DO_TOPO);\n\thost.classList.remove(CLASSE_SOBRE_PECA);\n}', '\thost.classList.remove(CLASSE_SOBRE_PECA);\n}'],
+
+	// ---- rodada 3: o fundo mais denso quando a faixa fica SOBRE uma peca ----
+	// o aparelho que gira fica com o fundo denso
+	soltarNaoTiraClasse: [ALVO, '\thost.style.removeProperty(VARIAVEL_DO_TOPO);\n\thost.classList.remove(CLASSE_SOBRE_PECA);\n}', '\thost.style.removeProperty(VARIAVEL_DO_TOPO);\n}'],
+	// a faixa que deixa de ser medida fica com o fundo denso
+	publicarSaiSemTirarClasse: [ALVO, '\t\thost.classList.remove(CLASSE_SOBRE_PECA);\n\t\treturn null;', '\t\treturn null;'],
+	// o fundo nunca adensa (as letras do cartao voltam a aparecer sob as do aviso)
+	fundoNunca: [ALVO, 'host.classList.toggle(CLASSE_SOBRE_PECA, sobrePeca);', 'host.classList.toggle(CLASSE_SOBRE_PECA, false);'],
+	// o fundo adensa sempre, ate no lugar livre
+	fundoSempre: [ALVO, 'host.classList.toggle(CLASSE_SOBRE_PECA, sobrePeca);', 'host.classList.toggle(CLASSE_SOBRE_PECA, true);'],
+	// o fundo so olha a prioridade mais alta
+	fundoSoNaMorte: [ALVO, 'custo.some(area => area > 0)', 'custo[0] > 0'],
+	// o custo do fundo medido no lugar VELHO da faixa, e nao no escolhido
+	fundoNoLugarVelho: [ALVO, '{ x: faixa.x, y: lugar, w: faixa.w, h: faixa.h }', '{ x: faixa.x, y: faixa.y, w: faixa.w, h: faixa.h }'],
+	// a classe muda de nome e o CSS nao a acha
+	classeRenomeada: [ALVO, "CLASSE_SOBRE_PECA = 'vr-aviso-sobre-peca'", "CLASSE_SOBRE_PECA = 'vr-aviso'"],
 
 	// ---- as constantes da geometria (amarradas ao CSS) ----
 	fileiraDe40: [ALVO, 'FILEIRA_DO_AVISO_DE_ITEM = 44', 'FILEIRA_DO_AVISO_DE_ITEM = 40'],

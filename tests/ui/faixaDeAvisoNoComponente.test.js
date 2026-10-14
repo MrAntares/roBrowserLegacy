@@ -100,8 +100,15 @@ const CARTAO = { x: 8, y: 84, w: 236, h: 202 };
 const PLACAR = { x: 8, y: 260, w: 248, h: 114 };
 const BUFFS = [286, 340, 394].map(y => ({ x: 284, y, w: 38, h: 51 }));
 const GRUPO = { x: 8, y: 436, w: 132, h: 84 };
+const CHAT = { x: 8, y: 735, w: 42, h: 42 };
+const ATALHOS = { x: 8, y: 778, w: 374, h: 62 };
+const CABECALHO = { x: 8, y: 6, w: 325, h: 70 };
+/** Rodada 3: o cartao "Voce morreu" (`.dw-card`) medido pelo critico em 390x844. */
+const MORTE = { x: 0, y: 342, w: 390, h: 176 };
+/** As caixas de nascenca das pecas que a tela baixa muda (restauradas depois de cada caso). */
+const ORIGINAIS = [GRUPO, CHAT, ATALHOS].map(c => [c, { ...c }]);
 
-let placar, grupo;
+let placar, grupo, morte;
 
 const SMOKIE = 'Nao deu para encaixar a carta: esta carta ainda nao tem efeito no jogo e nao pode ser encaixada.';
 const CONQUISTA = 'Conquista alcancada: Primeiros Passos na Cidade de Prontera';
@@ -113,13 +120,17 @@ beforeAll(async () => {
 	escala = await import('UI/escalaDaHud.js');
 	Announce = (await import('UI/Components/Announce/Announce.js')).default;
 
-	peca('BasicInfoIdle', [{ x: 8, y: 6, w: 325, h: 70 }]);
+	peca('BasicInfoIdle', [CABECALHO]);
 	peca('MissoesTrackerIdle', [CARTAO]);
 	[placar] = peca('PlacarMvpIdle', [PLACAR], '.pm-placar');
 	[grupo] = peca('PartyHud', [GRUPO], '.ph-hud');
 	peca('StatusIcons', BUFFS, '.state');
-	peca('ChatBox', [{ x: 8, y: 735, w: 42, h: 42 }], '#chatbox');
-	peca('ShortCut', [{ x: 8, y: 778, w: 374, h: 62 }]);
+	peca('ChatBox', [CHAT], '#chatbox');
+	peca('ShortCut', [ATALHOS]);
+	// a janela de morte fica no documento o jogo inteiro (`MapEngine` a pendura ao entrar no
+	// mapa) e o host dela cobre a TELA INTEIRA; o cartao so tem caixa com a janela aberta
+	[morte] = peca('DeathWindow', [MORTE], '.dw-card');
+	comCaixa(document.getElementById('DeathWindow'), { x: 0, y: 0, w: 390, h: 844 });
 }, 60_000);
 
 /** A caixa desenhada da faixa: o canvas, na margem da coluna (o `left` do CSS). */
@@ -135,6 +146,8 @@ function anunciar(texto, opcoes) {
 }
 
 const topoPublicado = () => Announce._host.style.getPropertyValue(VARIAVEL);
+/** Rodada 3: a classe que adensa o fundo da faixa por cima de uma peca (escrita aqui, como a variavel). */
+const sobrePeca = () => Announce._host.classList.contains('vr-aviso-sobre-peca');
 
 function emPe() {
 	document.documentElement.classList.add('ri-vertical');
@@ -146,12 +159,15 @@ function emPe() {
 beforeEach(() => {
 	placar.hidden = true;
 	grupo.hidden = true;
+	morte.hidden = true;
 	emPe();
 });
 
 afterEach(() => {
 	Announce.remove();
 	document.documentElement.classList.remove('ri-vertical');
+	for (const [caixa, original] of ORIGINAIS) Object.assign(caixa, original);
+	window.matchMedia = matchMediaOriginal;
 });
 
 describe('celular em pe: a faixa na coluna, fora das pecas da HUD', () => {
@@ -238,6 +254,83 @@ describe('celular em pe: a faixa na coluna, fora das pecas da HUD', () => {
 		Renderer.width = 844;
 		anunciar(SMOKIE);
 		expect(topoPublicado()).toBe('');
+	});
+});
+
+const matchMediaOriginal = window.matchMedia;
+
+/**
+ * A tela baixa medida pelo critico (390x664, o iPhone no Safari com a barra de baixo). O
+ * aparelho e de DEDO (`pointer: coarse`), como no jogo: a escala da HUD fica 1 (`escalaDaHud.js`
+ * so encolhe a HUD pelo tamanho da janela no mouse) e o topo publicado e o pixel medido.
+ */
+function telaBaixa() {
+	window.matchMedia = q => ({ matches: q === '(pointer: coarse)', media: q, addEventListener() {}, removeEventListener() {} });
+	Object.defineProperty(window, 'innerHeight', { value: 664, configurable: true });
+	Object.assign(CHAT, { y: 552, w: 44, h: 44 });
+	Object.assign(ATALHOS, { y: 597, h: 63 });
+	Object.assign(GRUPO, { w: 172, h: 90 });
+}
+
+describe('rodada 3: a janela de morte e a tela baixa (os bloqueantes do critico da rodada 2)', () => {
+	it('D1: com a janela de morte na tela, a faixa NAO fica atras do cartao "Voce morreu"', () => {
+		// na rodada 2: 8,334, atras do cartao (z 2.000.000) por toda a vida da faixa
+		morte.hidden = false;
+		anunciar(SMOKIE);
+		const faixa = { ...caixaDaFaixa(), y: parseInt(topoPublicado(), 10) };
+		expect(cobre(faixa, [MORTE])).toEqual([]);
+		expect(faixa.y + faixa.h).toBeLessThanOrEqual(844);
+		// logo abaixo do cartao, livre do resto (le-se atraves do veu, como na base)
+		expect(faixa.y).toBe(MORTE.y + MORTE.h + 4);
+		expect(cobre(faixa, [CARTAO, CHAT, ATALHOS, ...BUFFS])).toEqual([]);
+		// num lugar livre o fundo e o de sempre (o veu da morte ja escurece)
+		expect(sobrePeca()).toBe(false);
+	});
+	it('D1: o cartao da morte que sobe DEPOIS da faixa a tira de tras dele na medida seguinte', () => {
+		anunciar(SMOKIE);
+		expect(topoPublicado()).toBe('334px');
+		morte.hidden = false;
+		andar(PASSO);
+		expect(topoPublicado()).toBe(`${MORTE.y + MORTE.h + 4}px`);
+		morte.hidden = true;
+		andar(PASSO);
+		expect(topoPublicado()).toBe('334px');
+	});
+	it('D1: o host da morte (tela inteira) nao conta: com a janela fechada a faixa fica no lugar de sempre', () => {
+		anunciar(SMOKIE);
+		expect(topoPublicado()).toBe('334px');
+	});
+	it('D2: placar e grupo numa tela baixa (390x664): sobre o cartao de missoes, sem cobrir a luta', () => {
+		// na rodada 2: 8,378, sobre o titulo "GRUPO" e a linha do jogador
+		telaBaixa();
+		placar.hidden = false;
+		grupo.hidden = false;
+		for (const [texto, opcoes] of [
+			[SMOKIE, undefined],
+			[CONQUISTA, BANNER]
+		]) {
+			anunciar(texto, opcoes);
+			const faixa = { ...caixaDaFaixa(), y: parseInt(topoPublicado(), 10) };
+			expect(cobre(faixa, [CABECALHO, PLACAR, GRUPO, ...BUFFS, CHAT, ATALHOS]), texto).toEqual([]);
+			expect(faixa.y, texto).toBe(CARTAO.y);
+			expect(faixa.y + faixa.h, texto).toBeLessThanOrEqual(664);
+			// por cima do cartao o fundo adensa: as letras do cartao nao aparecem sob as do aviso
+			expect(sobrePeca(), texto).toBe(true);
+		}
+	});
+	it('D2: na mesma tela baixa, sem o placar, a faixa volta ao lugar livre da coluna (nao fica no cartao)', () => {
+		telaBaixa();
+		grupo.hidden = false;
+		anunciar(SMOKIE);
+		expect(topoPublicado()).toBe('334px');
+		placar.hidden = false;
+		andar(PASSO);
+		expect(topoPublicado()).toBe(`${CARTAO.y}px`);
+		expect(sobrePeca()).toBe(true);
+		placar.hidden = true;
+		andar(PASSO);
+		expect(topoPublicado()).toBe('334px');
+		expect(sobrePeca()).toBe(false);
 	});
 });
 

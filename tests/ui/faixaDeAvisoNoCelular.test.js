@@ -21,7 +21,11 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
+	CEDE,
+	CLASSE_SOBRE_PECA,
+	DECISAO,
 	FILEIRA_DO_AVISO_DE_ITEM,
+	HUD,
 	LARGURA_DO_CARTAO,
 	LARGURA_DO_TRILHO,
 	MARGEM,
@@ -33,6 +37,8 @@ import {
 	alturaDaFaixa,
 	areaCoberta,
 	caixaVisivel,
+	custaMenos,
+	custoDoLugar,
 	ehHudVertical,
 	inicioDaColuna,
 	larguraDaColuna,
@@ -293,14 +299,21 @@ describe('as pecas da HUD medidas', () => {
 /** Um host da faixa falso: a caixa desenhada (canvas) e o `style` que a regra escreve. */
 function faixaFalsa(caixa = { x: 8, y: 0, w: 211, h: 61 }) {
 	const props = new Map();
+	const classes = new Set();
 	return {
 		props,
+		classes,
 		caixa,
 		estilo: { visibility: 'visible', opacity: '1' },
 		getBoundingClientRect: () => ({ left: caixa.x, top: caixa.y, width: caixa.w, height: caixa.h }),
 		style: {
 			setProperty: (nome, valor) => props.set(nome, valor),
 			removeProperty: nome => props.delete(nome)
+		},
+		classList: {
+			toggle: (nome, ligar) => (ligar ? classes.add(nome) : classes.delete(nome)),
+			remove: nome => classes.delete(nome),
+			contains: nome => classes.has(nome)
 		}
 	};
 }
@@ -350,11 +363,14 @@ describe('publicar o topo medido', () => {
 	});
 	it('o pe da tela e o innerHeight: numa tela baixa a faixa nao desce para fora', () => {
 		const host = faixaFalsa({ x: 8, y: 0, w: 211, h: 61 });
-		// em 844 caberia debaixo do placar (378..439); em 430 nao cabe, e fica, dentro da
-		// tela, na candidata que menos cobre o placar (a borda de baixo do 1o buff, 341)
+		// em 844 caberia debaixo do placar (378..439); em 430 nao cabe. Na rodada 2 ficava
+		// em 341, a candidata que menos cobria o PLACAR (o D2 do critico: o ultimo recurso
+		// caia na peca da luta); na rodada 3 o ultimo recurso e SOBRE o cartao de missoes,
+		// rente ao topo dele, dentro da tela e sem cobrir o placar
 		const topo = publicarTopo(host, hudFalsa({ placar: true, innerHeight: 430 }).doc);
 		expect(topo + 61).toBeLessThanOrEqual(430);
-		expect(topo).toBe(341);
+		expect(topo).toBe(CARTAO.y);
+		expect(areaCoberta({ x: 8, y: topo, w: 211, h: 61 }, [PLACAR, ...BUFFS, CABECALHO])).toBe(0);
 	});
 	it('a faixa nao desenhada ou a HUD sem cabecalho e cartao: a variavel SAI (calc de nascenca)', () => {
 		const semCaixa = faixaFalsa({ x: 8, y: 0, w: 0, h: 0 });
@@ -441,6 +457,305 @@ describe('acompanhar enquanto a faixa vive', () => {
 	});
 });
 
+/**
+ * RODADA 3: as telas em pe que o critico mediu na rodada 2 no cliente real
+ * (`wt-bugs-13-10/prints/n/critico-r2/saida-depois-*.txt`), mais o 390x844 da propria
+ * frente. `morte` e o cartao "Voce morreu" (`.dw-card`) com a janela aberta; `rotulo` e
+ * o "Retornar para Prontera" do botao de caca, que pende para fora do host (medido pela
+ * sonda da rodada 3).
+ */
+const TELAS_MEDIDAS = {
+	'390x844': {
+		h: 844,
+		cabecalho: { x: 8, y: 6, w: 322, h: 70 },
+		cartao: { x: 8, y: 84, w: 236, h: 202 },
+		auto: { x: 330, y: 152, w: 52, h: 66 },
+		caca: { x: 314, y: 554, w: 64, h: 204 },
+		rotulo: { x: 273, y: 688, w: 96, h: 11 },
+		atalhos: { x: 8, y: 777, w: 374, h: 63 },
+		chat: { x: 8, y: 732, w: 44, h: 44 },
+		fab: { x: 338, y: 10, w: 44, h: 46 },
+		buffX: 284,
+		item: { x: 126, y: 290, w: 138, h: 20 },
+		morte: { x: 0, y: 342, w: 390, h: 176 }
+	},
+	'390x664': {
+		h: 664,
+		cabecalho: { x: 8, y: 6, w: 322, h: 70 },
+		cartao: { x: 8, y: 84, w: 236, h: 202 },
+		auto: { x: 330, y: 152, w: 52, h: 66 },
+		caca: { x: 314, y: 374, w: 64, h: 204 },
+		rotulo: { x: 273, y: 508, w: 96, h: 11 },
+		atalhos: { x: 8, y: 597, w: 374, h: 63 },
+		chat: { x: 8, y: 552, w: 44, h: 44 },
+		fab: { x: 338, y: 10, w: 44, h: 46 },
+		buffX: 284,
+		item: { x: 126, y: 290, w: 138, h: 20 },
+		morte: { x: 0, y: 252, w: 390, h: 176 }
+	},
+	'360x640': {
+		h: 640,
+		cabecalho: { x: 8, y: 6, w: 292, h: 70 },
+		cartao: { x: 8, y: 84, w: 236, h: 202 },
+		auto: { x: 300, y: 152, w: 52, h: 66 },
+		caca: { x: 284, y: 350, w: 64, h: 204 },
+		rotulo: { x: 243, y: 484, w: 96, h: 11 },
+		atalhos: { x: 8, y: 573, w: 344, h: 63 },
+		chat: { x: 8, y: 528, w: 44, h: 44 },
+		fab: { x: 308, y: 10, w: 44, h: 46 },
+		buffX: 254,
+		item: { x: 111, y: 290, w: 138, h: 20 },
+		morte: { x: 0, y: 240, w: 360, h: 176 }
+	},
+	'320x568': {
+		h: 568,
+		cabecalho: { x: 8, y: 6, w: 252, h: 70 },
+		cartao: { x: 8, y: 84, w: 228, h: 202 },
+		auto: { x: 260, y: 152, w: 52, h: 66 },
+		caca: { x: 244, y: 278, w: 64, h: 204 },
+		rotulo: { x: 203, y: 412, w: 96, h: 11 },
+		atalhos: { x: 8, y: 501, w: 304, h: 63 },
+		chat: { x: 8, y: 456, w: 44, h: 44 },
+		fab: { x: 268, y: 10, w: 44, h: 46 },
+		buffX: 214,
+		item: { x: 91, y: 290, w: 138, h: 20 },
+		morte: { x: 0, y: 204, w: 320, h: 176 }
+	}
+};
+
+/** As faixas que o critico mediu: `@kami` longo (5 linhas; 6 em 320), drop raro, conquista. */
+const FAIXAS = {
+	kami: { 320: { w: 220, h: 112 }, outra: { w: 226, h: 95 } },
+	drop: { 320: { w: 224, h: 61 }, outra: { w: 224, h: 61 } },
+	conquista: { 320: { w: 228, h: 85 }, outra: { w: 236, h: 85 } }
+};
+const faixaDaTela = (tela, tipo) => FAIXAS[tipo][tela.startsWith('320') ? 320 : 'outra'];
+
+/**
+ * O documento falso de uma tela medida, com as pecas ligaveis (placar, grupo, buffs, aviso de
+ * item, janela de morte). O host da morte e o do chat cobrem a tela inteira, como no jogo: so a
+ * caixa de DENTRO pode contar. `pecas` e a lista do ORACULO, montada aqui das mesmas caixas e
+ * nao da lista do modulo: assim o teste reprova o modulo que esquece uma peca.
+ */
+function telaFalsa(tela, { placar = false, grupo: comGrupo = false, buffs = 0, item = false, morte = false } = {}) {
+	const t = TELAS_MEDIDAS[tela];
+	const largura = Number(tela.split('x')[0]);
+	const inteira = { x: 0, y: 0, w: largura, h: t.h };
+	const icones = [286, 340, 394, 448].slice(0, buffs).map(y => ({ x: t.buffX, y, w: 38, h: 51 }));
+	const party = { x: 8, y: 436, w: 172, h: 90 };
+	const comShadow = (caixaDoHost, seletor, filhos) => ({
+		...el(caixaDoHost),
+		shadowRoot: { querySelectorAll: s => (s === seletor ? filhos : []) }
+	});
+	const hosts = {
+		BasicInfoIdle: el(t.cabecalho),
+		MissoesTrackerIdle: el(t.cartao),
+		CombatCornerIdle: el(t.auto),
+		HuntButtonIdle: comShadow(t.caca, '.hb-rotulo', [el(t.rotulo)]),
+		ShortCut: el(t.atalhos),
+		ChatBox: comShadow(inteira, '#chatbox', [el(t.chat)]),
+		TopMenuIdle: comShadow(null, '.tm-fab, .tm-item', [el(t.fab)]),
+		StatusIcons: comShadow(null, '.state', icones.map(c => el(c))),
+		PlacarMvpIdle: comShadow(null, '.pm-placar', [el(placar ? PLACAR : null)]),
+		PartyHud: comShadow(null, '.ph-hud', [el(comGrupo ? party : null)]),
+		ItemObtain: comShadow(null, '#ItemObtain', [el(item ? t.item : null)]),
+		DeathWindow: comShadow(inteira, '.dw-card', [el(morte ? t.morte : null)])
+	};
+	const pecas = [
+		{ nome: 'cabecalho', ...t.cabecalho },
+		{ nome: 'cartao-de-missoes', ...t.cartao },
+		{ nome: 'auto', ...t.auto },
+		{ nome: 'botao-de-caca', ...t.caca },
+		{ nome: 'rotulo-de-caca', ...t.rotulo },
+		{ nome: 'barra-de-atalhos', ...t.atalhos },
+		{ nome: 'chat', ...t.chat },
+		{ nome: 'menu', ...t.fab },
+		...icones.map(c => ({ nome: 'buff', ...c })),
+		...(placar ? [{ ...PLACAR }] : []),
+		...(comGrupo ? [{ nome: 'faixa-de-grupo', ...party }] : []),
+		...(item ? [{ nome: 'aviso-de-item', ...t.item }] : []),
+		...(morte ? [{ nome: 'janela-de-morte', ...t.morte }] : [])
+	];
+	return { doc: docFalso({ hosts, innerHeight: t.h }), pecas };
+}
+
+/** Oraculo proprio (nao o `areaCoberta` do modulo): a faixa, com 4px de vao em volta, cobre a peca? */
+function cobreComVao(f, p) {
+	return f.x - 4 < p.x + p.w && f.x + f.w + 4 > p.x && f.y - 4 < p.y + p.h && f.y + f.h + 4 > p.y;
+}
+
+/** Onde a faixa fica nesta tela, e o que ela cobre (com o vao de 4px), pela lista do oraculo. */
+function posicionar(tela, tipo, opcoes) {
+	const { doc, pecas } = telaFalsa(tela, opcoes);
+	const { w, h } = faixaDaTela(tela, tipo);
+	const host = faixaFalsa({ x: 8, y: 0, w, h });
+	const topo = publicarTopo(host, doc);
+	const faixa = { x: 8, y: topo, w, h };
+	const cobertas = pecas.filter(p => cobreComVao(faixa, p)).map(p => p.nome);
+	return { topo, faixa, cobertas, cabe: topo + h <= TELAS_MEDIDAS[tela].h };
+}
+
+describe('rodada 3, D1: com a janela de morte na tela a faixa NAO fica atras do cartao "Voce morreu"', () => {
+	it('o cartao da morte e medido por DENTRO do shadow (o host cobre a tela), so com a janela aberta', () => {
+		const aberta = medirPecas(telaFalsa('390x844', { morte: true }).doc).filter(p => p.nome === 'janela-de-morte');
+		expect(aberta).toEqual([{ nome: 'janela-de-morte', prioridade: 2, x: 0, y: 342, w: 390, h: 176 }]);
+		expect(medirPecas(telaFalsa('390x844').doc).some(p => p.nome === 'janela-de-morte')).toBe(false);
+		expect(PECAS_DA_HUD.find(p => p.host === 'DeathWindow')).toEqual({
+			nome: 'janela-de-morte',
+			host: 'DeathWindow',
+			dentro: '.dw-card',
+			prioridade: 2
+		});
+	});
+	it('o caso do critico (aviso do servidor com o jogador morto, 4 buffs e grupo na tela), nas 4 telas', () => {
+		// na rodada 2: 8,334 nas quatro, atras do cartao (0,342 / 0,252 / 0,240 / 0,204)
+		const esperado = { '390x844': 530, '390x664': 84, '360x640': 84, '320x568': 84 };
+		for (const tela of Object.keys(TELAS_MEDIDAS)) {
+			const r = posicionar(tela, 'kami', { morte: true, buffs: 4, grupo: true });
+			expect(r.cobertas, tela).not.toContain('janela-de-morte');
+			expect(r.cabe, tela).toBe(true);
+			expect(r.topo, tela).toBe(esperado[tela]);
+		}
+	});
+	it('sem grupo, a faixa fica logo abaixo do cartao da morte (le-se atraves do veu, como na base)', () => {
+		const r = posicionar('390x664', 'kami', { morte: true });
+		expect(r.topo).toBe(TELAS_MEDIDAS['390x664'].morte.y + 176 + VAO);
+		expect(r.cobertas).toEqual([]);
+	});
+	it('nenhum lugar livre e nenhum cartao de missoes: cobre a HUD (debaixo do veu), nunca o cartao da morte', () => {
+		const morte = { nome: 'janela-de-morte', prioridade: 2, x: 0, y: 204, w: 320, h: 176 };
+		const grupoBaixo = { nome: 'faixa-de-grupo', x: 8, y: 384, w: 172, h: 90 };
+		// so o comeco (124, sem cartao) e a borda de baixo de cada peca: todo lugar cobre algo;
+		// o comeco cobre o cartao da morte em 36px de altura, debaixo dele cobre o grupo inteiro
+		const topo = lugarDaFaixa({ inicio: 124, fim: 568, esquerda: 8, largura: 220, altura: 112, pecas: [morte, grupoBaixo] });
+		expect(areaCoberta({ x: 8, y: topo, w: 220, h: 112 }, [morte])).toBe(0);
+		expect(topo).toBe(384);
+	});
+});
+
+describe('rodada 3, D2: placar e grupo em tela baixa, o ultimo recurso e SOBRE o cartao de missoes', () => {
+	const LUTA = ['placar-mvp', 'faixa-de-grupo', 'buff', 'botao-de-caca', 'rotulo-de-caca', 'auto', 'chat', 'barra-de-atalhos', 'cabecalho', 'menu'];
+	it('390x664 e 360x640 com placar, grupo, 3 buffs e aviso de item: rente ao topo do cartao, sem tocar a luta', () => {
+		// na rodada 2: 8,378, sobre o titulo "GRUPO" e a linha do jogador
+		for (const tela of ['390x664', '360x640']) {
+			for (const tipo of ['kami', 'drop', 'conquista']) {
+				const r = posicionar(tela, tipo, { placar: true, grupo: true, buffs: 3, item: true });
+				expect(r.topo, `${tela} ${tipo}`).toBe(TELAS_MEDIDAS[tela].cartao.y);
+				expect(r.cobertas, `${tela} ${tipo}`).toEqual(['cartao-de-missoes']);
+			}
+		}
+	});
+	it('390x844 com a coluna cheia continua no lugar LIVRE debaixo do grupo (nada muda onde havia lugar)', () => {
+		for (const tipo of ['kami', 'drop', 'conquista']) {
+			const r = posicionar('390x844', tipo, { placar: true, grupo: true, buffs: 3, item: true });
+			expect(r.topo, tipo).toBe(436 + 90 + VAO);
+			expect(r.cobertas, tipo).toEqual([]);
+		}
+	});
+	it('INVARIANTE nas 4 telas e em todo arranjo: a faixa nunca cobre peca da luta nem o cartao da morte', () => {
+		const arranjos = [
+			{},
+			{ buffs: 3 },
+			{ placar: true },
+			{ placar: true, grupo: true },
+			{ placar: true, grupo: true, buffs: 3, item: true },
+			{ grupo: true, buffs: 4, morte: true },
+			{ placar: true, grupo: true, buffs: 4, item: true, morte: true }
+		];
+		for (const tela of Object.keys(TELAS_MEDIDAS)) {
+			for (const tipo of ['kami', 'drop', 'conquista']) {
+				for (const arranjo of arranjos) {
+					const r = posicionar(tela, tipo, arranjo);
+					const rotulo = `${tela} ${tipo} ${JSON.stringify(arranjo)}`;
+					expect(r.cobertas.filter(n => LUTA.includes(n) || n === 'janela-de-morte'), rotulo).toEqual([]);
+					expect(r.cabe, rotulo).toBe(true);
+				}
+			}
+		}
+	});
+	it('o fundo da faixa adensa SO no ultimo recurso (sobre uma peca); num lugar livre a classe sai', () => {
+		// por cima do cartao branco, as letras dele apareciam debaixo das do aviso (print 390x664)
+		const host = faixaFalsa({ x: 8, y: 0, w: 226, h: 95 });
+		expect(publicarTopo(host, telaFalsa('390x664', { placar: true, grupo: true, buffs: 3 }).doc)).toBe(84);
+		expect(host.classes.has(CLASSE_SOBRE_PECA)).toBe(true);
+		expect(publicarTopo(host, telaFalsa('390x664').doc)).toBe(334);
+		expect(host.classes.has(CLASSE_SOBRE_PECA)).toBe(false);
+		// debaixo do cartao da morte, livre: o fundo de sempre (o veu da morte ja escurece)
+		publicarTopo(host, telaFalsa('390x664', { morte: true }).doc);
+		expect(host.classes.has(CLASSE_SOBRE_PECA)).toBe(false);
+		expect(CLASSE_SOBRE_PECA).toBe('vr-aviso-sobre-peca');
+	});
+	it('a classe sai junto com a variavel (faixa nao desenhada) e quando a faixa solta da vertical', () => {
+		const host = faixaFalsa({ x: 8, y: 0, w: 226, h: 95 });
+		const cheia = () => telaFalsa('390x664', { placar: true, grupo: true }).doc;
+		publicarTopo(host, cheia());
+		expect(host.classes.has(CLASSE_SOBRE_PECA)).toBe(true);
+		host.caixa.w = 0;
+		expect(publicarTopo(host, cheia())).toBeNull();
+		expect(host.classes.has(CLASSE_SOBRE_PECA)).toBe(false);
+		host.caixa.w = 226;
+		publicarTopo(host, cheia());
+		expect(host.classes.has(CLASSE_SOBRE_PECA)).toBe(true);
+		soltarDaVertical(host);
+		expect(host.classes.has(CLASSE_SOBRE_PECA)).toBe(false);
+	});
+	it('cobrir 1px de peca da luta e pior que cobrir o cartao de missoes inteiro (prioridade, e nao area)', () => {
+		const cartao = { ...CARTAO, prioridade: 0 };
+		// o comeco (334) so encosta 1px no vao do grupo; o topo do cartao o cobre inteiro
+		const grupoRente = { nome: 'faixa-de-grupo', x: 8, y: 334 + 61 + VAO - 1, w: 172, h: 400 };
+		const topo = lugarDaFaixa({ inicio: 334, fim: 844, esquerda: 8, largura: 211, altura: 61, pecas: [cartao, grupoRente] });
+		expect(topo).toBe(84);
+	});
+	it('o lugar livre na coluna ainda vence o cartao (o ultimo recurso so vale sem lugar livre)', () => {
+		const cartao = { ...CARTAO, prioridade: 0 };
+		expect(lugarDaFaixa({ inicio: 334, fim: 844, esquerda: 8, largura: 211, altura: 61, pecas: [cartao, PLACAR] })).toBe(378);
+		expect(lugarDaFaixa({ inicio: 334, fim: 844, esquerda: 8, largura: 211, altura: 61, pecas: [cartao] })).toBe(334);
+	});
+	it('nem o comeco da coluna cabe na tela: fica sobre o cartao, dentro da tela', () => {
+		const cartao = { ...CARTAO, prioridade: 0 };
+		expect(lugarDaFaixa({ inicio: 334, fim: 380, esquerda: 8, largura: 211, altura: 61, pecas: [cartao, PLACAR] })).toBe(84);
+	});
+	it('o custo de um lugar e a area de cada prioridade, da morte para o cartao', () => {
+		const faixa = { x: 0, y: 0, w: 10, h: 10 };
+		const pecas = [
+			{ prioridade: 0, x: 0, y: 0, w: 10, h: 10 },
+			{ x: 0, y: 0, w: 10, h: 10 },
+			{ prioridade: 1, x: 0, y: 0, w: 5, h: 10 },
+			{ prioridade: 2, x: 0, y: 0, w: 2, h: 10 },
+			{ prioridade: 7, x: 0, y: 0, w: 1, h: 10 }
+		];
+		// com o vao a faixa vai de -4 a 14: cada peca conta inteira; prioridade estranha e HUD
+		expect(custoDoLugar(faixa, pecas)).toEqual([20, 100 + 50 + 10, 100]);
+		expect([CEDE, HUD, DECISAO]).toEqual([0, 1, 2]);
+	});
+	it('a comparacao vai na ordem: so empata na de cima a de baixo decide', () => {
+		expect(custaMenos([0, 0, 9e9], [0, 1, 0])).toBe(true);
+		expect(custaMenos([0, 1, 0], [0, 0, 9e9])).toBe(false);
+		expect(custaMenos([0, 9e9, 9e9], [1, 0, 0])).toBe(true);
+		expect(custaMenos([0, 5, 3], [0, 5, 4])).toBe(true);
+		expect(custaMenos([0, 5, 4], [0, 5, 4])).toBe(false);
+	});
+});
+
+describe('rodada 3, D3: em 320 a faixa nao cobre os buffs nem o rotulo do botao de caca', () => {
+	it('o rotulo "Retornar para Prontera" e medido a parte (ele pende para fora do host)', () => {
+		const pecas = medirPecas(telaFalsa('320x568').doc);
+		expect(pecas.filter(p => p.nome === 'rotulo-de-caca')).toEqual([{ nome: 'rotulo-de-caca', x: 203, y: 412, w: 96, h: 11 }]);
+		expect(pecas.filter(p => p.nome === 'botao-de-caca')).toHaveLength(1);
+	});
+	it('o @kami longo sem buff (o rotulo cruzava) e o aviso com 3 buffs (a borda dos icones cruzava): sobre o cartao', () => {
+		// na rodada 2: 8,334, sobre o "Retor" do rotulo; com buffs, sobre 14px de cada icone
+		const semBuff = posicionar('320x568', 'kami');
+		expect(semBuff.cobertas).toEqual(['cartao-de-missoes']);
+		const comBuffs = posicionar('320x568', 'drop', { buffs: 3 });
+		expect(comBuffs.cobertas).toEqual(['cartao-de-missoes']);
+	});
+	it('a faixa curta, que nao chega ao x dos buffs nem do rotulo, fica no comeco da coluna', () => {
+		const { doc } = telaFalsa('320x568', { buffs: 3 });
+		expect(publicarTopo(faixaFalsa({ x: 8, y: 0, w: 149, h: 27 }), doc)).toBe(334);
+	});
+});
+
 describe('a HUD vertical vale?', () => {
 	it('le a marca ri-vertical do <html>, a mesma que o CSS usa', () => {
 		expect(ehHudVertical(docFalso({ vertical: true }))).toBe(true);
@@ -487,6 +802,17 @@ describe('a costura com o CSS', () => {
 			`width: min(${LARGURA_DO_CARTAO}px, calc(100vw - var(--vr-trilho-largura) - 32px)) !important;`
 		);
 		expect(regra('html.ri-vertical #StatusIcons')).toContain(`+ ${FILEIRA_DO_AVISO_DE_ITEM}px +`);
+	});
+	it('rodada 3: o fundo mais denso da faixa SOBRE uma peca mora no CSS, na classe que o componente poe', () => {
+		expect(regra(`html.ri-vertical #Announce.${CLASSE_SOBRE_PECA}`)).toMatch(/background:\s*rgb\(18, 41, 74\);/);
+	});
+	it('rodada 3: o cartao da morte e o rotulo do botao de caca existem com a classe que a regra procura', () => {
+		// a peca de dentro e achada pela classe: renomear a classe no HTML calaria a regra sem erro
+		const html = nome => readFileSync(join(RAIZ, 'Components', nome, `${nome}.html`), 'utf8');
+		expect(PECAS_DA_HUD.find(p => p.host === 'DeathWindow').dentro).toBe('.dw-card');
+		expect(html('DeathWindow')).toMatch(/class="dw-card[ "]/);
+		expect(PECAS_DA_HUD.find(p => p.nome === 'rotulo-de-caca').dentro).toBe('.hb-rotulo');
+		expect(html('HuntButtonIdle')).toMatch(/class="hb-rotulo"/);
 	});
 	it('o desktop continua com o top de sempre: o Announce.css nao mudou', () => {
 		expect(CSS_DA_FAIXA).toMatch(/:host\s*\{\s*top:\s*40px;/);
