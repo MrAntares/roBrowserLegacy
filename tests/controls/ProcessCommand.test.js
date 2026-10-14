@@ -8,7 +8,7 @@ const mocks = vi.hoisted(() => ({
 		addText: vi.fn(),
 		TYPE: { INFO: 1 },
 		FILTER: { PUBLIC_LOG: 8 },
-		PrivateMessageStorage: { blockNick: '' }
+		PrivateMessageStorage: { blockNicks: [] }
 	}
 }));
 
@@ -61,7 +61,7 @@ function sentOne() {
 beforeEach(() => {
 	mocks.sent.length = 0;
 	mocks.chatBox.addText.mockClear();
-	mocks.chatBox.PrivateMessageStorage.blockNick = '';
+	mocks.chatBox.PrivateMessageStorage.blockNicks.length = 0;
 });
 
 describe('whisper blocking', () => {
@@ -72,7 +72,7 @@ describe('whisper blocking', () => {
 		expect(pkt).toBeInstanceOf(PACKET.CZ.SETTING_WHISPER_PC);
 		expect(pkt.name).toBe('Some Body');
 		expect(pkt.type).toBe(0);
-		expect(mocks.chatBox.PrivateMessageStorage.blockNick).toBe('Some Body');
+		expect(mocks.chatBox.PrivateMessageStorage.blockNicks).toEqual(['Some Body']);
 	});
 
 	it('allows a name again with /in', () => {
@@ -82,7 +82,15 @@ describe('whisper blocking', () => {
 		expect(pkt).toBeInstanceOf(PACKET.CZ.SETTING_WHISPER_PC);
 		expect(pkt.name).toBe('Some Body');
 		expect(pkt.type).toBe(1);
-		expect(mocks.chatBox.PrivateMessageStorage.blockNick).toBe('Some Body');
+		expect(mocks.chatBox.PrivateMessageStorage.blockNicks).toEqual(['Some Body']);
+	});
+
+	it('queues each name in request order', () => {
+		run('ex Alice');
+		run('in Bob');
+
+		expect(mocks.sent).toHaveLength(2);
+		expect(mocks.chatBox.PrivateMessageStorage.blockNicks).toEqual(['Alice', 'Bob']);
 	});
 
 	it('asks for the block list with a bare /ex', () => {

@@ -106,13 +106,16 @@ function onPrivateMessageSent(pkt) {
  * @param {object} pkt - PACKET.ZC.SETTING_WHISPER_PC
  */
 function onWhisperSettingResult(pkt) {
+	// Every reply answers the oldest request, printed or not
+	const name = ChatBox.PrivateMessageStorage.blockNicks.shift() || '';
+
 	// A block that went through is not announced
 	if (pkt.type > 1 || pkt.result > 2 || (pkt.type === 0 && pkt.result === 0)) {
 		return;
 	}
 
 	const msg = DB.getMessage(193 + pkt.type * 3 + pkt.result);
-	ChatBox.addText(`${ChatBox.PrivateMessageStorage.blockNick}${msg}`, ChatBox.TYPE.PRIVATE, ChatBox.FILTER.WHISPER);
+	ChatBox.addText(`${name}${msg}`, ChatBox.TYPE.PRIVATE, ChatBox.FILTER.WHISPER);
 }
 
 /**

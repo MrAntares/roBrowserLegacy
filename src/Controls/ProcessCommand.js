@@ -1057,8 +1057,8 @@ function requestWhisperSetting(name, type) {
 	pkt.type = type;
 	Network.sendPacket(pkt);
 
-	// The reply does not carry the name
-	ChatBox.PrivateMessageStorage.blockNick = name;
+	// The reply does not carry the name, and replies come back in request order
+	ChatBox.PrivateMessageStorage.blockNicks.push(name);
 }
 
 /**

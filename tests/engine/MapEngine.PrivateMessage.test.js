@@ -6,7 +6,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const mocks = vi.hoisted(() => ({
 	hooks: new Map(),
 	chat: vi.fn(),
-	storage: { nick: '', msg: '', blockNick: '' }
+	storage: { nick: '', msg: '', blockNicks: [] }
 }));
 
 vi.mock('Network/NetworkManager.js', () => ({
@@ -47,7 +47,7 @@ function deliver(struct, fields) {
 beforeEach(() => {
 	mocks.hooks.clear();
 	mocks.chat.mockClear();
-	mocks.storage.blockNick = 'Some Body';
+	mocks.storage.blockNicks = ['Some Body'];
 
 	PrivateMessageEngine();
 });
@@ -70,6 +70,27 @@ describe('/ex and /in replies', () => {
 		deliver(PACKET.ZC.SETTING_WHISPER_PC, { type: 0, result: 0 });
 
 		expect(mocks.chat).not.toHaveBeenCalled();
+	});
+
+	it('names each reply after its own request', () => {
+		mocks.storage.blockNicks = ['Alice', 'Bob'];
+
+		deliver(PACKET.ZC.SETTING_WHISPER_PC, { type: 0, result: 1 });
+		deliver(PACKET.ZC.SETTING_WHISPER_PC, { type: 1, result: 0 });
+
+		expect(mocks.chat.mock.calls).toEqual([
+			['AliceMSG 194', 4, 2],
+			['BobMSG 196', 4, 2]
+		]);
+	});
+
+	it('lets a silent block use up its name', () => {
+		mocks.storage.blockNicks = ['Alice', 'Bob'];
+
+		deliver(PACKET.ZC.SETTING_WHISPER_PC, { type: 0, result: 0 });
+		deliver(PACKET.ZC.SETTING_WHISPER_PC, { type: 1, result: 0 });
+
+		expect(mocks.chat.mock.calls).toEqual([['BobMSG 196', 4, 2]]);
 	});
 
 	it('prints nothing for a result it does not know', () => {
