@@ -219,9 +219,11 @@ describe('estadoDoBot: o Salvar que o servidor aplicou com a resposta perdida na
 	 * config completa (menos o armazem): cada FOLHA trocada sozinha, cada LISTA invertida sozinha e, em cada lista e em
 	 * cada objeto (a raiz tambem), um item ou uma chave A MAIS e um A MENOS (PRESENCA e TAMANHO). A rodada 4 passeava a
 	 * config do teste, que nao tinha a folha `ativa` nem as duas ordens que a config REAL tem, e nunca tirava nem punha:
-	 * cinco desses atalhos passavam (relatorio O-critico-r4).
+	 * cinco desses atalhos passavam (relatorio O-critico-r4). A rodada 5 nunca trocava `null` por lista: a comparacao que
+	 * iguala o `null` (a skill em todos os monstros) a lista vazia (em nenhum) passava, e o escopo trocado pelo jogador
+	 * sumia (relatorio O-critico-r5). Por isso cada folha `null` tambem vira `[]` e cada lista anulavel vira `null`.
 	 */
-	describe('so o armazem sai da comparacao: o rascunho que difere em qualquer folha, ordem ou presenca segue avisando', () => {
+	describe('so o armazem sai da comparacao: o rascunho que difere em qualquer folha, ordem, presenca, nulo ou vazio segue avisando', () => {
 		/**
 		 * Todos os campos de topo que o `pedir` devolve, povoados: os de `CONFIG_DO_BOT_PADRAO`
 		 * (`servidor/bot/config-do-bot.ts:288-302`, rag-idle-master) e o `curaComoAtaque` que o `lerConfigDoBot` acrescenta
@@ -237,7 +239,10 @@ describe('estadoDoBot: o Salvar que o servidor aplicou com a resposta perdida na
 			raioDePercepcao: 15,
 			skills: {
 				geral: [{ skillId: 5, nivel: 10 }, { skillId: 7, nivel: 'aprendido' }],
-				porSkill: { 5: { ativa: true, especies: [1002, 1113] } },
+				// O ESCOPO nas duas formas que o servidor grava no MESMO campo (config-do-bot.ts:77, :792-804): a 5 so nos
+				// monstros da lista ("Monstros selecionados", editorPorSkill.js:163) e a 7 em todos (`null`, "Todos os alvos
+				// de combate", editorPorSkill.js:160). O `[]` e o oposto do `null`: em nenhum monstro (:1040).
+				porSkill: { 5: { ativa: true, especies: [1002, 1113] }, 7: { ativa: true, especies: null } },
 				// O 1002 com lista propria (a ordem e a prioridade do rodizio daquele monstro, `moverSkill` com escopo de
 				// especie, edicaoDeSkills.js:54) e o 1113 que herda a Geral.
 				porMonstro: { 1002: { herdar: false, lista: [{ skillId: 7, nivel: 10 }, { skillId: 5, nivel: 'aprendido' }] }, 1113: { herdar: true } }
@@ -321,6 +326,16 @@ describe('estadoDoBot: o Salvar que o servidor aplicou com a resposta perdida na
 			'consumiveis.asa': [['ligada', 'semAlvoPorSegundos', 'cercadoPor', 'hpAbaixoDe', 'reserva']] // :642
 		};
 
+		/**
+		 * AS FOLHAS QUE O SERVIDOR GRAVA COMO `null` (mesmo arquivo), pelo caminho com `*`: o escopo da skill (`:77`; o
+		 * validador comeca de `null` em `:792` e grava em `:804`; `null` = toda especie e `[]` = nenhuma, `:1040`) e a
+		 * flecha fixa da regra geral (`:152`, `:590`). Cada uma aparece como `null` na config de teste, e nenhum outro
+		 * `null`. As que tambem sao LISTA em `FORMAS_DO_SERVIDOR` sao as listas que o servidor aceita como `null`
+		 * (`:793-794`: nulo ou lista de 0 a 120 especies).
+		 */
+		const NULOS_DO_SERVIDOR = ['skills.porSkill.*.especies', 'flechas.fixa'];
+		const LISTAS_ANULAVEIS = NULOS_DO_SERVIDOR.filter(padrao => FORMAS_DO_SERVIDOR[padrao] === LISTA);
+
 		/** A chave de `FORMAS_DO_SERVIDOR` de um caminho: `*` no lugar do indice da lista e da chave do mapa. */
 		function padraoDe(caminho) {
 			const padrao = [];
@@ -343,8 +358,10 @@ describe('estadoDoBot: o Salvar que o servidor aplicou com a resposta perdida na
 		/**
 		 * O GERADOR DOS CASOS: passeia a config (menos o armazem) e devolve `[rotulo, caminho, tipo]`. Um caso por folha
 		 * (`tipo` 'folha'), um por lista de 2 ou mais itens (`tipo` 'ordem') e dois por recipiente, a raiz tambem: um item
-		 * ou uma chave a mais (`tipo` 'mais') e o ultimo item ou a ultima chave a menos (`tipo` 'menos'). O caminho usa as
-		 * chaves como texto (o indice da lista tambem), como o `JSON.stringify` as ve.
+		 * ou uma chave a mais (`tipo` 'mais') e o ultimo item ou a ultima chave a menos (`tipo` 'menos'). E o NULO E O
+		 * VAZIO (rodada 6): cada folha `null` vira a lista vazia (`tipo` 'vazio': o "Todos os alvos de combate" que vira
+		 * "Monstros selecionados" sem nenhum), e cada lista que o servidor aceita como `null` vira `null` (`tipo` 'nulo': a
+		 * volta para "Todos"). O caminho usa as chaves como texto (o indice da lista tambem), como o `JSON.stringify` as ve.
 		 */
 		function gerarCasos(config) {
 			const casos = [];
@@ -358,10 +375,12 @@ describe('estadoDoBot: o Salvar que o servidor aplicou com a resposta perdida na
 					casos.push([`${rotulo} (${lista ? 'um item' : 'uma chave'} a mais)`, caminho, 'mais']);
 					const ultima = ultimaChave(no, caminho);
 					if (ultima !== undefined) casos.push([`${rotulo} (sem ${lista ? 'o ultimo item' : `a chave ${ultima}`})`, caminho, 'menos']);
+					if (lista && LISTAS_ANULAVEIS.includes(padraoDe(caminho))) casos.push([`${rotulo} (a lista vira null)`, caminho, 'nulo']);
 					for (const chave of Object.keys(no)) passear(no[chave], [...caminho, chave]);
 					return;
 				}
 				casos.push([onde, caminho, 'folha']);
+				if (no === null) casos.push([`${onde} (null vira [])`, caminho, 'vazio']);
 			};
 			passear(config, []);
 			return casos;
@@ -411,13 +430,14 @@ describe('estadoDoBot: o Salvar que o servidor aplicou com a resposta perdida na
 
 		/**
 		 * O que OUTRO aparelho grava no caso: uma copia da config com a folha trocada, a lista invertida, ou um item (uma
-		 * chave) a mais ou a menos no recipiente. O item a mais e copia do ultimo: a comparacao e do cliente, entao o valor
-		 * nao precisa passar na validacao do servidor.
+		 * chave) a mais ou a menos no recipiente, o `null` que vira `[]` ou a lista que vira `null`. O item a mais e copia do
+		 * ultimo: a comparacao e do cliente, entao o valor nao precisa passar na validacao do servidor.
 		 */
 		function comMudanca(config, caminho, tipo) {
 			const copia = JSON.parse(JSON.stringify(config));
-			if (tipo === 'folha') {
-				valorEm(copia, caminho.slice(0, -1))[caminho.at(-1)] = outroValor(valorEm(copia, caminho));
+			if (tipo === 'folha' || tipo === 'vazio' || tipo === 'nulo') {
+				const novo = tipo === 'vazio' ? [] : tipo === 'nulo' ? null : outroValor(valorEm(copia, caminho));
+				valorEm(copia, caminho.slice(0, -1))[caminho.at(-1)] = novo;
 				return copia;
 			}
 			const no = valorEm(copia, caminho);
@@ -430,7 +450,7 @@ describe('estadoDoBot: o Salvar que o servidor aplicou com a resposta perdida na
 			return copia;
 		}
 
-		it('o passeio cobre toda folha, toda ordem e a presenca de todo recipiente, numa config com toda forma que o servidor grava', () => {
+		it('o passeio cobre toda folha, toda ordem, a presenca de todo recipiente e o nulo e o vazio, numa config com toda forma que o servidor grava', () => {
 			const { folhas, recipientes } = oQueAComparacaoVe(CONFIG_COMPLETA);
 			const dosCasos = tipo => CASOS.filter(caso => caso[2] === tipo).map(([, caminho]) => caminho.join('.'));
 			const fora = [...recipientes].filter(([c]) => !doArmazem(c));
@@ -456,13 +476,27 @@ describe('estadoDoBot: o Salvar que o servidor aplicou com a resposta perdida na
 			expect([...new Set(fora.map(formaDe))].sort(), 'a config de teste difere das formas que o servidor grava').toEqual(esperadas.sort());
 			// O `ativa` da entrada de suporte: o servidor so grava o `false` (config-do-bot.ts:512).
 			expect(CONFIG_COMPLETA.suporte.lista.filter(e => 'ativa' in e).map(e => e.ativa)).toEqual([false]);
+			// O NULO E O VAZIO (rodada 6): o `null` aparece em toda folha que o servidor grava como `null`, e so nelas; o
+			// escopo de skill aparece nas DUAS formas (`null` e lista), que o servidor grava no mesmo campo com sentidos
+			// opostos (config-do-bot.ts:1040); toda folha `null` tem o caso de virar `[]` e toda lista anulavel o de virar
+			// `null`.
+			const nulas = [...folhas].filter(([c, valor]) => !doArmazem(c) && valor === 'null').map(([c]) => c);
+			expect([...new Set(nulas.map(c => padraoDe(c.split('.'))))].sort(), 'null fora das folhas que o servidor grava como null, ou folha anulavel sem o null').toEqual([...NULOS_DO_SERVIDOR].sort());
+			const escopos = Object.values(CONFIG_COMPLETA.skills.porSkill).map(regra => (regra.especies === null ? 'null' : Array.isArray(regra.especies) ? 'lista' : typeof regra.especies));
+			expect([...new Set(escopos)].sort(), 'o escopo de skill tem de aparecer como null (todos) e como lista').toEqual(['lista', 'null']);
+			expect(dosCasos('vazio'), 'folha null sem o caso de virar lista vazia').toEqual(nulas);
+			const anulaveis = fora.filter(([c, r]) => r.lista && LISTAS_ANULAVEIS.includes(padraoDe(c.split('.')))).map(([c]) => c);
+			expect(dosCasos('nulo'), 'lista que o servidor aceita como null sem o caso de virar null').toEqual(anulaveis);
 			// Todo campo de topo aparece em algum caso; o armazem e o unico que fica de fora.
 			const topos = new Set(CASOS.map(([, caminho]) => caminho[0]));
 			expect(Object.keys(CONFIG_COMPLETA).filter(k => !topos.has(k))).toEqual(['armazem']);
-			// A config de teste nao encolhe: a rodada 5 fechou a familia com 64 folhas, 10 listas e 37 recipientes.
-			expect(dosCasos('folha').length, 'a config de teste perdeu folhas').toBeGreaterThanOrEqual(64);
+			// A config de teste nao encolhe: a rodada 6 fechou a familia com 66 folhas, 10 listas, 38 recipientes, 2 folhas
+			// `null` e 1 lista anulavel.
+			expect(dosCasos('folha').length, 'a config de teste perdeu folhas').toBeGreaterThanOrEqual(66);
 			expect(dosCasos('ordem').length, 'a config de teste perdeu listas').toBeGreaterThanOrEqual(10);
-			expect(dosCasos('mais').length, 'a config de teste perdeu recipientes').toBeGreaterThanOrEqual(37);
+			expect(dosCasos('mais').length, 'a config de teste perdeu recipientes').toBeGreaterThanOrEqual(38);
+			expect(dosCasos('vazio').length, 'a config de teste perdeu folhas null').toBeGreaterThanOrEqual(2);
+			expect(dosCasos('nulo').length, 'a config de teste perdeu listas anulaveis').toBeGreaterThanOrEqual(1);
 		});
 
 		it.each(CASOS)('%s: o rascunho que difere da config nova SO ali (e no armazem) segue com o aviso, intacto e na base velha', (rotulo, caminho, tipo) => {
@@ -475,8 +509,13 @@ describe('estadoDoBot: o Salvar que o servidor aplicou com a resposta perdida na
 			const doServidor = { ...comMudanca(rascunho, caminho, tipo), armazem: ARMAZEM_PADRAO };
 			// O caso bem formado: fora do armazem, so aquela folha muda, ou so o que esta dentro daquele recipiente.
 			const diferentes = folhasDiferentes(rascunho, doServidor);
-			if (tipo === 'folha') {
-				expect(diferentes, 'o caso tem de separar o rascunho do servidor numa folha so').toEqual([caminho.join('.')]);
+			const onde = caminho.join('.');
+			if (tipo === 'folha' || tipo === 'vazio') {
+				expect(diferentes, 'o caso tem de separar o rascunho do servidor numa folha so').toEqual([onde]);
+			} else if (tipo === 'nulo') {
+				// A lista sai inteira e a folha `null` entra no lugar dela: nada muda fora dali.
+				expect(diferentes, 'o caso nao poe o null no lugar da lista').toContain(onde);
+				expect(diferentes.filter(c => c !== onde && !c.startsWith(`${onde}.`)), 'o caso mudou algo fora da lista').toEqual([]);
 			} else {
 				const dentro = caminho.length > 0 ? `${caminho.join('.')}.` : '';
 				expect(diferentes.length, 'o caso nao separa nada').toBeGreaterThan(0);
@@ -485,6 +524,12 @@ describe('estadoDoBot: o Salvar que o servidor aplicou com a resposta perdida na
 			if (tipo === 'mais' || tipo === 'menos') {
 				const tamanho = config => oQueAComparacaoVe(config).recipientes.get(caminho.join('.')).tamanho;
 				expect(tamanho(doServidor) - tamanho(rascunho), 'o caso tem de mudar o tamanho do recipiente em um').toBe(tipo === 'mais' ? 1 : -1);
+			}
+			if (tipo === 'vazio' || tipo === 'nulo') {
+				// O `null` contra a lista no MESMO campo (o escopo: todos contra os da lista ou nenhum, config-do-bot.ts:1040).
+				const antes = valorEm(rascunho, caminho);
+				expect(tipo === 'vazio' ? antes === null : Array.isArray(antes), 'o caso parte do null (vazio) ou da lista (nulo)').toBe(true);
+				expect(valorEm(doServidor, caminho), 'o outro aparelho grava a lista vazia (vazio) ou o null (nulo)').toEqual(tipo === 'vazio' ? [] : null);
 			}
 			const topoDoCaso = caminho.length > 0 ? caminho[0] : tipo === 'mais' ? CHAVE_NOVA : ultimaChave(rascunho, caminho);
 			const topos = [...new Set([...Object.keys(rascunho), ...Object.keys(doServidor)])].filter(k => JSON.stringify(doServidor[k]) !== JSON.stringify(rascunho[k]));

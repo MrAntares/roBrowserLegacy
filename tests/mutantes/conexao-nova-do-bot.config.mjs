@@ -17,6 +17,10 @@
 // que cabe no rascunho) e a folha e as duas ordens que so a config REAL tinha (o `ativa` da entrada de suporte, a
 // lista por monstro e as pocoes de SP), mais a adocao do eco que nada mudou. Os testes poem e tiram item e chave em
 // todo recipiente, numa config com toda forma que o servidor grava.
+// Rodada 6 (reprovacao do critico da rodada 5): o NULO e o VAZIO tratados como a mesma coisa. O servidor grava os dois
+// no mesmo campo, o escopo da skill (`especies: null` = todos os monstros, `[]` = nenhum: config-do-bot.ts:77, :792-804,
+// :1040, rag-idle-master), e o menu produz os dois por um clique (editorPorSkill.js:160 e :163). Os testes trocam cada
+// folha `null` por `[]` e cada lista anulavel por `null`, numa config com o escopo nas duas formas.
 //
 //   RAG_MUTANTE_CONEXAO=<nome> npx vitest run --config tests/mutantes/conexao-nova-do-bot.config.mjs
 //
@@ -26,7 +30,8 @@
 //            tiraTambemSkills tiraTambemSobrevivencia tiraTambemCuraComoAtaque adotaSemApagarOAviso \
 //            tiraTambemRodizioGeral ignoraLigadoEmQualquerNivel ordemNaoConta comparaSoAte5Niveis adotaPelaRevisaoSeguinte \
 //            rascunhoContidoNoServidor servidorContidoNoRascunho ignoraAtivaDoSuporte \
-//            ordemNaoContaNaListaPorMonstro ordemNaoContaNasPocoesDeSp adotaQuandoNaoMudou; do
+//            ordemNaoContaNaListaPorMonstro ordemNaoContaNasPocoesDeSp adotaQuandoNaoMudou \
+//            vazioComoNulo nuloComoVazio vazioOuNuloComoAusente escopoVazioComoTodos; do
 //     RAG_MUTANTE_CONEXAO=$m npx vitest run --config tests/mutantes/conexao-nova-do-bot.config.mjs > m.log 2>&1;
 //     if grep -q "nao casa" m.log; then echo "$m INVALIDO"; elif grep -q "Tests .*failed" m.log; then echo "$m morto"; else echo "$m SOBREVIVEU"; fi; done
 //
@@ -40,6 +45,10 @@ const ALVO = 'src/UI/Components/BotMenu/estadoDoBot.js';
 const CABE =
 	"(function cabe(a, b) { if (a === null || typeof a !== 'object') return a === b; if (b === null || typeof b !== 'object') return false; return Object.keys(a).every(k => cabe(a[k], b[k])); })";
 const ORDENA = 'v.slice().sort((a, b) => (JSON.stringify(a) < JSON.stringify(b) ? -1 : JSON.stringify(a) > JSON.stringify(b) ? 1 : 0))';
+// Rodada 6: a comparacao "sem armazem" com um `replacer` do `JSON.stringify`, as trocas de
+// `wt-bugs-13-10/prints/o/r5/zz-critico-o-r5.config.mjs`.
+const SEM_ARMAZEM = 'return Object.assign({}, config, { armazem: undefined });';
+const comReplacer = replacer => `return JSON.parse(JSON.stringify(Object.assign({}, config, { armazem: undefined }), ${replacer}));`;
 
 const mutantes = {
 	// a conexao nova nao zera a linha de base (o executor novo do servidor recomeca do zero e tudo conta como velho)
@@ -155,7 +164,22 @@ const mutantes = {
 	adotaQuandoNaoMudou: [
 		'iguais(semArmazem(s.editConfig), semArmazem(config))) {',
 		'!mudou || iguais(semArmazem(s.editConfig), semArmazem(config))) {'
-	]
+	],
+	// rodada 6 (mutantes do critico da rodada 5): a lista vazia vale o mesmo que `null` - o jogador marca "Monstros
+	// selecionados" sem nenhum (a skill sai de todos os monstros), outro aparelho volta para "Todos", e o rascunho some
+	vazioComoNulo: [SEM_ARMAZEM, comReplacer('(k, v) => (Array.isArray(v) && v.length === 0 ? null : v)')],
+	// rodada 6: o contrario, `null` vale o mesmo que a lista vazia (o idioma `especies || []` do proprio menu,
+	// editorPorSkill.js:183 e :211)
+	nuloComoVazio: [SEM_ARMAZEM, comReplacer('(k, v) => (v === null ? [] : v)')],
+	// rodada 6: o idioma "tira os vazios" (`omitBy(isEmpty)`): `null`, a lista vazia e o objeto vazio valem o mesmo que a
+	// chave ausente
+	vazioOuNuloComoAusente: [
+		SEM_ARMAZEM,
+		comReplacer("(k, v) => (v === null || (typeof v === 'object' && Object.keys(v).length === 0) ? undefined : v)")
+	],
+	// rodada 6: a "normalizacao" so do escopo - o escopo vazio vira "todos" na comparacao (pega so se a config de teste
+	// tiver o escopo `null`)
+	escopoVazioComoTodos: [SEM_ARMAZEM, comReplacer("(k, v) => (k === 'especies' && Array.isArray(v) && v.length === 0 ? null : v)")]
 };
 const mutante = mutantes[process.env.RAG_MUTANTE_CONEXAO];
 if (!mutante) throw new Error(`Escolha RAG_MUTANTE_CONEXAO: ${Object.keys(mutantes).join(', ')}.`);
