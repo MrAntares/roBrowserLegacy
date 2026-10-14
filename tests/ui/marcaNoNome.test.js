@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
 	ICONE_DO_VIP,
+	aplicarDeltaDasMarcas,
 	bitsDaMarca,
 	classeDaLinha,
 	PREFIXO_DO_NOME,
@@ -215,7 +216,8 @@ describe('o fio: todo canal com fala de jogador pergunta pela marca', () => {
 		const entity = ler('src/Engine/MapEngine/Entity.js');
 		const a = entity.indexOf('function onAdminList(');
 		const corpo = entity.slice(a, entity.indexOf('\n}\n', a));
-		expect(corpo).toContain('const marcas = lerMarcasDoChat(dados);');
+		// D-2372 do servidor: a lista inteira OU a diferenca (o ultimo describe deste arquivo).
+		expect(corpo).toContain(': lerMarcasDoChat(dados);');
 		expect(corpo).toContain('Session.VipList = marcas.vips;');
 		expect(corpo).toContain('Session.VipNomes = marcas.nomesVip;');
 		expect(corpo).toContain('Session.AdminNomes = marcas.nomesAdmin;');
@@ -302,5 +304,51 @@ describe('o fio: todo canal com fala de jogador pergunta pela marca', () => {
 		// as marcas acompanham a fonte da linha (desktop e celular), em em
 		expect(css).toMatch(/\.cb-vip-icone \{[^}]*width: 1\.15em;[^}]*height: 1\.15em;/);
 		expect(css).toMatch(/\.cb-gm-selo \{[^}]*font-size: 0\.8em;/);
+	});
+});
+
+describe('aplicarDeltaDasMarcas (D-2372 do servidor: a lista por diferenca)', () => {
+	const sessao = () => ({ vips: [5, 20], nomesVip: ['Ana', 'Ana*', 'Bia'], nomesAdmin: ['Gm'] });
+
+	it('tira os Menos, poe os Mais e reordena como o servidor (numeros e sort())', () => {
+		const r = aplicarDeltaDasMarcas(sessao(), {
+			v: 1,
+			admins: [1],
+			delta: 1,
+			vipsMais: [7, 100],
+			vipsMenos: [20],
+			nomesVipMais: ['Caio', 'Abel'],
+			nomesVipMenos: ['Bia'],
+			nomesAdminMenos: ['Gm']
+		});
+		expect(r).toEqual({ vips: [5, 7, 100], nomesVip: ['Abel', 'Ana', 'Ana*', 'Caio'], nomesAdmin: [] });
+	});
+
+	it('campo ausente e vazio: so os admins mudaram, as marcas ficam', () => {
+		expect(aplicarDeltaDasMarcas(sessao(), { v: 1, admins: [1, 7], delta: 1 })).toEqual(sessao());
+	});
+
+	it('nao mexe nas listas da sessao (devolve listas novas)', () => {
+		const s = sessao();
+		aplicarDeltaDasMarcas(s, { delta: 1, vipsMais: [1], nomesVipMenos: ['Ana'] });
+		expect(s).toEqual(sessao());
+	});
+
+	it('sessao vazia (nada recebido ainda) e lixo no corpo nao quebram', () => {
+		expect(aplicarDeltaDasMarcas({}, { delta: 1, vipsMais: [3, 'x'], nomesVipMais: ['', 'Eva'] })).toEqual({
+			vips: [3],
+			nomesVip: ['Eva'],
+			nomesAdmin: []
+		});
+		expect(aplicarDeltaDasMarcas(undefined, null)).toEqual({ vips: [], nomesVip: [], nomesAdmin: [] });
+	});
+
+	it('o handler da lista usa a diferenca quando o corpo diz delta: 1, e a lista inteira no resto', () => {
+		const entity = readFileSync(resolve(import.meta.dirname, '../../src/Engine/MapEngine/Entity.js'), 'utf8').replace(/\r\n/g, '\n');
+		const i = entity.indexOf('function onAdminList(pkt) {');
+		const corpo = entity.slice(i, entity.indexOf('\nfunction ', i + 10));
+		expect(corpo).toContain('dados && dados.delta === 1');
+		expect(corpo).toContain('aplicarDeltaDasMarcas({ vips: Session.VipList, nomesVip: Session.VipNomes, nomesAdmin: Session.AdminNomes }, dados)');
+		expect(corpo).toContain(': lerMarcasDoChat(dados);');
 	});
 });
