@@ -55,7 +55,6 @@ beforeEach(() => {
 describe('/ex and /in replies', () => {
 	// The reply carries no name: the one /ex or /in sent leads the line.
 	it.each([
-		[0, 0, 'MSG 193'],
 		[0, 1, 'MSG 194'],
 		[0, 2, 'MSG 195'],
 		[1, 0, 'MSG 196'],
@@ -65,6 +64,12 @@ describe('/ex and /in replies', () => {
 		deliver(PACKET.ZC.SETTING_WHISPER_PC, { type, result });
 
 		expect(mocks.chat).toHaveBeenCalledWith('Some Body' + text, 4, 2);
+	});
+
+	it('prints nothing for a block that went through', () => {
+		deliver(PACKET.ZC.SETTING_WHISPER_PC, { type: 0, result: 0 });
+
+		expect(mocks.chat).not.toHaveBeenCalled();
 	});
 
 	it('prints nothing for a result it does not know', () => {
