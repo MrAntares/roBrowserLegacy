@@ -220,7 +220,9 @@ export function criarEstadoDoBot({ enviar }) {
 			s.conflito = false;
 			s.problemas = [];
 			s.erro = null;
-			// O Armazem saiu do menu (ajustes do dono, 09/10/2026) e o servidor ignora o bloco: ele nao vai no Salvar.
+			// O Armazem saiu do menu (ajustes do dono, 09/10/2026): ele nao vai no Salvar, e o servidor grava o padrao no
+			// lugar (`validarArmazem(undefined)` = ARMAZEM_PADRAO em servidor/bot/config-do-bot.ts:650; o armazem sai sempre
+			// desligado, :705-711). Por isso a config que volta se compara com o rascunho sem ele (`semArmazem`).
 			const config = clonar(s.editConfig);
 			delete config.armazem;
 			return pedir('aplicar', { baseRevision: s.baseRevision, config });

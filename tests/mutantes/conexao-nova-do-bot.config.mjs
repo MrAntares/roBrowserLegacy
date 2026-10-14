@@ -7,12 +7,16 @@
 // Rodada 2 (ressalva 3 do critico): o Salvar que o servidor APLICOU com a resposta perdida na queda - a config que
 // volta igual ao rascunho vira a base (`aceitarConfigDoServidor`), sem o aviso "mudou no servidor" e sem o conflito
 // de revisao falso no Salvar seguinte; rascunho diferente segue avisando.
+// Rodada 3 (reprovacao do critico da rodada 2): a exclusao da comparacao e SO o armazem - a que alarga para outro
+// campo de topo (skills, sobrevivencia, cura como ataque) adota em silencio o rascunho que difere do servidor so
+// naquele campo; e a adocao apaga o aviso que ja estava aceso (o servidor convergiu para o rascunho).
 //
 //   RAG_MUTANTE_CONEXAO=<nome> npx vitest run --config tests/mutantes/conexao-nova-do-bot.config.mjs
 //
 // Todos de uma vez (bash), contando o mutante que NAO casa como invalido:
 //   for m in semZerarRevisao semSoltarEmVoo semSoltarOnOff semSoltarAplicar semSoltarLigarAposAplicar semSoltarPerfil \
-//            semAdotarRascunhoIgual comparaComArmazem adotaRascunhoDiferente; do
+//            semAdotarRascunhoIgual comparaComArmazem adotaRascunhoDiferente \
+//            tiraTambemSkills tiraTambemSobrevivencia tiraTambemCuraComoAtaque adotaSemApagarOAviso; do
 //     RAG_MUTANTE_CONEXAO=$m npx vitest run --config tests/mutantes/conexao-nova-do-bot.config.mjs > m.log 2>&1;
 //     if grep -q "nao casa" m.log; then echo "$m INVALIDO"; elif grep -q "Tests .*failed" m.log; then echo "$m morto"; else echo "$m SOBREVIVEU"; fi; done
 //
@@ -49,6 +53,27 @@ const mutantes = {
 	adotaRascunhoDiferente: [
 		'if (!s.dirty || s.editConfig === null || iguais(semArmazem(s.editConfig), semArmazem(config))) {',
 		'if (!s.dirty || s.editConfig === null || true) {'
+	],
+	// rodada 3 (mutantes do critico da rodada 2): a comparacao "sem armazem" tira TAMBEM as skills - o rascunho que
+	// difere do servidor so nelas e adotado sem aviso (a skill que o jogador pos some)
+	tiraTambemSkills: [
+		'return Object.assign({}, config, { armazem: undefined });',
+		'return Object.assign({}, config, { armazem: undefined, skills: undefined });'
+	],
+	// rodada 3: idem, a sobrevivencia (o limiar da pocao do jogador vira o do outro aparelho sem aviso)
+	tiraTambemSobrevivencia: [
+		'return Object.assign({}, config, { armazem: undefined });',
+		'return Object.assign({}, config, { armazem: undefined, sobrevivencia: undefined });'
+	],
+	// rodada 3: idem, o interruptor "Cura como ataque"
+	tiraTambemCuraComoAtaque: [
+		'return Object.assign({}, config, { armazem: undefined });',
+		'return Object.assign({}, config, { armazem: undefined, curaComoAtaque: undefined });'
+	],
+	// rodada 3: adota o rascunho igual sem apagar o aviso aceso antes (estado limpo com o aviso e o Recarregar presos)
+	adotaSemApagarOAviso: [
+		'\t\t\ts.baseRevision = revisao;\n\t\t\ts.mudouNoServidor = false;\n',
+		'\t\t\ts.baseRevision = revisao;\n'
 	]
 };
 const mutante = mutantes[process.env.RAG_MUTANTE_CONEXAO];
