@@ -10,13 +10,17 @@
 // Rodada 3 (reprovacao do critico da rodada 2): a exclusao da comparacao e SO o armazem - a que alarga para outro
 // campo de topo (skills, sobrevivencia, cura como ataque) adota em silencio o rascunho que difere do servidor so
 // naquele campo; e a adocao apaga o aviso que ja estava aceso (o servidor convergiu para o rascunho).
+// Rodada 4 (reprovacao do critico da rodada 3): o mesmo alargamento abaixo do topo - uma chave DENTRO de um campo (o
+// rodizio geral de skills), todo interruptor `ligado`/`ligada`, a ORDEM das listas e o que fica abaixo do 5o nivel - e
+// a adocao pela revisao seguinte a base ("so pode ser o meu Salvar"). Os testes passeiam toda folha e toda lista.
 //
 //   RAG_MUTANTE_CONEXAO=<nome> npx vitest run --config tests/mutantes/conexao-nova-do-bot.config.mjs
 //
 // Todos de uma vez (bash), contando o mutante que NAO casa como invalido:
 //   for m in semZerarRevisao semSoltarEmVoo semSoltarOnOff semSoltarAplicar semSoltarLigarAposAplicar semSoltarPerfil \
 //            semAdotarRascunhoIgual comparaComArmazem adotaRascunhoDiferente \
-//            tiraTambemSkills tiraTambemSobrevivencia tiraTambemCuraComoAtaque adotaSemApagarOAviso; do
+//            tiraTambemSkills tiraTambemSobrevivencia tiraTambemCuraComoAtaque adotaSemApagarOAviso \
+//            tiraTambemRodizioGeral ignoraLigadoEmQualquerNivel ordemNaoConta comparaSoAte5Niveis adotaPelaRevisaoSeguinte; do
 //     RAG_MUTANTE_CONEXAO=$m npx vitest run --config tests/mutantes/conexao-nova-do-bot.config.mjs > m.log 2>&1;
 //     if grep -q "nao casa" m.log; then echo "$m INVALIDO"; elif grep -q "Tests .*failed" m.log; then echo "$m morto"; else echo "$m SOBREVIVEU"; fi; done
 //
@@ -74,6 +78,35 @@ const mutantes = {
 	adotaSemApagarOAviso: [
 		'\t\t\ts.baseRevision = revisao;\n\t\t\ts.mudouNoServidor = false;\n',
 		'\t\t\ts.baseRevision = revisao;\n'
+	],
+	// rodada 4 (mutantes do critico da rodada 3): a comparacao tira uma chave DENTRO de um campo de topo, o rodizio
+	// geral de skills - o nivel ou a skill que o jogador pos no rodizio vira o do outro aparelho sem aviso
+	tiraTambemRodizioGeral: [
+		'return Object.assign({}, config, { armazem: undefined });',
+		'return Object.assign({}, config, { armazem: undefined, skills: Object.assign({}, config.skills, { geral: undefined }) });'
+	],
+	// rodada 4: generaliza o "o servidor forca ligado = false no armazem" e ignora todo interruptor ligado/ligada (o
+	// jogador desliga a coleta, outro aparelho religa, e o rascunho some)
+	ignoraLigadoEmQualquerNivel: [
+		'return Object.assign({}, config, { armazem: undefined });',
+		"return JSON.parse(JSON.stringify(Object.assign({}, config, { armazem: undefined }), (k, v) => (k === 'ligado' || k === 'ligada' ? undefined : v)));"
+	],
+	// rodada 4: a comparacao deixa de ver a ORDEM das listas (rodizio de skills, prioridade de pocao e de suporte): um
+	// "conserto" da normalizacao do servidor que adota em silencio a ordem de outro aparelho
+	ordemNaoConta: [
+		'return Object.assign({}, config, { armazem: undefined });',
+		'return JSON.parse(JSON.stringify(Object.assign({}, config, { armazem: undefined }), (k, v) => (Array.isArray(v) ? v.slice().sort((a, b) => (JSON.stringify(a) < JSON.stringify(b) ? -1 : JSON.stringify(a) > JSON.stringify(b) ? 1 : 0)) : v)));'
+	],
+	// rodada 4: a comparacao so enxerga ate o 5o nivel (o nivel da skill na lista por monstro fica no 6o)
+	comparaSoAte5Niveis: [
+		'return Object.assign({}, config, { armazem: undefined });',
+		"return (function corta(o, d) { if (o === null || typeof o !== 'object') return o; if (d === 0) return Array.isArray(o) ? 'A' : 'O'; const r = Array.isArray(o) ? [] : {}; for (const k of Object.keys(o)) r[k] = corta(o[k], d - 1); return r; })(Object.assign({}, config, { armazem: undefined }), 5);"
+	],
+	// rodada 4: adota tambem quando a revisao e a seguinte a base ("so pode ser o meu Salvar"): a revisao seguinte
+	// pode ser de outro aparelho, e o rascunho some
+	adotaPelaRevisaoSeguinte: [
+		'if (!s.dirty || s.editConfig === null || iguais(semArmazem(s.editConfig), semArmazem(config))) {',
+		'if (!s.dirty || s.editConfig === null || revisao === s.baseRevision + 1 || iguais(semArmazem(s.editConfig), semArmazem(config))) {'
 	]
 };
 const mutante = mutantes[process.env.RAG_MUTANTE_CONEXAO];

@@ -205,19 +205,23 @@ describe('estadoDoBot: o Salvar que o servidor aplicou com a resposta perdida na
 	});
 
 	/*
-	 * SO O ARMAZEM SAI DA COMPARACAO (reprovacao do critico da rodada 2): o terceiro caso de adocao de
+	 * SO O ARMAZEM SAI DA COMPARACAO (reprovacoes do critico das rodadas 2 e 3): o terceiro caso de adocao de
 	 * `aceitarConfigDoServidor` compara o rascunho com a config do servidor SEM o armazem, porque o Salvar nao manda o
-	 * bloco e o servidor grava o padrao no lugar. Se a exclusao alargar (outra secao que saia do menu, uma "limpeza"), o
-	 * rascunho que difere do servidor SO naquele campo seria adotado em silencio: a edicao do jogador some e a config de
-	 * outro aparelho entra sem aviso. A cena e a C4 do critico: o Salvar de A foi APLICADO (revisao 1) com a resposta
-	 * perdida na queda, e depois outro aparelho gravou outro valor num campo (revisao 2). Cada campo de topo da config
-	 * (menos o armazem) e o UNICO que separa o rascunho da config nova, com a diferenca no nivel mais fundo que ele tem.
+	 * bloco e o servidor grava o padrao no lugar. Se a exclusao alargar, o rascunho que difere do servidor SO no que saiu
+	 * da comparacao seria adotado em silencio: a edicao do jogador some e a config de outro aparelho entra sem aviso. O
+	 * alargamento pode ser outro campo de topo, uma chave DENTRO de um campo (o rodizio geral de skills, o tipo de
+	 * postura, os buffs), todo interruptor `ligado`/`ligada`, a ORDEM das listas (o rodizio, a prioridade de pocao e de
+	 * suporte) ou o que fica abaixo de certa profundidade. A rodada 3 tinha um caminho por campo de topo e 12 desses
+	 * alargamentos passavam. A cena e a C4 do critico: o Salvar de A foi APLICADO (revisao 1) com a resposta perdida na
+	 * queda, e depois outro aparelho gravou a revisao 2. Os casos saem de um PASSEIO pela config completa (menos o
+	 * armazem): cada FOLHA trocada sozinha e cada LISTA de 2 ou mais itens invertida sozinha.
 	 */
-	describe('so o armazem sai da comparacao: o rascunho que difere em qualquer outro campo de topo segue avisando', () => {
+	describe('so o armazem sai da comparacao: o rascunho que difere em qualquer folha ou ordem segue avisando', () => {
 		/**
 		 * Todos os campos de topo que o `pedir` devolve, povoados: os de `CONFIG_DO_BOT_PADRAO`
 		 * (`servidor/bot/config-do-bot.ts:288-302`, rag-idle-master) e o `curaComoAtaque` que o `lerConfigDoBot` acrescenta
-		 * (`servidor/mapa/servidor-mapa.ts:45176-45186`). O armazem e o gravado antes de 09/10.
+		 * (`servidor/mapa/servidor-mapa.ts:45176-45186`). O armazem e o gravado antes de 09/10. Cada folha e cada lista
+		 * de 2 ou mais itens daqui vira um caso: campo novo na config entra sozinho no passeio.
 		 */
 		const CONFIG_COMPLETA = {
 			v: 1,
@@ -252,56 +256,120 @@ describe('estadoDoBot: o Salvar que o servidor aplicou com a resposta perdida na
 			curaComoAtaque: false
 		};
 
-		/** [campo de topo, caminho ate o valor mais fundo, o valor que OUTRO aparelho gravou ali]. */
-		const CAMPOS = [
-			// O formato da config: o cliente nao o edita, mas uma config de outro formato tambem nao e o rascunho.
-			['v', ['v'], 2],
-			['cacar', ['cacar'], false],
-			['especiesVetadas', ['especiesVetadas', 1], 1031],
-			['modoDeAtaque', ['modoDeAtaque'], 'apenas-basico'],
-			// O proprio campo do Salvar perdido (21): o outro aparelho gravou 25 por cima.
-			['raioDePercepcao', ['raioDePercepcao'], 25],
-			['skills', ['skills', 'porMonstro', '1002', 'lista', 0, 'nivel'], 5],
-			['sobrevivencia', ['sobrevivencia', 'pocoesHp', 'abaixoDe'], 40],
-			['suporte', ['suporte', 'lista', 1, 'limiar'], 45],
-			['coleta', ['coleta', 'ignorar', 1], 911],
-			['flechas', ['flechas', 'porMonstro', '1002', 'fixa'], 1751],
-			['postura', ['postura', 'fallbackMelee'], true],
-			['consumiveis', ['consumiveis', 'asa', 'hpAbaixoDe'], 25],
-			['curaComoAtaque', ['curaComoAtaque'], true]
-		];
+		/** Fora da comparacao: o armazem e tudo abaixo dele. */
+		const doArmazem = caminho => caminho === 'armazem' || caminho.startsWith('armazem.');
+
+		/**
+		 * O GERADOR DOS CASOS: passeia a config (menos o armazem) e devolve `[rotulo, caminho, tipo]`, um caso por folha
+		 * (`tipo` 'folha') e um por lista de 2 ou mais itens (`tipo` 'ordem'). O caminho usa as chaves como texto (o
+		 * indice da lista tambem), como o `JSON.stringify` as ve.
+		 */
+		function gerarCasos(config) {
+			const casos = [];
+			const passear = (no, caminho) => {
+				if (doArmazem(caminho.join('.'))) return;
+				if (no !== null && typeof no === 'object') {
+					if (Array.isArray(no) && no.length >= 2) casos.push([`${caminho.join('.')} (ordem)`, caminho, 'ordem']);
+					for (const chave of Object.keys(no)) passear(no[chave], [...caminho, chave]);
+					return;
+				}
+				casos.push([caminho.join('.'), caminho, 'folha']);
+			};
+			passear(config, []);
+			return casos;
+		}
+		const CASOS = gerarCasos(CONFIG_COMPLETA);
+
+		/**
+		 * O ORACULO DA COBERTURA, por OUTRO caminho que nao o passeio: o que o `JSON.stringify` serializa, que e
+		 * exatamente o que a comparacao de `estadoDoBot.js` (`iguais`) enxerga. Devolve as folhas (caminho -> valor
+		 * serializado) e as listas e objetos (caminho -> `{lista, tamanho}`).
+		 */
+		function oQueAComparacaoVe(config) {
+			const caminhoDe = new Map();
+			const folhas = new Map();
+			const recipientes = new Map();
+			JSON.stringify(config, function (chave, valor) {
+				// A raiz chega com um embrulho que o `JSON.stringify` cria; o resto chega com o pai ja visto.
+				const caminho = caminhoDe.has(this) ? [...caminhoDe.get(this), chave] : [];
+				if (valor !== null && typeof valor === 'object') {
+					caminhoDe.set(valor, caminho);
+					recipientes.set(caminho.join('.'), { lista: Array.isArray(valor), tamanho: Object.keys(valor).length });
+				} else if (valor !== undefined) {
+					folhas.set(caminho.join('.'), JSON.stringify(valor));
+				}
+				return valor;
+			});
+			return { folhas, recipientes };
+		}
+
+		/** Os caminhos das folhas em que duas configs diferem, fora do armazem. */
+		function folhasDiferentes(a, b) {
+			const fa = oQueAComparacaoVe(a).folhas;
+			const fb = oQueAComparacaoVe(b).folhas;
+			return [...new Set([...fa.keys(), ...fb.keys()])].filter(c => !doArmazem(c) && fa.get(c) !== fb.get(c)).sort();
+		}
+
+		/** O valor que OUTRO aparelho grava na folha: booleano invertido, numero + 1, texto diferente, `null` vira numero. */
+		function outroValor(valor) {
+			if (typeof valor === 'boolean') return !valor;
+			if (typeof valor === 'number') return valor + 1;
+			if (typeof valor === 'string') return `${valor}-outro`;
+			if (valor === null) return 1;
+			throw new Error(`folha de tipo que o caso nao sabe trocar: ${typeof valor}`);
+		}
+
+		const valorEm = (config, caminho) => caminho.reduce((no, passo) => no[passo], config);
 
 		/** Uma copia da config com `valor` no fim do `caminho`. */
 		function comValor(config, caminho, valor) {
 			const copia = JSON.parse(JSON.stringify(config));
-			let no = copia;
-			for (const passo of caminho.slice(0, -1)) {
-				no = no[passo];
-			}
-			no[caminho.at(-1)] = valor;
+			valorEm(copia, caminho.slice(0, -1))[caminho.at(-1)] = valor;
 			return copia;
 		}
 
-		it('os casos cobrem TODO campo de topo da config, menos o armazem (o unico que sai da comparacao)', () => {
-			expect(CAMPOS.map(([campo]) => campo).sort()).toEqual(Object.keys(CONFIG_COMPLETA).filter(k => k !== 'armazem').sort());
-			for (const [campo, caminho] of CAMPOS) {
-				expect(caminho[0]).toBe(campo);
-			}
+		it('o passeio cobre TODA folha e TODA lista de 2 ou mais itens da config, e todo campo de topo menos o armazem', () => {
+			const { folhas, recipientes } = oQueAComparacaoVe(CONFIG_COMPLETA);
+			const dosCasos = tipo => CASOS.filter(caso => caso[2] === tipo).map(([, caminho]) => caminho.join('.'));
+			expect(dosCasos('folha'), 'o passeio pulou folha que a comparacao enxerga').toEqual([...folhas.keys()].filter(c => !doArmazem(c)));
+			const listas = [...recipientes].filter(([c, r]) => !doArmazem(c) && r.lista && r.tamanho >= 2).map(([c]) => c);
+			expect(dosCasos('ordem'), 'o passeio pulou lista que a comparacao enxerga').toEqual(listas);
+			// Lista ou objeto VAZIO nao tem folha nem ordem: nenhum caso o exercitaria. Campo novo entra povoado.
+			const vazios = [...recipientes].filter(([c, r]) => !doArmazem(c) && r.tamanho === 0).map(([c]) => c);
+			expect(vazios, 'recipiente vazio na config de teste: nenhum caso o cobre').toEqual([]);
+			// Todo campo de topo aparece em algum caso; o armazem e o unico que fica de fora.
+			const topos = new Set(CASOS.map(([, caminho]) => caminho[0]));
+			expect(Object.keys(CONFIG_COMPLETA).filter(k => !topos.has(k))).toEqual(['armazem']);
+			// A config de teste nao encolhe: o oraculo do critico da rodada 3 fechou a familia com 57 folhas e 7 listas.
+			expect(dosCasos('folha').length, 'a config de teste perdeu folhas').toBeGreaterThanOrEqual(57);
+			expect(dosCasos('ordem').length, 'a config de teste perdeu listas').toBeGreaterThanOrEqual(7);
 		});
 
-		it.each(CAMPOS)('%s: o rascunho que difere da config nova SO nele (e no armazem) segue com o aviso, intacto e na base velha', (campo, caminho, valor) => {
+		it.each(CASOS)('%s: o rascunho que difere da config nova SO ali (e no armazem) segue com o aviso, intacto e na base velha', (rotulo, caminho, tipo) => {
 			const { e, enviados } = salvarPerdido(CONFIG_COMPLETA);
 			const rascunho = JSON.parse(JSON.stringify(e.estado().editConfig));
-			expect(rascunho.raioDePercepcao).toBe(21);
+			expect(rascunho, 'o rascunho e a config completa com o raio do Salvar perdido').toEqual({ ...CONFIG_COMPLETA, raioDePercepcao: 21 });
 			expect(rascunho.armazem).toEqual(ARMAZEM_ANTIGO);
-			// Revisao 2: o rascunho de A (aplicado na revisao 1) com outro valor no campo, e o armazem que o servidor gravou.
-			const doServidor = { ...comValor(rascunho, caminho, valor), armazem: ARMAZEM_PADRAO };
-			const diferentes = Object.keys(doServidor).filter(k => JSON.stringify(doServidor[k]) !== JSON.stringify(rascunho[k]));
-			expect(diferentes.sort(), 'o caso tem de separar o rascunho do servidor num campo so, mais o armazem').toEqual([campo, 'armazem'].sort());
+			// Revisao 2: o rascunho de A (aplicado na revisao 1) com a folha trocada ou a lista invertida por outro
+			// aparelho, e o armazem que o servidor gravou no lugar do antigo.
+			const atual = valorEm(rascunho, caminho);
+			const novo = tipo === 'ordem' ? atual.slice().reverse() : outroValor(atual);
+			const doServidor = { ...comValor(rascunho, caminho, novo), armazem: ARMAZEM_PADRAO };
+			// O caso bem formado: fora do armazem, so aquela folha muda (ou so as folhas daquela lista, invertida).
+			const diferentes = folhasDiferentes(rascunho, doServidor);
+			if (tipo === 'folha') {
+				expect(diferentes, 'o caso tem de separar o rascunho do servidor numa folha so').toEqual([caminho.join('.')]);
+			} else {
+				expect(diferentes.length, 'a lista invertida e igual a original: o caso nao separa nada').toBeGreaterThan(0);
+				expect(diferentes.filter(c => !c.startsWith(`${caminho.join('.')}.`)), 'o caso mudou algo fora da lista').toEqual([]);
+			}
+			const topos = Object.keys(doServidor).filter(k => JSON.stringify(doServidor[k]) !== JSON.stringify(rascunho[k]));
+			expect(topos.sort(), 'o caso tem de separar o rascunho do servidor num campo de topo so, mais o armazem').toEqual([caminho[0], 'armazem'].sort());
 			e.receber(pacote({ tipo: 'resposta', requestId: e.pedirEstado(), revisao: 2, config: doServidor, statusRevision: 1 }), 7);
-			expect(e.estado().mudouNoServidor, `o rascunho que difere do servidor em "${campo}" foi adotado sem aviso`).toBe(true);
+			expect(e.estado().mudouNoServidor, `o rascunho que difere do servidor em "${rotulo}" foi adotado sem aviso`).toBe(true);
 			expect(e.estado().dirty).toBe(true);
-			expect(e.estado().editConfig, `a edicao do jogador sumiu: "${campo}" do outro aparelho entrou no rascunho`).toEqual(rascunho);
+			expect(e.estado().editConfig, `a edicao do jogador sumiu: "${rotulo}" do outro aparelho entrou no rascunho`).toEqual(rascunho);
+			expect(e.estado().editConfig.armazem, 'o armazem do rascunho virou o do servidor').toEqual(ARMAZEM_ANTIGO);
 			expect(e.estado().baseRevision, 'a base andou: o Salvar seguinte gravaria por cima do outro aparelho').toBe(0);
 			expect(e.estado().serverConfig).toEqual(doServidor);
 			// O Salvar seguinte vai com a base velha: o servidor responde o conflito de revisao VERDADEIRO.
