@@ -112,7 +112,7 @@ function onWhisperSettingResult(pkt) {
 	}
 
 	const msg = DB.getMessage(193 + pkt.type * 3 + pkt.result);
-	ChatBox.addText(ChatBox.PrivateMessageStorage.blockNick + msg, ChatBox.TYPE.PRIVATE, ChatBox.FILTER.WHISPER);
+	ChatBox.addText(`${ChatBox.PrivateMessageStorage.blockNick}${msg}`, ChatBox.TYPE.PRIVATE, ChatBox.FILTER.WHISPER);
 }
 
 /**
