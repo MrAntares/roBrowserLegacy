@@ -216,9 +216,6 @@ function onPetInformationUpdate(pkt) {
 
 	switch (pkt.type) {
 		case 0: // know what our pet is //PET_PRE_INIT
-			if (Session.petId !== pkt.GID) {
-				Session.pet.name = '';
-			}
 			Session.petId = pkt.GID; // should we delete it later ?
 			Session.pet.GID = pkt.GID;
 			Session.pet.job = entity._job;

@@ -137,15 +137,16 @@ describe('a pet talking in chat', () => {
 		expect(mocks.chat.mock.calls[0][0]).toBe('Pochi : Woof!');
 	});
 
-	it('does not give a newly hatched pet the previous pet\'s name', () => {
+	it('keeps a new pet\'s name announced before its ownership update', () => {
 		Session.petId = 700000;
 		Session.pet.name = 'Pochi';
 		mocks.entities[700001] = makeEntity(700001, '');
 
+		deliver(PACKET.ZC.PROPERTY_PET, { szName: 'Luna', job: 1002, nLevel: 1, nFullness: 50, nRelationship: 1000 });
 		deliver(PACKET.ZC.CHANGESTATE_PET, { type: 0, GID: 700001, data: 0 });
 		deliverPetTalk(700001);
 
-		expect(mocks.chat).not.toHaveBeenCalled();
+		expect(mocks.chat.mock.calls[0][0]).toBe('Luna : Woof!');
 	});
 
 	// Other players' pets never receive PROPERTY_PET (it is sent SELF-only by
