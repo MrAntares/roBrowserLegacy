@@ -13,6 +13,10 @@
 // Rodada 4 (reprovacao do critico da rodada 3): o mesmo alargamento abaixo do topo - uma chave DENTRO de um campo (o
 // rodizio geral de skills), todo interruptor `ligado`/`ligada`, a ORDEM das listas e o que fica abaixo do 5o nivel - e
 // a adocao pela revisao seguinte a base ("so pode ser o meu Salvar"). Os testes passeiam toda folha e toda lista.
+// Rodada 5 (reprovacao do critico da rodada 4): a comparacao PARCIAL (o rascunho que cabe no servidor, ou o servidor
+// que cabe no rascunho) e a folha e as duas ordens que so a config REAL tinha (o `ativa` da entrada de suporte, a
+// lista por monstro e as pocoes de SP), mais a adocao do eco que nada mudou. Os testes poem e tiram item e chave em
+// todo recipiente, numa config com toda forma que o servidor grava.
 //
 //   RAG_MUTANTE_CONEXAO=<nome> npx vitest run --config tests/mutantes/conexao-nova-do-bot.config.mjs
 //
@@ -20,7 +24,9 @@
 //   for m in semZerarRevisao semSoltarEmVoo semSoltarOnOff semSoltarAplicar semSoltarLigarAposAplicar semSoltarPerfil \
 //            semAdotarRascunhoIgual comparaComArmazem adotaRascunhoDiferente \
 //            tiraTambemSkills tiraTambemSobrevivencia tiraTambemCuraComoAtaque adotaSemApagarOAviso \
-//            tiraTambemRodizioGeral ignoraLigadoEmQualquerNivel ordemNaoConta comparaSoAte5Niveis adotaPelaRevisaoSeguinte; do
+//            tiraTambemRodizioGeral ignoraLigadoEmQualquerNivel ordemNaoConta comparaSoAte5Niveis adotaPelaRevisaoSeguinte \
+//            rascunhoContidoNoServidor servidorContidoNoRascunho ignoraAtivaDoSuporte \
+//            ordemNaoContaNaListaPorMonstro ordemNaoContaNasPocoesDeSp adotaQuandoNaoMudou; do
 //     RAG_MUTANTE_CONEXAO=$m npx vitest run --config tests/mutantes/conexao-nova-do-bot.config.mjs > m.log 2>&1;
 //     if grep -q "nao casa" m.log; then echo "$m INVALIDO"; elif grep -q "Tests .*failed" m.log; then echo "$m morto"; else echo "$m SOBREVIVEU"; fi; done
 //
@@ -29,6 +35,11 @@
 import base from '../../vite.config.js';
 
 const ALVO = 'src/UI/Components/BotMenu/estadoDoBot.js';
+// Rodada 5: a comparacao PARCIAL (toda folha de `a` bate com a de `b`; o que so `b` tem nao conta) e a lista ordenada
+// (a ordem deixa de contar), as trocas de `wt-bugs-13-10/prints/o/r4/zz-critico-o-r4.config.mjs`.
+const CABE =
+	"(function cabe(a, b) { if (a === null || typeof a !== 'object') return a === b; if (b === null || typeof b !== 'object') return false; return Object.keys(a).every(k => cabe(a[k], b[k])); })";
+const ORDENA = 'v.slice().sort((a, b) => (JSON.stringify(a) < JSON.stringify(b) ? -1 : JSON.stringify(a) > JSON.stringify(b) ? 1 : 0))';
 
 const mutantes = {
 	// a conexao nova nao zera a linha de base (o executor novo do servidor recomeca do zero e tudo conta como velho)
@@ -107,6 +118,43 @@ const mutantes = {
 	adotaPelaRevisaoSeguinte: [
 		'if (!s.dirty || s.editConfig === null || iguais(semArmazem(s.editConfig), semArmazem(config))) {',
 		'if (!s.dirty || s.editConfig === null || revisao === s.baseRevision + 1 || iguais(semArmazem(s.editConfig), semArmazem(config))) {'
+	],
+	// rodada 5 (mutantes do critico da rodada 4): a comparacao PARCIAL, o idioma do `isMatch` e do `toMatchObject` -
+	// adota quando toda folha do RASCUNHO bate com o servidor (o que so o servidor tem nao conta): o desvetar, o tirar
+	// skill do rodizio, o "voltar para a Geral" e o religar do suporte somem sem aviso
+	rascunhoContidoNoServidor: [
+		'iguais(semArmazem(s.editConfig), semArmazem(config))) {',
+		`${CABE}(semArmazem(s.editConfig), semArmazem(config))) {`
+	],
+	// rodada 5: o contrario - adota quando toda folha do SERVIDOR bate com o rascunho (o que so o rascunho tem nao
+	// conta): o vetar, o por skill no rodizio e o desligar do suporte somem sem aviso
+	servidorContidoNoRascunho: [
+		'iguais(semArmazem(s.editConfig), semArmazem(config))) {',
+		`${CABE}(semArmazem(config), semArmazem(s.editConfig))) {`
+	],
+	// rodada 5 (o `sub:suporte.ativa` do critico): a comparacao ignora o `ativa` da entrada de suporte, por exemplo um
+	// "conserto" da normalizacao do servidor, que so grava o `false` (config-do-bot.ts:512, rag-idle-master): o buff
+	// que o jogador desligou volta a ser conjurado, sem aviso
+	ignoraAtivaDoSuporte: [
+		'return Object.assign({}, config, { armazem: undefined });',
+		"return JSON.parse(JSON.stringify(Object.assign({}, config, { armazem: undefined }), function (k, v) { return k === 'ativa' && this && typeof this === 'object' && 'gatilho' in this ? undefined : v; }));"
+	],
+	// rodada 5: a ORDEM da lista por monstro nao conta (a prioridade do rodizio daquele monstro, `moverSkill` com
+	// escopo de especie, edicaoDeSkills.js:54)
+	ordemNaoContaNaListaPorMonstro: [
+		'return Object.assign({}, config, { armazem: undefined });',
+		`return JSON.parse(JSON.stringify(Object.assign({}, config, { armazem: undefined }), function (k, v) { return k === 'lista' && Array.isArray(v) && this && 'herdar' in this ? ${ORDENA} : v; }));`
+	],
+	// rodada 5: a ORDEM das pocoes de SP nao conta (a preferencia, `moverPocao(config, 'sp', ...)`,
+	// edicaoDeManutencao.js:113): a pocao errada e bebida primeiro
+	ordemNaoContaNasPocoesDeSp: [
+		'return Object.assign({}, config, { armazem: undefined });',
+		"return JSON.parse(JSON.stringify(Object.assign({}, config, { armazem: undefined }), (k, v) => (k === 'pocoesSp' && v && Array.isArray(v.itens) ? Object.assign({}, v, { itens: v.itens.slice().sort((a, b) => a - b) }) : v)));"
+	],
+	// rodada 5: adota tambem quando nada mudou (mesma revisao, mesma config): o eco do status apagaria o rascunho
+	adotaQuandoNaoMudou: [
+		'iguais(semArmazem(s.editConfig), semArmazem(config))) {',
+		'!mudou || iguais(semArmazem(s.editConfig), semArmazem(config))) {'
 	]
 };
 const mutante = mutantes[process.env.RAG_MUTANTE_CONEXAO];
