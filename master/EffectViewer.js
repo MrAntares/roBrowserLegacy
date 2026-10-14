@@ -208433,7 +208433,7 @@ var init_Models = __esmMin((() => {
 //#region src/Renderer/Map/AnimatedModels.vs?raw
 var AnimatedModels_default$2;
 var init_AnimatedModels$2 = __esmMin((() => {
-	AnimatedModels_default$2 = "#version 300 es  \r\nprecision highp float;  \r\n  \r\nin vec3 aPosition;  \r\nin vec3 aNormal;  \r\nin vec2 aTextureCoord;  \r\nin float aAlpha;  \r\n  \r\nout vec2 vTextureCoord;  \r\nout float vLightWeighting;  \r\nout float vAlpha;  \r\nout float vFogFactor;  \r\nout vec3 vWorldPos;\r\n  \r\nuniform mat4 uModelViewMat;  \r\nuniform mat4 uProjectionMat;  \r\nuniform mat3 uNormalMat;  \r\n  \r\nuniform vec3 uLightDirection;  \r\nuniform float uLightOpacity;  \r\nuniform vec3 uLightAmbient;  \r\nuniform vec3 uLightDiffuse;  \r\n  \r\nuniform bool uFogUse;  \r\nuniform float uFogNear;  \r\nuniform float uFogFar;  \r\n  \r\nvoid main(void) {  \r\n    vec4 position = uModelViewMat * vec4(aPosition, 1.0);  \r\n    gl_Position = uProjectionMat * position;  \r\n  \r\n    vTextureCoord = aTextureCoord;  \r\n    vAlpha = aAlpha;  \r\n    vWorldPos = aPosition;\r\n  \r\n    vec3 normal = normalize(aNormal);  \r\n    float lightWeight = max(dot(normal, uLightDirection), 0.0);  \r\n    vLightWeighting = (1.0 - uLightOpacity) + lightWeight * uLightOpacity;  \r\n  \r\n    if (uFogUse) {  \r\n        float depth = length(position.xyz);  \r\n        vFogFactor = clamp((uFogFar - depth) / (uFogFar - uFogNear), 0.0, 1.0);  \r\n    } else {  \r\n        vFogFactor = 1.0;  \r\n    }  \r\n}";
+	AnimatedModels_default$2 = "#version 300 es  \r\nprecision highp float;  \r\n  \r\nin vec3 aPosition;  \r\nin vec3 aNormal;  \r\nin vec2 aTextureCoord;  \r\nin float aAlpha;  \r\nin float aMatrixIndex;  \r\n  \r\nout vec2 vTextureCoord;  \r\nout float vLightWeighting;  \r\nout float vAlpha;  \r\nout float vFogFactor;  \r\nout vec3 vWorldPos;  \r\n  \r\nuniform mat4 uModelViewMat;  \r\nuniform mat4 uProjectionMat;  \r\nuniform mat3 uNormalMat;  \r\n  \r\nuniform vec3 uLightDirection;  \r\nuniform float uLightOpacity;  \r\nuniform vec3 uLightAmbient;  \r\nuniform vec3 uLightDiffuse;  \r\n  \r\nuniform bool uFogUse;  \r\nuniform float uFogNear;  \r\nuniform float uFogFar;  \r\n  \r\nuniform highp sampler2D uMatrixTexture;  \r\n  \r\nmat4 fetchMatrix(int index) {  \r\n    int pixelIndex = index * 4;  \r\n    vec4 row0 = texelFetch(uMatrixTexture, ivec2(pixelIndex, 0), 0);  \r\n    vec4 row1 = texelFetch(uMatrixTexture, ivec2(pixelIndex + 1, 0), 0);  \r\n    vec4 row2 = texelFetch(uMatrixTexture, ivec2(pixelIndex + 2, 0), 0);  \r\n    vec4 row3 = texelFetch(uMatrixTexture, ivec2(pixelIndex + 3, 0), 0);  \r\n    return mat4(row0, row1, row2, row3);  \r\n}  \r\n  \r\nvoid main(void) {  \r\n    mat4 M = fetchMatrix(int(aMatrixIndex));  \r\n    vec4 worldPos = M * vec4(aPosition, 1.0);  \r\n    vec4 position = uModelViewMat * worldPos;  \r\n    gl_Position = uProjectionMat * position;  \r\n  \r\n    vTextureCoord = aTextureCoord;  \r\n    vAlpha = aAlpha;  \r\n    vWorldPos = worldPos.xyz;  \r\n  \r\n    vec3 c0 = normalize(M[0].xyz);  \r\n    vec3 c1 = normalize(M[1].xyz);  \r\n    vec3 c2 = normalize(M[2].xyz);  \r\n    mat3 rotMat = mat3(c0, c1, c2);  \r\n    vec3 normal = normalize(rotMat * aNormal);  \r\n  \r\n    float lightWeight = max(dot(normal, uLightDirection), 0.0);  \r\n    vLightWeighting = (1.0 - uLightOpacity) + lightWeight * uLightOpacity;  \r\n  \r\n    if (uFogUse) {  \r\n        float depth = length(position.xyz);  \r\n        vFogFactor = clamp((uFogFar - depth) / (uFogFar - uFogNear), 0.0, 1.0);  \r\n    } else {  \r\n        vFogFactor = 1.0;  \r\n    }  \r\n}";
 }));
 //#endregion
 //#region src/Renderer/Map/AnimatedModels.fs?raw
@@ -208462,6 +208462,7 @@ function init$9(gl) {
 		uFogFar: gl.getUniformLocation(_program$22, "uFogFar"),
 		uFogColor: gl.getUniformLocation(_program$22, "uFogColor"),
 		uDiffuse: gl.getUniformLocation(_program$22, "uDiffuse"),
+		uMatrixTexture: gl.getUniformLocation(_program$22, "uMatrixTexture"),
 		uOccluderFadeMode: gl.getUniformLocation(_program$22, "uOccluderFadeMode"),
 		uOccluderFadeEye: gl.getUniformLocation(_program$22, "uOccluderFadeEye"),
 		uOccluderFadeFocus: gl.getUniformLocation(_program$22, "uOccluderFadeFocus"),
@@ -208473,7 +208474,8 @@ function init$9(gl) {
 		aPosition: gl.getAttribLocation(_program$22, "aPosition"),
 		aNormal: gl.getAttribLocation(_program$22, "aNormal"),
 		aTextureCoord: gl.getAttribLocation(_program$22, "aTextureCoord"),
-		aAlpha: gl.getAttribLocation(_program$22, "aAlpha")
+		aAlpha: gl.getAttribLocation(_program$22, "aAlpha"),
+		aMatrixIndex: gl.getAttribLocation(_program$22, "aMatrixIndex")
 	};
 }
 /**
@@ -208484,9 +208486,90 @@ function free$4(gl) {
 		const model = _animatedModels[i];
 		if (model.vao) gl.deleteVertexArray(model.vao);
 		if (model.buffer) gl.deleteBuffer(model.buffer);
+		if (model.matrixTexture) gl.deleteTexture(model.matrixTexture);
 		for (const tex in model.textureObjects) if (model.textureObjects[tex]) gl.deleteTexture(model.textureObjects[tex]);
 	}
 	_animatedModels = [];
+}
+/**
+* Precompute face flat normals in node model-space
+*/
+function precalcFlatNormals(node) {
+	const faces = node.faces;
+	const vertices = node.vertices;
+	const normals = new Float32Array(faces.length * 3);
+	for (let f = 0; f < faces.length; f++) {
+		const face = faces[f];
+		const v0 = vertices[face.vertidx[0]];
+		const v1 = vertices[face.vertidx[1]];
+		const v2 = vertices[face.vertidx[2]];
+		const ax = v1[0] - v0[0];
+		const ay = v1[1] - v0[1];
+		const az = v1[2] - v0[2];
+		const bx = v2[0] - v0[0];
+		const by = v2[1] - v0[1];
+		const bz = v2[2] - v0[2];
+		let nx = ay * bz - az * by;
+		let ny = az * bx - ax * bz;
+		let nz = ax * by - ay * bx;
+		let len = nx * nx + ny * ny + nz * nz;
+		if (len > 0) {
+			len = 1 / Math.sqrt(len);
+			nx *= len;
+			ny *= len;
+			nz *= len;
+		}
+		const base = f * 3;
+		normals[base] = nx;
+		normals[base + 1] = ny;
+		normals[base + 2] = nz;
+	}
+	return normals;
+}
+/**
+* Precompute smooth normals per smoothGroup in node model-space
+*/
+function precalcSmoothNormals(node, flatNormals) {
+	const faces = node.faces;
+	const vertices = node.vertices;
+	const groupUsed = [];
+	for (let f = 0; f < faces.length; f++) {
+		const sg = faces[f].smoothGroup;
+		if (sg !== void 0 && sg >= 0 && sg < 32) groupUsed[sg] = true;
+	}
+	const groups = [];
+	const numVerts = vertices.length;
+	for (let j = 0; j < 32; j++) {
+		if (!groupUsed[j]) continue;
+		const norm = new Float32Array(numVerts * 3);
+		groups[j] = norm;
+		for (let v = 0; v < numVerts; v++) {
+			let x = 0;
+			let y = 0;
+			let z = 0;
+			for (let f = 0; f < faces.length; f++) {
+				const face = faces[f];
+				if (face.smoothGroup === j && (face.vertidx[0] === v || face.vertidx[1] === v || face.vertidx[2] === v)) {
+					const base = f * 3;
+					x += flatNormals[base];
+					y += flatNormals[base + 1];
+					z += flatNormals[base + 2];
+				}
+			}
+			let len = x * x + y * y + z * z;
+			if (len > 0) {
+				len = 1 / Math.sqrt(len);
+				x *= len;
+				y *= len;
+				z *= len;
+			}
+			const l = v * 3;
+			norm[l] = x;
+			norm[l + 1] = y;
+			norm[l + 2] = z;
+		}
+	}
+	return groups;
 }
 function isNodeStatic(node) {
 	return (!node.rotKeyframes || node.rotKeyframes.length === 0) && (!node.posKeyframes || node.posKeyframes.length === 0) && (!node.scaleKeyFrames || node.scaleKeyFrames.length === 0);
@@ -208575,6 +208658,11 @@ function add$2(gl, modelData) {
 	}
 	for (let n = 0; n < nodes.length; n++) {
 		const node = nodes[n];
+		node._flatNormals = precalcFlatNormals(node);
+		if (modelData.shadeType === 2) node._smoothGroups = precalcSmoothNormals(node, node._flatNormals);
+	}
+	for (let n = 0; n < nodes.length; n++) {
+		const node = nodes[n];
 		const facesPerTex = {};
 		for (let f = 0; f < node.faces.length; f++) {
 			const tid = node.textures[node.faces[f].texid];
@@ -208588,12 +208676,11 @@ function add$2(gl, modelData) {
 			};
 			for (let inst = 0; inst < instances.length; inst++) {
 				const vertCount = facesPerTex[tid] * 3;
-				const floatCount = vertCount * 9;
+				const floatCount = vertCount * 10;
 				textureGroups[tid].writePlan.push({
 					nodeIndex: n,
 					instanceIndex: inst,
 					faceCount: facesPerTex[tid],
-					startFaceIndex: 0,
 					targetOffset: 0
 				});
 				textureGroups[tid].count += vertCount;
@@ -208609,14 +208696,36 @@ function add$2(gl, modelData) {
 		for (let wp = 0; wp < group.writePlan.length; wp++) {
 			const plan = group.writePlan[wp];
 			plan.targetOffset = currentOffset;
-			currentOffset += plan.faceCount * 3 * 9;
+			currentOffset += plan.faceCount * 3 * 10;
 		}
 		meshInfos.push({
 			textureIdx: parseInt(tid),
-			vertOffset: startOffset / 9,
-			vertCount: (currentOffset - startOffset) / 9
+			vertOffset: startOffset / 10,
+			vertCount: (currentOffset - startOffset) / 10
 		});
 	}
+	const staticBuffer = new Float32Array(totalFloats);
+	const numInstances = instances.length;
+	for (const tid in textureGroups) {
+		const plans = textureGroups[tid].writePlan;
+		const textureId = parseInt(tid);
+		for (let p = 0; p < plans.length; p++) {
+			const plan = plans[p];
+			const node = nodes[plan.nodeIndex];
+			const matrixIndex = plan.nodeIndex * numInstances + plan.instanceIndex;
+			writeNodeGeometry(node, textureId, plan.targetOffset, staticBuffer, modelData.alpha, matrixIndex, modelData.shadeType);
+		}
+	}
+	const totalMatrices = nodes.length * numInstances;
+	const matrixData = new Float32Array(totalMatrices * 16);
+	const matrixTexture = gl.createTexture();
+	gl.bindTexture(gl.TEXTURE_2D, matrixTexture);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, totalMatrices * 4, 1, 0, gl.RGBA, gl.FLOAT, matrixData);
+	gl.bindTexture(gl.TEXTURE_2D, null);
 	const animModel = {
 		filename: modelData.filename,
 		animLen,
@@ -208635,9 +208744,10 @@ function add$2(gl, modelData) {
 		},
 		textureObjects: {},
 		buffer: gl.createBuffer(),
-		_gpuBuffer: new Float32Array(totalFloats),
+		matrixTexture,
+		matrixData,
+		totalMatrices,
 		meshInfos,
-		writePlans: textureGroups,
 		lastFrame: -1,
 		lastAnimFrame: -1,
 		staticModel: !hasAnyAnimation,
@@ -208649,13 +208759,13 @@ function add$2(gl, modelData) {
 		animModel._globalMatrices[n] = mat4$20.create();
 	}
 	gl.bindBuffer(gl.ARRAY_BUFFER, animModel.buffer);
-	gl.bufferData(gl.ARRAY_BUFFER, animModel._gpuBuffer.byteLength, gl.DYNAMIC_DRAW);
+	gl.bufferData(gl.ARRAY_BUFFER, staticBuffer, gl.STATIC_DRAW);
 	for (let t = 0; t < modelData.textures.length; t++) loadTexture$1(gl, animModel, "data\\texture\\" + modelData.textures[t], t);
 	animModel.vao = gl.createVertexArray();
 	gl.bindVertexArray(animModel.vao);
 	gl.bindBuffer(gl.ARRAY_BUFFER, animModel.buffer);
 	const attribute = _program$22.attribute;
-	const stride = 36;
+	const stride = 40;
 	gl.enableVertexAttribArray(attribute.aPosition);
 	gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, stride, 0);
 	gl.enableVertexAttribArray(attribute.aNormal);
@@ -208664,6 +208774,8 @@ function add$2(gl, modelData) {
 	gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, stride, 24);
 	gl.enableVertexAttribArray(attribute.aAlpha);
 	gl.vertexAttribPointer(attribute.aAlpha, 1, gl.FLOAT, false, stride, 32);
+	gl.enableVertexAttribArray(attribute.aMatrixIndex);
+	gl.vertexAttribPointer(attribute.aMatrixIndex, 1, gl.FLOAT, false, stride, 36);
 	gl.bindVertexArray(null);
 	_animatedModels.push(animModel);
 	updateModelBuffer(gl, animModel, 0, true);
@@ -208728,59 +208840,51 @@ function getScaleAtFrame$2(keyframes, frame, out) {
 	return vec3$5.lerp(out, prev._vec, next._vec, t);
 }
 /**
-* Transform a specific node's geometry for a specific texture and instance
-* Writes directly to the monolithic buffer
+* Write static geometry (model space positions, precomputed normals, UVs, alpha, matrixIndex)
 */
-function transformAndWrite(node, finalMatrix, textureId, offset, buffer, alpha) {
-	const normalMat = node._cache.normalMat || mat4$20.create();
-	node._cache.normalMat = normalMat;
-	mat4$20.extractRotation(normalMat, finalMatrix);
-	const m = finalMatrix;
-	const n = normalMat;
-	const m0 = m[0], m1 = m[1], m2 = m[2], m4 = m[4], m5 = m[5], m6 = m[6], m8 = m[8], m9 = m[9], m10 = m[10], m12 = m[12], m13 = m[13], m14 = m[14];
-	const n0 = n[0], n1 = n[1], n2 = n[2], n4 = n[4], n5 = n[5], n6 = n[6], n8 = n[8], n9 = n[9], n10 = n[10];
+function writeNodeGeometry(node, textureId, offset, buffer, alpha, matrixIndex, shadeType) {
 	const faces = node.faces;
 	const vertices = node.vertices;
 	const tvertices = node.tvertices;
 	const textures = node.textures;
-	const output = buffer;
+	const flatNormals = node._flatNormals;
+	const smoothGroups = node._smoothGroups;
+	const isSmooth = shadeType === 2 && smoothGroups;
 	let o = offset;
 	for (let f = 0; f < faces.length; f++) {
 		const face = faces[f];
 		if (textures[face.texid] !== textureId) continue;
-		const v0 = vertices[face.vertidx[0]];
-		const v1 = vertices[face.vertidx[1]];
-		const v2 = vertices[face.vertidx[2]];
-		const ax = v1[0] - v0[0], ay = v1[1] - v0[1], az = v1[2] - v0[2];
-		const bx = v2[0] - v0[0], by = v2[1] - v0[1], bz = v2[2] - v0[2];
-		let nx = ay * bz - az * by;
-		let ny = az * bx - ax * bz;
-		let nz = ax * by - ay * bx;
-		let len = nx * nx + ny * ny + nz * nz;
-		if (len > 0) {
-			len = 1 / Math.sqrt(len);
-			nx *= len;
-			ny *= len;
-			nz *= len;
+		let fnx = 0;
+		let fny = 0;
+		let fnz = 0;
+		let smoothNorm = null;
+		if (isSmooth && face.smoothGroup !== void 0 && smoothGroups[face.smoothGroup]) smoothNorm = smoothGroups[face.smoothGroup];
+		else {
+			const fBase = f * 3;
+			fnx = flatNormals[fBase];
+			fny = flatNormals[fBase + 1];
+			fnz = flatNormals[fBase + 2];
 		}
-		const tnx = n0 * nx + n4 * ny + n8 * nz;
-		const tny = n1 * nx + n5 * ny + n9 * nz;
-		const tnz = n2 * nx + n6 * ny + n10 * nz;
 		for (let vi = 0; vi < 3; vi++) {
 			const vIdx = face.vertidx[vi];
 			const tIdx = face.tvertidx[vi];
-			const vx = vertices[vIdx][0];
-			const vy = vertices[vIdx][1];
-			const vz = vertices[vIdx][2];
-			output[o++] = m0 * vx + m4 * vy + m8 * vz + m12;
-			output[o++] = m1 * vx + m5 * vy + m9 * vz + m13;
-			output[o++] = m2 * vx + m6 * vy + m10 * vz + m14;
-			output[o++] = tnx;
-			output[o++] = tny;
-			output[o++] = tnz;
-			output[o++] = tvertices[tIdx * 6 + 4];
-			output[o++] = tvertices[tIdx * 6 + 5];
-			output[o++] = alpha;
+			buffer[o++] = vertices[vIdx][0];
+			buffer[o++] = vertices[vIdx][1];
+			buffer[o++] = vertices[vIdx][2];
+			if (smoothNorm) {
+				const nBase = vIdx * 3;
+				buffer[o++] = smoothNorm[nBase];
+				buffer[o++] = smoothNorm[nBase + 1];
+				buffer[o++] = smoothNorm[nBase + 2];
+			} else {
+				buffer[o++] = fnx;
+				buffer[o++] = fny;
+				buffer[o++] = fnz;
+			}
+			buffer[o++] = tvertices[tIdx * 6 + 4];
+			buffer[o++] = tvertices[tIdx * 6 + 5];
+			buffer[o++] = alpha;
+			buffer[o++] = matrixIndex;
 		}
 	}
 }
@@ -208828,24 +208932,20 @@ function updateModelBuffer(gl, model, frame, force) {
 		mat4$20.multiply(finalNodeMatrix, finalNodeMatrix, mat3$4.toMat4(node.mat3));
 		node.finalMatrix = finalNodeMatrix;
 	}
+	const matrixData = model.matrixData;
+	const numInstances = model.instances.length;
 	for (let n = 0; n < model.nodes.length; n++) {
 		const node = model.nodes[n];
-		for (let i = 0; i < model.instances.length; i++) mat4$20.multiply(node._cache.instances[i], model.instances[i], node.finalMatrix);
-	}
-	const buffer = model._gpuBuffer;
-	const writePlans = model.writePlans;
-	for (const tid in writePlans) {
-		const plans = writePlans[tid].writePlan;
-		const textureId = parseInt(tid);
-		for (let p = 0; p < plans.length; p++) {
-			const plan = plans[p];
-			const node = model.nodes[plan.nodeIndex];
-			const finalInstanceMatrix = node._cache.instances[plan.instanceIndex];
-			transformAndWrite(node, finalInstanceMatrix, textureId, plan.targetOffset, buffer, model.alpha);
+		for (let i = 0; i < numInstances; i++) {
+			const destMat = node._cache.instances[i];
+			mat4$20.multiply(destMat, model.instances[i], node.finalMatrix);
+			const matrixIndex = n * numInstances + i;
+			matrixData.set(destMat, matrixIndex * 16);
 		}
 	}
-	gl.bindBuffer(gl.ARRAY_BUFFER, model.buffer);
-	gl.bufferSubData(gl.ARRAY_BUFFER, 0, buffer);
+	gl.bindTexture(gl.TEXTURE_2D, model.matrixTexture);
+	gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, model.totalMatrices * 4, 1, gl.RGBA, gl.FLOAT, matrixData);
+	gl.bindTexture(gl.TEXTURE_2D, null);
 }
 /**
 * Bind program and per-frame uniforms shared by both model passes
@@ -208867,6 +208967,8 @@ function bind(gl, modelView, projection, normalMat, fog, light) {
 	gl.uniform3fv(uniform.uFogColor, fog.color);
 	gl.activeTexture(gl.TEXTURE0);
 	gl.uniform1i(uniform.uDiffuse, 0);
+	gl.activeTexture(gl.TEXTURE1);
+	gl.uniform1i(uniform.uMatrixTexture, 1);
 }
 /**
 * Issue the draw calls for every animated model
@@ -208875,6 +208977,9 @@ function drawModels(gl) {
 	for (let m = 0; m < _animatedModels.length; m++) {
 		const model = _animatedModels[m];
 		if (!model.buffer || model.meshInfos.length === 0) continue;
+		gl.activeTexture(gl.TEXTURE1);
+		gl.bindTexture(gl.TEXTURE_2D, model.matrixTexture);
+		gl.activeTexture(gl.TEXTURE0);
 		gl.bindVertexArray(model.vao);
 		for (let i = 0; i < model.meshInfos.length; i++) {
 			const info = model.meshInfos[i];
