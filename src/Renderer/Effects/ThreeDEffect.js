@@ -415,11 +415,13 @@ class ThreeDEffect {
 			return;
 		} //not yet
 
-		if (this.blendMode > 0 && this.blendMode < 16) {
-			gl.blendFunc(gl.SRC_ALPHA, blendMode[this.blendMode]);
-		} else {
-			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-		}
+		// Blend mode forwarded to the batcher via SpriteRenderer.render(blendDst).
+		// Direct gl.blendFunc here would desync the batcher: the draw is deferred
+		// to flush(), so only the GLenum passed per-sprite controls actual blend.
+		// blendMode[] is indexed 1..15 (populated in init()); out-of-range → default.
+		const blendDst = (this.blendMode > 0 && this.blendMode < 16)
+			? blendMode[this.blendMode]
+			: undefined; // undefined → batcher uses ONE_MINUS_SRC_ALPHA
 
 		const start = tick - this.startTick;
 		const end = this.endTick - this.startTick;
@@ -740,7 +742,7 @@ class ThreeDEffect {
 
 				// default true, false, false
 				SpriteRenderer.runWithDepth(this.overlay === false, false, this.overlay === true, () => {
-					SpriteRenderer.render();
+					SpriteRenderer.render(blendDst);
 				});
 
 				++i;
@@ -748,7 +750,7 @@ class ThreeDEffect {
 		} else {
 			// default true, false, false
 			SpriteRenderer.runWithDepth(this.overlay === false, false, this.overlay === true, () => {
-				SpriteRenderer.render();
+				SpriteRenderer.render(blendDst);
 			});
 		}
 
@@ -798,7 +800,8 @@ class ThreeDEffect {
 	}
 
 	static afterRender(gl) {
-		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+		// No manual blendFunc reset: the batcher always emits blendFunc on flush,
+		// so afterRender does not need to restore blend state.
 		SpriteRenderer.unbind(gl);
 	}
 }

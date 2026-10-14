@@ -36,6 +36,8 @@ export const FLAG_DISABLE_DEPTH_CORRECTION = 1 << 2;
 export const FLAG_IGNORE_ZINDEX_CAP = 1 << 3;
 export const FLAG_USE_ARRAY = 1 << 4;
 
+// Kept for back-compat: external code may still import these.
+// New callers should pass the GLenum dst factor directly to addSprite.
 export const BLEND_DEFAULT = 0;
 export const BLEND_ONE = 1;
 
@@ -73,13 +75,17 @@ class SpriteBatcher {
 		// Pending batch identity. Palettes no longer participate in the key
 		// (they live in a texture array); only the diffuse texture does.
 		this._texture = null;
-		this._blendMode = BLEND_DEFAULT;
+		// _blendDst holds the WebGL destination blend factor GLenum for the
+		// current in-flight batch. It is resolved at addSprite time and emitted
+		// unconditionally in flush — no caching, because external code (Level99Bubble,
+		// SpiritSphere, SwirlingAura, …) calls gl.blendFunc directly and would
+		// desync any cache we tried to keep.
+		this._blendDst = null; // null = not yet initialised; resolved to ONE_MINUS_SRC_ALPHA on first add
 		this._isArrayBatch = false;
 		this._depthTest = true;
 		this._depthMask = true;
 
-		// Cached GL state
-		this._glBlendMode = -1;
+		// Cached GL state (blend intentionally not cached — see _blendDst comment)
 		this._glDepthTest = null;
 		this._glDepthMask = null;
 	}
@@ -223,13 +229,22 @@ class SpriteBatcher {
 		}
 	}
 
-	addSprite(gl, state, isBlendModeOne, depthTest, depthMask) {
-		if (depthTest === undefined) depthTest = true;
-		if (depthMask === undefined) depthMask = true;
+	addSprite(gl, state, blendDst, depthTest, depthMask) {
+		if (depthTest === undefined) depthTest = false;
+		if (depthMask === undefined) depthMask = false;
 
-		// --- Blend mode ---------------------------------------------------
-		const blendMode =
-			isBlendModeOne === true ? BLEND_ONE : isBlendModeOne === false ? BLEND_DEFAULT : this._blendMode;
+		// --- Blend dst factor ---------------------------------------------
+		// blendDst is a WebGL destination GLenum (e.g. gl.ONE, gl.ONE_MINUS_SRC_ALPHA).
+		// undefined / null / false → default (ONE_MINUS_SRC_ALPHA).
+		// true is accepted for back-compat (callers that haven't been migrated yet) → gl.ONE.
+		let blendMode;
+		if (blendDst === true) {
+			blendMode = gl.ONE; // legacy boolean path
+		} else if (blendDst && typeof blendDst === 'number') {
+			blendMode = blendDst; // real GLenum
+		} else {
+			blendMode = gl.ONE_MINUS_SRC_ALPHA; // default
+		}
 
 		// --- Classify sprite -----------------------------------------------
 		const frame = state.sprite;
@@ -284,11 +299,11 @@ class SpriteBatcher {
 			if (palEntry) paletteLayer = palEntry.layer;
 		}
 
-		const blendChanged = blendMode !== this._blendMode;
+		const blendChanged = blendMode !== this._blendDst;
 		const depthChanged = depthTest !== this._depthTest || depthMask !== this._depthMask;
 		const arrayChanged = this._count > 0 && isArray !== this._isArrayBatch;
 		const textureChanged = this._count > 0 && !isArray && nextTexture !== this._texture;
-		this._blendMode = blendMode;
+		this._blendDst = blendMode;
 
 		if (this._count > 0 && (blendChanged || depthChanged || arrayChanged || textureChanged)) {
 			this.flush(gl);
@@ -360,11 +375,10 @@ class SpriteBatcher {
 		this.applyDepthState(gl, this._depthTest, this._depthMask);
 
 		// --- Blend --------------------------------------------------------
-		if (this._blendMode === BLEND_ONE) {
-			gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-		} else {
-			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-		}
+		// Always emitted — never cached. External effects call gl.blendFunc
+		// directly (Level99Bubble, SpiritSphere, SwirlingAura, …) and would
+		// desync any cache. The cost of one blendFunc per flush is negligible.
+		gl.blendFunc(gl.SRC_ALPHA, this._blendDst ?? gl.ONE_MINUS_SRC_ALPHA);
 
 		// --- Upload -------------------------------------------------------
 		gl.bindBuffer(gl.ARRAY_BUFFER, this._instanceBuffer);
