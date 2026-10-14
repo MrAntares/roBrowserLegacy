@@ -645,6 +645,26 @@
 #BotMenu .bm-rodizio-detalhe .bm-limiar {
 	width: 4em;
 }
+/* Suporte: selo BUFF/CURA centrado na linha dos seletores (antes colava no topo) e o campo do % com largura para
+   os 2 digitos mais as setas do number, sem cortar; o rotulo "HP abaixo de [..] %" nao quebra no meio. */
+#BotMenu .bm-rodizio-detalhe {
+	align-items: center;
+	row-gap: var(--sp-1, 4px);
+}
+#BotMenu .bm-rodizio-detalhe .bm-tipo {
+	align-self: center;
+	line-height: 1.6;
+}
+#BotMenu .bm-rodizio-detalhe .bm-limiar-cura {
+	flex: 0 0 auto;
+	white-space: nowrap;
+}
+#BotMenu .bm-rodizio-detalhe .bm-limiar-cura .bm-limiar {
+	box-sizing: border-box;
+	width: 5em;
+	min-width: 5em;
+	flex: 0 0 auto;
+}
 #BotMenu .bm-rodizio-item.is-desligada .bm-rodizio-ordem {
 	background: var(--sky-50);
 	color: var(--text-muted);
