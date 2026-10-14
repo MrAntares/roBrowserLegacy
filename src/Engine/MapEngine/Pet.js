@@ -95,12 +95,13 @@ function onPetInformation(pkt) {
 	PetInformations.setInformations(pkt);
 
 	if (Session.petId) {
+		Session.pet.name = pkt.szName;
+
 		const entity = EntityManager.get(Session.petId);
 		if (entity) {
 			const oldHungry = Session.pet.hungry || pkt.nFullness;
 			Session.pet.job = pkt.job;
 			Session.pet.clevel = pkt.nLevel;
-			Session.pet.name = pkt.szName;
 			Session.pet.friendly = pkt.nRelationship;
 			Session.pet.oldHungry = oldHungry;
 			Session.pet.hungry = pkt.nFullness;
@@ -159,7 +160,7 @@ function petTalk(GID, msg) {
 		return;
 	}
 
-	ChatBox.addText(name + ' : ' + msg, ChatBox.TYPE.PUBLIC, ChatBox.FILTER.PUBLIC_CHAT);
+	ChatBox.addText(`${name} : ${msg}`, ChatBox.TYPE.PUBLIC, ChatBox.FILTER.PUBLIC_CHAT);
 	entity.dialog.set(msg);
 }
 
@@ -180,7 +181,10 @@ function getPetName(entity) {
 	}
 
 	const now = Date.now();
-	if (now - (_nameRequestTick[entity.GID] || 0) >= NAME_REQUEST_DELAY) {
+	if (
+		entity.display.load === entity.display.TYPE.NONE ||
+		now - (_nameRequestTick[entity.GID] || 0) >= NAME_REQUEST_DELAY
+	) {
 		_nameRequestTick[entity.GID] = now;
 		entity.display.load = entity.display.TYPE.LOADING;
 
@@ -212,6 +216,9 @@ function onPetInformationUpdate(pkt) {
 
 	switch (pkt.type) {
 		case 0: // know what our pet is //PET_PRE_INIT
+			if (Session.petId !== pkt.GID) {
+				Session.pet.name = '';
+			}
 			Session.petId = pkt.GID; // should we delete it later ?
 			Session.pet.GID = pkt.GID;
 			Session.pet.job = entity._job;

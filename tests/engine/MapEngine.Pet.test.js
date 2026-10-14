@@ -127,6 +127,27 @@ describe('a pet talking in chat', () => {
 		expect(mocks.chat.mock.calls[0][0]).toBe('Pochi : Woof!');
 	});
 
+	it('keeps the own pet name when PROPERTY_PET arrives before the pet entity', () => {
+		Session.petId = 700000;
+		deliver(PACKET.ZC.PROPERTY_PET, { szName: 'Pochi', job: 1002, nLevel: 1, nFullness: 50, nRelationship: 1000 });
+		mocks.entities[700000] = makeEntity(700000, '');
+
+		deliverPetTalk(700000);
+
+		expect(mocks.chat.mock.calls[0][0]).toBe('Pochi : Woof!');
+	});
+
+	it('does not give a newly hatched pet the previous pet\'s name', () => {
+		Session.petId = 700000;
+		Session.pet.name = 'Pochi';
+		mocks.entities[700001] = makeEntity(700001, '');
+
+		deliver(PACKET.ZC.CHANGESTATE_PET, { type: 0, GID: 700001, data: 0 });
+		deliverPetTalk(700001);
+
+		expect(mocks.chat).not.toHaveBeenCalled();
+	});
+
 	// Other players' pets never receive PROPERTY_PET (it is sent SELF-only by
 	// the server), and before 20131223 the spawn packet carries no name, so the
 	// entity's display name stays empty until requested.
@@ -193,5 +214,17 @@ describe('a pet talking in chat', () => {
 		deliverPetTalk(800003);
 		expect(requests()).toHaveLength(2);
 		expect(mocks.chat).not.toHaveBeenCalled();
+	});
+
+	it('asks for the name of a pet that came back into view, even within 2.5 seconds', () => {
+		vi.useFakeTimers();
+		mocks.entities[800005] = makeEntity(800005, '');
+		deliverPetTalk(800005);
+
+		vi.advanceTimersByTime(1000);
+		mocks.entities[800005] = makeEntity(800005, '');
+		deliverPetTalk(800005);
+
+		expect(mocks.sent.filter(p => p instanceof PACKET.CZ.REQNAME)).toHaveLength(2);
 	});
 });

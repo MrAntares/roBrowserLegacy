@@ -34,10 +34,13 @@ only by a talk and by the mouse (hover / click).
 `petTalk` follows the same rule:
 
 - the entity's display name when it has one;
-- for the player's own pet, `Session.pet.name` (kept from `ZC_PROPERTY_PET`,
-  which can arrive before the pet's entity exists);
-- otherwise a name request, at most once per GID every 2.5 seconds, and the
-  talk is dropped - chat line and balloon.
+- for the player's own pet, `Session.pet.name`: kept from `ZC_PROPERTY_PET`
+  even when the pet's entity does not exist yet, and cleared when
+  `ZC_CHANGESTATE_PET` names another pet as the player's own;
+- otherwise a name request - when that entity has not asked yet, or 2.5
+  seconds after the last request for the GID - and the talk is dropped, chat
+  line and balloon. A pet that leaves and comes back into view is a new entity
+  with no name, so it asks again at once.
 
 ## Deviations
 
