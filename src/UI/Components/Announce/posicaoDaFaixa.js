@@ -5,38 +5,54 @@
  *
  * O relato veio da recusa de encaixar a carta Smokie: a faixa amarela do
  * `Announce` caia SOBRE a barra do topo da HUD vertical (nome, Base Lv, barras)
- * e o botao do menu cobria o fim da primeira linha — o texto lia-se
+ * e o botao do menu cobria o fim da primeira linha, entao o texto lia-se
  * "...tem efe[...] jogo e nao pode ser encaixada". A causa e o `top: 40px` de
  * `Announce.css`: ele e a altura do desktop (a faixa de sempre, no alto da tela)
  * e nunca foi reescrito para a HUD vertical, onde a barra do personagem mora de
  * 6 a 76px e o botao do menu fica na ponta direita dela (`UI/Common.css`,
  * D-939).
  *
- * O que decide a posicao mora aqui, e nao dentro do `Announce.js`, para ter
- * teste e bateria de mutacao: o numero errado nao quebra nada visivelmente (a
- * faixa so volta a cobrir um pedaco da HUD), e e exatamente o tipo de erro que
- * uma "simplificacao" desfaz calada.
+ * O que decide largura, altura e posicao mora aqui, e nao dentro do
+ * `Announce.js`, para ter teste e bateria de mutacao: o numero errado nao
+ * quebra nada visivelmente (a faixa so volta a cobrir um pedaco da HUD), e e
+ * exatamente o tipo de erro que uma "simplificacao" desfaz calada.
  *
  * O ARRANJO (so na HUD vertical; no desktop nada disto vale):
  *
- *   - **coluna do canto, debaixo do cartao de missoes**, e nao um banner de ponta
- *     a ponta. A faixa fica na MESMA coluna e largura do cartao (236px, ou o que
- *     couber sem tocar o trilho da direita), como o placar do MVP. Assim ela
- *     nunca encosta no cabecalho, no botao do menu, no trilho de botoes redondos
- *     (Mochila, Auto, Skills, RO Shop), no cartao de missoes nem na barra de
- *     atalhos, e as palavras quebram em mais linhas em vez de passar por baixo
- *     de um botao.
- *   - **uma fileira de aviso de item (44px) fica livre acima dela.** O aviso de
- *     "Voce pegou X" (`ItemObtain`) nasce no mesmo lugar, logo abaixo do cartao,
- *     e dura 3 s; a faixa dura 10 s. Sem a reserva as duas se escreveriam uma
- *     por cima da outra. E o mesmo 44px que `#StatusIcons` ja reserva na
- *     vertical (Common.css, "uma fileira de aviso").
- *   - o `top` e MEDIDO (a borda de baixo do cartao, que cresce com o numero de
- *     missoes), como o `ItemObtain` ja faz; sem cartao na tela vale o `calc` de
- *     nascenca que mora no CSS.
+ *   - **a LARGURA e a da coluna do canto**, a do cartao de missoes (236px, ou o
+ *     `min` do CSS em tela estreita). Vale tambem para o banner de conquista,
+ *     que no desktop pede a tela inteira: na rodada 1 ele ganhou o vao ate o
+ *     trilho (306px em 390) e passou por baixo da coluna de buffs, que mora
+ *     encostada no trilho a partir de x=284 (medido em 390x844). A coluna
+ *     termina em x=244: 40px antes do buff. Texto que nao cabe QUEBRA em mais
+ *     linhas, e a ALTURA acompanha as linhas (o banner pedia 50px fixos, e com
+ *     tres linhas o fim do titulo sairia do canvas).
+ *   - **o TOPO e MEDIDO contra as pecas da HUD que estao na tela**: cabecalho,
+ *     cartao de missoes, aviso de item, placar do MVP, faixa de grupo, cada
+ *     icone de buff, botao do menu e trilho, "Auto", botao de caca, chat e
+ *     barra de atalhos. A faixa nasce debaixo do cartao (deixando livre a
+ *     fileira de 44px do aviso de item, que nasce ali e dura 3 s) e desce ate
+ *     o primeiro lugar onde nao encosta em nenhuma delas. Na rodada 1 o topo
+ *     era so "debaixo do cartao" e a faixa escrevia por cima do placar do MVP
+ *     (placar em y=260..374, faixa em y=334, medido em 390x844). Numero fixo
+ *     nao serve: o placar so existe na luta de MVP, a faixa de grupo so com
+ *     party, o cartao cresce com as missoes e o jogador pode ARRASTAR o placar
+ *     e a faixa de grupo (D-1565).
+ *   - **o topo e REMEDIDO enquanto a faixa vive** (10 s). O placar aparece no
+ *     primeiro pacote da luta, um buff acende, o cartao cresce quando as
+ *     missoes chegam depois da entrada no mapa: medida unica deixaria a faixa
+ *     em cima da peca que chegou depois. As pecas sao de seis componentes com
+ *     vida propria e os icones de buff sao nos NOVOS (um `ResizeObserver` nao
+ *     os ve), entao a faixa se remede no relogio do jogo a cada 250 ms, so
+ *     enquanto esta na tela (quatro medidas por segundo, cada uma com umas
+ *     dezenas de leituras de caixa, e uma escrita de variavel).
  *
- * A seguranca de borda (entalhe) nao entra aqui: o `top` medido ja vem do cartao,
- * que nasce abaixo de `--vr-topo` (= entalhe + 6px), e o `left` e o
+ * Se a coluna inteira estiver ocupada do cartao ate a barra de atalhos (grupo
+ * de muitos membros com o chat aberto), a faixa fica no lugar que MENOS cobre,
+ * e nao some: aviso do servidor nao pode deixar de ser lido.
+ *
+ * A seguranca de borda (entalhe) nao entra aqui: as pecas medidas ja nascem
+ * abaixo de `--vr-topo` (= entalhe + 6px), e o `left` e o
  * `--safe-esq + --vr-margem` do CSS.
  */
 
@@ -49,14 +65,50 @@ export const LARGURA_DO_TRILHO = 60;
 /** A largura do cartao de missoes (`min(236px, ...)`, Common.css): a coluna do canto. */
 export const LARGURA_DO_CARTAO = 236;
 
-/** O respiro entre o cartao e o que mora debaixo dele (o mesmo vao do `ItemObtain`). */
-export const VAO_DO_CARTAO = 4;
+/** O respiro entre a faixa e qualquer peca da HUD (o mesmo vao do `ItemObtain` sob o cartao). */
+export const VAO = 4;
 
 /** Uma fileira de aviso de item: o 44px que `#StatusIcons` ja reserva na vertical. */
 export const FILEIRA_DO_AVISO_DE_ITEM = 44;
 
+/** De quanto em quanto tempo a faixa se remede enquanto esta na tela. */
+export const PASSO_DO_ACOMPANHAMENTO_MS = 250;
+
 /** Nenhuma largura menor que isto: abaixo disso nao cabe palavra, so letra. */
 const PISO = 100;
+
+/** A marca que `UI/hudVertical.js` poe no `<html>` quando o celular esta em pe. */
+const MARCA_VERTICAL = 'ri-vertical';
+
+/** A variavel que `UI/Common.css` le em `html.ri-vertical #Announce { top }`. */
+export const VARIAVEL_DO_TOPO = '--vr-aviso-topo';
+
+/**
+ * As pecas da HUD vertical que a faixa nao pode cobrir.
+ *
+ * `host` e o id do host do componente (`GUIComponent` usa o nome); `dentro` e o
+ * que medir dentro do shadow quando o host NAO e a caixa visivel: o host do
+ * StatusIcons nao tem tamanho (os icones sao filhos posicionados), o do menu e
+ * um ponto sem caixa, o do chat cobre a tela inteira, e o placar e a faixa de
+ * grupo nascem com a caixa interna escondida (`hidden`) dentro de um host que
+ * fica na pagina o tempo todo.
+ */
+export const PECAS_DA_HUD = [
+	{ nome: 'cabecalho', host: 'BasicInfoIdle' },
+	{ nome: 'cartao-de-missoes', host: 'MissoesTrackerIdle' },
+	{ nome: 'aviso-de-item', host: 'ItemObtain', dentro: '#ItemObtain' },
+	{ nome: 'placar-mvp', host: 'PlacarMvpIdle', dentro: '.pm-placar' },
+	{ nome: 'faixa-de-grupo', host: 'PartyHud', dentro: '.ph-hud' },
+	{ nome: 'buff', host: 'StatusIcons', dentro: '.state' },
+	{ nome: 'menu', host: 'TopMenuIdle', dentro: '.tm-fab, .tm-item' },
+	{ nome: 'auto', host: 'CombatCornerIdle' },
+	{ nome: 'botao-de-caca', host: 'HuntButtonIdle' },
+	{ nome: 'chat', host: 'ChatBox', dentro: '#chatbox' },
+	{ nome: 'barra-de-atalhos', host: 'ShortCut' }
+];
+
+/** As pecas debaixo das quais a coluna da faixa comeca. */
+const TOPO_DA_COLUNA = ['cabecalho', 'cartao-de-missoes'];
 
 /**
  * A largura da coluna do canto: a do cartao de missoes (o mesmo `min` do CSS, que
@@ -70,57 +122,47 @@ export function larguraDaColuna(larguraDaTela) {
 }
 
 /**
- * A largura livre entre a margem esquerda e o trilho da direita: o teto de um
- * banner que PEDE largura (o de conquista, `width: '100%'`). 8px de ar do trilho.
+ * A largura da faixa (`largura`: o canvas fixo, ou `null` para encolher ao
+ * texto) e a largura em que o texto QUEBRA (`quebra`).
  *
- * @param {number} larguraDaTela
- * @returns {number}
- */
-export function larguraLivre(larguraDaTela) {
-	return Math.max(PISO, larguraDaTela - MARGEM - LARGURA_DO_TRILHO - MARGEM - MARGEM);
-}
-
-/**
- * A largura MAXIMA da faixa na HUD vertical.
+ * No desktop e no celular deitado devolve o que o `Announce` sempre usou: o
+ * pedido do chamador e a tela inteira. Na HUD vertical as duas viram a coluna:
+ * o aviso comum quebra na coluna e o banner que pede largura (o de conquista)
+ * fica limitado a ela.
  *
- * Sem largura pedida (o aviso comum), vale a coluna do canto e o canvas encolhe
- * ao texto. Com largura pedida (o banner de conquista), vale o pedido limitado ao
- * vao livre: ele nao pode passar por baixo do trilho.
- *
+ * @param {boolean} naVertical
  * @param {number} larguraDaTela
  * @param {number|null} larguraPedida px, ou `null` se o chamador nao pediu
- * @returns {number}
+ * @returns {{ largura: number|null, quebra: number }}
  */
-export function larguraDaFaixaNaVertical(larguraDaTela, larguraPedida) {
-	if (!larguraPedida) {
-		return larguraDaColuna(larguraDaTela);
+export function medidasDaFaixa(naVertical, larguraDaTela, larguraPedida) {
+	if (!naVertical) {
+		return { largura: larguraPedida, quebra: larguraDaTela };
 	}
-	return Math.min(larguraPedida, larguraLivre(larguraDaTela));
+	const coluna = larguraDaColuna(larguraDaTela);
+	return { largura: larguraPedida ? Math.min(larguraPedida, coluna) : null, quebra: coluna };
 }
 
 /**
- * O `top` da faixa na HUD vertical, a partir da borda de baixo do cartao de
- * missoes (em unidades da HUD), ou `null` se nao ha cartao medido: o CSS usa o
- * `calc` de nascenca.
+ * A altura do canvas da faixa.
  *
- * @param {number|null|undefined} fimDoCartao
- * @returns {number|null}
+ * No desktop e a de sempre: a pedida, ou a do texto. Na HUD vertical a pedida
+ * vira PISO: a coluna estreita quebra o titulo em mais linhas, e com a altura
+ * fixa do banner de conquista (50px) a terceira linha sairia do canvas.
+ *
+ * @param {boolean} naVertical
+ * @param {number|undefined} alturaPedida
+ * @param {number} linhas
+ * @param {number} tamanhoDaFonte
+ * @returns {number}
  */
-export function topoDaFaixaNaVertical(fimDoCartao) {
-	if (!Number.isFinite(fimDoCartao)) {
-		return null;
+export function alturaDaFaixa(naVertical, alturaPedida, linhas, tamanhoDaFonte) {
+	const doTexto = 10 + (tamanhoDaFonte + 5) * linhas;
+	if (!naVertical) {
+		return alturaPedida || doTexto;
 	}
-	return Math.round(fimDoCartao + VAO_DO_CARTAO + FILEIRA_DO_AVISO_DE_ITEM);
+	return Math.max(alturaPedida || 0, doTexto);
 }
-
-/** A marca que `UI/hudVertical.js` poe no `<html>` quando o celular esta em pe. */
-const MARCA_VERTICAL = 'ri-vertical';
-
-/** O host do cartao de missoes: o que a faixa mede para saber onde comeca. */
-const CARTAO_DE_MISSOES = 'div[id^="MissoesTrackerIdle"]';
-
-/** A variavel que `UI/Common.css` le em `html.ri-vertical #Announce { top }`. */
-export const VARIAVEL_DO_TOPO = '--vr-aviso-topo';
 
 /**
  * A HUD vertical (celular em pe) esta valendo agora?
@@ -137,12 +179,132 @@ export function ehHudVertical(doc) {
 }
 
 /**
- * Mede o cartao de missoes e publica o `top` da faixa no host dela.
+ * A caixa de um elemento na tela, em pixel de viewport, ou `null` se ele nao
+ * esta desenhado (sem tamanho, `visibility: hidden` ou transparente de todo).
+ *
+ * @param {Element|null} el
+ * @param {Document} doc
+ * @returns {{ x: number, y: number, w: number, h: number }|null}
+ */
+export function caixaVisivel(el, doc) {
+	if (!el) {
+		return null;
+	}
+	const b = el.getBoundingClientRect();
+	if (!(b.width > 0 && b.height > 0)) {
+		return null;
+	}
+	const vista = doc && doc.defaultView;
+	const estilo = vista && vista.getComputedStyle ? vista.getComputedStyle(el) : null;
+	if (estilo && (estilo.visibility === 'hidden' || estilo.opacity === '0')) {
+		return null;
+	}
+	return { x: b.left, y: b.top, w: b.width, h: b.height };
+}
+
+/**
+ * Mede as pecas da HUD que estao na tela agora.
+ *
+ * @param {Document} doc
+ * @returns {Array<{ nome: string, x: number, y: number, w: number, h: number }>}
+ */
+export function medirPecas(doc) {
+	const pecas = [];
+	for (const peca of PECAS_DA_HUD) {
+		const host = doc.getElementById(peca.host);
+		if (!host) {
+			continue;
+		}
+		const alvos = peca.dentro ? (host.shadowRoot || host).querySelectorAll(peca.dentro) : [host];
+		for (const alvo of alvos) {
+			const caixa = caixaVisivel(alvo, doc);
+			if (caixa) {
+				pecas.push({ nome: peca.nome, ...caixa });
+			}
+		}
+	}
+	return pecas;
+}
+
+/**
+ * Onde a coluna da faixa comeca: debaixo do cabecalho e do cartao de missoes,
+ * com o vao e a fileira livre do aviso de item. `null` se nenhum dos dois esta
+ * na tela (a HUD ainda montando): o CSS usa o `calc` de nascenca.
+ *
+ * @param {Array<{ nome: string, y: number, h: number }>} pecas
+ * @returns {number|null}
+ */
+export function inicioDaColuna(pecas) {
+	const bases = pecas.filter(p => TOPO_DA_COLUNA.includes(p.nome)).map(p => p.y + p.h);
+	if (bases.length === 0) {
+		return null;
+	}
+	return Math.max(...bases) + VAO + FILEIRA_DO_AVISO_DE_ITEM;
+}
+
+/**
+ * Quanto da faixa (com o vao em volta) fica sobre as pecas, em px quadrados.
+ * Encostar no vao nao conta: so area de verdade.
+ *
+ * @param {{ x: number, y: number, w: number, h: number }} faixa
+ * @param {Array<{ x: number, y: number, w: number, h: number }>} pecas
+ * @returns {number}
+ */
+export function areaCoberta(faixa, pecas) {
+	let total = 0;
+	for (const p of pecas) {
+		const largura = Math.min(faixa.x + faixa.w + VAO, p.x + p.w) - Math.max(faixa.x - VAO, p.x);
+		const altura = Math.min(faixa.y + faixa.h + VAO, p.y + p.h) - Math.max(faixa.y - VAO, p.y);
+		if (largura > 0 && altura > 0) {
+			total += largura * altura;
+		}
+	}
+	return total;
+}
+
+/**
+ * O topo da faixa na coluna, em pixel de viewport.
+ *
+ * Os candidatos sao o comeco da coluna e a borda de baixo (mais o vao) de cada
+ * peca que termina abaixo dele: o lugar livre mais alto e sempre um deles. Vale
+ * o mais alto que nao cobre nada e cabe acima de `fim` (o pe da tela). Se
+ * nenhum esta livre, vale o que menos cobre; se nem o comeco cabe, o comeco.
+ *
+ * @param {{ inicio: number, fim: number, esquerda: number, largura: number, altura: number,
+ *   pecas: Array<{ x: number, y: number, w: number, h: number }> }} medida
+ * @returns {number}
+ */
+export function lugarDaFaixa({ inicio, fim, esquerda, largura, altura, pecas }) {
+	const candidatos = [inicio];
+	for (const p of pecas) {
+		const logoAbaixo = p.y + p.h + VAO;
+		if (logoAbaixo > inicio) {
+			candidatos.push(logoAbaixo);
+		}
+	}
+	candidatos.sort((a, b) => a - b);
+	let melhor = inicio;
+	let menorArea = Infinity;
+	for (const topo of candidatos) {
+		if (topo + altura > fim) {
+			break;
+		}
+		const area = areaCoberta({ x: esquerda, y: topo, w: largura, h: altura }, pecas);
+		if (area < menorArea) {
+			menorArea = area;
+			melhor = topo;
+		}
+	}
+	return melhor;
+}
+
+/**
+ * Mede a faixa e as pecas e publica o `top` dela no host.
  *
  * `converter` leva o pixel de viewport medido para a unidade da HUD (a
  * convencao de `UI/escalaDaHud.js: emUnidadesDaHud`: toda geometria medida que
- * vira `style` passa por la). Sem cartao desenhado (jogador sem missao, ou a
- * HUD ainda montando) a variavel SAI, e o CSS usa o `calc` de nascenca.
+ * vira `style` passa por la). Sem a faixa desenhada ou sem cabecalho e cartao na
+ * tela, a variavel SAI e o CSS usa o `calc` de nascenca.
  *
  * @param {HTMLElement} host o host do componente Announce
  * @param {Document} doc
@@ -150,45 +312,45 @@ export function ehHudVertical(doc) {
  * @returns {number|null} o `top` publicado, ou `null` se saiu
  */
 export function publicarTopo(host, doc, converter = px => px) {
-	const cartao = doc.querySelector(CARTAO_DE_MISSOES);
-	const caixa = cartao ? cartao.getBoundingClientRect() : null;
-	const topo = caixa && caixa.height > 0 ? topoDaFaixaNaVertical(converter(caixa.bottom)) : null;
-	if (topo === null) {
+	const faixa = caixaVisivel(host, doc);
+	const pecas = medirPecas(doc);
+	const inicio = inicioDaColuna(pecas);
+	if (!faixa || inicio === null) {
 		host.style.removeProperty(VARIAVEL_DO_TOPO);
-	} else {
-		host.style.setProperty(VARIAVEL_DO_TOPO, `${topo}px`);
+		return null;
 	}
+	const vista = doc.defaultView;
+	const fim = vista && vista.innerHeight > 0 ? vista.innerHeight : Infinity;
+	const lugar = lugarDaFaixa({ inicio, fim, esquerda: faixa.x, largura: faixa.w, altura: faixa.h, pecas });
+	const topo = Math.round(converter(lugar));
+	host.style.setProperty(VARIAVEL_DO_TOPO, `${topo}px`);
 	return topo;
 }
 
 /**
- * Posiciona a faixa na HUD vertical e a MANTEM no lugar enquanto o cartao de
- * missoes mudar de altura.
+ * Posiciona a faixa na HUD vertical e a MANTEM fora das pecas enquanto ela vive.
  *
- * O acompanhamento existe por causa da ENTRADA no mapa: o aviso do evento de EXP
- * sobe no mesmo tique em que o cartao e anexado, antes de as missoes chegarem, e
- * o cartao cresce depois. Medido uma vez so, a faixa nasceria em cima dele.
+ * `relogio` e o `Core/Events.js` do jogo (o mesmo que conta a vida da faixa):
+ * ele anda com o quadro, entao a aba escondida nao remede nada.
  *
  * @param {HTMLElement} host
  * @param {Document} doc
- * @param {(px: number) => number} [converter]
+ * @param {(px: number) => number} converter
+ * @param {{ setTimeout: Function, clearTimeout: Function }} relogio
  * @returns {() => void} desliga o acompanhamento (chamar ao tirar a faixa)
  */
-export function posicionarNaVertical(host, doc, converter) {
+export function acompanharNaVertical(host, doc, converter, relogio) {
 	publicarTopo(host, doc, converter);
-	const cartao = doc.querySelector(CARTAO_DE_MISSOES);
-	const Observador = doc.defaultView && doc.defaultView.ResizeObserver;
-	if (!cartao || typeof Observador !== 'function') {
-		return () => {};
-	}
-	const observador = new Observador(() => publicarTopo(host, doc, converter));
-	observador.observe(cartao);
-	return () => observador.disconnect();
+	let pendente = relogio.setTimeout(function remedir() {
+		publicarTopo(host, doc, converter);
+		pendente = relogio.setTimeout(remedir, PASSO_DO_ACOMPANHAMENTO_MS);
+	}, PASSO_DO_ACOMPANHAMENTO_MS);
+	return () => relogio.clearTimeout(pendente);
 }
 
 /**
  * Tira a variavel do host: a faixa volta ao `top` do `Announce.css` (desktop e
- * celular deitado). Chamada quando a HUD vertical NAO vale — cobre o aparelho que
+ * celular deitado). Chamada quando a HUD vertical NAO vale: cobre o aparelho que
  * gira com uma faixa ja posicionada.
  *
  * @param {HTMLElement} host
@@ -199,11 +361,15 @@ export function soltarDaVertical(host) {
 
 export default {
 	larguraDaColuna,
-	larguraLivre,
-	larguraDaFaixaNaVertical,
-	topoDaFaixaNaVertical,
+	medidasDaFaixa,
+	alturaDaFaixa,
 	ehHudVertical,
+	caixaVisivel,
+	medirPecas,
+	inicioDaColuna,
+	areaCoberta,
+	lugarDaFaixa,
 	publicarTopo,
-	posicionarNaVertical,
+	acompanharNaVertical,
 	soltarDaVertical
 };
