@@ -334457,12 +334457,12 @@ function onPetInformation(pkt) {
 	PetInformations_default.append();
 	PetInformations_default.setInformations(pkt);
 	if (SessionStorage_default.petId) {
+		SessionStorage_default.pet.name = pkt.szName;
 		const entity = EntityManager.get(SessionStorage_default.petId);
 		if (entity) {
 			const oldHungry = SessionStorage_default.pet.hungry || pkt.nFullness;
 			SessionStorage_default.pet.job = pkt.job;
 			SessionStorage_default.pet.clevel = pkt.nLevel;
-			SessionStorage_default.pet.name = pkt.szName;
 			SessionStorage_default.pet.friendly = pkt.nRelationship;
 			SessionStorage_default.pet.oldHungry = oldHungry;
 			SessionStorage_default.pet.hungry = pkt.nFullness;
@@ -334506,8 +334506,32 @@ function onFeedResult$1(pkt) {
 */
 function petTalk(GID, msg) {
 	const entity = EntityManager.get(GID);
-	ChatBox_default.addText(entity.display.name + " : " + msg, ChatBox_default.TYPE.PUBLIC, ChatBox_default.FILTER.PUBLIC_CHAT);
+	const name = getPetName(entity);
+	if (!name) return;
+	ChatBox_default.addText(`${name} : ${msg}`, ChatBox_default.TYPE.PUBLIC, ChatBox_default.FILTER.PUBLIC_CHAT);
 	entity.dialog.set(msg);
+}
+/**
+* Name to print in front of a pet's talk, empty while it is still unknown
+*
+* @see docs/reference/pet/talk-name.md
+* @param {object} entity
+* @return {string}
+*/
+function getPetName(entity) {
+	if (entity.display.name) return entity.display.name;
+	if (entity.GID === SessionStorage_default.petId && SessionStorage_default.pet.name) return SessionStorage_default.pet.name;
+	const now = Date.now();
+	if (entity.display.load === entity.display.TYPE.NONE || now - (_nameRequestTick[entity.GID] || 0) >= NAME_REQUEST_DELAY) {
+		_nameRequestTick[entity.GID] = now;
+		entity.display.load = entity.display.TYPE.LOADING;
+		let pkt;
+		if (PacketVerManager_default.value >= 20180307) pkt = new PACKET.CZ.REQNAME2();
+		else pkt = new PACKET.CZ.REQNAME();
+		pkt.AID = entity.GID;
+		Network.sendPacket(pkt);
+	}
+	return "";
 }
 /**
 * Update pet information
@@ -334604,10 +334628,12 @@ function NPCEngine$1() {
 	Network.hookPacket(PACKET.ZC.CHANGESTATE_PET, onPetInformationUpdate);
 	Network.hookPacket(PACKET.ZC.PET_ACT, onPetAction);
 }
+var _nameRequestTick, NAME_REQUEST_DELAY;
 var init_Pet = __esmMin((() => {
 	init_DBManager();
 	init_NetworkManager();
 	init_PacketStructure();
+	init_PacketVerManager();
 	init_Client();
 	init_SessionStorage();
 	init_EntityManager();
@@ -334620,6 +334646,8 @@ var init_Pet = __esmMin((() => {
 	init_Emotions();
 	init_PetMessageConst();
 	init_PetEvolution();
+	_nameRequestTick = {};
+	NAME_REQUEST_DELAY = 2500;
 	/**
 	* Client request to feed QPet.
 	*/
