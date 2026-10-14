@@ -71,6 +71,7 @@ function fakeEntity(x, y) {
 }
 
 function renderFrame() {
+	EntityManager.cull();
 	EntityManager.render({}, null, null, null, false);
 }
 
@@ -153,6 +154,17 @@ describe('EntityManager culling hides entity overlays', () => {
 
 		expect(() => renderFrame()).not.toThrow();
 		expect(mob.life.canvas.style.display).toBe('none');
+	});
+
+	it('keeps the decision taken before the passes for the whole frame', () => {
+		mob.position[0] = 80;
+		EntityManager.cull();
+		expect(mob.culled).toBe(true);
+		expect(displays(mob)).toEqual(['none', 'none', 'none', 'none', 'none', 'none']);
+
+		mob.position[0] = 52;
+		EntityManager.render({}, null, null, null, false);
+		expect(mob.render).not.toHaveBeenCalled();
 	});
 
 	it('hides a room created while the entity is culled', () => {

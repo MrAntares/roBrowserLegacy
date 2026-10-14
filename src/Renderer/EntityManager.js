@@ -375,6 +375,18 @@ function setCulled(entity, culled) {
 }
 
 /**
+ * Decide, once per frame and before any pass draws, which entities are out of
+ * the view area: their overlays are hidden and every pass skips them
+ */
+function cull() {
+	const culling = getCulling();
+
+	for (let i = 0, count = _list.length; i < count; ++i) {
+		setCulled(_list[i], isCulled(culling, _list[i]));
+	}
+}
+
+/**
  * Render all entities (picking or not)
  *
  * @param {object} gl webgl context
@@ -406,8 +418,6 @@ function render(gl, modelView, projection, fog, renderEffects) {
 	// Use program
 	SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
 
-	const culling = getCulling();
-
 	// Rendering
 	for (i = 0, count = _list.length; i < count; ++i) {
 		if (
@@ -432,11 +442,9 @@ function render(gl, modelView, projection, fog, renderEffects) {
 				_pickSortDirty = true;
 				continue;
 			}
-			if (isCulled(culling, _list[i])) {
-				setCulled(_list[i], true);
+			if (_list[i].culled) {
 				continue;
 			}
-			setCulled(_list[i], false);
 			_list[i].render(modelView, projection);
 		}
 	}
@@ -666,6 +674,7 @@ const EntityManager = {
 	removeLife: removeLife,
 	clearLifeCache: clearLifeCache,
 
+	cull: cull,
 	render: render,
 	intersect: intersect,
 	setSupportPicking: setSupportPicking,
