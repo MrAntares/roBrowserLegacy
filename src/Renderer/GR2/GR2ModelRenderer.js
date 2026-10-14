@@ -728,6 +728,13 @@ function render(gl, modelView, projection, normalMat, fog, light, tick) {
 				}
 			}
 
+			// Outside the performance-mode view area (EntityManager): not drawn, like the sprites,
+			// so the body and its overlays disappear and come back together.
+			if (inst.entity && inst.entity.culled) {
+				inst.screenRect = null;
+				continue;
+			}
+
 			// Frustum cull BEFORE posing — a culled instance neither poses nor draws. The anchor
 			// negates the height to match buildWorld's world-Y (-position[2]).
 			worldAnchorToClip(inst.pos, modelView, projection, _clip);
