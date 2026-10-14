@@ -563,6 +563,10 @@
 	outline: 2px solid var(--accent);
 	outline-offset: 2px;
 }
+/* Frente P (13/10/2026): na postura "So suporte" o modo de ataque fica sem efeito (continua escolhivel; a escolha fica gravada). */
+#BotMenu .bm-modo.is-sem-efeito .bm-segmentos {
+	opacity: 0.55;
+}
 #BotMenu .bm-rodizio {
 	list-style: none;
 	margin: 0;

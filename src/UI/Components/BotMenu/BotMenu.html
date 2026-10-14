@@ -91,6 +91,10 @@
 								<label class="bm-segmento"><input type="radio" name="bm-modo" value="skills-e-basico"><span>Habilidades e ataque básico</span></label>
 								<label class="bm-segmento"><input type="radio" name="bm-modo" value="apenas-skills"><span>Só habilidades</span></label>
 							</div>
+							<!-- Frente P (13/10/2026): na postura "So suporte" o Bot nunca ataca, entao o modo fica sem efeito. No Discord
+								acharam que "Habilidades e ataque basico" com "So suporte" travava o Bot; quem o travava era o servidor (o
+								aliado em economia de energia), e o par sempre funcionou. A escolha fica gravada para a proxima postura. -->
+							<p class="bm-dica bm-modo-sem-efeito" hidden>Na postura "Só suporte" o Bot não ataca: esta escolha só vale nas outras posturas. Curas e buffs continuam normalmente.</p>
 						</fieldset>
 						<!-- CURA CONTRA MORTO-VIVO (bug #12 de 13/10, D-1963/D-1990): o mesmo interruptor que o idle antigo tinha na aba Ataque. -->
 						<div class="bm-cartao-secao bm-bloco bm-cura-ataque" hidden>
