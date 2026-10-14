@@ -8,7 +8,7 @@
 var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getOwnPropNames$1 = Object.getOwnPropertyNames;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
 var __esmMin = (fn, res, err) => () => {
@@ -19,7 +19,7 @@ var __esmMin = (fn, res, err) => () => {
 		throw err = [e], e;
 	}
 };
-var __commonJSMin = (cb, mod) => () => (mod || (cb((mod = { exports: {} }).exports, mod), cb = null), mod.exports);
+var __commonJSMin = (cb, mod) => () => (mod || (cb((mod = { exports: {} }).exports, mod, mod.exports), cb = null), mod.exports);
 var __exportAll = (all, no_symbols) => {
 	let target = {};
 	for (var name in all) __defProp(target, name, {
@@ -30,7 +30,7 @@ var __exportAll = (all, no_symbols) => {
 	return target;
 };
 var __copyProps = (to, from, except, desc) => {
-	if (from && typeof from === "object" || typeof from === "function") for (var keys = __getOwnPropNames(from), i = 0, n = keys.length, key; i < n; i++) {
+	if (from && typeof from === "object" || typeof from === "function") for (var keys = __getOwnPropNames$1(from), i = 0, n = keys.length, key; i < n; i++) {
 		key = keys[i];
 		if (!__hasOwnProp.call(to, key) && key !== except) __defProp(to, key, {
 			get: ((k) => from[k]).bind(null, key),
@@ -213012,6 +213012,10 @@ function render$8(gl, modelView, projection, normalMat, fog, light, tick) {
 					}
 				}
 			}
+			if (inst.entity && inst.entity.culled) {
+				inst.screenRect = null;
+				continue;
+			}
 			worldAnchorToClip(inst.pos, modelView, projection, _clip);
 			if (frustumCullClip(_clip[0], _clip[1], _clip[3], CULL_MARGIN)) {
 				inst.screenRect = null;
@@ -260699,6 +260703,7 @@ var init_MapRenderer = __esmMin((() => {
 			OccluderFade.beginFrame(gl, modelView, tick);
 			Models_default.render(gl, modelView, projection, normalMat, fog, light);
 			AnimatedModels_default.render(gl, modelView, projection, normalMat, fog, light, tick);
+			EntityManager.cull();
 			GR2ModelRenderer_default.render(gl, modelView, projection, normalMat, fog, light, tick);
 			ScreenEffectManager.render(gl, modelView, projection, fog, tick, true);
 			EffectManager.render(gl, modelView, projection, fog, tick, true);
@@ -282511,7 +282516,7 @@ var init_liblua5_1 = __esmMin((() => {
 }));
 //#endregion
 //#region node_modules/lodash/lodash.js
-var require_lodash = /* @__PURE__ */ __commonJSMin(((exports, module) => {
+var require_lodash = /* @__PURE__ */ __commonJSMin(((exports, module, this$2) => {
 	/**
 	* @license
 	* Lodash <https://lodash.com/>
@@ -297097,7 +297102,7 @@ var require_lodash = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 			(freeModule.exports = _)._ = _;
 			freeExports._ = _;
 		} else root._ = _;
-	}).call(exports);
+	}).call(this$2);
 }));
 //#endregion
 //#region src/Vendors/wasmoon-lua5.1.js
@@ -311972,6 +311977,7 @@ var init_EntityRoom = __esmMin((() => {
 			this.node = EntityRoom_default.clone("EntityRoom", true);
 			this.node.init = init;
 			this.node.append();
+			if (this.owner.culled) this.node.ui[0].style.display = "none";
 		}
 		/**
 		* Remove Room
@@ -313019,6 +313025,7 @@ var init_Entity$1 = __esmMin((() => {
 			this.position = vec3.create();
 			this.gr2 = null;
 			this.gr2Model = null;
+			this.culled = false;
 			Init$11.call(this);
 			Init$10.call(this);
 			Init$9.call(this);
@@ -313626,6 +313633,31 @@ function isCulled(culling, entity) {
 	return dx * dx + dy * dy > culling.viewAreaSq;
 }
 /**
+* Hide the entity overlays while culled, show them back once drawn
+*
+* @param {Entity} entity
+* @param {boolean} culled
+*/
+function setCulled(entity, culled) {
+	if (entity.culled === culled) return;
+	entity.culled = culled;
+	const display = culled ? "none" : "";
+	entity.life.canvas.style.display = display;
+	entity.emblem.canvas.style.display = display;
+	entity.display.canvas.style.display = display;
+	entity.dialog.canvas.style.display = display;
+	entity.cast.canvas.style.display = display;
+	if (entity.room.node) entity.room.node.ui[0].style.display = display;
+}
+/**
+* Decide, once per frame and before any pass draws, which entities are out of
+* the view area: their overlays are hidden and every pass skips them
+*/
+function cull() {
+	const culling = getCulling();
+	for (let i = 0, count = _list.length; i < count; ++i) setCulled(_list[i], isCulled(culling, _list[i]));
+}
+/**
 * Render all entities (picking or not)
 *
 * @param {object} gl webgl context
@@ -313648,7 +313680,6 @@ function render$4(gl, modelView, projection, fog, renderEffects) {
 		_pickSortDirty = true;
 	}
 	SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
-	const culling = getCulling();
 	for (i = 0, count = _list.length; i < count; ++i) if (_list[i].objecttype != _list[i].constructor.TYPE_EFFECT && !renderEffects || _list[i].objecttype == _list[i].constructor.TYPE_EFFECT && renderEffects) {
 		if (_list[i].remove_tick && _list[i].remove_tick + _list[i].remove_delay < tick) {
 			const entityFocus = getFocusEntity();
@@ -313665,7 +313696,7 @@ function render$4(gl, modelView, projection, fog, renderEffects) {
 			_pickSortDirty = true;
 			continue;
 		}
-		if (isCulled(culling, _list[i])) continue;
+		if (_list[i].culled) continue;
 		_list[i].render(modelView, projection);
 	}
 	SpriteRenderer.unbind(gl);
@@ -313841,6 +313872,7 @@ var init_EntityManager = __esmMin((() => {
 		getLife,
 		removeLife,
 		clearLifeCache,
+		cull,
 		render: render$4,
 		intersect,
 		setSupportPicking,
@@ -344598,8 +344630,8 @@ var require_rijndael_precalculated = /* @__PURE__ */ __commonJSMin(((exports, mo
 }));
 //#endregion
 //#region node_modules/rijndael-js/lib/utils.js
-var require_utils = /* @__PURE__ */ __commonJSMin(((exports, module) => {
-	var root = typeof self === "object" && self.self === self && self || typeof global === "object" && global.global === global && global || exports;
+var require_utils = /* @__PURE__ */ __commonJSMin(((exports, module, this$1) => {
+	var root = typeof self === "object" && self.self === self && self || typeof global === "object" && global.global === global && global || this$1;
 	var has = (type) => typeof root[type] !== "undefined";
 	var is = (value, type) => has(type) && value instanceof root[type];
 	module.exports.toArray = (data) => {
