@@ -206199,7 +206199,7 @@ var init_HtmlHelper = __esmMin((() => {
 * Render background (or a black background if no image is loaded yet)
 */
 function render$15() {
-	_ctx$6.clearRect(0, 0, _canvas.width, _canvas.height);
+	_ctx$5.clearRect(0, 0, _canvas.width, _canvas.height);
 	if (Background._progress > -1) Background.setPercent(Background._progress);
 }
 /**
@@ -206219,7 +206219,7 @@ function transition(callback) {
 		});
 	});
 }
-var _overlay, _container, _canvas, _ctx$6, Background;
+var _overlay, _container, _canvas, _ctx$5, Background;
 var init_Background = __esmMin((() => {
 	init_DBManager();
 	init_Client();
@@ -206252,7 +206252,7 @@ var init_Background = __esmMin((() => {
 		left: "0",
 		zIndex: "2"
 	});
-	_ctx$6 = _canvas.getContext("2d");
+	_ctx$5 = _canvas.getContext("2d");
 	Background = class Background {
 		/**
 		* Background loading progress
@@ -206302,7 +206302,7 @@ var init_Background = __esmMin((() => {
 				width: width + "px",
 				height: height + "px"
 			});
-			_ctx$6.clearRect(0, 0, width, height);
+			_ctx$5.clearRect(0, 0, width, height);
 			render$15();
 		}
 		/**
@@ -206440,14 +206440,14 @@ var init_Background = __esmMin((() => {
 			const height = 15;
 			const x = Math.floor((_canvas.width - width) * .5);
 			const y = Math.floor(_canvas.height * .75);
-			_ctx$6.fillStyle = "rgb(0,255,255)";
-			_ctx$6.fillRect(x, y, width, height);
-			_ctx$6.fillStyle = "rgb(140,140,140)";
-			_ctx$6.fillRect(x + 1, y + 1, 238, 13);
-			_ctx$6.fillStyle = "rgb(66,99,165)";
-			_ctx$6.fillRect(x + 2, y + 2, Math.floor(percent * 236 * .01), 11);
-			_ctx$6.fillStyle = "rgb(255,255,0)";
-			_ctx$6.fillText(percent + "%", Math.floor((_canvas.width - _ctx$6.measureText(percent + "%").width) * .5), y + 11);
+			_ctx$5.fillStyle = "rgb(0,255,255)";
+			_ctx$5.fillRect(x, y, width, height);
+			_ctx$5.fillStyle = "rgb(140,140,140)";
+			_ctx$5.fillRect(x + 1, y + 1, 238, 13);
+			_ctx$5.fillStyle = "rgb(66,99,165)";
+			_ctx$5.fillRect(x + 2, y + 2, Math.floor(percent * 236 * .01), 11);
+			_ctx$5.fillStyle = "rgb(255,255,0)";
+			_ctx$5.fillText(percent + "%", Math.floor((_canvas.width - _ctx$5.measureText(percent + "%").width) * .5), y + 11);
 		}
 	};
 }));
@@ -207575,7 +207575,7 @@ function fillImageData(imageData, frame, pal, color) {
 		}
 	}
 }
-var mat4$23, RenderCanvas2D, _program$25, _buffer$18, _ctx$5, _gl$2, _groupId, _lastGroupId, _shadow, _angle, _depth, _disableDepthCorrection, _depthMask, _depthTest, _texture$4, _usepal, _pos$8, _matrix$7, _size$7, _offset, SpriteRenderer;
+var mat4$23, RenderCanvas2D, _program$25, _buffer$18, _ctx$4, _gl$2, _groupId, _lastGroupId, _shadow, _angle, _depth, _disableDepthCorrection, _depthMask, _depthTest, _texture$4, _usepal, _pos$8, _matrix$7, _size$7, _offset, SpriteRenderer;
 var init_SpriteRenderer = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
@@ -207640,17 +207640,17 @@ var init_SpriteRenderer = __esmMin((() => {
 				_size$7[1] *= -1;
 			}
 			const canvas = getFrameCanvas(frame, pal, this.color);
-			_ctx$5.save();
-			_ctx$5.translate(_x | 0, _y | 0);
-			_ctx$5.rotate(this.angle / 180 * Math.PI);
-			_ctx$5.scale(scale_x, scale_y);
-			_ctx$5.drawImage(canvas, 0, 0, width, height, -_size$7[0] >> 1, -_size$7[1] >> 1, _size$7[0] | 0, _size$7[1] | 0);
-			_ctx$5.restore();
+			_ctx$4.save();
+			_ctx$4.translate(_x | 0, _y | 0);
+			_ctx$4.rotate(this.angle / 180 * Math.PI);
+			_ctx$4.scale(scale_x, scale_y);
+			_ctx$4.drawImage(canvas, 0, 0, width, height, -_size$7[0] >> 1, -_size$7[1] >> 1, _size$7[0] | 0, _size$7[1] | 0);
+			_ctx$4.restore();
 		};
 	})();
 	_program$25 = null;
 	_buffer$18 = null;
-	_ctx$5 = null;
+	_ctx$4 = null;
 	_gl$2 = null;
 	_groupId = 0;
 	_lastGroupId = 0;
@@ -207820,7 +207820,7 @@ var init_SpriteRenderer = __esmMin((() => {
 		* @param {number} y position
 		*/
 		static bind2DContext(ctx, x, y) {
-			_ctx$5 = ctx;
+			_ctx$4 = ctx;
 			_pos$8[0] = x;
 			_pos$8[1] = y;
 			this.render = RenderCanvas2D;
@@ -221581,13 +221581,13 @@ function eventsBooks$1() {
 	if (!event) return;
 	Client.getFiles(["data/sprite/book/Ã¥ÀÐ±â.spr", "data/sprite/book/Ã¥ÀÐ±â.act"], function(spr, act) {
 		try {
-			_sprite$4 = new SPR(spr);
-			_action$4 = new ACT(act);
+			_sprite$3 = new SPR(spr);
+			_action$3 = new ACT(act);
 		} catch (e) {
 			console.error("Book::init() - " + e.message);
 			return;
 		}
-		const canvas = _sprite$4.getCanvasFromFrame(0);
+		const canvas = _sprite$3.getCanvasFromFrame(0);
 		canvas.className = "book_open event_add_cursor";
 		event.appendChild(canvas);
 		const bookOpen = root.querySelector(".book_open");
@@ -221612,7 +221612,7 @@ function eventsBooks$1() {
 		readCanvas.height = 15;
 		readCanvas.className = "book_read event_add_cursor";
 		event.appendChild(readCanvas);
-		_ctx$4 = readCanvas.getContext("2d");
+		_ctx$3 = readCanvas.getContext("2d");
 		const bookRead = root.querySelector(".book_read");
 		if (bookRead) {
 			bookRead.addEventListener("mouseover", (e) => {
@@ -221645,7 +221645,7 @@ function validateFieldsExist$1(event) {
 	if (!event.querySelector("button")) event.insertAdjacentHTML("beforeend", "<button class=\"view\" data-background=\"btn_view.bmp\" data-down=\"btn_view_a.bmp\" data-hover=\"btn_view_b.bmp\"></button>");
 	return true;
 }
-var _sprite$4, _action$4, _ctx$4, _type$7, _start$2, ItemCompare, rendering$3, ItemCompare_default;
+var _sprite$3, _action$3, _ctx$3, _type$6, _start$1, ItemCompare, rendering$3, ItemCompare_default;
 var init_ItemCompare = __esmMin((() => {
 	init_DBManager();
 	init_ItemType();
@@ -221664,8 +221664,8 @@ var init_ItemCompare = __esmMin((() => {
 	init_ItemCompare$1();
 	init_ItemInfo();
 	init_Entity$1();
-	_type$7 = 0;
-	_start$2 = 0;
+	_type$6 = 0;
+	_start$1 = 0;
 	ItemCompare = new GUIComponent("ItemCompare", ItemCompare_default$1);
 	ItemCompare.render = () => ItemCompare_default$2;
 	/**
@@ -221784,14 +221784,14 @@ var init_ItemCompare = __esmMin((() => {
 		const position = new Uint16Array([0, 0]);
 		return function render() {
 			const _entity = new Entity();
-			const action = _action$4.actions[_type$7];
-			const anim = Math.floor((Renderer.tick - _start$2) / action.delay);
+			const action = _action$3.actions[_type$6];
+			const anim = Math.floor((Renderer.tick - _start$1) / action.delay);
 			const animation = action.animations[anim % action.animations.length];
 			let i, count;
 			count = animation.layers.length;
-			SpriteRenderer.bind2DContext(_ctx$4, 10, 25);
-			_ctx$4.clearRect(0, 0, _ctx$4.canvas.width, _ctx$4.canvas.height);
-			for (i = 0, count = animation.layers.length; i < count; ++i) _entity.renderLayer(animation.layers[i], _sprite$4, _sprite$4, 1, position, false);
+			SpriteRenderer.bind2DContext(_ctx$3, 10, 25);
+			_ctx$3.clearRect(0, 0, _ctx$3.canvas.width, _ctx$3.canvas.height);
+			for (i = 0, count = animation.layers.length; i < count; ++i) _entity.renderLayer(animation.layers[i], _sprite$3, _sprite$3, 1, position, false);
 		};
 	})();
 	ItemCompare_default = UIManager.addComponent(ItemCompare);
@@ -221864,7 +221864,7 @@ function applyPreviewItem(entity) {
 	if (_previewLocation & EquipmentLocation_default.COSTUME_HEAD_TOP) entity.accessory2 = _previewSpriteId;
 	if (_previewLocation & EquipmentLocation_default.COSTUME_ROBE) entity.robe = _previewSpriteId;
 }
-var ItemPreview, _ctx$3, _direction, _previewLocation, _previewSpriteId, _rendering, _remove, renderPreview, ItemPreview_default;
+var ItemPreview, _ctx$2, _direction, _previewLocation, _previewSpriteId, _rendering, _remove, renderPreview, ItemPreview_default;
 var init_ItemPreview = __esmMin((() => {
 	init_DBManager();
 	init_EquipmentLocation();
@@ -221898,7 +221898,7 @@ var init_ItemPreview = __esmMin((() => {
 	*/
 	ItemPreview.init = function init() {
 		const root = this.getRoot();
-		_ctx$3 = root.querySelector("canvas").getContext("2d");
+		_ctx$2 = root.querySelector("canvas").getContext("2d");
 		root.querySelector(".close").addEventListener("click", () => {
 			ItemPreview.remove();
 		});
@@ -221982,8 +221982,8 @@ var init_ItemPreview = __esmMin((() => {
 			save: false
 		};
 		return function render() {
-			if (!_ctx$3) return;
-			_ctx$3.clearRect(0, 0, _ctx$3.canvas.width, _ctx$3.canvas.height);
+			if (!_ctx$2) return;
+			_ctx$2.clearRect(0, 0, _ctx$2.canvas.width, _ctx$2.canvas.height);
 			if (!_previewSpriteId || !_previewLocation || !SessionStorage_default.Entity) return;
 			const previewCharacter = new Entity();
 			previewCharacter.set({
@@ -222009,8 +222009,8 @@ var init_ItemPreview = __esmMin((() => {
 			previewCharacter.headDir = 0;
 			previewCharacter.action = previewCharacter.ACTION.IDLE;
 			previewCharacter.animation = _animation;
-			SpriteRenderer.bind2DContext(_ctx$3, Math.floor(_ctx$3.canvas.width / 2), _ctx$3.canvas.height);
-			previewCharacter.renderEntity(_ctx$3);
+			SpriteRenderer.bind2DContext(_ctx$2, Math.floor(_ctx$2.canvas.width / 2), _ctx$2.canvas.height);
+			previewCharacter.renderEntity(_ctx$2);
 			previewCharacter.effectColor.set(_savedColor);
 		};
 	})();
@@ -223696,7 +223696,7 @@ function resetPathFindingWorker() {
 	terminatePathFindingWorker();
 	initializePathFindingWorker();
 }
-var Navigation, _arrow, _toolDealer, _weaponDealer, _armorDealer, _blacksmith, _guide, _inn, _kafra, _map, _ctx$2, _towninfo, _markers, _path, _lastPathUpdate, _pathUpdateThrottle, _pathUpdateLock, _pathFindingWorker, _mapData, _targetData, _finalTargetData, _isMapClickTarget, _blinking, _fadeInterval, _originalColor, _documentClickHandler, Navigation_default;
+var Navigation, _arrow, _toolDealer, _weaponDealer, _armorDealer, _blacksmith, _guide, _inn, _kafra, _map, _ctx$1, _towninfo, _markers, _path, _lastPathUpdate, _pathUpdateThrottle, _pathUpdateLock, _pathFindingWorker, _mapData, _targetData, _finalTargetData, _isMapClickTarget, _blinking, _fadeInterval, _originalColor, _documentClickHandler, Navigation_default;
 var init_Navigation = __esmMin((() => {
 	init_KeyEventHandler();
 	init_Renderer();
@@ -223722,7 +223722,7 @@ var init_Navigation = __esmMin((() => {
 	_inn = createAsyncImage();
 	_kafra = createAsyncImage();
 	_map = createAsyncImage();
-	_ctx$2 = null;
+	_ctx$1 = null;
 	_towninfo = [];
 	_markers = [];
 	_path = [];
@@ -223771,7 +223771,7 @@ var init_Navigation = __esmMin((() => {
 		const canvas = document.createElement("canvas");
 		canvas.width = 280;
 		canvas.height = 230;
-		_ctx$2 = canvas.getContext("2d");
+		_ctx$1 = canvas.getContext("2d");
 		const mapDisplay = root.querySelector(".map-display");
 		if (mapDisplay) mapDisplay.appendChild(canvas);
 		Client.loadFile(`${DB.INTERFACE_PATH}map/map_arrow.bmp`, (dataURI) => {
@@ -224050,7 +224050,7 @@ var init_Navigation = __esmMin((() => {
 		if ((this._host ? getComputedStyle(this._host).display : "none") === "none") return;
 		const width = 280;
 		const height = 230;
-		const ctx = _ctx$2;
+		const ctx = _ctx$1;
 		if (!ctx) return;
 		const currentMap = getCurrentMap();
 		const currentPos = getPlayerPosition();
@@ -225632,7 +225632,7 @@ function _root$18() {
 function onValidate$1() {
 	const root = _root$18();
 	const PartyFriends = UIManager.getComponent("PartyFriends");
-	switch (_type$6) {
+	switch (_type$5) {
 		case PartyHelper.Type.CREATE: {
 			const nameInput = root.querySelector(".content .name");
 			const name = nameInput ? nameInput.value : "";
@@ -225660,7 +225660,7 @@ function onValidate$1() {
 		}
 	}
 }
-var PartyHelper, _type$6, PartyHelper_default;
+var PartyHelper, _type$5, PartyHelper_default;
 var init_PartyHelper = __esmMin((() => {
 	init_UIManager();
 	init_GUIComponent();
@@ -225680,7 +225680,7 @@ var init_PartyHelper = __esmMin((() => {
 		INVITE: 2,
 		FRIEND_SETUP: 3
 	};
-	_type$6 = PartyHelper.Type.CREATE;
+	_type$5 = PartyHelper.Type.CREATE;
 	/**
 	* Render HTML
 	*/
@@ -225900,7 +225900,7 @@ var init_PartyHelper = __esmMin((() => {
 					el.style.display = "none";
 				});
 		}
-		_type$6 = type;
+		_type$5 = type;
 	};
 	/**
 	* Update party settings UI
@@ -225965,7 +225965,7 @@ var init_PartyHelper = __esmMin((() => {
 	* @returns {number}
 	*/
 	PartyHelper.getType = function getType() {
-		return _type$6;
+		return _type$5;
 	};
 	/**
 	* Hooks
@@ -244759,13 +244759,13 @@ function eventsBooks() {
 	if (!event) return;
 	Client.getFiles(["data/sprite/book/Ã¥ÀÐ±â.spr", "data/sprite/book/Ã¥ÀÐ±â.act"], function(spr, act) {
 		try {
-			_sprite$3 = new SPR(spr);
-			_action$3 = new ACT(act);
+			_sprite$2 = new SPR(spr);
+			_action$2 = new ACT(act);
 		} catch (e) {
 			console.error("Book::init() - " + e.message);
 			return;
 		}
-		const canvas = _sprite$3.getCanvasFromFrame(0);
+		const canvas = _sprite$2.getCanvasFromFrame(0);
 		canvas.className = "book_open event_add_cursor";
 		event.appendChild(canvas);
 		const bookOpen = root.querySelector(".book_open");
@@ -244790,7 +244790,7 @@ function eventsBooks() {
 		readCanvas.height = 15;
 		readCanvas.className = "book_read event_add_cursor";
 		event.appendChild(readCanvas);
-		_ctx$1 = readCanvas.getContext("2d");
+		_ctx = readCanvas.getContext("2d");
 		const bookRead = root.querySelector(".book_read");
 		if (bookRead) {
 			bookRead.addEventListener("mouseover", (e) => {
@@ -244861,7 +244861,7 @@ function buildMoveInfoTooltip(moveInfo) {
 	for (const entry of MOVE_INFO_MESSAGES) if (moveInfo[entry.key] === true) lines.push(DB.getMessage(entry.msgId));
 	return lines.map((l) => `<div>${l}</div>`).join("");
 }
-var ItemInfo, _sprite$3, _action$3, _ctx$1, _type$5, _start$1, MOVE_INFO_MESSAGES, rendering$2, ItemInfo_default;
+var ItemInfo, _sprite$2, _action$2, _ctx, _type$4, _start, MOVE_INFO_MESSAGES, rendering$2, ItemInfo_default;
 var init_ItemInfo = __esmMin((() => {
 	init_DBManager();
 	init_ItemType();
@@ -244890,8 +244890,8 @@ var init_ItemInfo = __esmMin((() => {
 	init_Inventory();
 	ItemInfo = new GUIComponent("ItemInfo", ItemInfo_default$1);
 	ItemInfo.render = () => ItemInfo_default$2;
-	_type$5 = 0;
-	_start$1 = 0;
+	_type$4 = 0;
+	_start = 0;
 	/**
 	* @let {number} ItemInfo unique id
 	*/
@@ -245101,14 +245101,14 @@ var init_ItemInfo = __esmMin((() => {
 		const position = new Uint16Array([0, 0]);
 		return function render() {
 			const _entity = new Entity();
-			const action = _action$3.actions[_type$5];
-			const anim = Math.floor((Renderer.tick - _start$1) / action.delay);
+			const action = _action$2.actions[_type$4];
+			const anim = Math.floor((Renderer.tick - _start) / action.delay);
 			const animation = action.animations[anim % action.animations.length];
 			let i, count;
 			count = animation.layers.length;
-			SpriteRenderer.bind2DContext(_ctx$1, 10, 25);
-			_ctx$1.clearRect(0, 0, _ctx$1.canvas.width, _ctx$1.canvas.height);
-			for (i = 0, count = animation.layers.length; i < count; ++i) _entity.renderLayer(animation.layers[i], _sprite$3, _sprite$3, 1, position, false);
+			SpriteRenderer.bind2DContext(_ctx, 10, 25);
+			_ctx.clearRect(0, 0, _ctx.canvas.width, _ctx.canvas.height);
+			for (i = 0, count = animation.layers.length; i < count; ++i) _entity.renderLayer(animation.layers[i], _sprite$2, _sprite$2, 1, position, false);
 		};
 	})();
 	/**
@@ -313972,14 +313972,14 @@ function preCompiledAnimations() {
 	const dataURIList = [];
 	_compiledStyle = [];
 	const position = [0, 0];
-	for (i = 0, count = _action$2.actions.length; i < count; ++i) {
-		action = _action$2.actions[i];
+	for (i = 0, count = _action$1.actions.length; i < count; ++i) {
+		action = _action$1.actions[i];
 		info = ActionInformations[i] || ActionInformations[Cursor.ACTION.DEFAULT];
 		for (j = 0, size = action.animations.length; j < size; ++j) {
 			animation = action.animations[j];
 			SpriteRenderer.bind2DContext(ctx, info.drawX, info.drawY);
 			ctx.clearRect(0, 0, 50, 50);
-			for (k = 0, total = animation.layers.length; k < total; ++k) entity.renderLayer(animation.layers[k], _sprite$2, _sprite$2, 1, position, false);
+			for (k = 0, total = animation.layers.length; k < total; ++k) entity.renderLayer(animation.layers[k], _sprite$1, _sprite$1, 1, position, false);
 			dataURI = canvas.toDataURL("image/png");
 			pos = dataURIList.indexOf(dataURI);
 			if (pos > -1) {
@@ -314041,7 +314041,7 @@ function createSpriteSheet() {
 	}
 	for (let i = 0; i < totalSprites; i++) drawSprite(i);
 }
-var _tick, _norepeat, _animation, _play, _lastStyleId, _lastX, _lastY, _compiledStyle, _sceneDriven, _loopId, _sprite$2, _action$2, _selector, Cursor, _type$4, ActionInformations;
+var _tick, _norepeat, _animation, _play, _lastStyleId, _lastX, _lastY, _compiledStyle, _sceneDriven, _loopId, _sprite$1, _action$1, _selector, Cursor, _type$3, ActionInformations;
 var init_CursorManager = __esmMin((() => {
 	init_Client();
 	init_MemoryManager();
@@ -314104,14 +314104,14 @@ var init_CursorManager = __esmMin((() => {
 		* Load cursor data (action, sprite)
 		*/
 		static init(fn) {
-			if (_sprite$2) {
+			if (_sprite$1) {
 				fn();
 				return;
 			}
 			Client.getFiles(["data/sprite/cursors.spr", "data/sprite/cursors.act"], (spr, act) => {
 				try {
-					_sprite$2 = new SPR(spr);
-					_action$2 = new ACT(act);
+					_sprite$1 = new SPR(spr);
+					_action$1 = new ACT(act);
 				} catch (e) {
 					console.error("Cursor::init() - " + e.message);
 					return;
@@ -314134,7 +314134,7 @@ var init_CursorManager = __esmMin((() => {
 		*/
 		static setType(type, norepeat, animation) {
 			if (Cursor.freeze) return;
-			_type$4 = type;
+			_type$3 = type;
 			_tick = Date.now();
 			_norepeat = !!norepeat;
 			if (typeof animation !== "undefined") {
@@ -314151,7 +314151,7 @@ var init_CursorManager = __esmMin((() => {
 		* @return {number} Cursor.ACTION.*
 		*/
 		static getActualType() {
-			return _type$4;
+			return _type$3;
 		}
 		/**
 		* Let the scene render loop draw the cursor after its frame, or draw it on its own while the scene is stopped
@@ -314174,8 +314174,8 @@ var init_CursorManager = __esmMin((() => {
 				return;
 			}
 			if (_selector && _selector.style.display === "none") _selector.style.display = "block";
-			const info = ActionInformations[_type$4] || ActionInformations[Cursor.ACTION.DEFAULT];
-			const action = _action$2.actions[_type$4] || _action$2.actions[Cursor.ACTION.DEFAULT];
+			const info = ActionInformations[_type$3] || ActionInformations[Cursor.ACTION.DEFAULT];
+			const action = _action$1.actions[_type$3] || _action$1.actions[Cursor.ACTION.DEFAULT];
 			let anim = _animation;
 			const delay = action.delay * info.delayMult;
 			let x = info.startX;
@@ -314214,7 +314214,7 @@ var init_CursorManager = __esmMin((() => {
 			}
 		}
 	};
-	_type$4 = Cursor.ACTION.DEFAULT;
+	_type$3 = Cursor.ACTION.DEFAULT;
 	ActionInformations = {};
 	ActionInformations[Cursor.ACTION.DEFAULT] = {
 		drawX: 1,
@@ -319482,11 +319482,11 @@ function addItem$1(content, item, isinput) {
 		const price = prettyZeny$3(item.price, true);
 		const container = document.createElement("div");
 		container.className = "item-container";
-		const amountText = _type$3 === Vending.Type.BUYING_STORE ? item.total : item.IsStackable ? item.count : "";
-		const eaHtml = _type$3 === Vending.Type.BUYING_STORE ? `<div class="amount_">${item.count} ea</div>` : "";
+		const amountText = _type$2 === Vending.Type.BUYING_STORE ? item.total : item.IsStackable ? item.count : "";
+		const eaHtml = _type$2 === Vending.Type.BUYING_STORE ? `<div class="amount_">${item.count} ea</div>` : "";
 		container.innerHTML = `<div class="item output" draggable="true" data-index="${item.index}"><div class="icon"></div><div class="amount">${amountText}</div>` + eaHtml + `<div class="name">${escapeHtml(DB.getItemName(item))}</div><div class="price">${textPrice} ${price}</div></div>`;
 		itemObj = container;
-		if (_type$3 === Vending.Type.BUYING_STORE) {
+		if (_type$2 === Vending.Type.BUYING_STORE) {
 			const limitInput = Vending.getRoot().querySelector(".limitZeny");
 			let limit = parseInt(limitInput.value, 10);
 			limit += item.count * item.price;
@@ -319512,7 +319512,7 @@ function requestMoveItem$1(index, fromContent, toContent, isAdding) {
 		if (!(countSlotsUsed() < _slots)) return false;
 		count = _input$1[index].count;
 	} else count = _output$1[index].count;
-	if ((item.count === 1 || !item.IsStackable) && _type$3 === Vending.Type.VENDING_STORE) {
+	if ((item.count === 1 || !item.IsStackable) && _type$2 === Vending.Type.VENDING_STORE) {
 		if (isAdding) {
 			InputBox_default.append();
 			InputBox_default.setType("price", false, item_price);
@@ -319529,11 +319529,11 @@ function requestMoveItem$1(index, fromContent, toContent, isAdding) {
 	InputBox_default.onSubmitRequest = function(_count) {
 		InputBox_default.remove();
 		if (_count > 0) {
-			if (_count >= 9999 && _type$3 === Vending.Type.BUYING_STORE) {
+			if (_count >= 9999 && _type$2 === Vending.Type.BUYING_STORE) {
 				VendingModelMessage_default.setInit(1742);
 				return;
 			}
-			if (item.count + _count > 9999 && _type$3 === Vending.Type.BUYING_STORE) {
+			if (item.count + _count > 9999 && _type$2 === Vending.Type.BUYING_STORE) {
 				VendingModelMessage_default.setInit(1728);
 				return;
 			}
@@ -319578,7 +319578,7 @@ function onItemInfo$11(event) {
 	ItemInfo_default.setItem(item);
 }
 function onItemSelected$1() {
-	if (_type$3 === Vending.Type.BUY || _type$3 === Vending.Type.VENDING_STORE) return;
+	if (_type$2 === Vending.Type.BUY || _type$2 === Vending.Type.VENDING_STORE) return;
 	const root = Vending.getRoot();
 	const inputWin = root.querySelector(".InputWindow");
 	let from, to;
@@ -319655,7 +319655,7 @@ function submitNetworkPacket(pkt) {
 function onItemOver$8() {
 	if (!this.classList.contains("input")) return;
 	const idx = parseInt(this.getAttribute("data-index"), 10);
-	const item = _type$3 === Vending.Type.VENDING_STORE ? CartItems_default.getItemByIndex(idx) : InventoryController.getItemByIndex(idx);
+	const item = _type$2 === Vending.Type.VENDING_STORE ? CartItems_default.getItemByIndex(idx) : InventoryController.getItemByIndex(idx);
 	if (!item) return;
 	const overlay = Vending.getRoot().querySelector(".overlay");
 	overlay.style.display = "";
@@ -319667,7 +319667,7 @@ function onItemOut$9() {
 	const overlay = Vending.getRoot().querySelector(".overlay");
 	if (overlay) overlay.style.display = "none";
 }
-var Vending, _preferences$16, _input$1, _output$1, _slots, _type$3, transferItem$1, Vending_default;
+var Vending, _preferences$16, _input$1, _output$1, _slots, _type$2, transferItem$1, Vending_default;
 var init_Vending = __esmMin((() => {
 	init_DBManager();
 	init_NetworkManager();
@@ -319730,7 +319730,7 @@ var init_Vending = __esmMin((() => {
 			cancelBtn.addEventListener("click", (e) => {
 				e.stopImmediatePropagation();
 				let pkt;
-				if (_type$3 === Vending.Type.VENDING_STORE) pkt = new PACKET.CZ.REQ_OPENSTORE2();
+				if (_type$2 === Vending.Type.VENDING_STORE) pkt = new PACKET.CZ.REQ_OPENSTORE2();
 				else pkt = new PACKET.CZ.REQ_OPEN_BUYING_STORE();
 				submitNetworkPacket(pkt);
 				Vending.onRemove();
@@ -319842,7 +319842,7 @@ var init_Vending = __esmMin((() => {
 				root.querySelector(".weightSpan").textContent = `${BasicInfoController.weight}/${BasicInfoController.weight_max}`;
 				root.querySelector(".limitZeny").value = "0";
 		}
-		_type$3 = type;
+		_type$2 = type;
 	};
 	Vending.onRemove = function onRemove() {
 		VendingModelMessage_default.onRemove();
@@ -319905,17 +319905,17 @@ var init_Vending = __esmMin((() => {
 					VendingModelMessage_default.setInit(603);
 					return;
 				}
-				_output$1[index].count = _type$3 === Vending.Type.BUYING_STORE ? count : Math.min(_output$1[index].count + count, _input$1[index].count);
+				_output$1[index].count = _type$2 === Vending.Type.BUYING_STORE ? count : Math.min(_output$1[index].count + count, _input$1[index].count);
 				tmpItem = Object.assign({}, _input$1[index]);
-				tmpItem.count = _type$3 === Vending.Type.BUYING_STORE ? 0 : _input$1[index].count - _output$1[index].count;
+				tmpItem.count = _type$2 === Vending.Type.BUYING_STORE ? 0 : _input$1[index].count - _output$1[index].count;
 				addItem$1(fromContent, tmpItem, true);
 				addItem$1(toContent, _output$1[index], false);
 			} else {
 				count = Math.min(count, _output$1[index].count);
 				if (!count) return;
-				_output$1[index].count = _type$3 === Vending.Type.BUYING_STORE ? 0 : _output$1[index].count - count;
+				_output$1[index].count = _type$2 === Vending.Type.BUYING_STORE ? 0 : _output$1[index].count - count;
 				tmpItem = Object.assign({}, _input$1[index]);
-				tmpItem.count = _type$3 === Vending.Type.BUYING_STORE ? _input$1[index].total : _input$1[index].count + _output$1[index].count;
+				tmpItem.count = _type$2 === Vending.Type.BUYING_STORE ? _input$1[index].total : _input$1[index].count + _output$1[index].count;
 				addItem$1(fromContent, _output$1[index], false);
 				addItem$1(toContent, tmpItem, true);
 			}
@@ -319968,7 +319968,7 @@ var init_Vending = __esmMin((() => {
 			return;
 		}
 		let pkt;
-		if (_type$3 === Vending.Type.VENDING_STORE) pkt = new PACKET.CZ.REQ_OPENSTORE2();
+		if (_type$2 === Vending.Type.VENDING_STORE) pkt = new PACKET.CZ.REQ_OPENSTORE2();
 		else {
 			pkt = new PACKET.CZ.REQ_OPEN_BUYING_STORE();
 			limitZeny = parseInt(root.querySelector(".limitZeny").value, 10);
@@ -320082,7 +320082,7 @@ function onItemOver$7(itemEl, root) {
 	overlay.style.left = `${itemEl.offsetLeft + 35}px`;
 	overlay.textContent = `${DB.getItemName(item)} ${prettyZeny$2(item.price, false)} ${DB.getMessage(2328)}`;
 	if (item.IsIdentified) overlay.classList.remove("grey");
-	else if (_type$2 === VendingShop.Type.VENDING_LIST) overlay.classList.add("grey");
+	else if (_type$1 === VendingShop.Type.VENDING_LIST) overlay.classList.add("grey");
 }
 /**
 * Hide the item name
@@ -320127,7 +320127,7 @@ function onItemUsed(event, itemEl) {
 	event.stopImmediatePropagation();
 	event.preventDefault();
 }
-var VendingShop, _realSize, _type$2, _preferences$15, VendingShop_default;
+var VendingShop, _realSize, _type$1, _preferences$15, VendingShop_default;
 var init_VendingShop = __esmMin((() => {
 	init_DBManager();
 	init_NetworkManager();
@@ -320229,7 +320229,7 @@ var init_VendingShop = __esmMin((() => {
 	* @param {number} type (see NpcStore.Type.*)
 	*/
 	VendingShop.setType = function setType(type) {
-		_type$2 = type;
+		_type$1 = type;
 	};
 	/**
 	* Remove Inventory from window (and so clean up items)
@@ -320404,11 +320404,11 @@ var init_VendingShop = __esmMin((() => {
 	*/
 	VendingShop.onSubmit = function onSubmit() {
 		let pkt;
-		if (_type$2 === VendingShop.Type.VENDING_LIST) pkt = new PACKET.CZ.REQ_CLOSESTORE();
+		if (_type$1 === VendingShop.Type.VENDING_LIST) pkt = new PACKET.CZ.REQ_CLOSESTORE();
 		else pkt = new PACKET.CZ.REQ_CLOSE_BUYING_STORE();
 		Network.sendPacket(pkt);
 		this.onRemove();
-		if (_type$2 === VendingShop.Type.VENDING_LIST && PacketVerManager_default.value >= 20141016) VendingReport_default.append();
+		if (_type$1 === VendingShop.Type.VENDING_LIST && PacketVerManager_default.value >= 20141016) VendingReport_default.append();
 	};
 	VendingShop.mouseMode = GUIComponent.MouseMode.STOP;
 	VendingShop_default = UIManager.addComponent(VendingShop);
@@ -321141,16 +321141,16 @@ function refreshList(contentEl) {
 		const emo = Emotions_default.order[index];
 		canvas.setAttribute("data-index", emo);
 		canvas.title = "/" + Emotions_default.names[emo];
-		const animations = _action$1.actions[emo].animations;
+		const animations = _action.actions[emo].animations;
 		const layers = animations[Math.floor(animations.length / 5)].layers;
 		const count = layers.length;
 		SpriteRenderer.bind2DContext(ctx, 20 - layers[0].pos[0], 40 - layers[0].pos[1]);
-		for (let i = 0; i < count; ++i) _entity$1.renderLayer(layers[i], _sprite$1, _sprite$1, 1, pos, false);
+		for (let i = 0; i < count; ++i) _entity$1.renderLayer(layers[i], _sprite, _sprite, 1, pos, false);
 		contentEl.appendChild(canvas);
 		index++;
 	}
 }
-var Emoticons, _page, EMOTICONS_PER_PAGE, TOTAL_PAGES, EMOTICONS_COUNT, _action$1, _sprite$1, _entity$1, _preferences$13, Emoticons_default;
+var Emoticons, _page, EMOTICONS_PER_PAGE, TOTAL_PAGES, EMOTICONS_COUNT, _action, _sprite, _entity$1, _preferences$13, Emoticons_default;
 var init_Emoticons = __esmMin((() => {
 	init_Emotions();
 	init_Client();
@@ -321186,8 +321186,8 @@ var init_Emoticons = __esmMin((() => {
 		const root = this.getRoot();
 		const contentEl = root.querySelector(".content");
 		Client.loadFiles(["data/sprite/ÀÌÆÑÆ®/emotion.act", "data/sprite/ÀÌÆÑÆ®/emotion.spr"], (act, spr) => {
-			_action$1 = act;
-			_sprite$1 = spr;
+			_action = act;
+			_sprite = spr;
 			TOTAL_PAGES = Math.max(0, Math.ceil(EMOTICONS_COUNT / EMOTICONS_PER_PAGE) - 1);
 			const totalEl = root.querySelector(".total");
 			if (totalEl) totalEl.textContent = TOTAL_PAGES + 1;
@@ -334023,7 +334023,7 @@ var init_SlotMachine$1 = __esmMin((() => {
 }));
 //#endregion
 //#region src/UI/Components/SlotMachine/SlotMachine.js
-var SlotMachine, _sprite, _action, _type$1, _result, _ctx, _entity, _start, rendering, SlotMachine_default;
+var SlotMachine, _entity, rendering, SlotMachine_default;
 var init_SlotMachine = __esmMin((() => {
 	init_GUIComponent();
 	init_UIManager();
@@ -334036,26 +334036,49 @@ var init_SlotMachine = __esmMin((() => {
 	init_SlotMachine$1();
 	SlotMachine = new GUIComponent("SlotMachine", SlotMachine_default$1);
 	SlotMachine.render = () => SlotMachine_default$2;
-	_type$1 = 0;
-	_result = false;
+	/**
+	* @var {Sprite,Action} objects
+	*/
+	SlotMachine._sprite = null;
+	SlotMachine._action = null;
+	/**
+	* @var {boolean} sprite and action ready to render
+	*/
+	SlotMachine._loaded = false;
+	/**
+	* @var {number} type
+	*/
+	SlotMachine._type = 0;
+	/**
+	* @var {boolean} result
+	*/
+	SlotMachine._result = false;
+	/**
+	* @var {CanvasRenderingContext2D}
+	*/
+	SlotMachine._ctx = null;
 	_entity = new Entity();
-	_start = 0;
+	/**
+	* @var {number} start tick
+	*/
+	SlotMachine._start = 0;
 	/**
 	* Initialize UI
 	*/
 	SlotMachine.init = function init() {
 		const canvas = this.getRoot().querySelector("canvas");
-		_ctx = canvas.getContext("2d");
+		SlotMachine._ctx = canvas.getContext("2d");
 		this._host.style.zIndex = "500";
 		Client.loadFiles(["data/sprite/slotmachine.spr", "data/sprite/slotmachine.act"], (spr, act) => {
-			_sprite = spr;
-			_action = act;
-			_type$1 = 0;
-			_start = Renderer.tick;
+			SlotMachine._sprite = spr;
+			SlotMachine._action = act;
+			SlotMachine._type = 0;
+			SlotMachine._loaded = true;
+			SlotMachine._start = Renderer.tick;
 			if (this._host.parentNode) Renderer.render(rendering);
 		});
 		canvas.addEventListener("mousedown", (event) => {
-			if (_type$1 === 0) {
+			if (SlotMachine._loaded && SlotMachine._type === 0) {
 				SlotMachine.onTry();
 				event.stopImmediatePropagation();
 				event.preventDefault();
@@ -334066,11 +334089,11 @@ var init_SlotMachine = __esmMin((() => {
 	* Once append to body
 	*/
 	SlotMachine.onAppend = function onAppend() {
-		_type$1 = 0;
-		_start = Renderer.tick;
+		SlotMachine._type = 0;
+		SlotMachine._start = Renderer.tick;
 		this._host.style.top = `${Renderer.height / 2 - 130}px`;
 		this._host.style.left = `${Renderer.width / 2 - 135}px`;
-		if (_sprite && _action) Renderer.render(rendering);
+		if (SlotMachine._sprite && SlotMachine._action) Renderer.render(rendering);
 	};
 	/**
 	* Once removed from body
@@ -334084,36 +334107,36 @@ var init_SlotMachine = __esmMin((() => {
 	* @param {boolean} result
 	*/
 	SlotMachine.setResult = function setResult(result) {
-		_type$1 = 1;
-		_result = result;
-		_start = Renderer.tick;
+		SlotMachine._type = 1;
+		SlotMachine._result = result;
+		SlotMachine._start = Renderer.tick;
 	};
 	rendering = (() => {
 		const position = new Uint16Array([0, 0]);
 		return () => {
 			let action, anim;
-			switch (_type$1) {
+			switch (SlotMachine._type) {
 				case 0:
-					action = _action.actions[0];
-					anim = Math.floor((Renderer.tick - _start) / action.delay * 2);
+					action = SlotMachine._action.actions[0];
+					anim = Math.floor((Renderer.tick - SlotMachine._start) / action.delay * 2);
 					break;
 				case 1: {
-					action = _action.actions[1];
-					const max = action.animations.length + (_result ? 7 : 3);
-					anim = Renderer.tick - _start;
+					action = SlotMachine._action.actions[1];
+					const max = action.animations.length + (SlotMachine._result ? 7 : 3);
+					anim = Renderer.tick - SlotMachine._start;
 					anim = Math.floor(anim / action.delay);
 					anim = Math.min(anim, max);
 					if (anim === max) {
-						_type$1 = _result ? 2 : 3;
-						_start = Renderer.tick;
+						SlotMachine._type = SlotMachine._result ? 2 : 3;
+						SlotMachine._start = Renderer.tick;
 					}
 					break;
 				}
 				case 2:
 				case 3: {
-					action = _action.actions[_type$1];
+					action = SlotMachine._action.actions[SlotMachine._type];
 					const max = action.animations.length;
-					anim = Renderer.tick - _start;
+					anim = Renderer.tick - SlotMachine._start;
 					anim = Math.floor(anim / action.delay);
 					if (anim >= max) {
 						Renderer.stop(rendering);
@@ -334125,9 +334148,9 @@ var init_SlotMachine = __esmMin((() => {
 				}
 			}
 			const animation = action.animations[anim % action.animations.length];
-			SpriteRenderer.bind2DContext(_ctx, 140, 165);
-			_ctx.clearRect(0, 0, _ctx.canvas.width, _ctx.canvas.height);
-			for (let i = 0, count = animation.layers.length; i < count; ++i) _entity.renderLayer(animation.layers[i], _sprite, _sprite, 1, position, false);
+			SpriteRenderer.bind2DContext(SlotMachine._ctx, 140, 165);
+			SlotMachine._ctx.clearRect(0, 0, SlotMachine._ctx.canvas.width, SlotMachine._ctx.canvas.height);
+			for (let i = 0, count = animation.layers.length; i < count; ++i) _entity.renderLayer(animation.layers[i], SlotMachine._sprite, SlotMachine._sprite, 1, position, false);
 		};
 	})();
 	/**
