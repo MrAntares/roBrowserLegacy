@@ -567,6 +567,9 @@ function onConnectionAccepted(pkt) {
 	Session.guildPermission = 0;
 	GuildEngine.resetForNewCharacter();
 
+	// No reply comes for an /ex or /in sent on the previous connection
+	ChatBox.PrivateMessageStorage.blockNicks.length = 0;
+
 	Session.homunId = 0;
 
 	// clevel is already populated by Entity.set() in the Player constructor

@@ -101,6 +101,53 @@ function onPrivateMessageSent(pkt) {
 }
 
 /**
+ * Result of a /ex or /in request
+ *
+ * @param {object} pkt - PACKET.ZC.SETTING_WHISPER_PC
+ */
+function onWhisperSettingResult(pkt) {
+	// Every reply answers the oldest request, printed or not
+	const name = ChatBox.PrivateMessageStorage.blockNicks.shift() || '';
+
+	// A block that went through is not announced
+	if (pkt.type > 1 || pkt.result > 2 || (pkt.type === 0 && pkt.result === 0)) {
+		return;
+	}
+
+	const msg = DB.getMessage(193 + pkt.type * 3 + pkt.result);
+	ChatBox.addText(`${name}${msg}`, ChatBox.TYPE.PRIVATE, ChatBox.FILTER.WHISPER);
+}
+
+/**
+ * Result of a /exall or /inall request
+ *
+ * @param {object} pkt - PACKET.ZC.SETTING_WHISPER_STATE
+ */
+function onWhisperStateResult(pkt) {
+	if (pkt.type > 1 || pkt.result > 1) {
+		return;
+	}
+
+	ChatBox.addText(DB.getMessage(58 + pkt.type * 2 + pkt.result), ChatBox.TYPE.PRIVATE, ChatBox.FILTER.WHISPER);
+}
+
+/**
+ * Received the whisper block list
+ *
+ * @param {object} pkt - PACKET.ZC.WHISPER_LIST
+ */
+function onWhisperList(pkt) {
+	const list = pkt.wisperList;
+	const count = list.length;
+
+	ChatBox.addText(DB.getMessage(count ? 63 : 62), ChatBox.TYPE.BLUE, ChatBox.FILTER.WHISPER);
+
+	for (let i = 0; i < count; ++i) {
+		ChatBox.addText(list[i].name, ChatBox.TYPE.BLUE, ChatBox.FILTER.WHISPER);
+	}
+}
+
+/**
  * Initialize
  */
 export default function PrivateMessageEngine() {
@@ -108,6 +155,9 @@ export default function PrivateMessageEngine() {
 	Network.hookPacket(PACKET.ZC.WHISPER2, onPrivateMessage);
 	Network.hookPacket(PACKET.ZC.ACK_WHISPER, onPrivateMessageSent);
 	Network.hookPacket(PACKET.ZC.ACK_WHISPER2, onPrivateMessageSent);
+	Network.hookPacket(PACKET.ZC.SETTING_WHISPER_PC, onWhisperSettingResult);
+	Network.hookPacket(PACKET.ZC.SETTING_WHISPER_STATE, onWhisperStateResult);
+	Network.hookPacket(PACKET.ZC.WHISPER_LIST, onWhisperList);
 
 	// Hook WhisperBox outbound messages
 	WhisperBox.onRequestTalk = function (nickname, text) {
