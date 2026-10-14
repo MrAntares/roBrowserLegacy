@@ -922,6 +922,17 @@ function onConnectionAccepted(pkt) {
 	Reconexao.aoEntrarComSucesso();
 
 	/*
+	 * A CONEXAO NOVA PARA O BOT (12/10/2026; bug #17 de 13/10/2026). O servidor recria o executor do Bot
+	 * quando a conexao muda (`statusRevision` do zero) e nao responde nesta conexao o que foi pedido na que
+	 * caiu: o BotMenu zera a linha de base e solta os pedidos em voo (`estadoDoBot.novaConexao`). AQUI, no
+	 * aceite, e nao no `MapRenderer.onLoad` de `onMapChange(.., true)`, onde morava: o servidor manda o
+	 * `ZC_NPCACK_MAPMOVE` logo depois do `ZC_ACCEPT_ENTER2` (servidor-mapa.ts, desde 27/08), o `onMapChange`
+	 * dele REATRIBUI o `onLoad` sem `ehEntradaNoMundo` antes de a carga terminar, e o aviso nunca rodava
+	 * numa reconexao de verdade - o botao "Ataque auto" seguia a revisao da conexao morta e congelava.
+	 */
+	BotMenu.novaConexaoDoServidor();
+
+	/*
 	 * A ECONOMIA DE ENERGIA NA REENTRADA (F29, auditoria de 22/09/2026). O servidor DESARMA a economia em toda
 	 * entrada no mundo; o cliente seguia com a tela preta aberta e sem avisar de novo. Quem reconectava com a
 	 * aba ainda oculta ficava sem economia, e a proxima queda tirava o personagem do mundo na hora. Fecha a
@@ -1669,11 +1680,7 @@ function onMapChange(pkt, ehEntradaNoMundo) {
 		PresencaIdle.append(); // RAGIDLE: janela de presenca (D-1162)
 		IndicacaoIdle.append(); // RAGIDLE: Indique & Ganhe (D-1164)
 		TrocaIdle.append(); // RAGIDLE: a janela "Trade" (02/10/2026) - anexada sempre, fechada
-		// RAGIDLE (12/10/2026): conexao nova = executor do Bot novo no servidor, com o
-		// `statusRevision` recomecando do zero. Antes do `append()`, que pede o estado.
-		if (ehEntradaNoMundo) {
-			BotMenu.novaConexaoDoServidor();
-		}
+		// RAGIDLE: a conexao nova ja avisou o BotMenu no aceite (`onConnectionAccepted`, bug #17 de 13/10/2026).
 		BotMenu.append(); // RAGIDLE: o menu do Bot novo (07/10/2026) - anexada sempre, fechada; pede o estado ao servidor
 		CombatCornerIdle.append(); // RAGIDLE: o botao "Ataque auto" (12/10/2026) - o ON/OFF do Bot fora da janela
 		RankingIdle.append(); // RAGIDLE: o Ranking
@@ -1697,8 +1704,11 @@ function onMapChange(pkt, ehEntradaNoMundo) {
 		 * (07/10/2026): a janela "Idle" que perguntava (`IdleConfig.sondarMapa`)
 		 * foi retirada, e quem marca o contexto como obsoleto e pede o estado
 		 * novo e o `BotMenu.append()` acima (ver UI/contextoDoMapa.js).
-		 * O parametro `ehEntradaNoMundo` de `onMapChange` voltou a ter leitor em
-		 * 12/10/2026: a linha de base do Bot antes do `BotMenu.append()`.
+		 * O parametro `ehEntradaNoMundo` de `onMapChange` teve leitor de 12/10 a
+		 * 13/10/2026 (a linha de base do Bot) e voltou a ficar sem: o `onLoad`
+		 * desta chamada e trocado pelo do MAPMOVE que o servidor manda logo atras
+		 * do aceite, entao o aviso da conexao nova mora em `onConnectionAccepted`
+		 * (bug #17 de 13/10/2026).
 		 */
 
 		// RAGIDLE: "Painel de admin" floating button — same unconditional

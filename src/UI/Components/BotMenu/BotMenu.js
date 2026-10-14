@@ -931,6 +931,11 @@ function desenharPostura(s, c) {
 		});
 	el('.bm-fallback').checked = p.fallbackMelee;
 	el('.bm-fallback-melee').hidden = p.tipo !== 'ranged-dps';
+	// Frente P (13/10/2026): na postura "So suporte" o Bot nunca ataca, e a aba Ataque diz que o modo nao vale (a escolha
+	// segue gravada e editavel para a proxima postura).
+	const soSuporte = p.tipo === 'ranged-buff';
+	el('.bm-modo-sem-efeito').hidden = !soSuporte;
+	el('.bm-modo').classList.toggle('is-sem-efeito', soSuporte);
 	const g = s.grupo;
 	el('.bm-posto-atual').textContent =
 		g && g.emGrupo ? 'Posto em vigor: ' + g.postoNome + '.' : 'Sem grupo: o Bot caça sozinho (Andarilho).';

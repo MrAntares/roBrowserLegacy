@@ -2599,6 +2599,53 @@ html.ri-vertical #ItemObtain {
 	top: var(--vr-item-obtido-topo, calc(var(--vr-abaixo-do-topo) + 130px)) !important;
 }
 
+/* A FAIXA DE AVISO (UI Announce) no celular em pe (bug #1 de 13/10/2026).
+
+   Ela nascia em `top: 40px` (o alto da tela no desktop, `Announce.css`) e na
+   vertical isso cai SOBRE a barra do personagem, que mora de 6 a 76px: o nome, o
+   Base Lv e as barras ficavam sob o texto, e o botao do menu (z 55) cobria o fim da
+   1a linha ("...tem efe[...] jogo e nao pode ser encaixada").
+
+   Agora ela mora na COLUNA do canto (a largura do cartao de missoes), no primeiro
+   lugar livre debaixo do cartao: nao encosta na barra do topo, no botao do menu, no
+   trilho, no cartao, no aviso de item, no placar do MVP, na faixa de grupo, nos
+   icones de buff, no botao de caca e no rotulo dele, no chat, na barra de atalhos
+   nem no cartao "Voce morreu". Sem lugar livre na coluna (placar e grupo numa
+   tela baixa), o ultimo recurso e SOBRE o cartao de missoes, rente ao topo dele:
+   nunca sobre as pecas da luta nem sobre a janela de morte. A regra (largura,
+   altura, lugar livre, prioridades) esta em `Components/Announce/posicaoDaFaixa.js`,
+   com teste e bateria de mutacao.
+
+   `--vr-aviso-topo` e MEDIDA pelo componente contra as pecas da HUD que estao na
+   tela (o placar so existe na luta de MVP, a faixa de grupo so com party, o cartao
+   cresce com as missoes) e remedida enquanto a faixa vive. O `calc` de nascenca
+   vale antes da primeira medida: a fileira de 44px do aviso de item (48 = 44 + o
+   vao de 4) abaixo do vao da barra do topo. O `left` e a margem da moldura mais a
+   borda segura. As duas !important pelo mesmo motivo de `#ItemObtain`: o host leva
+   `left` inline (o centro do desktop). O host segue `pointer-events: none`
+   (`Announce.css`, D-1493): a faixa nao pega toque. */
+html.ri-vertical #Announce {
+	top: var(--vr-aviso-topo, calc(var(--vr-abaixo-do-topo) + 48px)) !important;
+	left: calc(var(--safe-esq, 0px) + var(--vr-margem)) !important;
+}
+
+/* A faixa SOBRE uma peca (o ultimo recurso, por cima do cartao de missoes): o
+   fundo do canvas e `rgba(0,0,0,0.5)` (`Announce.js`), e por cima do cartao branco
+   as letras escuras dele apareciam debaixo das do aviso (print da sonda em
+   390x664, rodada 3). Este fundo no HOST fica atras do canvas e e OPACO: com 70%
+   e com 80% de preto (85% e 90% somados ao do canvas) as abas "Missoes / Codex /
+   Grupo" ainda se liam sob o banner de conquista em 360x640 (sonda, rodada 3);
+   so o opaco garante que nada do cartao aparece. A cor e o azul-tinta da casa
+   (`--blue-900`, #12294a; nunca preto puro, como o veu da `DeathWindow`), escrita
+   aqui por extenso porque os tokens de cor moram no `:host` dos componentes e
+   este seletor e do documento. Com os 50% de preto do canvas por cima, o fundo
+   fica um azul quase preto e o amarelo do aviso se le inteiro. A classe e posta
+   e tirada pelo componente (`posicaoDaFaixa.js`, `CLASSE_SOBRE_PECA`) a cada
+   medida; num lugar livre ela sai e a faixa e a de sempre. */
+html.ri-vertical #Announce.vr-aviso-sobre-peca {
+	background: rgb(18, 41, 74);
+}
+
 /* ═══════════════════════════════════════════════════════════════════════
    D-941 — JANELA ENCAIXADA, SEM BARRA DE ROLAGEM (05/09/2026)
 
