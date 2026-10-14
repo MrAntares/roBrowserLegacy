@@ -16,6 +16,7 @@ import GUIComponent from 'UI/GUIComponent.js';
 import Session from 'Engine/SessionStorage.js';
 import Preferences from 'Core/Preferences.js';
 import Renderer from 'Renderer/Renderer.js';
+import { escreverTexto, escreverEstilo } from 'UI/escreverSeMudou.js'; // RAGIDLE: D-2374
 
 /**
  * Factory: creates a WinStats GUIComponent
@@ -35,16 +36,19 @@ export function createWinStats({ name, htmlText, cssText, hasTraits }) {
 
 	// ─── Helpers ───────────────────────────────────────
 
+	// D-2374: as duas escrevem so o que mudou (`UI/escreverSeMudou.js`). O
+	// servidor reenvia a ficha inteira a cada ficha suja do tique, quase sempre
+	// com os mesmos numeros; reescrever o texto igual era mutacao do DOM (e o
+	// observador da traducao acordando) para deixar a janela como estava.
 	function setText(selector, value) {
-		const el = _root.querySelector(selector);
-		if (el) el.textContent = value;
+		escreverTexto(_root.querySelector(selector), value);
 	}
 
 	function setUpVisibility(selector, visible) {
 		const el = _root.querySelector(selector);
 		if (el) {
-			el.style.opacity = visible ? 1 : 0;
-			el.style.pointerEvents = visible ? 'initial' : 'none';
+			escreverEstilo(el, 'opacity', visible ? 1 : 0);
+			escreverEstilo(el, 'pointerEvents', visible ? 'initial' : 'none');
 		}
 	}
 

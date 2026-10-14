@@ -1,6 +1,7 @@
 import { WebSocketServer } from 'ws';
 import net from 'net';
 import { alvoPermitido, descreverAlvos, lerAlvos } from './wsproxyAlvos.js';
+import { compressaoDoAmbiente } from './wsproxyCompressao.js';
 
 // Parse command line arguments
 const args = {};
@@ -612,7 +613,15 @@ if (Object.keys(redirects).length > 0) {
 const TETO_DE_FRAME = 256 * 1024;
 
 
-const wss = new WebSocketServer({ port, host, maxPayload: TETO_DE_FRAME });
+/*
+ * A COMPRESSAO DO FIO (`permessage-deflate`, D-2374): DESLIGADA por padrao,
+ * `RAG_WS_DEFLATE=1` liga. O porque (o ganho medido, o custo aqui, a duvida
+ * sobre a Cloudflare) mora em `wsproxyCompressao.js`. Valor que nao e 0 nem 1
+ * derruba a subida com o motivo — antes de escutar, e nao depois.
+ */
+const COMPRESSAO = compressaoDoAmbiente(process.env.RAG_WS_DEFLATE);
+
+const wss = new WebSocketServer({ port, host, maxPayload: TETO_DE_FRAME, perMessageDeflate: COMPRESSAO });
 
 /*
  * "Listening on" SO QUANDO ESCUTA (10/09/2026).
@@ -626,7 +635,7 @@ const wss = new WebSocketServer({ port, host, maxPayload: TETO_DE_FRAME });
  * "Listening on" e morria logo em seguida.
  */
 wss.on('listening', () => {
-	console.log(`[wsProxy] Listening on ${host}:${port}`);
+	console.log(`[wsProxy] Listening on ${host}:${port} (compressao ${COMPRESSAO ? 'ligada' : 'desligada'})`);
 });
 
 /*

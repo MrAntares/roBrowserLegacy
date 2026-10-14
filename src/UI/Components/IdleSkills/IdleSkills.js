@@ -92,6 +92,15 @@ import {
 	pontosNoRascunho
 } from './arvoreDeSkills.js';
 import { linhaDaMissaoNoRequisito } from './requisitoDeMissao.js';
+import {
+	aplicarParcialDasSkills,
+	comBase,
+	dadosDoEnvio,
+	ehParcialDasSkills,
+	estadoDoInteiro,
+	precisaDeclarar,
+	servidorNumera
+} from './parcialDasSkills.js';
 
 /**
  * A versão do contrato que esta janela sabe ler.
@@ -148,6 +157,21 @@ IdleSkills.mouseMode = GUIComponent.MouseMode.CROSS;
  *      estado corrente completo).
  */
 IdleSkills.serverData = null;
+
+/**
+ * O PARCIAL (06/10/2026, a banda das janelas) - ver `parcialDasSkills.js`.
+ *
+ * @var {object|null} `_estadoDoServidor`: o estado como o servidor o mandou
+ *      (sem traducao, sem `aplicado`/`problemas`, com `rev`), sobre o qual o
+ *      parcial cai. `serverData` e a copia que a janela desenha (traduzida).
+ * @var {number|null} `_revDeclarada`: a ultima revisao mandada como `base` -
+ *      o servidor ja sabe que esta janela entende o parcial.
+ * @var {boolean} `_inteiroPedido`: um parcial nao coube e o inteiro esta no
+ *      ar; os parciais que chegarem ate ele sao descartados.
+ */
+IdleSkills._estadoDoServidor = null;
+IdleSkills._revDeclarada = null;
+IdleSkills._inteiroPedido = false;
 
 /** @var {string|null} a habilidade selecionada (dirige o painel de detalhe). */
 IdleSkills.selectedSkillId = null;
@@ -456,7 +480,41 @@ function clearProblemasTimeout() {
  */
 function requestSkills() {
 	setStatus(IdleSkills.serverData ? 'Atualizando…' : 'Carregando…');
+	/*
+	 * O PARCIAL (06/10/2026): com o servidor que numera, o pedido vai pelo verbo
+	 * `pedir` do 0x0ffb com a revisao na mao, e a resposta e so o que mudou. O
+	 * 0x0ff9 e fixo e nao leva `base`: fica para o servidor que nao numera.
+	 */
+	if (servidorNumera(IdleSkills._estadoDoServidor)) {
+		enviarComBase(new PACKET.CZ.RAGIDLE_APRENDER(), { acao: 'pedir' });
+		return;
+	}
 	Network.sendPacket(new PACKET.CZ.RAGIDLE_PEDIR_SKILLS());
+}
+
+/**
+ * Todo pedido JSON da janela leva `base` (a revisao na mao, ou `null`): e o que
+ * diz ao servidor que esta janela aplica o parcial. Um servidor que nao numera
+ * ignora a chave.
+ */
+function enviarComBase(pkt, corpo) {
+	const comARevisao = comBase(corpo, IdleSkills._estadoDoServidor);
+	if (typeof comARevisao.base === 'number') {
+		IdleSkills._revDeclarada = comARevisao.base;
+	}
+	pkt.json = JSON.stringify(comARevisao);
+	Network.sendPacket(pkt);
+}
+
+/**
+ * O parcial nao coube no que a janela tem: o inteiro. Uma vez so - quem chama
+ * ja descarta todo parcial enquanto `_inteiroPedido` estiver ligado.
+ */
+function pedirInteiro() {
+	IdleSkills._inteiroPedido = true;
+	const pkt = new PACKET.CZ.RAGIDLE_APRENDER();
+	pkt.json = JSON.stringify({ acao: 'pedir', base: null });
+	Network.sendPacket(pkt);
 }
 
 /**
@@ -495,9 +553,7 @@ function sendAplicar() {
 	}, MS_ATE_SOLTAR_O_APLICAR);
 	renderFooter();
 
-	const pkt = new PACKET.CZ.RAGIDLE_APRENDER();
-	pkt.json = JSON.stringify({ lote: lote });
-	Network.sendPacket(pkt);
+	enviarComBase(new PACKET.CZ.RAGIDLE_APRENDER(), { lote: lote });
 }
 
 /** A resposta chegou (ou o personagem trocou): o "Aplicar" pode sair de novo. */
@@ -526,9 +582,7 @@ function soltarOAplicar() {
  */
 function sendEsquecer(skillId, niveis) {
 	setStatus(niveis === 'tudo' ? 'Desaprendendo…' : 'Regredindo…');
-	const pkt = new PACKET.CZ.RAGIDLE_APRENDER();
-	pkt.json = JSON.stringify({ acao: 'esquecer', skillId: skillId, niveis: niveis });
-	Network.sendPacket(pkt);
+	enviarComBase(new PACKET.CZ.RAGIDLE_APRENDER(), { acao: 'esquecer', skillId: skillId, niveis: niveis });
 }
 
 function setStatus(text) {
@@ -568,6 +622,35 @@ function onSkillsReceived(pkt) {
 		setStatus('Dados incompatíveis.');
 		soltarOAplicar();
 		return;
+	}
+
+	/*
+	 * O PARCIAL (06/10/2026, a banda das janelas): as trocas caem sobre o estado
+	 * guardado e viram o MESMO objeto que o inteiro seria - dai em diante o
+	 * caminho e o dele. O que nao cai (a revisao de partida nao e a nossa) pede
+	 * o inteiro; o "Aplicar" que ja passou do outro lado leva o rascunho junto.
+	 */
+	if (ehParcialDasSkills(data)) {
+		if (IdleSkills._inteiroPedido) {
+			return;
+		}
+		const montado = aplicarParcialDasSkills(IdleSkills._estadoDoServidor, data);
+		if (!montado) {
+			if (IdleSkills._esperandoAplicar && data.aplicado === true) {
+				IdleSkills.rascunho = {};
+			}
+			soltarOAplicar();
+			pedirInteiro();
+			return;
+		}
+		IdleSkills._estadoDoServidor = montado;
+		data = dadosDoEnvio(montado, data);
+	} else if (data && data.v === VERSAO_DO_CONTRATO) {
+		IdleSkills._inteiroPedido = false;
+		IdleSkills._estadoDoServidor = estadoDoInteiro(data);
+		if (precisaDeclarar(IdleSkills._estadoDoServidor, IdleSkills._revDeclarada)) {
+			enviarComBase(new PACKET.CZ.RAGIDLE_APRENDER(), { acao: 'pedir' });
+		}
 	}
 
 	if (
@@ -2122,6 +2205,9 @@ Network.hookPacket(PACKET.ZC.RAGIDLE_SKILLS, onSkillsReceived);
  */
 IdleSkills.limparEstadoDoPersonagem = function limparEstadoDoPersonagem() {
 	IdleSkills.serverData = null;
+	IdleSkills._estadoDoServidor = null;
+	IdleSkills._revDeclarada = null;
+	IdleSkills._inteiroPedido = false;
 	IdleSkills.selectedSkillId = null;
 	IdleSkills.problemas = [];
 	IdleSkills.rascunho = {};

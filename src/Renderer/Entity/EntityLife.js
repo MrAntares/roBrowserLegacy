@@ -64,6 +64,76 @@ class Life {
 			// A aba escondida (relato de 03/10, ver VidaNoImpacto): ninguem ve o impacto.
 			() => typeof document !== 'undefined' && document.hidden === true
 		);
+		/*
+		 * O ULTIMO DESENHO (D-2374, 13/10/2026). `update()` redesenhava o canvas
+		 * inteiro (redimensionar zera o bitmap, mais cinco `fillRect`) a CADA
+		 * pacote — e o servidor reenvia a ficha a cada ficha suja do tique, com
+		 * o mesmo HP. Os campos abaixo guardam as entradas do ultimo desenho; se
+		 * o pacote seguinte traz as mesmas, o bitmap que esta no canvas JA E o
+		 * que seria desenhado, e o redesenho e pulado. So este metodo escreve no
+		 * canvas (o Grupo so o LE com `drawImage`), entao nada o suja por fora.
+		 * O contexto 2D perdido pelo navegador volta EM BRANCO: o memo cai e o
+		 * proximo `update()` redesenha, como antes.
+		 */
+		this._desenhoValido = false;
+		this._dTipo = 0;
+		this._dHp = 0;
+		this._dHpMax = 0;
+		this._dSp = 0;
+		this._dSpMax = 0;
+		this._dAp = 0;
+		this._dApMax = 0;
+		this._dFome = 0;
+		this._dFomeMax = 0;
+		this.canvas.addEventListener('contextlost', () => {
+			this._desenhoValido = false;
+		});
+		this.canvas.addEventListener('contextrestored', () => {
+			this._desenhoValido = false;
+		});
+	}
+
+	/**
+	 * As entradas do desenho sao as mesmas do ultimo? (D-2374)
+	 *
+	 * Compara TODO campo que o desenho le, inclusive os que o ramo atual nao
+	 * usa (o SP de quem nao mostra SP): conservador de proposito — no pior caso
+	 * redesenha sem precisar, nunca pula um desenho que mudaria. NaN nunca e
+	 * igual a nada, entao tambem redesenha. A "quarta classe" nao entra: ela so
+	 * muda a ALTURA (a faixa de AP), e a altura do canvas ja e comparada — a
+	 * bateria de mutacao mostrou que compara-la tambem era redundante.
+	 *
+	 * @returns {boolean}
+	 */
+	mesmoDesenho(tipo, hpVisivel, altura) {
+		return (
+			this._desenhoValido &&
+			this._dTipo === tipo &&
+			this._dHp === hpVisivel &&
+			this._dHpMax === this.hp_max &&
+			this._dSp === this.sp &&
+			this._dSpMax === this.sp_max &&
+			this._dAp === this.ap &&
+			this._dApMax === this.ap_max &&
+			this._dFome === this.hunger &&
+			this._dFomeMax === this.hunger_max &&
+			this.canvas.width === 60 &&
+			this.canvas.height === altura
+		);
+	}
+
+	/** Guarda as entradas do desenho que acabou de sair (D-2374). */
+	anotarDesenho(tipo, hpVisivel) {
+		this._desenhoValido = true;
+		this._dTipo = tipo;
+		this._dHp = hpVisivel;
+		this._dHpMax = this.hp_max;
+		this._dSp = this.sp;
+		this._dSpMax = this.sp_max;
+		this._dAp = this.ap;
+		this._dApMax = this.ap_max;
+		this._dFome = this.hunger;
+		this._dFomeMax = this.hunger_max;
 	}
 
 	/**
@@ -133,6 +203,14 @@ class Life {
 			height += 4;
 		}
 
+		// D-2374: as mesmas entradas do ultimo desenho -> o canvas ja tem este
+		// bitmap. O `display` (acima) e o `zIndex` (funcao do tipo, que entra na
+		// comparacao) ficam como o desenho os deixaria.
+		const tipo = this.entity.objecttype;
+		if (this.mesmoDesenho(tipo, hpVisivel, height)) {
+			return;
+		}
+
 		// Draw life
 		ctx.canvas.width = width;
 		ctx.canvas.height = height;
@@ -184,6 +262,8 @@ class Life {
 			ctx.fillStyle = hunger_per < 0.25 ? '#FFFF00' : '#FFE7E7';
 			ctx.fillRect(1, 9, Math.round((width - 2) * hunger_per), 3);
 		}
+
+		this.anotarDesenho(tipo, hpVisivel);
 	}
 
 	/**

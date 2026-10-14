@@ -25,6 +25,7 @@ import SkillInfo from 'DB/Skills/SkillInfo.js';
 import SkillTargetSelection from 'UI/Components/SkillTargetSelection/SkillTargetSelection.js';
 import SkillTreeView from 'DB/Skills/SkillTreeView.js';
 import UIManager from 'UI/UIManager.js';
+import { anexarAoCorpoSeSolto } from 'UI/anexarAoCorpoSeSolto.js'; // RAGIDLE: D-2374
 
 function _escapeHTML(text) {
 	const div = document.createElement('div');
@@ -1126,8 +1127,10 @@ export function createSkillList({
 		if (nuncaAbre) {
 			return;
 		}
+		// D-2374: so anexa quando o botao esta FORA do body (o reenvio do nivel
+		// de classe a cada ficha suja reanexava o que ja estava la).
 		if (_btnLevelUp) {
-			document.body.appendChild(_btnLevelUp);
+			anexarAoCorpoSeSolto(_btnLevelUp);
 		}
 	};
 

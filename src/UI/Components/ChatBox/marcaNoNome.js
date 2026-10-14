@@ -71,6 +71,38 @@ export function lerMarcasDoChat(dados) {
 }
 
 /**
+ * A DIFERENCA das marcas (D-2372 do servidor, 13/10/2026). Os outros conectados
+ * recebiam a lista INTEIRA de VIPs a cada VIP que entrava no mundo; agora o
+ * servidor manda so quem entrou e quem saiu (`{delta: 1, vipsMais, vipsMenos,
+ * nomesVipMais, ...}`, campo ausente = vazio), e os administradores sempre
+ * inteiros (`onAdminList` le `admins` como antes).
+ *
+ * Tira os `Menos`, poe os `Mais` e REORDENA como o servidor ordena a lista
+ * inteira (`marcasDoChat`: contas em ordem numerica, nomes em `sort()`): as
+ * listas daqui ficam iguais as que a lista inteira daria. Puro: devolve listas
+ * novas e nao mexe nas que recebeu.
+ *
+ * @param {{vips: number[], nomesVip: string[], nomesAdmin: string[]}} atuais - as da sessao
+ * @param {object|null|undefined} dados - o JSON ja lido, com `delta: 1`
+ * @returns {{vips: number[], nomesVip: string[], nomesAdmin: string[]}}
+ */
+export function aplicarDeltaDasMarcas(atuais, dados) {
+	const d = dados || {};
+	const a = atuais || {};
+	const aplicar = (lista, mais, menos) => {
+		const tirar = new Set(menos);
+		const conjunto = new Set((Array.isArray(lista) ? lista : []).filter(x => !tirar.has(x)));
+		for (const x of mais) conjunto.add(x);
+		return [...conjunto];
+	};
+	return {
+		vips: aplicar(a.vips, listaDeNumeros(d.vipsMais), listaDeNumeros(d.vipsMenos)).sort((x, y) => x - y),
+		nomesVip: aplicar(a.nomesVip, listaDeNomes(d.nomesVipMais), listaDeNomes(d.nomesVipMenos)).sort(),
+		nomesAdmin: aplicar(a.nomesAdmin, listaDeNomes(d.nomesAdminMais), listaDeNomes(d.nomesAdminMenos)).sort()
+	};
+}
+
+/**
  * A conta que falou esta na lista? Serve a fala global (`pkt.GID`), a de
  * grupo (`pkt.AID`) e o eco da propria fala (`Session.AID`).
  */

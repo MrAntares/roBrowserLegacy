@@ -68,7 +68,7 @@ import PartyFriends from 'UI/Components/PartyFriends/PartyFriends.js';
 import Equipment from 'UI/Components/Equipment/Equipment.js';
 import ScreenEffectManager from 'Renderer/ScreenEffectManager.js';
 import { falaDeGm } from './falaDeGm.js'; // RAGIDLE: a tag [GM] de quem fala de outro mapa
-import { contaNaLista, lerMarcasDoChat } from 'UI/Components/ChatBox/marcaNoNome.js'; // RAGIDLE: as marcas de GM e de VIP no nome de quem fala
+import { aplicarDeltaDasMarcas, contaNaLista, lerMarcasDoChat } from 'UI/Components/ChatBox/marcaNoNome.js'; // RAGIDLE: as marcas de GM e de VIP no nome de quem fala
 
 // Excludes for skill name display
 const SkillNameDisplayExclude = [
@@ -1309,7 +1309,13 @@ function onAdminList(pkt) {
 	// NOMES dos VIPs e dos admins (o sussurro e a guilda nao levam conta). So
 	// o chat as le, e so nas linhas NOVAS: nao ha entidade a remontar, entao
 	// guardar basta.
-	const marcas = lerMarcasDoChat(dados);
+	// D-2372 do servidor: quem ja esta no mundo recebe a DIFERENCA (`delta: 1`),
+	// e quem entra, a lista inteira. A diferenca e aplicada sobre o que a sessao
+	// tem, e da as mesmas listas que a inteira daria.
+	const marcas =
+		dados && dados.delta === 1
+			? aplicarDeltaDasMarcas({ vips: Session.VipList, nomesVip: Session.VipNomes, nomesAdmin: Session.AdminNomes }, dados)
+			: lerMarcasDoChat(dados);
 	Session.VipList = marcas.vips;
 	Session.VipNomes = marcas.nomesVip;
 	Session.AdminNomes = marcas.nomesAdmin;

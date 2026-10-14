@@ -38,6 +38,7 @@ import SkillList from 'UI/Components/SkillList/SkillList.js';
 import Quest from 'UI/Components/Quest/Quest.js';
 import Achievement from 'UI/Components/Achievement/Achievement.js';
 import Reputation from 'UI/Components/Reputation/Reputation.js';
+import { escreverTexto, escreverEstilo, escreverTitulo, urlComoOLido } from 'UI/escreverSeMudou.js'; // RAGIDLE: D-2374
 
 export function createBasicInfo(config) {
 	const {
@@ -394,22 +395,31 @@ export function createBasicInfo(config) {
 	 * @param {number} val2 maximum value
 	 * @param {string} color bar color prefix
 	 */
+	/*
+	 * D-2374: toda escrita abaixo passa por `UI/escreverSeMudou.js` — compara
+	 * com o que JA ESTA no elemento e so escreve o que mudou. O servidor
+	 * reenvia a ficha a cada ficha suja do tique com os mesmos numeros, e a
+	 * janela nativa (escondida pela HUD idle, mas viva: `BasicInfoIdle` le os
+	 * campos dela) era reescrita inteira a cada reenvio. A ORDEM das escritas
+	 * e a dos `Client.loadFile` nao mudou: o "none" da barra vazia e os
+	 * `url(...)` que chegam depois continuam na mesma sequencia de antes.
+	 */
 	function updateBar(root, type, val1, val2, color) {
 		const perc = Math.floor((val1 * 100) / val2);
 
 		root.querySelectorAll(`.${type}_value`).forEach(el => {
-			el.textContent = val1;
+			escreverTexto(el, val1);
 		});
 		root.querySelectorAll(`.${type}_max_value`).forEach(el => {
-			el.textContent = val2;
+			escreverTexto(el, val2);
 		});
 		root.querySelectorAll(`.${type}_perc`).forEach(el => {
-			el.textContent = `${perc}%`;
+			escreverTexto(el, `${perc}%`);
 		});
 
 		if (perc <= 0) {
 			root.querySelectorAll(`.${type}_bar div`).forEach(el => {
-				el.style.backgroundImage = 'none';
+				escreverEstilo(el, 'backgroundImage', 'none');
 			});
 			return;
 		}
@@ -417,23 +427,23 @@ export function createBasicInfo(config) {
 		Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/gze${color}_left.bmp`, url => {
 			const el = root.querySelector(`.${type}_bar_left`);
 			if (el) {
-				el.style.backgroundImage = `url(${url})`;
+				escreverEstilo(el, 'backgroundImage', `url(${url})`, urlComoOLido(url));
 			}
 		});
 
 		Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/gze${color}_mid.bmp`, url => {
 			const el = root.querySelector(`.${type}_bar_middle`);
 			if (el) {
-				el.style.backgroundImage = `url(${url})`;
-				el.style.width = `${Math.floor(Math.min(perc, 100) * barScale)}px`;
+				escreverEstilo(el, 'backgroundImage', `url(${url})`, urlComoOLido(url));
+				escreverEstilo(el, 'width', `${Math.floor(Math.min(perc, 100) * barScale)}px`);
 			}
 		});
 
 		Client.loadFile(`${DB.INTERFACE_PATH}basic_interface/gze${color}_right.bmp`, url => {
 			const el = root.querySelector(`.${type}_bar_right`);
 			if (el) {
-				el.style.backgroundImage = `url(${url})`;
-				el.style.left = `${Math.floor(Math.min(perc, 100) * barScale)}px`;
+				escreverEstilo(el, 'backgroundImage', `url(${url})`, urlComoOLido(url));
+				escreverEstilo(el, 'left', `${Math.floor(Math.min(perc, 100) * barScale)}px`);
 			}
 		});
 	}
@@ -456,7 +466,7 @@ export function createBasicInfo(config) {
 			case 'blvl':
 			case 'jlvl':
 				root.querySelectorAll(`.${type}_value`).forEach(el => {
-					el.textContent = val1;
+					escreverTexto(el, val1);
 				});
 				break;
 
@@ -470,13 +480,13 @@ export function createBasicInfo(config) {
 					str = list[count - i - 1] + (i && i % 3 === 0 ? ',' : '') + str;
 				}
 				root.querySelectorAll(`.${type}_value`).forEach(el => {
-					el.textContent = str;
+					escreverTexto(el, str);
 				});
 				break;
 			}
 			case 'job':
 				root.querySelectorAll('.job_value').forEach(el => {
-					el.textContent = MonsterTable[val1];
+					escreverTexto(el, MonsterTable[val1]);
 				});
 				break;
 
@@ -485,34 +495,34 @@ export function createBasicInfo(config) {
 				const expEl = root.querySelector(`.${type}`);
 				if (!val2) {
 					if (expEl) {
-						expEl.style.display = 'none';
+						escreverEstilo(expEl, 'display', 'none');
 					}
 					break;
 				}
 				if (expEl) {
-					expEl.style.display = '';
+					escreverEstilo(expEl, 'display', '');
 					const bar = expEl.querySelector('div');
 					if (bar) {
-						bar.style.width = `${Math.min(100, Math.floor((val1 * 100) / val2))}%`;
+						escreverEstilo(bar, 'width', `${Math.min(100, Math.floor((val1 * 100) / val2))}%`);
 					}
-					expEl.title = `${((val1 / val2) * 100).toFixed(1)}%`;
+					escreverTitulo(expEl, `${((val1 / val2) * 100).toFixed(1)}%`);
 				}
 				root.querySelectorAll(`.${type}_value`).forEach(el => {
-					el.textContent = `${Math.min(100, (Math.floor((val1 * 1000) / val2) * 0.1).toFixed(1))}%`;
+					escreverTexto(el, `${Math.min(100, (Math.floor((val1 * 1000) / val2) * 0.1).toFixed(1))}%`);
 				});
 				break;
 			}
 
 			case 'weight':
 				root.querySelectorAll('.weight_value').forEach(el => {
-					el.textContent = (val1 / 10) | 0;
+					escreverTexto(el, (val1 / 10) | 0);
 				});
 				root.querySelectorAll('.weight_total').forEach(el => {
-					el.textContent = (val2 / 10) | 0;
+					escreverTexto(el, (val2 / 10) | 0);
 				});
 				root.querySelectorAll('.weight').forEach(el => {
-					el.style.color = val1 < val2 / 2 ? '' : 'red';
-					el.title = `${((val1 / val2) * 100).toFixed(1)}%`;
+					escreverEstilo(el, 'color', val1 < val2 / 2 ? '' : 'red');
+					escreverTitulo(el, `${((val1 / val2) * 100).toFixed(1)}%`);
 				});
 				break;
 
