@@ -461,13 +461,14 @@ function receive(buf) {
 
 	// ── Read hook (one-shot raw access) ──────────────────────────────────
 	if (read.callback) {
-		// Materialise a contiguous view of all pending data for the callback
-		const allPending = _ringSlice(_ring_head, _ring_tail - _ring_head);
-		_fp.reset(allPending);
-		read.callback(_fp);
+		const cb = read.callback;
 		read.callback = null;
-		// Advance head by however many bytes the callback consumed
-		_ring_head += _fp.tell();
+		const start = _ring_head;
+		_fp.reset(_ringSlice(start, _ring_tail - start));
+		cb(_fp);
+		if (_ring_head === start) {
+			_ring_head += _fp.tell();
+		}
 	}
 
 	// ── Parse packets ─────────────────────────────────────────────────────
@@ -505,6 +506,10 @@ function receive(buf) {
 		// ── Materialise a contiguous Uint8Array for this packet ──────────
 		// _ringSlice is zero-copy in the common (non-wrapping) case.
 		const pktBytes = _ringSlice(pktStart, length);
+
+		// Advance the ring head past this packet
+		// Support for "0" type: if length is 0, advance by 2 to avoid infinite loop
+		_ring_head += length || 2;
 
 		if (Packets.list[id]) {
 			packet = Packets.list[id];
@@ -559,10 +564,6 @@ function receive(buf) {
 
 			_flushLogs();
 		}
-
-		// Advance the ring head past this packet
-		// Support for "0" type: if length is 0, advance by 2 to avoid infinite loop
-		_ring_head += length || 2;
 	}
 
 	// Compact the ring when it is empty to prevent unbounded logical-index growth
