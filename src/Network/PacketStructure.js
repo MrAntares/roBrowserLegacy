@@ -6171,7 +6171,7 @@ PACKET.ZC.GUILD_INFO.size = 110;
 PACKET.ZC.GUILD_EMBLEM_IMG = function PACKET_ZC_GUILD_EMBLEM_IMG(fp, end) {
 	this.GDID = fp.readLong();
 	this.emblemVersion = fp.readLong();
-	this.img = new Uint8Array(fp.buffer, fp.offset, end - fp.offset);
+	this.img = new Uint8Array(fp.view.buffer, fp.view.byteOffset + fp.offset, end - fp.offset);
 };
 PACKET.ZC.GUILD_EMBLEM_IMG.size = -1;
 
