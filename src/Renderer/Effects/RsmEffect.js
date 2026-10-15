@@ -154,7 +154,10 @@ function getPositionAtFrame(posKeyframes, frame, animLen) {
 	const p1 = posKeyframes[prevIdx];
 	const p2 = posKeyframes[nextIdx];
 
-	return lerpVec3([p1.px, p1.py, p1.pz], [p2.px, p2.py, p2.pz], t);
+	_scratchVec3[0] = p1.px + (p2.px - p1.px) * t;
+	_scratchVec3[1] = p1.py + (p2.py - p1.py) * t;
+	_scratchVec3[2] = p1.pz + (p2.pz - p1.pz) * t;
+	return _scratchVec3;
 }
 
 /**
