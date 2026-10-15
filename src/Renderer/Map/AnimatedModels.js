@@ -27,6 +27,7 @@ const _tempVec3 = vec3.create();
 const _tempVec3Scale = vec3.create();
 const _tempQuat = quat.create();
 const _tempMat4 = mat4.create();
+const _tempMat4Node = mat4.create();
 
 /**
  * Shader program
@@ -766,7 +767,7 @@ function updateModelBuffer(gl, model, frame, force) {
 		if (!node.is_only) {
 			mat4.translate(finalNodeMatrix, finalNodeMatrix, node.offset);
 		}
-		mat4.multiply(finalNodeMatrix, finalNodeMatrix, mat3.toMat4(node.mat3));
+		mat4.multiply(finalNodeMatrix, finalNodeMatrix, mat3.toMat4(node.mat3, _tempMat4Node));
 
 		// Cache for step 2
 		node.finalMatrix = finalNodeMatrix;

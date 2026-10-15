@@ -42,6 +42,11 @@ const _bufferData = new Float32Array(4 * 4);
 const _matrix = mat4.create();
 
 /**
+ * @var {Float32Array} scratchpad for sprite offset
+ */
+const _spriteOffset = new Float32Array(2);
+
+/**
  * @var {number} last angle
  */
 let _lastAngle = -1;
@@ -376,23 +381,22 @@ class StrEffect {
 			_lastAngle = animat.angle;
 		}
 
-		const spriteOffset = new Float32Array(2);
 		let verticalBase = 0.5;
 
 		if (this.ownerEntity) {
 			// Attachment: center at (320,320), apply offsets, scale with entity
-			spriteOffset[0] = animat.pos[0] - 320 + (this.xOffset || 0) * PIXEL_TO_WORLD_Z * 35 * sizeScale;
+			_spriteOffset[0] = animat.pos[0] - 320 + (this.xOffset || 0) * PIXEL_TO_WORLD_Z * 35 * sizeScale;
 			// flip Y offset only
-			spriteOffset[1] = animat.pos[1] - 320 - (this.yOffset || 0) * PIXEL_TO_WORLD_Z * 35 * sizeScale;
+			_spriteOffset[1] = animat.pos[1] - 320 - (this.yOffset || 0) * PIXEL_TO_WORLD_Z * 35 * sizeScale;
 			verticalBase = 0.0;
 		} else {
-			spriteOffset[0] = animat.pos[0] - 320;
-			spriteOffset[1] = animat.pos[1] - 320;
+			_spriteOffset[0] = animat.pos[0] - 320;
+			_spriteOffset[1] = animat.pos[1] - 320;
 		}
 
 		// Send effect parameters
 		gl.uniform4fv(uniform.uSpriteColor, animat.color);
-		gl.uniform2fv(uniform.uSpriteOffset, spriteOffset);
+		gl.uniform2fv(uniform.uSpriteOffset, _spriteOffset);
 		gl.uniform1f(uniform.uVerticalBase, verticalBase);
 		gl.uniform3fv(uniform.uSpritePosition, this.position);
 

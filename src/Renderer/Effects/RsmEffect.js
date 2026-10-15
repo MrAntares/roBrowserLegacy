@@ -26,21 +26,31 @@ const _light = {
 };
 
 /**
+ * Reusable module-level scratchpads to avoid per-frame GC allocations
+ */
+const _scratchModelViewMat = mat4.create();
+const _scratchNormalMat = mat4.create();
+const _scratchMatrix = mat4.create();
+const _scratchNodeMatrix = mat4.create();
+const _scratchMat4Node = mat4.create();
+const _scratchTempVec = vec3.create();
+const _scratchQuat = quat.create();
+const _scratchVec3 = vec3.create();
+
+/**
  * Interpolate between two quaternions using SLERP
  */
 function slerpQuat(q1, q2, t) {
-	const out = quat.create();
-	quat.slerp(out, q1, q2, t);
-	return out;
+	quat.slerp(_scratchQuat, q1, q2, t);
+	return _scratchQuat;
 }
 
 /**
  * Interpolate between two vec3 using linear interpolation
  */
 function lerpVec3(v1, v2, t) {
-	const out = vec3.create();
-	vec3.lerp(out, v1, v2, t);
-	return out;
+	vec3.lerp(_scratchVec3, v1, v2, t);
+	return _scratchVec3;
 }
 
 /**
@@ -212,7 +222,7 @@ function calcNormal_NONE(out) {
 function calcNormal_FLAT(node, out, normalMat, groupUsed) {
 	let i, j, count;
 	let face;
-	const temp_vec = vec3.create();
+	const temp_vec = _scratchTempVec;
 	const faces = node.faces;
 	const vertices = node.vertices;
 
@@ -369,8 +379,8 @@ function generate_mesh_SMOOTH(node, vert, shadeGroup, mesh) {
  * Compile a node at a specific animation frame
  */
 function compileNodeAtFrame(node, instanceMatrix, frame, animLen) {
-	const modelViewMat = mat4.create();
-	const normalMat = mat4.create();
+	const modelViewMat = _scratchModelViewMat;
+	const normalMat = _scratchNormalMat;
 
 	const textures = node.textures;
 	const faces = node.faces;
@@ -384,12 +394,12 @@ function compileNodeAtFrame(node, instanceMatrix, frame, animLen) {
 	let i, x, y, z, count;
 
 	// Calculate animated matrix
-	const matrix = mat4.create();
+	const matrix = _scratchMatrix;
 	mat4.identity(matrix);
 	mat4.translate(matrix, matrix, [-node.main.box.center[0], -node.main.box.max[1], -node.main.box.center[2]]);
 
 	// Apply node transformations with animation
-	const nodeMatrix = mat4.create();
+	const nodeMatrix = _scratchNodeMatrix;
 	mat4.identity(nodeMatrix);
 
 	// Position animation
@@ -424,7 +434,7 @@ function compileNodeAtFrame(node, instanceMatrix, frame, animLen) {
 		mat4.translate(matrix, matrix, node.offset);
 	}
 
-	mat4.multiply(matrix, matrix, mat3.toMat4(node.mat3));
+	mat4.multiply(matrix, matrix, mat3.toMat4(node.mat3, _scratchMat4Node));
 
 	// Multiply with instance matrix
 	mat4.multiply(modelViewMat, instanceMatrix, matrix);
