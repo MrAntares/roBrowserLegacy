@@ -235,7 +235,8 @@ function connect(host, port, callback, isZone) {
 			if (_socket && _socket.ping) {
 				clearInterval(_socket.ping);
 			}
-
+			_ring_head = 0;
+			_ring_tail = 0;
 			socket.onMessage = receive;
 			_sockets.push((_socket = socket));
 
@@ -244,7 +245,6 @@ function connect(host, port, callback, isZone) {
 				PacketCrypt.init();
 			}
 		}
-
 		console.log('%c[Network] ' + msg + ' to connect to ' + host + ':' + port, 'font-weight:bold;color:' + color);
 		callback.call(this, success);
 	};
@@ -625,6 +625,8 @@ function close() {
 		if (idx !== -1) {
 			_sockets.splice(idx, 1);
 		}
+		_ring_head = 0;
+		_ring_tail = 0;
 	}
 }
 

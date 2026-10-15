@@ -315,6 +315,7 @@ BinaryReader.prototype.reset = function reset(buffer, start, end) {
 		this.view = new DataView(ab, s, e - s);
 		this.length = e - s;
 	}
+	this.buffer = this.view.buffer;
 	this.offset = 0;
 };
 
