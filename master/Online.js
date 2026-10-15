@@ -10879,6 +10879,34 @@ var init_BinaryReader = __esmMin((() => {
 		type = type || 2;
 		this.offset = type === 1 ? this.offset + index : type === 3 ? this.length + index : index;
 	};
+	/**
+	* Reset BinaryReader in-place to read from a new buffer (or sub-range of one),
+	* avoiding a heap allocation per network message on the hot path.
+	*
+	* Accepts either:
+	*   - An ArrayBuffer / Uint8Array  →  wraps in a new DataView
+	*   - A DataView already sized to the desired range  →  reused directly
+	*
+	* @param {ArrayBuffer|Uint8Array|DataView} buffer
+	* @param {number} [start=0]  byte offset into buffer (ignored when DataView is passed)
+	* @param {number} [end]      exclusive end byte (ignored when DataView is passed)
+	*/
+	BinaryReader.prototype.reset = function reset(buffer, start, end) {
+		if (buffer instanceof DataView) {
+			this.view = buffer;
+			this.length = buffer.byteLength;
+		} else {
+			const u8 = buffer instanceof Uint8Array ? buffer : null;
+			const ab = u8 ? u8.buffer : buffer;
+			const base = u8 ? u8.byteOffset : 0;
+			const s = base + (start || 0);
+			const e = end !== void 0 ? base + end : base + (u8 ? u8.byteLength : ab.byteLength);
+			this.view = new DataView(ab, s, e - s);
+			this.length = e - s;
+		}
+		this.buffer = this.view.buffer;
+		this.offset = 0;
+	};
 	bf_byteBuff = /* @__PURE__ */ new ArrayBuffer(4);
 	bf_wba = new Int8Array(bf_byteBuff);
 	bf_wia = new Int32Array(bf_byteBuff);
@@ -10938,7 +10966,7 @@ var init_BinaryReader = __esmMin((() => {
 function getDate(executable, callback) {
 	const reader = new FileReader();
 	reader.onload = function(event) {
-		_fp = new BinaryReader(event.target.result);
+		_fp$1 = new BinaryReader(event.target.result);
 		callback(getDateSub());
 	};
 	reader.readAsArrayBuffer(executable);
@@ -10949,14 +10977,14 @@ function getDate(executable, callback) {
 * @return {number}
 */
 function getDateSub() {
-	if (!_fp) throw new Error("Executable::getDate() - Executable is not loaded yet, or not specified");
-	_fp.seek(60, SEEK_SET);
-	const offset = _fp.readULong();
-	if (offset > _fp.length) throw new Error("Executable::getDate() - Invalid executable specified.");
-	_fp.seek(offset, SEEK_SET);
-	if (_fp.readString(4) !== "PE") throw new Error("Executable::getDate() - Invalid executable specified.");
-	_fp.seek(4, SEEK_CUR);
-	const date = /* @__PURE__ */ new Date(_fp.readULong() * 1e3);
+	if (!_fp$1) throw new Error("Executable::getDate() - Executable is not loaded yet, or not specified");
+	_fp$1.seek(60, SEEK_SET);
+	const offset = _fp$1.readULong();
+	if (offset > _fp$1.length) throw new Error("Executable::getDate() - Invalid executable specified.");
+	_fp$1.seek(offset, SEEK_SET);
+	if (_fp$1.readString(4) !== "PE") throw new Error("Executable::getDate() - Invalid executable specified.");
+	_fp$1.seek(4, SEEK_CUR);
+	const date = /* @__PURE__ */ new Date(_fp$1.readULong() * 1e3);
 	return date.getFullYear() * 1e4 + (date.getMonth() + 1) * 100 + date.getDate();
 }
 /**
@@ -10970,7 +10998,7 @@ function isROExec(file) {
 	if (file.size < 3145728 || file.size > 7340032) return false;
 	return true;
 }
-var _fp, Executable_default;
+var _fp$1, Executable_default;
 var init_Executable = __esmMin((() => {
 	init_BinaryReader();
 	Executable_default = {
@@ -161338,7 +161366,7 @@ var init_PacketStructure = __esmMin((() => {
 	PACKET.ZC.GUILD_EMBLEM_IMG = function PACKET_ZC_GUILD_EMBLEM_IMG(fp, end) {
 		this.GDID = fp.readLong();
 		this.emblemVersion = fp.readLong();
-		this.img = new Uint8Array(fp.buffer, fp.offset, end - fp.offset);
+		this.img = new Uint8Array(fp.view.buffer, fp.view.byteOffset + fp.offset, end - fp.offset);
 	};
 	PACKET.ZC.GUILD_EMBLEM_IMG.size = -1;
 	PACKET.ZC.MEMBERMGR_INFO = function PACKET_ZC_MEMBERMGR_INFO(fp, end) {
@@ -205803,6 +205831,41 @@ function defaultSocketFactory(host, port) {
 	if (Socket.isSupported()) return new Socket(host, port, proxy);
 	return new Socket$1(host, port, proxy);
 }
+function _scheduleLogCallback(cb) {
+	if (typeof window !== "undefined" && window.requestIdleCallback) requestIdleCallback(cb);
+	else setTimeout(() => cb({
+		timeRemaining: () => 0,
+		didTimeout: true
+	}));
+}
+function _processLogEntry(entry) {
+	if (entry.type === LOG_ENTRY_KNOWN) {
+		if (entry.dumpBytes) console.log("%c[Network] Dump Recv:\n%cPacket ID: 0x%s\nPacket Name: %s\nLength: %d\nContent:\n%s", "color:#900090", "color:inherit", entry.pktId.toString(16), entry.pktName, entry.pktLen, utilsBufferToHexString(entry.dumpBytes).toUpperCase());
+		console.log("%c[Network] Recv:", "color:#900090", entry.instance, entry.hasCallback ? "" : "(no callback)");
+	} else if (entry.type === LOG_ENTRY_UNKNOWN) {
+		if (entry.dumpBytes) console.log("%c[Network] Dump Recv:\n%cPacket ID: 0x%s\nPacket Name: [UNKNOWN]\nLength: %d\nContent:\n%s", "color:#900090", "color:inherit", entry.pktId.toString(16), entry.pktLen, utilsBufferToHexString(entry.dumpBytes).toUpperCase());
+		console.error("[Network] Packet \"%c0x%s%c\" not registered, skipping %d bytes.", "font-weight:bold", entry.pktId.toString(16), "font-weight:normal", entry.pktLen);
+	}
+	entry.reset();
+}
+function _runLogDrain(deadline) {
+	while (_logHead !== _logTail && (deadline.timeRemaining() > 0 || deadline.didTimeout)) {
+		const entry = _logPool[_logHead & LOG_QUEUE_MASK];
+		_logHead++;
+		_processLogEntry(entry);
+	}
+	if (_logHead !== _logTail) _scheduleLogCallback(_runLogDrain);
+	else {
+		_logHead = 0;
+		_logTail = 0;
+		_logScheduled = false;
+	}
+}
+function _flushLogs() {
+	if (_logScheduled) return;
+	_logScheduled = true;
+	_scheduleLogCallback(_runLogDrain);
+}
 /**
 * Packets definition
 *
@@ -205835,6 +205898,8 @@ function connect(host, port, callback, isZone) {
 			msg = "Success";
 			color = "green";
 			if (_socket && _socket.ping) clearInterval(_socket.ping);
+			_ring_head = 0;
+			_ring_tail = 0;
 			socket.onMessage = receive;
 			_sockets.push(_socket = socket);
 			if (isZone) PacketCrypt_default.init();
@@ -205898,67 +205963,144 @@ function read$1(callback) {
 	read$1.callback = callback;
 }
 /**
-* Received data from server
+* Grow the ring buffer to at least `minCapacity` bytes, preserving pending data.
+* New capacity is the next power of two >= minCapacity.
 *
-* @param {Uint8Array} buffer
+* @param {number} minCapacity
+*/
+function _ringGrow(minCapacity) {
+	let newCap = _ring.length;
+	while (newCap < minCapacity) newCap *= 2;
+	const pending = _ring_tail - _ring_head;
+	const newRing = new Uint8Array(newCap);
+	if (pending > 0) {
+		const physHead = _ring_head & _ring_mask;
+		const physTail = _ring_tail & _ring_mask;
+		if (physTail > physHead) newRing.set(_ring.subarray(physHead, physTail), 0);
+		else {
+			const firstChunk = _ring.length - physHead;
+			newRing.set(_ring.subarray(physHead), 0);
+			newRing.set(_ring.subarray(0, physTail), firstChunk);
+		}
+	}
+	_ring = newRing;
+	_ring_mask = newCap - 1;
+	_ring_head = 0;
+	_ring_tail = pending;
+}
+/**
+* Return a contiguous Uint8Array view of `len` bytes starting at ring logical
+* position `logicalStart`.  When the slice crosses the ring's physical
+* boundary a minimal temporary copy is made (slow path, very rare).
+*
+* @param {number} logicalStart  logical read position (ring_head-relative)
+* @param {number} len           number of bytes to view
+* @return {Uint8Array}
+*/
+function _ringSlice(logicalStart, len) {
+	const physStart = logicalStart & _ring_mask;
+	const physEnd = physStart + len;
+	if (physEnd <= _ring.length) return _ring.subarray(physStart, physEnd);
+	const tmp = new Uint8Array(len);
+	const firstChunk = _ring.length - physStart;
+	tmp.set(_ring.subarray(physStart), 0);
+	tmp.set(_ring.subarray(0, len - firstChunk), firstChunk);
+	return tmp;
+}
+/**
+* Read a little-endian uint16 from the ring at logical position `logPos`
+* without going through BinaryReader (avoids a DataView when in the fast
+* path — both bytes are within the same physical region).
+*
+* @param {number} logPos
+* @return {number}
+*/
+function _ringReadUShort(logPos) {
+	const p = logPos & _ring_mask;
+	if (p + 2 <= _ring.length) return _ring[p] | _ring[p + 1] << 8;
+	return _ring[p] | _ring[0] << 8;
+}
+/**
+* Received data from server.
+* Appends `buf` into the persistent ring buffer, then parses as many complete
+* packets as available.  Incomplete packet bytes remain in the ring and are
+* consumed on the next call — no allocation needed for the common case.
+*
+* @param {ArrayBuffer|Uint8Array} buf
 */
 function receive(buf) {
+	const incoming = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
+	const inLen = incoming.length;
+	const needed = _ring_tail - _ring_head + inLen;
+	if (needed > _ring.length) _ringGrow(needed);
+	const physTail = _ring_tail & _ring_mask;
+	const spaceToEnd = _ring.length - physTail;
+	if (inLen <= spaceToEnd) _ring.set(incoming, physTail);
+	else {
+		_ring.set(incoming.subarray(0, spaceToEnd), physTail);
+		_ring.set(incoming.subarray(spaceToEnd), 0);
+	}
+	_ring_tail += inLen;
+	if (!_fp) _fp = new BinaryReader(/* @__PURE__ */ new ArrayBuffer(0));
+	if (read$1.callback) {
+		const cb = read$1.callback;
+		read$1.callback = null;
+		const start = _ring_head;
+		_fp.reset(_ringSlice(start, _ring_tail - start));
+		cb(_fp);
+		if (_ring_head === start) _ring_head += _fp.tell();
+	}
 	let id, packet;
 	let length = 0;
-	let offset = 0;
-	let buffer;
-	if (_save_buffer) {
-		const _data = new Uint8Array(_save_buffer.length + buf.byteLength);
-		_data.set(_save_buffer, 0);
-		_data.set(new Uint8Array(buf), _save_buffer.length);
-		buffer = _data.buffer;
-	} else buffer = buf;
-	const fp = new BinaryReader(buffer);
-	if (read$1.callback) {
-		read$1.callback(fp);
-		read$1.callback = null;
-	}
-	while (fp.tell() < fp.length) {
-		offset = fp.tell();
-		if (offset + 2 > fp.length) {
-			_save_buffer = new Uint8Array(buffer, offset, fp.length - offset);
-			return;
-		}
-		id = fp.readUShort();
+	while (_ring_tail - _ring_head >= 2) {
+		const pktStart = _ring_head;
+		const avail = _ring_tail - pktStart;
+		if (avail < 2) break;
+		id = _ringReadUShort(pktStart);
 		let packet_len = PacketLength_default.getPacketLength(id);
-		packet_len = packet_len ? packet_len : fp.length - offset;
+		packet_len = packet_len ? packet_len : avail;
 		if (packet_len < 0) {
-			if (offset + 4 > fp.length) {
-				_save_buffer = new Uint8Array(buffer, offset, fp.length - offset);
-				return;
-			}
-			length = fp.readUShort();
+			if (avail < 4) break;
+			length = _ringReadUShort(pktStart + 2);
 		} else length = packet_len;
-		offset += length;
-		if (offset > fp.length) {
-			offset = fp.tell() - (packet_len < 0 ? 4 : 2);
-			_save_buffer = new Uint8Array(buffer, offset, fp.length - offset);
-			return;
-		}
+		if (avail < length) break;
+		const pktBytes = _ringSlice(pktStart, length);
+		_ring_head += length || 2;
 		if (Packets.list[id]) {
 			packet = Packets.list[id];
-			if (packetDump) {
-				const buffer_console = new Uint8Array(buffer, offset - length, length);
-				console.log("%c[Network] Dump Recv:\n%cPacket ID: 0x%s\nPacket Name: %s\nLength: %d\nContent:\n%s", "color:#900090", "color:inherit", id.toString(16), packet.name, length, utilsBufferToHexString(buffer_console).toUpperCase());
-			}
-			packet.instance = new packet.Struct(fp, offset);
-			console.log("%c[Network] Recv:", "color:#900090", packet.instance, packet.callback ? "" : "(no callback)");
+			_fp.reset(pktBytes);
+			_fp.seek(packet_len < 0 ? 4 : 2, SEEK_SET);
+			packet.instance = new packet.Struct(_fp, length);
+			const entry = _logPool[_logTail & LOG_QUEUE_MASK];
+			_logTail++;
+			if (_logTail - _logHead > LOG_QUEUE_SIZE) _logHead = _logTail - LOG_QUEUE_SIZE;
+			entry.type = LOG_ENTRY_KNOWN;
+			entry.pktId = id;
+			entry.pktName = packet.name;
+			entry.pktLen = length;
+			entry.dumpBytes = packetDump ? pktBytes.slice() : null;
+			entry.instance = packet.instance;
+			entry.hasCallback = !!packet.callback;
+			_flushLogs();
 			if (packet.callback) packet.callback(packet.instance);
 		} else {
-			if (packetDump) {
-				const unknown_buffer = new Uint8Array(buffer, offset - length, length);
-				console.log("%c[Network] Dump Recv:\n%cPacket ID: 0x%s\nPacket Name: [UNKNOWN]\nLength: %d\nContent:\n%s", "color:#900090", "color:inherit", id.toString(16), length, utilsBufferToHexString(unknown_buffer).toUpperCase());
-			}
-			console.error("[Network] Packet \"%c0x%s%c\" not registered, skipping %d bytes.", "font-weight:bold", id.toString(16), "font-weight:normal", length);
+			const entry = _logPool[_logTail & LOG_QUEUE_MASK];
+			_logTail++;
+			if (_logTail - _logHead > LOG_QUEUE_SIZE) _logHead = _logTail - LOG_QUEUE_SIZE;
+			entry.type = LOG_ENTRY_UNKNOWN;
+			entry.pktId = id;
+			entry.pktName = "";
+			entry.pktLen = length;
+			entry.dumpBytes = packetDump ? pktBytes.slice() : null;
+			entry.instance = null;
+			entry.hasCallback = false;
+			_flushLogs();
 		}
-		if (length) fp.seek(offset, SEEK_SET);
 	}
-	_save_buffer = null;
+	if (_ring_head === _ring_tail) {
+		_ring_head = 0;
+		_ring_tail = 0;
+	}
 }
 /**
 * Communication end
@@ -205990,6 +206132,8 @@ function close() {
 		if (s.ping) clearInterval(s.ping);
 		idx = _sockets.indexOf(s);
 		if (idx !== -1) _sockets.splice(idx, 1);
+		_ring_head = 0;
+		_ring_tail = 0;
 	}
 }
 /**
@@ -206038,7 +206182,7 @@ function utilsLongToIP(long) {
 function utilsBufferToHexString(buffer) {
 	return [...new Uint8Array(buffer)].map((x) => x.toString(16).padStart(2, "0") + " ").join("");
 }
-var _sockets, _socketFactory, _socket, _save_buffer, _onDisconnect, packetDump, Network;
+var _sockets, _socketFactory, _socket, LOG_ENTRY_KNOWN, LOG_ENTRY_UNKNOWN, LOG_QUEUE_SIZE, LOG_QUEUE_MASK, LogEntry, _logPool, _logHead, _logTail, _logScheduled, _ring, _ring_mask, _ring_head, _ring_tail, _fp, _onDisconnect, packetDump, Network;
 var init_NetworkManager = __esmMin((() => {
 	init_Configs();
 	init_BinaryReader();
@@ -206053,7 +206197,37 @@ var init_NetworkManager = __esmMin((() => {
 	_sockets = [];
 	_socketFactory = null;
 	_socket = null;
-	_save_buffer = null;
+	LOG_ENTRY_KNOWN = 1;
+	LOG_ENTRY_UNKNOWN = 2;
+	LOG_QUEUE_SIZE = 1024;
+	LOG_QUEUE_MASK = 1023;
+	LogEntry = class {
+		type = 0;
+		pktId = 0;
+		pktName = "";
+		pktLen = 0;
+		dumpBytes = null;
+		instance = null;
+		hasCallback = false;
+		reset() {
+			this.type = 0;
+			this.pktId = 0;
+			this.pktName = "";
+			this.pktLen = 0;
+			this.dumpBytes = null;
+			this.instance = null;
+			this.hasCallback = false;
+		}
+	};
+	_logPool = Array.from({ length: LOG_QUEUE_SIZE }, () => new LogEntry());
+	_logHead = 0;
+	_logTail = 0;
+	_logScheduled = false;
+	_ring = /* @__PURE__ */ new Uint8Array(262144);
+	_ring_mask = _ring.length - 1;
+	_ring_head = 0;
+	_ring_tail = 0;
+	_fp = null;
 	_onDisconnect = null;
 	packetDump = Configs.get("packetDump", false);
 	/**

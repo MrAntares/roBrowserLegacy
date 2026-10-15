@@ -11440,6 +11440,34 @@ BinaryReader.prototype.seek = function seek(index, type) {
 	type = type || 2;
 	this.offset = type === 1 ? this.offset + index : type === 3 ? this.length + index : index;
 };
+/**
+* Reset BinaryReader in-place to read from a new buffer (or sub-range of one),
+* avoiding a heap allocation per network message on the hot path.
+*
+* Accepts either:
+*   - An ArrayBuffer / Uint8Array  →  wraps in a new DataView
+*   - A DataView already sized to the desired range  →  reused directly
+*
+* @param {ArrayBuffer|Uint8Array|DataView} buffer
+* @param {number} [start=0]  byte offset into buffer (ignored when DataView is passed)
+* @param {number} [end]      exclusive end byte (ignored when DataView is passed)
+*/
+BinaryReader.prototype.reset = function reset(buffer, start, end) {
+	if (buffer instanceof DataView) {
+		this.view = buffer;
+		this.length = buffer.byteLength;
+	} else {
+		const u8 = buffer instanceof Uint8Array ? buffer : null;
+		const ab = u8 ? u8.buffer : buffer;
+		const base = u8 ? u8.byteOffset : 0;
+		const s = base + (start || 0);
+		const e = end !== void 0 ? base + end : base + (u8 ? u8.byteLength : ab.byteLength);
+		this.view = new DataView(ab, s, e - s);
+		this.length = e - s;
+	}
+	this.buffer = this.view.buffer;
+	this.offset = 0;
+};
 var bf_byteBuff = /* @__PURE__ */ new ArrayBuffer(4);
 var bf_wba = new Int8Array(bf_byteBuff);
 var bf_wia = new Int32Array(bf_byteBuff);
