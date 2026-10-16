@@ -5,6 +5,8 @@ in vec2 aPosition;
 in vec2 aTextureCoord;
 
 out vec2 vTextureCoord;
+out float vBillboardZ;
+out float vPlaneZ;
 
 uniform mat4 uModelViewMat;
 uniform mat4 uViewModelMat;
@@ -63,6 +65,9 @@ void main(void) {
 
     gl_Position = uProjectionMat * viewPosition;
 
+    float billboardZ = gl_Position.z;
+    float planeZ     = billboardZ;
+
     vec3 cameraPos     = getCameraPosition();
     vec3 cameraForward = getCameraForward();
 
@@ -85,9 +90,17 @@ void main(void) {
         vec4 planeClip       = uProjectionMat * (uModelViewMat * vec4(cameraPos + rayDir * dist, 1.0));
         float correctedZBase = planeClip.z * (gl_Position.w / max(planeClip.w, 0.000001));
 
-        gl_Position.z = uIgnoreZindexCap ? correctedZBase : min(gl_Position.z, correctedZBase);
+        planeZ = correctedZBase;
+        if (uIgnoreZindexCap) {
+            billboardZ = planeZ;
+        }
     }
-    gl_Position.z -= (uSpriteRendererZindex * 0.01 + uSpriteRendererDepth) / max(uCameraZoom, 1.0);
+
+    // Min of both taken per fragment, see docs/reference/renderer/sprite-depth.md
+    float zOffset = (uSpriteRendererZindex * 0.01 + uSpriteRendererDepth) / max(uCameraZoom, 1.0);
+    vBillboardZ   = billboardZ - zOffset;
+    vPlaneZ       = planeZ - zOffset;
+    gl_Position.z = min(vBillboardZ, vPlaneZ);
 
     vTextureCoord = aTextureCoord;
 }

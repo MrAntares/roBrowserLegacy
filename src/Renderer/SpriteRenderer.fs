@@ -2,6 +2,8 @@
 precision highp float;
 
 in vec2 vTextureCoord;
+in float vBillboardZ;
+in float vPlaneZ;
 out vec4 fragColor;
 
 uniform sampler2D uDiffuse;
@@ -62,6 +64,9 @@ void main(void) {
     // No alpha, skip.
     if ( textureSample.a == 0.0 )
         discard;
+
+    // Clip-space depth back to window depth
+    gl_FragDepth = min(vBillboardZ, vPlaneZ) * gl_FragCoord.w * 0.5 + 0.5;
 
     // Apply shadow, apply color
     textureSample.rgb   *= uShadow;
