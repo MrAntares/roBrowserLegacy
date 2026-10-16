@@ -26,21 +26,35 @@ const _light = {
 };
 
 /**
+ * Reusable module-level scratchpads to avoid per-frame GC allocations
+ */
+const _scratchModelViewMat = mat4.create();
+const _scratchNormalMat = mat4.create();
+const _scratchMatrix = mat4.create();
+const _scratchNodeMatrix = mat4.create();
+const _scratchMat4Node = mat4.create();
+const _scratchTempVec = vec3.create();
+const _scratchQuat = quat.create();
+const _scratchVec3Pos = vec3.create();
+const _scratchVec3Scale = vec3.create();
+const _scratchVec3BoxCenter = vec3.create();
+const _shadeGroup = new Array(32);
+const _shadeGroupUsed = new Array(32);
+
+/**
  * Interpolate between two quaternions using SLERP
  */
 function slerpQuat(q1, q2, t) {
-	const out = quat.create();
-	quat.slerp(out, q1, q2, t);
-	return out;
+	quat.slerp(_scratchQuat, q1, q2, t);
+	return _scratchQuat;
 }
 
 /**
  * Interpolate between two vec3 using linear interpolation
  */
 function lerpVec3(v1, v2, t) {
-	const out = vec3.create();
-	vec3.lerp(out, v1, v2, t);
-	return out;
+	vec3.lerp(_scratchVec3Scale, v1, v2, t);
+	return _scratchVec3Scale;
 }
 
 /**
@@ -102,7 +116,10 @@ function getPositionAtFrame(posKeyframes, frame, animLen) {
 	}
 
 	if (posKeyframes.length === 1) {
-		return [posKeyframes[0].px, posKeyframes[0].py, posKeyframes[0].pz];
+		_scratchVec3Pos[0] = posKeyframes[0].px;
+		_scratchVec3Pos[1] = posKeyframes[0].py;
+		_scratchVec3Pos[2] = posKeyframes[0].pz;
+		return _scratchVec3Pos;
 	}
 
 	let prevIdx = 0;
@@ -125,7 +142,10 @@ function getPositionAtFrame(posKeyframes, frame, animLen) {
 
 	if (prevIdx === nextIdx) {
 		const kf = posKeyframes[prevIdx];
-		return [kf.px, kf.py, kf.pz];
+		_scratchVec3Pos[0] = kf.px;
+		_scratchVec3Pos[1] = kf.py;
+		_scratchVec3Pos[2] = kf.pz;
+		return _scratchVec3Pos;
 	}
 
 	const prevFrame = posKeyframes[prevIdx].frame;
@@ -144,7 +164,10 @@ function getPositionAtFrame(posKeyframes, frame, animLen) {
 	const p1 = posKeyframes[prevIdx];
 	const p2 = posKeyframes[nextIdx];
 
-	return lerpVec3([p1.px, p1.py, p1.pz], [p2.px, p2.py, p2.pz], t);
+	_scratchVec3Pos[0] = p1.px + (p2.px - p1.px) * t;
+	_scratchVec3Pos[1] = p1.py + (p2.py - p1.py) * t;
+	_scratchVec3Pos[2] = p1.pz + (p2.pz - p1.pz) * t;
+	return _scratchVec3Pos;
 }
 
 /**
@@ -212,7 +235,7 @@ function calcNormal_NONE(out) {
 function calcNormal_FLAT(node, out, normalMat, groupUsed) {
 	let i, j, count;
 	let face;
-	const temp_vec = vec3.create();
+	const temp_vec = _scratchTempVec;
 	const faces = node.faces;
 	const vertices = node.vertices;
 
@@ -369,8 +392,8 @@ function generate_mesh_SMOOTH(node, vert, shadeGroup, mesh) {
  * Compile a node at a specific animation frame
  */
 function compileNodeAtFrame(node, instanceMatrix, frame, animLen) {
-	const modelViewMat = mat4.create();
-	const normalMat = mat4.create();
+	const modelViewMat = _scratchModelViewMat;
+	const normalMat = _scratchNormalMat;
 
 	const textures = node.textures;
 	const faces = node.faces;
@@ -379,20 +402,28 @@ function compileNodeAtFrame(node, instanceMatrix, frame, animLen) {
 	const mesh = {};
 	const mesh_size = [];
 
-	const shadeGroup = new Array(32);
-	const shadeGroupUsed = new Array(32);
+	// Reuse module-level flags; clear first since callers OR-into it.
+	for (let g = 0; g < 32; g++) {
+		_shadeGroup[g] = null;
+		_shadeGroupUsed[g] = false;
+	}
+
 	let i, x, y, z, count;
 
 	// Calculate animated matrix
-	const matrix = mat4.create();
+	const matrix = _scratchMatrix;
 	mat4.identity(matrix);
-	mat4.translate(matrix, matrix, [-node.main.box.center[0], -node.main.box.max[1], -node.main.box.center[2]]);
+
+	_scratchVec3BoxCenter[0] = -node.main.box.center[0];
+	_scratchVec3BoxCenter[1] = -node.main.box.max[1];
+	_scratchVec3BoxCenter[2] = -node.main.box.center[2];
+	mat4.translate(matrix, matrix, _scratchVec3BoxCenter);
 
 	// Apply node transformations with animation
-	const nodeMatrix = mat4.create();
+	const nodeMatrix = _scratchNodeMatrix;
 	mat4.identity(nodeMatrix);
 
-	// Position animation
+	// Position animation (writes into _scratchVec3Pos)
 	const animPos = getPositionAtFrame(node.posKeyframes, frame, animLen);
 	if (animPos) {
 		mat4.translate(nodeMatrix, nodeMatrix, animPos);
@@ -410,7 +441,7 @@ function compileNodeAtFrame(node, instanceMatrix, frame, animLen) {
 		mat4.rotate(nodeMatrix, nodeMatrix, node.rotangle, node.rotaxis);
 	}
 
-	// Scale animation
+	// Scale animation (writes into _scratchVec3Scale)
 	const animScale = getScaleAtFrame(node.scaleKeyFrames, frame, animLen);
 	if (animScale) {
 		mat4.scale(nodeMatrix, nodeMatrix, animScale);
@@ -424,7 +455,7 @@ function compileNodeAtFrame(node, instanceMatrix, frame, animLen) {
 		mat4.translate(matrix, matrix, node.offset);
 	}
 
-	mat4.multiply(matrix, matrix, mat3.toMat4(node.mat3));
+	mat4.multiply(matrix, matrix, mat3.toMat4(node.mat3, _scratchMat4Node));
 
 	// Multiply with instance matrix
 	mat4.multiply(modelViewMat, instanceMatrix, matrix);
@@ -470,14 +501,14 @@ function compileNodeAtFrame(node, instanceMatrix, frame, animLen) {
 			break;
 
 		case 1: // FLAT
-			calcNormal_FLAT(node, face_normal, normalMat, shadeGroupUsed);
+			calcNormal_FLAT(node, face_normal, normalMat, _shadeGroupUsed);
 			generate_mesh_FLAT(node, vert, face_normal, mesh);
 			break;
 
 		case 2: // SMOOTH
-			calcNormal_FLAT(node, face_normal, normalMat, shadeGroupUsed);
-			calcNormal_SMOOTH(node, face_normal, shadeGroupUsed, shadeGroup);
-			generate_mesh_SMOOTH(node, vert, shadeGroup, mesh);
+			calcNormal_FLAT(node, face_normal, normalMat, _shadeGroupUsed);
+			calcNormal_SMOOTH(node, face_normal, _shadeGroupUsed, _shadeGroup);
+			generate_mesh_SMOOTH(node, vert, _shadeGroup, mesh);
 			break;
 	}
 

@@ -583,6 +583,77 @@ function fastMoveTo(to_x, to_y, speed = 15, onEnd, keepDirection = false) {
 }
 
 /**
+ * Compute segment duration based on diagonal movement
+ */
+function getSegmentDuration(dx, dy, baseSpeed) {
+	let duration = dx && dy ? baseSpeed * Math.SQRT2 : baseSpeed;
+	if (!duration || duration < 1) {
+		duration = 1;
+	}
+	return duration;
+}
+
+/**
+ * Finish walking sequence for entity
+ */
+function finishWalk(entity, pos, walk, path, total) {
+	const cellHeight =
+		entity.objecttype == entity.constructor.TYPE_FALCON
+			? Altitude.getCellHeight(path[total - 2], path[total - 1]) + 5
+			: Altitude.getCellHeight(path[total - 2], path[total - 1]);
+
+	pos[0] = path[total - 2];
+	pos[1] = path[total - 1];
+	pos[2] = cellHeight;
+	walk.lastPos.set(pos);
+
+	if (entity.isFastMoving) {
+		entity.isFastMoving = false;
+		entity._fastMoveTrail = false;
+		entity._preserveDirection = false;
+		if (typeof entity._normalSpeed === 'number') {
+			entity.walk.speed = entity._normalSpeed;
+			delete entity._normalSpeed;
+		}
+	}
+
+	if (entity.objecttype == entity.constructor.TYPE_WUG && entity.isAttacking) {
+		entity.setAction({
+			action: entity.ACTION.ATTACK,
+			frame: 0,
+			repeat: false,
+			play: true,
+			next: {
+				delay: Date.now() + 432,
+				action: entity.ACTION.IDLE,
+				frame: 0,
+				repeat: false,
+				play: true,
+				next: false
+			}
+		});
+	} else if (entity.action !== entity.ACTION.DIE) {
+		entity.setAction({
+			action: entity.ACTION.IDLE,
+			frame: 0,
+			play: true,
+			repeat: true
+		});
+	}
+
+	entity.onWalkEnd();
+
+	// Temporary callback
+	if (walk.onEnd) {
+		walk.onEnd();
+		walk.onEnd = null;
+	}
+
+	entity.resetRoute();
+	entity.isAttacking = false;
+}
+
+/**
  * Process walking
  */
 function walkProcess() {
@@ -635,73 +706,8 @@ function walkProcess() {
 		this.objecttype === this.constructor.TYPE_FALCON ||
 		this.objecttype === this.constructor.TYPE_WUG
 	) {
-		const getSegmentDuration = function getSegmentDuration(dx, dy, baseSpeed) {
-			let duration = dx && dy ? baseSpeed * Math.SQRT2 : baseSpeed;
-			if (!duration || duration < 1) {
-				duration = 1;
-			}
-			return duration;
-		};
-
-		const finishWalk = () => {
-			const cellHeight =
-				this.objecttype == this.constructor.TYPE_FALCON
-					? Altitude.getCellHeight(path[total - 2], path[total - 1]) + 5
-					: Altitude.getCellHeight(path[total - 2], path[total - 1]);
-
-			pos[0] = path[total - 2];
-			pos[1] = path[total - 1];
-			pos[2] = cellHeight;
-			walk.lastPos.set(pos);
-
-			if (this.isFastMoving) {
-				this.isFastMoving = false;
-				this._fastMoveTrail = false;
-				this._preserveDirection = false;
-				if (typeof this._normalSpeed === 'number') {
-					this.walk.speed = this._normalSpeed;
-					delete this._normalSpeed;
-				}
-			}
-
-			if (this.objecttype == this.constructor.TYPE_WUG && this.isAttacking) {
-				this.setAction({
-					action: this.ACTION.ATTACK,
-					frame: 0,
-					repeat: false,
-					play: true,
-					next: {
-						delay: Date.now() + 432,
-						action: this.ACTION.IDLE,
-						frame: 0,
-						repeat: false,
-						play: true,
-						next: false
-					}
-				});
-			} else if (this.action !== this.ACTION.DIE) {
-				this.setAction({
-					action: this.ACTION.IDLE,
-					frame: 0,
-					play: true,
-					repeat: true
-				});
-			}
-
-			this.onWalkEnd();
-
-			// Temporary callback
-			if (walk.onEnd) {
-				walk.onEnd();
-				walk.onEnd = null;
-			}
-
-			this.resetRoute();
-			this.isAttacking = false;
-		};
-
 		if (index >= total) {
-			finishWalk();
+			finishWalk(this, pos, walk, path, total);
 			return;
 		}
 
@@ -818,7 +824,7 @@ function walkProcess() {
 		}
 
 		// Stop walking
-		finishWalk();
+		finishWalk(this, pos, walk, path, total);
 	} else {
 		if (index < total) {
 			// Walking got interrupted by getting attacked or other means
@@ -911,7 +917,7 @@ function resetRoute(keepDistance) {
 	if (!keepDistance) {
 		this.walk.dist = 0;
 	}
-	this.walk.path = new Int16Array(PathFinding.MAX_WALKPATH * 2);
+	this.walk.path.fill(0);
 	if (this.walk.segmentDurations) {
 		this.walk.segmentDurations.fill(0);
 	}
