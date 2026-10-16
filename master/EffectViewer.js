@@ -208816,6 +208816,11 @@ function add$2(gl, modelData) {
 			totalAnimationLength = Math.max(totalAnimationLength, kf.Frame || 0);
 			kf._vec = vec3$5.fromValues(kf.Scale[0], kf.Scale[1], kf.Scale[2]);
 		}
+		const suffixMat = mat4$20.create();
+		mat4$20.identity(suffixMat);
+		if (!node.is_only) mat4$20.translate(suffixMat, suffixMat, node.offset);
+		mat4$20.multiply(suffixMat, suffixMat, mat3$4.toMat4(node.mat3, _tempMat4Node));
+		node._cachedSuffix = suffixMat;
 		nodes.push(node);
 	}
 	let animLen = modelData.animLen || 0;
@@ -208928,6 +208933,13 @@ function add$2(gl, modelData) {
 		_nodeMap: {},
 		_globalMatrices: new Array(nodes.length)
 	};
+	animModel._boxMat = mat4$20.create();
+	mat4$20.identity(animModel._boxMat);
+	mat4$20.translate(animModel._boxMat, animModel._boxMat, [
+		-animModel.box.center[0],
+		-animModel.box.max[1],
+		-animModel.box.center[2]
+	]);
 	for (let n = 0; n < nodes.length; n++) {
 		animModel._nodeMap[nodes[n].name] = nodes[n];
 		animModel._globalMatrices[n] = mat4$20.create();
@@ -209072,7 +209084,7 @@ function updateModelBuffer(gl, model, frame, force) {
 	if (model.staticModel && model.lastAnimFrame !== -1 && !force) return;
 	model.lastAnimFrame = currentAnimFrame;
 	model.lastFrame = frame;
-	const box = model.box;
+	model.box;
 	const nodeMap = model._nodeMap;
 	const globalMatrices = model._globalMatrices;
 	for (let n = 0; n < model.nodes.length; n++) {
@@ -209095,15 +209107,9 @@ function updateModelBuffer(gl, model, frame, force) {
 			mat4$20.scale(globalMatrix, globalMatrix, animScale || node.scale);
 		}
 		const finalNodeMatrix = node._cache.final;
-		mat4$20.identity(finalNodeMatrix);
-		mat4$20.translate(finalNodeMatrix, finalNodeMatrix, [
-			-box.center[0],
-			-box.max[1],
-			-box.center[2]
-		]);
+		mat4$20.copy(finalNodeMatrix, model._boxMat);
 		mat4$20.multiply(finalNodeMatrix, finalNodeMatrix, globalMatrix);
-		if (!node.is_only) mat4$20.translate(finalNodeMatrix, finalNodeMatrix, node.offset);
-		mat4$20.multiply(finalNodeMatrix, finalNodeMatrix, mat3$4.toMat4(node.mat3));
+		mat4$20.multiply(finalNodeMatrix, finalNodeMatrix, node._cachedSuffix);
 		node.finalMatrix = finalNodeMatrix;
 	}
 	const matrixData = model.matrixData;
@@ -209196,7 +209202,7 @@ function renderFaded(gl, modelView, projection, normalMat, fog, light) {
 function hasAnimatedModels() {
 	return _animatedModels.length > 0;
 }
-var mat3$4, mat4$20, vec3$5, quat$1, _tempVec3, _tempVec3Scale, _tempQuat, _tempMat4, _program$22, _animatedModels, AnimatedModels_default;
+var mat3$4, mat4$20, vec3$5, quat$1, _tempVec3, _tempVec3Scale, _tempQuat, _tempMat4, _tempMat4Node, _program$22, _animatedModels, AnimatedModels_default;
 var init_AnimatedModels = __esmMin((() => {
 	init_Client();
 	init_gl_matrix();
@@ -209213,6 +209219,7 @@ var init_AnimatedModels = __esmMin((() => {
 	_tempVec3Scale = vec3$5.create();
 	_tempQuat = quat$1.create();
 	_tempMat4 = mat4$20.create();
+	_tempMat4Node = mat4$20.create();
 	_program$22 = null;
 	_animatedModels = [];
 	AnimatedModels_default = {
@@ -239182,7 +239189,7 @@ function calculateAnimation(layer, keyIndex, result) {
 	}
 	return true;
 }
-var mat4$18, D3DBLEND, _program$20, _buffer$15, _bufferData, _matrix$6, _lastAngle, PIXEL_TO_WORLD_Z, anim, StrEffect;
+var mat4$18, D3DBLEND, _program$20, _buffer$15, _bufferData, _matrix$6, _spriteOffset, _lastAngle, PIXEL_TO_WORLD_Z, anim, StrEffect;
 var init_StrEffect = __esmMin((() => {
 	init_StrEffect$2();
 	init_StrEffect$1();
@@ -239195,6 +239202,7 @@ var init_StrEffect = __esmMin((() => {
 	_buffer$15 = null;
 	_bufferData = /* @__PURE__ */ new Float32Array(16);
 	_matrix$6 = mat4$18.create();
+	_spriteOffset = /* @__PURE__ */ new Float32Array(2);
 	_lastAngle = -1;
 	PIXEL_TO_WORLD_Z = 1 / 5;
 	anim = {
@@ -239328,18 +239336,17 @@ var init_StrEffect = __esmMin((() => {
 				mat4$18.rotateZ(_matrix$6, _matrix$6, -animat.angle / 180 * Math.PI);
 				_lastAngle = animat.angle;
 			}
-			const spriteOffset = /* @__PURE__ */ new Float32Array(2);
 			let verticalBase = .5;
 			if (this.ownerEntity) {
-				spriteOffset[0] = animat.pos[0] - 320 + (this.xOffset || 0) * PIXEL_TO_WORLD_Z * 35 * sizeScale;
-				spriteOffset[1] = animat.pos[1] - 320 - (this.yOffset || 0) * PIXEL_TO_WORLD_Z * 35 * sizeScale;
+				_spriteOffset[0] = animat.pos[0] - 320 + (this.xOffset || 0) * PIXEL_TO_WORLD_Z * 35 * sizeScale;
+				_spriteOffset[1] = animat.pos[1] - 320 - (this.yOffset || 0) * PIXEL_TO_WORLD_Z * 35 * sizeScale;
 				verticalBase = 0;
 			} else {
-				spriteOffset[0] = animat.pos[0] - 320;
-				spriteOffset[1] = animat.pos[1] - 320;
+				_spriteOffset[0] = animat.pos[0] - 320;
+				_spriteOffset[1] = animat.pos[1] - 320;
 			}
 			gl.uniform4fv(uniform.uSpriteColor, animat.color);
-			gl.uniform2fv(uniform.uSpriteOffset, spriteOffset);
+			gl.uniform2fv(uniform.uSpriteOffset, _spriteOffset);
 			gl.uniform1f(uniform.uVerticalBase, verticalBase);
 			gl.uniform3fv(uniform.uSpritePosition, this.position);
 			gl.uniformMatrix4fv(uniform.uSpriteAngle, false, _matrix$6);
@@ -254107,17 +254114,15 @@ var init_Model = __esmMin((() => {
 * Interpolate between two quaternions using SLERP
 */
 function slerpQuat(q1, q2, t) {
-	const out = quat.create();
-	quat.slerp(out, q1, q2, t);
-	return out;
+	quat.slerp(_scratchQuat, q1, q2, t);
+	return _scratchQuat;
 }
 /**
 * Interpolate between two vec3 using linear interpolation
 */
 function lerpVec3(v1, v2, t) {
-	const out = vec3$3.create();
-	vec3$3.lerp(out, v1, v2, t);
-	return out;
+	vec3$3.lerp(_scratchVec3Scale, v1, v2, t);
+	return _scratchVec3Scale;
 }
 /**
 * Get rotation at a specific frame from keyframes
@@ -254152,11 +254157,12 @@ function getRotationAtFrame(rotKeyframes, frame, animLen) {
 */
 function getPositionAtFrame(posKeyframes, frame, animLen) {
 	if (!posKeyframes || posKeyframes.length === 0) return null;
-	if (posKeyframes.length === 1) return [
-		posKeyframes[0].px,
-		posKeyframes[0].py,
-		posKeyframes[0].pz
-	];
+	if (posKeyframes.length === 1) {
+		_scratchVec3Pos[0] = posKeyframes[0].px;
+		_scratchVec3Pos[1] = posKeyframes[0].py;
+		_scratchVec3Pos[2] = posKeyframes[0].pz;
+		return _scratchVec3Pos;
+	}
 	let prevIdx = 0;
 	let nextIdx = 0;
 	for (let i = 0; i < posKeyframes.length; i++) {
@@ -254172,11 +254178,10 @@ function getPositionAtFrame(posKeyframes, frame, animLen) {
 	}
 	if (prevIdx === nextIdx) {
 		const kf = posKeyframes[prevIdx];
-		return [
-			kf.px,
-			kf.py,
-			kf.pz
-		];
+		_scratchVec3Pos[0] = kf.px;
+		_scratchVec3Pos[1] = kf.py;
+		_scratchVec3Pos[2] = kf.pz;
+		return _scratchVec3Pos;
 	}
 	const prevFrame = posKeyframes[prevIdx].frame;
 	let nextFrame = posKeyframes[nextIdx].frame;
@@ -254186,15 +254191,10 @@ function getPositionAtFrame(posKeyframes, frame, animLen) {
 	t = Math.max(0, Math.min(1, t));
 	const p1 = posKeyframes[prevIdx];
 	const p2 = posKeyframes[nextIdx];
-	return lerpVec3([
-		p1.px,
-		p1.py,
-		p1.pz
-	], [
-		p2.px,
-		p2.py,
-		p2.pz
-	], t);
+	_scratchVec3Pos[0] = p1.px + (p2.px - p1.px) * t;
+	_scratchVec3Pos[1] = p1.py + (p2.py - p1.py) * t;
+	_scratchVec3Pos[2] = p1.pz + (p2.pz - p1.pz) * t;
+	return _scratchVec3Pos;
 }
 /**
 * Get scale at a specific frame from keyframes
@@ -254236,7 +254236,7 @@ function calcNormal_NONE(out) {
 function calcNormal_FLAT(node, out, normalMat, groupUsed) {
 	let i, j, count;
 	let face;
-	const temp_vec = vec3$3.create();
+	const temp_vec = _scratchTempVec;
 	const faces = node.faces;
 	const vertices = node.vertices;
 	for (i = 0, j = 0, count = faces.length; i < count; ++i, j += 3) {
@@ -254356,24 +254356,25 @@ function generate_mesh_SMOOTH(node, vert, shadeGroup, mesh) {
 * Compile a node at a specific animation frame
 */
 function compileNodeAtFrame(node, instanceMatrix, frame, animLen) {
-	const modelViewMat = mat4$15.create();
-	const normalMat = mat4$15.create();
+	const modelViewMat = _scratchModelViewMat;
+	const normalMat = _scratchNormalMat;
 	const textures = node.textures;
 	const faces = node.faces;
 	const vertices = node.vertices;
 	const mesh = {};
 	const mesh_size = [];
-	const shadeGroup = new Array(32);
-	const shadeGroupUsed = new Array(32);
+	for (let g = 0; g < 32; g++) {
+		_shadeGroup[g] = null;
+		_shadeGroupUsed[g] = false;
+	}
 	let i, x, y, z, count;
-	const matrix = mat4$15.create();
+	const matrix = _scratchMatrix;
 	mat4$15.identity(matrix);
-	mat4$15.translate(matrix, matrix, [
-		-node.main.box.center[0],
-		-node.main.box.max[1],
-		-node.main.box.center[2]
-	]);
-	const nodeMatrix = mat4$15.create();
+	_scratchVec3BoxCenter[0] = -node.main.box.center[0];
+	_scratchVec3BoxCenter[1] = -node.main.box.max[1];
+	_scratchVec3BoxCenter[2] = -node.main.box.center[2];
+	mat4$15.translate(matrix, matrix, _scratchVec3BoxCenter);
+	const nodeMatrix = _scratchNodeMatrix;
 	mat4$15.identity(nodeMatrix);
 	const animPos = getPositionAtFrame(node.posKeyframes, frame, animLen);
 	if (animPos) mat4$15.translate(nodeMatrix, nodeMatrix, animPos);
@@ -254387,7 +254388,7 @@ function compileNodeAtFrame(node, instanceMatrix, frame, animLen) {
 	else mat4$15.scale(nodeMatrix, nodeMatrix, node.scale);
 	mat4$15.multiply(matrix, matrix, nodeMatrix);
 	if (!node.is_only) mat4$15.translate(matrix, matrix, node.offset);
-	mat4$15.multiply(matrix, matrix, mat3$1.toMat4(node.mat3));
+	mat4$15.multiply(matrix, matrix, mat3$1.toMat4(node.mat3, _scratchMat4Node));
 	mat4$15.multiply(modelViewMat, instanceMatrix, matrix);
 	mat4$15.extractRotation(normalMat, modelViewMat);
 	count = vertices.length;
@@ -254411,13 +254412,13 @@ function compileNodeAtFrame(node, instanceMatrix, frame, animLen) {
 			generate_mesh_FLAT(node, vert, face_normal, mesh);
 			break;
 		case 1:
-			calcNormal_FLAT(node, face_normal, normalMat, shadeGroupUsed);
+			calcNormal_FLAT(node, face_normal, normalMat, _shadeGroupUsed);
 			generate_mesh_FLAT(node, vert, face_normal, mesh);
 			break;
 		case 2:
-			calcNormal_FLAT(node, face_normal, normalMat, shadeGroupUsed);
-			calcNormal_SMOOTH(node, face_normal, shadeGroupUsed, shadeGroup);
-			generate_mesh_SMOOTH(node, vert, shadeGroup, mesh);
+			calcNormal_FLAT(node, face_normal, normalMat, _shadeGroupUsed);
+			calcNormal_SMOOTH(node, face_normal, _shadeGroupUsed, _shadeGroup);
+			generate_mesh_SMOOTH(node, vert, _shadeGroup, mesh);
 	}
 	return mesh;
 }
@@ -254511,7 +254512,7 @@ function initModel(gl, data) {
 		WebGL_default.texture(gl, data.infos[i].texture, onTextureLoaded, i);
 	}
 }
-var _program$18, _normalMat, mat4$15, mat3$1, quat, vec3$3, _light, RsmEffect;
+var _program$18, _normalMat, mat4$15, mat3$1, quat, vec3$3, _light, _scratchModelViewMat, _scratchNormalMat, _scratchMatrix, _scratchNodeMatrix, _scratchMat4Node, _scratchTempVec, _scratchQuat, _scratchVec3Pos, _scratchVec3Scale, _scratchVec3BoxCenter, _shadeGroup, _shadeGroupUsed, RsmEffect;
 var init_RsmEffect = __esmMin((() => {
 	init_RsmEffect$2();
 	init_RsmEffect$1();
@@ -254543,6 +254544,18 @@ var init_RsmEffect = __esmMin((() => {
 			0
 		])
 	};
+	_scratchModelViewMat = mat4$15.create();
+	_scratchNormalMat = mat4$15.create();
+	_scratchMatrix = mat4$15.create();
+	_scratchNodeMatrix = mat4$15.create();
+	_scratchMat4Node = mat4$15.create();
+	_scratchTempVec = vec3$3.create();
+	_scratchQuat = quat.create();
+	_scratchVec3Pos = vec3$3.create();
+	_scratchVec3Scale = vec3$3.create();
+	_scratchVec3BoxCenter = vec3$3.create();
+	_shadeGroup = new Array(32);
+	_shadeGroupUsed = new Array(32);
 	RsmEffect = class {
 		constructor(params) {
 			this.position = params.Inst.position;
@@ -311146,6 +311159,60 @@ function fastMoveTo(to_x, to_y, speed = 15, onEnd, keepDirection = false) {
 	return true;
 }
 /**
+* Compute segment duration based on diagonal movement
+*/
+function getSegmentDuration(dx, dy, baseSpeed) {
+	let duration = dx && dy ? baseSpeed * Math.SQRT2 : baseSpeed;
+	if (!duration || duration < 1) duration = 1;
+	return duration;
+}
+/**
+* Finish walking sequence for entity
+*/
+function finishWalk(entity, pos, walk, path, total) {
+	const cellHeight = entity.objecttype == entity.constructor.TYPE_FALCON ? Altitude.getCellHeight(path[total - 2], path[total - 1]) + 5 : Altitude.getCellHeight(path[total - 2], path[total - 1]);
+	pos[0] = path[total - 2];
+	pos[1] = path[total - 1];
+	pos[2] = cellHeight;
+	walk.lastPos.set(pos);
+	if (entity.isFastMoving) {
+		entity.isFastMoving = false;
+		entity._fastMoveTrail = false;
+		entity._preserveDirection = false;
+		if (typeof entity._normalSpeed === "number") {
+			entity.walk.speed = entity._normalSpeed;
+			delete entity._normalSpeed;
+		}
+	}
+	if (entity.objecttype == entity.constructor.TYPE_WUG && entity.isAttacking) entity.setAction({
+		action: entity.ACTION.ATTACK,
+		frame: 0,
+		repeat: false,
+		play: true,
+		next: {
+			delay: Date.now() + 432,
+			action: entity.ACTION.IDLE,
+			frame: 0,
+			repeat: false,
+			play: true,
+			next: false
+		}
+	});
+	else if (entity.action !== entity.ACTION.DIE) entity.setAction({
+		action: entity.ACTION.IDLE,
+		frame: 0,
+		play: true,
+		repeat: true
+	});
+	entity.onWalkEnd();
+	if (walk.onEnd) {
+		walk.onEnd();
+		walk.onEnd = null;
+	}
+	entity.resetRoute();
+	entity.isAttacking = false;
+}
+/**
 * Process walking
 */
 function walkProcess() {
@@ -311177,56 +311244,8 @@ function walkProcess() {
 		console.trace("Stack trace of debug:");
 	}
 	if (this.action === this.ACTION.WALK || this.isFastMoving || this.objecttype === this.constructor.TYPE_FALCON || this.objecttype === this.constructor.TYPE_WUG) {
-		const getSegmentDuration = function getSegmentDuration(dx, dy, baseSpeed) {
-			let duration = dx && dy ? baseSpeed * Math.SQRT2 : baseSpeed;
-			if (!duration || duration < 1) duration = 1;
-			return duration;
-		};
-		const finishWalk = () => {
-			const cellHeight = this.objecttype == this.constructor.TYPE_FALCON ? Altitude.getCellHeight(path[total - 2], path[total - 1]) + 5 : Altitude.getCellHeight(path[total - 2], path[total - 1]);
-			pos[0] = path[total - 2];
-			pos[1] = path[total - 1];
-			pos[2] = cellHeight;
-			walk.lastPos.set(pos);
-			if (this.isFastMoving) {
-				this.isFastMoving = false;
-				this._fastMoveTrail = false;
-				this._preserveDirection = false;
-				if (typeof this._normalSpeed === "number") {
-					this.walk.speed = this._normalSpeed;
-					delete this._normalSpeed;
-				}
-			}
-			if (this.objecttype == this.constructor.TYPE_WUG && this.isAttacking) this.setAction({
-				action: this.ACTION.ATTACK,
-				frame: 0,
-				repeat: false,
-				play: true,
-				next: {
-					delay: Date.now() + 432,
-					action: this.ACTION.IDLE,
-					frame: 0,
-					repeat: false,
-					play: true,
-					next: false
-				}
-			});
-			else if (this.action !== this.ACTION.DIE) this.setAction({
-				action: this.ACTION.IDLE,
-				frame: 0,
-				play: true,
-				repeat: true
-			});
-			this.onWalkEnd();
-			if (walk.onEnd) {
-				walk.onEnd();
-				walk.onEnd = null;
-			}
-			this.resetRoute();
-			this.isAttacking = false;
-		};
 		if (index >= total) {
-			finishWalk();
+			finishWalk(this, pos, walk, path, total);
 			return;
 		}
 		let startX = walk.pos[0];
@@ -311298,7 +311317,7 @@ function walkProcess() {
 		walk.tick = segmentStart;
 		walk.prevTick = TICK;
 		if (!(index >= total - 2 && t >= .999 && TICK >= segmentEnd)) return;
-		finishWalk();
+		finishWalk(this, pos, walk, path, total);
 	} else {
 		if (index < total) {
 			this.walk.tick += TICK - this.walk.prevTick;
@@ -311344,7 +311363,7 @@ function resetRoute(keepDistance) {
 	this.walk.tick = 0;
 	this.walk.prevTick = 0;
 	if (!keepDistance) this.walk.dist = 0;
-	this.walk.path = new Int16Array(PathFinding_default.MAX_WALKPATH * 2);
+	this.walk.path.fill(0);
 	if (this.walk.segmentDurations) this.walk.segmentDurations.fill(0);
 	this.walk.lastPos[0] = 0;
 	this.walk.lastPos[1] = 0;
