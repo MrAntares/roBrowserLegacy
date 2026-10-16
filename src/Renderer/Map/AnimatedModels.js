@@ -27,7 +27,7 @@ const _tempVec3 = vec3.create();
 const _tempVec3Scale = vec3.create();
 const _tempQuat = quat.create();
 const _tempMat4 = mat4.create();
-const _boxTranslateMat4 = mat4.create();
+const _tempMat4Node = mat4.create();
 
 /**
  * Shader program
@@ -280,23 +280,6 @@ function add(gl, modelData) {
 			mat4.scale(local, local, node.scale);
 			node._staticLocalMatrix = local;
 		}
-
-		// Precompute static suffix matrix for the final node transform:
-		//   !is_only : T_offset * mat3_4
-		//   is_only  : mat3_4
-		const _staticSuffix = mat4.create();
-		const _mat3AsMat4 = mat4.create();
-		mat3.toMat4(node.mat3, _mat3AsMat4);
-
-		if (!node.is_only) {
-			mat4.identity(_staticSuffix);
-			mat4.translate(_staticSuffix, _staticSuffix, node.offset);
-			mat4.multiply(_staticSuffix, _staticSuffix, _mat3AsMat4);
-		} else {
-			mat4.copy(_staticSuffix, _mat3AsMat4);
-		}
-		node._staticSuffix = _staticSuffix;
-
 		// Initialize instance cache
 		for (let k = 0; k < instances.length; k++) {
 			node._cache.instances[k] = mat4.create();
@@ -473,11 +456,6 @@ function add(gl, modelData) {
 	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, totalMatrices * 4, 1, 0, gl.RGBA, gl.FLOAT, matrixData);
 	gl.bindTexture(gl.TEXTURE_2D, null);
 
-	// mat4.create() already gives identity; just set the translation column.
-	_boxTranslateMat4[12] = -modelData.box.center[0];
-	_boxTranslateMat4[13] = -modelData.box.max[1];
-	_boxTranslateMat4[14] = -modelData.box.center[2];
-
 	// Create Model Object
 	const animModel = {
 		filename: modelData.filename,
@@ -509,8 +487,7 @@ function add(gl, modelData) {
 		lastAnimFrame: -1,
 		staticModel: !hasAnyAnimation,
 		_nodeMap: {},
-		_globalMatrices: new Array(nodes.length),
-		_boxTranslateMat4: _boxTranslateMat4
+		_globalMatrices: new Array(nodes.length)
 	};
 
 	// Cache Node Map
@@ -744,6 +721,7 @@ function updateModelBuffer(gl, model, frame, force) {
 	model.lastAnimFrame = currentAnimFrame;
 	model.lastFrame = frame;
 
+	const box = model.box;
 	const nodeMap = model._nodeMap;
 	const globalMatrices = model._globalMatrices;
 
@@ -752,13 +730,12 @@ function updateModelBuffer(gl, model, frame, force) {
 		const node = model.nodes[n];
 		const globalMatrix = globalMatrices[n];
 
-		// Parent Transform. Roots are initialized with the box translation
-		// pre-baked so every descendant inherits it exactly once.
+		// Parent Transform
 		if (node.parentname && nodeMap[node.parentname] && node.parentname !== node.name) {
 			const parentIdx = nodeMap[node.parentname]._index;
 			mat4.copy(globalMatrix, globalMatrices[parentIdx]);
 		} else {
-			mat4.copy(globalMatrix, model._boxTranslateMat4);
+			mat4.identity(globalMatrix);
 		}
 
 		// Local Transform
@@ -781,10 +758,19 @@ function updateModelBuffer(gl, model, frame, force) {
 			mat4.scale(globalMatrix, globalMatrix, animScale || node.scale);
 		}
 
-		// Final Node Matrix = T_box * hierarchy * (T_offset * mat3_4)
-		// T_box is baked into globalMatrix for roots, so this is one multiply.
-		mat4.multiply(node._cache.final, globalMatrix, node._staticSuffix);
-		node.finalMatrix = node._cache.final;
+		// Final Node Matrix (Center correction + Offset)
+		const finalNodeMatrix = node._cache.final;
+		mat4.identity(finalNodeMatrix);
+		mat4.translate(finalNodeMatrix, finalNodeMatrix, [-box.center[0], -box.max[1], -box.center[2]]);
+		mat4.multiply(finalNodeMatrix, finalNodeMatrix, globalMatrix); // Apply hierarchy
+
+		if (!node.is_only) {
+			mat4.translate(finalNodeMatrix, finalNodeMatrix, node.offset);
+		}
+		mat4.multiply(finalNodeMatrix, finalNodeMatrix, mat3.toMat4(node.mat3, _tempMat4Node));
+
+		// Cache for step 2
+		node.finalMatrix = finalNodeMatrix;
 	}
 
 	// 2. Pre-calculate Instance Matrices and copy into Float32Array for GPU upload
