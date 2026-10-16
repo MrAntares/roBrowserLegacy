@@ -1,23 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
 
-vi.hoisted(() => {
-	if (typeof globalThis.localStorage === 'undefined' || typeof globalThis.localStorage.getItem !== 'function') {
-		const store = {};
-		globalThis.localStorage = {
-			getItem: (key) => (key in store ? store[key] : null),
-			setItem: (key, val) => {
-				store[key] = String(val);
-			},
-			removeItem: (key) => {
-				delete store[key];
-			},
-			clear: () => {
-				for (const k in store) delete store[k];
-			}
-		};
-	}
-});
-
 import DB from 'DB/DBManager.js';
 import JobId from 'DB/Jobs/JobConst.js';
 import PalNameTable from 'DB/Jobs/PalNameTable.js';
