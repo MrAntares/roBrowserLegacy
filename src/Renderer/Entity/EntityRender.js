@@ -321,7 +321,7 @@ const calculateBoundingRect = (function calculateBoundingRectClosure() {
 	};
 })();
 
-function isLookingFront(direction) {
+function isLookingBack(direction) {
 	return direction > 2 && direction < 6;
 }
 
@@ -458,7 +458,7 @@ const renderEntity = (function renderEntityClosure() {
 						});
 					}
 
-					if (!isLookingFront(direction)) {
+					if (!isLookingBack(direction)) {
 						// looking front
 						if (Session.Playing == true && self.hasCart == true) {
 							cartidx = DB.isSuperNovice(self._job) ? 0 : self.CartNum;
@@ -482,7 +482,7 @@ const renderEntity = (function renderEntityClosure() {
 					SpriteRenderer.zIndex = 150;
 					if (
 						RIDING_STATUS &&
-						!isLookingFront(direction) &&
+						!isLookingBack(direction) &&
 						(self.action === self.ACTION.SIT || self.action === self.ACTION.WALK)
 					) {
 						SpriteRenderer.zIndex *= 2;
@@ -532,7 +532,7 @@ const renderEntity = (function renderEntityClosure() {
 						renderElement(self, self.files.accessory, 'head', _position, false);
 					}
 
-					if (isLookingFront(direction)) {
+					if (isLookingBack(direction)) {
 						// looking back
 
 						// Draw Robe
