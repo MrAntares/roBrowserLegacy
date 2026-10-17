@@ -12,23 +12,25 @@
 	}
 	var importMap = {
 		imports: {
-			bson: projectRoot + 'node_modules/bson/lib/bson.mjs',
-			lodash: projectRoot + 'node_modules/lodash-es/lodash.default.js',
-			'src/': projectRoot + 'src/',
-			'App/': projectRoot + 'src/App/',
-			'Audio/': projectRoot + 'src/Audio/',
-			'Controls/': projectRoot + 'src/Controls/',
-			'Core/': projectRoot + 'src/Core/',
-			'DB/': projectRoot + 'src/DB/',
-			'Engine/': projectRoot + 'src/Engine/',
-			'Loaders/': projectRoot + 'src/Loaders/',
-			'Network/': projectRoot + 'src/Network/',
-			'Plugins/': projectRoot + 'src/Plugins/',
-			'Preferences/': projectRoot + 'src/Preferences/',
-			'Renderer/': projectRoot + 'src/Renderer/',
-			'UI/': projectRoot + 'src/UI/',
-			'Utils/': projectRoot + 'src/Utils/',
-			'Vendors/': projectRoot + 'src/Vendors/'
+			bson: `${projectRoot}node_modules/bson/lib/bson.mjs`,
+			lodash: `${projectRoot}node_modules/lodash-es/lodash.default.js`,
+			'rijndael-js': `${projectRoot}src/Vendors/rijndael-es.mjs`,
+			'granny-ro-js/wasm': `${projectRoot}node_modules/granny-ro-js/dist/granny-ro.wasm.esm.js`,
+			'src/': `${projectRoot}src/`,
+			'App/': `${projectRoot}src/App/`,
+			'Audio/': `${projectRoot}src/Audio/`,
+			'Controls/': `${projectRoot}src/Controls/`,
+			'Core/': `${projectRoot}src/Core/`,
+			'DB/': `${projectRoot}src/DB/`,
+			'Engine/': `${projectRoot}src/Engine/`,
+			'Loaders/': `${projectRoot}src/Loaders/`,
+			'Network/': `${projectRoot}src/Network/`,
+			'Plugins/': `${projectRoot}src/Plugins/`,
+			'Preferences/': `${projectRoot}src/Preferences/`,
+			'Renderer/': `${projectRoot}src/Renderer/`,
+			'UI/': `${projectRoot}src/UI/`,
+			'Utils/': `${projectRoot}src/Utils/`,
+			'Vendors/': `${projectRoot}src/Vendors/`
 		}
 	};
 	var s = document.createElement('script');
