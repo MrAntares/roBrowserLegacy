@@ -419,9 +419,7 @@ class ThreeDEffect {
 		// Direct gl.blendFunc here would desync the batcher: the draw is deferred
 		// to flush(), so only the GLenum passed per-sprite controls actual blend.
 		// blendMode[] is indexed 1..15 (populated in init()); out-of-range → default.
-		const blendDst = (this.blendMode > 0 && this.blendMode < 16)
-			? blendMode[this.blendMode]
-			: undefined; // undefined → batcher uses ONE_MINUS_SRC_ALPHA
+		const blendDst = this.blendMode > 0 && this.blendMode < 16 ? blendMode[this.blendMode] : undefined; // undefined → batcher uses ONE_MINUS_SRC_ALPHA
 
 		const start = tick - this.startTick;
 		const end = this.endTick - this.startTick;
@@ -800,8 +798,6 @@ class ThreeDEffect {
 	}
 
 	static afterRender(gl) {
-		// No manual blendFunc reset: the batcher always emits blendFunc on flush,
-		// so afterRender does not need to restore blend state.
 		SpriteRenderer.unbind(gl);
 	}
 }

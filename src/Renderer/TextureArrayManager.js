@@ -3,7 +3,9 @@
  *
  * Packs RGBA sprite textures into a single gl.TEXTURE_2D_ARRAY so that
  * the SpriteBatcher can draw multiple sprites per draw call without
- * rebinding the texture for each sprite.
+ * rebinding the texture for each sprite. 
+ *
+ * @Author AoShinHo
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */

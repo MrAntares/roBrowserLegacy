@@ -130,7 +130,7 @@ class SnowWeatherEffect {
 	}
 
 	static afterRender(gl) {
-		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+		SpriteRenderer.unbind(gl);
 	}
 
 	/**

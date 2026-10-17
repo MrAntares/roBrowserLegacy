@@ -444,9 +444,7 @@ class TwoDEffect {
 
 		// Blend mode forwarded to the batcher via SpriteRenderer.render(blendDst).
 		// blendMode[] is indexed 1..15 (populated in init()); out-of-range → default.
-		const blendDst = (this.blendMode > 0 && this.blendMode < 16)
-			? blendMode[this.blendMode]
-			: undefined;
+		const blendDst = this.blendMode > 0 && this.blendMode < 16 ? blendMode[this.blendMode] : undefined;
 
 		SpriteRenderer.image.texture = this.texture;
 		SpriteRenderer.zIndex = this.zIndex;
@@ -718,7 +716,6 @@ class TwoDEffect {
 	}
 
 	static afterRender(gl) {
-		// No manual blendFunc reset: the batcher always emits blendFunc on flush.
 		SpriteRenderer.unbind(gl);
 	}
 }

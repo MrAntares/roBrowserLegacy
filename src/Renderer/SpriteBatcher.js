@@ -3,6 +3,8 @@
  *
  * Instanced sprite rendering batcher (WebGL2).
  *
+ * @Author AoShinHo
+ *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
 
@@ -81,7 +83,7 @@ class SpriteBatcher {
 		// SpiritSphere, SwirlingAura, …) calls gl.blendFunc directly and would
 		// desync any cache we tried to keep.
 		this._blendDst = null; // null = not yet initialised; resolved to ONE_MINUS_SRC_ALPHA on first add
-		this._isArrayBatch = false;
+
 		this._depthTest = true;
 		this._depthMask = true;
 
@@ -240,50 +242,23 @@ class SpriteBatcher {
 		let blendMode;
 		if (blendDst === true) {
 			blendMode = gl.ONE; // legacy boolean path
-		} else if (blendDst && typeof blendDst === 'number') {
+		} else if (typeof blendDst === 'number') {
 			blendMode = blendDst; // real GLenum
 		} else {
 			blendMode = gl.ONE_MINUS_SRC_ALPHA; // default
 		}
 
-		// --- Classify sprite -----------------------------------------------
-		const frame = state.sprite;
-		const arrayEligible = !!(frame && frame.type === 1 && state.image.texture);
-
-		// If the array is full, the next array allocation will evict a live
-		// layer. Flush any in-flight batch first so those instances don't end
-		// up referencing overwritten layer data.
-		if (arrayEligible && this._count > 0 && this._arrayManager.atCapacity) {
-			this.flush(gl);
-		}
-
-		// --- Array path (RGBA) --------------------------------------------
-		let arrayEntry = null;
-		if (arrayEligible) {
-			if (frame.data instanceof Uint8Array && frame.width === frame.originalWidth) {
-				arrayEntry = this._arrayManager.getLayerFromPixels(
-					state.image.texture,
-					frame.data,
-					frame.width,
-					frame.height
-				);
-			} else {
-				arrayEntry = this._arrayManager.getLayer(state.image.texture, frame.width, frame.height);
-			}
-		}
-		const isArray = !!arrayEntry;
-
-		const nextTexture = isArray ? null : state.image.texture;
+		const nextTexture = state.image.texture;
 
 		// Same invariant as the sprite array: don't let a palette eviction
 		// recycle a layer referenced by in-flight instances.
-		if (!isArray && state.image.palette && this._count > 0 && this._paletteManager.atCapacity) {
+		if (state.image.palette && this._count > 0 && this._paletteManager.atCapacity) {
 			this.flush(gl);
 		}
 
 		// --- Palette layer (non-array palette sprites only) ----------------
 		let paletteLayer = 0;
-		if (!isArray && state.image.palette) {
+		if (state.image.palette) {
 			// Same invariant as the sprite-array path above: if the palette
 			// array is at max capacity, the next allocation will evict a live
 			// layer. That layer may still be referenced by instances already
@@ -301,18 +276,17 @@ class SpriteBatcher {
 
 		const blendChanged = blendMode !== this._blendDst;
 		const depthChanged = depthTest !== this._depthTest || depthMask !== this._depthMask;
-		const arrayChanged = this._count > 0 && isArray !== this._isArrayBatch;
-		const textureChanged = this._count > 0 && !isArray && nextTexture !== this._texture;
-		this._blendDst = blendMode;
+		const textureChanged = this._count > 0 && nextTexture !== this._texture;
 
-		if (this._count > 0 && (blendChanged || depthChanged || arrayChanged || textureChanged)) {
+		// --- Flush if needed -----------------------------------------------
+		if (this._count > 0 && (blendChanged || depthChanged || textureChanged)) {
 			this.flush(gl);
 		}
 
+		this._blendDst = blendMode;
 		this._depthTest = depthTest;
 		this._depthMask = depthMask;
 		this._texture = nextTexture;
-		this._isArrayBatch = isArray;
 
 		if (this._count >= this._maxInstances) this.flush(gl);
 
@@ -347,21 +321,15 @@ class SpriteBatcher {
 		if (state.image.palette) flags |= FLAG_USE_PAL;
 		if (state.disableDepthCorrection) flags |= FLAG_DISABLE_DEPTH_CORRECTION;
 		if (state.ignoreDepthMinCap) flags |= FLAG_IGNORE_ZINDEX_CAP;
-		if (isArray) flags |= FLAG_USE_ARRAY;
 		d[off + OFF_FLAGS] = flags;
 
 		d[off + OFF_TEXTSIZE + 0] = state.image.size[0];
 		d[off + OFF_TEXTSIZE + 1] = state.image.size[1];
 
-		if (isArray) {
-			d[off + OFF_TEXTURE_LAYER] = arrayEntry.layer;
-			d[off + OFF_UV_SCALE + 0] = arrayEntry.uvScaleX;
-			d[off + OFF_UV_SCALE + 1] = arrayEntry.uvScaleY;
-		} else {
-			d[off + OFF_TEXTURE_LAYER] = 0.0;
-			d[off + OFF_UV_SCALE + 0] = 1.0;
-			d[off + OFF_UV_SCALE + 1] = 1.0;
-		}
+		d[off + OFF_TEXTURE_LAYER] = 0.0;
+		d[off + OFF_UV_SCALE + 0] = 1.0;
+		d[off + OFF_UV_SCALE + 1] = 1.0;
+
 		d[off + OFF_PALETTE_LAYER] = paletteLayer;
 
 		this._count++;
@@ -390,14 +358,8 @@ class SpriteBatcher {
 		gl.activeTexture(gl.TEXTURE1);
 		gl.bindTexture(gl.TEXTURE_2D_ARRAY, this._paletteManager.texture);
 
-		if (this._isArrayBatch) {
-			gl.activeTexture(gl.TEXTURE2);
-			gl.bindTexture(gl.TEXTURE_2D_ARRAY, this._arrayManager.texture);
-			gl.activeTexture(gl.TEXTURE0);
-		} else {
-			gl.activeTexture(gl.TEXTURE0);
-			gl.bindTexture(gl.TEXTURE_2D, this._texture);
-		}
+		gl.activeTexture(gl.TEXTURE0);
+		gl.bindTexture(gl.TEXTURE_2D, this._texture);
 
 		// --- Draw ---------------------------------------------------------
 		gl.bindVertexArray(this._vao);
@@ -407,13 +369,13 @@ class SpriteBatcher {
 		// --- Reset --------------------------------------------------------
 		this._count = 0;
 		this._texture = null;
-		this._isArrayBatch = false;
+		this._blendDst = null;
 	}
 
 	reset() {
 		this._count = 0;
 		this._texture = null;
-		this._isArrayBatch = false;
+		this._blendDst = null;
 	}
 
 	dispose(gl) {

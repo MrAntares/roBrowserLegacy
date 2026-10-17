@@ -321,6 +321,10 @@ const calculateBoundingRect = (function calculateBoundingRectClosure() {
 	};
 })();
 
+function isLookingFront(direction) {
+	return direction > 2 && direction < 6;
+}
+
 /**
  * Render Entity
  */
@@ -415,6 +419,7 @@ const renderEntity = (function renderEntityClosure() {
 						if (self.robe > 0 && self.robeHeight && self.bodyHeight) {
 							const HEAD_SIZE = 64;
 							const COMPENSATION = 25;
+
 							if (
 								self.robeHeight +
 									(self.action === self.ACTION.SIT
@@ -424,6 +429,15 @@ const renderEntity = (function renderEntityClosure() {
 											: COMPENSATION) >
 								self.bodyHeight + HEAD_SIZE
 							) {
+								if (
+									(self.action === self.ACTION.ATTACK ||
+										self.action === self.ACTION.ATTACK1 ||
+										self.action === self.ACTION.ATTACK2 ||
+										self.action === self.ACTION.ATTACK3) &&
+									!lookingFront
+								) {
+									return -450;
+								}
 								if (self.action === self.ACTION.SIT) {
 									return lookingFront ? -450 : RIDING_STATUS ? 1 : -100;
 								}
@@ -444,7 +458,7 @@ const renderEntity = (function renderEntityClosure() {
 						});
 					}
 
-					if (!(direction > 2 && direction < 6)) {
+					if (!isLookingFront(direction)) {
 						// looking front
 						if (Session.Playing == true && self.hasCart == true) {
 							cartidx = DB.isSuperNovice(self._job) ? 0 : self.CartNum;
@@ -468,7 +482,7 @@ const renderEntity = (function renderEntityClosure() {
 					SpriteRenderer.zIndex = 150;
 					if (
 						RIDING_STATUS &&
-						!(direction > 2 && direction < 6) &&
+						!isLookingFront(direction) &&
 						(self.action === self.ACTION.SIT || self.action === self.ACTION.WALK)
 					) {
 						SpriteRenderer.zIndex *= 2;
@@ -518,7 +532,7 @@ const renderEntity = (function renderEntityClosure() {
 						renderElement(self, self.files.accessory, 'head', _position, false);
 					}
 
-					if (direction > 2 && direction < 6) {
+					if (isLookingFront(direction)) {
 						// looking back
 
 						// Draw Robe
@@ -565,6 +579,7 @@ const renderEntity = (function renderEntityClosure() {
 					renderElement(self, self.files.body, 'body', _position, true);
 				});
 				break;
+			case Entity.TYPE_MOB:
 			case Entity.TYPE_NPC:
 			case Entity.TYPE_NPC2:
 				SpriteRenderer.position[2] = SpriteRenderer.position[2] + 0.2;

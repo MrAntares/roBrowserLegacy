@@ -11,6 +11,7 @@ import glMatrix from 'Utils/gl-matrix.js';
 import Client from 'Core/Client.js';
 import _vertexShader from './QuadHorn.vs?raw';
 import _fragmentShader from './QuadHorn.fs?raw';
+import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 
 let _program;
 const mat4 = glMatrix.mat4;
@@ -295,7 +296,7 @@ class QuadHorn {
 		gl.disableVertexAttribArray(_program.attribute.aPosition);
 		gl.disableVertexAttribArray(_program.attribute.aTextureCoord);
 		gl.disableVertexAttribArray(_program.attribute.aColor);
-		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+		SpriteRenderer.unbind(gl);
 	}
 }
 
