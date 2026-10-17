@@ -567,6 +567,9 @@ function onConnectionAccepted(pkt) {
 	Session.guildPermission = 0;
 	GuildEngine.resetForNewCharacter();
 
+	// No reply comes for an /ex or /in sent on the previous connection
+	ChatBox.PrivateMessageStorage.blockNicks.length = 0;
+
 	Session.homunId = 0;
 
 	// clevel is already populated by Entity.set() in the Player constructor
@@ -895,11 +898,8 @@ function onRestartAnswer(pkt) {
 		ChatBox.addText(DB.getMessage(502), ChatBox.TYPE.ERROR, ChatBox.FILTER.PUBLIC_LOG);
 	} else {
 		GuildEngine.guild_id = 0;
-		cleanGameUI();
 		Session.Achievement = null;
 		Mouse.intersect = false;
-		MapRenderer.free();
-		Renderer.stop();
 		onRestart();
 	}
 }
@@ -1298,7 +1298,14 @@ function onConfigUpdate(type, val) {
  * Go back from map-server to char-server
  */
 function onRestart() {
-	import('Engine/CharEngine.js').then(m => m.default.reload());
+	// The map stays drawn under the fade and goes once the screen is black
+	import('Engine/CharEngine.js').then(m =>
+		m.default.reload(() => {
+			cleanGameUI();
+			MapRenderer.free();
+			Renderer.stop();
+		})
+	);
 }
 
 /**

@@ -444,6 +444,51 @@ const CommandStore = {
 		}
 	},
 
+	ex: {
+		description: 'Blocks whispers from <Character Name>, or lists the blocked characters',
+		callback: function (text) {
+			const matches = text.match(/^ex\s+(.*\S)/);
+			if (matches) {
+				requestWhisperSetting(matches[1], 0);
+				return;
+			}
+
+			const pkt = new PACKET.CZ.REQ_WHISPER_LIST();
+			Network.sendPacket(pkt);
+		}
+	},
+
+	in: {
+		description: 'Allows whispers from <Character Name>',
+		callback: function (text) {
+			const matches = text.match(/^in\s+(.*\S)/);
+			if (matches) {
+				requestWhisperSetting(matches[1], 1);
+				return;
+			}
+
+			this.addText(DB.getMessage(44), this.TYPE.INFO, this.FILTER.PUBLIC_LOG);
+		}
+	},
+
+	exall: {
+		description: 'Blocks whispers from everyone',
+		callback: function () {
+			const pkt = new PACKET.CZ.SETTING_WHISPER_STATE();
+			pkt.type = 0;
+			Network.sendPacket(pkt);
+		}
+	},
+
+	inall: {
+		description: 'Allows whispers from everyone',
+		callback: function () {
+			const pkt = new PACKET.CZ.SETTING_WHISPER_STATE();
+			pkt.type = 1;
+			Network.sendPacket(pkt);
+		}
+	},
+
 	guild: {
 		description: "Creates a guild named <Guild Name>. This requires an Emperium to be in the creator's inventory",
 		callback: function (text) {
@@ -999,6 +1044,22 @@ function loadAliases() {
 }
 
 loadAliases();
+
+/**
+ * Block or allow whispers from a character
+ *
+ * @param {string} name
+ * @param {number} type - 0 block, 1 allow
+ */
+function requestWhisperSetting(name, type) {
+	const pkt = new PACKET.CZ.SETTING_WHISPER_PC();
+	pkt.name = name;
+	pkt.type = type;
+	Network.sendPacket(pkt);
+
+	// The reply does not carry the name, and replies come back in request order
+	ChatBox.PrivateMessageStorage.blockNicks.push(name);
+}
 
 /**
  * Process command

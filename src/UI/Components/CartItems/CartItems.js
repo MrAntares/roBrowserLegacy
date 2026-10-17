@@ -783,8 +783,12 @@ function onItemInfo(event) {
 function transferItemToOtherUI(item) {
 	const storageUI = Storage;
 	const inventoryUI = Inventory;
-	const isStorageOpen = storageUI._host ? storageUI._host.style.display !== 'none' : false;
-	const isInventoryOpen = inventoryUI._host ? inventoryUI._host.style.display !== 'none' : false;
+	const isStorageOpen = storageUI._host
+		? storageUI._host.isConnected && storageUI._host.style.display !== 'none'
+		: false;
+	const isInventoryOpen = inventoryUI._host
+		? inventoryUI._host.isConnected && inventoryUI._host.style.display !== 'none'
+		: false;
 
 	if (!item) {
 		return false;

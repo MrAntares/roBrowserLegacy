@@ -47,20 +47,23 @@ differences as config flags, and `export default createFoo({...})`.
 | PlayerViewEquip | `src/UI/Components/PlayerViewEquip/PlayerViewEquipCommon.js` | #1073(3ea9e147eee47baf04ab89a7ecf0f3f2296e4a67) | ✅ YES         | Best reference for HTML-diverging versions: HTML generated via `generateHTML(flags)`.                                              |
 | WinStats        | `src/UI/Components/WinStats/WinStatsCommon.js`               | #1075(3194fe2af86208ef287e8d4a6bdbef2f7ed71efe) | ⚠️ NO          | Operator intentionally broke 1:1 (fixed resize bug #901, added `embed`/`unembed`). Do NOT copy its architecture as a 1:1 template. |
 
-### Already done:
+### Completed Families (13/13 Unified):
 
-| Family       | Commit                                        | PR    |
-| ------------ | --------------------------------------------- | ----- |
-| MiniMap      | 126b3afe createMiniMap                        | #1370 |
-| Storage      | cf780262 createStorage                        | #1371 |
-| SkillList    | 58db2875 createSkillList (+b16db1ae/4024eaf3) | #1372 |
-| Quest        | ace4dcfd createQuest/createQuestHelper        | #1373 |
-| Inventory    | a477beec createInventory                      | #1374 |
-| PartyFriends | 70a51b1b createPartyFriends                   | #1375 |
-| CharCreate   | a25ff7e0 createCharCreate                     | #1368 |
-| CharSelect   | c16284a1 createCharSelect                     | #1369 |
-| Equipment    | 7c7f258b+3054e936 EquipmentCommon V1/V2→V0-V4 | #1361 |
-| BasicInfo    | ab7455c8+71aa9356 createBasicInfo             | #1366 |
+| Family          | Factory file                                                 | Status   | Notes                                                                                                                              |
+| --------------- | ------------------------------------------------------------ | -------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| WinLogin        | `src/UI/Components/WinLogin/WinLoginCommon.js`               | Unified  | Reference: `createWinLogin({ name, htmlText, cssText })`.                                                                          |
+| PlayerViewEquip | `src/UI/Components/PlayerViewEquip/PlayerViewEquipCommon.js` | Unified  | Reference for HTML-diverging versions: HTML generated via `generateHTML(flags)`.                                                 |
+| WinStats        | `src/UI/Components/WinStats/WinStatsCommon.js`               | Unified  | Status window with `hasTraits`, `embed`/`unembed`. See note below.                                                                 |
+| MiniMap         | `src/UI/Components/MiniMap/MiniMapCommon.js`                 | Unified  | Unified `createMiniMap`                                                                                                            |
+| Storage         | `src/UI/Components/Storage/StorageCommon.js`                 | Unified  | Unified `createStorage`                                                                                                            |
+| SkillList       | `src/UI/Components/SkillList/SkillListCommon.js`             | Unified  | Unified `createSkillList`                                                                                                          |
+| Quest           | `src/UI/Components/Quest/QuestCommon.js`                     | Unified  | Unified `createQuest` / `createQuestHelper`                                                                                        |
+| Inventory       | `src/UI/Components/Inventory/InventoryCommon.js`             | Unified  | Unified `createInventory`                                                                                                          |
+| PartyFriends    | `src/UI/Components/PartyFriends/PartyFriendsCommon.js`       | Unified  | Unified `createPartyFriends`                                                                                                       |
+| CharCreate      | `src/UI/Components/CharCreate/CharCreateCommon.js`           | Unified  | Unified `createCharCreate`                                                                                                         |
+| CharSelect      | `src/UI/Components/CharSelect/CharSelectCommon.js`           | Unified  | Unified `createCharSelect`                                                                                                         |
+| Equipment       | `src/UI/Components/Equipment/EquipmentCommon.js`             | Unified  | Unified `createEquipment` (V0–V4)                                                                                                  |
+| BasicInfo       | `src/UI/Components/BasicInfo/BasicInfoCommon.js`             | Unified  | Unified `createBasicInfo`                                                                                                          |
 
 ### ⚠️ WinStats is NOT a 1:1 reference
 
@@ -76,17 +79,17 @@ WinStats consumers that still use direct .status_component/WinStats._host (Equip
 
 ## 2. Factory Anatomy (canonical skeleton)
 
-| Step           | Rule                                                                                                                                     |
-| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| Factory file   | `FooCommon.js` at the family root, `export function createFoo({ ...config }) { ... }`                                                    |
-| Construction   | `const Component = new GUIComponent(name, cssText);`                                                                                     |
-| HTML           | `Component.render = () => htmlText;` OR `Component.render = () => generateHTML(flags);`                                                  |
-| State          | Declare per-instance state (`_preferences`, DOM refs, closures) INSIDE the factory body                                                  |
-| Root access    | GUIComponent have getRoot() method, use ComponentName.getRoot() in module level functions or this.getRoot() in component level functions |
-| Lifecycle      | Define `init`/`onAppend`/`onRemove` as `Component.xxx = function () {...}`                                                               |
-| Abstract hooks | Re-declare abstract callbacks (`onRequestUpdate`, `onConnectionRequest`, ...) as no-ops                                                  |
-| Registration   | `return UIManager.addComponent(Component);`                                                                                              |
-| Version file   | Imports own `htmlText`/`cssText` (+ deps), calls `createFoo({ name, htmlText, cssText, ...flags })`                                      |
+| Step           | Rule                                                                                                                                                                                                         |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Factory file   | `FooCommon.js` at the family root, `export function createFoo({ ...config }) { ... }`                                                                                                                       |
+| Construction   | `const Component = new GUIComponent(name, cssText);`                                                                                                                                                         |
+| HTML           | `Component.render = () => htmlText;` OR `Component.render = () => generateHTML(flags);`                                                                                                                      |
+| State          | Declare per-instance state (`_preferences`, DOM refs, closures) INSIDE the factory body                                                                                                                      |
+| Root access    | `GUIComponent` provides an instance method `getRoot()` (returns `this._shadow \|\| this._host`). Use `ComponentName.getRoot()` on module-level component singletons or `this.getRoot()` within methods/callbacks |
+| Lifecycle      | Define `init`/`onAppend`/`onRemove` as `Component.xxx = function () {...}`                                                                                                                                   |
+| Abstract hooks | Re-declare abstract callbacks (`onRequestUpdate`, `onConnectionRequest`, ...) as no-ops                                                                                                                      |
+| Registration   | `return UIManager.addComponent(Component);`                                                                                                                                                                  |
+| Version file   | Imports own `htmlText`/`cssText` (+ deps), calls `createFoo({ name, htmlText, cssText, ...flags })`                                                                                                          |
 
 ### Config-flag strategy (how version differences enter the factory)
 
@@ -121,7 +124,7 @@ All invariants from `docs/UIComponent_to_GUIComponent.md` §1 remain in force.
 
 1. **Enumerate versions.** List all `FooV*/FooV*.js` files and read the family aggregator  
    (`Foo.js` → `versionInfo`) to learn the PACKETVER→version mapping. Do NOT change it.
-2. **Diff the versions.** Classify every difference as: (a) CSS-only, (b) HTML-only, (c) structural HTML, (d) feature-gated JS, (e) incomplete migration (dead pattern to converge, not flag). Fill out a version × capability capability table before deciding scope.
+2. **Diff the versions.** Classify every difference as: (a) CSS-only, (b) HTML-only, (c) structural HTML, (d) feature-gated JS, (e) incomplete migration (dead pattern to converge, not flag). Fill out a version × capability table before deciding scope.
 3. **Design the config surface.** One flag/param per real difference. Nothing speculative.
 4. **Write `FooCommon.js`.** Move shared JS in; parameterize differences via config. Follow  
    the WinLogin/PlayerViewEquip shape (NOT WinStats behavior).
@@ -136,8 +139,10 @@ All invariants from `docs/UIComponent_to_GUIComponent.md` §1 remain in force.
 
 ## 5. Candidate Families (versioned components with `versionInfo`)
 
-Remaining candidates will be passed as task by operator (each has a `versionInfo` registry — confirm real duplication before extracting. A version should only be excluded if its differences cannot be expressed as capability flags (e.g. distinct packet transmission, incompatible state model). Behavioral differences stemming from PACKETVER are not grounds for exclusion — they are the primary use case for a flag."
-One family per PR. Never batch families.
+All 13 candidate families in roBrowserLegacy have been successfully unified into `*Common.js` factories. If new version siblings are added in the future or a new versioned component family is introduced:
+- It must export a `createFoo(config)` factory in `FooCommon.js`.
+- Behavioral differences stemming from PACKETVER must be expressed as capability flags.
+- One family per PR; never batch multiple families together.
 
 ---
 

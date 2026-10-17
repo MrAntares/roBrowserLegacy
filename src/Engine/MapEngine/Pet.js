@@ -14,6 +14,7 @@
 import DB from 'DB/DBManager.js';
 import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
+import PACKETVER from 'Network/PacketVerManager.js';
 import Client from 'Core/Client.js';
 import Session from 'Engine/SessionStorage.js';
 import EntityManager from 'Renderer/EntityManager.js';
@@ -26,6 +27,12 @@ import PetInformations from 'UI/Components/PetInformations/PetInformations.js';
 import Emotions from 'DB/Emotions.js';
 import PetMessageConst from 'DB/Pets/PetMessageConst.js';
 import PetEvolution from 'UI/Components/PetEvolution/PetEvolution.js';
+
+/**
+ * Last name request sent for a talking pet, by GID
+ */
+const _nameRequestTick = {};
+const NAME_REQUEST_DELAY = 2500;
 
 /**
  * Server ask to select a monster
@@ -88,12 +95,13 @@ function onPetInformation(pkt) {
 	PetInformations.setInformations(pkt);
 
 	if (Session.petId) {
+		Session.pet.name = pkt.szName;
+
 		const entity = EntityManager.get(Session.petId);
 		if (entity) {
 			const oldHungry = Session.pet.hungry || pkt.nFullness;
 			Session.pet.job = pkt.job;
 			Session.pet.clevel = pkt.nLevel;
-			Session.pet.name = pkt.szName;
 			Session.pet.friendly = pkt.nRelationship;
 			Session.pet.oldHungry = oldHungry;
 			Session.pet.hungry = pkt.nFullness;
@@ -146,8 +154,51 @@ function onFeedResult(pkt) {
  */
 function petTalk(GID, msg) {
 	const entity = EntityManager.get(GID);
-	ChatBox.addText(entity.display.name + ' : ' + msg, ChatBox.TYPE.PUBLIC, ChatBox.FILTER.PUBLIC_CHAT);
+	const name = getPetName(entity);
+
+	if (!name) {
+		return;
+	}
+
+	ChatBox.addText(`${name} : ${msg}`, ChatBox.TYPE.PUBLIC, ChatBox.FILTER.PUBLIC_CHAT);
 	entity.dialog.set(msg);
+}
+
+/**
+ * Name to print in front of a pet's talk, empty while it is still unknown
+ *
+ * @see docs/reference/pet/talk-name.md
+ * @param {object} entity
+ * @return {string}
+ */
+function getPetName(entity) {
+	if (entity.display.name) {
+		return entity.display.name;
+	}
+
+	if (entity.GID === Session.petId && Session.pet.name) {
+		return Session.pet.name;
+	}
+
+	const now = Date.now();
+	if (
+		entity.display.load === entity.display.TYPE.NONE ||
+		now - (_nameRequestTick[entity.GID] || 0) >= NAME_REQUEST_DELAY
+	) {
+		_nameRequestTick[entity.GID] = now;
+		entity.display.load = entity.display.TYPE.LOADING;
+
+		let pkt;
+		if (PACKETVER.value >= 20180307) {
+			pkt = new PACKET.CZ.REQNAME2();
+		} else {
+			pkt = new PACKET.CZ.REQNAME();
+		}
+		pkt.AID = entity.GID;
+		Network.sendPacket(pkt);
+	}
+
+	return '';
 }
 
 /**
