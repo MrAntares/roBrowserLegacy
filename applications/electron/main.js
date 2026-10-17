@@ -145,7 +145,7 @@ app.whenReady().then(() => {
 			let body = data;
 
 			// Transform JS files to resolve bare specifiers (roBrowser aliases)
-			if (mimeType === 'text/javascript' && !isRaw && !isUrl) {
+			if (mimeType === 'text/javascript' && !isRaw) {
 				let content = data.toString('utf8');
 				content = content.replace(
 					/from\s+['"](Core|Loaders|Utils|Network|DB|Renderer|UI|App|Audio|Controls|Plugins|Preferences|Engine|Vendors)\/(.*?)['"]/g,
