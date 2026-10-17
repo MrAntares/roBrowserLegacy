@@ -449,7 +449,7 @@ class Cylinder {
 	static afterRender(gl) {
 		gl.disableVertexAttribArray(_program.attribute.aPosition);
 		gl.disableVertexAttribArray(_program.attribute.aTextureCoord);
-		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+		SpriteRenderer.unbind(gl);
 	}
 }
 

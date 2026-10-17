@@ -442,11 +442,9 @@ class TwoDEffect {
 			steps = 100;
 		}
 
-		if (this.blendMode > 0 && this.blendMode < 16) {
-			gl.blendFunc(gl.SRC_ALPHA, blendMode[this.blendMode]);
-		} else {
-			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-		}
+		// Blend mode forwarded to the batcher via SpriteRenderer.render(blendDst).
+		// blendMode[] is indexed 1..15 (populated in init()); out-of-range → default.
+		const blendDst = this.blendMode > 0 && this.blendMode < 16 ? blendMode[this.blendMode] : undefined;
 
 		SpriteRenderer.image.texture = this.texture;
 		SpriteRenderer.zIndex = this.zIndex;
@@ -657,7 +655,7 @@ class TwoDEffect {
 
 		// default true, true, false
 		SpriteRenderer.runWithDepth(this.overlay === false, this.overlay === false, this.overlay === true, () => {
-			SpriteRenderer.render();
+			SpriteRenderer.render(blendDst);
 		});
 
 		if (this.ownerEntity) {
@@ -718,7 +716,6 @@ class TwoDEffect {
 	}
 
 	static afterRender(gl) {
-		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		SpriteRenderer.unbind(gl);
 	}
 }

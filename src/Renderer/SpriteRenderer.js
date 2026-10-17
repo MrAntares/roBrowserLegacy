@@ -13,6 +13,9 @@ import glMatrix from 'Utils/gl-matrix.js';
 import Camera from './Camera.js';
 import _vertexShader from './SpriteRenderer.vs?raw';
 import _fragmentShader from './SpriteRenderer.fs?raw';
+import SpriteBatcher from './SpriteBatcher.js';
+
+let _batcher = null;
 
 /**
  * Import
@@ -27,78 +30,7 @@ function RenderCanvas3D(isBlendModeOne) {
 	if (!this.image.texture || !this.color[3]) {
 		return;
 	}
-
-	// gl.uniform* seems to be expensive
-	// cache values to avoid flooding the GPU and reducing perf.
-
-	const uniform = _program.uniform;
-	const gl = _gl;
-	const use_pal = this.image.palette !== null;
-
-	if (isBlendModeOne) {
-		gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-	} else if (isBlendModeOne === false) {
-		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-	}
-
-	if (this.shadow !== _shadow) {
-		gl.uniform1f(uniform.uShadow, (_shadow = this.shadow));
-	}
-	gl.uniform3fv(uniform.uSpriteRendererPosition, this.position);
-
-	// Palette
-	if (use_pal) {
-		gl.activeTexture(gl.TEXTURE1);
-		gl.bindTexture(gl.TEXTURE_2D, this.image.palette);
-		gl.uniform2fv(uniform.uTextSize, this.image.size);
-		gl.activeTexture(gl.TEXTURE0);
-	}
-
-	if (_usepal !== use_pal) {
-		gl.uniform1i(uniform.uUsePal, (_usepal = use_pal));
-	}
-
-	if (this.depth !== _depth) {
-		gl.uniform1f(uniform.uSpriteRendererDepth, (_depth = this.depth));
-	}
-
-	const disableDepthCorrection = !!this.disableDepthCorrection;
-	if (_disableDepthCorrection !== disableDepthCorrection) {
-		_disableDepthCorrection = disableDepthCorrection;
-		gl.uniform1i(uniform.uDisableDepthCorrection, disableDepthCorrection);
-	}
-
-	gl.uniform1i(uniform.uIgnoreZindexCap, this.ignoreDepthMinCap);
-	gl.uniform1f(uniform.uSpriteRendererZindex, this.zIndex++);
-
-	// Rotate
-	if (this.angle !== _angle) {
-		_angle = this.angle;
-
-		mat4.identity(_matrix);
-		if (_angle) {
-			mat4.rotateZ(_matrix, _matrix, (-_angle / 180) * Math.PI);
-		}
-
-		gl.uniformMatrix4fv(uniform.uSpriteRendererAngle, false, _matrix);
-	}
-
-	_offset[0] = (this.offset[0] / 175.0) * this.xSize;
-	_offset[1] = (this.offset[1] / 175.0) * this.ySize - 0.5;
-	_size[0] = (this.size[0] / 175.0) * this.xSize;
-	_size[1] = (this.size[1] / 175.0) * this.ySize;
-
-	gl.uniform4fv(uniform.uSpriteRendererColor, this.color);
-	gl.uniform2fv(uniform.uSpriteRendererSize, _size);
-	gl.uniform2fv(uniform.uSpriteRendererOffset, _offset);
-	gl.uniform1i(uniform.uIsRGBA, this.sprite ? this.sprite.type : 1);
-
-	// Avoid binding the new texture 150 times if it's the same.
-	if (_groupId !== _lastGroupId || _texture !== this.image.texture) {
-		_lastGroupId = _groupId;
-		gl.bindTexture(gl.TEXTURE_2D, (_texture = this.image.texture));
-	}
-	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+	_batcher.addSprite(_gl, this, isBlendModeOne, _depthTest, _depthMask);
 }
 
 /**
@@ -318,22 +250,22 @@ let _groupId = 0;
 /**
  * @type {number} last group id
  */
-let _lastGroupId = 0;
+const _lastGroupId = 0;
 
 /**
  * @type {number} last shadow used
  */
-let _shadow = null;
+const _shadow = null;
 
 /**
  * @type {number} last rotation angle used
  */
-let _angle = null;
+const _angle = null;
 
 /**
  * @type {number} last depth operation
  */
-let _depth = null;
+const _depth = null;
 
 /**
  * @type {boolean} cached disable depth correction state
@@ -353,12 +285,12 @@ let _depthTest = true;
 /**
  * @type {object} last texture used
  */
-let _texture = null;
+const _texture = null;
 
 /**
  * @type {boolean} do we use palette ?
  */
-let _usepal = null;
+const _usepal = null;
 
 /**
  * @const {Int16Array} position in 2D canvas
@@ -489,6 +421,9 @@ class SpriteRenderer {
 		if (!_program) {
 			_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
 		}
+
+		if (!_batcher) _batcher = new SpriteBatcher();
+		_batcher.init(gl);
 	}
 
 	/**
@@ -542,6 +477,10 @@ class SpriteRenderer {
 		this.ySize = 5;
 
 		_gl = gl;
+
+		const viewModel = mat4.invert(_matrix, modelView);
+		_batcher.bindGlobals(gl, modelView, projection, viewModel, fog);
+
 		_depthMask = true;
 		_groupId++;
 	}
@@ -552,6 +491,7 @@ class SpriteRenderer {
 	 * @param {object} gl context
 	 */
 	static unbind(gl) {
+		_batcher.flush(gl);
 		const attribute = _program.attribute;
 
 		gl.disableVertexAttribArray(attribute.aPosition);
@@ -595,54 +535,41 @@ class SpriteRenderer {
 			return;
 		}
 
+		// Flush pending work with the *previous* state before changing it.
+		// The batcher applies depth state lazily, so this guarantees the old
+		// state is honored for whatever is already queued.
+		if (_batcher && _batcher.hasPending) {
+			_batcher.flush(_gl);
+		}
+
 		const prevDepthTest = _depthTest;
 		const prevDepthMask = _depthMask;
 		const prevDepthCorrection = this.disableDepthCorrection;
 
-		if (_depthTest !== depthTest) {
-			_depthTest = depthTest;
-
-			if (depthTest) {
-				_gl.enable(_gl.DEPTH_TEST);
-			} else {
-				_gl.disable(_gl.DEPTH_TEST);
-			}
-		}
-
-		if (_depthMask !== depthMask) {
-			_depthMask = depthMask;
-			_gl.depthMask(depthMask);
-		}
-
-		if (this.disableDepthCorrection !== depthCorrection) {
-			this.disableDepthCorrection = depthCorrection;
-		}
+		// Update logical state; GL is touched by SpriteBatcher.applyDepthState
+		// on the next flush that actually emits instances.
+		_depthTest = depthTest;
+		_depthMask = depthMask;
+		this.disableDepthCorrection = depthCorrection;
+		_batcher.applyDepthState(_gl, _depthTest, _depthMask);
 
 		try {
 			fn();
 		} finally {
-			if (_depthTest !== prevDepthTest) {
-				_depthTest = prevDepthTest;
+			// Flush anything accumulated under the temporary state.
+			_batcher.flush(_gl);
 
-				if (prevDepthTest) {
-					_gl.enable(_gl.DEPTH_TEST);
-				} else {
-					_gl.disable(_gl.DEPTH_TEST);
-				}
-			}
-
-			if (_depthMask !== prevDepthMask) {
-				_depthMask = prevDepthMask;
-				_gl.depthMask(prevDepthMask);
-			}
-
-			if (this.disableDepthCorrection !== prevDepthCorrection) {
-				this.disableDepthCorrection = prevDepthCorrection;
-			}
+			_depthTest = prevDepthTest;
+			_depthMask = prevDepthMask;
+			this.disableDepthCorrection = prevDepthCorrection;
+			// Restore GL to the caller's state immediately. Non-batched draws in
+			// the same frame (weather, effects, water, models) don't go through
+			// the batcher and would otherwise inherit the temporary state that
+			// the flush above just installed.
+			_batcher.applyDepthState(_gl, _depthTest, _depthMask);
 		}
 	}
 }
-
 /**
  * Export
  */

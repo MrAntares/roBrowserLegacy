@@ -10,6 +10,7 @@ import WebGL from 'Utils/WebGL.js';
 import glMatrix from 'Utils/gl-matrix.js';
 import Client from 'Core/Client.js';
 import Model from 'Loaders/Model.js';
+import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 
 let _program = null;
 const _normalMat = new Float32Array(3 * 3);
@@ -891,7 +892,7 @@ class RsmEffect {
 		gl.disableVertexAttribArray(attribute.aVertexNormal);
 		gl.disableVertexAttribArray(attribute.aTextureCoord);
 		gl.disableVertexAttribArray(attribute.aAlpha);
-		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+		SpriteRenderer.unbind(gl);
 	}
 }
 export default RsmEffect;

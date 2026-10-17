@@ -4,6 +4,7 @@ import Client from 'Core/Client.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import _vertexShader from './GroundEffect.vs?raw';
 import _fragmentShader from './GroundEffect.fs?raw';
+import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 
 let _texture;
 let _program;
@@ -95,7 +96,7 @@ class GroundEffect {
 		gl.depthMask(true);
 		gl.disableVertexAttribArray(_program.attribute.aPosition);
 		gl.disableVertexAttribArray(_program.attribute.aTextureCoord);
-		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+		SpriteRenderer.unbind(gl);
 	}
 }
 GroundEffect.renderBeforeEntities = false;

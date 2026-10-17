@@ -1100,7 +1100,7 @@ class RainWeatherEffect {
 				gl.disableVertexAttribArray(attribute.aTextureCoord);
 
 				// Restore blend mode for subsequent rendering
-				gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+				SpriteRenderer.unbind(gl);
 			});
 		}
 	}
