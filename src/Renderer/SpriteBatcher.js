@@ -16,7 +16,7 @@ import _fragmentShader from './SpriteBatcher.fs?raw';
 
 // ---- Layout ---------------------------------------------------------------
 
-export const FLOATS_PER_INSTANCE = 22;
+export const FLOATS_PER_INSTANCE = 19;
 export const BYTES_PER_INSTANCE = FLOATS_PER_INSTANCE * 4;
 
 const OFF_POSITION = 0; // vec3
@@ -29,14 +29,11 @@ const OFF_SHADOW = 13; // float
 const OFF_ANGLE = 14; // float
 const OFF_FLAGS = 15; // float -> int
 const OFF_TEXTSIZE = 16; // vec2
-const OFF_TEXTURE_LAYER = 18; // float
-const OFF_UV_SCALE = 19; // vec2
-const OFF_PALETTE_LAYER = 21; // float
+const OFF_PALETTE_LAYER = 18; // float
 
 export const FLAG_USE_PAL = 1 << 1;
 export const FLAG_DISABLE_DEPTH_CORRECTION = 1 << 2;
 export const FLAG_IGNORE_ZINDEX_CAP = 1 << 3;
-export const FLAG_USE_ARRAY = 1 << 4;
 
 // Kept for back-compat: external code may still import these.
 // New callers should pass the GLenum dst factor directly to addSprite.
@@ -44,10 +41,6 @@ export const BLEND_DEFAULT = 0;
 export const BLEND_ONE = 1;
 
 const DEFAULT_MAX_INSTANCES = 2048;
-
-const ARRAY_LAYER_SIZE = 256;
-const ARRAY_INITIAL_CAP = 64;
-const ARRAY_MAX_CAP = 128;
 
 // Palette textures are 256x1 (256 RGBA entries).
 const PALETTE_LAYER_WIDTH = 256;
@@ -71,7 +64,6 @@ class SpriteBatcher {
 		this._attributes = null;
 		this._uniforms = null;
 
-		this._arrayManager = null;
 		this._paletteManager = null;
 
 		// Pending batch identity. Palettes no longer participate in the key
@@ -98,24 +90,26 @@ class SpriteBatcher {
 	get hasPending() {
 		return this._count > 0;
 	}
-
+	has(srcTexture) {
+		return this._entries.has(srcTexture);
+	}
 	init(gl) {
-		if (this._gl === gl && this._program && this._vao) return;
+		const alive = this._program && gl.isProgram(this._program.program) && gl.isVertexArray(this._vao);
+		if (this._gl === gl && alive) return;
+		if (!alive) {
+			// Context lost/restored: old handles are invalid, rebuild everything.
+			this._program = this._paletteManager = null;
+			this._quadBuffer = this._instanceBuffer = this._vao = null;
+			this._glDepthTest = this._glDepthMask = null;
+			this._count = 0;
+		}
+
 		this._gl = gl;
 
 		if (!this._program) {
 			this._program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
 			this._attributes = this._program.attribute;
 			this._uniforms = this._program.uniform;
-		}
-
-		if (!this._arrayManager) {
-			this._arrayManager = new TextureArrayManager(gl, {
-				layerWidth: ARRAY_LAYER_SIZE,
-				layerHeight: ARRAY_LAYER_SIZE,
-				initialCapacity: ARRAY_INITIAL_CAP,
-				maxCapacity: ARRAY_MAX_CAP
-			});
 		}
 
 		if (!this._paletteManager) {
@@ -184,8 +178,6 @@ class SpriteBatcher {
 			setInst(attr.iAngle, 1, OFF_ANGLE);
 			setInst(attr.iFlags, 1, OFF_FLAGS);
 			setInst(attr.iTextSize, 2, OFF_TEXTSIZE);
-			setInst(attr.iTextureLayer, 1, OFF_TEXTURE_LAYER);
-			setInst(attr.iUvScale, 2, OFF_UV_SCALE);
 			setInst(attr.iPaletteLayer, 1, OFF_PALETTE_LAYER);
 
 			gl.bindVertexArray(null);
@@ -210,10 +202,7 @@ class SpriteBatcher {
 
 		gl.uniform1i(uniform.uDiffuse, 0);
 		gl.uniform1i(uniform.uPaletteArray, 1);
-		gl.uniform1i(uniform.uSpriteArray, 2);
 
-		gl.activeTexture(gl.TEXTURE2);
-		gl.bindTexture(gl.TEXTURE_2D_ARRAY, this._arrayManager.texture);
 		gl.activeTexture(gl.TEXTURE1);
 		gl.bindTexture(gl.TEXTURE_2D_ARRAY, this._paletteManager.texture);
 		gl.activeTexture(gl.TEXTURE0);
@@ -250,12 +239,6 @@ class SpriteBatcher {
 
 		const nextTexture = state.image.texture;
 
-		// Same invariant as the sprite array: don't let a palette eviction
-		// recycle a layer referenced by in-flight instances.
-		if (state.image.palette && this._count > 0 && this._paletteManager.atCapacity) {
-			this.flush(gl);
-		}
-
 		// --- Palette layer (non-array palette sprites only) ----------------
 		let paletteLayer = 0;
 		if (state.image.palette) {
@@ -263,7 +246,7 @@ class SpriteBatcher {
 			// array is at max capacity, the next allocation will evict a live
 			// layer. That layer may still be referenced by instances already
 			// queued in _data, so flush before evicting.
-			if (this._count > 0 && this._paletteManager.atCapacity) {
+			if (this._count > 0 && this._paletteManager.atCapacity && !this._paletteManager.has(state.image.palette)) {
 				this.flush(gl);
 			}
 			const palEntry = this._paletteManager.getLayer(
@@ -326,10 +309,6 @@ class SpriteBatcher {
 		d[off + OFF_TEXTSIZE + 0] = state.image.size[0];
 		d[off + OFF_TEXTSIZE + 1] = state.image.size[1];
 
-		d[off + OFF_TEXTURE_LAYER] = 0.0;
-		d[off + OFF_UV_SCALE + 0] = 1.0;
-		d[off + OFF_UV_SCALE + 1] = 1.0;
-
 		d[off + OFF_PALETTE_LAYER] = paletteLayer;
 
 		this._count++;
@@ -379,14 +358,12 @@ class SpriteBatcher {
 	}
 
 	dispose(gl) {
-		if (this._arrayManager) this._arrayManager.dispose();
 		if (this._paletteManager) this._paletteManager.dispose();
 		if (this._vao) gl.deleteVertexArray(this._vao);
 		if (this._quadBuffer) gl.deleteBuffer(this._quadBuffer);
 		if (this._instanceBuffer) gl.deleteBuffer(this._instanceBuffer);
 		if (this._program && this._program.program) gl.deleteProgram(this._program.program);
 
-		this._arrayManager = null;
 		this._paletteManager = null;
 		this._vao = null;
 		this._quadBuffer = null;

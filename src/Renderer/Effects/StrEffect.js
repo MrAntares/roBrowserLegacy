@@ -13,7 +13,6 @@ import _fragmentShader from './StrEffect.fs?raw';
 import WebGL from 'Utils/WebGL.js';
 import glMatrix from 'Utils/gl-matrix.js';
 import Client from 'Core/Client.js';
-import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 
 const mat4 = glMatrix.mat4;
 
@@ -513,7 +512,7 @@ class StrEffect {
 		gl.disableVertexAttribArray(_program.attribute.aPosition);
 		gl.disableVertexAttribArray(_program.attribute.aTextureCoord);
 
-		SpriteRenderer.unbind(gl);
+		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 	}
 }
 /**

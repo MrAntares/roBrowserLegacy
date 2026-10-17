@@ -343,7 +343,7 @@ class SwirlingAura {
 	 */
 	static afterRender(gl) {
 		SpriteRenderer.unbind(gl);
-
+		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		gl.disableVertexAttribArray(_program.attribute.aPosition);
 		gl.disableVertexAttribArray(_program.attribute.aTextureCoord);
 	}

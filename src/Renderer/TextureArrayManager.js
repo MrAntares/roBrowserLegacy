@@ -1,9 +1,6 @@
 /**
  * Renderer/TextureArrayManager.js
  *
- * Packs RGBA sprite textures into a single gl.TEXTURE_2D_ARRAY so that
- * the SpriteBatcher can draw multiple sprites per draw call without
- * rebinding the texture for each sprite. 
  *
  * @Author AoShinHo
  *
@@ -126,35 +123,6 @@ export default class TextureArrayManager {
 		this._entries.delete(oldestKey);
 		this._freeLayers.push(oldestEntry.layer);
 		return true;
-	}
-
-	getLayerFromPixels(srcTexture, pixels, width, height) {
-		const cached = this._entries.get(srcTexture);
-		if (cached) {
-			this._touch(cached);
-			return cached;
-		}
-
-		if (width > this._layerWidth || height > this._layerHeight) return null;
-
-		const layer = this._allocLayer();
-		if (layer < 0) return null;
-
-		const gl = this._gl;
-		gl.bindTexture(gl.TEXTURE_2D_ARRAY, this._texture);
-		gl.texSubImage3D(gl.TEXTURE_2D_ARRAY, 0, 0, 0, layer, width, height, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
-		gl.bindTexture(gl.TEXTURE_2D_ARRAY, null);
-
-		const entry = {
-			layer,
-			width,
-			height,
-			uvScaleX: width / this._layerWidth,
-			uvScaleY: height / this._layerHeight,
-			lastUsed: ++this._useCounter
-		};
-		this._entries.set(srcTexture, entry);
-		return entry;
 	}
 
 	/**
