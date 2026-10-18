@@ -27,6 +27,7 @@ const _tempVec3 = vec3.create();
 const _tempVec3Scale = vec3.create();
 const _tempQuat = quat.create();
 const _tempMat4 = mat4.create();
+const _tempMat4Node = mat4.create();
 
 /**
  * Shader program
@@ -312,6 +313,14 @@ function add(gl, modelData) {
 			}
 		}
 
+		const suffixMat = mat4.create();
+		mat4.identity(suffixMat);
+		if (!node.is_only) {
+			mat4.translate(suffixMat, suffixMat, node.offset);
+		}
+		mat4.multiply(suffixMat, suffixMat, mat3.toMat4(node.mat3, _tempMat4Node));
+		node._cachedSuffix = suffixMat;
+
 		nodes.push(node);
 	}
 
@@ -488,6 +497,14 @@ function add(gl, modelData) {
 		_nodeMap: {},
 		_globalMatrices: new Array(nodes.length)
 	};
+
+	animModel._boxMat = mat4.create();
+	mat4.identity(animModel._boxMat);
+	mat4.translate(animModel._boxMat, animModel._boxMat, [
+		-animModel.box.center[0],
+		-animModel.box.max[1],
+		-animModel.box.center[2]
+	]);
 
 	// Cache Node Map
 	for (let n = 0; n < nodes.length; n++) {
@@ -759,14 +776,9 @@ function updateModelBuffer(gl, model, frame, force) {
 
 		// Final Node Matrix (Center correction + Offset)
 		const finalNodeMatrix = node._cache.final;
-		mat4.identity(finalNodeMatrix);
-		mat4.translate(finalNodeMatrix, finalNodeMatrix, [-box.center[0], -box.max[1], -box.center[2]]);
-		mat4.multiply(finalNodeMatrix, finalNodeMatrix, globalMatrix); // Apply hierarchy
-
-		if (!node.is_only) {
-			mat4.translate(finalNodeMatrix, finalNodeMatrix, node.offset);
-		}
-		mat4.multiply(finalNodeMatrix, finalNodeMatrix, mat3.toMat4(node.mat3));
+		mat4.copy(finalNodeMatrix, model._boxMat);
+		mat4.multiply(finalNodeMatrix, finalNodeMatrix, globalMatrix);
+		mat4.multiply(finalNodeMatrix, finalNodeMatrix, node._cachedSuffix);
 
 		// Cache for step 2
 		node.finalMatrix = finalNodeMatrix;

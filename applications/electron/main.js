@@ -91,6 +91,7 @@ app.whenReady().then(() => {
 	protocol.handle('app', request => {
 		const url = new URL(request.url);
 		const isRaw = url.searchParams.has('raw');
+		const isUrl = url.searchParams.has('url');
 		const relativePath = decodeURIComponent(url.pathname).replace(/^\/+/, '');
 		const filePath = path.normalize(path.join(projectRoot, relativePath));
 
@@ -107,6 +108,27 @@ app.whenReady().then(() => {
 			}
 
 			const data = fs.readFileSync(filePath);
+
+			// ?url → emulate Vite's ?url suffix. For .wasm files, return a
+			// data URI (base64) because emscripten's Na function detects
+			// data: URIs to decode locally without fetch/streaming.
+			// For other assets, return the app:// URL so consumers can
+			// fetch the binary directly.
+			if (isUrl) {
+				const ext = path.extname(filePath).toLowerCase();
+				if (ext === '.wasm') {
+					const dataUri = 'data:application/octet-stream;base64,' + data.toString('base64');
+					const js = `export default ${JSON.stringify(dataUri)};`;
+					return new Response(js, {
+						headers: { 'Content-Type': 'text/javascript' }
+					});
+				}
+				const assetUrl = 'app://localhost/' + relativePath;
+				const js = `export default ${JSON.stringify(assetUrl)};`;
+				return new Response(js, {
+					headers: { 'Content-Type': 'text/javascript' }
+				});
+			}
 
 			// ?raw → wrap file content in a JS module (Vite compat)
 			if (isRaw) {

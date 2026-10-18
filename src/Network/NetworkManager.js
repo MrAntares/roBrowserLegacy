@@ -56,10 +56,127 @@ function defaultSocketFactory(host, port) {
 let _socket = null;
 
 /**
- * Buffer to use to read packets
+ * Pre-allocated pool and ring queue for packet logging.
+ * Reuses static entry slots to achieve 0 allocation in steady-state.
+ */
+const LOG_ENTRY_KNOWN = 1;
+const LOG_ENTRY_UNKNOWN = 2;
+const LOG_QUEUE_SIZE = 1024; // Power of two
+const LOG_QUEUE_MASK = LOG_QUEUE_SIZE - 1;
+
+class LogEntry {
+	type = 0;
+	pktId = 0;
+	pktName = '';
+	pktLen = 0;
+	dumpBytes = null;
+	instance = null;
+	hasCallback = false;
+
+	reset() {
+		this.type = 0;
+		this.pktId = 0;
+		this.pktName = '';
+		this.pktLen = 0;
+		this.dumpBytes = null;
+		this.instance = null;
+		this.hasCallback = false;
+	}
+}
+
+const _logPool = Array.from({ length: LOG_QUEUE_SIZE }, () => new LogEntry());
+let _logHead = 0;
+let _logTail = 0;
+let _logScheduled = false;
+
+function _scheduleLogCallback(cb) {
+	if (typeof window !== 'undefined' && window.requestIdleCallback) {
+		requestIdleCallback(cb);
+	} else {
+		setTimeout(() => cb({ timeRemaining: () => 0, didTimeout: true }));
+	}
+}
+
+function _processLogEntry(entry) {
+	if (entry.type === LOG_ENTRY_KNOWN) {
+		if (entry.dumpBytes) {
+			console.log(
+				'%c[Network] Dump Recv:\n%cPacket ID: 0x%s\nPacket Name: %s\nLength: %d\nContent:\n%s',
+				'color:#900090',
+				'color:inherit',
+				entry.pktId.toString(16),
+				entry.pktName,
+				entry.pktLen,
+				utilsBufferToHexString(entry.dumpBytes).toUpperCase()
+			);
+		}
+		console.log('%c[Network] Recv:', 'color:#900090', entry.instance, entry.hasCallback ? '' : '(no callback)');
+	} else if (entry.type === LOG_ENTRY_UNKNOWN) {
+		if (entry.dumpBytes) {
+			console.log(
+				'%c[Network] Dump Recv:\n%cPacket ID: 0x%s\nPacket Name: [UNKNOWN]\nLength: %d\nContent:\n%s',
+				'color:#900090',
+				'color:inherit',
+				entry.pktId.toString(16),
+				entry.pktLen,
+				utilsBufferToHexString(entry.dumpBytes).toUpperCase()
+			);
+		}
+		console.error(
+			'[Network] Packet "%c0x%s%c" not registered, skipping %d bytes.',
+			'font-weight:bold',
+			entry.pktId.toString(16),
+			'font-weight:normal',
+			entry.pktLen
+		);
+	}
+	entry.reset();
+}
+
+function _runLogDrain(deadline) {
+	while (_logHead !== _logTail && (deadline.timeRemaining() > 0 || deadline.didTimeout)) {
+		const entry = _logPool[_logHead & LOG_QUEUE_MASK];
+		_logHead++;
+		_processLogEntry(entry);
+	}
+
+	if (_logHead !== _logTail) {
+		_scheduleLogCallback(_runLogDrain);
+	} else {
+		_logHead = 0;
+		_logTail = 0;
+		_logScheduled = false;
+	}
+}
+
+function _flushLogs() {
+	if (_logScheduled) {
+		return;
+	}
+	_logScheduled = true;
+	_scheduleLogCallback(_runLogDrain);
+}
+
+/**
+ * Ring buffer for incoming network data — avoids per-message Uint8Array allocation.
+ * `_ring_head` is the index of the first unread byte;
+ * `_ring_tail` is the index where the next incoming byte will be written.
+ * When head === tail the ring is empty.
+ * The capacity is always a power of two so wrap-around is a cheap bitwise AND.
  * @type {Uint8Array}
  */
-let _save_buffer = null;
+let _ring = new Uint8Array(256 * 1024); // 256 KB initial capacity
+let _ring_mask = _ring.length - 1; // capacity - 1 (bitmask for wrap)
+let _ring_head = 0; // read cursor (logical byte index)
+let _ring_tail = 0; // write cursor (logical byte index)
+
+/**
+ * Singleton BinaryReader reused across every receive() call to avoid
+ * allocating a new instance (and a new DataView) per network message.
+ * Initialised lazily on first use inside receive().
+ * @type {BinaryReader|null}
+ */
+let _fp = null;
 
 /**
  * Custom callback for disconnection
@@ -118,7 +235,8 @@ function connect(host, port, callback, isZone) {
 			if (_socket && _socket.ping) {
 				clearInterval(_socket.ping);
 			}
-
+			_ring_head = 0;
+			_ring_tail = 0;
 			socket.onMessage = receive;
 			_sockets.push((_socket = socket));
 
@@ -127,7 +245,6 @@ function connect(host, port, callback, isZone) {
 				PacketCrypt.init();
 			}
 		}
-
 		console.log('%c[Network] ' + msg + ' to connect to ' + host + ':' + port, 'font-weight:bold;color:' + color);
 		callback.call(this, success);
 	};
@@ -225,127 +342,235 @@ function read(callback) {
 read.callback = null;
 
 /**
- * Received data from server
+ * Grow the ring buffer to at least `minCapacity` bytes, preserving pending data.
+ * New capacity is the next power of two >= minCapacity.
  *
- * @param {Uint8Array} buffer
+ * @param {number} minCapacity
+ */
+function _ringGrow(minCapacity) {
+	let newCap = _ring.length;
+	while (newCap < minCapacity) {
+		newCap *= 2;
+	}
+
+	const pending = _ring_tail - _ring_head; // bytes currently buffered
+	const newRing = new Uint8Array(newCap);
+
+	// Copy pending bytes to the start of the new ring (linearising any wrap)
+	if (pending > 0) {
+		const physHead = _ring_head & _ring_mask;
+		const physTail = _ring_tail & _ring_mask;
+
+		if (physTail > physHead) {
+			// Contiguous
+			newRing.set(_ring.subarray(physHead, physTail), 0);
+		} else {
+			// Wraps around
+			const firstChunk = _ring.length - physHead;
+			newRing.set(_ring.subarray(physHead), 0);
+			newRing.set(_ring.subarray(0, physTail), firstChunk);
+		}
+	}
+
+	_ring = newRing;
+	_ring_mask = newCap - 1;
+	_ring_head = 0;
+	_ring_tail = pending;
+}
+
+/**
+ * Return a contiguous Uint8Array view of `len` bytes starting at ring logical
+ * position `logicalStart`.  When the slice crosses the ring's physical
+ * boundary a minimal temporary copy is made (slow path, very rare).
+ *
+ * @param {number} logicalStart  logical read position (ring_head-relative)
+ * @param {number} len           number of bytes to view
+ * @return {Uint8Array}
+ */
+function _ringSlice(logicalStart, len) {
+	const physStart = logicalStart & _ring_mask;
+	const physEnd = physStart + len;
+
+	if (physEnd <= _ring.length) {
+		// Fast path – entirely within one physical region
+		return _ring.subarray(physStart, physEnd);
+	}
+
+	// Slow path – wraps around the ring boundary: materialise a contiguous copy
+	const tmp = new Uint8Array(len);
+	const firstChunk = _ring.length - physStart;
+	tmp.set(_ring.subarray(physStart), 0);
+	tmp.set(_ring.subarray(0, len - firstChunk), firstChunk);
+	return tmp;
+}
+
+/**
+ * Read a little-endian uint16 from the ring at logical position `logPos`
+ * without going through BinaryReader (avoids a DataView when in the fast
+ * path — both bytes are within the same physical region).
+ *
+ * @param {number} logPos
+ * @return {number}
+ */
+function _ringReadUShort(logPos) {
+	const p = logPos & _ring_mask;
+	if (p + 2 <= _ring.length) {
+		return _ring[p] | (_ring[p + 1] << 8);
+	}
+	// Wrap: low byte at end, high byte at start
+	return _ring[p] | (_ring[0] << 8);
+}
+
+/**
+ * Received data from server.
+ * Appends `buf` into the persistent ring buffer, then parses as many complete
+ * packets as available.  Incomplete packet bytes remain in the ring and are
+ * consumed on the next call — no allocation needed for the common case.
+ *
+ * @param {ArrayBuffer|Uint8Array} buf
  */
 function receive(buf) {
+	const incoming = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
+	const inLen = incoming.length;
+
+	// ── Grow ring if incoming data would overflow ──────────────────────────
+	const pending = _ring_tail - _ring_head;
+	const needed = pending + inLen;
+	if (needed > _ring.length) {
+		_ringGrow(needed);
+	}
+
+	// ── Append incoming bytes into the ring ───────────────────────────────
+	const physTail = _ring_tail & _ring_mask;
+	const spaceToEnd = _ring.length - physTail;
+
+	if (inLen <= spaceToEnd) {
+		_ring.set(incoming, physTail);
+	} else {
+		// Wrap: write in two chunks
+		_ring.set(incoming.subarray(0, spaceToEnd), physTail);
+		_ring.set(incoming.subarray(spaceToEnd), 0);
+	}
+	_ring_tail += inLen;
+
+	// ── Initialise the singleton BinaryReader lazily ─────────────────────
+	if (!_fp) {
+		// A zero-byte placeholder; reset() will supply the real view per packet
+		_fp = new BinaryReader(new ArrayBuffer(0));
+	}
+
+	// ── Read hook (one-shot raw access) ──────────────────────────────────
+	if (read.callback) {
+		const cb = read.callback;
+		read.callback = null;
+		const start = _ring_head;
+		_fp.reset(_ringSlice(start, _ring_tail - start));
+		cb(_fp);
+		if (_ring_head === start) {
+			_ring_head += _fp.tell();
+		}
+	}
+
+	// ── Parse packets ─────────────────────────────────────────────────────
 	let id, packet;
 	let length = 0;
-	let offset = 0;
-	let buffer;
 
-	// Waiting for data ? concat the buffer
-	if (_save_buffer) {
-		const _data = new Uint8Array(_save_buffer.length + buf.byteLength);
-		_data.set(_save_buffer, 0);
-		_data.set(new Uint8Array(buf), _save_buffer.length);
-		buffer = _data.buffer;
-	} else {
-		buffer = buf;
-	}
+	while (_ring_tail - _ring_head >= 2) {
+		const pktStart = _ring_head; // logical start of this packet
+		const avail = _ring_tail - pktStart;
 
-	const fp = new BinaryReader(buffer);
-
-	// Read hook
-	if (read.callback) {
-		read.callback(fp);
-		read.callback = null;
-	}
-
-	// Read and parse packets
-	while (fp.tell() < fp.length) {
-		offset = fp.tell();
-
-		// Not enough bytes...
-		if (offset + 2 > fp.length) {
-			_save_buffer = new Uint8Array(buffer, offset, fp.length - offset);
-			return;
+		// Not enough bytes for the 2-byte opcode
+		if (avail < 2) {
+			break;
 		}
 
-		id = fp.readUShort();
+		id = _ringReadUShort(pktStart);
 		let packet_len = PacketLength.getPacketLength(id);
-		packet_len = packet_len ? packet_len : fp.length - offset;
-		// Packet not defined ?
+		packet_len = packet_len ? packet_len : avail;
 
 		if (packet_len < 0) {
-			// Not enough bytes...
-			if (offset + 4 > fp.length) {
-				_save_buffer = new Uint8Array(buffer, offset, fp.length - offset);
-				return;
+			// Variable-length packet: the 3rd+4th bytes carry the total length
+			if (avail < 4) {
+				break; // wait for more data
 			}
-			length = fp.readUShort();
+			length = _ringReadUShort(pktStart + 2);
 		} else {
 			length = packet_len;
 		}
 
-		offset += length;
-
-		// Not enough bytes, need to wait for new buffer to read more.
-		if (offset > fp.length) {
-			offset = fp.tell() - (packet_len < 0 ? 4 : 2);
-			_save_buffer = new Uint8Array(buffer, offset, fp.length - offset);
-			return;
+		// Not enough bytes for the full packet yet
+		if (avail < length) {
+			break;
 		}
+
+		// ── Materialise a contiguous Uint8Array for this packet ──────────
+		// _ringSlice is zero-copy in the common (non-wrapping) case.
+		const pktBytes = _ringSlice(pktStart, length);
+
+		// Advance the ring head past this packet
+		// Support for "0" type: if length is 0, advance by 2 to avoid infinite loop
+		_ring_head += length || 2;
 
 		if (Packets.list[id]) {
 			packet = Packets.list[id];
 
-			if (packetDump) {
-				const buffer_console = new Uint8Array(buffer, offset - length, length);
-				console.log(
-					'%c[Network] Dump Recv:\n%cPacket ID: 0x%s\nPacket Name: %s\nLength: %d\nContent:\n%s',
-					'color:#900090',
-					'color:inherit',
-					id.toString(16),
-					packet.name,
-					length,
-					utilsBufferToHexString(buffer_console).toUpperCase()
-				);
+			// Reset the singleton reader to point at this packet's bytes.
+			// fp.offset is 0; Struct constructors receive (fp, endOffset).
+			_fp.reset(pktBytes);
+			_fp.seek(packet_len < 0 ? 4 : 2, SEEK_SET);
+
+			// Parse packet — new Struct per packet intentionally (see comment
+			// at original lines 308-313: reuse causes residual-state bugs).
+			packet.instance = new packet.Struct(_fp, length);
+
+			// Grab the slot BEFORE bumping tail. If the queue is full, this slot is the
+			// oldest unprocessed entry (tail & mask === head & mask), so overwriting it
+			// here IS the "drop oldest" — the head bump below just skips past it.
+			const entry = _logPool[_logTail & LOG_QUEUE_MASK];
+			_logTail++;
+			if (_logTail - _logHead > LOG_QUEUE_SIZE) {
+				_logHead = _logTail - LOG_QUEUE_SIZE; // Drop oldest if buffer overflows
 			}
+			entry.type = LOG_ENTRY_KNOWN;
+			entry.pktId = id;
+			entry.pktName = packet.name;
+			entry.pktLen = length;
+			entry.dumpBytes = packetDump ? pktBytes.slice() : null;
+			entry.instance = packet.instance;
+			entry.hasCallback = !!packet.callback;
 
-			// Parse packet
-			//if (!packet.instance) {
-			packet.instance = new packet.Struct(fp, offset);
-			//}
-			//else {
-			//	packet.Struct.call(packet.instance, fp, offset); //this causes packet conflicts where the same type of packets following eachother copy the previous packet's variables with the previous values
-			//}
-
-			console.log('%c[Network] Recv:', 'color:#900090', packet.instance, packet.callback ? '' : '(no callback)');
+			_flushLogs();
 
 			// Call controller
 			if (packet.callback) {
 				packet.callback(packet.instance);
 			}
 		} else {
-			if (packetDump) {
-				const unknown_buffer = new Uint8Array(buffer, offset - length, length);
-				console.log(
-					'%c[Network] Dump Recv:\n%cPacket ID: 0x%s\nPacket Name: [UNKNOWN]\nLength: %d\nContent:\n%s',
-					'color:#900090',
-					'color:inherit',
-					id.toString(16),
-					length,
-					utilsBufferToHexString(unknown_buffer).toUpperCase()
-				);
+			// Grab the slot BEFORE bumping tail. If the queue is full, this slot is the
+			// oldest unprocessed entry (tail & mask === head & mask), so overwriting it
+			// here IS the "drop oldest" — the head bump below just skips past it.
+			const entry = _logPool[_logTail & LOG_QUEUE_MASK];
+			_logTail++;
+			if (_logTail - _logHead > LOG_QUEUE_SIZE) {
+				_logHead = _logTail - LOG_QUEUE_SIZE;
 			}
-			console.error(
-				'[Network] Packet "%c0x%s%c" not registered, skipping %d bytes.',
-				'font-weight:bold',
-				id.toString(16),
-				'font-weight:normal',
-				length
-			);
-		}
+			entry.type = LOG_ENTRY_UNKNOWN;
+			entry.pktId = id;
+			entry.pktName = '';
+			entry.pktLen = length;
+			entry.dumpBytes = packetDump ? pktBytes.slice() : null;
+			entry.instance = null;
+			entry.hasCallback = false;
 
-		// Support for "0" type
-		if (length) {
-			fp.seek(offset, SEEK_SET);
+			_flushLogs();
 		}
 	}
 
-	_save_buffer = null;
+	// Compact the ring when it is empty to prevent unbounded logical-index growth
+	if (_ring_head === _ring_tail) {
+		_ring_head = 0;
+		_ring_tail = 0;
+	}
 }
 
 /**
@@ -401,6 +626,8 @@ function close() {
 		if (idx !== -1) {
 			_sockets.splice(idx, 1);
 		}
+		_ring_head = 0;
+		_ring_tail = 0;
 	}
 }
 

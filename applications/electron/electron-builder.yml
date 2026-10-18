@@ -12,6 +12,7 @@ files:
     - src/**/*
     - node_modules/lodash-es/**/*
     - node_modules/bson/**/*
+    - node_modules/granny-ro-js/dist/**/*
     - package.json
 
 extraMetadata:

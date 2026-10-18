@@ -66,6 +66,8 @@ export default defineConfig({
 	},
 	test: {
 		environment: 'jsdom',
+		env: { TZ: 'UTC' },
+		setupFiles: ['./tests/setup.js'],
 		include: ['tests/**/*.test.js'],
 		coverage: {  
 			provider: 'v8',  
