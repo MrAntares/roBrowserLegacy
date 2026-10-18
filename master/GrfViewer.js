@@ -241379,7 +241379,8 @@ function createInventory(config) {
 	Component.newItems = [];
 	Component.equippedItems = [];
 	if (equipSwitch) Component.equipswitchlist = [];
-	let _realSize = 0;
+	let _reduced = false;
+	let _height = 0;
 	let lockOverlayTimeout;
 	const prefDefaults = {
 		x: 0,
@@ -241557,9 +241558,7 @@ function createInventory(config) {
 		this.magnet.BOTTOM = _preferences.magnet_bottom;
 		this.magnet.LEFT = _preferences.magnet_left;
 		this.magnet.RIGHT = _preferences.magnet_right;
-		_realSize = _preferences.reduce ? 0 : this._host.getBoundingClientRect().height;
-		const miniBtnAppend = root.querySelector(".titlebar .mini");
-		if (miniBtnAppend) miniBtnAppend.dispatchEvent(new Event("mousedown"));
+		if (root.querySelector(".titlebar .mini")) setReduced(!!_preferences.reduce);
 	};
 	/**
 	* Remove Inventory from window (and so clean up items)
@@ -241572,12 +241571,12 @@ function createInventory(config) {
 		Component.newItems.length = 0;
 		document.querySelectorAll(".ItemInfo").forEach((el) => el.remove());
 		_preferences.show = this._host.style.display !== "none";
-		_preferences.reduce = !!_realSize;
+		_preferences.reduce = _reduced;
 		_preferences.y = parseInt(this._host.style.top, 10);
 		_preferences.x = parseInt(this._host.style.left, 10);
 		const hostRect = this._host.getBoundingClientRect();
 		_preferences.width = Math.floor((hostRect.width - 25) / 32);
-		if (resizableHeight) _preferences.height = Math.floor((hostRect.height - 20) / 32);
+		if (resizableHeight) _preferences.height = _height;
 		_preferences.magnet_top = this.magnet.TOP;
 		_preferences.magnet_bottom = this.magnet.BOTTOM;
 		_preferences.magnet_left = this.magnet.LEFT;
@@ -241647,9 +241646,9 @@ function createInventory(config) {
 		const content = Component.getRoot().querySelector(".container .content");
 		if (content) content.style.width = `${width * 32}px`;
 		if (resizableHeight) {
-			height = Math.min(Math.max(height, 2), 5);
+			_height = Math.min(Math.max(height, 2), 5);
 			this._host.style.width = `${59 + width * 32}px`;
-			this._host.style.height = `${62 + height * 32}px`;
+			this._host.style.height = expandedHeight();
 		} else this._host.style.width = `${55 + width * 32}px`;
 		this.updateScroll();
 	};
@@ -242009,16 +242008,26 @@ function createInventory(config) {
 	* Hide/show inventory's content
 	*/
 	function onToggleReduction() {
+		setReduced(!_reduced);
+	}
+	/**
+	* Collapse the window to its titlebar, or give it back its full height
+	*
+	* @param {boolean} reduced
+	*/
+	function setReduced(reduced) {
 		const panel = Component.getRoot().querySelector(".panel");
-		if (_realSize) {
-			if (panel) panel.style.display = "flex";
-			Component._host.style.height = `${_realSize}px`;
-			_realSize = 0;
-		} else {
-			_realSize = Component._host.getBoundingClientRect().height;
-			Component._host.style.height = "17px";
-			if (panel) panel.style.display = "none";
-		}
+		_reduced = reduced;
+		if (panel) panel.style.display = reduced ? "none" : "flex";
+		Component._host.style.height = reduced ? "17px" : expandedHeight();
+	}
+	/**
+	* Full height of the window: V0 sizes it from its rows, the others from their CSS
+	*
+	* @returns {string}
+	*/
+	function expandedHeight() {
+		return resizableHeight ? `${62 + _height * 32}px` : "";
 	}
 	/**
 	* Update tab, reset inventory content
