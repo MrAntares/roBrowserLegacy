@@ -717,6 +717,7 @@ class TwoDEffect {
 
 	static afterRender(gl) {
 		SpriteRenderer.unbind(gl);
+		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 	}
 }
 export default TwoDEffect;
