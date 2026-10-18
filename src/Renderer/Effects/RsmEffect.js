@@ -26,41 +26,43 @@ const _light = {
 };
 
 /**
- * Reusable module-level scratchpads to avoid per-frame GC allocations
+ * Create a per-effect scratchpad context to avoid shared mutable state
+ * across effect instances.
  */
-const _scratchModelViewMat = mat4.create();
-const _scratchNormalMat = mat4.create();
-const _scratchMatrix = mat4.create();
-const _scratchNodeMatrix = mat4.create();
-const _scratchMat4Node = mat4.create();
-const _scratchTempVec = vec3.create();
-const _scratchQuat = quat.create();
-const _scratchVec3Pos = vec3.create();
-const _scratchVec3Scale = vec3.create();
-const _scratchVec3BoxCenter = vec3.create();
-const _shadeGroup = new Array(32);
-const _shadeGroupUsed = new Array(32);
+function createScratch() {
+	return {
+		matrix: mat4.create(),
+		nodeMatrix: mat4.create(),
+		mat4Node: mat4.create(),
+		quat: quat.create(),
+		vec3Pos: vec3.create(),
+		vec3Scale: vec3.create(),
+		vec3BoxCenter: vec3.create(),
+		normalMat: mat4.create(),
+		tempVec: vec3.create()
+	};
+}
 
 /**
  * Interpolate between two quaternions using SLERP
  */
-function slerpQuat(q1, q2, t) {
-	quat.slerp(_scratchQuat, q1, q2, t);
-	return _scratchQuat;
+function slerpQuat(ctx, q1, q2, t) {
+	quat.slerp(ctx.quat, q1, q2, t);
+	return ctx.quat;
 }
 
 /**
  * Interpolate between two vec3 using linear interpolation
  */
-function lerpVec3(v1, v2, t) {
-	vec3.lerp(_scratchVec3Scale, v1, v2, t);
-	return _scratchVec3Scale;
+function lerpVec3(ctx, v1, v2, t) {
+	vec3.lerp(ctx.vec3Scale, v1, v2, t);
+	return ctx.vec3Scale;
 }
 
 /**
  * Get rotation at a specific frame from keyframes
  */
-function getRotationAtFrame(rotKeyframes, frame, animLen) {
+function getRotationAtFrame(ctx, rotKeyframes, frame, animLen) {
 	if (!rotKeyframes || rotKeyframes.length === 0) {
 		return null;
 	}
@@ -104,22 +106,22 @@ function getRotationAtFrame(rotKeyframes, frame, animLen) {
 	let t = nextFrame - prevFrame > 0 ? (frame - prevFrame) / (nextFrame - prevFrame) : 0;
 	t = Math.max(0, Math.min(1, t));
 
-	return slerpQuat(rotKeyframes[prevIdx].q, rotKeyframes[nextIdx].q, t);
+	return slerpQuat(ctx, rotKeyframes[prevIdx].q, rotKeyframes[nextIdx].q, t);
 }
 
 /**
  * Get position at a specific frame from keyframes
  */
-function getPositionAtFrame(posKeyframes, frame, animLen) {
+function getPositionAtFrame(ctx, posKeyframes, frame, animLen) {
 	if (!posKeyframes || posKeyframes.length === 0) {
 		return null;
 	}
 
 	if (posKeyframes.length === 1) {
-		_scratchVec3Pos[0] = posKeyframes[0].px;
-		_scratchVec3Pos[1] = posKeyframes[0].py;
-		_scratchVec3Pos[2] = posKeyframes[0].pz;
-		return _scratchVec3Pos;
+		ctx.vec3Pos[0] = posKeyframes[0].px;
+		ctx.vec3Pos[1] = posKeyframes[0].py;
+		ctx.vec3Pos[2] = posKeyframes[0].pz;
+		return ctx.vec3Pos;
 	}
 
 	let prevIdx = 0;
@@ -142,10 +144,10 @@ function getPositionAtFrame(posKeyframes, frame, animLen) {
 
 	if (prevIdx === nextIdx) {
 		const kf = posKeyframes[prevIdx];
-		_scratchVec3Pos[0] = kf.px;
-		_scratchVec3Pos[1] = kf.py;
-		_scratchVec3Pos[2] = kf.pz;
-		return _scratchVec3Pos;
+		ctx.vec3Pos[0] = kf.px;
+		ctx.vec3Pos[1] = kf.py;
+		ctx.vec3Pos[2] = kf.pz;
+		return ctx.vec3Pos;
 	}
 
 	const prevFrame = posKeyframes[prevIdx].frame;
@@ -164,16 +166,16 @@ function getPositionAtFrame(posKeyframes, frame, animLen) {
 	const p1 = posKeyframes[prevIdx];
 	const p2 = posKeyframes[nextIdx];
 
-	_scratchVec3Pos[0] = p1.px + (p2.px - p1.px) * t;
-	_scratchVec3Pos[1] = p1.py + (p2.py - p1.py) * t;
-	_scratchVec3Pos[2] = p1.pz + (p2.pz - p1.pz) * t;
-	return _scratchVec3Pos;
+	ctx.vec3Pos[0] = p1.px + (p2.px - p1.px) * t;
+	ctx.vec3Pos[1] = p1.py + (p2.py - p1.py) * t;
+	ctx.vec3Pos[2] = p1.pz + (p2.pz - p1.pz) * t;
+	return ctx.vec3Pos;
 }
 
 /**
  * Get scale at a specific frame from keyframes
  */
-function getScaleAtFrame(scaleKeyFrames, frame, animLen) {
+function getScaleAtFrame(ctx, scaleKeyFrames, frame, animLen) {
 	if (!scaleKeyFrames || scaleKeyFrames.length === 0) {
 		return null;
 	}
@@ -217,7 +219,7 @@ function getScaleAtFrame(scaleKeyFrames, frame, animLen) {
 	let t = nextFrame - prevFrame > 0 ? (frame - prevFrame) / (nextFrame - prevFrame) : 0;
 	t = Math.max(0, Math.min(1, t));
 
-	return lerpVec3(scaleKeyFrames[prevIdx].Scale, scaleKeyFrames[nextIdx].Scale, t);
+	return lerpVec3(ctx, scaleKeyFrames[prevIdx].Scale, scaleKeyFrames[nextIdx].Scale, t);
 }
 
 /**
@@ -232,22 +234,20 @@ function calcNormal_NONE(out) {
 /**
  * Calculate normals (FLAT type) - uses identity normalMat (local space)
  */
-function calcNormal_FLAT(node, out, groupUsed) {
+function calcNormal_FLAT(node, out, groupUsed, tempVec) {
 	let i, j, count;
 	let face;
-	const temp_vec = _scratchTempVec;
 	const faces = node.faces;
 	const vertices = node.vertices;
 
 	for (i = 0, j = 0, count = faces.length; i < count; ++i, j += 3) {
 		face = faces[i];
 
-		vec3.calcNormal(vertices[face.vertidx[0]], vertices[face.vertidx[1]], vertices[face.vertidx[2]], temp_vec);
+		vec3.calcNormal(vertices[face.vertidx[0]], vertices[face.vertidx[1]], vertices[face.vertidx[2]], tempVec);
 
-		// Identity matrix: just copy temp_vec
-		out[j] = temp_vec[0];
-		out[j + 1] = temp_vec[1];
-		out[j + 2] = temp_vec[2];
+		out[j] = tempVec[0];
+		out[j + 1] = tempVec[1];
+		out[j + 2] = tempVec[2];
 
 		if (face.smoothGroup !== undefined) {
 			groupUsed[face.smoothGroup] = true;
@@ -389,31 +389,27 @@ function generate_mesh_SMOOTH(node, vert, shadeGroup, mesh) {
 
 /**
  * Get node matrix at a specific animation frame (world space, no camera view)
- * Returns the node's world matrix in outMat, and extracts rotation-only normal matrix to outNormalMat (mat3)
  */
-function getNodeMatrixAtFrame(node, instanceMatrix, frame, animLen, outMat, outNormalMat) {
-	const matrix = _scratchMatrix;
+function getNodeMatrixAtFrame(ctx, node, instanceMatrix, frame, animLen, outMat, outNormalMat) {
+	const matrix = ctx.matrix;
 	mat4.identity(matrix);
 
-	_scratchVec3BoxCenter[0] = -node.main.box.center[0];
-	_scratchVec3BoxCenter[1] = -node.main.box.max[1];
-	_scratchVec3BoxCenter[2] = -node.main.box.center[2];
-	mat4.translate(matrix, matrix, _scratchVec3BoxCenter);
+	ctx.vec3BoxCenter[0] = -node.main.box.center[0];
+	ctx.vec3BoxCenter[1] = -node.main.box.max[1];
+	ctx.vec3BoxCenter[2] = -node.main.box.center[2];
+	mat4.translate(matrix, matrix, ctx.vec3BoxCenter);
 
-	// Apply node transformations with animation
-	const nodeMatrix = _scratchNodeMatrix;
+	const nodeMatrix = ctx.nodeMatrix;
 	mat4.identity(nodeMatrix);
 
-	// Position animation (writes into _scratchVec3Pos)
-	const animPos = getPositionAtFrame(node.posKeyframes, frame, animLen);
+	const animPos = getPositionAtFrame(ctx, node.posKeyframes, frame, animLen);
 	if (animPos) {
 		mat4.translate(nodeMatrix, nodeMatrix, animPos);
 	} else {
 		mat4.translate(nodeMatrix, nodeMatrix, node.pos);
 	}
 
-	// Rotation animation
-	const animRot = getRotationAtFrame(node.rotKeyframes, frame, animLen);
+	const animRot = getRotationAtFrame(ctx, node.rotKeyframes, frame, animLen);
 	if (animRot) {
 		mat4.rotateQuat(nodeMatrix, nodeMatrix, animRot);
 	} else if (node.rotKeyframes && node.rotKeyframes.length > 0) {
@@ -422,8 +418,7 @@ function getNodeMatrixAtFrame(node, instanceMatrix, frame, animLen, outMat, outN
 		mat4.rotate(nodeMatrix, nodeMatrix, node.rotangle, node.rotaxis);
 	}
 
-	// Scale animation (writes into _scratchVec3Scale)
-	const animScale = getScaleAtFrame(node.scaleKeyFrames, frame, animLen);
+	const animScale = getScaleAtFrame(ctx, node.scaleKeyFrames, frame, animLen);
 	if (animScale) {
 		mat4.scale(nodeMatrix, nodeMatrix, animScale);
 	} else {
@@ -436,21 +431,18 @@ function getNodeMatrixAtFrame(node, instanceMatrix, frame, animLen, outMat, outN
 		mat4.translate(matrix, matrix, node.offset);
 	}
 
-	mat4.multiply(matrix, matrix, mat3.toMat4(node.mat3, _scratchMat4Node));
+	mat4.multiply(matrix, matrix, mat3.toMat4(node.mat3, ctx.mat4Node));
 
-	// Multiply with instance matrix to get final world matrix
 	mat4.multiply(outMat, instanceMatrix, matrix);
 
-	// Extract rotation-only normal matrix (mat3) from world matrix
-	mat4.extractRotation(_scratchNormalMat, outMat);
-	mat3.fromMat4(outNormalMat, _scratchNormalMat);
+	mat4.extractRotation(ctx.normalMat, outMat);
+	mat3.fromMat4(outNormalMat, ctx.normalMat);
 }
 
 /**
  * Compile a node in LOCAL space (no modelViewMat, no instance matrix)
- * Returns mesh grouped by texture, with vertices in local space and normals in local space
  */
-function compileNodeLocal(node) {
+function compileNodeLocal(ctx, node) {
 	const textures = node.textures;
 	const faces = node.faces;
 	const vertices = node.vertices;
@@ -458,15 +450,11 @@ function compileNodeLocal(node) {
 	const mesh = {};
 	const mesh_size = [];
 
-	// Reuse module-level flags; clear first since callers OR-into it.
-	for (let g = 0; g < 32; g++) {
-		_shadeGroup[g] = null;
-		_shadeGroupUsed[g] = false;
-	}
+	const shadeGroup = new Array(32).fill(null);
+	const shadeGroupUsed = new Array(32).fill(false);
 
 	let i, x, y, z, count;
 
-	// Use raw vertices (local space)
 	count = vertices.length;
 	const vert = new Float32Array(count * 3);
 	for (i = 0; i < count; ++i) {
@@ -479,25 +467,20 @@ function compileNodeLocal(node) {
 		vert[i * 3 + 2] = z;
 	}
 
-	// Generate face normals (local space)
 	const face_normal = new Float32Array(faces.length * 3);
 
-	// Setup mesh slot array
 	for (i = 0, count = textures.length; i < count; ++i) {
 		mesh_size[textures[i]] = 0;
 	}
 
-	// Find mesh max face
 	for (i = 0, count = faces.length; i < count; ++i) {
 		mesh_size[textures[faces[i].texid]]++;
 	}
 
-	// Initialize buffer
 	for (i = 0, count = textures.length; i < count; ++i) {
 		mesh[textures[i]] = new Float32Array(mesh_size[textures[i]] * 9 * 3);
 	}
 
-	// Calculate normals based on shading type (local space)
 	switch (node.main.shadeType) {
 		default:
 		case 0: // NONE
@@ -506,14 +489,14 @@ function compileNodeLocal(node) {
 			break;
 
 		case 1: // FLAT
-			calcNormal_FLAT(node, face_normal, _shadeGroupUsed);
+			calcNormal_FLAT(node, face_normal, shadeGroupUsed, ctx.tempVec);
 			generate_mesh_FLAT(node, vert, face_normal, mesh);
 			break;
 
 		case 2: // SMOOTH
-			calcNormal_FLAT(node, face_normal, _shadeGroupUsed);
-			calcNormal_SMOOTH(node, face_normal, _shadeGroupUsed, _shadeGroup);
-			generate_mesh_SMOOTH(node, vert, _shadeGroup, mesh);
+			calcNormal_FLAT(node, face_normal, shadeGroupUsed, ctx.tempVec);
+			calcNormal_SMOOTH(node, face_normal, shadeGroupUsed, shadeGroup);
+			generate_mesh_SMOOTH(node, vert, shadeGroup, mesh);
 			break;
 	}
 
@@ -522,28 +505,28 @@ function compileNodeLocal(node) {
 
 /**
  * Get node matrix for non-animated model (mirrors Node.compile in Loaders/Model.js)
- * Uses node.matrix which already contains the accumulated parent transform.
  */
-function getNodeMatrixStatic(node, instanceMatrix, outMat, outNormalMat) {
-	const matrix = _scratchMatrix;
+function getNodeMatrixStatic(ctx, node, instanceMatrix, outMat, outNormalMat) {
+	const matrix = ctx.matrix;
 	mat4.identity(matrix);
 
-	mat4.translate(matrix, matrix, [-node.main.box.center[0], -node.main.box.max[1], -node.main.box.center[2]]);
+	ctx.vec3BoxCenter[0] = -node.main.box.center[0];
+	ctx.vec3BoxCenter[1] = -node.main.box.max[1];
+	ctx.vec3BoxCenter[2] = -node.main.box.center[2];
+	mat4.translate(matrix, matrix, ctx.vec3BoxCenter);
 
-	// node.matrix = parent-accumulated transform (baseMatrix + pos + rot + scale)
-	// set by Node.calcBoundingBox during model load — this is the part that was missing
 	mat4.multiply(matrix, matrix, node.matrix);
 
 	if (!node.is_only) {
 		mat4.translate(matrix, matrix, node.offset);
 	}
 
-	mat4.multiply(matrix, matrix, mat3.toMat4(node.mat3, _scratchMat4Node));
+	mat4.multiply(matrix, matrix, mat3.toMat4(node.mat3, ctx.mat4Node));
 
 	mat4.multiply(outMat, instanceMatrix, matrix);
 
-	mat4.extractRotation(_scratchNormalMat, outMat);
-	mat3.fromMat4(outNormalMat, _scratchNormalMat);
+	mat4.extractRotation(ctx.normalMat, outMat);
+	mat3.fromMat4(outNormalMat, ctx.normalMat);
 }
 
 function initModel(gl, data) {
@@ -551,43 +534,66 @@ function initModel(gl, data) {
 	const count = data.infos.length;
 	this.objects.length = count;
 
-	// Create a buffer if it doesn't exist
 	if (!this.buffer) {
 		this.buffer = gl.createBuffer();
 	}
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
-
 	gl.bufferData(gl.ARRAY_BUFFER, data.buffer, gl.STATIC_DRAW);
 
-	function onTextureLoaded(texture, i) {
-		self.objects[i].texture = texture;
-		self.objects[i].complete = true;
-	}
+	// Cache GL textures by path so repeated textures are uploaded only once
+	const glTextureCache = new Map();
+	const pending = new Map();
 
-	// Fetch all images, and draw them in a mega-texture
 	for (let i = 0; i < count; ++i) {
 		if (!this.objects[i]) {
 			this.objects[i] = {};
 		}
 
-		this.objects[i].vertCount = data.infos[i].vertCount;
-		this.objects[i].vertOffset = data.infos[i].vertOffset;
-		this.objects[i].complete = false;
-		this.objects[i].modelMat = data.infos[i].modelMat;
-		this.objects[i].normalMat = data.infos[i].normalMat;
-		this.objects[i].nodeIndex = data.infos[i].nodeIndex;
-		this.objects[i].instIndex = data.infos[i].instIndex;
+		const info = data.infos[i];
+		const obj = this.objects[i];
 
-		WebGL.texture(gl, data.infos[i].texture, onTextureLoaded, i);
+		obj.vertCount = info.vertCount;
+		obj.vertOffset = info.vertOffset;
+		obj.complete = false;
+		obj.modelMat = info.modelMat;
+		obj.normalMat = info.normalMat;
+		obj.nodeIndex = info.nodeIndex;
+		obj.instIndex = info.instIndex;
+		obj.applyNodeNormal = info.shadeType !== 0;
+
+		const texPath = info.texPath;
+
+		if (glTextureCache.has(texPath)) {
+			obj.texture = glTextureCache.get(texPath);
+			obj.complete = true;
+			continue;
+		}
+
+		if (pending.has(texPath)) {
+			pending.get(texPath).push(i);
+			continue;
+		}
+
+		const waiting = [i];
+		pending.set(texPath, waiting);
+
+		WebGL.texture(gl, info.textureData, function (texture) {
+			glTextureCache.set(texPath, texture);
+			pending.delete(texPath);
+			for (let k = 0; k < waiting.length; ++k) {
+				self.objects[waiting[k]].texture = texture;
+				self.objects[waiting[k]].complete = true;
+			}
+		});
 	}
 }
 
 /**
  * Update node matrices for current animation frame
- * Called once per frame for animated models
  */
 function updateNodeMatrices(self, frame) {
+	const ctx = self._scratch;
 	const model = self.model;
 	const nodes = model.nodes;
 	const instances = model.instances;
@@ -597,7 +603,7 @@ function updateNodeMatrices(self, frame) {
 		const node = nodes[obj.nodeIndex];
 		const instanceMatrix = instances[obj.instIndex];
 
-		getNodeMatrixAtFrame(node, instanceMatrix, frame, model.animLen, obj.modelMat, obj.normalMat);
+		getNodeMatrixAtFrame(ctx, node, instanceMatrix, frame, model.animLen, obj.modelMat, obj.normalMat);
 	}
 }
 
@@ -621,6 +627,7 @@ class RsmEffect {
 			filename: null
 		};
 		this._Params = params;
+		this._scratch = createScratch();
 	}
 
 	static init(gl) {
@@ -636,7 +643,6 @@ class RsmEffect {
 		Client.getFile(this.filename, function (buf) {
 			self.model = new Model(buf);
 
-			// Check if model has animation
 			self.isAnimated = false;
 			self.animLen = self.model.animLen || 0;
 			self.fps = self.model.frameRatePerSecond || 30;
@@ -656,16 +662,14 @@ class RsmEffect {
 			const objects = [];
 			let object;
 
-			// Create model in world
 			self.globalParameters.filename = self.filename.replace('data/model/', '') + Math.floor(Math.random() * 15);
 			self.model.createInstance(self.globalParameters, 0, 0);
 
-			// Compile each node in LOCAL space (no instance matrix)
 			const nodes = self.model.nodes;
 			const instances = self.model.instances;
 
 			for (let ni = 0; ni < nodes.length; ni++) {
-				const localMesh = compileNodeLocal(nodes[ni]);
+				const localMesh = compileNodeLocal(self._scratch, nodes[ni]);
 				const textureKeys = Object.keys(localMesh);
 
 				for (let ki = 0; ki < textureKeys.length; ki++) {
@@ -682,7 +686,6 @@ class RsmEffect {
 			total = 0;
 			const objCount = objects.length;
 
-			// Merge node meshes to buffer once (without duplicating per instance)
 			for (let i = 0; i < objCount; ++i) {
 				object = objects[i];
 				length = object.mesh.length;
@@ -704,47 +707,44 @@ class RsmEffect {
 				offset += length;
 			}
 
-			// Now create draw objects for each instance referencing the shared node mesh vertices
 			const drawInfos = [];
 
 			for (let ii = 0; ii < instances.length; ii++) {
 				for (let oi = 0; oi < objCount; oi++) {
 					const obj = objects[oi];
 					drawInfos.push({
-						texture: 'data/texture/' + obj.texture,
+						texPath: 'data/texture/' + obj.texture,
+						textureData: null,
 						vertOffset: obj.vertOffset,
 						vertCount: obj.vertCount,
 						nodeIndex: obj.nodeIndex,
 						instIndex: ii,
 						modelMat: mat4.create(),
-						normalMat: mat3.create()
+						normalMat: mat3.create(),
+						shadeType: nodes[obj.nodeIndex].main.shadeType
 					});
 				}
 			}
 
 			count = drawInfos.length;
 
-			// Load textures with deduplication
-			const textureCache = new Map();
+			const textureDataCache = new Map();
 			let i = -1;
 
 			function loadNextTexture() {
-				// Loading complete, rendering...
 				if (++i === count) {
-					// Initialize renderer and populate self.objects
 					initModel.call(self, gl, {
 						buffer: buffer,
 						infos: drawInfos
 					});
 
-					// Initialize matrices for first frame (frame 0) if animated, or once if static
 					if (self.isAnimated) {
 						updateNodeMatrices(self, 0);
 					} else {
-						// Static models: use node.matrix (accumulated hierarchy), same as Node.compile
 						for (let k = 0; k < count; ++k) {
 							const obj = self.objects[k];
 							getNodeMatrixStatic(
+								self._scratch,
 								nodes[obj.nodeIndex],
 								instances[obj.instIndex],
 								obj.modelMat,
@@ -757,9 +757,11 @@ class RsmEffect {
 					return;
 				}
 
-				const texPath = drawInfos[i].texture;
-				if (textureCache.has(texPath)) {
-					drawInfos[i].texture = textureCache.get(texPath);
+				const info = drawInfos[i];
+				const texPath = info.texPath;
+				const cached = textureDataCache.get(texPath);
+				if (cached) {
+					info.textureData = cached;
 					loadNextTexture();
 					return;
 				}
@@ -767,8 +769,8 @@ class RsmEffect {
 				Client.loadFile(
 					texPath,
 					_data => {
-						textureCache.set(texPath, _data);
-						drawInfos[i].texture = _data;
+						textureDataCache.set(texPath, _data);
+						info.textureData = _data;
 						loadNextTexture();
 					},
 					() => {
@@ -777,7 +779,6 @@ class RsmEffect {
 				);
 			}
 
-			// Start loading textures
 			loadNextTexture();
 		});
 
@@ -785,9 +786,12 @@ class RsmEffect {
 	}
 
 	free(gl) {
+		const deletedTextures = new Set();
 		for (let i = 0, count = this.objects.length; i < count; ++i) {
-			if (this.objects[i] && this.objects[i].texture) {
-				gl.deleteTexture(this.objects[i].texture);
+			const obj = this.objects[i];
+			if (obj && obj.texture && !deletedTextures.has(obj.texture)) {
+				deletedTextures.add(obj.texture);
+				gl.deleteTexture(obj.texture);
 			}
 		}
 
@@ -810,40 +814,33 @@ class RsmEffect {
 	}
 
 	static beforeRender(gl, modelView, projection, fog, tick) {
-		// Calculate normal mat (view-space normal matrix)
 		mat4.toInverseMat3(modelView, _normalMat);
 		mat3.transpose(_normalMat, _normalMat);
 
-		// -- render
 		const uniform = _program.uniform;
 		const attribute = _program.attribute;
 
 		gl.useProgram(_program);
 
-		// Bind matrix
 		gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 		gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 		gl.uniformMatrix3fv(uniform.uNormalMat, false, _normalMat);
 
-		// Bind light
 		gl.uniform3fv(uniform.uLightDirection, _light.direction);
 		gl.uniform1f(uniform.uLightOpacity, _light.opacity);
 		gl.uniform3fv(uniform.uLightAmbient, _light.ambient);
 		gl.uniform3fv(uniform.uLightDiffuse, _light.diffuse);
 
-		// Fog settings
 		gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
 		gl.uniform1f(uniform.uFogNear, fog.near);
 		gl.uniform1f(uniform.uFogFar, fog.far);
 		gl.uniform3fv(uniform.uFogColor, fog.color);
 
-		// Enable all attributes
 		gl.enableVertexAttribArray(attribute.aPosition);
 		gl.enableVertexAttribArray(attribute.aVertexNormal);
 		gl.enableVertexAttribArray(attribute.aTextureCoord);
 		gl.enableVertexAttribArray(attribute.aAlpha);
 
-		// Textures
 		gl.activeTexture(gl.TEXTURE0);
 		gl.uniform1i(uniform.uDiffuse, 0);
 	}
@@ -851,7 +848,6 @@ class RsmEffect {
 	render(gl, tick) {
 		const uniform = _program.uniform;
 
-		// Handle animation
 		if (this.isAnimated && this.model && this.animLen > 0) {
 			const elapsed = tick - this.startTick;
 			const frame = Math.floor(((elapsed * this.fps) / 1000) % this.animLen);
@@ -867,20 +863,20 @@ class RsmEffect {
 
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
 
-		// Resetting attributes because buffer has changed
 		const attribute = _program.attribute;
-		// Link attribute
 		gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 9 * 4, 0);
 		gl.vertexAttribPointer(attribute.aVertexNormal, 3, gl.FLOAT, false, 9 * 4, 3 * 4);
 		gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 9 * 4, 6 * 4);
 		gl.vertexAttribPointer(attribute.aAlpha, 1, gl.FLOAT, false, 9 * 4, 8 * 4);
 
 		for (let i = 0, count = this.objects.length; i < count; ++i) {
-			if (this.objects[i] && this.objects[i].complete) {
-				gl.bindTexture(gl.TEXTURE_2D, this.objects[i].texture);
-				gl.uniformMatrix4fv(uniform.uModelMat, false, this.objects[i].modelMat);
-				gl.uniformMatrix3fv(uniform.uNodeNormalMat, false, this.objects[i].normalMat);
-				gl.drawArrays(gl.TRIANGLES, this.objects[i].vertOffset, this.objects[i].vertCount);
+			const obj = this.objects[i];
+			if (obj && obj.complete) {
+				gl.bindTexture(gl.TEXTURE_2D, obj.texture);
+				gl.uniformMatrix4fv(uniform.uModelMat, false, obj.modelMat);
+				gl.uniformMatrix3fv(uniform.uNodeNormalMat, false, obj.normalMat);
+				gl.uniform1f(uniform.uApplyNodeNormal, obj.applyNodeNormal ? 1.0 : 0.0);
+				gl.drawArrays(gl.TRIANGLES, obj.vertOffset, obj.vertCount);
 			}
 		}
 	}
