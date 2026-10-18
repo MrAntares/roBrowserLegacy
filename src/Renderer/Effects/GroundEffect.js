@@ -38,7 +38,7 @@ class GroundEffect {
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
 		gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 5 * 4, 0);
 		gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 5 * 4, 3 * 4);
-		SpriteRenderer.runWithDepth(true, false, false, () => {
+		SpriteRenderer.runWithDepth(true, true, false, () => {
 			gl.drawArrays(gl.TRIANGLES, 0, this.vertCount);
 		});
 	}
