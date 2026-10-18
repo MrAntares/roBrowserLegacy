@@ -311487,6 +311487,22 @@ var init_EntityWalk = __esmMin((() => {
 }));
 //#endregion
 //#region src/Renderer/Entity/EntityRender.js
+function acquireSnapshotBuffers() {
+	const buf = _snapshotPool.pop();
+	if (buf) return buf;
+	return {
+		position: /* @__PURE__ */ new Float32Array(3),
+		_position: /* @__PURE__ */ new Int32Array(2),
+		color: /* @__PURE__ */ new Float32Array(4)
+	};
+}
+function releaseSnapshotBuffers(snapshot) {
+	if (_snapshotPool.length < 64) _snapshotPool.push({
+		position: snapshot.position,
+		_position: snapshot._position,
+		color: snapshot.color
+	});
+}
 /**
 * Render an Entity
 *
@@ -311518,6 +311534,9 @@ function render$5(modelView, projection) {
 		this.attachments.render(Date.now());
 	}
 	renderGUI(this, modelView, projection);
+}
+function isLookingBack(direction) {
+	return direction > 2 && direction < 6;
 }
 /**
 * Render second body (BL_DOUBLE_BODY + EF_MAKEBLUR)
@@ -311584,22 +311603,26 @@ function renderSecondBody(entity, layers, spr, pal, files, type, _position, opti
 			entity.ACTION.SKILL
 		].includes(entity.action) || entity.isFastMoving) && now - trail.lastTick > interval;
 		if (shouldCapture) {
+			const buffers = acquireSnapshotBuffers();
+			buffers.position.set(entity.position);
+			buffers._position.set(_position);
+			buffers.color.set(entity.effectColor);
 			trail.snapshots.unshift({
-				position: gl_matrix_default.vec3.clone(entity.position),
+				position: buffers.position,
+				_position: buffers._position,
+				color: buffers.color,
 				tick: now,
 				layers,
 				spr,
-				pal,
-				_position: new Int32Array(_position),
-				color: [...entity.effectColor]
+				pal
 			});
 			trail.lastTick = now;
-			if (trail.snapshots.length > maxLen) trail.snapshots.pop();
+			if (trail.snapshots.length > maxLen) releaseSnapshotBuffers(trail.snapshots.pop());
 		}
 		if (trail.snapshots.length) {
-			const originalPos = gl_matrix_default.vec3.clone(SpriteRenderer.position);
+			_scratchPosition.set(SpriteRenderer.position);
 			const originalZ = SpriteRenderer.zIndex;
-			const originalColor = new Float32Array(entity.effectColor);
+			_scratchColor.set(entity.effectColor);
 			SpriteRenderer.runWithDepth(true, false, false, function() {
 				const duration = blurType === 4 || blurType === 3 ? 800 : 400;
 				for (let idx = 0; idx < trail.snapshots.length; idx++) {
@@ -311620,9 +311643,9 @@ function renderSecondBody(entity, layers, spr, pal, files, type, _position, opti
 					for (let i = 0; i < snp.layers.length; ++i) entity.renderLayer(snp.layers[i], snp.spr, snp.pal, files.size, snp._position, type, false);
 				}
 			});
-			SpriteRenderer.position.set(originalPos);
+			SpriteRenderer.position.set(_scratchPosition);
 			SpriteRenderer.zIndex = originalZ;
-			entity.effectColor.set(originalColor);
+			entity.effectColor.set(_scratchColor);
 		}
 	}
 }
@@ -311789,7 +311812,7 @@ function Init$3() {
 	this.renderLayer = renderLayer;
 	this.renderEntity = renderEntity;
 }
-var WALK_DIST_TO_MOTION, renderGUI, SPRITE_LIFT, calculateBoundingRect, renderEntity, renderElement;
+var WALK_DIST_TO_MOTION, _snapshotPool, _scratchPosition, _scratchColor, renderGUI, SPRITE_LIFT, calculateBoundingRect, renderEntity, renderElement;
 var init_EntityRender = __esmMin((() => {
 	init_gl_matrix();
 	init_Camera();
@@ -311803,6 +311826,9 @@ var init_EntityRender = __esmMin((() => {
 	init_Graphics();
 	init_GR2ModelRenderer();
 	WALK_DIST_TO_MOTION = 170.2;
+	_snapshotPool = [];
+	_scratchPosition = /* @__PURE__ */ new Float32Array(3);
+	_scratchColor = /* @__PURE__ */ new Float32Array(4);
 	renderGUI = (function renderGUIClosure() {
 		const mat4 = gl_matrix_default.mat4;
 		const vec4 = gl_matrix_default.vec4;
@@ -311961,6 +311987,7 @@ var init_EntityRender = __esmMin((() => {
 						function robeCorrection(lookingFront) {
 							if (self.robe > 0 && self.robeHeight && self.bodyHeight) {
 								if (self.robeHeight + (self.action === self.ACTION.SIT ? 0 : RIDING_STATUS && lookingFront ? 50 : 25) > self.bodyHeight + 64) {
+									if ((self.action === self.ACTION.ATTACK || self.action === self.ACTION.ATTACK1 || self.action === self.ACTION.ATTACK2 || self.action === self.ACTION.ATTACK3) && !lookingFront) return -450;
 									if (self.action === self.ACTION.SIT) return lookingFront ? -450 : RIDING_STATUS ? 1 : -100;
 									return lookingFront ? -300 : RIDING_STATUS ? 100 : 1;
 								}
@@ -311972,7 +311999,7 @@ var init_EntityRender = __esmMin((() => {
 							SpriteRenderer.zIndex = -1;
 							renderElement(self, self.files.shield, "shield", _position, true);
 						});
-						if (!(direction > 2 && direction < 6)) {
+						if (!isLookingBack(direction)) {
 							if (SessionStorage_default.Playing == true && self.hasCart == true) {
 								cartidx = DB.isSuperNovice(self._job) ? 0 : self.CartNum;
 								SpriteRenderer.runWithDepth(true, false, false, function() {
@@ -311988,7 +312015,7 @@ var init_EntityRender = __esmMin((() => {
 							}
 						}
 						SpriteRenderer.zIndex = 150;
-						if (RIDING_STATUS && !(direction > 2 && direction < 6) && (self.action === self.ACTION.SIT || self.action === self.ACTION.WALK)) SpriteRenderer.zIndex *= 2;
+						if (RIDING_STATUS && !isLookingBack(direction) && (self.action === self.ACTION.SIT || self.action === self.ACTION.WALK)) SpriteRenderer.zIndex *= 2;
 						renderElement(self, self.files.body, "body", _position, true);
 						let bodyZOffset = 250;
 						if (RIDING_STATUS) {
@@ -312009,7 +312036,7 @@ var init_EntityRender = __esmMin((() => {
 							SpriteRenderer.zIndex = bodyZOffset + 300;
 							renderElement(self, self.files.accessory, "head", _position, false);
 						}
-						if (direction > 2 && direction < 6) {
+						if (isLookingBack(direction)) {
 							if (self.robe > 0) {
 								SpriteRenderer.zIndex = bodyZOffset + robeCorrection(false);
 								renderElement(self, self.files.robe, "robe", _position, true);
@@ -312048,6 +312075,7 @@ var init_EntityRender = __esmMin((() => {
 						renderElement(self, self.files.body, "body", _position, true);
 					});
 					break;
+				case Entity.TYPE_MOB:
 				case Entity.TYPE_NPC:
 				case Entity.TYPE_NPC2:
 					SpriteRenderer.position[2] = SpriteRenderer.position[2] + .2;
