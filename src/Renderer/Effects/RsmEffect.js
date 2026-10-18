@@ -400,10 +400,13 @@ function getNodeMatrixAtFrame(ctx, node, instanceMatrix, frame, animLen, outMat,
 	mat4.translate(matrix, matrix, ctx.vec3BoxCenter);
 
 	const nodeMatrix = ctx.nodeMatrix;
-	if (node.baseMatrix) {
-		mat4.copy(nodeMatrix, node.baseMatrix);
+	if (node._parentMatrix) {
+		mat4.copy(nodeMatrix, node._parentMatrix);
 	} else {
 		mat4.identity(nodeMatrix);
+	}
+	if (node.baseMatrix) {
+		mat4.multiply(nodeMatrix, nodeMatrix, node.baseMatrix);
 	}
 
 	const animPos = getPositionAtFrame(ctx, node.posKeyframes, frame, animLen);
@@ -673,7 +676,18 @@ class RsmEffect {
 
 			const nodes = self.model.nodes;
 			const instances = self.model.instances;
-
+			if (self.animLen <= 0) {
+				for (let ni = 0; ni < nodes.length; ni++) {
+					const node = nodes[ni];
+					node._parentMatrix = null;
+					if (node.parentname && node.parentname !== node.name) {
+						const parent = nodes.find(n => n.name === node.parentname);
+						if (parent && !parent.absoluteTransform) {
+							node._parentMatrix = parent.matrix;
+						}
+					}
+				}
+			}
 			for (let ni = 0; ni < nodes.length; ni++) {
 				const localMesh = compileNodeLocal(self._scratch, nodes[ni]);
 				const textureKeys = Object.keys(localMesh);
