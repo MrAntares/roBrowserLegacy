@@ -560,8 +560,12 @@ function initModel(gl, data) {
 		obj.normalMat = info.normalMat;
 		obj.nodeIndex = info.nodeIndex;
 		obj.instIndex = info.instIndex;
-		obj.applyNodeNormal = info.shadeType !== 0;
-
+		obj.applyNodeNormal = info.shadeType === 1 || info.shadeType === 2;
+		if (!info.textureData) {
+			obj.texture = null;
+			obj.complete = true;
+			continue;
+		}
 		const texPath = info.texPath;
 
 		if (glTextureCache.has(texPath)) {
@@ -647,15 +651,17 @@ class RsmEffect {
 			self.animLen = self.model.animLen || 0;
 			self.fps = self.model.frameRatePerSecond || 30;
 
-			for (let n = 0; n < self.model.nodes.length; n++) {
-				const node = self.model.nodes[n];
-				if (
-					(node.rotKeyframes && node.rotKeyframes.length > 0) ||
-					(node.posKeyframes && node.posKeyframes.length > 0) ||
-					(node.scaleKeyFrames && node.scaleKeyFrames.length > 0)
-				) {
-					self.isAnimated = true;
-					break;
+			if (self.animLen > 0) {
+				for (let n = 0; n < self.model.nodes.length; n++) {
+					const node = self.model.nodes[n];
+					if (
+						(node.rotKeyframes && node.rotKeyframes.length > 0) ||
+						(node.posKeyframes && node.posKeyframes.length > 0) ||
+						(node.scaleKeyFrames && node.scaleKeyFrames.length > 0)
+					) {
+						self.isAnimated = true;
+						break;
+					}
 				}
 			}
 
@@ -713,7 +719,7 @@ class RsmEffect {
 				for (let oi = 0; oi < objCount; oi++) {
 					const obj = objects[oi];
 					drawInfos.push({
-						texPath: 'data/texture/' + obj.texture,
+						texPath: `data/texture/${obj.texture}`,
 						textureData: null,
 						vertOffset: obj.vertOffset,
 						vertCount: obj.vertCount,
@@ -759,9 +765,8 @@ class RsmEffect {
 
 				const info = drawInfos[i];
 				const texPath = info.texPath;
-				const cached = textureDataCache.get(texPath);
-				if (cached) {
-					info.textureData = cached;
+				if (textureDataCache.has(texPath)) {
+					info.textureData = textureDataCache.get(texPath);
 					loadNextTexture();
 					return;
 				}
