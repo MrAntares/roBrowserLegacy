@@ -38,7 +38,9 @@ class GroundEffect {
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
 		gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 5 * 4, 0);
 		gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 5 * 4, 3 * 4);
-		gl.drawArrays(gl.TRIANGLES, 0, this.vertCount);
+		SpriteRenderer.runWithDepth(true, false, false, () => {
+			gl.drawArrays(gl.TRIANGLES, 0, this.vertCount);
+		});
 	}
 
 	static init(gl) {
@@ -74,7 +76,6 @@ class GroundEffect {
 		const uniform = _program.uniform;
 		const attribute = _program.attribute;
 
-		gl.depthMask(false);
 		mat4.identity(_matrix);
 		gl.useProgram(_program);
 		gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
@@ -93,9 +94,9 @@ class GroundEffect {
 	}
 
 	static afterRender(gl) {
-		gl.depthMask(true);
 		gl.disableVertexAttribArray(_program.attribute.aPosition);
 		gl.disableVertexAttribArray(_program.attribute.aTextureCoord);
+		SpriteRenderer.unbind(gl);
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 	}
 }

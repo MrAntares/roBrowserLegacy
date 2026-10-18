@@ -8,11 +8,7 @@
  * @author Vincent Thibault
  */
 
-import WebGL from 'Utils/WebGL.js';
 import glMatrix from 'Utils/gl-matrix.js';
-import Camera from './Camera.js';
-import _vertexShader from './SpriteRenderer.vs?raw';
-import _fragmentShader from './SpriteRenderer.fs?raw';
 import SpriteBatcher from './SpriteBatcher.js';
 
 let _batcher = null;
@@ -223,16 +219,6 @@ const RenderCanvas2D = (function RenderCanvas2DClosure() {
 })();
 
 /**
- * @type {WebGLProgram}
- */
-let _program = null;
-
-/**
- * @type {WebGLBuffer}
- */
-let _buffer = null;
-
-/**
  * @type {CanvasRenderingContext2D} canvas context
  */
 let _ctx = null;
@@ -270,7 +256,7 @@ const _depth = null;
 /**
  * @type {boolean} cached disable depth correction state
  */
-let _disableDepthCorrection = false;
+const _disableDepthCorrection = false;
 
 /**
  * @type {boolean} cached depth mask state
@@ -406,22 +392,6 @@ class SpriteRenderer {
 	 * @param {object} gl context
 	 */
 	static init(gl) {
-		if (!_buffer) {
-			_buffer = gl.createBuffer();
-			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
-			gl.bufferData(
-				gl.ARRAY_BUFFER,
-				new Float32Array([
-					-0.5, +0.5, 0.0, 0.0, +0.5, +0.5, 1.0, 0.0, -0.5, -0.5, 0.0, 1.0, +0.5, -0.5, 1.0, 1.0
-				]),
-				gl.STATIC_DRAW
-			);
-		}
-
-		if (!_program) {
-			_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
-		}
-
 		if (!_batcher) _batcher = new SpriteBatcher();
 		_batcher.init(gl);
 	}
@@ -435,42 +405,6 @@ class SpriteRenderer {
 	 * @param {object} fog structure
 	 */
 	static bind3DContext(gl, modelView, projection, fog) {
-		const attribute = _program.attribute;
-		const uniform = _program.uniform;
-
-		gl.useProgram(_program);
-		gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
-		gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
-		gl.uniformMatrix4fv(uniform.uViewModelMat, false, mat4.invert(_matrix, modelView));
-
-		// Fog settings
-		gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
-		gl.uniform1f(uniform.uFogNear, fog.near);
-		gl.uniform1f(uniform.uFogFar, fog.far);
-		gl.uniform3fv(uniform.uFogColor, fog.color);
-
-		// Textures. Select unit 0 explicitly: uDiffuse samples it, but a previous
-		// pass may have left the active unit elsewhere, and only the palette path
-		// below happens to reset it - so palette-less sprites (clouds) would bind
-		// their texture to whatever unit was current.
-		gl.activeTexture(gl.TEXTURE0);
-		gl.uniform1i(uniform.uDiffuse, 0);
-		gl.uniform1i(uniform.uPalette, 1);
-
-		// Camera position for billboarding
-		gl.uniform1f(uniform.uCameraZoom, Camera.zoom);
-		gl.uniform1f(uniform.uCameraLatitude, Camera.getLatitude());
-		gl.uniform1i(uniform.uDisableDepthCorrection, (_disableDepthCorrection = false));
-
-		// Enable all attributes
-		gl.enableVertexAttribArray(attribute.aPosition);
-		gl.enableVertexAttribArray(attribute.aTextureCoord);
-		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
-
-		// Link attribute
-		gl.vertexAttribPointer(attribute.aPosition, 2, gl.FLOAT, false, 4 * 4, 0);
-		gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 4 * 4, 2 * 4);
-
 		// Binding 3D context
 		this.render = RenderCanvas3D;
 		this.xSize = 5;
@@ -492,10 +426,6 @@ class SpriteRenderer {
 	 */
 	static unbind(gl) {
 		_batcher.flush(gl);
-		const attribute = _program.attribute;
-
-		gl.disableVertexAttribArray(attribute.aPosition);
-		gl.disableVertexAttribArray(attribute.aTextureCoord);
 	}
 
 	/**
