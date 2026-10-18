@@ -90,20 +90,17 @@ class SpriteBatcher {
 	get hasPending() {
 		return this._count > 0;
 	}
-	has(srcTexture) {
-		return this._entries.has(srcTexture);
-	}
+
 	init(gl) {
-		const alive = this._program && gl.isProgram(this._program.program) && gl.isVertexArray(this._vao);
+		const alive = !!this._program && gl.isProgram(this._program) && gl.isVertexArray(this._vao);
 		if (this._gl === gl && alive) return;
 		if (!alive) {
-			// Context lost/restored: old handles are invalid, rebuild everything.
+			// Context lost/restored: handles are dead, nothing to delete.
 			this._program = this._paletteManager = null;
 			this._quadBuffer = this._instanceBuffer = this._vao = null;
 			this._glDepthTest = this._glDepthMask = null;
 			this._count = 0;
 		}
-
 		this._gl = gl;
 
 		if (!this._program) {
@@ -362,7 +359,7 @@ class SpriteBatcher {
 		if (this._vao) gl.deleteVertexArray(this._vao);
 		if (this._quadBuffer) gl.deleteBuffer(this._quadBuffer);
 		if (this._instanceBuffer) gl.deleteBuffer(this._instanceBuffer);
-		if (this._program && this._program.program) gl.deleteProgram(this._program.program);
+		if (this._program) gl.deleteProgram(this._program);
 
 		this._paletteManager = null;
 		this._vao = null;

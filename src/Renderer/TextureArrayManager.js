@@ -221,6 +221,10 @@ export default class TextureArrayManager {
 		return true;
 	}
 
+	has(srcTexture) {
+		return this._entries.has(srcTexture);
+	}
+
 	_blitIntoLayer(srcTexture, layer, width, height) {
 		const gl = this._gl;
 		const prevRead = gl.getParameter(gl.READ_FRAMEBUFFER_BINDING);
