@@ -230,9 +230,9 @@ function calcNormal_NONE(out) {
 }
 
 /**
- * Calculate normals (FLAT type)
+ * Calculate normals (FLAT type) - uses identity normalMat (local space)
  */
-function calcNormal_FLAT(node, out, normalMat, groupUsed) {
+function calcNormal_FLAT(node, out, groupUsed) {
 	let i, j, count;
 	let face;
 	const temp_vec = _scratchTempVec;
@@ -244,11 +244,10 @@ function calcNormal_FLAT(node, out, normalMat, groupUsed) {
 
 		vec3.calcNormal(vertices[face.vertidx[0]], vertices[face.vertidx[1]], vertices[face.vertidx[2]], temp_vec);
 
-		out[j] = normalMat[0] * temp_vec[0] + normalMat[4] * temp_vec[1] + normalMat[8] * temp_vec[2] + normalMat[12];
-		out[j + 1] =
-			normalMat[1] * temp_vec[0] + normalMat[5] * temp_vec[1] + normalMat[9] * temp_vec[2] + normalMat[13];
-		out[j + 2] =
-			normalMat[2] * temp_vec[0] + normalMat[6] * temp_vec[1] + normalMat[10] * temp_vec[2] + normalMat[14];
+		// Identity matrix: just copy temp_vec
+		out[j] = temp_vec[0];
+		out[j + 1] = temp_vec[1];
+		out[j + 2] = temp_vec[2];
 
 		if (face.smoothGroup !== undefined) {
 			groupUsed[face.smoothGroup] = true;
@@ -389,28 +388,10 @@ function generate_mesh_SMOOTH(node, vert, shadeGroup, mesh) {
 }
 
 /**
- * Compile a node at a specific animation frame
+ * Get node matrix at a specific animation frame (world space, no camera view)
+ * Returns the node's world matrix in outMat, and extracts rotation-only normal matrix to outNormalMat (mat3)
  */
-function compileNodeAtFrame(node, instanceMatrix, frame, animLen) {
-	const modelViewMat = _scratchModelViewMat;
-	const normalMat = _scratchNormalMat;
-
-	const textures = node.textures;
-	const faces = node.faces;
-	const vertices = node.vertices;
-
-	const mesh = {};
-	const mesh_size = [];
-
-	// Reuse module-level flags; clear first since callers OR-into it.
-	for (let g = 0; g < 32; g++) {
-		_shadeGroup[g] = null;
-		_shadeGroupUsed[g] = false;
-	}
-
-	let i, x, y, z, count;
-
-	// Calculate animated matrix
+function getNodeMatrixAtFrame(node, instanceMatrix, frame, animLen, outMat, outNormalMat) {
 	const matrix = _scratchMatrix;
 	mat4.identity(matrix);
 
@@ -457,11 +438,35 @@ function compileNodeAtFrame(node, instanceMatrix, frame, animLen) {
 
 	mat4.multiply(matrix, matrix, mat3.toMat4(node.mat3, _scratchMat4Node));
 
-	// Multiply with instance matrix
-	mat4.multiply(modelViewMat, instanceMatrix, matrix);
-	mat4.extractRotation(normalMat, modelViewMat);
+	// Multiply with instance matrix to get final world matrix
+	mat4.multiply(outMat, instanceMatrix, matrix);
 
-	// Generate new vertices
+	// Extract rotation-only normal matrix (mat3) from world matrix
+	mat4.extractRotation(_scratchNormalMat, outMat);
+	mat3.fromMat4(outNormalMat, _scratchNormalMat);
+}
+
+/**
+ * Compile a node in LOCAL space (no modelViewMat, no instance matrix)
+ * Returns mesh grouped by texture, with vertices in local space and normals in local space
+ */
+function compileNodeLocal(node) {
+	const textures = node.textures;
+	const faces = node.faces;
+	const vertices = node.vertices;
+
+	const mesh = {};
+	const mesh_size = [];
+
+	// Reuse module-level flags; clear first since callers OR-into it.
+	for (let g = 0; g < 32; g++) {
+		_shadeGroup[g] = null;
+		_shadeGroupUsed[g] = false;
+	}
+
+	let i, x, y, z, count;
+
+	// Use raw vertices (local space)
 	count = vertices.length;
 	const vert = new Float32Array(count * 3);
 	for (i = 0; i < count; ++i) {
@@ -469,12 +474,12 @@ function compileNodeAtFrame(node, instanceMatrix, frame, animLen) {
 		y = vertices[i][1];
 		z = vertices[i][2];
 
-		vert[i * 3 + 0] = modelViewMat[0] * x + modelViewMat[4] * y + modelViewMat[8] * z + modelViewMat[12];
-		vert[i * 3 + 1] = modelViewMat[1] * x + modelViewMat[5] * y + modelViewMat[9] * z + modelViewMat[13];
-		vert[i * 3 + 2] = modelViewMat[2] * x + modelViewMat[6] * y + modelViewMat[10] * z + modelViewMat[14];
+		vert[i * 3 + 0] = x;
+		vert[i * 3 + 1] = y;
+		vert[i * 3 + 2] = z;
 	}
 
-	// Generate face normals
+	// Generate face normals (local space)
 	const face_normal = new Float32Array(faces.length * 3);
 
 	// Setup mesh slot array
@@ -492,7 +497,7 @@ function compileNodeAtFrame(node, instanceMatrix, frame, animLen) {
 		mesh[textures[i]] = new Float32Array(mesh_size[textures[i]] * 9 * 3);
 	}
 
-	// Calculate normals based on shading type
+	// Calculate normals based on shading type (local space)
 	switch (node.main.shadeType) {
 		default:
 		case 0: // NONE
@@ -501,12 +506,12 @@ function compileNodeAtFrame(node, instanceMatrix, frame, animLen) {
 			break;
 
 		case 1: // FLAT
-			calcNormal_FLAT(node, face_normal, normalMat, _shadeGroupUsed);
+			calcNormal_FLAT(node, face_normal, _shadeGroupUsed);
 			generate_mesh_FLAT(node, vert, face_normal, mesh);
 			break;
 
 		case 2: // SMOOTH
-			calcNormal_FLAT(node, face_normal, normalMat, _shadeGroupUsed);
+			calcNormal_FLAT(node, face_normal, _shadeGroupUsed);
 			calcNormal_SMOOTH(node, face_normal, _shadeGroupUsed, _shadeGroup);
 			generate_mesh_SMOOTH(node, vert, _shadeGroup, mesh);
 			break;
@@ -516,107 +521,29 @@ function compileNodeAtFrame(node, instanceMatrix, frame, animLen) {
 }
 
 /**
- * Rebuild mesh buffer at current frame
+ * Get node matrix for non-animated model (mirrors Node.compile in Loaders/Model.js)
+ * Uses node.matrix which already contains the accumulated parent transform.
  */
-function rebuildMeshAtFrame(self, gl, frame) {
-	const model = self.model;
-	const nodes = model.nodes;
-	const instances = model.instances;
-	const objects = [];
-	const infos = [];
-	let total = 0;
+function getNodeMatrixStatic(node, instanceMatrix, outMat, outNormalMat) {
+	const matrix = _scratchMatrix;
+	mat4.identity(matrix);
 
-	// Compile all nodes at current frame
-	for (let ni = 0; ni < nodes.length; ni++) {
-		for (let ii = 0; ii < instances.length; ii++) {
-			const mesh = compileNodeAtFrame(nodes[ni], instances[ii], frame, model.animLen);
-			const textureKeys = Object.keys(mesh);
+	mat4.translate(matrix, matrix, [-node.main.box.center[0], -node.main.box.max[1], -node.main.box.center[2]]);
 
-			for (let ki = 0; ki < textureKeys.length; ki++) {
-				const texIdx = textureKeys[ki];
-				objects.push({
-					texture: model.textures[texIdx],
-					alpha: model.alpha,
-					mesh: mesh[texIdx]
-				});
-				total += mesh[texIdx].length;
-			}
-		}
+	// node.matrix = parent-accumulated transform (baseMatrix + pos + rot + scale)
+	// set by Node.calcBoundingBox during model load — this is the part that was missing
+	mat4.multiply(matrix, matrix, node.matrix);
+
+	if (!node.is_only) {
+		mat4.translate(matrix, matrix, node.offset);
 	}
 
-	// Create buffer
-	const buffer = new Float32Array(total);
-	let offset = 0;
-	let i;
-	for (i = 0; i < objects.length; i++) {
-		const obj = objects[i];
-		const length = obj.mesh.length;
+	mat4.multiply(matrix, matrix, mat3.toMat4(node.mat3, _scratchMat4Node));
 
-		infos[i] = {
-			texture: 'data/texture/' + obj.texture,
-			vertOffset: offset / 9,
-			vertCount: length / 9
-		};
+	mat4.multiply(outMat, instanceMatrix, matrix);
 
-		buffer.set(obj.mesh, offset);
-		offset += length;
-	}
-
-	// Update GPU buffer
-	if (!self.buffer) {
-		self.buffer = gl.createBuffer();
-	}
-
-	gl.bindBuffer(gl.ARRAY_BUFFER, self.buffer);
-
-	// If buffer size is the same, just update data. Otherwise, reallocate buffer storage
-	if (self._bufferSize === buffer.byteLength) {
-		gl.bufferSubData(gl.ARRAY_BUFFER, 0, buffer);
-	} else {
-		gl.bufferData(gl.ARRAY_BUFFER, buffer, gl.DYNAMIC_DRAW);
-		self._bufferSize = buffer.byteLength;
-	}
-
-	// Update objects info
-	if (self.objects.length !== infos.length) {
-		// Need to reload textures
-		for (i = 0; i < self.objects.length; i++) {
-			if (self.objects[i] && self.objects[i].texture) {
-				gl.deleteTexture(self.objects[i].texture);
-			}
-		}
-		self.objects = new Array(infos.length);
-		for (i = 0; i < infos.length; i++) {
-			self.objects[i] = {
-				vertCount: infos[i].vertCount,
-				vertOffset: infos[i].vertOffset,
-				complete: false,
-				texture: null
-			};
-
-			(function (idx, texturePath) {
-				Client.loadFile(
-					texturePath,
-					function (data) {
-						WebGL.texture(gl, data, function (texture) {
-							self.objects[idx].texture = texture;
-							self.objects[idx].complete = true;
-						});
-					},
-					function () {
-						// Texture load failed, mark as complete anyway
-						self.objects[idx].complete = true;
-					}
-				);
-			})(i, infos[i].texture);
-		}
-	} else {
-		// Just update vertex offsets and counts
-		for (i = 0; i < infos.length; i++) {
-			self.objects[i].vertCount = infos[i].vertCount;
-			self.objects[i].vertOffset = infos[i].vertOffset;
-		}
-	}
+	mat4.extractRotation(_scratchNormalMat, outMat);
+	mat3.fromMat4(outNormalMat, _scratchNormalMat);
 }
 
 function initModel(gl, data) {
@@ -631,8 +558,7 @@ function initModel(gl, data) {
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
 
-	gl.bufferData(gl.ARRAY_BUFFER, data.buffer, this.isAnimated ? gl.DYNAMIC_DRAW : gl.STATIC_DRAW);
-	this._bufferSize = data.buffer.byteLength;
+	gl.bufferData(gl.ARRAY_BUFFER, data.buffer, gl.STATIC_DRAW);
 
 	function onTextureLoaded(texture, i) {
 		self.objects[i].texture = texture;
@@ -648,8 +574,30 @@ function initModel(gl, data) {
 		this.objects[i].vertCount = data.infos[i].vertCount;
 		this.objects[i].vertOffset = data.infos[i].vertOffset;
 		this.objects[i].complete = false;
+		this.objects[i].modelMat = data.infos[i].modelMat;
+		this.objects[i].normalMat = data.infos[i].normalMat;
+		this.objects[i].nodeIndex = data.infos[i].nodeIndex;
+		this.objects[i].instIndex = data.infos[i].instIndex;
 
 		WebGL.texture(gl, data.infos[i].texture, onTextureLoaded, i);
+	}
+}
+
+/**
+ * Update node matrices for current animation frame
+ * Called once per frame for animated models
+ */
+function updateNodeMatrices(self, frame) {
+	const model = self.model;
+	const nodes = model.nodes;
+	const instances = model.instances;
+
+	for (let i = 0, count = self.objects.length; i < count; ++i) {
+		const obj = self.objects[i];
+		const node = nodes[obj.nodeIndex];
+		const instanceMatrix = instances[obj.instIndex];
+
+		getNodeMatrixAtFrame(node, instanceMatrix, frame, model.animLen, obj.modelMat, obj.normalMat);
 	}
 }
 
@@ -683,7 +631,7 @@ class RsmEffect {
 
 	init(gl, tick) {
 		const self = this;
-		let i, count, j, size, total, offset, length; /*, pos -UNUSED*/
+		let count, total, offset, length;
 
 		Client.getFile(this.filename, function (buf) {
 			self.model = new Model(buf);
@@ -705,78 +653,127 @@ class RsmEffect {
 				}
 			}
 
-			const objects = [],
-				infos = [];
-			let meshes, index, object;
+			const objects = [];
+			let object;
 
 			// Create model in world
 			self.globalParameters.filename = self.filename.replace('data/model/', '') + Math.floor(Math.random() * 15);
 			self.model.createInstance(self.globalParameters, 0, 0);
 
-			// Compile model
-			const data = self.model.compile();
-			count = data.meshes.length;
-			total = 0;
+			// Compile each node in LOCAL space (no instance matrix)
+			const nodes = self.model.nodes;
+			const instances = self.model.instances;
 
-			// Extract meshes
-			for (i = 0, count = data.meshes.length; i < count; ++i) {
-				meshes = data.meshes[i];
-				index = Object.keys(meshes);
+			for (let ni = 0; ni < nodes.length; ni++) {
+				const localMesh = compileNodeLocal(nodes[ni]);
+				const textureKeys = Object.keys(localMesh);
 
-				for (j = 0, size = index.length; j < size; ++j) {
+				for (let ki = 0; ki < textureKeys.length; ki++) {
+					const texIdx = textureKeys[ki];
 					objects.push({
-						texture: data.textures[index[j]],
+						texture: self.model.textures[texIdx],
 						alpha: self.model.alpha,
-						mesh: meshes[index[j]]
+						mesh: localMesh[texIdx],
+						nodeIndex: ni
 					});
-
-					total += meshes[index[j]].length;
 				}
 			}
 
-			const buffer = new Float32Array(total);
-			count = objects.length;
-			//pos = 0; // UNUSED
-			offset = 0;
+			total = 0;
+			const objCount = objects.length;
 
-			// Merge meshes to buffer
-			for (i = 0; i < count; ++i) {
+			// Merge node meshes to buffer once (without duplicating per instance)
+			for (let i = 0; i < objCount; ++i) {
 				object = objects[i];
 				length = object.mesh.length;
 
-				infos[i] = {
-					texture: 'data/texture/' + object.texture,
-					vertOffset: offset / 9,
-					vertCount: length / 9
-				};
+				object.vertOffset = total / 9;
+				object.vertCount = length / 9;
 
-				// Add to buffer
+				total += length;
+			}
+
+			const buffer = new Float32Array(total);
+			offset = 0;
+
+			for (let i = 0; i < objCount; ++i) {
+				object = objects[i];
+				length = object.mesh.length;
+
 				buffer.set(object.mesh, offset);
 				offset += length;
 			}
 
-			// Load textures
-			i = -1;
+			// Now create draw objects for each instance referencing the shared node mesh vertices
+			const drawInfos = [];
+
+			for (let ii = 0; ii < instances.length; ii++) {
+				for (let oi = 0; oi < objCount; oi++) {
+					const obj = objects[oi];
+					drawInfos.push({
+						texture: 'data/texture/' + obj.texture,
+						vertOffset: obj.vertOffset,
+						vertCount: obj.vertCount,
+						nodeIndex: obj.nodeIndex,
+						instIndex: ii,
+						modelMat: mat4.create(),
+						normalMat: mat3.create()
+					});
+				}
+			}
+
+			count = drawInfos.length;
+
+			// Load textures with deduplication
+			const textureCache = new Map();
+			let i = -1;
 
 			function loadNextTexture() {
 				// Loading complete, rendering...
 				if (++i === count) {
-					// Initialize renderer
+					// Initialize renderer and populate self.objects
 					initModel.call(self, gl, {
 						buffer: buffer,
-						infos: infos
+						infos: drawInfos
 					});
+
+					// Initialize matrices for first frame (frame 0) if animated, or once if static
+					if (self.isAnimated) {
+						updateNodeMatrices(self, 0);
+					} else {
+						// Static models: use node.matrix (accumulated hierarchy), same as Node.compile
+						for (let k = 0; k < count; ++k) {
+							const obj = self.objects[k];
+							getNodeMatrixStatic(
+								nodes[obj.nodeIndex],
+								instances[obj.instIndex],
+								obj.modelMat,
+								obj.normalMat
+							);
+						}
+					}
+
 					self.ready = true;
 					return;
 				}
 
+				const texPath = drawInfos[i].texture;
+				if (textureCache.has(texPath)) {
+					drawInfos[i].texture = textureCache.get(texPath);
+					loadNextTexture();
+					return;
+				}
+
 				Client.loadFile(
-					infos[i].texture,
+					texPath,
 					_data => {
-						infos[i].texture = _data;
+						textureCache.set(texPath, _data);
+						drawInfos[i].texture = _data;
 						loadNextTexture();
 					},
-					loadNextTexture
+					() => {
+						loadNextTexture();
+					}
 				);
 			}
 
@@ -811,8 +808,9 @@ class RsmEffect {
 
 		this.ready = false;
 	}
+
 	static beforeRender(gl, modelView, projection, fog, tick) {
-		// Calculate normal mat
+		// Calculate normal mat (view-space normal matrix)
 		mat4.toInverseMat3(modelView, _normalMat);
 		mat3.transpose(_normalMat, _normalMat);
 
@@ -859,7 +857,7 @@ class RsmEffect {
 			const frame = Math.floor(((elapsed * this.fps) / 1000) % this.animLen);
 
 			if (frame !== this.lastFrame) {
-				rebuildMeshAtFrame(this, gl, frame);
+				updateNodeMatrices(this, frame);
 				this.lastFrame = frame;
 			}
 		}
@@ -880,6 +878,8 @@ class RsmEffect {
 		for (let i = 0, count = this.objects.length; i < count; ++i) {
 			if (this.objects[i] && this.objects[i].complete) {
 				gl.bindTexture(gl.TEXTURE_2D, this.objects[i].texture);
+				gl.uniformMatrix4fv(uniform.uModelMat, false, this.objects[i].modelMat);
+				gl.uniformMatrix3fv(uniform.uNodeNormalMat, false, this.objects[i].normalMat);
 				gl.drawArrays(gl.TRIANGLES, this.objects[i].vertOffset, this.objects[i].vertCount);
 			}
 		}
