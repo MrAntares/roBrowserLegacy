@@ -68,26 +68,34 @@ const htmlText = `
 `;
 
 /** Seed the preference the way Preferences.save would have left it. */
-function savePreference(reduce) {
-	localStorage.setItem(NAME, JSON.stringify({ reduce, _version: 1.0 }));
+function savePreference(prefs) {
+	localStorage.setItem(NAME, JSON.stringify({ ...prefs, _version: 1.0 }));
 }
 
-function mount(expandedHeight) {
-	const Component = createInventory({ name: NAME, htmlText, cssText: '', defaultHeight: 2 });
+// Measures like a browser: nothing while hidden, the inline height when set,
+// the stylesheet's height otherwise.
+function measureLikeABrowser(host, cssHeight) {
+	host.getBoundingClientRect = () => {
+		const height = host.style.display === 'none' ? 0 : parseInt(host.style.height, 10) || cssHeight;
+		return { height, width: 300, top: 0, left: 0, right: 300, bottom: height };
+	};
+}
+
+function mount({ resizableHeight = false, cssHeight = 193 } = {}) {
+	const Component = createInventory({ name: NAME, htmlText, cssText: '', defaultHeight: 2, resizableHeight });
 	Component.getRoot().innerHTML = htmlText;
 	Component.init();
-	if (expandedHeight !== undefined) {
-		Component._host.getBoundingClientRect = () => ({
-			height: expandedHeight,
-			width: 300,
-			top: 0,
-			left: 0,
-			right: 300,
-			bottom: expandedHeight
-		});
-	}
+	measureLikeABrowser(Component._host, cssHeight);
 	Component.onAppend();
 	return Component;
+}
+
+function clickMini(Component) {
+	Component.getRoot().querySelector('.titlebar .mini').click();
+}
+
+function panelDisplay(Component) {
+	return Component.getRoot().querySelector('.panel').style.display;
 }
 
 describe('inventory window, restoring the reduced preference on reopen', () => {
@@ -100,22 +108,67 @@ describe('inventory window, restoring the reduced preference on reopen', () => {
 	});
 
 	it('comes back reduced when it was saved reduced', () => {
-		savePreference(true);
+		savePreference({ show: true, reduce: true });
 
 		const Component = mount();
-		const root = Component.getRoot();
 
 		expect(Component._host.style.height).toBe('17px');
-		expect(root.querySelector('.panel').style.display).toBe('none');
+		expect(panelDisplay(Component)).toBe('none');
 	});
 
 	it('comes back expanded when it was saved expanded', () => {
-		savePreference(false);
+		savePreference({ show: true, reduce: false });
 
-		const Component = mount(200);
-		const root = Component.getRoot();
+		const Component = mount();
 
 		expect(Component._host.style.height).not.toBe('17px');
-		expect(root.querySelector('.panel').style.display).not.toBe('none');
+		expect(panelDisplay(Component)).not.toBe('none');
+	});
+
+	it('opens expanded when it was saved hidden and expanded', () => {
+		savePreference({ show: false, reduce: false });
+
+		const Component = mount();
+		Component._host.style.display = '';
+
+		expect(Component._host.getBoundingClientRect().height).toBe(193);
+		expect(panelDisplay(Component)).not.toBe('none');
+	});
+
+	it('expands to its full height after being saved hidden and reduced', () => {
+		savePreference({ show: false, reduce: true });
+
+		const Component = mount();
+		Component._host.style.display = '';
+		clickMini(Component);
+
+		expect(Component._host.getBoundingClientRect().height).toBe(193);
+		expect(panelDisplay(Component)).toBe('flex');
+	});
+
+	it('expands to its full height after a reduced close and reopen', () => {
+		savePreference({ show: true, reduce: false });
+
+		const Component = mount();
+		clickMini(Component);
+		Component.onRemove();
+		Component.onAppend();
+		clickMini(Component);
+
+		expect(Component._host.getBoundingClientRect().height).toBe(193);
+		expect(panelDisplay(Component)).toBe('flex');
+	});
+
+	it('keeps the resizable height of V0 across a reduced close and reopen', () => {
+		savePreference({ show: true, reduce: false, width: 7, height: 4 });
+
+		const Component = mount({ resizableHeight: true });
+		const expanded = Component._host.style.height;
+		clickMini(Component);
+		Component.onRemove();
+		Component.onAppend();
+		clickMini(Component);
+
+		expect(Component._host.style.height).toBe(expanded);
 	});
 });
