@@ -257,6 +257,8 @@ class AttachmentManager {
 				}
 
 				if (gl) {
+					// Submit queued sprites before the STR draws directly, preserving order.
+					SpriteRenderer.unbind(gl);
 					// Pass true for disableDepthTest since this is an entity attachment
 					StrEffect.beforeRender(gl, Camera.modelView, Camera.projection, _defaultFog, tick, true);
 					strEffect.render(gl, tick);
