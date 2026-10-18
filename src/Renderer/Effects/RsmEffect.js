@@ -400,7 +400,11 @@ function getNodeMatrixAtFrame(ctx, node, instanceMatrix, frame, animLen, outMat,
 	mat4.translate(matrix, matrix, ctx.vec3BoxCenter);
 
 	const nodeMatrix = ctx.nodeMatrix;
-	mat4.identity(nodeMatrix);
+	if (node.baseMatrix) {
+		mat4.copy(nodeMatrix, node.baseMatrix);
+	} else {
+		mat4.identity(nodeMatrix);
+	}
 
 	const animPos = getPositionAtFrame(ctx, node.posKeyframes, frame, animLen);
 	if (animPos) {
