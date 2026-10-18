@@ -562,8 +562,6 @@ function initModel(gl, data) {
 		obj.instIndex = info.instIndex;
 		obj.applyNodeNormal = info.shadeType === 1 || info.shadeType === 2;
 		if (!info.textureData) {
-			obj.texture = null;
-			obj.complete = true;
 			continue;
 		}
 		const texPath = info.texPath;
@@ -651,17 +649,15 @@ class RsmEffect {
 			self.animLen = self.model.animLen || 0;
 			self.fps = self.model.frameRatePerSecond || 30;
 
-			if (self.animLen > 0) {
-				for (let n = 0; n < self.model.nodes.length; n++) {
-					const node = self.model.nodes[n];
-					if (
-						(node.rotKeyframes && node.rotKeyframes.length > 0) ||
-						(node.posKeyframes && node.posKeyframes.length > 0) ||
-						(node.scaleKeyFrames && node.scaleKeyFrames.length > 0)
-					) {
-						self.isAnimated = true;
-						break;
-					}
+			for (let n = 0; n < self.model.nodes.length; n++) {
+				const node = self.model.nodes[n];
+				if (
+					(node.rotKeyframes && node.rotKeyframes.length > 0) ||
+					(node.posKeyframes && node.posKeyframes.length > 0) ||
+					(node.scaleKeyFrames && node.scaleKeyFrames.length > 0)
+				) {
+					self.isAnimated = true;
+					break;
 				}
 			}
 
