@@ -78960,7 +78960,7 @@ var init_Controls = __esmMin((() => {
 }));
 //#endregion
 //#region src/Vendors/gl-matrix.js
-var exports$3, GLMAT_EPSILON, GLMAT_ARRAY_TYPE, GLMAT_RANDOM, glMatrix, vec2$4, vec3$8, vec4$8, mat2$1, mat2d, mat3$5, mat4$24, quat$2;
+var exports$3, GLMAT_EPSILON, GLMAT_ARRAY_TYPE, GLMAT_RANDOM, glMatrix, vec2$4, vec3$8, vec4$8, mat2$1, mat2d, mat3$5, mat4$23, quat$2;
 var init_gl_matrix$1 = __esmMin((() => {
 	exports$3 = {};
 	if (!GLMAT_EPSILON) GLMAT_EPSILON = 1e-6;
@@ -80959,13 +80959,13 @@ var init_gl_matrix$1 = __esmMin((() => {
 		return "mat3(" + a[0] + ", " + a[1] + ", " + a[2] + ", " + a[3] + ", " + a[4] + ", " + a[5] + ", " + a[6] + ", " + a[7] + ", " + a[8] + ")";
 	};
 	if (typeof exports$3 !== "undefined") exports$3.mat3 = mat3$5;
-	mat4$24 = {};
+	mat4$23 = {};
 	/**
 	* Creates a new identity mat4
 	*
 	* @returns {mat4} a new 4x4 matrix
 	*/
-	mat4$24.create = function() {
+	mat4$23.create = function() {
 		var out = new GLMAT_ARRAY_TYPE(16);
 		out[0] = 1;
 		out[1] = 0;
@@ -80991,7 +80991,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} a matrix to clone
 	* @returns {mat4} a new 4x4 matrix
 	*/
-	mat4$24.clone = function(a) {
+	mat4$23.clone = function(a) {
 		var out = new GLMAT_ARRAY_TYPE(16);
 		out[0] = a[0];
 		out[1] = a[1];
@@ -81018,7 +81018,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} a the source matrix
 	* @returns {mat4} out
 	*/
-	mat4$24.copy = function(out, a) {
+	mat4$23.copy = function(out, a) {
 		out[0] = a[0];
 		out[1] = a[1];
 		out[2] = a[2];
@@ -81043,7 +81043,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} out the receiving matrix
 	* @returns {mat4} out
 	*/
-	mat4$24.identity = function(out) {
+	mat4$23.identity = function(out) {
 		out[0] = 1;
 		out[1] = 0;
 		out[2] = 0;
@@ -81069,7 +81069,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} a the source matrix
 	* @returns {mat4} out
 	*/
-	mat4$24.transpose = function(out, a) {
+	mat4$23.transpose = function(out, a) {
 		if (out === a) {
 			var a01 = a[1], a02 = a[2], a03 = a[3], a12 = a[6], a13 = a[7], a23 = a[11];
 			out[1] = a[4];
@@ -81111,7 +81111,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} a the source matrix
 	* @returns {mat4} out
 	*/
-	mat4$24.invert = function(out, a) {
+	mat4$23.invert = function(out, a) {
 		var a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3], a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7], a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11], a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15], b00 = a00 * a11 - a01 * a10, b01 = a00 * a12 - a02 * a10, b02 = a00 * a13 - a03 * a10, b03 = a01 * a12 - a02 * a11, b04 = a01 * a13 - a03 * a11, b05 = a02 * a13 - a03 * a12, b06 = a20 * a31 - a21 * a30, b07 = a20 * a32 - a22 * a30, b08 = a20 * a33 - a23 * a30, b09 = a21 * a32 - a22 * a31, b10 = a21 * a33 - a23 * a31, b11 = a22 * a33 - a23 * a32, det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 		if (!det) return null;
 		det = 1 / det;
@@ -81140,7 +81140,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} a the source matrix
 	* @returns {mat4} out
 	*/
-	mat4$24.adjoint = function(out, a) {
+	mat4$23.adjoint = function(out, a) {
 		var a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3], a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7], a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11], a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15];
 		out[0] = a11 * (a22 * a33 - a23 * a32) - a21 * (a12 * a33 - a13 * a32) + a31 * (a12 * a23 - a13 * a22);
 		out[1] = -(a01 * (a22 * a33 - a23 * a32) - a21 * (a02 * a33 - a03 * a32) + a31 * (a02 * a23 - a03 * a22));
@@ -81166,7 +81166,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} a the source matrix
 	* @returns {Number} determinant of a
 	*/
-	mat4$24.determinant = function(a) {
+	mat4$23.determinant = function(a) {
 		var a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3], a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7], a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11], a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15], b00 = a00 * a11 - a01 * a10, b01 = a00 * a12 - a02 * a10, b02 = a00 * a13 - a03 * a10, b03 = a01 * a12 - a02 * a11, b04 = a01 * a13 - a03 * a11, b05 = a02 * a13 - a03 * a12, b06 = a20 * a31 - a21 * a30, b07 = a20 * a32 - a22 * a30, b08 = a20 * a33 - a23 * a30, b09 = a21 * a32 - a22 * a31, b10 = a21 * a33 - a23 * a31;
 		return b00 * (a22 * a33 - a23 * a32) - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 	};
@@ -81178,7 +81178,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} b the second operand
 	* @returns {mat4} out
 	*/
-	mat4$24.multiply = function(out, a, b) {
+	mat4$23.multiply = function(out, a, b) {
 		var a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3], a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7], a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11], a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15];
 		var b0 = b[0], b1 = b[1], b2 = b[2], b3 = b[3];
 		out[0] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
@@ -81215,7 +81215,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* Alias for {@link mat4.multiply}
 	* @function
 	*/
-	mat4$24.mul = mat4$24.multiply;
+	mat4$23.mul = mat4$23.multiply;
 	/**
 	* Translate a mat4 by the given vector
 	*
@@ -81224,7 +81224,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} v vector to translate by
 	* @returns {mat4} out
 	*/
-	mat4$24.translate = function(out, a, v) {
+	mat4$23.translate = function(out, a, v) {
 		var x = v[0], y = v[1], z = v[2], a00, a01, a02, a03, a10, a11, a12, a13, a20, a21, a22, a23;
 		if (a === out) {
 			out[12] = a[0] * x + a[4] * y + a[8] * z + a[12];
@@ -81271,7 +81271,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} v the vec3 to scale the matrix by
 	* @returns {mat4} out
 	**/
-	mat4$24.scale = function(out, a, v) {
+	mat4$23.scale = function(out, a, v) {
 		var x = v[0], y = v[1], z = v[2];
 		out[0] = a[0] * x;
 		out[1] = a[1] * x;
@@ -81300,7 +81300,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} axis the axis to rotate around
 	* @returns {mat4} out
 	*/
-	mat4$24.rotate = function(out, a, rad, axis) {
+	mat4$23.rotate = function(out, a, rad, axis) {
 		var x = axis[0], y = axis[1], z = axis[2], len = Math.sqrt(x * x + y * y + z * z), s, c, t, a00, a01, a02, a03, a10, a11, a12, a13, a20, a21, a22, a23, b00, b01, b02, b10, b11, b12, b20, b21, b22;
 		if (Math.abs(len) < GLMAT_EPSILON) return null;
 		len = 1 / len;
@@ -81359,7 +81359,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} rad the angle to rotate the matrix by
 	* @returns {mat4} out
 	*/
-	mat4$24.rotateX = function(out, a, rad) {
+	mat4$23.rotateX = function(out, a, rad) {
 		var s = Math.sin(rad), c = Math.cos(rad), a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7], a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11];
 		if (a !== out) {
 			out[0] = a[0];
@@ -81389,7 +81389,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} rad the angle to rotate the matrix by
 	* @returns {mat4} out
 	*/
-	mat4$24.rotateY = function(out, a, rad) {
+	mat4$23.rotateY = function(out, a, rad) {
 		var s = Math.sin(rad), c = Math.cos(rad), a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3], a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11];
 		if (a !== out) {
 			out[4] = a[4];
@@ -81419,7 +81419,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} rad the angle to rotate the matrix by
 	* @returns {mat4} out
 	*/
-	mat4$24.rotateZ = function(out, a, rad) {
+	mat4$23.rotateZ = function(out, a, rad) {
 		var s = Math.sin(rad), c = Math.cos(rad), a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3], a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7];
 		if (a !== out) {
 			out[8] = a[8];
@@ -81456,7 +81456,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} v Translation vector
 	* @returns {mat4} out
 	*/
-	mat4$24.fromRotationTranslation = function(out, q, v) {
+	mat4$23.fromRotationTranslation = function(out, q, v) {
 		var x = q[0], y = q[1], z = q[2], w = q[3], x2 = x + x, y2 = y + y, z2 = z + z, xx = x * x2, xy = x * y2, xz = x * z2, yy = y * y2, yz = y * z2, zz = z * z2, wx = w * x2, wy = w * y2, wz = w * z2;
 		out[0] = 1 - (yy + zz);
 		out[1] = xy + wz;
@@ -81484,7 +81484,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	*
 	* @returns {mat4} out
 	*/
-	mat4$24.fromQuat = function(out, q) {
+	mat4$23.fromQuat = function(out, q) {
 		var x = q[0], y = q[1], z = q[2], w = q[3], x2 = x + x, y2 = y + y, z2 = z + z, xx = x * x2, xy = x * y2, xz = x * z2, yy = y * y2, yz = y * z2, zz = z * z2, wx = w * x2, wy = w * y2, wz = w * z2;
 		out[0] = 1 - (yy + zz);
 		out[1] = xy + wz;
@@ -81516,7 +81516,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} far Far bound of the frustum
 	* @returns {mat4} out
 	*/
-	mat4$24.frustum = function(out, left, right, bottom, top, near, far) {
+	mat4$23.frustum = function(out, left, right, bottom, top, near, far) {
 		var rl = 1 / (right - left), tb = 1 / (top - bottom), nf = 1 / (near - far);
 		out[0] = near * 2 * rl;
 		out[1] = 0;
@@ -81546,7 +81546,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {number} far Far bound of the frustum
 	* @returns {mat4} out
 	*/
-	mat4$24.perspective = function(out, fovy, aspect, near, far) {
+	mat4$23.perspective = function(out, fovy, aspect, near, far) {
 		var f = 1 / Math.tan(fovy / 2), nf = 1 / (near - far);
 		out[0] = f / aspect;
 		out[1] = 0;
@@ -81578,7 +81578,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {number} far Far bound of the frustum
 	* @returns {mat4} out
 	*/
-	mat4$24.ortho = function(out, left, right, bottom, top, near, far) {
+	mat4$23.ortho = function(out, left, right, bottom, top, near, far) {
 		var lr = 1 / (left - right), bt = 1 / (bottom - top), nf = 1 / (near - far);
 		out[0] = -2 * lr;
 		out[1] = 0;
@@ -81607,9 +81607,9 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} up vec3 pointing up
 	* @returns {mat4} out
 	*/
-	mat4$24.lookAt = function(out, eye, center, up) {
+	mat4$23.lookAt = function(out, eye, center, up) {
 		var x0, x1, x2, y0, y1, y2, z0, z1, z2, len, eyex = eye[0], eyey = eye[1], eyez = eye[2], upx = up[0], upy = up[1], upz = up[2], centerx = center[0], centery = center[1], centerz = center[2];
-		if (Math.abs(eyex - centerx) < GLMAT_EPSILON && Math.abs(eyey - centery) < GLMAT_EPSILON && Math.abs(eyez - centerz) < GLMAT_EPSILON) return mat4$24.identity(out);
+		if (Math.abs(eyex - centerx) < GLMAT_EPSILON && Math.abs(eyey - centery) < GLMAT_EPSILON && Math.abs(eyez - centerz) < GLMAT_EPSILON) return mat4$23.identity(out);
 		z0 = eyex - centerx;
 		z1 = eyey - centery;
 		z2 = eyez - centerz;
@@ -81669,10 +81669,10 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} mat matrix to represent as a string
 	* @returns {String} string representation of the matrix
 	*/
-	mat4$24.str = function(a) {
+	mat4$23.str = function(a) {
 		return "mat4(" + a[0] + ", " + a[1] + ", " + a[2] + ", " + a[3] + ", " + a[4] + ", " + a[5] + ", " + a[6] + ", " + a[7] + ", " + a[8] + ", " + a[9] + ", " + a[10] + ", " + a[11] + ", " + a[12] + ", " + a[13] + ", " + a[14] + ", " + a[15] + ")";
 	};
-	if (typeof exports$3 !== "undefined") exports$3.mat4 = mat4$24;
+	if (typeof exports$3 !== "undefined") exports$3.mat4 = mat4$23;
 	quat$2 = {};
 	/**
 	* Creates a new identity quat
@@ -83743,7 +83743,7 @@ var init_VerticalFlip = __esmMin((() => {
 }));
 //#endregion
 //#region src/Renderer/Map/Altitude.js
-var _cells, _types$1, mat4$23, vec3$7, vec4$7, _from, _to, _unit, _matrix$8, buffer1x1, buffer5x5, buffer7x7, buffer13x13, tmp, Altitude, TYPE_TABLE;
+var _cells, _types$1, mat4$22, vec3$7, vec4$7, _from, _to, _unit, _matrix$7, buffer1x1, buffer5x5, buffer7x7, buffer13x13, tmp, Altitude, TYPE_TABLE;
 var init_Altitude = __esmMin((() => {
 	init_gl_matrix$1();
 	init_PathFinding();
@@ -83751,11 +83751,11 @@ var init_Altitude = __esmMin((() => {
 	init_VerticalFlip();
 	_cells = null;
 	_types$1 = null;
-	({mat4: mat4$23, vec3: vec3$7, vec4: vec4$7} = exports$3);
+	({mat4: mat4$22, vec3: vec3$7, vec4: vec4$7} = exports$3);
 	_from = vec3$7.create();
 	_to = vec4$7.create();
 	_unit = vec3$7.create();
-	_matrix$8 = mat4$23.create();
+	_matrix$7 = mat4$22.create();
 	buffer1x1 = /* @__PURE__ */ new Float32Array(30);
 	buffer5x5 = /* @__PURE__ */ new Float32Array(750);
 	buffer7x7 = /* @__PURE__ */ new Float32Array(1470);
@@ -83852,18 +83852,18 @@ var init_Altitude = __esmMin((() => {
 		static intersect(modelView, projection, out) {
 			let i;
 			const count = Altitude.MAX_INTERSECT_COUNT;
-			mat4$23.invert(_matrix$8, modelView);
-			_from[0] = _matrix$8[12];
-			_from[1] = _matrix$8[13];
-			_from[2] = _matrix$8[14];
+			mat4$22.invert(_matrix$7, modelView);
+			_from[0] = _matrix$7[12];
+			_from[1] = _matrix$7[13];
+			_from[2] = _matrix$7[14];
 			_to[0] = Mouse.screen.x / Mouse.screen.width * 2 - 1;
 			_to[1] = -(Mouse.screen.y / Mouse.screen.height) * 2 + 1;
 			if (VerticalFlip.isActive()) _to[1] = -_to[1];
 			_to[2] = 1;
 			_to[3] = 1;
-			mat4$23.multiply(_matrix$8, projection, modelView);
-			mat4$23.invert(_matrix$8, _matrix$8);
-			vec4$7.transformMat4(_to, _to, _matrix$8);
+			mat4$22.multiply(_matrix$7, projection, modelView);
+			mat4$22.invert(_matrix$7, _matrix$7);
+			vec4$7.transformMat4(_to, _to, _matrix$7);
 			_to[0] /= _to[3];
 			_to[1] /= _to[3];
 			_to[2] /= _to[3];
@@ -207668,9 +207668,9 @@ function RenderCanvas3D(isBlendModeOne) {
 	gl.uniform1f(uniform.uSpriteRendererZindex, this.zIndex++);
 	if (this.angle !== _angle) {
 		_angle = this.angle;
-		mat4$22.identity(_matrix$7);
-		if (_angle) mat4$22.rotateZ(_matrix$7, _matrix$7, -_angle / 180 * Math.PI);
-		gl.uniformMatrix4fv(uniform.uSpriteRendererAngle, false, _matrix$7);
+		mat4$21.identity(_matrix$6);
+		if (_angle) mat4$21.rotateZ(_matrix$6, _matrix$6, -_angle / 180 * Math.PI);
+		gl.uniformMatrix4fv(uniform.uSpriteRendererAngle, false, _matrix$6);
 	}
 	_offset[0] = this.offset[0] / 175 * this.xSize;
 	_offset[1] = this.offset[1] / 175 * this.ySize - .5;
@@ -207749,14 +207749,14 @@ function fillImageData(imageData, frame, pal, color) {
 		}
 	}
 }
-var mat4$22, RenderCanvas2D, _program$24, _buffer$18, _ctx$4, _gl$2, _groupId, _lastGroupId, _shadow, _angle, _depth, _disableDepthCorrection, _depthMask, _depthTest, _texture$4, _usepal, _pos$8, _matrix$7, _size$7, _offset, SpriteRenderer;
+var mat4$21, RenderCanvas2D, _program$24, _buffer$18, _ctx$4, _gl$2, _groupId, _lastGroupId, _shadow, _angle, _depth, _disableDepthCorrection, _depthMask, _depthTest, _texture$4, _usepal, _pos$8, _matrix$6, _size$7, _offset, SpriteRenderer;
 var init_SpriteRenderer = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
 	init_Camera();
 	init_SpriteRenderer$2();
 	init_SpriteRenderer$1();
-	mat4$22 = gl_matrix_default.mat4;
+	mat4$21 = gl_matrix_default.mat4;
 	RenderCanvas2D = (function RenderCanvas2DClosure() {
 		const _cache = /* @__PURE__ */ new WeakMap();
 		const MAX_COLORS_PER_PALETTE = 8;
@@ -207837,7 +207837,7 @@ var init_SpriteRenderer = __esmMin((() => {
 	_texture$4 = null;
 	_usepal = null;
 	_pos$8 = /* @__PURE__ */ new Int16Array(2);
-	_matrix$7 = /* @__PURE__ */ new Float32Array(16);
+	_matrix$6 = /* @__PURE__ */ new Float32Array(16);
 	_size$7 = /* @__PURE__ */ new Float32Array(2);
 	_offset = /* @__PURE__ */ new Float32Array(2);
 	SpriteRenderer = class {
@@ -207953,7 +207953,7 @@ var init_SpriteRenderer = __esmMin((() => {
 			gl.useProgram(_program$24);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
-			gl.uniformMatrix4fv(uniform.uViewModelMat, false, mat4$22.invert(_matrix$7, modelView));
+			gl.uniformMatrix4fv(uniform.uViewModelMat, false, mat4$21.invert(_matrix$6, modelView));
 			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
 			gl.uniform1f(uniform.uFogNear, fog.near);
 			gl.uniform1f(uniform.uFogFar, fog.far);
@@ -208191,14 +208191,14 @@ var init_OccluderFade$1 = __esmMin((() => {
 }));
 //#endregion
 //#region src/Renderer/Map/OccluderFade.js
-var mat4$21, vec3$6, SHADER_INCLUDE, MODE, SETTING, QUERY, QUERY_RADIUS, FADE_IN_MS, FADE_OUT_MS, _inverse, _eye, _queries, _queryPending, _queryHit, _strength, _lastTick, OccluderFade;
+var mat4$20, vec3$6, SHADER_INCLUDE, MODE, SETTING, QUERY, QUERY_RADIUS, FADE_IN_MS, FADE_OUT_MS, _inverse, _eye, _queries, _queryPending, _queryHit, _strength, _lastTick, OccluderFade;
 var init_OccluderFade = __esmMin((() => {
 	init_OccluderFade$1();
 	init_Camera();
 	init_Graphics();
 	init_SpriteRenderer();
 	init_gl_matrix();
-	({mat4: mat4$21, vec3: vec3$6} = gl_matrix_default);
+	({mat4: mat4$20, vec3: vec3$6} = gl_matrix_default);
 	SHADER_INCLUDE = "// #include OccluderFade.glsl";
 	MODE = {
 		OFF: 0,
@@ -208219,7 +208219,7 @@ var init_OccluderFade = __esmMin((() => {
 	QUERY_RADIUS = .7;
 	FADE_IN_MS = 150;
 	FADE_OUT_MS = 300;
-	_inverse = mat4$21.create();
+	_inverse = mat4$20.create();
 	_eye = vec3$6.create();
 	_queries = [null, null];
 	_queryPending = [false, false];
@@ -208281,7 +208281,7 @@ var init_OccluderFade = __esmMin((() => {
 		* @param {number} tick
 		*/
 		static beginFrame(gl, modelView, tick) {
-			mat4$21.invert(_inverse, modelView);
+			mat4$20.invert(_inverse, modelView);
 			_eye[0] = _inverse[12];
 			_eye[1] = _inverse[13];
 			_eye[2] = _inverse[14];
@@ -208757,7 +208757,7 @@ function add$2(gl, modelData) {
 	const instances = [];
 	for (let i = 0; i < modelData.instances.length; i++) {
 		const instArray = modelData.instances[i];
-		const matrix = mat4$20.create();
+		const matrix = mat4$19.create();
 		for (let j = 0; j < 16; j++) matrix[j] = instArray[j];
 		instances.push(matrix);
 	}
@@ -208787,20 +208787,20 @@ function add$2(gl, modelData) {
 			_isStatic: !hasAnyAnimation,
 			_index: n,
 			_cache: {
-				local: mat4$20.create(),
-				final: mat4$20.create(),
+				local: mat4$19.create(),
+				final: mat4$19.create(),
 				instances: new Array(instances.length)
 			}
 		};
 		if (node._isStatic) {
-			const local = mat4$20.create();
-			mat4$20.identity(local);
-			mat4$20.translate(local, local, node.pos);
-			mat4$20.rotate(local, local, node.rotangle, node.rotaxis);
-			mat4$20.scale(local, local, node.scale);
+			const local = mat4$19.create();
+			mat4$19.identity(local);
+			mat4$19.translate(local, local, node.pos);
+			mat4$19.rotate(local, local, node.rotangle, node.rotaxis);
+			mat4$19.scale(local, local, node.scale);
 			node._staticLocalMatrix = local;
 		}
-		for (let k = 0; k < instances.length; k++) node._cache.instances[k] = mat4$20.create();
+		for (let k = 0; k < instances.length; k++) node._cache.instances[k] = mat4$19.create();
 		if (node.rotKeyframes) for (let rk = 0; rk < node.rotKeyframes.length; rk++) {
 			const kf = node.rotKeyframes[rk];
 			totalAnimationLength = Math.max(totalAnimationLength, kf.frame || 0);
@@ -208816,10 +208816,10 @@ function add$2(gl, modelData) {
 			totalAnimationLength = Math.max(totalAnimationLength, kf.Frame || 0);
 			kf._vec = vec3$5.fromValues(kf.Scale[0], kf.Scale[1], kf.Scale[2]);
 		}
-		const suffixMat = mat4$20.create();
-		mat4$20.identity(suffixMat);
-		if (!node.is_only) mat4$20.translate(suffixMat, suffixMat, node.offset);
-		mat4$20.multiply(suffixMat, suffixMat, mat3$4.toMat4(node.mat3, _tempMat4Node));
+		const suffixMat = mat4$19.create();
+		mat4$19.identity(suffixMat);
+		if (!node.is_only) mat4$19.translate(suffixMat, suffixMat, node.offset);
+		mat4$19.multiply(suffixMat, suffixMat, mat3$4.toMat4(node.mat3, _tempMat4Node));
 		node._cachedSuffix = suffixMat;
 		nodes.push(node);
 	}
@@ -208933,16 +208933,16 @@ function add$2(gl, modelData) {
 		_nodeMap: {},
 		_globalMatrices: new Array(nodes.length)
 	};
-	animModel._boxMat = mat4$20.create();
-	mat4$20.identity(animModel._boxMat);
-	mat4$20.translate(animModel._boxMat, animModel._boxMat, [
+	animModel._boxMat = mat4$19.create();
+	mat4$19.identity(animModel._boxMat);
+	mat4$19.translate(animModel._boxMat, animModel._boxMat, [
 		-animModel.box.center[0],
 		-animModel.box.max[1],
 		-animModel.box.center[2]
 	]);
 	for (let n = 0; n < nodes.length; n++) {
 		animModel._nodeMap[nodes[n].name] = nodes[n];
-		animModel._globalMatrices[n] = mat4$20.create();
+		animModel._globalMatrices[n] = mat4$19.create();
 	}
 	gl.bindBuffer(gl.ARRAY_BUFFER, animModel.buffer);
 	gl.bufferData(gl.ARRAY_BUFFER, staticBuffer, gl.STATIC_DRAW);
@@ -209092,24 +209092,24 @@ function updateModelBuffer(gl, model, frame, force) {
 		const globalMatrix = globalMatrices[n];
 		if (node.parentname && nodeMap[node.parentname] && node.parentname !== node.name) {
 			const parentIdx = nodeMap[node.parentname]._index;
-			mat4$20.copy(globalMatrix, globalMatrices[parentIdx]);
-		} else mat4$20.identity(globalMatrix);
-		if (node._isStatic) mat4$20.multiply(globalMatrix, globalMatrix, node._staticLocalMatrix);
+			mat4$19.copy(globalMatrix, globalMatrices[parentIdx]);
+		} else mat4$19.identity(globalMatrix);
+		if (node._isStatic) mat4$19.multiply(globalMatrix, globalMatrix, node._staticLocalMatrix);
 		else {
 			const animPos = getPositionAtFrame$2(node.posKeyframes, frame, _tempVec3);
-			mat4$20.translate(globalMatrix, globalMatrix, animPos || node.pos);
+			mat4$19.translate(globalMatrix, globalMatrix, animPos || node.pos);
 			const animRot = getRotationAtFrame$2(node.rotKeyframes, frame, _tempQuat);
 			if (animRot) {
-				mat4$20.fromQuat(_tempMat4, animRot);
-				mat4$20.multiply(globalMatrix, globalMatrix, _tempMat4);
-			} else mat4$20.rotate(globalMatrix, globalMatrix, node.rotangle, node.rotaxis);
+				mat4$19.fromQuat(_tempMat4, animRot);
+				mat4$19.multiply(globalMatrix, globalMatrix, _tempMat4);
+			} else mat4$19.rotate(globalMatrix, globalMatrix, node.rotangle, node.rotaxis);
 			const animScale = getScaleAtFrame$2(node.scaleKeyFrames, frame, _tempVec3Scale);
-			mat4$20.scale(globalMatrix, globalMatrix, animScale || node.scale);
+			mat4$19.scale(globalMatrix, globalMatrix, animScale || node.scale);
 		}
 		const finalNodeMatrix = node._cache.final;
-		mat4$20.copy(finalNodeMatrix, model._boxMat);
-		mat4$20.multiply(finalNodeMatrix, finalNodeMatrix, globalMatrix);
-		mat4$20.multiply(finalNodeMatrix, finalNodeMatrix, node._cachedSuffix);
+		mat4$19.copy(finalNodeMatrix, model._boxMat);
+		mat4$19.multiply(finalNodeMatrix, finalNodeMatrix, globalMatrix);
+		mat4$19.multiply(finalNodeMatrix, finalNodeMatrix, node._cachedSuffix);
 		node.finalMatrix = finalNodeMatrix;
 	}
 	const matrixData = model.matrixData;
@@ -209118,7 +209118,7 @@ function updateModelBuffer(gl, model, frame, force) {
 		const node = model.nodes[n];
 		for (let i = 0; i < numInstances; i++) {
 			const destMat = node._cache.instances[i];
-			mat4$20.multiply(destMat, model.instances[i], node.finalMatrix);
+			mat4$19.multiply(destMat, model.instances[i], node.finalMatrix);
 			const matrixIndex = n * numInstances + i;
 			matrixData.set(destMat, matrixIndex * 16);
 		}
@@ -209202,7 +209202,7 @@ function renderFaded(gl, modelView, projection, normalMat, fog, light) {
 function hasAnimatedModels() {
 	return _animatedModels.length > 0;
 }
-var mat3$4, mat4$20, vec3$5, quat$1, _tempVec3, _tempVec3Scale, _tempQuat, _tempMat4, _tempMat4Node, _program$21, _animatedModels, AnimatedModels_default;
+var mat3$4, mat4$19, vec3$5, quat$1, _tempVec3, _tempVec3Scale, _tempQuat, _tempMat4, _tempMat4Node, _program$21, _animatedModels, AnimatedModels_default;
 var init_AnimatedModels = __esmMin((() => {
 	init_Client();
 	init_gl_matrix();
@@ -209212,14 +209212,14 @@ var init_AnimatedModels = __esmMin((() => {
 	init_AnimatedModels$1();
 	init_OccluderFade();
 	mat3$4 = gl_matrix_default.mat3;
-	mat4$20 = gl_matrix_default.mat4;
+	mat4$19 = gl_matrix_default.mat4;
 	vec3$5 = gl_matrix_default.vec3;
 	quat$1 = gl_matrix_default.quat;
 	_tempVec3 = vec3$5.create();
 	_tempVec3Scale = vec3$5.create();
 	_tempQuat = quat$1.create();
-	_tempMat4 = mat4$20.create();
-	_tempMat4Node = mat4$20.create();
+	_tempMat4 = mat4$19.create();
+	_tempMat4Node = mat4$19.create();
 	_program$21 = null;
 	_animatedModels = [];
 	AnimatedModels_default = {
@@ -213296,8 +213296,8 @@ function render$9(gl, modelView, projection, normalMat, fog, light, tick) {
 				bones = flattenPose(_r(type.parsed, idx, sampleT), type.boneCount);
 			}
 			seen[key] = bones;
-			mat4$19.multiply(_mv, modelView, inst.world);
-			mat4$19.toInverseMat3(_mv, _nmat);
+			mat4$18.multiply(_mv, modelView, inst.world);
+			mat4$18.toInverseMat3(_mv, _nmat);
 			mat3$3.transpose(_nmat, _nmat);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, _mv);
 			gl.uniformMatrix3fv(uniform.uNormalMat, false, _nmat);
@@ -213320,7 +213320,7 @@ function render$9(gl, modelView, projection, normalMat, fog, light, tick) {
 					x2: 0,
 					y2: 0
 				});
-				mat4$19.multiply(_mvp, projection, _mv);
+				mat4$18.multiply(_mvp, projection, _mv);
 				if (!computeBaseSphereRect(_mvp, projection, box)) inst.screenRect = null;
 			}
 			let alpha = 1;
@@ -213578,7 +213578,7 @@ function clear() {
 	for (let i = 0; i < insts.length; i++) detach(insts[i]);
 	_poseCache = {};
 }
-var mat3$3, mat4$19, ALPHA_REF, _phaseDiffuse, _phaseAmbient, _phaseEnv, _gr2FlagDiffuse, _gr2EmpDiffuse, _gr2EmpAmbient, _gr2FlagAmbient, GR2_ROSTER, _program$20, _gl$1, _types, _missing, _instances, _poseCache, _dbgCellTile, _dbgTileInst, _dbgCellInited, _debugCell, BASE_SPHERE_HALF_EXTENT, _readyPromise, _mv, _mvp, _nmat, _lightView, _clip, CULL_MARGIN, CLIP_W_EPS, DIR_STEP_DEG, FADE, TEX_MISSING_PX, TEX_GREY_PX, A4_NIBBLE_EXPAND, _emblemCanvas, GR2_VERTEX_STRIDE, GR2_VERTEX_LAYOUT, GR2ModelRenderer_default;
+var mat3$3, mat4$18, ALPHA_REF, _phaseDiffuse, _phaseAmbient, _phaseEnv, _gr2FlagDiffuse, _gr2EmpDiffuse, _gr2EmpAmbient, _gr2FlagAmbient, GR2_ROSTER, _program$20, _gl$1, _types, _missing, _instances, _poseCache, _dbgCellTile, _dbgTileInst, _dbgCellInited, _debugCell, BASE_SPHERE_HALF_EXTENT, _readyPromise, _mv, _mvp, _nmat, _lightView, _clip, CULL_MARGIN, CLIP_W_EPS, DIR_STEP_DEG, FADE, TEX_MISSING_PX, TEX_GREY_PX, A4_NIBBLE_EXPAND, _emblemCanvas, GR2_VERTEX_STRIDE, GR2_VERTEX_LAYOUT, GR2ModelRenderer_default;
 var init_GR2ModelRenderer = __esmMin((() => {
 	init_Client();
 	init_gl_matrix();
@@ -213596,7 +213596,7 @@ var init_GR2ModelRenderer = __esmMin((() => {
 	init_GR2Model$1();
 	init_GR2Model();
 	mat3$3 = gl_matrix_default.mat3;
-	mat4$19 = gl_matrix_default.mat4;
+	mat4$18 = gl_matrix_default.mat4;
 	ALPHA_REF = 207 / 255;
 	_phaseDiffuse = new Float32Array([
 		128 / 255,
@@ -213658,8 +213658,8 @@ var init_GR2ModelRenderer = __esmMin((() => {
 	_debugCell = false;
 	BASE_SPHERE_HALF_EXTENT = Math.sqrt(2);
 	_readyPromise = null;
-	_mv = mat4$19.create();
-	_mvp = mat4$19.create();
+	_mv = mat4$18.create();
+	_mvp = mat4$18.create();
 	_nmat = mat3$3.create();
 	_lightView = /* @__PURE__ */ new Float32Array(3);
 	_clip = /* @__PURE__ */ new Float32Array(4);
@@ -239087,7 +239087,7 @@ var init_EnchantGrade = __esmMin((() => {
 //#region src/Renderer/Effects/StrEffect.vs?raw
 var StrEffect_default$1;
 var init_StrEffect$2 = __esmMin((() => {
-	StrEffect_default$1 = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec2 aPosition;\r\nin vec2 aTextureCoord;\r\n\r\nout vec2 vTextureCoord;\r\n\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uProjectionMat;\r\n\r\nuniform mat4 uSpriteAngle;\r\nuniform vec3 uSpritePosition;\r\nuniform vec2 uSpriteOffset;\r\nuniform float uVerticalBase;\r\n\r\nconst float pixelRatio = 1.0 / 35.0;\r\n\r\nmat4 Project( mat4 mat, vec3 pos) {\r\n\r\n	// xyz = x(-z)y + middle of cell (0.5)\r\n	float x =  pos.x + 0.5;\r\n	float y = -pos.z;\r\n	float z =  pos.y + 0.5;\r\n\r\n	// Matrix translation\r\n	mat[3].x += mat[0].x * x + mat[1].x * y + mat[2].x * z;\r\n	mat[3].y += mat[0].y * x + mat[1].y * y + mat[2].y * z;\r\n	mat[3].z += mat[0].z * x + mat[1].z * y + mat[2].z * z;\r\n	mat[3].w += mat[0].w * x + mat[1].w * y + mat[2].w * z;\r\n\r\n	// Spherical billboard\r\n	mat[0].xyz = vec3( 1.0, 0.0, 0.0 );\r\n	mat[1].xyz = vec3( 0.0, 1.0, 0.0 );\r\n	mat[2].xyz = vec3( 0.0, 0.0, 1.0 );\r\n\r\n	return mat;\r\n}\r\n\r\nvoid main(void) {\r\n	vTextureCoord = aTextureCoord;\r\n\r\n	// Calculate position base on angle and sprite offset/size\r\n	vec4 position = uSpriteAngle * vec4( aPosition.x * pixelRatio, -aPosition.y * pixelRatio, 0.0, 1.0 );\r\n	position.x   += uSpriteOffset.x * pixelRatio;\r\n	position.y   -= uSpriteOffset.y * pixelRatio + uVerticalBase;\r\n\r\n	// Project to camera plane\r\n	gl_Position    = uProjectionMat * Project(uModelViewMat, uSpritePosition) * position;\r\n	gl_Position.z -= 0.1;\r\n}";
+	StrEffect_default$1 = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec2 aPosition;\r\n\r\nout vec2 vTextureCoord;\r\n\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uProjectionMat;\r\n\r\nuniform float uSpriteAngle;\r\nuniform vec4 uCornerX;\r\nuniform vec4 uCornerY;\r\nuniform vec3 uSpritePosition;\r\nuniform vec2 uSpriteOffset;\r\nuniform float uVerticalBase;\r\n\r\nconst float pixelRatio = 1.0 / 35.0;\r\n\r\nmat4 Project( mat4 mat, vec3 pos) {\r\n\r\n	// xyz = x(-z)y + middle of cell (0.5)\r\n	float x =  pos.x + 0.5;\r\n	float y = -pos.z;\r\n	float z =  pos.y + 0.5;\r\n\r\n	// Matrix translation\r\n	mat[3].x += mat[0].x * x + mat[1].x * y + mat[2].x * z;\r\n	mat[3].y += mat[0].y * x + mat[1].y * y + mat[2].y * z;\r\n	mat[3].z += mat[0].z * x + mat[1].z * y + mat[2].z * z;\r\n	mat[3].w += mat[0].w * x + mat[1].w * y + mat[2].w * z;\r\n\r\n	// Spherical billboard\r\n	mat[0].xyz = vec3( 1.0, 0.0, 0.0 );\r\n	mat[1].xyz = vec3( 0.0, 1.0, 0.0 );\r\n	mat[2].xyz = vec3( 0.0, 0.0, 1.0 );\r\n\r\n	return mat;\r\n}\r\n\r\nvoid main(void) {\r\n	vTextureCoord = aPosition;\r\n\r\n	int corner = int(aPosition.x + aPosition.y * 2.0);\r\n	float r = radians(-uSpriteAngle);\r\n	vec2 p = vec2(uCornerX[corner] * pixelRatio, -uCornerY[corner] * pixelRatio);\r\n	vec4 position = vec4(p.x * cos(r) - p.y * sin(r), p.x * sin(r) + p.y * cos(r), 0.0, 1.0);\r\n	position.x   += uSpriteOffset.x * pixelRatio;\r\n	position.y   -= uSpriteOffset.y * pixelRatio + uVerticalBase;\r\n\r\n	// Project to camera plane\r\n	gl_Position    = uProjectionMat * Project(uModelViewMat, uSpritePosition) * position;\r\n	gl_Position.z -= 0.1;\r\n}";
 }));
 //#endregion
 //#region src/Renderer/Effects/StrEffect.fs?raw
@@ -239189,21 +239189,18 @@ function calculateAnimation(layer, keyIndex, result) {
 	}
 	return true;
 }
-var mat4$18, D3DBLEND, _program$19, _buffer$15, _bufferData, _matrix$6, _spriteOffset, _lastAngle, PIXEL_TO_WORLD_Z, anim, StrEffect;
+var D3DBLEND, _program$19, _buffer$15, _spriteOffset, _cornerX, _cornerY, PIXEL_TO_WORLD_Z, anim, StrEffect;
 var init_StrEffect = __esmMin((() => {
 	init_StrEffect$2();
 	init_StrEffect$1();
 	init_WebGL();
-	init_gl_matrix();
 	init_Client();
-	mat4$18 = gl_matrix_default.mat4;
 	D3DBLEND = {};
 	_program$19 = null;
 	_buffer$15 = null;
-	_bufferData = /* @__PURE__ */ new Float32Array(16);
-	_matrix$6 = mat4$18.create();
 	_spriteOffset = /* @__PURE__ */ new Float32Array(2);
-	_lastAngle = -1;
+	_cornerX = /* @__PURE__ */ new Float32Array(4);
+	_cornerY = /* @__PURE__ */ new Float32Array(4);
 	PIXEL_TO_WORLD_Z = 1 / 5;
 	anim = {
 		frame: 0,
@@ -239312,30 +239309,18 @@ var init_StrEffect = __esmMin((() => {
 		*/
 		renderAnimation(gl, material, animat) {
 			const uniform = _program$19.uniform;
-			const attribute = _program$19.attribute;
 			let sizeScale = 1;
 			if (this.ownerEntity) sizeScale = (this.ownerEntity.xSize + this.ownerEntity.ySize) / 2 / 5;
-			_bufferData[0] = animat.xy[0] * sizeScale;
-			_bufferData[1] = animat.xy[4] * sizeScale;
-			_bufferData[2] = 0;
-			_bufferData[3] = 0;
-			_bufferData[4] = animat.xy[1] * sizeScale;
-			_bufferData[5] = animat.xy[5] * sizeScale;
-			_bufferData[6] = 1;
-			_bufferData[7] = 0;
-			_bufferData[8] = animat.xy[3] * sizeScale;
-			_bufferData[9] = animat.xy[7] * sizeScale;
-			_bufferData[10] = 0;
-			_bufferData[11] = 1;
-			_bufferData[12] = animat.xy[2] * sizeScale;
-			_bufferData[13] = animat.xy[6] * sizeScale;
-			_bufferData[14] = 1;
-			_bufferData[15] = 1;
-			if (animat.angle !== _lastAngle) {
-				mat4$18.identity(_matrix$6);
-				mat4$18.rotateZ(_matrix$6, _matrix$6, -animat.angle / 180 * Math.PI);
-				_lastAngle = animat.angle;
-			}
+			_cornerX[0] = animat.xy[0] * sizeScale;
+			_cornerY[0] = animat.xy[4] * sizeScale;
+			_cornerX[1] = animat.xy[1] * sizeScale;
+			_cornerY[1] = animat.xy[5] * sizeScale;
+			_cornerX[2] = animat.xy[3] * sizeScale;
+			_cornerY[2] = animat.xy[7] * sizeScale;
+			_cornerX[3] = animat.xy[2] * sizeScale;
+			_cornerY[3] = animat.xy[6] * sizeScale;
+			gl.uniform4fv(uniform.uCornerX, _cornerX);
+			gl.uniform4fv(uniform.uCornerY, _cornerY);
 			let verticalBase = .5;
 			if (this.ownerEntity) {
 				_spriteOffset[0] = animat.pos[0] - 320 + (this.xOffset || 0) * PIXEL_TO_WORLD_Z * 35 * sizeScale;
@@ -239349,11 +239334,7 @@ var init_StrEffect = __esmMin((() => {
 			gl.uniform2fv(uniform.uSpriteOffset, _spriteOffset);
 			gl.uniform1f(uniform.uVerticalBase, verticalBase);
 			gl.uniform3fv(uniform.uSpritePosition, this.position);
-			gl.uniformMatrix4fv(uniform.uSpriteAngle, false, _matrix$6);
-			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$15);
-			gl.bufferSubData(gl.ARRAY_BUFFER, 0, _bufferData);
-			gl.vertexAttribPointer(attribute.aPosition, 2, gl.FLOAT, false, 16, 0);
-			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 16, 8);
+			gl.uniform1f(uniform.uSpriteAngle, animat.angle);
 			gl.blendFunc(D3DBLEND[animat.srcalpha], D3DBLEND[animat.destalpha]);
 			gl.bindTexture(gl.TEXTURE_2D, material);
 			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
@@ -239367,7 +239348,16 @@ var init_StrEffect = __esmMin((() => {
 			if (!_buffer$15) {
 				_buffer$15 = gl.createBuffer();
 				gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$15);
-				gl.bufferData(gl.ARRAY_BUFFER, _bufferData.byteLength, gl.DYNAMIC_DRAW);
+				gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+					0,
+					0,
+					1,
+					0,
+					0,
+					1,
+					1,
+					1
+				]), gl.STATIC_DRAW);
 			}
 			if (!_program$19) _program$19 = WebGL_default.createShaderProgram(gl, StrEffect_default$1, StrEffect_default);
 			D3DBLEND[1] = gl.ZERO;
@@ -239415,6 +239405,8 @@ var init_StrEffect = __esmMin((() => {
 			const attribute = _program$19.attribute;
 			gl.depthMask(false);
 			gl.useProgram(_program$19);
+			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$15);
+			gl.vertexAttribPointer(attribute.aPosition, 2, gl.FLOAT, false, 0, 0);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.uniform1f(uniform.uFogNear, fog.near * 100);
@@ -239422,7 +239414,6 @@ var init_StrEffect = __esmMin((() => {
 			gl.uniform3fv(uniform.uFogColor, fog.color);
 			gl.uniform1i(uniform.uDiffuse, 0);
 			gl.enableVertexAttribArray(attribute.aPosition);
-			gl.enableVertexAttribArray(attribute.aTextureCoord);
 			gl.activeTexture(gl.TEXTURE0);
 		}
 		/**
@@ -239433,7 +239424,6 @@ var init_StrEffect = __esmMin((() => {
 		static afterRender(gl) {
 			gl.depthMask(true);
 			gl.disableVertexAttribArray(_program$19.attribute.aPosition);
-			gl.disableVertexAttribArray(_program$19.attribute.aTextureCoord);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		}
 	};
