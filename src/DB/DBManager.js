@@ -1511,26 +1511,50 @@ class DB {
 	}
 
 	/**
-	 * is shield checking
+	 * Is the item ID a shield item?
+	 * Only checks inventory item IDs, never view IDs.
 	 *
-	 * @param {integer} id
-	 * @return {boolean} is shield?
-	 *
-	 * @author MrUnzO
+	 * @param {integer} id item id
+	 * @return {boolean}
 	 */
-	static isShield(id) {
+	static isShieldItem(id) {
 		// shields has the following ranges:
 		// 2100 - 2199
 		// 28900 - 28999
 		// 460000 - 460099
-		// Ids up to 500 are shield view ids (ClassNum), not item ids
-		if (id > 0 && id <= 500) {
+		return (id >= 2100 && id <= 2199) || (id >= 28900 && id <= 28999) || (id >= 460000 && id <= 460099);
+	}
+
+	/**
+	 * is shield checking
+	 *
+	 * The left-hand slot can hold either an item ID or a view ID (ClassNum, <= 500).
+	 * Shield views and weapon views (WeaponType 1-102) share the same numeric range,
+	 * so a view ID is resolved using the job: only dual-wield jobs (assassin line)
+	 * can carry a weapon in the left hand, everyone else carries a shield there.
+	 *
+	 * @param {integer} id item id or view id
+	 * @param {integer} [job] job id of the owner, used to disambiguate view ids
+	 * @return {boolean} is shield?
+	 *
+	 * @author MrUnzO
+	 */
+	static isShield(id, job) {
+		if (DB.isShieldItem(id)) {
 			return true;
 		}
-		if ((id >= 2100 && id <= 2199) || (id >= 28900 && id <= 28999) || (id >= 460000 && id <= 460099)) {
-			return true;
+
+		// Any other item ID is not a shield (offhand weapon)
+		if (id > 500) {
+			return false;
 		}
-		return false;
+
+		// View ID: ambiguous between shield view and weapon view
+		if (id > 0 && job !== undefined && DB.isAssassin(job)) {
+			return false;
+		}
+
+		return id > 0;
 	}
 
 	static getPCAttackMotion(job, sex, itemID, isDualWeapon) {
@@ -2092,7 +2116,7 @@ class DB {
 		}
 
 		// Dual weapon (based on range id)
-		if (!DB.isShield(id)) {
+		if (!DB.isShield(id, job)) {
 			return DB.getWeaponPath(id, job, sex);
 		}
 
