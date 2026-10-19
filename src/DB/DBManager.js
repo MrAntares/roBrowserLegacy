@@ -54,6 +54,7 @@ import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
 import PACKETVER from 'Network/PacketVerManager.js';
 import MemoryManager from 'Core/MemoryManager.js';
+import LuaModuleLoader from 'Core/LuaModuleLoader.js';
 
 //Pet
 //MapName
@@ -4068,11 +4069,51 @@ async function startLua() {
 		CLua.Lua.create({ customWasmUri: wasmUrl }),
 		CLua.Lua.create({ customWasmUri: wasmUrl })
 	]);
-	lua = l;
-	HO_AI = ha;
-	MER_AI = ma;
-	default_HO_AI = dha;
-	default_MER_AI = dma;
+	lua = LuaModuleLoader.setup(l);
+	HO_AI = LuaModuleLoader.setup(ha, {
+		searchPaths: [
+			'./?.lua',
+			'./?.lub',
+			'AI/USER_AI/?.lua',
+			'AI/USER_AI/?.lub',
+			'AI/?.lua',
+			'AI/?.lub',
+			...LuaModuleLoader.DEFAULT_SEARCH_PATHS
+		]
+	});
+	MER_AI = LuaModuleLoader.setup(ma, {
+		searchPaths: [
+			'./?.lua',
+			'./?.lub',
+			'AI/USER_AI/?.lua',
+			'AI/USER_AI/?.lub',
+			'AI/?.lua',
+			'AI/?.lub',
+			...LuaModuleLoader.DEFAULT_SEARCH_PATHS
+		]
+	});
+	default_HO_AI = LuaModuleLoader.setup(dha, {
+		searchPaths: [
+			'./?.lua',
+			'./?.lub',
+			'AI/?.lua',
+			'AI/?.lub',
+			'AI/USER_AI/?.lua',
+			'AI/USER_AI/?.lub',
+			...LuaModuleLoader.DEFAULT_SEARCH_PATHS
+		]
+	});
+	default_MER_AI = LuaModuleLoader.setup(dma, {
+		searchPaths: [
+			'./?.lua',
+			'./?.lub',
+			'AI/?.lua',
+			'AI/?.lub',
+			'AI/USER_AI/?.lua',
+			'AI/USER_AI/?.lub',
+			...LuaModuleLoader.DEFAULT_SEARCH_PATHS
+		]
+	});
 }
 
 function loadFontFromClient(fontPath) {

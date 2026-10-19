@@ -1,0 +1,621 @@
+import fs from 'fs';
+import path from 'path';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+
+vi.mock('Renderer/EntityManager.js', () => ({
+	default: {
+		get: vi.fn(() => null),
+		forEach: vi.fn()
+	}
+}));
+
+vi.mock('UI/UIManager.js', () => ({
+	default: {
+		getComponent: vi.fn(() => ({
+			reqMoveToOwner: vi.fn(),
+			reqMoveTo: vi.fn(),
+			reqAttack: vi.fn()
+		}))
+	}
+}));
+
+vi.mock('DB/DBManager.js', () => ({
+	default: {
+		getHOAI_VM: vi.fn(),
+		getMERAI_VM: vi.fn(),
+		getDefaultHOAI_VM: vi.fn(),
+		getDefaultMERAI_VM: vi.fn()
+	}
+}));
+
+import CLua from 'Vendors/wasmoon-lua5.1.js';
+import LuaModuleLoader from 'Core/LuaModuleLoader.js';
+import Client from 'Core/Client.js';
+import Configs from 'Core/Configs.js';
+import MemoryManager from 'Core/MemoryManager.js';
+import AIDriver from 'Core/AIDriver.js';
+import DB from 'DB/DBManager.js';
+import UIManager from 'UI/UIManager.js';
+
+const wasmBytes = fs.readFileSync(path.resolve(process.cwd(), 'src/Vendors/liblua5.1.wasm'));
+const wasmDataUri = `data:application/octet-stream;base64,${wasmBytes.toString('base64')}`;
+
+async function createLuaVM(options = {}) {
+	const lua = await CLua.Lua.create({ customWasmUri: wasmDataUri });
+	return LuaModuleLoader.setup(lua, options);
+}
+
+describe('LuaModuleLoader', () => {
+	let lua;
+
+	beforeEach(async () => {
+		LuaModuleLoader.resetConfig();
+		LuaModuleLoader.clearCache();
+		Configs.set('luaSearchPaths', null);
+		Configs.set('luaRemoteBaseUrl', '');
+		lua = await createLuaVM();
+	});
+
+	afterEach(() => {
+		vi.unstubAllGlobals();
+		vi.restoreAllMocks();
+		if (lua && !lua.global.isClosed()) {
+			lua.global.close();
+		}
+	});
+
+	describe('Module name translation and search path configuration', () => {
+		it('translates dotted module names into candidate paths across configured search paths', () => {
+			const candidates = LuaModuleLoader.resolveCandidates('module.submodule', [
+				'./?.lua',
+				'./?.lub',
+				'./?/init.lua',
+				'AI/?.lua'
+			]);
+
+			expect(candidates).toEqual([
+				'module/submodule.lua',
+				'module/submodule.lub',
+				'module/submodule/init.lua',
+				'AI/module/submodule.lua'
+			]);
+		});
+
+		it('handles Ragnarok Online backslash paths and explicit .lua/.lub extensions', () => {
+			const luaCandidates = LuaModuleLoader.resolveCandidates('AI\\USER_AI\\Const.lua', [
+				'./?.lua',
+				'AI/USER_AI/?.lua'
+			]);
+			expect(luaCandidates[0]).toBe('AI/USER_AI/Const.lua');
+			expect(luaCandidates).not.toContain('AI/USER_AI/Const/lua.lua');
+
+			const lubCandidates = LuaModuleLoader.resolveCandidates('System\\itemInfo.lub', [
+				'./?.lub',
+				'System/?.lub'
+			]);
+			expect(lubCandidates[0]).toBe('System/itemInfo.lub');
+		});
+
+		it('respects dynamic changes to package.path inside Lua', async () => {
+			const vfsFiles = {
+				'custom_dir/deep/feature.lua': 'return { answer = 42 }'
+			};
+			LuaModuleLoader.configure({
+				vfsLoader: path => {
+					if (path in vfsFiles) {
+						return vfsFiles[path];
+					}
+					throw new Error(`Not found: ${path}`);
+				}
+			});
+
+			const result = await lua.doString(`
+				package.path = "custom_dir/?.lua;" .. package.path
+				local mod = require("deep.feature")
+				return mod.answer
+			`);
+
+			expect(result).toBe(42);
+		});
+
+		it('extracts static require, dofile, and loadfile dependencies while ignoring comments', () => {
+			const source = `
+				-- require("commented.single")
+				--[[
+					require("commented.block")
+					dofile("commented/file.lua")
+				]]
+				local a = require("pkg.alpha")
+				require 'AI\\\\Const.lua'
+				dofile("./AI/Util.lua")
+				local chunk = loadfile("System/config.lub")
+				pcall(function() dofile(AggressiveRelogPath) end)
+			`;
+
+			const deps = LuaModuleLoader.extractDependencies(source);
+			expect(deps).toEqual([
+				{ type: 'require', target: 'pkg.alpha' },
+				{ type: 'require', target: 'AI\\\\Const.lua' },
+				{ type: 'dofile', target: './AI/Util.lua' },
+				{ type: 'loadfile', target: 'System/config.lub' }
+			]);
+		});
+	});
+
+	describe('Virtual File System (Client.loadFile & MemoryManager) integration', () => {
+		it('loads a module from Client.loadFile VFS via require()', async () => {
+			const loadFileSpy = vi.spyOn(Client, 'loadFile').mockImplementation((filename, onload, onerror) => {
+				if (filename === 'AI/math_helper.lua') {
+					onload(new TextEncoder().encode('return { add = function(a, b) return a + b end }'));
+				} else {
+					onerror(new Error(`File not found: ${filename}`));
+				}
+			});
+
+			const sum = await lua.doString(`
+				local helper = require("math_helper")
+				return helper.add(19, 23)
+			`);
+
+			expect(sum).toBe(42);
+			expect(loadFileSpy).toHaveBeenCalled();
+		});
+
+		it('resolves synchronously from MemoryManager without async network calls when already cached', () => {
+			MemoryManager.set('System/sync_cached_mod.lua', 'SYNC_GLOBAL = 99; return { ok = true }');
+
+			const res = lua.doStringSync(`
+				local m = require("sync_cached_mod")
+				return m.ok and SYNC_GLOBAL
+			`);
+
+			expect(res).toBe(99);
+		});
+
+		it('handles UTF-8 BOM and raw non-UTF-8 byte sequences in .lua modules', async () => {
+			// Prepend UTF-8 BOM (0xEF, 0xBB, 0xBF)
+			const body = new TextEncoder().encode('return { greeting = "hello_bom" }');
+			const withBom = new Uint8Array(body.length + 3);
+			withBom.set([0xef, 0xbb, 0xbf], 0);
+			withBom.set(body, 3);
+
+			LuaModuleLoader.registerModuleBuffer('bom_mod.lua', withBom, lua);
+
+			const greetingBytes = lua.doStringSync(`
+				local m = require("bom_mod")
+				return m.greeting
+			`);
+
+			expect(LuaModuleLoader.decodeLuaString(greetingBytes)).toBe('hello_bom');
+		});
+
+		it('loads compiled .lub Lua 5.1 binary bytecode through the same resolution pipeline', async () => {
+			// Generate genuine Lua 5.1 binary bytecode (.lub) using Lua's own string.dump + io.open
+			lua.doStringSync(`
+				local chunk = assert(loadstring([[
+					local modname = ...
+					LUB_LOADED_NAME = modname
+					return {
+						compute = function(x) return x * 7 end,
+						tag = "compiled_lub"
+					}
+				]]))
+				local f = assert(io.open("/__tmp_compiled.lub", "wb"))
+				f:write(string.dump(chunk))
+				f:close()
+			`);
+			const bytecodeBytes = lua.luaApi.module.FS.readFile('/__tmp_compiled.lub');
+			lua.luaApi.module.FS.unlink('/__tmp_compiled.lub');
+
+			expect(LuaModuleLoader.isBinaryLub(bytecodeBytes)).toBe(true);
+
+			vi.spyOn(Client, 'loadFile').mockImplementation((filename, onload, onerror) => {
+				if (filename === 'System/compiled_test.lub') {
+					onload(bytecodeBytes);
+				} else {
+					onerror(new Error(`Missing ${filename}`));
+				}
+			});
+
+			const result = await lua.doString(`
+				local m = require("compiled_test")
+				return m.compute(6)
+			`);
+
+			expect(result).toBe(42);
+			const loadedName = LuaModuleLoader.decodeLuaString(lua.doStringSync('return LUB_LOADED_NAME'));
+			expect(loadedName).toBe('compiled_test');
+		});
+	});
+
+	describe('Remote URL module resolution', () => {
+		it('loads a module directly from a remote URL and caches it across require() calls', async () => {
+			const fetchMock = vi.fn().mockImplementation(async url => {
+				if (url === 'https://cdn.example.org/ro/scripts/remote_mod.lua') {
+					const bytes = new TextEncoder().encode(`
+						REMOTE_EXEC_COUNT = (REMOTE_EXEC_COUNT or 0) + 1
+						return { version = "2.5.0", count = REMOTE_EXEC_COUNT }
+					`);
+					return {
+						ok: true,
+						status: 200,
+						statusText: 'OK',
+						arrayBuffer: async () => bytes.buffer
+					};
+				}
+				return {
+					ok: false,
+					status: 404,
+					statusText: 'Not Found'
+				};
+			});
+			vi.stubGlobal('fetch', fetchMock);
+
+			const count = await lua.doString(`
+				local first = require("https://cdn.example.org/ro/scripts/remote_mod.lua")
+				local second = require("https://cdn.example.org/ro/scripts/remote_mod.lua")
+				assert(first == second, "Expected cached module table")
+				return second.count
+			`);
+
+			expect(count).toBe(1);
+			expect(fetchMock).toHaveBeenCalledTimes(1);
+		});
+
+		it('resolves dotted module names against remote URL search path templates', async () => {
+			const fetchMock = vi.fn().mockImplementation(async url => {
+				if (url === 'https://assets.example.org/lua/net/protocol.lua') {
+					const bytes = new TextEncoder().encode('return { port = 6900 }');
+					return {
+						ok: true,
+						status: 200,
+						statusText: 'OK',
+						arrayBuffer: async () => bytes.buffer
+					};
+				}
+				return { ok: false, status: 404, statusText: 'Not Found' };
+			});
+			vi.stubGlobal('fetch', fetchMock);
+
+			const port = await lua.doString(`
+				package.path = "https://assets.example.org/lua/?.lua"
+				local proto = require("net.protocol")
+				return proto.port
+			`);
+
+			expect(port).toBe(6900);
+		});
+
+		it('rejects HTML error pages returned by remote servers with HTTP 200', async () => {
+			vi.stubGlobal(
+				'fetch',
+				vi.fn().mockResolvedValue({
+					ok: true,
+					status: 200,
+					statusText: 'OK',
+					arrayBuffer: async () => new TextEncoder().encode('<!DOCTYPE html><html><body>404</body></html>').buffer
+				})
+			);
+
+			const caught = await lua.doString(`
+				local ok, err = pcall(require, "https://assets.example.org/lua/missing.lua")
+				assert(not ok, "Expected require to fail on HTML response")
+				return tostring(err)
+			`);
+
+			expect(LuaModuleLoader.decodeLuaString(caught)).toContain('Server returned HTML page');
+		});
+	});
+
+	describe('Standard Lua require() semantics, caching, and return values', () => {
+		it('loads and executes a module only once when required multiple times', async () => {
+			let vfsFetchCount = 0;
+			LuaModuleLoader.configure({
+				vfsLoader: path => {
+					if (path === 'counter_mod.lua') {
+						vfsFetchCount++;
+						return `
+							EXEC_COUNTER = (EXEC_COUNTER or 0) + 1
+							return { runs = EXEC_COUNTER }
+						`;
+					}
+					throw new Error('Not found');
+				}
+			});
+
+			const runs = await lua.doString(`
+				local a = require("counter_mod")
+				local b = require("counter_mod")
+				local c = require("counter_mod")
+				assert(a == b and b == c)
+				return c.runs
+			`);
+
+			expect(runs).toBe(1);
+			expect(vfsFetchCount).toBe(1);
+		});
+
+		it('preserves module return values (tables, functions, primitives, nil -> true) and global state', async () => {
+			LuaModuleLoader.configure({
+				vfsLoader: path => {
+					switch (path) {
+						case 'ret_table.lua':
+							return 'return { key = 123 }';
+						case 'ret_func.lua':
+							return 'return function(x) return x * 2 end';
+						case 'ret_nil.lua':
+							return 'GLOBAL_FROM_NIL_MOD = 777';
+						default:
+							throw new Error('Not found');
+					}
+				}
+			});
+
+			const result = await lua.doString(`
+				local tbl = require("ret_table")
+				local fn = require("ret_func")
+				local nil_res = require("ret_nil")
+				assert(tbl.key == 123)
+				assert(fn(10) == 20)
+				assert(nil_res == true)
+				assert(package.loaded["ret_nil"] == true)
+				return GLOBAL_FROM_NIL_MOD
+			`);
+
+			expect(result).toBe(777);
+		});
+
+		it('supports package.preload and custom searchers in package.loaders / package.searchers', () => {
+			const res = lua.doStringSync(`
+				assert(package.loaders == package.searchers, "package.searchers should alias package.loaders")
+				package.preload["preloaded.mod"] = function(name)
+					return { loadedFrom = "preload:" .. name }
+				end
+
+				table.insert(package.searchers, function(name)
+					if name == "custom.dynamic" then
+						return function()
+							return { value = 314 }
+						end
+					end
+					return "\\n\\tno custom module '" .. name .. "'"
+				end)
+
+				local p = require("preloaded.mod")
+				local c = require("custom.dynamic")
+				assert(p.loadedFrom == "preload:preloaded.mod")
+				return c.value
+			`);
+
+			expect(res).toBe(314);
+		});
+	});
+
+	describe('Missing modules, syntax errors, nested imports, and circular dependencies', () => {
+		it('reports missing modules with standard Lua error messages and allows catching via pcall', async () => {
+			LuaModuleLoader.configure({
+				vfsLoader: () => {
+					throw new Error('File does not exist');
+				}
+			});
+
+			const errMsgBytes = await lua.doString(`
+				local ok, err = pcall(require, "nonexistent.pkg")
+				assert(ok == false)
+				return err
+			`);
+
+			const errMsg = LuaModuleLoader.decodeLuaString(errMsgBytes);
+			expect(errMsg).toContain("module 'nonexistent.pkg' not found:");
+			expect(errMsg).toContain("no file 'nonexistent/pkg.lua'");
+			expect(errMsg).toContain("no file 'nonexistent/pkg.lub'");
+		});
+
+		it('surfaces Lua syntax errors in loaded modules instead of masking them as missing', async () => {
+			LuaModuleLoader.configure({
+				vfsLoader: path => {
+					if (path === 'broken_syntax.lua') {
+						return 'local x = === invalid syntax !!!';
+					}
+					throw new Error('Not found');
+				}
+			});
+
+			const errMsgBytes = await lua.doString(`
+				local ok, err = pcall(require, "broken_syntax")
+				assert(ok == false)
+				return err
+			`);
+
+			const errMsg = LuaModuleLoader.decodeLuaString(errMsgBytes);
+			expect(errMsg).toContain("error loading module 'broken_syntax' from file 'broken_syntax.lua'");
+		});
+
+		it('resolves deeply nested require() and dofile() module graphs', async () => {
+			const files = {
+				'pkg/root.lua': `
+					local mid = require("pkg.middle")
+					local extra = dofile("pkg/extra.lua")
+					return { total = mid.value + extra }
+				`,
+				'pkg/middle.lua': `
+					local leaf = require("pkg.leaf")
+					return { value = leaf.base * 3 }
+				`,
+				'pkg/leaf.lua': `
+					return { base = 10 }
+				`,
+				'pkg/extra.lua': `
+					return 12
+				`
+			};
+
+			LuaModuleLoader.configure({
+				vfsLoader: path => {
+					if (path in files) {
+						return files[path];
+					}
+					throw new Error(`Missing ${path}`);
+				}
+			});
+
+			const total = await lua.doString(`
+				local root = require("pkg.root")
+				return root.total
+			`);
+
+			expect(total).toBe(42);
+		});
+
+		it('detects uncooperative circular dependencies and raises a loop error', async () => {
+			const files = {
+				'cycle_a.lua': 'return require("cycle_b")',
+				'cycle_b.lua': 'return require("cycle_a")'
+			};
+
+			LuaModuleLoader.configure({
+				vfsLoader: path => {
+					if (path in files) {
+						return files[path];
+					}
+					throw new Error(`Missing ${path}`);
+				}
+			});
+
+			const errMsgBytes = await lua.doString(`
+				local ok, err = pcall(require, "cycle_a")
+				assert(ok == false)
+				return err
+			`);
+
+			const errMsg = LuaModuleLoader.decodeLuaString(errMsgBytes);
+			expect(errMsg).toContain("loop or previous error loading module 'cycle_a'");
+		});
+
+		it('supports cooperative circular dependencies where package.loaded[modname] is pre-populated', async () => {
+			const files = {
+				'coop_a.lua': `
+					local A = { name = "A" }
+					package.loaded["coop_a"] = A
+					local B = require("coop_b")
+					A.partner = B.name
+					return A
+				`,
+				'coop_b.lua': `
+					local B = { name = "B" }
+					package.loaded["coop_b"] = B
+					local A = require("coop_a")
+					B.partner = A.name
+					return B
+				`
+			};
+
+			LuaModuleLoader.configure({
+				vfsLoader: path => {
+					if (path in files) {
+						return files[path];
+					}
+					throw new Error(`Missing ${path}`);
+				}
+			});
+
+			const combinedBytes = await lua.doString(`
+				local a = require("coop_a")
+				local b = require("coop_b")
+				return a.name .. "->" .. a.partner .. "," .. b.name .. "->" .. b.partner
+			`);
+
+			expect(LuaModuleLoader.decodeLuaString(combinedBytes)).toBe('A->B,B->A');
+		});
+	});
+
+	describe('AIDriver compatibility with Ragnarok Online AI scripts', () => {
+		it('initializes AIDriver and executes AI scripts that use require("AI\\\\Const.lua") and nested modules', async () => {
+			const aiVfs = {
+				'AI/Const.lua': `
+					V_OWNER = 0
+					V_POSITION = 1
+					FOLLOW_ST = 1
+				`,
+				'AI/Util.lua': `
+					require "AI\\\\Const.lua"
+					List = {}
+					function List.new()
+						return { first = 0, last = -1 }
+					end
+				`,
+				'AI/ExtraTactics.lua': `
+					return {
+						getFollowState = function()
+							return FOLLOW_ST
+						end
+					}
+				`,
+				'AI/AI.lua': `
+					require "AI\\\\Const.lua"
+					require "AI\\\\Util.lua"
+					local tactics = require("ExtraTactics")
+					pcall(function() dofile("AI/USER_AI/AggressiveRelogPath.lua") end)
+					MyState = tactics.getFollowState()
+					function AI(myid)
+						MoveToOwner(myid)
+					end
+				`,
+				'AI/AI_M.lua': `
+					require "AI\\\\Const.lua"
+					require "AI\\\\Util.lua"
+					MyState = FOLLOW_ST
+					function AI(myid)
+						MoveToOwner(myid)
+					end
+				`
+			};
+
+			vi.spyOn(Client, 'loadFile').mockImplementation((filename, onload, onerror) => {
+				if (filename in aiVfs) {
+					onload(new TextEncoder().encode(aiVfs[filename]));
+				} else {
+					onerror(new Error(`Missing AI file: ${filename}`));
+				}
+			});
+
+			const vms = await Promise.all([
+				CLua.Lua.create({ customWasmUri: wasmDataUri }),
+				CLua.Lua.create({ customWasmUri: wasmDataUri }),
+				CLua.Lua.create({ customWasmUri: wasmDataUri }),
+				CLua.Lua.create({ customWasmUri: wasmDataUri })
+			]);
+
+			vi.spyOn(DB, 'getHOAI_VM').mockReturnValue(vms[0]);
+			vi.spyOn(DB, 'getMERAI_VM').mockReturnValue(vms[1]);
+			vi.spyOn(DB, 'getDefaultHOAI_VM').mockReturnValue(vms[2]);
+			vi.spyOn(DB, 'getDefaultMERAI_VM').mockReturnValue(vms[3]);
+
+			const reqMoveToOwner = vi.fn();
+			vi.spyOn(UIManager, 'getComponent').mockReturnValue({
+				reqMoveToOwner,
+				reqMoveTo: vi.fn(),
+				reqAttack: vi.fn()
+			});
+
+			try {
+				let ended = false;
+				await AIDriver.initAI(() => {
+					ended = true;
+				});
+
+				expect(ended).toBe(true);
+				expect(AIDriver.ready).toBe(true);
+
+				AIDriver.exec('AI(1001)', true);
+				expect(reqMoveToOwner).toHaveBeenCalledWith(1001);
+			} finally {
+				for (const vm of vms) {
+					if (!vm.global.isClosed()) {
+						vm.global.close();
+					}
+				}
+			}
+		});
+	});
+});
