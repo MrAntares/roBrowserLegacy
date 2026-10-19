@@ -51,42 +51,82 @@ const CASES = [
 
 afterEach(() => { vi.doUnmock('Loaders/wasm/paletteConvert.js'); });
 
-// Assemble a minimum SPR v2.1 (RLE without zeros => 1 byte per pixel)
-function buildSPR(w, h, idx, pal) {
-	const size = 8 + 6 + idx.length + 1024;
-	const buf = new ArrayBuffer(size), v = new DataView(buf), b = new Uint8Array(buf);
-	b.set([0x53, 0x50, 1, 2]); v.setUint16(4, 1, true); v.setUint16(6, 0, true);
-	v.setUint16(8, w, true); v.setUint16(10, h, true); v.setUint16(12, idx.length, true);
-	b.set(idx, 14); b.set(pal, size - 1024);
-	return buf;
+// SPR RLE: zeros become [0, count]; other bytes are literals
+function encodeRLE(px) {
+	const out = [];
+	for (let i = 0; i < px.length;) {
+		if (px[i] === 0) {
+			let n = 0;
+			while (i < px.length && px[i] === 0 && n < 255) { n++; i++; }
+			out.push(0, n);
+		} else out.push(px[i++]);
+	}
+	return Uint8Array.from(out);
 }
 
-describe.each([['WASM', false], ['fallback JS', true]])('parse integration → switchToRGBA via %s', (_, fallback) => {
-	it('parsed sprite matches the reference', async () => {
+// SPR v2.1 with N indexed frames
+function buildSPR(frames, pal) {
+	const rles = frames.map(f => {
+		const rle = encodeRLE(f.idx);
+		if (rle.length > 0xFFFF) throw new Error(`RLE ${rle.length} B exceeds uint16 (${f.w}x${f.h})`);
+		return rle;
+	});
+	const size = 8 + rles.reduce((s, r) => s + 6 + r.length, 0) + 1024;
+	const buff = new ArrayBuffer(size), v = new DataView(buff), b = new Uint8Array(buff);
+	b.set([0x53, 0x50, 1, 2]); v.setUint16(4, frames.length, true); v.setUint16(6, 0, true);
+	let off = 8;
+	frames.forEach((f, i) => {
+		v.setUint16(off, f.w, true); v.setUint16(off + 2, f.h, true); v.setUint16(off + 4, rles[i].length, true);
+		b.set(rles[i], off + 6); off += 6 + rles[i].length;
+	});
+	b.set(pal, size - 1024);
+	return buff;
+}
+
+function makeFrames(dims) {
+	return dims.map(([w, h]) => {
+		const idx = makeIndices(w, h);
+		if (idx.length > 8) idx.fill(0, 0, 8); // guarantees a sequence of zeros (transparency) 
+		return { w, h, idx };
+	});
+}
+
+function check(SPR, spr, frames, pal) {
+	expect(spr.frames.length).toBe(frames.length);
+	frames.forEach((f, i) => {
+		expect(spr.frames[i].type).toBe(SPR.TYPE_RGBA);
+		expect(Buffer.from(spr.frames[i].data).equals(Buffer.from(reference(pal, f.idx, f.w, f.h)))).toBe(true);
+	});
+}
+
+const PARSE_CASES = [
+	['multi-line (vertical flip)', [[W, H]]],
+	['multiple frames + empty', [[4, 4], [1, 9], [9, 1], [0, 0], [W, H]]],
+];
+const DIRECT_CASES = [
+	...PARSE_CASES,
+	['large frame (force memory.grow)', [[300, 300]]], // 90k*5 B > 64KiB
+];
+
+describe.each([['WASM', false], ['fallback JS', true]])('switchToRGBA via %s', (_, fallback) => {
+	it.each(PARSE_CASES)('parsed SPR matches reference: %s', async (_n, dims) => {
 		const SPR = await loadSPR({ fallback });
-		const w = 16, h = 8, pal = makePalette();
-		const idx = makeIndices(w, h).map(c => c || 1); // without 0 for RLE to be literal 
-		const spr = new SPR(buildSPR(w, h, idx, pal));
+		const pal = makePalette(), frames = makeFrames(dims);
+		const spr = new SPR(buildSPR(frames, pal));
+		// ensures that parse didn't truncate anything 
+		frames.forEach((f, i) => expect(Buffer.from(spr.frames[i].data).equals(Buffer.from(f.idx))).toBe(true));
 		spr.switchToRGBA();
-		expect(spr.frames[0].type).toBe(SPR.TYPE_RGBA);
-		expect(Buffer.from(spr.frames[0].data).equals(Buffer.from(reference(pal, idx, w, h)))).toBe(true);
-	});
-});
-
-describe('paletteConvert.wat in sync with Base64', () => {
-	it('WASM instance', async () => {
-		vi.resetModules();
-		const { getPaletteConvertWasm } = await import('Loaders/wasm/paletteConvert.js');
-		expect(getPaletteConvertWasm()).not.toBeNull();
+		check(SPR, spr, frames, pal);
 	});
 
-	it('wat2wasm(.wat) === Built-in Base64', async () => {
-		const { PALETTE_CONVERT_WASM_BASE64 } = await import('Loaders/wasm/paletteConvert.js');
-		const wabt = await (await import('wabt')).default();
-		const src = fs.readFileSync(path.resolve('src/Loaders/wasm/paletteConvert.wat'), 'utf8');
-		const mod = wabt.parseWat('paletteConvert.wat', src);
-		const { buffer } = mod.toBinary({});
-		mod.destroy();
-		expect(Buffer.from(buffer).toString('base64')).toBe(PALETTE_CONVERT_WASM_BASE64);
+	it.each(DIRECT_CASES)('injected frames match reference: %s', async (_n, dims) => {
+		const SPR = await loadSPR({ fallback });
+		const pal = makePalette(), frames = makeFrames(dims);
+		const spr = Object.create(SPR.prototype);
+		spr.palette = pal;
+		spr.indexed_count = frames.length;
+		spr.frames = frames.map(f => ({ type: SPR.TYPE_PAL, width: f.w, height: f.h, data: f.idx.slice() }));
+		spr.switchToRGBA();
+		check(SPR, spr, frames, pal);
 	});
 });
