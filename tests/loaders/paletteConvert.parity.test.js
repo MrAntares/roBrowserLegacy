@@ -39,6 +39,10 @@ async function loadSPR({ fallback }) {
 	vi.resetModules();
 	if (fallback) {
 		vi.doMock('Loaders/wasm/paletteConvert.js', () => ({ getPaletteConvertWasm: () => null }));
+	} else {
+		vi.doUnmock('Loaders/wasm/paletteConvert.js');
+		const { getPaletteConvertWasm } = await import('Loaders/wasm/paletteConvert.js');
+		expect(getPaletteConvertWasm()).not.toBeNull();
 	}
 	return (await import('Loaders/Sprite.js')).default;
 }
@@ -128,5 +132,20 @@ describe.each([['WASM', false], ['fallback JS', true]])('switchToRGBA via %s', (
 		spr.frames = frames.map(f => ({ type: SPR.TYPE_PAL, width: f.w, height: f.h, data: f.idx.slice() }));
 		spr.switchToRGBA();
 		check(SPR, spr, frames, pal);
+	});
+});
+
+describe('paletteConvert.wat in sync with Base64', () => {
+	it('wat2wasm(.wat) === Built-in Base64', async () => {
+		vi.doUnmock('Loaders/wasm/paletteConvert.js');
+		vi.resetModules();
+		const { PALETTE_CONVERT_WASM_BASE64 } = await import('Loaders/wasm/paletteConvert.js');
+		const wabt = await (await import('wabt')).default();
+		const src = fs.readFileSync(path.resolve('src/Loaders/wasm/paletteConvert.wat'), 'utf8');
+		const mod = wabt.parseWat('paletteConvert.wat', src);
+		const { buffer } = mod.toBinary({});
+		mod.destroy();
+		expect(PALETTE_CONVERT_WASM_BASE64).toBeTypeOf('string');
+		expect(Buffer.from(buffer).toString('base64')).toBe(PALETTE_CONVERT_WASM_BASE64);
 	});
 });
