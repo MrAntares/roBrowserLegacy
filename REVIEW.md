@@ -73,7 +73,7 @@ Some "hot paths" have dual implementations: WASM embedded as Base64 (generated f
 When reviewing PRs that affect either implementation:
 
 - [ ] If a `.wat` file is changed, has the corresponding Base64 in the `.js` file been
-      regenerated using `npm run wasm:build`? The two must never fall out of sync.
+      regenerated? The two must never fall out of sync.
 - [ ] If the JS fallback is changed (byte order, vertical flip, palette layout,
       buffer sizes), has the `.wat` file been updated to produce identical output?
 - [ ] Both implementations must be bit-exact: the same input must yield the same
@@ -82,6 +82,8 @@ When reviewing PRs that affect either implementation:
       instantiation fails—never assume that WASM is present.
 - [ ] Do not introduce SIMD opcodes (`v128`, `i32x4`, `FD` prefix) without verifying
       support in the target engine; not all runtimes used in this project support SIMD.
+
+#### If missing regenerated files for wasm, teach user how to do it manually.
 
 ---
 
