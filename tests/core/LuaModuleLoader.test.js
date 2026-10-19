@@ -819,5 +819,106 @@ describe('LuaModuleLoader', () => {
 				}
 			}
 		});
+
+		it('retries remote URL after a temporary network failure and loads the module once the server recovers without clearing cache', async () => {
+			let failCount = 0;
+			const remoteUrl = 'https://remote.example.com/lua/service.lua';
+
+			LuaModuleLoader.configure({
+				urlFetcher: async url => {
+					if (url === remoteUrl) {
+						if (failCount === 0) {
+							failCount++;
+							throw new Error('HTTP 503 Service Unavailable');
+						}
+						return new TextEncoder().encode('return { status = "recovered" }');
+					}
+					throw new Error(`Unexpected URL: ${url}`);
+				}
+			});
+
+			// First attempt fails due to temporary 503
+			await expect(
+				lua.doString(`
+					package.path = "https://remote.example.com/lua/?.lua"
+					return require("service")
+				`)
+			).rejects.toThrow();
+
+			// Second attempt after server recovers succeeds without calling clearCache()
+			const resBytes = await lua.doString(`
+				package.path = "https://remote.example.com/lua/?.lua"
+				local svc = require("service")
+				return svc.status
+			`);
+			expect(LuaModuleLoader.decodeLuaString(resBytes)).toBe('recovered');
+		});
+
+		it('replaces Client.loadFile without allowing an old in-flight request late failure to poison negative cache or block the new loader', async () => {
+			let triggerOldLoaderFailure = null;
+
+			// Initial loader starts request and stays in-flight
+			const oldLoader = vi.fn((filename, onload, onerror) => {
+				triggerOldLoaderFailure = () => onerror(new Error(`Old loader missing: ${filename}`));
+			});
+			Client.loadFile = oldLoader;
+
+			const targetFile = 'AI/USER_AI/LateFailureMod.lua';
+			const oldPromise = LuaModuleLoader.loadVfsCandidate(targetFile).catch(err => err);
+
+			// Client.loadFile is replaced with a new loader before the old request completes
+			const newLoader = vi.fn((filename, onload) => {
+				onload(new TextEncoder().encode('return { activeLoader = "new" }'));
+			});
+			Client.loadFile = newLoader;
+
+			// Old request fails late
+			expect(typeof triggerOldLoaderFailure).toBe('function');
+			triggerOldLoaderFailure();
+			await oldPromise;
+
+			// The replacement loader should not be blocked by the old loader's late failure
+			const customVM = await createLuaVM({ searchPaths: ['AI/USER_AI/?.lua'] });
+			try {
+				const resBytes = await customVM.doString('return require("LateFailureMod").activeLoader');
+				expect(LuaModuleLoader.decodeLuaString(resBytes)).toBe('new');
+				expect(newLoader).toHaveBeenCalled();
+			} finally {
+				if (!customVM.global.isClosed()) {
+					customVM.global.close();
+				}
+			}
+		});
+
+		it('skips known-missing VFS candidate paths without re-invoking Client.loadFile during preloading and runtime', async () => {
+			const vfsFiles = {
+				'AI/ScriptA.lua': 'local ok, _ = pcall(require, "AbsentSharedMod")',
+				'AI/ScriptB.lua': 'local ok, _ = pcall(require, "AbsentSharedMod")'
+			};
+
+			const loadSpy = vi.spyOn(Client, 'loadFile').mockImplementation((filename, onload, onerror) => {
+				if (filename in vfsFiles) {
+					onload(new TextEncoder().encode(vfsFiles[filename]));
+				} else {
+					onerror(new Error(`Missing: ${filename}`));
+				}
+			});
+
+			// Preload ScriptA: probes candidates for AbsentSharedMod
+			await LuaModuleLoader.preload(lua, 'AI/ScriptA.lua', { isFile: true });
+			const callsAfterScriptA = loadSpy.mock.calls.filter(c => c[0].includes('AbsentSharedMod')).length;
+			expect(callsAfterScriptA).toBeGreaterThan(0);
+
+			// Preload ScriptB: should skip known-missing VFS candidates without adding new Client.loadFile calls
+			await LuaModuleLoader.preload(lua, 'AI/ScriptB.lua', { isFile: true });
+			const callsAfterScriptB = loadSpy.mock.calls.filter(c => c[0].includes('AbsentSharedMod')).length;
+			expect(callsAfterScriptB).toBe(callsAfterScriptA);
+
+			// Runtime execution of ScriptA and ScriptB should also not repeat VFS scans
+			await LuaModuleLoader.doFileAsync(lua, 'AI/ScriptA.lua');
+			await LuaModuleLoader.doFileAsync(lua, 'AI/ScriptB.lua');
+			const callsAfterExec = loadSpy.mock.calls.filter(c => c[0].includes('AbsentSharedMod')).length;
+			expect(callsAfterExec).toBe(callsAfterScriptA);
+		});
 	});
 });

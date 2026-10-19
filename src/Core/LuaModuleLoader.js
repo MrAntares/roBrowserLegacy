@@ -384,14 +384,27 @@ class LuaModuleLoader {
 		}
 		if (options.vfsLoader !== undefined) {
 			_config.vfsLoader = options.vfsLoader;
+			_cacheGeneration++;
 			_failureReasons.clear();
+			for (const key of _inflight.keys()) {
+				if (!LuaModuleLoader.isRemoteUrl(key)) {
+					_inflight.delete(key);
+				}
+			}
 		}
 		if (options.urlFetcher !== undefined) {
 			_config.urlFetcher = options.urlFetcher;
+			_cacheGeneration++;
 			_failureReasons.clear();
+			for (const key of _inflight.keys()) {
+				if (LuaModuleLoader.isRemoteUrl(key)) {
+					_inflight.delete(key);
+				}
+			}
 		}
 		if (options.remoteBaseUrl !== undefined) {
 			_config.remoteBaseUrl = options.remoteBaseUrl || '';
+			_cacheGeneration++;
 			_failureReasons.clear();
 		}
 	}
@@ -404,6 +417,8 @@ class LuaModuleLoader {
 		_config.vfsLoader = null;
 		_config.urlFetcher = null;
 		_config.remoteBaseUrl = '';
+		_cacheGeneration++;
+		_inflight.clear();
 		_failureReasons.clear();
 	}
 
@@ -421,12 +436,20 @@ class LuaModuleLoader {
 	}
 
 	/**
-	 * Invalidate negative lookup cache if `Client.loadFile` reference has changed.
+	 * Invalidate negative lookup cache and drop stale in-flight VFS requests
+	 * if `Client.loadFile` reference has changed. Increments `_cacheGeneration` so
+	 * an older in-flight request's late failure cannot repopulate negative cache entries.
 	 */
 	static syncClientLoaderState() {
 		if (Client.loadFile !== _lastClientLoadFile) {
 			_lastClientLoadFile = Client.loadFile;
+			_cacheGeneration++;
 			_failureReasons.clear();
+			for (const key of _inflight.keys()) {
+				if (!LuaModuleLoader.isRemoteUrl(key)) {
+					_inflight.delete(key);
+				}
+			}
 		}
 	}
 
@@ -915,6 +938,9 @@ class LuaModuleLoader {
 	 */
 	static isKnownMissing(lua, candidate) {
 		LuaModuleLoader.syncClientLoaderState();
+		if (LuaModuleLoader.isRemoteUrl(candidate)) {
+			return false;
+		}
 		if (!_failureReasons.has(candidate)) {
 			return false;
 		}
@@ -924,7 +950,6 @@ class LuaModuleLoader {
 			return false;
 		}
 		if (
-			!LuaModuleLoader.isRemoteUrl(candidate) &&
 			MemoryManager.exist(candidate) &&
 			MemoryManager.get(candidate) !== null &&
 			MemoryManager.get(candidate) !== undefined
@@ -1241,9 +1266,6 @@ class LuaModuleLoader {
 		if (_inflight.has(url)) {
 			return _inflight.get(url);
 		}
-		if (!options.urlFetcher && _failureReasons.has(url)) {
-			return Promise.reject(new Error(_failureReasons.get(url)));
-		}
 
 		const urlFetcher = options.urlFetcher || _config.urlFetcher;
 		const generation = _cacheGeneration;
@@ -1381,7 +1403,16 @@ class LuaModuleLoader {
 				};
 			}
 
-			// 2. Otherwise attempt to fetch this candidate asynchronously before moving to the next
+			// 2. Skip known-missing VFS candidates immediately to avoid repeated VFS lookups
+			if (
+				!options.vfsLoader &&
+				!LuaModuleLoader.isRemoteUrl(candidate) &&
+				LuaModuleLoader.isKnownMissing(lua, candidate)
+			) {
+				continue;
+			}
+
+			// 3. Otherwise attempt to fetch this candidate asynchronously before moving to the next
 			try {
 				const bytes = await LuaModuleLoader.loadCandidateData(candidate, options);
 				const memfsPath = LuaModuleLoader.toMemfsPath(candidate);
@@ -1438,24 +1469,36 @@ class LuaModuleLoader {
 		const dependencies = [];
 		const seen = new Set();
 
-		const pattern =
-			/\b(require|dofile|loadfile)\s*(?:\(\s*(['"])([^'"\r\n]+)\2\s*\)|(['"])([^'"\r\n]+)\4|\(\s*\[\[([^\]]+)\]\s*\]\s*\)|\[\[([^\]]+)\]\])/g;
-
-		let match;
-		while ((match = pattern.exec(withoutComments)) !== null) {
-			const fnType = match[1];
-			const target = (match[3] || match[5] || match[6] || match[7] || '').trim();
+		const addDep = (fnType, rawTarget) => {
+			const target = (rawTarget || '').trim();
 			if (!target) {
-				continue;
+				return;
 			}
 			if (OPTIONAL_RUNTIME_PATTERNS.some(opt => target.includes(opt))) {
-				continue;
+				return;
 			}
 			const key = `${fnType}:${target}`;
 			if (!seen.has(key)) {
 				seen.add(key);
 				dependencies.push({ type: fnType, target });
 			}
+		};
+
+		const directPattern =
+			/\b(require|dofile|loadfile)\s*(?:\(\s*(['"])([^'"\r\n]+)\2\s*\)|(['"])([^'"\r\n]+)\4|\(\s*\[\[([^\]]+)\]\s*\]\s*\)|\[\[([^\]]+)\]\])/g;
+
+		let match;
+		while ((match = directPattern.exec(withoutComments)) !== null) {
+			const fnType = match[1];
+			const target = match[3] || match[5] || match[6] || match[7];
+			addDep(fnType, target);
+		}
+
+		const pcallPattern = /\bpcall\s*\(\s*(require|dofile|loadfile)\s*,\s*(['"])([^'"\r\n]+)\2\s*\)/g;
+		while ((match = pcallPattern.exec(withoutComments)) !== null) {
+			const fnType = match[1];
+			const target = match[3];
+			addDep(fnType, target);
 		}
 
 		return dependencies;
