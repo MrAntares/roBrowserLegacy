@@ -1523,6 +1523,10 @@ class DB {
 		// 2100 - 2199
 		// 28900 - 28999
 		// 460000 - 460099
+		// Ids up to 500 are shield view ids (ClassNum), not item ids
+		if (id > 0 && id <= 500) {
+			return true;
+		}
 		if ((id >= 2100 && id <= 2199) || (id >= 28900 && id <= 28999) || (id >= 460000 && id <= 460099)) {
 			return true;
 		}
