@@ -42,7 +42,7 @@ const _modelMatrix = mat4.create();
 const E_DIVISION = 21; // Number of divisions (0-20)
 const FULL_DISPLAY_ANGLE = 315; // 315° arc
 const DEG_TO_RAD = Math.PI / 180;
-const STRIDE = 5; // x, y, z, u, v
+const STRIDE = 4; // u, side, texU, texV
 const VERTICES_PER_BAND = E_DIVISION * 2;
 
 /**
@@ -84,93 +84,45 @@ class SwirlingAura {
 				maxHeight: (15 - 2 * ec) * GAME_TO_WORLD, // 15, 13, 11 (unchanged)
 				distance: (3.9 + 0.2 * ec) * GAME_TO_WORLD * INNER_CIRCLE_SCALE, // 20% smaller
 				riseAngle: (55 - 5 * ec) * DEG_TO_RAD, // 55°, 50°, 45°
-				spinSpeed: ec + 3, // 3, 4, 5 degrees per 25ms tick
-				height: new Float32Array(E_DIVISION) // Height profile
+				spinSpeed: ec + 3 // 3, 4, 5 degrees per 25ms tick
 			});
 		}
 
 		// Angle step between divisions
 		this.basicAngle = FULL_DISPLAY_ANGLE / (E_DIVISION - 1); // 315/20 = 15.75°
 
-		// Vertex data for a single band (GC evasion uses dynamic vertex data)
-		this.vertices = new Float32Array(VERTICES_PER_BAND * STRIDE);
-
-		// Vertex buffers for each band
-		this.buffers = null;
+		// Static parametric vertex buffer & index buffer
+		this.vertexBuffer = null;
 		this.indexBuffer = null;
 		this.indexCount = 0;
 		this.ready = false;
 	}
 
 	/**
-	 * Update height profile for a band
+	 * Build static parametric series for ribbon mesh
+	 * Attributes per vertex: [u, side, texU, texV]
 	 */
-	updateHeightProfile(band, process) {
-		const middle = 10;
-		const step = 9; // 90 / 10 = 9 degrees
-
-		for (let i = 0; i < E_DIVISION; i++) {
-			// SinLimit = 90° + (i - middle) * step
-			const sinLimit = (90 + (i - middle) * step) * DEG_TO_RAD;
-			const sinLimitValue = Math.sin(sinLimit);
-			const maxPossible = band.maxHeight * sinLimitValue;
-
-			if (process <= 90) {
-				// Build up phase: height = max_height * sin(SinLimit) * sin(process°)
-				const sinProcess = Math.sin(process * DEG_TO_RAD);
-				band.height[i] = Math.max(0, Math.min(band.maxHeight * sinLimitValue * sinProcess, maxPossible));
-			} else {
-				band.height[i] = maxPossible;
-			}
-		}
-	}
-
-	/**
-	 * fill mesh for a single band
-	 */
-	fillBandMesh(band) {
-		const verts = this.vertices;
-		const cosRise = Math.cos(band.riseAngle);
-		const sinRise = Math.sin(band.riseAngle);
+	buildParametricVertices() {
+		const verts = new Float32Array(VERTICES_PER_BAND * STRIDE);
 		let offset = 0;
 
 		for (let k = 0; k < E_DIVISION; k++) {
-			// Calculate angle for this division
-			const angle = (band.rotStart + k * this.basicAngle) * DEG_TO_RAD;
-			const cosAngle = Math.cos(angle);
-			const sinAngle = Math.sin(angle);
-
-			// Calculate base and top vertices
-			const baseX = band.distance * cosAngle;
-			const baseZ = band.distance * sinAngle;
-			const h = band.height[k];
-
-			// Calculate top vertex offset based on rise angle
-			const Rx = cosRise * h;
-			const Ry = sinRise * h;
-
-			// Top vertex position
-			const topX = baseX + Rx * cosAngle;
-			const topY = -Ry;
-			const topZ = baseZ + Rx * sinAngle;
-
-			// Texture coordinate u based on division index
 			const u = k / (E_DIVISION - 1);
 
-			// Vértice Base (Inner)
-			verts[offset++] = baseX;
-			verts[offset++] = 0;
-			verts[offset++] = baseZ;
+			// Base vertex (Inner: side = 0.0, texV = 1.0)
+			verts[offset++] = u;
+			verts[offset++] = 0.0;
 			verts[offset++] = u;
 			verts[offset++] = 1.0;
 
-			// Vértice Top (Outer)
-			verts[offset++] = topX;
-			verts[offset++] = topY;
-			verts[offset++] = topZ;
+			// Top vertex (Outer: side = 1.0, texV = 0.0)
+			verts[offset++] = u;
+			verts[offset++] = 1.0;
 			verts[offset++] = u;
 			verts[offset++] = 0.0;
 		}
+
+		return verts;
 	}
 
 	/**
@@ -193,15 +145,11 @@ class SwirlingAura {
 	 * Initialize instance
 	 */
 	init(gl) {
-		// Create vertex buffers for each band
-		this.buffers = [];
-		for (let i = 0; i < this.bands.length; i++) {
-			const buf = gl.createBuffer();
-			gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-			// Allocate buffer with initial size (will be updated each frame)
-			gl.bufferData(gl.ARRAY_BUFFER, this.vertices.byteLength, gl.DYNAMIC_DRAW);
-			this.buffers.push(buf);
-		}
+		// Create static parametric vertex buffer
+		const vertices = this.buildParametricVertices();
+		this.vertexBuffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+		gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
 
 		// Create shared index buffer
 		const indices = this.generateIndices();
@@ -223,11 +171,9 @@ class SwirlingAura {
 	 * Free instance resources
 	 */
 	free(gl) {
-		if (this.buffers) {
-			for (let i = 0; i < this.buffers.length; i++) {
-				gl.deleteBuffer(this.buffers[i]);
-			}
-			this.buffers = null;
+		if (this.vertexBuffer) {
+			gl.deleteBuffer(this.vertexBuffer);
+			this.vertexBuffer = null;
 		}
 		if (this.indexBuffer) {
 			gl.deleteBuffer(this.indexBuffer);
@@ -253,12 +199,23 @@ class SwirlingAura {
 		gl.uniformMatrix4fv(uniform.uModelMat, false, _modelMatrix);
 		gl.bindTexture(gl.TEXTURE_2D, this.texture);
 
-		gl.enableVertexAttribArray(attribute.aPosition);
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+		gl.enableVertexAttribArray(attribute.aParam);
+		gl.vertexAttribPointer(attribute.aParam, 2, gl.FLOAT, false, STRIDE * 4, 0);
+
 		gl.enableVertexAttribArray(attribute.aTextureCoord);
+		gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, STRIDE * 4, 2 * 4);
+
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+
 		const self = this;
 		const RAG_TICK_MS = 25;
 		const elapsed = tick - this.tick;
 		const process = elapsed / RAG_TICK_MS;
+
+		gl.uniform1f(uniform.uProcess, process);
+		gl.uniform1f(uniform.uBasicAngle, this.basicAngle);
+		gl.uniform4f(uniform.uColor, this.color.r, this.color.g, this.color.b, this.alphaB);
 
 		SpriteRenderer.runWithDepth(true, false, false, function () {
 			// Render each band
@@ -271,25 +228,13 @@ class SwirlingAura {
 				// Update animation purely from elapsed time (Prim3DCasting)
 				band.rotStart = (band.initialRotStart + process * band.spinSpeed) % 360;
 
-				// Update height profile
-				self.updateHeightProfile(band, process);
-
-				// fill mesh for this band
-				self.fillBandMesh(band);
-
-				// Upload vertex data
-				gl.bindBuffer(gl.ARRAY_BUFFER, self.buffers[ec]);
-				gl.bufferSubData(gl.ARRAY_BUFFER, 0, self.vertices);
-
-				gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, STRIDE * 4, 0);
-				gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, STRIDE * 4, 3 * 4);
-
-				// Set color and alpha
-				gl.uniform4f(uniform.uColor, self.color.r, self.color.g, self.color.b, self.alphaB);
+				gl.uniform1f(uniform.uRotStart, band.rotStart);
+				gl.uniform1f(uniform.uDistance, band.distance);
+				gl.uniform1f(uniform.uMaxHeight, band.maxHeight);
+				gl.uniform1f(uniform.uRiseAngle, band.riseAngle);
 				gl.uniform1f(uniform.uZIndex, 0.01 + ec * 0.001);
 
 				// Draw
-				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, self.indexBuffer);
 				gl.drawElements(gl.TRIANGLES, self.indexCount, gl.UNSIGNED_SHORT, 0);
 			}
 		});
@@ -344,8 +289,9 @@ class SwirlingAura {
 	static afterRender(gl) {
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-		gl.disableVertexAttribArray(_program.attribute.aPosition);
+		gl.disableVertexAttribArray(_program.attribute.aParam);
 		gl.disableVertexAttribArray(_program.attribute.aTextureCoord);
 	}
 }
 export default SwirlingAura;
+
