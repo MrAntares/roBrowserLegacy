@@ -14,13 +14,24 @@ describe('DB.isShield', () => {
 		expect(DB.isShield(1201, JobId.ASSASSIN)).toBe(false);
 	});
 
-	it('treats view id 1 as a shield for a job that cannot dual wield', () => {
+	it('treats view id 1 as a shield for both swordman and assassin', () => {
 		expect(DB.isShield(1, JobId.SWORDMAN)).toBe(true);
+		expect(DB.isShield(1, JobId.ASSASSIN)).toBe(true);
 		expect(DB.isShield(1)).toBe(true);
 	});
 
-	it('treats view id 1 as an offhand weapon for an assassin', () => {
-		expect(DB.isShield(1, JobId.ASSASSIN)).toBe(false);
+	it('treats view id 1 as an offhand weapon when explicitly flagged as offhand weapon', () => {
+		expect(DB.isShield(1, JobId.ASSASSIN, true)).toBe(false);
+		expect(DB.isShield(1, JobId.SWORDMAN, true)).toBe(false);
+	});
+
+	it('distinguishes assassin shield view ID from weapon item ID and explicit offhand dagger', () => {
+		// Guard view ID (1) is recognized as shield
+		expect(DB.isShield(1, JobId.ASSASSIN)).toBe(true);
+		// Dagger item ID (1201) is recognized as weapon, not shield
+		expect(DB.isShield(1201, JobId.ASSASSIN)).toBe(false);
+		// Dagger view ID (1: SHORTSWORD) when offhand weapon is flagged
+		expect(DB.isShield(1, JobId.ASSASSIN, true)).toBe(false);
 	});
 
 	it('never treats 0 as a shield', () => {
