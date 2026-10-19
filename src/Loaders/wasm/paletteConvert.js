@@ -15,7 +15,7 @@
 // If the .wat changes, regenerate this blob — and vice-versa: any change to the
 // JS fallback in Sprite.js switchToRGBA() must be mirrored in the .wat
 // (byte order, vertical flip, palette layout), then recompiled and re-embedded.
-const PALETTE_CONVERT_WASM_BASE64 =
+export const PALETTE_CONVERT_WASM_BASE64 =
 	'AGFzbQEAAAABCQFgBX9/f39/AAMCAQAFAwEAAQcXAgZtZW1vcnkCAApjb252ZXJ0UGFsAAAKdwF1AQV/IANBAnQhCUEAIQUCQANAIAUgBE8NASABIAUgA2xqIQcgAiAEIAVrQQFrIAlsaiEIQQAhBgJAA0AgBiADTw0BIAggBkECdGogACAHIAZqLQAAQQJ0aigCADYCACAGQQFqIQYMAAsLIAVBAWohBQwACwsL';
 
 /**

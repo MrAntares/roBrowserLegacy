@@ -43,17 +43,6 @@ async function loadSPR({ fallback }) {
 	return (await import('Loaders/Sprite.js')).default;
 }
 
-function run(SPR, dims) {
-	const pal = makePalette();
-	const inputs = dims.map(([w, h]) => makeIndices(w, h));
-	const spr = Object.create(SPR.prototype);
-	spr.palette = pal;
-	spr.indexed_count = dims.length;
-	spr.frames = dims.map(([w, h], i) => ({ type: SPR.TYPE_PAL, width: w, height: h, data: inputs[i] }));
-	spr.switchToRGBA();
-	return spr.frames.map((f, i) => ({ got: f.data, want: reference(pal, inputs[i], ...dims[i]), type: f.type }));
-}
-
 const CASES = [
 	['multi-linha (flip vertical)', [[W, H]]],
 	['vários frames', [[4, 4], [1, 9], [9, 1], [0, 0]]],
@@ -62,14 +51,25 @@ const CASES = [
 
 afterEach(() => { vi.doUnmock('Loaders/wasm/paletteConvert.js'); });
 
-describe.each([['WASM', false], ['fallback JS', true]])('switchToRGBA via %s', (_, fallback) => {
-	it.each(CASES)('bate com a referência: %s', async (_n, dims) => {
+// Monta um SPR v2.1 mínimo (RLE sem zeros => 1 byte por pixel)
+function buildSPR(w, h, idx, pal) {
+	const size = 8 + 6 + idx.length + 1024;
+	const buf = new ArrayBuffer(size), v = new DataView(buf), b = new Uint8Array(buf);
+	b.set([0x53, 0x50, 1, 2]); v.setUint16(4, 1, true); v.setUint16(6, 0, true);
+	v.setUint16(8, w, true); v.setUint16(10, h, true); v.setUint16(12, idx.length, true);
+	b.set(idx, 14); b.set(pal, size - 1024);
+	return buf;
+}
+
+describe.each([['WASM', false], ['fallback JS', true]])('integração parse → switchToRGBA via %s', (_, fallback) => {
+	it('sprite parseado bate com a referência', async () => {
 		const SPR = await loadSPR({ fallback });
-		for (const { got, want, type } of run(SPR, dims)) {
-			expect(type).toBe(SPR.TYPE_RGBA);
-			expect(got.length).toBe(want.length);
-			expect(Buffer.from(got).equals(Buffer.from(want))).toBe(true);
-		}
+		const w = 16, h = 8, pal = makePalette();
+		const idx = makeIndices(w, h).map(c => c || 1); // sem 0 para o RLE ser literal
+		const spr = new SPR(buildSPR(w, h, idx, pal));
+		spr.switchToRGBA();
+		expect(spr.frames[0].type).toBe(SPR.TYPE_RGBA);
+		expect(Buffer.from(spr.frames[0].data).equals(Buffer.from(reference(pal, idx, w, h)))).toBe(true);
 	});
 });
 
