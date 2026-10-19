@@ -20,6 +20,7 @@ import SkillActionTable from 'DB/Skills/SkillAction.js';
 import EffectConst from 'DB/Effects/EffectConst.js';
 import PetMessageConst from 'DB/Pets/PetMessageConst.js';
 import JobId from 'DB/Jobs/JobConst.js';
+import { isOwnOffhandWeapon } from 'Engine/MapEngine/OffhandWeapon.js';
 import AttackEffect from 'DB/Monsters/AttackEffectTable.js';
 import Sound from 'Audio/SoundManager.js';
 import Events from 'Core/Events.js';
@@ -185,14 +186,20 @@ function onEntitySpam(pkt) {
 	if (entity.objecttype === Entity.TYPE_PC) {
 		// don't know why switch from katar to sword, knife server put it on the left hand instead of right hand first.
 		// so we have to swap it. maybe have a better solution.
-		if (pkt.weapon == 0 && pkt.shield != 0 && !DB.isShield(pkt.shield, entity.job)) {
+		const offhand = isOwnOffhandWeapon(entity, Session.Entity, Inventory);
+		if (pkt.weapon == 0 && pkt.shield != 0 && !DB.isShield(pkt.shield, entity.job, offhand)) {
 			pkt.weapon = pkt.shield;
 			pkt.shield = 0;
 		}
 
 		const weaponType = DB.getWeaponType(pkt.weapon, true);
 		const viewId = DB.getWeaponViewID(pkt.weapon);
-		if (DB.isAssassin(entity.job) && pkt.shield !== 0 && !DB.isShield(pkt.shield, entity.job) && pkt.weapon !== 0) {
+		if (
+			DB.isAssassin(entity.job) &&
+			pkt.shield !== 0 &&
+			!DB.isShield(pkt.shield, entity.job, offhand) &&
+			pkt.weapon !== 0
+		) {
 			const secondaryWeaponType = DB.getWeaponType(pkt.shield, true);
 			entity.weapon = DB.mountWeapon(weaponType, secondaryWeaponType);
 			entity.shield = 0;
@@ -1307,9 +1314,10 @@ function onEntityViewChange(pkt) {
 			// stored in a long value (uint16 and uint16 in uint32)
 			// source: https://github.com/rathena/rathena/blob/master/src/map/clif.c#L3162
 			if (pkt instanceof PACKET.ZC.SPRITE_CHANGE2) {
+				const offhand = isOwnOffhandWeapon(entity, Session.Entity, Inventory);
 				// don't know why switch from katar to sword, knife server put it on the left hand instead of right hand first.
 				// so we have to swap it. maybe have a better solution.
-				if (pkt.value === 0 && pkt.value2 !== 0 && !DB.isShield(pkt.value2, entity.job)) {
+				if (pkt.value === 0 && pkt.value2 !== 0 && !DB.isShield(pkt.value2, entity.job, offhand)) {
 					pkt.value = pkt.value2;
 					pkt.value2 = 0;
 				}
@@ -1317,7 +1325,7 @@ function onEntityViewChange(pkt) {
 				const weaponType = DB.getWeaponType(pkt.value, true);
 				const viewId = DB.getWeaponViewID(pkt.value);
 
-				if (DB.isAssassin(entity.job) && pkt.value2 !== 0 && !DB.isShield(pkt.value2, entity.job)) {
+				if (DB.isAssassin(entity.job) && pkt.value2 !== 0 && !DB.isShield(pkt.value2, entity.job, offhand)) {
 					const secondaryWeaponType = DB.getWeaponType(pkt.value2, true);
 					entity.weapon = DB.mountWeapon(weaponType, secondaryWeaponType);
 					entity.shield = 0;
