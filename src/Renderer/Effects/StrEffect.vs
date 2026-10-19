@@ -2,14 +2,15 @@
 precision highp float;
 
 in vec2 aPosition;
-in vec2 aTextureCoord;
 
 out vec2 vTextureCoord;
 
 uniform mat4 uModelViewMat;
 uniform mat4 uProjectionMat;
 
-uniform mat4 uSpriteAngle;
+uniform float uSpriteAngle;
+uniform vec4 uCornerX;
+uniform vec4 uCornerY;
 uniform vec3 uSpritePosition;
 uniform vec2 uSpriteOffset;
 uniform float uVerticalBase;
@@ -38,10 +39,12 @@ mat4 Project( mat4 mat, vec3 pos) {
 }
 
 void main(void) {
-	vTextureCoord = aTextureCoord;
+	vTextureCoord = aPosition;
 
-	// Calculate position base on angle and sprite offset/size
-	vec4 position = uSpriteAngle * vec4( aPosition.x * pixelRatio, -aPosition.y * pixelRatio, 0.0, 1.0 );
+	int corner = int(aPosition.x + aPosition.y * 2.0);
+	float r = radians(-uSpriteAngle);
+	vec2 p = vec2(uCornerX[corner] * pixelRatio, -uCornerY[corner] * pixelRatio);
+	vec4 position = vec4(p.x * cos(r) - p.y * sin(r), p.x * sin(r) + p.y * cos(r), 0.0, 1.0);
 	position.x   += uSpriteOffset.x * pixelRatio;
 	position.y   -= uSpriteOffset.y * pixelRatio + uVerticalBase;
 
