@@ -617,5 +617,207 @@ describe('LuaModuleLoader', () => {
 				}
 			}
 		});
+
+		it('keeps custom Homunculus AI active when custom Mercenary AI files are missing, and distinguishes missing files from script errors', async () => {
+			const aiVfs = {
+				'AI/Const.lua': 'FOLLOW_ST = 1',
+				'AI/Util.lua': 'List = {}',
+				'AI/AI.lua': 'HO_SOURCE = "default"',
+				'AI/AI_M.lua': 'MER_SOURCE = "default"',
+				'AI/USER_AI/Const.lua': 'FOLLOW_ST = 2',
+				'AI/USER_AI/Util.lua': 'List = {}',
+				'AI/USER_AI/AI.lua': 'HO_SOURCE = "custom"'
+				// Note: 'AI/USER_AI/AI_M.lua' is intentionally absent
+			};
+
+			vi.spyOn(Client, 'loadFile').mockImplementation((filename, onload, onerror) => {
+				if (filename in aiVfs) {
+					onload(new TextEncoder().encode(aiVfs[filename]));
+				} else {
+					onerror(new Error(`Missing AI file: ${filename}`));
+				}
+			});
+
+			const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+			const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+			const vms = await Promise.all([
+				CLua.Lua.create({ customWasmUri: wasmDataUri }),
+				CLua.Lua.create({ customWasmUri: wasmDataUri }),
+				CLua.Lua.create({ customWasmUri: wasmDataUri }),
+				CLua.Lua.create({ customWasmUri: wasmDataUri })
+			]);
+
+			vi.spyOn(DB, 'getHOAI_VM').mockReturnValue(vms[0]);
+			vi.spyOn(DB, 'getMERAI_VM').mockReturnValue(vms[1]);
+			vi.spyOn(DB, 'getDefaultHOAI_VM').mockReturnValue(vms[2]);
+			vi.spyOn(DB, 'getDefaultMERAI_VM').mockReturnValue(vms[3]);
+
+			try {
+				await AIDriver.initAI();
+
+				// Custom HO_AI succeeded and must NOT be replaced by default_HO_AI
+				expect(AIDriver.HO_AI === vms[0]).toBe(true);
+				expect(AIDriver.HO_AI !== AIDriver.default_HO_AI).toBe(true);
+				// Custom MER_AI was missing and fell back to default_MER_AI
+				expect(AIDriver.MER_AI === AIDriver.default_MER_AI).toBe(true);
+
+				const hoSource = LuaModuleLoader.decodeLuaString(AIDriver.HO_AI.doStringSync('return HO_SOURCE'));
+				expect(hoSource).toBe('custom');
+
+				expect(warnSpy).toHaveBeenCalledWith(
+					expect.stringContaining('[AIDriver] Custom MER USER_AI files not available'),
+					expect.any(String)
+				);
+				expect(errorSpy).not.toHaveBeenCalled();
+
+				// Now test when custom MER_AI exists but has a syntax/runtime error
+				LuaModuleLoader.clearCache();
+				aiVfs['AI/USER_AI/AI_M.lua'] = 'error("custom mercenary runtime failure")';
+				await AIDriver.initAI();
+
+				expect(errorSpy).toHaveBeenCalledWith(
+					expect.stringContaining('[AIDriver] Custom MER USER_AI failed to initialize'),
+					expect.any(String)
+				);
+			} finally {
+				for (const vm of vms) {
+					if (!vm.global.isClosed()) {
+						vm.global.close();
+					}
+				}
+			}
+		});
+	});
+
+	describe('Edge cases: search path ordering, empty package.path, script-modified paths, negative caching, and client switches', () => {
+		it('prefers an earlier uncached search-path candidate over a later cached fallback candidate', async () => {
+			// Pre-populate the fallback candidate in the shared buffer cache (e.g., from default AI)
+			LuaModuleLoader.registerModuleBuffer('AI/Const.lua', 'return { source = "default_cached" }');
+
+			// The preferred candidate exists in VFS but is not yet cached
+			vi.spyOn(Client, 'loadFile').mockImplementation((filename, onload, onerror) => {
+				if (filename === 'AI/USER_AI/Const.lua') {
+					onload(new TextEncoder().encode('return { source = "custom_vfs" }'));
+				} else {
+					onerror(new Error(`Missing: ${filename}`));
+				}
+			});
+
+			const customVM = await createLuaVM({
+				searchPaths: ['AI/USER_AI/?.lua', 'AI/?.lua']
+			});
+
+			try {
+				const sourceBytes = await customVM.doString(`
+					local c = require("Const")
+					return c.source
+				`);
+				expect(LuaModuleLoader.decodeLuaString(sourceBytes)).toBe('custom_vfs');
+			} finally {
+				if (!customVM.global.isClosed()) {
+					customVM.global.close();
+				}
+			}
+		});
+
+		it('disables path-template resolution when Lua sets package.path to an empty string', async () => {
+			LuaModuleLoader.registerModuleBuffer('AI/Const.lua', 'return { ok = true }');
+
+			const errBytes = await lua.doString(`
+				package.path = ""
+				local ok, err = pcall(require, "Const")
+				assert(ok == false, "Expected require to fail when package.path is empty")
+				return tostring(err)
+			`);
+
+			expect(LuaModuleLoader.decodeLuaString(errBytes)).toContain("module 'Const' not found");
+		});
+
+		it('preserves package.path modifications made by earlier files during loadAndExecuteFiles', async () => {
+			const vfsFiles = {
+				'AI/Util.lua': 'package.path = "Mods/?.lua;" .. package.path',
+				'AI/Const.lua': 'CONST_READY = true',
+				'AI/AI.lua': 'local tactics = require("tactics"); TACTIC_NAME = tactics.name',
+				'Mods/tactics.lua': 'return { name = "aggressive_kite" }'
+			};
+
+			vi.spyOn(Client, 'loadFile').mockImplementation((filename, onload, onerror) => {
+				if (filename in vfsFiles) {
+					onload(new TextEncoder().encode(vfsFiles[filename]));
+				} else {
+					onerror(new Error(`Missing: ${filename}`));
+				}
+			});
+
+			await LuaModuleLoader.loadAndExecuteFiles(lua, ['AI/Util.lua', 'AI/Const.lua', 'AI/AI.lua'], {
+				searchPaths: ['./?.lua', 'AI/?.lua']
+			});
+
+			const tacticName = LuaModuleLoader.decodeLuaString(lua.doStringSync('return TACTIC_NAME'));
+			expect(tacticName).toBe('aggressive_kite');
+		});
+
+		it('does not repeat VFS scans for known-missing optional dependencies after preloading', async () => {
+			const vfsFiles = {
+				'AI/MainScript.lua': `
+					local ok, _ = pcall(require, "AbsentOptionalMod")
+					OPT_OK = ok
+				`
+			};
+
+			const loadSpy = vi.spyOn(Client, 'loadFile').mockImplementation((filename, onload, onerror) => {
+				if (filename in vfsFiles) {
+					onload(new TextEncoder().encode(vfsFiles[filename]));
+				} else {
+					onerror(new Error(`Missing: ${filename}`));
+				}
+			});
+
+			await LuaModuleLoader.doFileAsync(lua, 'AI/MainScript.lua');
+			const callsAfterFirstRun = loadSpy.mock.calls.filter(c => c[0].includes('AbsentOptionalMod')).length;
+			expect(callsAfterFirstRun).toBeGreaterThan(0);
+
+			// A subsequent runtime pcall(require, "AbsentOptionalMod") should hit the negative cache without rescanning VFS
+			await lua.doString('local ok, _ = pcall(require, "AbsentOptionalMod"); return ok');
+			const callsAfterSecondRun = loadSpy.mock.calls.filter(c => c[0].includes('AbsentOptionalMod')).length;
+			expect(callsAfterSecondRun).toBe(callsAfterFirstRun);
+		});
+
+		it('discards stale in-flight requests from a previous client archive after clearCache()', async () => {
+			let pendingArchiveACallback = null;
+
+			vi.spyOn(Client, 'loadFile').mockImplementation((filename, onload) => {
+				if (!pendingArchiveACallback) {
+					// First archive request stays in-flight across client switch
+					pendingArchiveACallback = () => {
+						onload(new TextEncoder().encode('return { archive = "A" }'));
+					};
+				} else {
+					onload(new TextEncoder().encode('return { archive = "B" }'));
+				}
+			});
+
+			// Start loading from Client A (remains in-flight)
+			const inflightPromiseA = LuaModuleLoader.loadVfsCandidate('AI/AI.lua');
+
+			// Switch client archive -> clears cache and increments generation
+			LuaModuleLoader.clearCache();
+
+			// Client A's late response arrives after clearCache()
+			pendingArchiveACallback();
+			await inflightPromiseA;
+
+			// Now load in a new VM for Client B: must fetch Client B's version, not Client A's stale bytes
+			const vmB = await createLuaVM();
+			try {
+				const archiveBytes = await vmB.doString('return require("AI").archive');
+				expect(LuaModuleLoader.decodeLuaString(archiveBytes)).toBe('B');
+			} finally {
+				if (!vmB.global.isClosed()) {
+					vmB.global.close();
+				}
+			}
+		});
 	});
 });

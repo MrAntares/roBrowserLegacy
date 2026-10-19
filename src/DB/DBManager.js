@@ -308,6 +308,7 @@ class DB {
 		// it again, and drop the previous answer the file cache keeps by name.
 		// A request still on its way would land in the file cache under that
 		// name: it is dropped once it lands instead.
+		LuaModuleLoader.clearCache();
 		mountPalettes = undefined;
 		if (mountPalettesProbe) {
 			mountPalettesProbe.stale = true;
@@ -4060,6 +4061,7 @@ class DB {
 }
 
 async function startLua() {
+	LuaModuleLoader.clearCache();
 	const wasmUrl = (await import('Vendors/liblua5.1.wasm?url')).default;
 	const CLua = (await import('Vendors/wasmoon-lua5.1.js')).default;
 	const [l, ha, ma, dha, dma] = await Promise.all([

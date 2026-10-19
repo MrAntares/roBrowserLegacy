@@ -480,22 +480,47 @@ class AIDriver {
 				await LuaModuleLoader.loadAndExecuteFiles(AIDriver.HO_AI, customHoFiles, {
 					searchPaths: customAISearchPaths
 				});
+			} catch (customHoError) {
+				if (customHoError && customHoError.code === 'LUA_FILE_NOT_FOUND') {
+					console.warn(
+						'[AIDriver] Custom HO USER_AI files not available, falling back to default HO AI:',
+						customHoError.message || customHoError
+					);
+				} else {
+					console.error(
+						'[AIDriver] Custom HO USER_AI failed to initialize, falling back to default HO AI:',
+						customHoError.message || customHoError
+					);
+				}
+				AIDriver.HO_AI = AIDriver.default_HO_AI;
+			}
 
+			try {
 				console.log('Loading Custom MERAI...');
 				const customMerFiles = ['AI/USER_AI/Util.lua', 'AI/USER_AI/Const.lua', 'AI/USER_AI/AI_M.lua'];
 				await LuaModuleLoader.loadAndExecuteFiles(AIDriver.MER_AI, customMerFiles, {
 					searchPaths: customAISearchPaths
 				});
-			} catch (customError) {
-				console.warn(
-					'[AIDriver] Custom USER_AI files not available, falling back to default AI:',
-					customError.message || customError
-				);
-				AIDriver.HO_AI = AIDriver.default_HO_AI;
+			} catch (customMerError) {
+				if (customMerError && customMerError.code === 'LUA_FILE_NOT_FOUND') {
+					console.warn(
+						'[AIDriver] Custom MER USER_AI files not available, falling back to default MER AI:',
+						customMerError.message || customMerError
+					);
+				} else {
+					console.error(
+						'[AIDriver] Custom MER USER_AI failed to initialize, falling back to default MER AI:',
+						customMerError.message || customMerError
+					);
+				}
 				AIDriver.MER_AI = AIDriver.default_MER_AI;
 			}
 		} catch (error) {
-			console.warn('[AIDriver] AI files not available, skipping AI initialization:', error.message || error);
+			if (error && error.code === 'LUA_FILE_NOT_FOUND') {
+				console.warn('[AIDriver] AI files not available, skipping AI initialization:', error.message || error);
+			} else {
+				console.error('[AIDriver] Failed to initialize AI:', error.message || error);
+			}
 			if (typeof onEnd === 'function') {
 				onEnd();
 			}

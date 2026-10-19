@@ -27,11 +27,12 @@ When `require(modname)` is invoked in a configured Lua VM:
      - Dotted module names (`require("module.submodule")`) expand to `module/submodule.lua`, `module/submodule.lub`, `module/submodule/init.lua`, etc.
      - Ragnarok Online backslash paths and explicit extensions (`require("AI\\Const.lua")`, `require("System/itemInfo.lub")`) normalize backslashes to `/` and preserve the explicit `.lua` / `.lub` extension instead of treating `.lua` as a nested directory.
      - Direct HTTP(S) URLs (`require("https://example.com/scripts/mod.lua")`) and URL templates in `package.path` (`https://example.com/lua/?.lua`) resolve as remote URL candidates.
-   - Checks sources in precedence order:
+     - Setting `package.path = ""` disables template-based path resolution.
+   - Evaluates candidates strictly in `package.path` order. For each candidate:
      1. **VM `MEMFS`**: Checks if the candidate is already mounted in the Lua VM's Emscripten `MEMFS`.
-     2. **Shared Buffer Cache (`LuaModuleLoader`)**: Checks if the raw `Uint8Array` buffer was already loaded by any VM and mounts it into the current VM's `MEMFS`.
+     2. **Shared Buffer Cache (`LuaModuleLoader`)**: Checks if the raw `Uint8Array` buffer was already loaded in the current client archive generation and mounts it into the current VM's `MEMFS`.
      3. **`MemoryManager`**: Checks if the VFS asset is already cached in `MemoryManager` (`MemoryManager.exist(candidate)`) and mounts it synchronously.
-     4. **Async VFS (`Client.loadFile`) / Remote HTTP(S) (`fetch`)**: When running inside an async Wasmoon coroutine (`await lua.doString(...)`, `await lua.doFile(...)`, `LuaModuleLoader.requireAsync(...)`, or `LuaModuleLoader.doFileAsync(...)`), yields a JS `Promise` to fetch the first available candidate from `Client.loadFile` (for VFS paths) or `fetch` (for remote URLs), mounts the raw `Uint8Array` into `MEMFS`, and resumes Lua execution.
+     4. **Async VFS (`Client.loadFile`) / Remote HTTP(S) (`fetch`)**: When running inside an async Wasmoon coroutine (`await lua.doString(...)`, `await lua.doFile(...)`, `LuaModuleLoader.requireAsync(...)`, or `LuaModuleLoader.doFileAsync(...)`), yields a JS `Promise` to fetch an unchecked candidate from `Client.loadFile` (for VFS paths) or `fetch` (for remote URLs) before falling back to any lower-priority candidate in `package.path`. Known-missing candidates are recorded in a negative lookup cache for the current client archive generation to avoid redundant VFS/network scans, and `LuaModuleLoader.clearCache()` invalidates cached buffers and in-flight requests on client/server switches.
    - Compiles the mounted file from `MEMFS` via `_raw_loadfile(memfsPath)`, preserving raw binary bytes for both `.lua` source files (including EUC-KR / Windows-1252 strings and stripping 3-byte UTF-8 BOMs) and `.lub` compiled Lua 5.1 bytecode (`\x1bLuaQ...`).
 
 4. **Custom Searchers (`package.loaders[3+]` / `package.searchers[3+]`)**

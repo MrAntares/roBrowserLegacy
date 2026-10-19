@@ -65,11 +65,29 @@ const _inflight = new Map();
 
 /**
  * Negative lookup diagnostics keyed by canonical candidate path/URL.
- * Records the most recent failure message for error reporting.
+ * Records the most recent failure message for error reporting and avoids
+ * redundant VFS/network requests for known-missing candidates within the same archive generation.
  *
  * @type {Map<string, string>}
  */
 const _failureReasons = new Map();
+
+/**
+ * Monotonically increasing cache generation counter.
+ * Incremented on `clearCache()` (e.g., when switching clients/servers) so
+ * in-flight requests from a previous client archive cannot repopulate the cache.
+ *
+ * @type {number}
+ */
+let _cacheGeneration = 0;
+
+/**
+ * Tracks the last seen `Client.loadFile` function reference so negative cache entries
+ * are invalidated automatically if `Client.loadFile` is replaced in tests or runtime.
+ *
+ * @type {Function}
+ */
+let _lastClientLoadFile = Client.loadFile;
 
 /**
  * Per-Lua-VM metadata store.
@@ -190,14 +208,15 @@ do
 
 	-- Searcher 2: roBrowserLegacy VFS / MemoryManager / Remote URL / MEMFS searcher
 	local function vfs_searcher(modname)
+		local is_async = coroutine.running() ~= nil
 		local search_path = type(package.path) == 'string' and package.path or ''
-		local resolved = __ro_resolve_module(modname, search_path)
-		if (not resolved or not resolved.found) and coroutine.running() ~= nil then
+		local resolved = __ro_resolve_module(modname, search_path, is_async)
+		if (not resolved or not resolved.found) and is_async and (not resolved or resolved.needsAsync ~= false) then
 			local promise = __ro_fetch_module_async(modname, search_path)
 			if promise ~= nil then
 				coroutine.yield(promise)
 			end
-			resolved = __ro_resolve_module(modname, search_path)
+			resolved = __ro_resolve_module(modname, search_path, false)
 		end
 
 		if not resolved or not resolved.found then
@@ -305,14 +324,15 @@ do
 			return _raw_loadfile()
 		end
 		filename = tostring(filename)
+		local is_async = coroutine.running() ~= nil
 		local search_path = type(package.path) == 'string' and package.path or ''
-		local resolved = __ro_resolve_file(filename, search_path)
-		if (not resolved or not resolved.found) and coroutine.running() ~= nil then
+		local resolved = __ro_resolve_file(filename, search_path, is_async)
+		if (not resolved or not resolved.found) and is_async and (not resolved or resolved.needsAsync ~= false) then
 			local promise = __ro_fetch_file_async(filename, search_path)
 			if promise ~= nil then
 				coroutine.yield(promise)
 			end
-			resolved = __ro_resolve_file(filename, search_path)
+			resolved = __ro_resolve_file(filename, search_path, false)
 		end
 		if resolved and resolved.found then
 			return _raw_loadfile(resolved.memfsPath)
@@ -364,12 +384,15 @@ class LuaModuleLoader {
 		}
 		if (options.vfsLoader !== undefined) {
 			_config.vfsLoader = options.vfsLoader;
+			_failureReasons.clear();
 		}
 		if (options.urlFetcher !== undefined) {
 			_config.urlFetcher = options.urlFetcher;
+			_failureReasons.clear();
 		}
 		if (options.remoteBaseUrl !== undefined) {
 			_config.remoteBaseUrl = options.remoteBaseUrl || '';
+			_failureReasons.clear();
 		}
 	}
 
@@ -381,15 +404,30 @@ class LuaModuleLoader {
 		_config.vfsLoader = null;
 		_config.urlFetcher = null;
 		_config.remoteBaseUrl = '';
+		_failureReasons.clear();
 	}
 
 	/**
-	 * Clear internal module buffer and negative-lookup caches.
+	 * Clear internal module buffer, in-flight, and negative-lookup caches.
+	 * Increments the cache generation token so any pending in-flight requests
+	 * from a previous client/archive cannot repopulate the cache.
 	 */
 	static clearCache() {
+		_cacheGeneration++;
 		_bufferCache.clear();
 		_inflight.clear();
 		_failureReasons.clear();
+		_lastClientLoadFile = Client.loadFile;
+	}
+
+	/**
+	 * Invalidate negative lookup cache if `Client.loadFile` reference has changed.
+	 */
+	static syncClientLoaderState() {
+		if (Client.loadFile !== _lastClientLoadFile) {
+			_lastClientLoadFile = Client.loadFile;
+			_failureReasons.clear();
+		}
 	}
 
 	static toLocalUint8Array(input) {
@@ -555,17 +593,16 @@ class LuaModuleLoader {
 
 	/**
 	 * Resolve effective search paths for a Lua VM.
+	 * Distinguishes an omitted `overrideSearchPaths` (`undefined`/`null`) from an
+	 * explicitly empty path (`''` or `[]`), which returns `[]` to disable path-template lookups.
 	 *
 	 * @param {object} [lua] - Wasmoon Lua instance
-	 * @param {string|string[]} [overrideSearchPaths] - Explicit search paths override
+	 * @param {string|string[]|null} [overrideSearchPaths] - Explicit search paths override
 	 * @returns {string[]}
 	 */
-	static getSearchPaths(lua = null, overrideSearchPaths = null) {
-		if (overrideSearchPaths) {
-			const parsed = LuaModuleLoader.parseSearchPathsInput(overrideSearchPaths);
-			if (parsed.length > 0) {
-				return parsed;
-			}
+	static getSearchPaths(lua = null, overrideSearchPaths = undefined) {
+		if (overrideSearchPaths !== undefined && overrideSearchPaths !== null) {
+			return LuaModuleLoader.parseSearchPathsInput(overrideSearchPaths);
 		}
 
 		const configPaths = Configs.get('luaSearchPaths', null);
@@ -573,7 +610,7 @@ class LuaModuleLoader {
 
 		if (lua && _vmState.has(lua)) {
 			const state = _vmState.get(lua);
-			if (state && state.searchPaths && state.searchPaths.length > 0) {
+			if (state && Array.isArray(state.searchPaths)) {
 				return LuaModuleLoader.dedupeArray([...fromConfigs, ...state.searchPaths]);
 			}
 		}
@@ -583,6 +620,26 @@ class LuaModuleLoader {
 		}
 
 		return [..._config.searchPaths];
+	}
+
+	/**
+	 * Read the live `package.path` from a Lua VM (or format an explicit override if provided).
+	 *
+	 * @param {object} lua - Wasmoon Lua instance
+	 * @param {string|string[]} [overrideSearchPaths]
+	 * @returns {string}
+	 */
+	static getCurrentPackagePath(lua, overrideSearchPaths = undefined) {
+		if (overrideSearchPaths !== undefined && overrideSearchPaths !== null) {
+			return LuaModuleLoader.formatPackagePath(overrideSearchPaths);
+		}
+		if (lua && typeof lua.doStringSync === 'function') {
+			const raw = lua.doStringSync(
+				'return (type(package) == "table" and type(package.path) == "string") and package.path or ""'
+			);
+			return LuaModuleLoader.decodeLuaString(raw);
+		}
+		return LuaModuleLoader.formatPackagePath(LuaModuleLoader.getSearchPaths(lua));
 	}
 
 	/**
@@ -637,9 +694,10 @@ class LuaModuleLoader {
 	 *
 	 * @param {string} modname - Module name passed to `require()`
 	 * @param {string|string[]} [searchPaths] - Search path templates (`package.path`)
+	 * @param {object} [lua] - Optional Lua VM instance for VM-scoped default search paths
 	 * @returns {string[]} Ordered list of unique candidate paths/URLs
 	 */
-	static resolveCandidates(modname, searchPaths = null) {
+	static resolveCandidates(modname, searchPaths = undefined, lua = null) {
 		const raw = LuaModuleLoader.decodeLuaString(modname).trim();
 		if (!raw) {
 			return [];
@@ -658,7 +716,11 @@ class LuaModuleLoader {
 			return LuaModuleLoader.dedupeArray(candidates);
 		}
 
-		const templates = LuaModuleLoader.getSearchPaths(null, searchPaths);
+		const templates = LuaModuleLoader.getSearchPaths(lua, searchPaths);
+		if (templates.length === 0) {
+			return [];
+		}
+
 		const normalized = LuaModuleLoader.normalizeVfsPath(raw);
 		if (!normalized) {
 			return [];
@@ -718,9 +780,10 @@ class LuaModuleLoader {
 	 *
 	 * @param {string} filename
 	 * @param {string|string[]} [searchPaths]
+	 * @param {object} [lua]
 	 * @returns {string[]}
 	 */
-	static resolveFileCandidates(filename, searchPaths = null) {
+	static resolveFileCandidates(filename, searchPaths = undefined, lua = null) {
 		const raw = LuaModuleLoader.decodeLuaString(filename).trim();
 		if (!raw) {
 			return [];
@@ -736,7 +799,7 @@ class LuaModuleLoader {
 			candidates.push(`${normalized}.lub`);
 		}
 
-		const moduleCandidates = LuaModuleLoader.resolveCandidates(normalized, searchPaths);
+		const moduleCandidates = LuaModuleLoader.resolveCandidates(normalized, searchPaths, lua);
 		return LuaModuleLoader.dedupeArray([...candidates, ...moduleCandidates]);
 	}
 
@@ -813,6 +876,10 @@ class LuaModuleLoader {
 		}
 
 		fs.writeFile(cleanPath, bytes);
+		const normalizedCandidate = LuaModuleLoader.normalizeVfsPath(cleanPath);
+		if (normalizedCandidate) {
+			_failureReasons.delete(normalizedCandidate);
+		}
 		return cleanPath;
 	}
 
@@ -836,6 +903,36 @@ class LuaModuleLoader {
 			LuaModuleLoader.mountBuffer(lua, memfsPath, bytes);
 		}
 		return bytes;
+	}
+
+	/**
+	 * Check whether a candidate has already been probed and confirmed missing
+	 * in the current archive generation.
+	 *
+	 * @param {object|null} lua - Wasmoon Lua instance
+	 * @param {string} candidate - Canonical candidate path or URL
+	 * @returns {boolean}
+	 */
+	static isKnownMissing(lua, candidate) {
+		LuaModuleLoader.syncClientLoaderState();
+		if (!_failureReasons.has(candidate)) {
+			return false;
+		}
+		const memfsPath = LuaModuleLoader.toMemfsPath(candidate);
+		if ((lua && LuaModuleLoader.hasMemfsFile(lua, memfsPath)) || _bufferCache.has(candidate)) {
+			_failureReasons.delete(candidate);
+			return false;
+		}
+		if (
+			!LuaModuleLoader.isRemoteUrl(candidate) &&
+			MemoryManager.exist(candidate) &&
+			MemoryManager.get(candidate) !== null &&
+			MemoryManager.get(candidate) !== undefined
+		) {
+			_failureReasons.delete(candidate);
+			return false;
+		}
+		return true;
 	}
 
 	/**
@@ -875,6 +972,7 @@ class LuaModuleLoader {
 			if (memData !== null && memData !== undefined) {
 				const bytes = LuaModuleLoader.normalizeBuffer(memData);
 				_bufferCache.set(candidate, bytes);
+				_failureReasons.delete(candidate);
 				const mountedPath = LuaModuleLoader.mountBuffer(lua, memfsPath, bytes);
 				return { found: true, memfsPath: mountedPath, candidate, source: 'memory' };
 			}
@@ -906,32 +1004,51 @@ class LuaModuleLoader {
 
 	/**
 	 * Synchronously resolve a module name across all configured candidate paths.
+	 * When `options.asyncMode` is `true`, stops at the first uncached candidate that
+	 * has not yet been checked asynchronously so a lower-priority cached candidate
+	 * never overrides a higher-priority uncached `package.path` entry.
 	 *
 	 * @param {object} lua - Wasmoon Lua instance
 	 * @param {string|Uint8Array} modname - Module name
 	 * @param {string|Uint8Array} [searchPathStr] - Current `package.path` from Lua
-	 * @returns {{ found: boolean, memfsPath?: string, candidate?: string, source?: string, candidates: string[], triedMessage?: string }}
+	 * @param {object} [options={}]
+	 * @param {boolean} [options.asyncMode=false] - Whether caller can yield to fetch unchecked candidates
+	 * @returns {{ found: boolean, needsAsync?: boolean, memfsPath?: string, candidate?: string, source?: string, candidates: string[], triedMessage?: string }}
 	 */
-	static resolveModuleSync(lua, modname, searchPathStr = '') {
+	static resolveModuleSync(lua, modname, searchPathStr = undefined, options = {}) {
 		const decodedMod = LuaModuleLoader.decodeLuaString(modname);
-		const decodedSearch = LuaModuleLoader.decodeLuaString(searchPathStr);
-		const candidates = LuaModuleLoader.resolveCandidates(decodedMod, decodedSearch || null);
+		const decodedSearch =
+			searchPathStr === undefined || searchPathStr === null
+				? undefined
+				: LuaModuleLoader.decodeLuaString(searchPathStr);
+		const candidates = LuaModuleLoader.resolveCandidates(decodedMod, decodedSearch, lua);
+		const asyncMode = Boolean(options && options.asyncMode);
 
 		for (const candidate of candidates) {
 			const res = LuaModuleLoader.resolveCandidateSync(lua, candidate);
 			if (res.found) {
 				return {
 					found: true,
+					needsAsync: false,
 					memfsPath: res.memfsPath,
 					candidate: res.candidate,
 					source: res.source,
 					candidates
 				};
 			}
+			if (asyncMode && !LuaModuleLoader.isKnownMissing(lua, candidate)) {
+				return {
+					found: false,
+					needsAsync: true,
+					candidates,
+					triedMessage: LuaModuleLoader.formatTriedMessage(candidates)
+				};
+			}
 		}
 
 		return {
 			found: false,
+			needsAsync: false,
 			candidates,
 			triedMessage: LuaModuleLoader.formatTriedMessage(candidates)
 		};
@@ -939,32 +1056,50 @@ class LuaModuleLoader {
 
 	/**
 	 * Synchronously resolve a direct file path (`loadfile` / `dofile`).
+	 * When `options.asyncMode` is `true`, stops at the first uncached candidate that
+	 * has not yet been checked asynchronously.
 	 *
 	 * @param {object} lua - Wasmoon Lua instance
 	 * @param {string|Uint8Array} filename - File path or URL
 	 * @param {string|Uint8Array} [searchPathStr] - Current `package.path` from Lua
-	 * @returns {{ found: boolean, memfsPath?: string, candidate?: string, source?: string, candidates: string[], triedMessage?: string }}
+	 * @param {object} [options={}]
+	 * @param {boolean} [options.asyncMode=false] - Whether caller can yield to fetch unchecked candidates
+	 * @returns {{ found: boolean, needsAsync?: boolean, memfsPath?: string, candidate?: string, source?: string, candidates: string[], triedMessage?: string }}
 	 */
-	static resolveFileSync(lua, filename, searchPathStr = '') {
+	static resolveFileSync(lua, filename, searchPathStr = undefined, options = {}) {
 		const decodedFile = LuaModuleLoader.decodeLuaString(filename);
-		const decodedSearch = LuaModuleLoader.decodeLuaString(searchPathStr);
-		const candidates = LuaModuleLoader.resolveFileCandidates(decodedFile, decodedSearch || null);
+		const decodedSearch =
+			searchPathStr === undefined || searchPathStr === null
+				? undefined
+				: LuaModuleLoader.decodeLuaString(searchPathStr);
+		const candidates = LuaModuleLoader.resolveFileCandidates(decodedFile, decodedSearch, lua);
+		const asyncMode = Boolean(options && options.asyncMode);
 
 		for (const candidate of candidates) {
 			const res = LuaModuleLoader.resolveCandidateSync(lua, candidate);
 			if (res.found) {
 				return {
 					found: true,
+					needsAsync: false,
 					memfsPath: res.memfsPath,
 					candidate: res.candidate,
 					source: res.source,
 					candidates
 				};
 			}
+			if (asyncMode && !LuaModuleLoader.isKnownMissing(lua, candidate)) {
+				return {
+					found: false,
+					needsAsync: true,
+					candidates,
+					triedMessage: LuaModuleLoader.formatTriedMessage(candidates)
+				};
+			}
 		}
 
 		return {
 			found: false,
+			needsAsync: false,
 			candidates,
 			triedMessage: LuaModuleLoader.formatTriedMessage(candidates)
 		};
@@ -978,14 +1113,19 @@ class LuaModuleLoader {
 	 * @returns {Promise<Uint8Array>}
 	 */
 	static loadVfsCandidate(candidate, options = {}) {
+		LuaModuleLoader.syncClientLoaderState();
 		if (_bufferCache.has(candidate)) {
 			return Promise.resolve(_bufferCache.get(candidate));
 		}
 		if (_inflight.has(candidate)) {
 			return _inflight.get(candidate);
 		}
+		if (!options.vfsLoader && LuaModuleLoader.isKnownMissing(null, candidate)) {
+			return Promise.reject(new Error(_failureReasons.get(candidate)));
+		}
 
 		const vfsLoader = options.vfsLoader || _config.vfsLoader;
+		const generation = _cacheGeneration;
 
 		const promise = new Promise((resolve, reject) => {
 			if (typeof vfsLoader === 'function') {
@@ -996,13 +1136,17 @@ class LuaModuleLoader {
 							throw new Error(`VFS file not found: ${candidate}`);
 						}
 						const bytes = LuaModuleLoader.normalizeBuffer(data);
-						_bufferCache.set(candidate, bytes);
-						_failureReasons.delete(candidate);
+						if (_cacheGeneration === generation) {
+							_bufferCache.set(candidate, bytes);
+							_failureReasons.delete(candidate);
+						}
 						resolve(bytes);
 					})
 					.catch(err => {
 						const msg = (err && err.message) || String(err || 'VFS load failed');
-						_failureReasons.set(candidate, msg);
+						if (_cacheGeneration === generation) {
+							_failureReasons.set(candidate, msg);
+						}
 						reject(new Error(msg));
 					});
 				return;
@@ -1013,8 +1157,10 @@ class LuaModuleLoader {
 				const existing = MemoryManager.get(candidate);
 				if (existing !== null && existing !== undefined) {
 					const bytes = LuaModuleLoader.normalizeBuffer(existing);
-					_bufferCache.set(candidate, bytes);
-					_failureReasons.delete(candidate);
+					if (_cacheGeneration === generation) {
+						_bufferCache.set(candidate, bytes);
+						_failureReasons.delete(candidate);
+					}
 					resolve(bytes);
 					return;
 				}
@@ -1027,19 +1173,28 @@ class LuaModuleLoader {
 				}
 				settled = true;
 				try {
+					if (_cacheGeneration !== generation) {
+						MemoryManager.remove(null, candidate);
+					}
 					if (data === null || data === undefined) {
 						const msg = `Empty VFS response for "${candidate}"`;
-						_failureReasons.set(candidate, msg);
+						if (_cacheGeneration === generation) {
+							_failureReasons.set(candidate, msg);
+						}
 						reject(new Error(msg));
 						return;
 					}
 					const bytes = LuaModuleLoader.normalizeBuffer(data);
-					_bufferCache.set(candidate, bytes);
-					_failureReasons.delete(candidate);
+					if (_cacheGeneration === generation) {
+						_bufferCache.set(candidate, bytes);
+						_failureReasons.delete(candidate);
+					}
 					resolve(bytes);
 				} catch (err) {
 					const msg = (err && err.message) || String(err);
-					_failureReasons.set(candidate, msg);
+					if (_cacheGeneration === generation) {
+						_failureReasons.set(candidate, msg);
+					}
 					reject(err);
 				}
 			};
@@ -1050,7 +1205,9 @@ class LuaModuleLoader {
 				}
 				settled = true;
 				const msg = (err && err.message) || String(err || `File not found in VFS: ${candidate}`);
-				_failureReasons.set(candidate, msg);
+				if (_cacheGeneration === generation) {
+					_failureReasons.set(candidate, msg);
+				}
 				reject(new Error(msg));
 			};
 
@@ -1060,7 +1217,9 @@ class LuaModuleLoader {
 				onError(err);
 			}
 		}).finally(() => {
-			_inflight.delete(candidate);
+			if (_inflight.get(candidate) === promise) {
+				_inflight.delete(candidate);
+			}
 		});
 
 		_inflight.set(candidate, promise);
@@ -1082,8 +1241,12 @@ class LuaModuleLoader {
 		if (_inflight.has(url)) {
 			return _inflight.get(url);
 		}
+		if (!options.urlFetcher && _failureReasons.has(url)) {
+			return Promise.reject(new Error(_failureReasons.get(url)));
+		}
 
 		const urlFetcher = options.urlFetcher || _config.urlFetcher;
+		const generation = _cacheGeneration;
 
 		const promise = Promise.resolve()
 			.then(async () => {
@@ -1122,17 +1285,23 @@ class LuaModuleLoader {
 					}
 				}
 
-				_bufferCache.set(url, bytes);
-				_failureReasons.delete(url);
+				if (_cacheGeneration === generation) {
+					_bufferCache.set(url, bytes);
+					_failureReasons.delete(url);
+				}
 				return bytes;
 			})
 			.catch(err => {
 				const msg = (err && err.message) || String(err || 'Remote fetch failed');
-				_failureReasons.set(url, msg);
+				if (_cacheGeneration === generation) {
+					_failureReasons.set(url, msg);
+				}
 				throw new Error(msg);
 			})
 			.finally(() => {
-				_inflight.delete(url);
+				if (_inflight.get(url) === promise) {
+					_inflight.delete(url);
+				}
 			});
 
 		_inflight.set(url, promise);
@@ -1154,8 +1323,10 @@ class LuaModuleLoader {
 	}
 
 	/**
-	 * Asynchronously resolve and mount a module (or direct file) across its candidate list,
-	 * and recursively preload any static dependencies discovered in `.lua` source text.
+	 * Asynchronously resolve and mount a module (or direct file) across its candidate list
+	 * in strict search-path order (checking each candidate synchronously first, then asynchronously
+	 * before advancing to the next candidate), and recursively preload any static dependencies
+	 * discovered in `.lua` source text.
 	 *
 	 * @param {object} lua - Wasmoon Lua instance
 	 * @param {string|Uint8Array} target - Module name or file path
@@ -1166,33 +1337,51 @@ class LuaModuleLoader {
 	 * @param {Set<string>} [options.visited] - Internal cycle-prevention set for nested preloading
 	 * @returns {Promise<{ found: boolean, memfsPath?: string, candidate?: string, source?: string, candidates: string[], triedMessage?: string }>}
 	 */
-	static async fetchModuleAsync(lua, target, searchPathStr = '', options = {}) {
+	static async fetchModuleAsync(lua, target, searchPathStr = undefined, options = {}) {
 		const decodedTarget = LuaModuleLoader.decodeLuaString(target);
-		const decodedSearch = LuaModuleLoader.decodeLuaString(searchPathStr);
+		const decodedSearch =
+			searchPathStr === undefined || searchPathStr === null
+				? undefined
+				: LuaModuleLoader.decodeLuaString(searchPathStr);
 		const isFile = Boolean(options.isFile);
 		const preloadNested = options.preloadNested !== false;
 		const visited = options.visited || new Set();
 
-		const syncResult = isFile
-			? LuaModuleLoader.resolveFileSync(lua, decodedTarget, decodedSearch)
-			: LuaModuleLoader.resolveModuleSync(lua, decodedTarget, decodedSearch);
+		const candidates = isFile
+			? LuaModuleLoader.resolveFileCandidates(decodedTarget, decodedSearch, lua)
+			: LuaModuleLoader.resolveCandidates(decodedTarget, decodedSearch, lua);
 
-		if (syncResult.found) {
-			if (preloadNested && syncResult.candidate && !visited.has(syncResult.candidate)) {
-				visited.add(syncResult.candidate);
-				const cachedBytes = _bufferCache.get(syncResult.candidate);
-				if (cachedBytes && !LuaModuleLoader.isBinaryLub(cachedBytes)) {
-					await LuaModuleLoader.preloadDependenciesFromBuffer(lua, cachedBytes, decodedSearch, {
-						...options,
-						visited
-					});
-				}
-			}
-			return syncResult;
-		}
-
-		const candidates = syncResult.candidates;
 		for (const candidate of candidates) {
+			// 1. Check if this candidate is already available synchronously (MEMFS, cache, MemoryManager)
+			const syncRes = LuaModuleLoader.resolveCandidateSync(lua, candidate);
+			if (syncRes.found) {
+				if (preloadNested && !visited.has(candidate)) {
+					visited.add(candidate);
+					let cachedBytes = _bufferCache.get(candidate);
+					if (!cachedBytes && lua?.luaApi?.module?.FS && syncRes.memfsPath) {
+						try {
+							cachedBytes = lua.luaApi.module.FS.readFile(syncRes.memfsPath);
+						} catch (_err) {
+							cachedBytes = null;
+						}
+					}
+					if (cachedBytes && !LuaModuleLoader.isBinaryLub(cachedBytes)) {
+						await LuaModuleLoader.preloadDependenciesFromBuffer(lua, cachedBytes, decodedSearch, {
+							...options,
+							visited
+						});
+					}
+				}
+				return {
+					found: true,
+					memfsPath: syncRes.memfsPath,
+					candidate: syncRes.candidate,
+					source: syncRes.source,
+					candidates
+				};
+			}
+
+			// 2. Otherwise attempt to fetch this candidate asynchronously before moving to the next
 			try {
 				const bytes = await LuaModuleLoader.loadCandidateData(candidate, options);
 				const memfsPath = LuaModuleLoader.toMemfsPath(candidate);
@@ -1220,7 +1409,7 @@ class LuaModuleLoader {
 					candidates
 				};
 			} catch (_err) {
-				// Continue to next candidate in search path order
+				// Candidate not found or failed; continue to next candidate in search path order
 			}
 		}
 
@@ -1283,7 +1472,7 @@ class LuaModuleLoader {
 	 * @param {object} [options={}]
 	 * @returns {Promise<void>}
 	 */
-	static async preloadDependenciesFromBuffer(lua, bytes, searchPathStr = '', options = {}) {
+	static async preloadDependenciesFromBuffer(lua, bytes, searchPathStr = undefined, options = {}) {
 		if (!bytes || LuaModuleLoader.isBinaryLub(bytes)) {
 			return;
 		}
@@ -1314,9 +1503,7 @@ class LuaModuleLoader {
 	 */
 	static async preloadFromCode(lua, luaCode, options = {}) {
 		LuaModuleLoader.ensureSetup(lua, options);
-		const searchPathStr = LuaModuleLoader.formatPackagePath(
-			LuaModuleLoader.getSearchPaths(lua, options.searchPaths)
-		);
+		const searchPathStr = LuaModuleLoader.getCurrentPackagePath(lua, options.searchPaths);
 		const bytes = LuaModuleLoader.normalizeBuffer(luaCode);
 		await LuaModuleLoader.preloadDependenciesFromBuffer(lua, bytes, searchPathStr, {
 			...options,
@@ -1337,9 +1524,7 @@ class LuaModuleLoader {
 	static async preload(lua, targets, options = {}) {
 		LuaModuleLoader.ensureSetup(lua, options);
 		const list = Array.isArray(targets) ? targets : [targets];
-		const searchPathStr = LuaModuleLoader.formatPackagePath(
-			LuaModuleLoader.getSearchPaths(lua, options.searchPaths)
-		);
+		const searchPathStr = LuaModuleLoader.getCurrentPackagePath(lua, options.searchPaths);
 		const visited = new Set();
 
 		const results = [];
@@ -1349,7 +1534,9 @@ class LuaModuleLoader {
 				visited
 			});
 			if (!res.found && options.strict) {
-				throw new Error(`Failed to preload Lua resource "${target}":${res.triedMessage || ''}`);
+				const err = new Error(`Failed to preload Lua resource "${target}":${res.triedMessage || ''}`);
+				err.code = 'LUA_FILE_NOT_FOUND';
+				throw err;
 			}
 			results.push(res);
 		}
@@ -1373,40 +1560,51 @@ class LuaModuleLoader {
 		}
 
 		const existingState = _vmState.get(lua);
-		const searchPaths = options.searchPaths
+		const hasExplicitSearchPaths = options.searchPaths !== undefined && options.searchPaths !== null;
+		const searchPaths = hasExplicitSearchPaths
 			? LuaModuleLoader.parseSearchPathsInput(options.searchPaths)
-			: existingState && existingState.searchPaths
+			: existingState && Array.isArray(existingState.searchPaths)
 				? existingState.searchPaths
 				: LuaModuleLoader.getSearchPaths();
+		const configuredPackagePath = LuaModuleLoader.formatPackagePath(searchPaths);
 
 		_vmState.set(lua, {
 			initialized: true,
 			searchPaths,
+			configuredPackagePath,
 			options
 		});
 
 		const ctx = lua.ctx;
 
 		// Install JS bridge helpers into Lua global context
-		ctx.__ro_resolve_module = (modname, searchPath) => {
-			return LuaModuleLoader.resolveModuleSync(lua, modname, searchPath);
+		ctx.__ro_resolve_module = (modname, searchPath, isAsync) => {
+			return LuaModuleLoader.resolveModuleSync(lua, modname, searchPath, {
+				asyncMode: Boolean(isAsync)
+			});
 		};
 
 		ctx.__ro_fetch_module_async = (modname, searchPath) => {
-			const syncCheck = LuaModuleLoader.resolveModuleSync(lua, modname, searchPath);
-			if (syncCheck.found) {
+			const syncCheck = LuaModuleLoader.resolveModuleSync(lua, modname, searchPath, {
+				asyncMode: true
+			});
+			if (syncCheck.found || syncCheck.needsAsync === false) {
 				return null;
 			}
 			return LuaModuleLoader.fetchModuleAsync(lua, modname, searchPath, options).then(() => true);
 		};
 
-		ctx.__ro_resolve_file = (filename, searchPath) => {
-			return LuaModuleLoader.resolveFileSync(lua, filename, searchPath);
+		ctx.__ro_resolve_file = (filename, searchPath, isAsync) => {
+			return LuaModuleLoader.resolveFileSync(lua, filename, searchPath, {
+				asyncMode: Boolean(isAsync)
+			});
 		};
 
 		ctx.__ro_fetch_file_async = (filename, searchPath) => {
-			const syncCheck = LuaModuleLoader.resolveFileSync(lua, filename, searchPath);
-			if (syncCheck.found) {
+			const syncCheck = LuaModuleLoader.resolveFileSync(lua, filename, searchPath, {
+				asyncMode: true
+			});
+			if (syncCheck.found || syncCheck.needsAsync === false) {
 				return null;
 			}
 			return LuaModuleLoader.fetchModuleAsync(lua, filename, searchPath, {
@@ -1415,15 +1613,16 @@ class LuaModuleLoader {
 			}).then(() => true);
 		};
 
-		// Set `package.path` and run pure-Lua bootstrap
-		const packagePathStr = LuaModuleLoader.formatPackagePath(searchPaths);
-		ctx.__ro_initial_package_path = packagePathStr;
+		// Set `package.path` on first init or when explicit searchPaths are provided to setup()
+		if (!existingState || !existingState.initialized || hasExplicitSearchPaths) {
+			ctx.__ro_initial_package_path = configuredPackagePath;
 
-		lua.doStringSync(`
-			package = package or {}
-			package.path = __ro_initial_package_path
-			__ro_initial_package_path = nil
-		`);
+			lua.doStringSync(`
+				package = package or {}
+				package.path = __ro_initial_package_path
+				__ro_initial_package_path = nil
+			`);
+		}
 
 		if (!existingState || !existingState.initialized) {
 			lua.doStringSync(LUA_BOOTSTRAP_SCRIPT);
@@ -1433,14 +1632,23 @@ class LuaModuleLoader {
 	}
 
 	/**
-	 * Ensure `LuaModuleLoader.setup(lua)` has been called on the given VM.
+	 * Ensure `LuaModuleLoader.setup(lua)` has been called on the given VM without overwriting
+	 * any runtime changes a Lua script may have made to `package.path`.
 	 *
 	 * @param {object} lua
 	 * @param {object} [options={}]
 	 */
 	static ensureSetup(lua, options = {}) {
-		if (!_vmState.has(lua) || options.searchPaths) {
+		const existingState = _vmState.get(lua);
+		if (!existingState || !existingState.initialized) {
 			LuaModuleLoader.setup(lua, options);
+			return;
+		}
+		if (options.searchPaths !== undefined && options.searchPaths !== null) {
+			const requestedPath = LuaModuleLoader.formatPackagePath(options.searchPaths);
+			if (existingState.configuredPackagePath !== requestedPath) {
+				LuaModuleLoader.setup(lua, options);
+			}
 		}
 	}
 
@@ -1454,9 +1662,7 @@ class LuaModuleLoader {
 	 */
 	static async requireAsync(lua, modname, options = {}) {
 		LuaModuleLoader.ensureSetup(lua, options);
-		const currentPackagePath = LuaModuleLoader.decodeLuaString(
-			lua.doStringSync('return package and package.path or ""')
-		);
+		const currentPackagePath = LuaModuleLoader.getCurrentPackagePath(lua);
 		await LuaModuleLoader.fetchModuleAsync(lua, modname, currentPackagePath, options);
 		lua.ctx.__ro_req_target = modname;
 		try {
@@ -1476,16 +1682,16 @@ class LuaModuleLoader {
 	 */
 	static async doFileAsync(lua, filename, options = {}) {
 		LuaModuleLoader.ensureSetup(lua, options);
-		const currentPackagePath = LuaModuleLoader.decodeLuaString(
-			lua.doStringSync('return package and package.path or ""')
-		);
+		const currentPackagePath = LuaModuleLoader.getCurrentPackagePath(lua);
 		const resolved = await LuaModuleLoader.fetchModuleAsync(lua, filename, currentPackagePath, {
 			...options,
 			isFile: true,
 			preloadNested: true
 		});
 		if (!resolved.found) {
-			throw new Error(`Cannot open file '${filename}':${resolved.triedMessage || ' file not found'}`);
+			const err = new Error(`Cannot open file '${filename}':${resolved.triedMessage || ' file not found'}`);
+			err.code = 'LUA_FILE_NOT_FOUND';
+			throw err;
 		}
 		lua.ctx.__ro_dofile_target = resolved.memfsPath;
 		try {
@@ -1498,6 +1704,7 @@ class LuaModuleLoader {
 	/**
 	 * Preload a list of files (and all nested `require`/`dofile`/`loadfile` dependencies)
 	 * and execute them sequentially in the given Lua VM.
+	 * Preserves any runtime modifications made to `package.path` by earlier files in `fileList`.
 	 *
 	 * @param {object} lua - Wasmoon Lua instance
 	 * @param {string[]} fileList - Ordered list of files to preload and execute
@@ -1506,13 +1713,16 @@ class LuaModuleLoader {
 	 */
 	static async loadAndExecuteFiles(lua, fileList, options = {}) {
 		LuaModuleLoader.ensureSetup(lua, options);
+		const runtimeOptions = { ...options };
+		delete runtimeOptions.searchPaths;
+
 		await LuaModuleLoader.preload(lua, fileList, {
-			...options,
+			...runtimeOptions,
 			isFile: true,
 			strict: true
 		});
 		for (const file of fileList) {
-			await LuaModuleLoader.doFileAsync(lua, file, options);
+			await LuaModuleLoader.doFileAsync(lua, file, runtimeOptions);
 		}
 	}
 }
