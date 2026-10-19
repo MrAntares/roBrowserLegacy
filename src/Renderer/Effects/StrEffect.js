@@ -345,8 +345,7 @@ class StrEffect {
 			sizeScale = (this.ownerEntity.xSize + this.ownerEntity.ySize) / 2 / 5;
 		}
 
-		// Ordem TRIANGLE_STRIP: v0=(xy0,xy4) v1=(xy1,xy5) v2=(xy3,xy7) v3=(xy2,xy6)
-		// — v2/v3 são propositalmente trocados (linhas 368-376 do original), manter mapeamento
+		// TRIANGLE_STRIP: v0=(xy0,xy4) v1=(xy1,xy5) v2=(xy3,xy7) v3=(xy2,xy6)
 		_cornerX[0] = animat.xy[0] * sizeScale;
 		_cornerY[0] = animat.xy[4] * sizeScale;
 		_cornerX[1] = animat.xy[1] * sizeScale;
