@@ -392,16 +392,7 @@ class StrEffect {
 		if (!_buffer) {
 			_buffer = gl.createBuffer();
 			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
-			gl.bufferData(
-				gl.ARRAY_BUFFER,
-				new Float32Array([
-					0.0, 0.0,
-					1.0, 0.0,
-					0.0, 1.0,
-					1.0, 1.0
-				]),
-				gl.STATIC_DRAW
-			);
+			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0]), gl.STATIC_DRAW);
 		}
 
 		if (!_program) {
