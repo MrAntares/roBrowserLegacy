@@ -720,13 +720,13 @@ export function createEquipment({
 				const cartBtn = root.querySelector('.cartitems');
 
 				if (_lastState & HasAttachmentState || _hasCart) {
-					if (removeOpt) removeOpt.style.display = '';
+					if (removeOpt) removeOpt.style.display = 'block';
 				} else {
 					if (removeOpt) removeOpt.style.display = 'none';
 				}
 
 				if (_lastState & HasCartState || _hasCart) {
-					if (cartBtn) cartBtn.style.display = '';
+					if (cartBtn) cartBtn.style.display = 'block';
 				} else {
 					if (cartBtn) cartBtn.style.display = 'none';
 				}

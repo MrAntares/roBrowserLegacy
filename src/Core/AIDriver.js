@@ -5,8 +5,8 @@ import PACKET from 'Network/PacketStructure.js';
 import PACKETVER from 'Network/PacketVerManager.js';
 import SkillInfo from 'DB/Skills/SkillInfo.js';
 import EntityManager from 'Renderer/EntityManager.js';
-import Client from './Client.js';
 import Configs from './Configs.js';
+import LuaModuleLoader from './LuaModuleLoader.js';
 import UIManager from 'UI/UIManager.js';
 import TextEncoding from 'Utils/CodepageManager.js';
 
@@ -427,184 +427,100 @@ class AIDriver {
 	}
 
 	static initAI = async onEnd => {
-		let loadedFiles = {};
-		let loadPromises = [];
 		AIDriver.ready = false;
-		function preloadFiles(fileList, lua) {
-			const ctx = lua.ctx;
 
-			function customRequire(modulePath, isJS = false) {
-				const promise = new Promise((resolve, reject) => {
-					let filename;
-					if (!isJS) {
-						filename = TextEncoding.decode(modulePath);
-					} else {
-						filename = modulePath;
-					}
+		const defaultAISearchPaths = [
+			'./?.lua',
+			'./?.lub',
+			'AI/?.lua',
+			'AI/?.lub',
+			'AI/USER_AI/?.lua',
+			'AI/USER_AI/?.lub',
+			...LuaModuleLoader.DEFAULT_SEARCH_PATHS
+		];
 
-					filename = filename
-						.replaceAll('\\\\', '/')
-						.replaceAll('\\', '/')
-						.replace('./', '')
-						.replace('pcall', '')
-						.replace('function', '')
-						.replace('.lua', '')
-						.trim();
-					if (filename.endsWith('end')) {
-						filename = filename.replace('end', '').trim();
-					}
-					filename = filename + '.lua';
-
-					// Timeouts and Agressive Relog are execution time file, it need to be created on demandtly, so we ignore them here
-					if (
-						filename.includes('Timeouts') ||
-						filename.includes('AggressiveRelogPath') ||
-						filename.startsWith('--')
-					) {
-						resolve();
-						return;
-					}
-
-					if (loadedFiles[filename]) {
-						resolve();
-						return;
-					}
-					loadedFiles[filename] = filename;
-
-					Client.loadFile(
-						filename,
-						function (file) {
-							try {
-								if (Configs.get('debugAI', false)) {
-									console.log(`Loading file "${filename}"...`);
-								}
-								const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
-								const str = TextEncoding.decode(buffer);
-
-								const nestedPromises = [];
-								for (const line of str.split('\n')) {
-									if (line.includes('dofile')) {
-										const loadFile = line
-											.replace('dofile', '')
-											.replaceAll('(', '')
-											.replaceAll(')', '')
-											.replace(/['"]/g, '')
-											.trim();
-										const nestedPromise = customRequire(loadFile, true);
-										nestedPromises.push(nestedPromise);
-									}
-								}
-
-								Promise.all(nestedPromises)
-									.then(() => {
-										lua.mountFile('./' + filename, buffer);
-										resolve();
-									})
-									.catch(reject);
-							} catch (error) {
-								console.error('[require] : ', error);
-								reject(error);
-							}
-						},
-						reject
-					);
-				});
-				return promise;
-			}
-
-			ctx.require = customRequire;
-
-			// Preload AI files to ensure they are cached before execution
-			for (const filename of fileList) {
-				if (!loadedFiles[filename]) {
-					loadedFiles[filename] = filename;
-					const promise = new Promise((resolve, reject) => {
-						Client.loadFile(
-							filename,
-							function (file) {
-								try {
-									if (Configs.get('debugAI', false)) {
-										console.log('Loading file "' + filename + '"...');
-									}
-									const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
-									const text = TextEncoding.decode(buffer);
-
-									const nestedPromises = [];
-									for (const line of text.split('\n')) {
-										if (line.includes('dofile')) {
-											const loadFile = line
-												.replace('dofile', '')
-												.replaceAll('(', '')
-												.replaceAll(')', '')
-												.replace(/['"]/g, '')
-												.trim();
-											const nestedPromise = customRequire(loadFile, true);
-											nestedPromises.push(nestedPromise);
-										}
-									}
-
-									Promise.all(nestedPromises)
-										.then(() => {
-											lua.mountFile('./' + filename, buffer);
-											resolve();
-										})
-										.catch(reject);
-								} catch (error) {
-									console.error('[prepareAIFiles] : ', error);
-									reject(error);
-								}
-							},
-							reject
-						);
-					});
-					loadPromises.push(promise);
-				}
-			}
-		}
-
-		async function doFiles(fileList, lua) {
-			await Promise.all(loadPromises);
-			for (const key in fileList) {
-				await lua.doFileSync(fileList[key]);
-			}
-		}
+		const customAISearchPaths = [
+			'./?.lua',
+			'./?.lub',
+			'AI/USER_AI/?.lua',
+			'AI/USER_AI/?.lub',
+			'AI/?.lua',
+			'AI/?.lub',
+			...LuaModuleLoader.DEFAULT_SEARCH_PATHS
+		];
 
 		try {
 			AIDriver.HO_AI = DB.getHOAI_VM();
 			AIDriver.MER_AI = DB.getMERAI_VM();
 			AIDriver.default_HO_AI = DB.getDefaultHOAI_VM();
 			AIDriver.default_MER_AI = DB.getDefaultMERAI_VM();
+
+			LuaModuleLoader.setup(AIDriver.default_HO_AI, { searchPaths: defaultAISearchPaths });
+			LuaModuleLoader.setup(AIDriver.default_MER_AI, { searchPaths: defaultAISearchPaths });
+			LuaModuleLoader.setup(AIDriver.HO_AI, { searchPaths: customAISearchPaths });
+			LuaModuleLoader.setup(AIDriver.MER_AI, { searchPaths: customAISearchPaths });
+
 			AIDriver.addCTX();
 
 			console.log('Loading Default HOAI...');
-			let files = ['AI/Util.lua', 'AI/Const.lua', 'AI/AI.lua'];
-			let AI_M = 'AI/AI_M.lua';
-			preloadFiles(files, AIDriver.default_HO_AI);
-			await doFiles(files, AIDriver.default_HO_AI);
+			const defaultHoFiles = ['AI/Util.lua', 'AI/Const.lua', 'AI/AI.lua'];
+			await LuaModuleLoader.loadAndExecuteFiles(AIDriver.default_HO_AI, defaultHoFiles, {
+				searchPaths: defaultAISearchPaths
+			});
 
 			console.log('Loading Default MERAI...');
-			loadedFiles = {};
-			loadPromises = [];
-			files.pop();
-			files.push(AI_M);
-			preloadFiles(files, AIDriver.default_MER_AI);
-			await doFiles(files, AIDriver.default_MER_AI);
+			const defaultMerFiles = ['AI/Util.lua', 'AI/Const.lua', 'AI/AI_M.lua'];
+			await LuaModuleLoader.loadAndExecuteFiles(AIDriver.default_MER_AI, defaultMerFiles, {
+				searchPaths: defaultAISearchPaths
+			});
 
-			files = ['AI/USER_AI/Util.lua', 'AI/USER_AI/Const.lua', 'AI/USER_AI/AI.lua'];
-			AI_M = 'AI/USER_AI/AI_M.lua';
-			console.log('Loading Custom HOAI...');
-			preloadFiles(files, AIDriver.HO_AI);
-			await doFiles(files, AIDriver.HO_AI);
+			try {
+				console.log('Loading Custom HOAI...');
+				const customHoFiles = ['AI/USER_AI/Util.lua', 'AI/USER_AI/Const.lua', 'AI/USER_AI/AI.lua'];
+				await LuaModuleLoader.loadAndExecuteFiles(AIDriver.HO_AI, customHoFiles, {
+					searchPaths: customAISearchPaths
+				});
+			} catch (customHoError) {
+				if (customHoError && customHoError.code === 'LUA_FILE_NOT_FOUND') {
+					console.warn(
+						'[AIDriver] Custom HO USER_AI files not available, falling back to default HO AI:',
+						customHoError.message || customHoError
+					);
+				} else {
+					console.error(
+						'[AIDriver] Custom HO USER_AI failed to initialize, falling back to default HO AI:',
+						customHoError.message || customHoError
+					);
+				}
+				AIDriver.HO_AI = AIDriver.default_HO_AI;
+			}
 
-			console.log('Loading Custom MERAI...');
-			loadedFiles = {};
-			loadPromises = [];
-			files.pop();
-			files.push(AI_M);
-			preloadFiles(files, AIDriver.MER_AI);
-			await doFiles(files, AIDriver.MER_AI);
+			try {
+				console.log('Loading Custom MERAI...');
+				const customMerFiles = ['AI/USER_AI/Util.lua', 'AI/USER_AI/Const.lua', 'AI/USER_AI/AI_M.lua'];
+				await LuaModuleLoader.loadAndExecuteFiles(AIDriver.MER_AI, customMerFiles, {
+					searchPaths: customAISearchPaths
+				});
+			} catch (customMerError) {
+				if (customMerError && customMerError.code === 'LUA_FILE_NOT_FOUND') {
+					console.warn(
+						'[AIDriver] Custom MER USER_AI files not available, falling back to default MER AI:',
+						customMerError.message || customMerError
+					);
+				} else {
+					console.error(
+						'[AIDriver] Custom MER USER_AI failed to initialize, falling back to default MER AI:',
+						customMerError.message || customMerError
+					);
+				}
+				AIDriver.MER_AI = AIDriver.default_MER_AI;
+			}
 		} catch (error) {
-			console.warn('[AIDriver] AI files not available, skipping AI initialization:', error.message || error);
+			if (error && error.code === 'LUA_FILE_NOT_FOUND') {
+				console.warn('[AIDriver] AI files not available, skipping AI initialization:', error.message || error);
+			} else {
+				console.error('[AIDriver] Failed to initialize AI:', error.message || error);
+			}
 			if (typeof onEnd === 'function') {
 				onEnd();
 			}

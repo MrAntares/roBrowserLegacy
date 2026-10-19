@@ -114,7 +114,8 @@ export function createInventory(config) {
 		Component.equipswitchlist = [];
 	}
 
-	let _realSize = 0;
+	let _reduced = false;
+	let _height = 0;
 	let lockOverlayTimeout;
 
 	const prefDefaults = {
@@ -401,10 +402,8 @@ export function createInventory(config) {
 		this.magnet.LEFT = _preferences.magnet_left;
 		this.magnet.RIGHT = _preferences.magnet_right;
 
-		_realSize = _preferences.reduce ? 0 : this._host.getBoundingClientRect().height;
-		const miniBtnAppend = root.querySelector('.titlebar .mini');
-		if (miniBtnAppend) {
-			miniBtnAppend.dispatchEvent(new Event('mousedown'));
+		if (root.querySelector('.titlebar .mini')) {
+			setReduced(!!_preferences.reduce);
 		}
 	};
 
@@ -426,13 +425,13 @@ export function createInventory(config) {
 
 		// Save preferences
 		_preferences.show = this._host.style.display !== 'none';
-		_preferences.reduce = !!_realSize;
+		_preferences.reduce = _reduced;
 		_preferences.y = parseInt(this._host.style.top, 10);
 		_preferences.x = parseInt(this._host.style.left, 10);
 		const hostRect = this._host.getBoundingClientRect();
 		_preferences.width = Math.floor((hostRect.width - (23 + 16 + 16 - 30)) / 32);
 		if (resizableHeight) {
-			_preferences.height = Math.floor((hostRect.height - (31 + 19 - 30)) / 32);
+			_preferences.height = _height;
 		}
 		_preferences.magnet_top = this.magnet.TOP;
 		_preferences.magnet_bottom = this.magnet.BOTTOM;
@@ -522,9 +521,9 @@ export function createInventory(config) {
 		}
 
 		if (resizableHeight) {
-			height = Math.min(Math.max(height, 2), 5);
+			_height = Math.min(Math.max(height, 2), 5);
 			this._host.style.width = `${27 + 16 + 16 + width * 32}px`;
-			this._host.style.height = `${31 + 4 + 27 + height * 32}px`;
+			this._host.style.height = expandedHeight();
 		} else {
 			this._host.style.width = `${23 + 16 + 16 + width * 32}px`;
 		}
@@ -867,16 +866,15 @@ export function createInventory(config) {
 			return null;
 		}
 
-		if (item.count) {
+		// An entry removed whole keeps its count, for the callers that put it back
+		if (item.count > count) {
 			item.count -= count;
-			if (item.count > 0) {
-				const countEl = root.querySelector(`.item[data-index="${item.index}"] .count`);
-				if (countEl) {
-					countEl.textContent = item.count;
-				}
-				this.onUpdateItem(item.ITID, item.count);
-				return item;
+			const countEl = root.querySelector(`.item[data-index="${item.index}"] .count`);
+			if (countEl) {
+				countEl.textContent = item.count;
 			}
+			this.onUpdateItem(item.ITID, item.count);
+			return item;
 		}
 
 		this.list.splice(this.list.indexOf(item), 1);
@@ -1077,22 +1075,31 @@ export function createInventory(config) {
 	 * Hide/show inventory's content
 	 */
 	function onToggleReduction() {
-		const root = Component.getRoot();
-		const panel = root.querySelector('.panel');
+		setReduced(!_reduced);
+	}
 
-		if (_realSize) {
-			if (panel) {
-				panel.style.display = 'flex';
-			}
-			Component._host.style.height = `${_realSize}px`;
-			_realSize = 0;
-		} else {
-			_realSize = Component._host.getBoundingClientRect().height;
-			Component._host.style.height = '17px';
-			if (panel) {
-				panel.style.display = 'none';
-			}
+	/**
+	 * Collapse the window to its titlebar, or give it back its full height
+	 *
+	 * @param {boolean} reduced
+	 */
+	function setReduced(reduced) {
+		const panel = Component.getRoot().querySelector('.panel');
+
+		_reduced = reduced;
+		if (panel) {
+			panel.style.display = reduced ? 'none' : 'flex';
 		}
+		Component._host.style.height = reduced ? '17px' : expandedHeight();
+	}
+
+	/**
+	 * Full height of the window: V0 sizes it from its rows, the others from their CSS
+	 *
+	 * @returns {string}
+	 */
+	function expandedHeight() {
+		return resizableHeight ? `${31 + 4 + 27 + _height * 32}px` : '';
 	}
 
 	/**
