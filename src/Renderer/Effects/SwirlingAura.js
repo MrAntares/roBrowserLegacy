@@ -27,16 +27,6 @@ import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 const mat4 = glMatrix.mat4;
 
 /**
- * @var {WebGLProgram}
- */
-let _program;
-
-/**
- * @var {mat4}
- */
-const _modelMatrix = mat4.create();
-
-/**
  * Constants from original inspiration game
  */
 const E_DIVISION = 21; // Number of divisions (0-20)
@@ -54,6 +44,9 @@ const VERTICES_PER_BAND = E_DIVISION * 2;
  * - GI[2]: RotStart=180°, max_height=11, distance=4.3, rise_angle=45°
  */
 class SwirlingAura {
+	static program = null;
+	static modelMatrix = mat4.create();
+
 	constructor(position, textureName, tick, sizeType) {
 		this.position = position;
 		this.textureName = textureName;
@@ -186,17 +179,19 @@ class SwirlingAura {
 	 * Render all three bands
 	 */
 	render(gl, tick) {
-		const uniform = _program.uniform;
-		const attribute = _program.attribute;
+		const program = SwirlingAura.program;
+		const uniform = program.uniform;
+		const attribute = program.attribute;
+		const modelMatrix = SwirlingAura.modelMatrix;
 
 		// Get ground height
 		const groundZ = Altitude.getCellHeight(this.position[0], this.position[1]);
 
 		// Build model matrix
-		mat4.identity(_modelMatrix);
-		mat4.translate(_modelMatrix, _modelMatrix, [this.position[0] + 0.5, -groundZ, this.position[1] + 0.5]);
+		mat4.identity(modelMatrix);
+		mat4.translate(modelMatrix, modelMatrix, [this.position[0] + 0.5, -groundZ, this.position[1] + 0.5]);
 
-		gl.uniformMatrix4fv(uniform.uModelMat, false, _modelMatrix);
+		gl.uniformMatrix4fv(uniform.uModelMat, false, modelMatrix);
 		gl.bindTexture(gl.TEXTURE_2D, this.texture);
 
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
@@ -208,7 +203,6 @@ class SwirlingAura {
 
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
 
-		const self = this;
 		const RAG_TICK_MS = 25;
 		const elapsed = tick - this.tick;
 		const process = elapsed / RAG_TICK_MS;
@@ -217,10 +211,10 @@ class SwirlingAura {
 		gl.uniform1f(uniform.uBasicAngle, this.basicAngle);
 		gl.uniform4f(uniform.uColor, this.color.r, this.color.g, this.color.b, this.alphaB);
 
-		SpriteRenderer.runWithDepth(true, false, false, function () {
+		SpriteRenderer.runWithDepth(true, false, false, () => {
 			// Render each band
-			for (let ec = 0; ec < self.bands.length; ec++) {
-				const band = self.bands[ec];
+			for (let ec = 0; ec < this.bands.length; ec++) {
+				const band = this.bands[ec];
 				if (!band.life) {
 					continue;
 				}
@@ -235,7 +229,7 @@ class SwirlingAura {
 				gl.uniform1f(uniform.uZIndex, 0.01 + ec * 0.001);
 
 				// Draw
-				gl.drawElements(gl.TRIANGLES, self.indexCount, gl.UNSIGNED_SHORT, 0);
+				gl.drawElements(gl.TRIANGLES, this.indexCount, gl.UNSIGNED_SHORT, 0);
 			}
 		});
 	}
@@ -244,7 +238,7 @@ class SwirlingAura {
 	 * Initialize static resources
 	 */
 	static init(gl) {
-		_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
+		SwirlingAura.program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
 
 		this.ready = true;
 		this.renderBeforeEntities = true;
@@ -254,9 +248,9 @@ class SwirlingAura {
 	 * Free static resources
 	 */
 	static free(gl) {
-		if (_program) {
-			gl.deleteProgram(_program);
-			_program = null;
+		if (SwirlingAura.program) {
+			gl.deleteProgram(SwirlingAura.program);
+			SwirlingAura.program = null;
 		}
 		this.ready = false;
 	}
@@ -265,10 +259,10 @@ class SwirlingAura {
 	 * Before render setup
 	 */
 	static beforeRender(gl, modelView, projection, fog, tick) {
-		const uniform = _program.uniform;
+		const uniform = SwirlingAura.program.uniform;
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE); // Additive blend
 
-		gl.useProgram(_program);
+		gl.useProgram(SwirlingAura.program);
 
 		gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 		gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
@@ -289,9 +283,8 @@ class SwirlingAura {
 	static afterRender(gl) {
 		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-		gl.disableVertexAttribArray(_program.attribute.aParam);
-		gl.disableVertexAttribArray(_program.attribute.aTextureCoord);
+		gl.disableVertexAttribArray(SwirlingAura.program.attribute.aParam);
+		gl.disableVertexAttribArray(SwirlingAura.program.attribute.aTextureCoord);
 	}
 }
 export default SwirlingAura;
-
