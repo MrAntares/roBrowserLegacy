@@ -252,7 +252,7 @@ class SPR {
 				// Copy indexed pixel data to WASM linear memory
 				new Uint8Array(memory.buffer, srcPtr, pixelCount).set(frame.data);
 
-				// Convert via WASM SIMD (with vertical flip)
+				// Convert via WASM (with vertical flip)
 				convertPal(palPtr, srcPtr, dstPtr, width, height);
 
 				// Copy converted RGBA bytes into a standalone Uint8Array

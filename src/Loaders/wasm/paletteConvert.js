@@ -26,6 +26,7 @@ const base64ToUint8Array = base64 => {
 };
 
 let _wasmInstance = null;
+let _wasmFailed = false;
 
 /**
  * Lazily loads and returns the compiled WASM converter instance.
@@ -36,8 +37,12 @@ export const getPaletteConvertWasm = () => {
 	if (_wasmInstance) {
 		return _wasmInstance;
 	}
+	if (_wasmFailed) {
+		return null;
+	}
 
 	if (typeof WebAssembly !== 'object' || typeof WebAssembly.Module !== 'function') {
+		_wasmFailed = true;
 		return null;
 	}
 
@@ -47,6 +52,7 @@ export const getPaletteConvertWasm = () => {
 		_wasmInstance = new WebAssembly.Instance(module);
 		return _wasmInstance;
 	} catch (e) {
+		_wasmFailed = true;
 		console.warn('Loaders/wasm/paletteConvert - Failed to instantiate WASM module:', e);
 		return null;
 	}
