@@ -73,13 +73,22 @@ const _inflight = new Map();
 const _failureReasons = new Map();
 
 /**
- * Monotonically increasing cache generation counter.
- * Incremented on `clearCache()` (e.g., when switching clients/servers) so
- * in-flight requests from a previous client archive cannot repopulate the cache.
+ * Monotonically increasing cache generation counter for VFS requests.
+ * Incremented on `clearCache()` or when `Client.loadFile` / `vfsLoader` changes so
+ * in-flight requests from a previous client archive or loader cannot repopulate the cache.
  *
  * @type {number}
  */
-let _cacheGeneration = 0;
+let _vfsGeneration = 0;
+
+/**
+ * Monotonically increasing cache generation counter for remote URL requests.
+ * Incremented on `clearCache()` or when `urlFetcher` / `remoteBaseUrl` changes so
+ * in-flight requests from a previous remote configuration cannot repopulate the cache.
+ *
+ * @type {number}
+ */
+let _remoteGeneration = 0;
 
 /**
  * Tracks the last seen `Client.loadFile` function reference so negative cache entries
@@ -384,8 +393,12 @@ class LuaModuleLoader {
 		}
 		if (options.vfsLoader !== undefined) {
 			_config.vfsLoader = options.vfsLoader;
-			_cacheGeneration++;
-			_failureReasons.clear();
+			_vfsGeneration++;
+			for (const key of _failureReasons.keys()) {
+				if (!LuaModuleLoader.isRemoteUrl(key)) {
+					_failureReasons.delete(key);
+				}
+			}
 			for (const key of _inflight.keys()) {
 				if (!LuaModuleLoader.isRemoteUrl(key)) {
 					_inflight.delete(key);
@@ -394,8 +407,12 @@ class LuaModuleLoader {
 		}
 		if (options.urlFetcher !== undefined) {
 			_config.urlFetcher = options.urlFetcher;
-			_cacheGeneration++;
-			_failureReasons.clear();
+			_remoteGeneration++;
+			for (const key of _failureReasons.keys()) {
+				if (LuaModuleLoader.isRemoteUrl(key)) {
+					_failureReasons.delete(key);
+				}
+			}
 			for (const key of _inflight.keys()) {
 				if (LuaModuleLoader.isRemoteUrl(key)) {
 					_inflight.delete(key);
@@ -404,8 +421,12 @@ class LuaModuleLoader {
 		}
 		if (options.remoteBaseUrl !== undefined) {
 			_config.remoteBaseUrl = options.remoteBaseUrl || '';
-			_cacheGeneration++;
-			_failureReasons.clear();
+			_remoteGeneration++;
+			for (const key of _failureReasons.keys()) {
+				if (LuaModuleLoader.isRemoteUrl(key)) {
+					_failureReasons.delete(key);
+				}
+			}
 		}
 	}
 
@@ -417,18 +438,20 @@ class LuaModuleLoader {
 		_config.vfsLoader = null;
 		_config.urlFetcher = null;
 		_config.remoteBaseUrl = '';
-		_cacheGeneration++;
+		_vfsGeneration++;
+		_remoteGeneration++;
 		_inflight.clear();
 		_failureReasons.clear();
 	}
 
 	/**
 	 * Clear internal module buffer, in-flight, and negative-lookup caches.
-	 * Increments the cache generation token so any pending in-flight requests
-	 * from a previous client/archive cannot repopulate the cache.
+	 * Increments the VFS and remote cache generation tokens so any pending in-flight requests
+	 * from a previous client/archive or remote session cannot repopulate the cache.
 	 */
 	static clearCache() {
-		_cacheGeneration++;
+		_vfsGeneration++;
+		_remoteGeneration++;
 		_bufferCache.clear();
 		_inflight.clear();
 		_failureReasons.clear();
@@ -437,14 +460,18 @@ class LuaModuleLoader {
 
 	/**
 	 * Invalidate negative lookup cache and drop stale in-flight VFS requests
-	 * if `Client.loadFile` reference has changed. Increments `_cacheGeneration` so
-	 * an older in-flight request's late failure cannot repopulate negative cache entries.
+	 * if `Client.loadFile` reference has changed. Increments `_vfsGeneration` so
+	 * an older in-flight VFS request's late failure cannot repopulate negative cache entries.
 	 */
 	static syncClientLoaderState() {
 		if (Client.loadFile !== _lastClientLoadFile) {
 			_lastClientLoadFile = Client.loadFile;
-			_cacheGeneration++;
-			_failureReasons.clear();
+			_vfsGeneration++;
+			for (const key of _failureReasons.keys()) {
+				if (!LuaModuleLoader.isRemoteUrl(key)) {
+					_failureReasons.delete(key);
+				}
+			}
 			for (const key of _inflight.keys()) {
 				if (!LuaModuleLoader.isRemoteUrl(key)) {
 					_inflight.delete(key);
@@ -1150,7 +1177,7 @@ class LuaModuleLoader {
 		}
 
 		const vfsLoader = options.vfsLoader || _config.vfsLoader;
-		const generation = _cacheGeneration;
+		const generation = _vfsGeneration;
 
 		const promise = new Promise((resolve, reject) => {
 			if (typeof vfsLoader === 'function') {
@@ -1161,7 +1188,7 @@ class LuaModuleLoader {
 							throw new Error(`VFS file not found: ${candidate}`);
 						}
 						const bytes = LuaModuleLoader.normalizeBuffer(data);
-						if (_cacheGeneration === generation) {
+						if (_vfsGeneration === generation) {
 							_bufferCache.set(candidate, bytes);
 							_failureReasons.delete(candidate);
 						}
@@ -1169,7 +1196,7 @@ class LuaModuleLoader {
 					})
 					.catch(err => {
 						const msg = (err && err.message) || String(err || 'VFS load failed');
-						if (_cacheGeneration === generation) {
+						if (_vfsGeneration === generation) {
 							_failureReasons.set(candidate, msg);
 						}
 						reject(new Error(msg));
@@ -1182,7 +1209,7 @@ class LuaModuleLoader {
 				const existing = MemoryManager.get(candidate);
 				if (existing !== null && existing !== undefined) {
 					const bytes = LuaModuleLoader.normalizeBuffer(existing);
-					if (_cacheGeneration === generation) {
+					if (_vfsGeneration === generation) {
 						_bufferCache.set(candidate, bytes);
 						_failureReasons.delete(candidate);
 					}
@@ -1198,26 +1225,26 @@ class LuaModuleLoader {
 				}
 				settled = true;
 				try {
-					if (_cacheGeneration !== generation) {
+					if (_vfsGeneration !== generation) {
 						MemoryManager.remove(null, candidate);
 					}
 					if (data === null || data === undefined) {
 						const msg = `Empty VFS response for "${candidate}"`;
-						if (_cacheGeneration === generation) {
+						if (_vfsGeneration === generation) {
 							_failureReasons.set(candidate, msg);
 						}
 						reject(new Error(msg));
 						return;
 					}
 					const bytes = LuaModuleLoader.normalizeBuffer(data);
-					if (_cacheGeneration === generation) {
+					if (_vfsGeneration === generation) {
 						_bufferCache.set(candidate, bytes);
 						_failureReasons.delete(candidate);
 					}
 					resolve(bytes);
 				} catch (err) {
 					const msg = (err && err.message) || String(err);
-					if (_cacheGeneration === generation) {
+					if (_vfsGeneration === generation) {
 						_failureReasons.set(candidate, msg);
 					}
 					reject(err);
@@ -1230,7 +1257,7 @@ class LuaModuleLoader {
 				}
 				settled = true;
 				const msg = (err && err.message) || String(err || `File not found in VFS: ${candidate}`);
-				if (_cacheGeneration === generation) {
+				if (_vfsGeneration === generation) {
 					_failureReasons.set(candidate, msg);
 				}
 				reject(new Error(msg));
@@ -1268,7 +1295,7 @@ class LuaModuleLoader {
 		}
 
 		const urlFetcher = options.urlFetcher || _config.urlFetcher;
-		const generation = _cacheGeneration;
+		const generation = _remoteGeneration;
 
 		const promise = Promise.resolve()
 			.then(async () => {
@@ -1307,7 +1334,7 @@ class LuaModuleLoader {
 					}
 				}
 
-				if (_cacheGeneration === generation) {
+				if (_remoteGeneration === generation) {
 					_bufferCache.set(url, bytes);
 					_failureReasons.delete(url);
 				}
@@ -1315,7 +1342,7 @@ class LuaModuleLoader {
 			})
 			.catch(err => {
 				const msg = (err && err.message) || String(err || 'Remote fetch failed');
-				if (_cacheGeneration === generation) {
+				if (_remoteGeneration === generation) {
 					_failureReasons.set(url, msg);
 				}
 				throw new Error(msg);

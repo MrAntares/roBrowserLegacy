@@ -920,5 +920,91 @@ describe('LuaModuleLoader', () => {
 			const callsAfterExec = loadSpy.mock.calls.filter(c => c[0].includes('AbsentSharedMod')).length;
 			expect(callsAfterExec).toBe(callsAfterScriptA);
 		});
+
+		it('does not cross-invalidate in-flight VFS requests when configuring a new remote urlFetcher', async () => {
+			let completeVfsLoad = null;
+
+			const loadSpy = vi.spyOn(Client, 'loadFile').mockImplementation((filename, onload) => {
+				completeVfsLoad = () => {
+					MemoryManager.set(filename, new TextEncoder().encode('return { fromVfs = true }'));
+					onload(new TextEncoder().encode('return { fromVfs = true }'));
+				};
+			});
+			loadSpy.mockClear();
+
+			// Start loading AI/Const.lua through Client.loadFile (stays in-flight)
+			const vfsPromise = LuaModuleLoader.loadVfsCandidate('AI/Const.lua');
+
+			// Configure a new URL fetcher before the VFS callback runs
+			LuaModuleLoader.configure({
+				urlFetcher: async () => new TextEncoder().encode('return { url = true }')
+			});
+
+			// The VFS callback returns valid bytes
+			expect(typeof completeVfsLoad).toBe('function');
+			completeVfsLoad();
+			const bytes = await vfsPromise;
+			expect(bytes).toBeDefined();
+
+			// MemoryManager should still retain the file and buffer cache must have it
+			expect(MemoryManager.exist('AI/Const.lua')).toBe(true);
+
+			const newVM = await createLuaVM();
+			try {
+				const fromVfs = await newVM.doString('return require("AI/Const.lua").fromVfs');
+				expect(fromVfs).toBe(true);
+				expect(loadSpy).toHaveBeenCalledTimes(1);
+			} finally {
+				if (!newVM.global.isClosed()) {
+					newVM.global.close();
+				}
+			}
+		});
+
+		it('does not cross-invalidate in-flight remote requests when replacing Client.loadFile or configuring vfsLoader', async () => {
+			let completeRemoteFetch = null;
+			let remoteCalls = 0;
+			const remoteUrl = 'https://remote.example.com/lua/async_mod.lua';
+
+			LuaModuleLoader.configure({
+				urlFetcher: async url => {
+					remoteCalls++;
+					if (url === remoteUrl) {
+						return new Promise(resolve => {
+							completeRemoteFetch = () => resolve(new TextEncoder().encode('return { fromRemote = true }'));
+						});
+					}
+					throw new Error(`Unexpected URL: ${url}`);
+				}
+			});
+
+			// Start loading remote URL (stays in-flight)
+			const remotePromise = LuaModuleLoader.fetchUrlCandidate(remoteUrl);
+			await Promise.resolve();
+
+			// Client.loadFile is replaced while remote request is in-flight
+			Client.loadFile = vi.fn();
+
+			// Remote fetch completes
+			expect(typeof completeRemoteFetch).toBe('function');
+			completeRemoteFetch();
+			const bytes = await remotePromise;
+			expect(bytes).toBeDefined();
+
+			// Second attempt to require remote module resolves from cache without re-fetching
+			const newVM = await createLuaVM();
+			try {
+				const fromRemote = await newVM.doString(`
+					package.path = "https://remote.example.com/lua/?.lua"
+					return require("async_mod").fromRemote
+				`);
+				expect(fromRemote).toBe(true);
+				expect(remoteCalls).toBe(1);
+			} finally {
+				if (!newVM.global.isClosed()) {
+					newVM.global.close();
+				}
+			}
+		});
 	});
 });
