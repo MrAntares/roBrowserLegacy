@@ -49,7 +49,7 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 * Queue Constructor
 *
 */
-function Queue() {
+function Queue$1() {
 	this.list = [];
 }
 var init_Queue = __esmMin((() => {
@@ -58,25 +58,25 @@ var init_Queue = __esmMin((() => {
 	*
 	* @param {function} callback
 	*/
-	Queue.prototype.add = function Add(callback) {
+	Queue$1.prototype.add = function Add(callback) {
 		this.list.push(callback);
 	};
 	/**
 	* Continue the queue
 	*/
-	Queue.prototype._next = function _Next() {
+	Queue$1.prototype._next = function _Next() {
 		if (this.list.length) this.list.shift().call(this);
 	};
 	/**
 	* To avoid problem with constructor, define it
 	*/
-	Object.defineProperty(Queue.prototype, "next", { get: function() {
+	Object.defineProperty(Queue$1.prototype, "next", { get: function() {
 		return this._next.bind(this);
 	} });
 	/**
 	* Start running queue
 	*/
-	Queue.prototype.run = function Run() {
+	Queue$1.prototype.run = function Run() {
 		this.next();
 	};
 }));
@@ -11366,6 +11366,10 @@ var init_MemoryManager = __esmMin((() => {
 						for (i = 0, count = file.frames.length; i < count; ++i) if (file.frames[i].texture && gl != null && gl.isTexture(file.frames[i].texture)) gl.deleteTexture(file.frames[i].texture);
 					}
 					if (file.texture && gl != null && gl.isTexture(file.texture)) gl.deleteTexture(file.texture);
+					if (file._atlasPages && gl != null) {
+						for (i = 0, count = file._atlasPages.length; i < count; ++i) if (file._atlasPages[i].texture && gl.isTexture(file._atlasPages[i].texture)) gl.deleteTexture(file._atlasPages[i].texture);
+						file._atlasPages = null;
+					}
 					break;
 				case ".pal":
 					if (file.texture && gl != null && gl.isTexture(file.texture)) gl.deleteTexture(file.texture);
@@ -11395,7 +11399,7 @@ var init_MemoryManager = __esmMin((() => {
 //#endregion
 //#region src/Network/Packets/packets2003_len_main.js
 var packets2003_len_main_exports = /* @__PURE__ */ __exportAll({ default: () => packets2003_len_main_default });
-function init$37(packetver) {
+function init$38(packetver) {
 	length_list$22[100] = 55;
 	length_list$22[101] = 17;
 	length_list$22[102] = 3;
@@ -11803,12 +11807,12 @@ function init$37(packetver) {
 var length_list$22, packets2003_len_main_default;
 var init_packets2003_len_main = __esmMin((() => {
 	length_list$22 = new Array();
-	packets2003_len_main_default = { init: init$37 };
+	packets2003_len_main_default = { init: init$38 };
 }));
 //#endregion
 //#region src/Network/Packets/packets2004_len_main.js
 var packets2004_len_main_exports = /* @__PURE__ */ __exportAll({ default: () => packets2004_len_main_default });
-function init$36(packetver) {
+function init$37(packetver) {
 	length_list$21[100] = 55;
 	length_list$21[101] = 17;
 	length_list$21[102] = 3;
@@ -12416,12 +12420,12 @@ function init$36(packetver) {
 var length_list$21, packets2004_len_main_default;
 var init_packets2004_len_main = __esmMin((() => {
 	length_list$21 = new Array();
-	packets2004_len_main_default = { init: init$36 };
+	packets2004_len_main_default = { init: init$37 };
 }));
 //#endregion
 //#region src/Network/Packets/packets2005_len_main.js
 var packets2005_len_main_exports = /* @__PURE__ */ __exportAll({ default: () => packets2005_len_main_default });
-function init$35(packetver) {
+function init$36(packetver) {
 	length_list$20[100] = 55;
 	length_list$20[101] = 17;
 	length_list$20[102] = 3;
@@ -13046,12 +13050,12 @@ function init$35(packetver) {
 var length_list$20, packets2005_len_main_default;
 var init_packets2005_len_main = __esmMin((() => {
 	length_list$20 = new Array();
-	packets2005_len_main_default = { init: init$35 };
+	packets2005_len_main_default = { init: init$36 };
 }));
 //#endregion
 //#region src/Network/Packets/packets2006_len_main.js
 var packets2006_len_main_exports = /* @__PURE__ */ __exportAll({ default: () => packets2006_len_main_default });
-function init$34(packetver) {
+function init$35(packetver) {
 	length_list$19[100] = 55;
 	length_list$19[101] = 17;
 	length_list$19[102] = 3;
@@ -13645,12 +13649,12 @@ function init$34(packetver) {
 var length_list$19, packets2006_len_main_default;
 var init_packets2006_len_main = __esmMin((() => {
 	length_list$19 = new Array();
-	packets2006_len_main_default = { init: init$34 };
+	packets2006_len_main_default = { init: init$35 };
 }));
 //#endregion
 //#region src/Network/Packets/packets2007_len_main.js
 var packets2007_len_main_exports = /* @__PURE__ */ __exportAll({ default: () => packets2007_len_main_default });
-function init$33(packetver) {
+function init$34(packetver) {
 	length_list$18[100] = 55;
 	length_list$18[101] = 17;
 	length_list$18[102] = 3;
@@ -14337,12 +14341,12 @@ function init$33(packetver) {
 var length_list$18, packets2007_len_main_default;
 var init_packets2007_len_main = __esmMin((() => {
 	length_list$18 = new Array();
-	packets2007_len_main_default = { init: init$33 };
+	packets2007_len_main_default = { init: init$34 };
 }));
 //#endregion
 //#region src/Network/Packets/packets2008_len_main.js
 var packets2008_len_main_exports = /* @__PURE__ */ __exportAll({ default: () => packets2008_len_main_default });
-function init$32(packetver) {
+function init$33(packetver) {
 	length_list$17[100] = 55;
 	length_list$17[101] = 17;
 	length_list$17[102] = 3;
@@ -32526,12 +32530,12 @@ function init$32(packetver) {
 var length_list$17, packets2008_len_main_default;
 var init_packets2008_len_main = __esmMin((() => {
 	length_list$17 = new Array();
-	packets2008_len_main_default = { init: init$32 };
+	packets2008_len_main_default = { init: init$33 };
 }));
 //#endregion
 //#region src/Network/Packets/packets2009_len_main.js
 var packets2009_len_main_exports = /* @__PURE__ */ __exportAll({ default: () => packets2009_len_main_default });
-function init$31(packetver) {
+function init$32(packetver) {
 	length_list$16[100] = 55;
 	length_list$16[101] = 17;
 	length_list$16[102] = 3;
@@ -38768,12 +38772,12 @@ function init$31(packetver) {
 var length_list$16, packets2009_len_main_default;
 var init_packets2009_len_main = __esmMin((() => {
 	length_list$16 = new Array();
-	packets2009_len_main_default = { init: init$31 };
+	packets2009_len_main_default = { init: init$32 };
 }));
 //#endregion
 //#region src/Network/Packets/packets2010_len_main.js
 var packets2010_len_main_exports = /* @__PURE__ */ __exportAll({ default: () => packets2010_len_main_default });
-function init$30(packetver) {
+function init$31(packetver) {
 	length_list$15[100] = 55;
 	length_list$15[101] = 17;
 	length_list$15[102] = 3;
@@ -40247,12 +40251,12 @@ function init$30(packetver) {
 var length_list$15, packets2010_len_main_default;
 var init_packets2010_len_main = __esmMin((() => {
 	length_list$15 = new Array();
-	packets2010_len_main_default = { init: init$30 };
+	packets2010_len_main_default = { init: init$31 };
 }));
 //#endregion
 //#region src/Network/Packets/packets2011_len_main.js
 var packets2011_len_main_exports = /* @__PURE__ */ __exportAll({ default: () => packets2011_len_main_default });
-function init$29(packetver) {
+function init$30(packetver) {
 	length_list$14[100] = 55;
 	length_list$14[101] = 17;
 	length_list$14[102] = 3;
@@ -43182,12 +43186,12 @@ function init$29(packetver) {
 var length_list$14, packets2011_len_main_default;
 var init_packets2011_len_main = __esmMin((() => {
 	length_list$14 = new Array();
-	packets2011_len_main_default = { init: init$29 };
+	packets2011_len_main_default = { init: init$30 };
 }));
 //#endregion
 //#region src/Network/Packets/packets2012_len_main.js
 var packets2012_len_main_exports = /* @__PURE__ */ __exportAll({ default: () => packets2012_len_main_default });
-function init$28(packetver) {
+function init$29(packetver) {
 	length_list$13[100] = 55;
 	length_list$13[101] = 17;
 	length_list$13[102] = 3;
@@ -46602,12 +46606,12 @@ function init$28(packetver) {
 var length_list$13, packets2012_len_main_default;
 var init_packets2012_len_main = __esmMin((() => {
 	length_list$13 = new Array();
-	packets2012_len_main_default = { init: init$28 };
+	packets2012_len_main_default = { init: init$29 };
 }));
 //#endregion
 //#region src/Network/Packets/packets2013_len_main.js
 var packets2013_len_main_exports = /* @__PURE__ */ __exportAll({ default: () => packets2013_len_main_default });
-function init$27(packetver) {
+function init$28(packetver) {
 	length_list$12[100] = 55;
 	length_list$12[101] = 17;
 	length_list$12[102] = 3;
@@ -50096,12 +50100,12 @@ function init$27(packetver) {
 var length_list$12, packets2013_len_main_default;
 var init_packets2013_len_main = __esmMin((() => {
 	length_list$12 = new Array();
-	packets2013_len_main_default = { init: init$27 };
+	packets2013_len_main_default = { init: init$28 };
 }));
 //#endregion
 //#region src/Network/Packets/packets2014_len_main.js
 var packets2014_len_main_exports = /* @__PURE__ */ __exportAll({ default: () => packets2014_len_main_default });
-function init$26(packetver) {
+function init$27(packetver) {
 	length_list$11[100] = 55;
 	length_list$11[101] = 17;
 	length_list$11[102] = 3;
@@ -53681,12 +53685,12 @@ function init$26(packetver) {
 var length_list$11, packets2014_len_main_default;
 var init_packets2014_len_main = __esmMin((() => {
 	length_list$11 = new Array();
-	packets2014_len_main_default = { init: init$26 };
+	packets2014_len_main_default = { init: init$27 };
 }));
 //#endregion
 //#region src/Network/Packets/packets2015_len_main.js
 var packets2015_len_main_exports = /* @__PURE__ */ __exportAll({ default: () => packets2015_len_main_default });
-function init$25(packetver) {
+function init$26(packetver) {
 	length_list$10[100] = 55;
 	length_list$10[101] = 17;
 	length_list$10[102] = 3;
@@ -57118,12 +57122,12 @@ function init$25(packetver) {
 var length_list$10, packets2015_len_main_default;
 var init_packets2015_len_main = __esmMin((() => {
 	length_list$10 = new Array();
-	packets2015_len_main_default = { init: init$25 };
+	packets2015_len_main_default = { init: init$26 };
 }));
 //#endregion
 //#region src/Network/Packets/packets2016_len_main.js
 var packets2016_len_main_exports = /* @__PURE__ */ __exportAll({ default: () => packets2016_len_main_default });
-function init$24(packetver) {
+function init$25(packetver) {
 	length_list$9[100] = 55;
 	length_list$9[101] = 17;
 	length_list$9[102] = 3;
@@ -60721,12 +60725,12 @@ function init$24(packetver) {
 var length_list$9, packets2016_len_main_default;
 var init_packets2016_len_main = __esmMin((() => {
 	length_list$9 = new Array();
-	packets2016_len_main_default = { init: init$24 };
+	packets2016_len_main_default = { init: init$25 };
 }));
 //#endregion
 //#region src/Network/Packets/packets2017_len_main.js
 var packets2017_len_main_exports = /* @__PURE__ */ __exportAll({ default: () => packets2017_len_main_default });
-function init$23(packetver) {
+function init$24(packetver) {
 	length_list$8[100] = 55;
 	length_list$8[101] = 17;
 	length_list$8[102] = 3;
@@ -64304,12 +64308,12 @@ function init$23(packetver) {
 var length_list$8, packets2017_len_main_default;
 var init_packets2017_len_main = __esmMin((() => {
 	length_list$8 = new Array();
-	packets2017_len_main_default = { init: init$23 };
+	packets2017_len_main_default = { init: init$24 };
 }));
 //#endregion
 //#region src/Network/Packets/packets2018_len_main.js
 var packets2018_len_main_exports = /* @__PURE__ */ __exportAll({ default: () => packets2018_len_main_default });
-function init$22(packetver) {
+function init$23(packetver) {
 	length_list$7[100] = 55;
 	length_list$7[101] = 17;
 	length_list$7[102] = 3;
@@ -66213,12 +66217,12 @@ function init$22(packetver) {
 var length_list$7, packets2018_len_main_default;
 var init_packets2018_len_main = __esmMin((() => {
 	length_list$7 = new Array();
-	packets2018_len_main_default = { init: init$22 };
+	packets2018_len_main_default = { init: init$23 };
 }));
 //#endregion
 //#region src/Network/Packets/packets2019_len_main.js
 var packets2019_len_main_exports = /* @__PURE__ */ __exportAll({ default: () => packets2019_len_main_default });
-function init$21(packetver) {
+function init$22(packetver) {
 	length_list$6[100] = 55;
 	length_list$6[101] = 17;
 	length_list$6[102] = 3;
@@ -67796,12 +67800,12 @@ function init$21(packetver) {
 var length_list$6, packets2019_len_main_default;
 var init_packets2019_len_main = __esmMin((() => {
 	length_list$6 = new Array();
-	packets2019_len_main_default = { init: init$21 };
+	packets2019_len_main_default = { init: init$22 };
 }));
 //#endregion
 //#region src/Network/Packets/packets2020_len_main.js
 var packets2020_len_main_exports = /* @__PURE__ */ __exportAll({ default: () => packets2020_len_main_default });
-function init$20(packetver) {
+function init$21(packetver) {
 	length_list$5[100] = 55;
 	length_list$5[101] = 17;
 	length_list$5[102] = 3;
@@ -69386,12 +69390,12 @@ function init$20(packetver) {
 var length_list$5, packets2020_len_main_default;
 var init_packets2020_len_main = __esmMin((() => {
 	length_list$5 = new Array();
-	packets2020_len_main_default = { init: init$20 };
+	packets2020_len_main_default = { init: init$21 };
 }));
 //#endregion
 //#region src/Network/Packets/packets2021_len_main.js
 var packets2021_len_main_exports = /* @__PURE__ */ __exportAll({ default: () => packets2021_len_main_default });
-function init$19(packetver) {
+function init$20(packetver) {
 	length_list$4[100] = 55;
 	length_list$4[101] = 17;
 	length_list$4[102] = 3;
@@ -70997,12 +71001,12 @@ function init$19(packetver) {
 var length_list$4, packets2021_len_main_default;
 var init_packets2021_len_main = __esmMin((() => {
 	length_list$4 = new Array();
-	packets2021_len_main_default = { init: init$19 };
+	packets2021_len_main_default = { init: init$20 };
 }));
 //#endregion
 //#region src/Network/Packets/packets2022_len_main.js
 var packets2022_len_main_exports = /* @__PURE__ */ __exportAll({ default: () => packets2022_len_main_default });
-function init$18(packetver) {
+function init$19(packetver) {
 	length_list$3[100] = 55;
 	length_list$3[101] = 17;
 	length_list$3[102] = 3;
@@ -72614,12 +72618,12 @@ function init$18(packetver) {
 var length_list$3, packets2022_len_main_default;
 var init_packets2022_len_main = __esmMin((() => {
 	length_list$3 = new Array();
-	packets2022_len_main_default = { init: init$18 };
+	packets2022_len_main_default = { init: init$19 };
 }));
 //#endregion
 //#region src/Network/Packets/packets2023_len_main.js
 var packets2023_len_main_exports = /* @__PURE__ */ __exportAll({ default: () => packets2023_len_main_default });
-function init$17(packetver) {
+function init$18(packetver) {
 	length_list$2[100] = 55;
 	length_list$2[101] = 17;
 	length_list$2[102] = 3;
@@ -74285,12 +74289,12 @@ function init$17(packetver) {
 var length_list$2, packets2023_len_main_default;
 var init_packets2023_len_main = __esmMin((() => {
 	length_list$2 = new Array();
-	packets2023_len_main_default = { init: init$17 };
+	packets2023_len_main_default = { init: init$18 };
 }));
 //#endregion
 //#region src/Network/Packets/packets2024_len_main.js
 var packets2024_len_main_exports = /* @__PURE__ */ __exportAll({ default: () => packets2024_len_main_default });
-function init$16(packetver) {
+function init$17(packetver) {
 	length_list$1[100] = 55;
 	length_list$1[101] = 17;
 	length_list$1[102] = 3;
@@ -75996,12 +76000,12 @@ function init$16(packetver) {
 var length_list$1, packets2024_len_main_default;
 var init_packets2024_len_main = __esmMin((() => {
 	length_list$1 = new Array();
-	packets2024_len_main_default = { init: init$16 };
+	packets2024_len_main_default = { init: init$17 };
 }));
 //#endregion
 //#region src/Network/Packets/packets2025_len_main.js
 var packets2025_len_main_exports = /* @__PURE__ */ __exportAll({ default: () => packets2025_len_main_default });
-function init$15(packetver) {
+function init$16(packetver) {
 	length_list[100] = 55;
 	length_list[101] = 17;
 	length_list[102] = 3;
@@ -77747,7 +77751,7 @@ function init$15(packetver) {
 var length_list, packets2025_len_main_default;
 var init_packets2025_len_main = __esmMin((() => {
 	length_list = new Array();
-	packets2025_len_main_default = { init: init$15 };
+	packets2025_len_main_default = { init: init$16 };
 }));
 //#endregion
 //#region src/Network/PacketLength.js
@@ -77756,7 +77760,7 @@ var init_packets2025_len_main = __esmMin((() => {
 *
 * @param {number} packetver - packet version (clientdate)
 */
-function init$14(packetver) {
+function init$15(packetver) {
 	packetver = parseInt(packetver);
 	const years = [
 		2025,
@@ -77857,7 +77861,7 @@ var init_PacketLength = __esmMin((() => {
 	};
 	packets_len = new Array();
 	PacketLength_default = {
-		init: init$14,
+		init: init$15,
 		getPacketLength
 	};
 }));
@@ -79244,7 +79248,7 @@ var init_Controls = __esmMin((() => {
 }));
 //#endregion
 //#region src/Vendors/gl-matrix.js
-var exports$3, GLMAT_EPSILON, GLMAT_ARRAY_TYPE, GLMAT_RANDOM, glMatrix, vec2$4, vec3$8, vec4$8, mat2$1, mat2d, mat3$5, mat4$23, quat$2;
+var exports$3, GLMAT_EPSILON, GLMAT_ARRAY_TYPE, GLMAT_RANDOM, glMatrix, vec2$4, vec3$8, vec4$8, mat2$1, mat2d, mat3$5, mat4$24, quat$2;
 var init_gl_matrix$1 = __esmMin((() => {
 	exports$3 = {};
 	if (!GLMAT_EPSILON) GLMAT_EPSILON = 1e-6;
@@ -81243,13 +81247,13 @@ var init_gl_matrix$1 = __esmMin((() => {
 		return "mat3(" + a[0] + ", " + a[1] + ", " + a[2] + ", " + a[3] + ", " + a[4] + ", " + a[5] + ", " + a[6] + ", " + a[7] + ", " + a[8] + ")";
 	};
 	if (typeof exports$3 !== "undefined") exports$3.mat3 = mat3$5;
-	mat4$23 = {};
+	mat4$24 = {};
 	/**
 	* Creates a new identity mat4
 	*
 	* @returns {mat4} a new 4x4 matrix
 	*/
-	mat4$23.create = function() {
+	mat4$24.create = function() {
 		var out = new GLMAT_ARRAY_TYPE(16);
 		out[0] = 1;
 		out[1] = 0;
@@ -81275,7 +81279,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} a matrix to clone
 	* @returns {mat4} a new 4x4 matrix
 	*/
-	mat4$23.clone = function(a) {
+	mat4$24.clone = function(a) {
 		var out = new GLMAT_ARRAY_TYPE(16);
 		out[0] = a[0];
 		out[1] = a[1];
@@ -81302,7 +81306,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} a the source matrix
 	* @returns {mat4} out
 	*/
-	mat4$23.copy = function(out, a) {
+	mat4$24.copy = function(out, a) {
 		out[0] = a[0];
 		out[1] = a[1];
 		out[2] = a[2];
@@ -81327,7 +81331,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} out the receiving matrix
 	* @returns {mat4} out
 	*/
-	mat4$23.identity = function(out) {
+	mat4$24.identity = function(out) {
 		out[0] = 1;
 		out[1] = 0;
 		out[2] = 0;
@@ -81353,7 +81357,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} a the source matrix
 	* @returns {mat4} out
 	*/
-	mat4$23.transpose = function(out, a) {
+	mat4$24.transpose = function(out, a) {
 		if (out === a) {
 			var a01 = a[1], a02 = a[2], a03 = a[3], a12 = a[6], a13 = a[7], a23 = a[11];
 			out[1] = a[4];
@@ -81395,7 +81399,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} a the source matrix
 	* @returns {mat4} out
 	*/
-	mat4$23.invert = function(out, a) {
+	mat4$24.invert = function(out, a) {
 		var a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3], a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7], a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11], a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15], b00 = a00 * a11 - a01 * a10, b01 = a00 * a12 - a02 * a10, b02 = a00 * a13 - a03 * a10, b03 = a01 * a12 - a02 * a11, b04 = a01 * a13 - a03 * a11, b05 = a02 * a13 - a03 * a12, b06 = a20 * a31 - a21 * a30, b07 = a20 * a32 - a22 * a30, b08 = a20 * a33 - a23 * a30, b09 = a21 * a32 - a22 * a31, b10 = a21 * a33 - a23 * a31, b11 = a22 * a33 - a23 * a32, det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 		if (!det) return null;
 		det = 1 / det;
@@ -81424,7 +81428,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} a the source matrix
 	* @returns {mat4} out
 	*/
-	mat4$23.adjoint = function(out, a) {
+	mat4$24.adjoint = function(out, a) {
 		var a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3], a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7], a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11], a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15];
 		out[0] = a11 * (a22 * a33 - a23 * a32) - a21 * (a12 * a33 - a13 * a32) + a31 * (a12 * a23 - a13 * a22);
 		out[1] = -(a01 * (a22 * a33 - a23 * a32) - a21 * (a02 * a33 - a03 * a32) + a31 * (a02 * a23 - a03 * a22));
@@ -81450,7 +81454,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} a the source matrix
 	* @returns {Number} determinant of a
 	*/
-	mat4$23.determinant = function(a) {
+	mat4$24.determinant = function(a) {
 		var a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3], a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7], a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11], a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15], b00 = a00 * a11 - a01 * a10, b01 = a00 * a12 - a02 * a10, b02 = a00 * a13 - a03 * a10, b03 = a01 * a12 - a02 * a11, b04 = a01 * a13 - a03 * a11, b05 = a02 * a13 - a03 * a12, b06 = a20 * a31 - a21 * a30, b07 = a20 * a32 - a22 * a30, b08 = a20 * a33 - a23 * a30, b09 = a21 * a32 - a22 * a31, b10 = a21 * a33 - a23 * a31;
 		return b00 * (a22 * a33 - a23 * a32) - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 	};
@@ -81462,7 +81466,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} b the second operand
 	* @returns {mat4} out
 	*/
-	mat4$23.multiply = function(out, a, b) {
+	mat4$24.multiply = function(out, a, b) {
 		var a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3], a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7], a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11], a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15];
 		var b0 = b[0], b1 = b[1], b2 = b[2], b3 = b[3];
 		out[0] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
@@ -81499,7 +81503,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* Alias for {@link mat4.multiply}
 	* @function
 	*/
-	mat4$23.mul = mat4$23.multiply;
+	mat4$24.mul = mat4$24.multiply;
 	/**
 	* Translate a mat4 by the given vector
 	*
@@ -81508,7 +81512,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} v vector to translate by
 	* @returns {mat4} out
 	*/
-	mat4$23.translate = function(out, a, v) {
+	mat4$24.translate = function(out, a, v) {
 		var x = v[0], y = v[1], z = v[2], a00, a01, a02, a03, a10, a11, a12, a13, a20, a21, a22, a23;
 		if (a === out) {
 			out[12] = a[0] * x + a[4] * y + a[8] * z + a[12];
@@ -81555,7 +81559,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} v the vec3 to scale the matrix by
 	* @returns {mat4} out
 	**/
-	mat4$23.scale = function(out, a, v) {
+	mat4$24.scale = function(out, a, v) {
 		var x = v[0], y = v[1], z = v[2];
 		out[0] = a[0] * x;
 		out[1] = a[1] * x;
@@ -81584,7 +81588,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} axis the axis to rotate around
 	* @returns {mat4} out
 	*/
-	mat4$23.rotate = function(out, a, rad, axis) {
+	mat4$24.rotate = function(out, a, rad, axis) {
 		var x = axis[0], y = axis[1], z = axis[2], len = Math.sqrt(x * x + y * y + z * z), s, c, t, a00, a01, a02, a03, a10, a11, a12, a13, a20, a21, a22, a23, b00, b01, b02, b10, b11, b12, b20, b21, b22;
 		if (Math.abs(len) < GLMAT_EPSILON) return null;
 		len = 1 / len;
@@ -81643,7 +81647,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} rad the angle to rotate the matrix by
 	* @returns {mat4} out
 	*/
-	mat4$23.rotateX = function(out, a, rad) {
+	mat4$24.rotateX = function(out, a, rad) {
 		var s = Math.sin(rad), c = Math.cos(rad), a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7], a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11];
 		if (a !== out) {
 			out[0] = a[0];
@@ -81673,7 +81677,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} rad the angle to rotate the matrix by
 	* @returns {mat4} out
 	*/
-	mat4$23.rotateY = function(out, a, rad) {
+	mat4$24.rotateY = function(out, a, rad) {
 		var s = Math.sin(rad), c = Math.cos(rad), a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3], a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11];
 		if (a !== out) {
 			out[4] = a[4];
@@ -81703,7 +81707,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} rad the angle to rotate the matrix by
 	* @returns {mat4} out
 	*/
-	mat4$23.rotateZ = function(out, a, rad) {
+	mat4$24.rotateZ = function(out, a, rad) {
 		var s = Math.sin(rad), c = Math.cos(rad), a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3], a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7];
 		if (a !== out) {
 			out[8] = a[8];
@@ -81740,7 +81744,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} v Translation vector
 	* @returns {mat4} out
 	*/
-	mat4$23.fromRotationTranslation = function(out, q, v) {
+	mat4$24.fromRotationTranslation = function(out, q, v) {
 		var x = q[0], y = q[1], z = q[2], w = q[3], x2 = x + x, y2 = y + y, z2 = z + z, xx = x * x2, xy = x * y2, xz = x * z2, yy = y * y2, yz = y * z2, zz = z * z2, wx = w * x2, wy = w * y2, wz = w * z2;
 		out[0] = 1 - (yy + zz);
 		out[1] = xy + wz;
@@ -81768,7 +81772,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	*
 	* @returns {mat4} out
 	*/
-	mat4$23.fromQuat = function(out, q) {
+	mat4$24.fromQuat = function(out, q) {
 		var x = q[0], y = q[1], z = q[2], w = q[3], x2 = x + x, y2 = y + y, z2 = z + z, xx = x * x2, xy = x * y2, xz = x * z2, yy = y * y2, yz = y * z2, zz = z * z2, wx = w * x2, wy = w * y2, wz = w * z2;
 		out[0] = 1 - (yy + zz);
 		out[1] = xy + wz;
@@ -81800,7 +81804,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} far Far bound of the frustum
 	* @returns {mat4} out
 	*/
-	mat4$23.frustum = function(out, left, right, bottom, top, near, far) {
+	mat4$24.frustum = function(out, left, right, bottom, top, near, far) {
 		var rl = 1 / (right - left), tb = 1 / (top - bottom), nf = 1 / (near - far);
 		out[0] = near * 2 * rl;
 		out[1] = 0;
@@ -81830,7 +81834,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {number} far Far bound of the frustum
 	* @returns {mat4} out
 	*/
-	mat4$23.perspective = function(out, fovy, aspect, near, far) {
+	mat4$24.perspective = function(out, fovy, aspect, near, far) {
 		var f = 1 / Math.tan(fovy / 2), nf = 1 / (near - far);
 		out[0] = f / aspect;
 		out[1] = 0;
@@ -81862,7 +81866,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {number} far Far bound of the frustum
 	* @returns {mat4} out
 	*/
-	mat4$23.ortho = function(out, left, right, bottom, top, near, far) {
+	mat4$24.ortho = function(out, left, right, bottom, top, near, far) {
 		var lr = 1 / (left - right), bt = 1 / (bottom - top), nf = 1 / (near - far);
 		out[0] = -2 * lr;
 		out[1] = 0;
@@ -81891,9 +81895,9 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} up vec3 pointing up
 	* @returns {mat4} out
 	*/
-	mat4$23.lookAt = function(out, eye, center, up) {
+	mat4$24.lookAt = function(out, eye, center, up) {
 		var x0, x1, x2, y0, y1, y2, z0, z1, z2, len, eyex = eye[0], eyey = eye[1], eyez = eye[2], upx = up[0], upy = up[1], upz = up[2], centerx = center[0], centery = center[1], centerz = center[2];
-		if (Math.abs(eyex - centerx) < GLMAT_EPSILON && Math.abs(eyey - centery) < GLMAT_EPSILON && Math.abs(eyez - centerz) < GLMAT_EPSILON) return mat4$23.identity(out);
+		if (Math.abs(eyex - centerx) < GLMAT_EPSILON && Math.abs(eyey - centery) < GLMAT_EPSILON && Math.abs(eyez - centerz) < GLMAT_EPSILON) return mat4$24.identity(out);
 		z0 = eyex - centerx;
 		z1 = eyey - centery;
 		z2 = eyez - centerz;
@@ -81953,10 +81957,10 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} mat matrix to represent as a string
 	* @returns {String} string representation of the matrix
 	*/
-	mat4$23.str = function(a) {
+	mat4$24.str = function(a) {
 		return "mat4(" + a[0] + ", " + a[1] + ", " + a[2] + ", " + a[3] + ", " + a[4] + ", " + a[5] + ", " + a[6] + ", " + a[7] + ", " + a[8] + ", " + a[9] + ", " + a[10] + ", " + a[11] + ", " + a[12] + ", " + a[13] + ", " + a[14] + ", " + a[15] + ")";
 	};
-	if (typeof exports$3 !== "undefined") exports$3.mat4 = mat4$23;
+	if (typeof exports$3 !== "undefined") exports$3.mat4 = mat4$24;
 	quat$2 = {};
 	/**
 	* Creates a new identity quat
@@ -83943,18 +83947,18 @@ var init_PostProcess = __esmMin((() => {
 }));
 //#endregion
 //#region src/Renderer/Effects/Shaders/VerticalFlip.js
-var _program$27, _buffer$21, _active$3, VerticalFlip;
+var _program$28, _buffer$21, _active$4, VerticalFlip;
 var init_VerticalFlip = __esmMin((() => {
 	init_VerticalFlip$2();
 	init_VerticalFlip$1();
 	init_WebGL();
 	init_PostProcess();
-	_active$3 = false;
+	_active$4 = false;
 	VerticalFlip = class {
 		static init(gl) {
-			if (_program$27) return;
+			if (_program$28) return;
 			try {
-				_program$27 = WebGL_default.createShaderProgram(gl, VerticalFlip_default$1, VerticalFlip_default);
+				_program$28 = WebGL_default.createShaderProgram(gl, VerticalFlip_default$1, VerticalFlip_default);
 			} catch (e) {
 				console.error("Error when compiling shader VerticalFlip.", e);
 				return;
@@ -83987,19 +83991,19 @@ var init_VerticalFlip = __esmMin((() => {
 		* @param {WebGLFramebuffer} outputFbo - Target
 		*/
 		static render(gl, inputTexture, outputFbo) {
-			if (!_buffer$21 || !_program$27 || !_active$3) return;
+			if (!_buffer$21 || !_program$28 || !_active$4) return;
 			PostProcess.beforeRenderPass(gl, outputFbo);
-			gl.useProgram(_program$27);
+			gl.useProgram(_program$28);
 			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$21);
-			let posLoc = _program$27.attribute.aPosition;
+			let posLoc = _program$28.attribute.aPosition;
 			gl.enableVertexAttribArray(posLoc);
 			gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 16, 0);
-			posLoc = _program$27.attribute.aTextureCoord;
+			posLoc = _program$28.attribute.aTextureCoord;
 			gl.enableVertexAttribArray(posLoc);
 			gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 16, 8);
 			gl.activeTexture(gl.TEXTURE0);
 			gl.bindTexture(gl.TEXTURE_2D, inputTexture);
-			gl.uniform1i(_program$27.uniform.uTexture, 0);
+			gl.uniform1i(_program$28.uniform.uTexture, 0);
 			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 			PostProcess.afterRenderPass(gl);
 		}
@@ -84007,27 +84011,27 @@ var init_VerticalFlip = __esmMin((() => {
 		* @returns {WebGLProgram} Shader program
 		*/
 		static program() {
-			return _program$27;
+			return _program$28;
 		}
 		/** Resets effect state */
 		static clean(gl) {
-			_active$3 = false;
+			_active$4 = false;
 			if (_buffer$21) gl.deleteBuffer(_buffer$21);
-			_program$27 = _buffer$21 = null;
+			_program$28 = _buffer$21 = null;
 		}
 		/** @returns {boolean} Whether the effect is active */
 		static isActive() {
-			return _active$3;
+			return _active$4;
 		}
 		/** @param {boolean} bool - Enables/disables the effect */
 		static setActive(bool) {
-			_active$3 = bool;
+			_active$4 = bool;
 		}
 	};
 }));
 //#endregion
 //#region src/Renderer/Map/Altitude.js
-var _cells, _types$1, mat4$22, vec3$7, vec4$7, _from, _to, _unit, _matrix$7, buffer1x1, buffer5x5, buffer7x7, buffer13x13, tmp, Altitude, TYPE_TABLE;
+var _cells, _types$1, mat4$23, vec3$7, vec4$7, _from, _to, _unit, _matrix$7, buffer1x1, buffer5x5, buffer7x7, buffer13x13, tmp, Altitude, TYPE_TABLE;
 var init_Altitude = __esmMin((() => {
 	init_gl_matrix$1();
 	init_PathFinding();
@@ -84035,11 +84039,11 @@ var init_Altitude = __esmMin((() => {
 	init_VerticalFlip();
 	_cells = null;
 	_types$1 = null;
-	({mat4: mat4$22, vec3: vec3$7, vec4: vec4$7} = exports$3);
+	({mat4: mat4$23, vec3: vec3$7, vec4: vec4$7} = exports$3);
 	_from = vec3$7.create();
 	_to = vec4$7.create();
 	_unit = vec3$7.create();
-	_matrix$7 = mat4$22.create();
+	_matrix$7 = mat4$23.create();
 	buffer1x1 = /* @__PURE__ */ new Float32Array(30);
 	buffer5x5 = /* @__PURE__ */ new Float32Array(750);
 	buffer7x7 = /* @__PURE__ */ new Float32Array(1470);
@@ -84136,7 +84140,7 @@ var init_Altitude = __esmMin((() => {
 		static intersect(modelView, projection, out) {
 			let i;
 			const count = Altitude.MAX_INTERSECT_COUNT;
-			mat4$22.invert(_matrix$7, modelView);
+			mat4$23.invert(_matrix$7, modelView);
 			_from[0] = _matrix$7[12];
 			_from[1] = _matrix$7[13];
 			_from[2] = _matrix$7[14];
@@ -84145,8 +84149,8 @@ var init_Altitude = __esmMin((() => {
 			if (VerticalFlip.isActive()) _to[1] = -_to[1];
 			_to[2] = 1;
 			_to[3] = 1;
-			mat4$22.multiply(_matrix$7, projection, modelView);
-			mat4$22.invert(_matrix$7, _matrix$7);
+			mat4$23.multiply(_matrix$7, projection, modelView);
+			mat4$23.invert(_matrix$7, _matrix$7);
 			vec4$7.transformMat4(_to, _to, _matrix$7);
 			_to[0] /= _to[3];
 			_to[1] /= _to[3];
@@ -208592,7 +208596,7 @@ var init_GridSelector$1 = __esmMin((() => {
 *
 * @param {object} gl context
 */
-function init$13(gl) {
+function init$14(gl) {
 	Client.loadFile("data/texture/grid.tga", function(buffer) {
 		Texture.load(buffer, function(success) {
 			if (!success) return;
@@ -208615,7 +208619,7 @@ function init$13(gl) {
 		});
 	});
 	_buffer$20 = gl.createBuffer();
-	_program$26 = WebGL_default.createShaderProgram(gl, GridSelector_default$2, GridSelector_default$1);
+	_program$27 = WebGL_default.createShaderProgram(gl, GridSelector_default$2, GridSelector_default$1);
 	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$20);
 	gl.bufferData(gl.ARRAY_BUFFER, _buffer_data.byteLength, gl.DYNAMIC_DRAW);
 }
@@ -208631,10 +208635,10 @@ function init$13(gl) {
 */
 function render$13(gl, modelView, projection, fog, x, y) {
 	if (!_texture$5) return;
-	const uniform = _program$26.uniform;
-	const attribute = _program$26.attribute;
+	const uniform = _program$27.uniform;
+	const attribute = _program$27.attribute;
 	let z;
-	gl.useProgram(_program$26);
+	gl.useProgram(_program$27);
 	gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 	gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 	gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
@@ -208680,12 +208684,12 @@ function free$8(gl) {
 		gl.deleteTexture(_texture$5);
 		_texture$5 = null;
 	}
-	if (_program$26) {
-		gl.deleteProgram(_program$26);
-		_program$26 = null;
+	if (_program$27) {
+		gl.deleteProgram(_program$27);
+		_program$27 = null;
 	}
 }
-var _program$26, _buffer$20, _texture$5, _xy, _buffer_data, GridSelector_default;
+var _program$27, _buffer$20, _texture$5, _xy, _buffer_data, GridSelector_default;
 var init_GridSelector = __esmMin((() => {
 	init_Altitude();
 	init_Client();
@@ -208694,7 +208698,7 @@ var init_GridSelector = __esmMin((() => {
 	init_Configs();
 	init_GridSelector$2();
 	init_GridSelector$1();
-	_program$26 = null;
+	_program$27 = null;
 	_buffer$20 = null;
 	_texture$5 = null;
 	_xy = null;
@@ -208721,7 +208725,7 @@ var init_GridSelector = __esmMin((() => {
 		1
 	]);
 	GridSelector_default = {
-		init: init$13,
+		init: init$14,
 		free: free$8,
 		render: render$13
 	};
@@ -208807,9 +208811,9 @@ var init_Ground$1 = __esmMin((() => {
 * @param {object} light structure
 */
 function render$12(gl, modelView, projection, normalMat, fog, light) {
-	const uniform = _program$25.uniform;
-	const attribute = _program$25.attribute;
-	gl.useProgram(_program$25);
+	const uniform = _program$26.uniform;
+	const attribute = _program$26.attribute;
+	gl.useProgram(_program$26);
 	gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 	gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 	gl.uniform3fv(uniform.uLightDirection, light.direction);
@@ -208974,13 +208978,13 @@ function onTextureAtlasComplete(gl, atlas) {
 * @param {object} gl context
 * @param {object} data - ground
 */
-function init$12(gl, data) {
+function init$13(gl, data) {
 	_vertCount$1 = data.meshVertCount;
 	_width = data.width;
 	data.height;
 	_shadowMap = data.shadowMap;
 	if (!_buffer$19) _buffer$19 = gl.createBuffer();
-	if (!_program$25) _program$25 = WebGL_default.createShaderProgram(gl, Ground_default$2, Ground_default$1);
+	if (!_program$26) _program$26 = WebGL_default.createShaderProgram(gl, Ground_default$2, Ground_default$1);
 	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$19);
 	gl.bufferData(gl.ARRAY_BUFFER, data.mesh, gl.STATIC_DRAW);
 	initLightmap(gl, data.lightmap, data.lightmapSize);
@@ -209031,7 +209035,7 @@ function getShadowFactor(x, y) {
 	for (y = -3; y < 3; ++y) for (x = -3; x < 3; ++x) factor += _shadowMap[_x + x + (_y + y) * _width * 8];
 	return factor / 36 / 255;
 }
-var procCanvas$2, procCtx$2, _program$25, _buffer$19, _lightmap, _tileColor, _textureAtlas, _shadowMap, _vertCount$1, _width, Ground_default;
+var procCanvas$2, procCtx$2, _program$26, _buffer$19, _lightmap, _tileColor, _textureAtlas, _shadowMap, _vertCount$1, _width, Ground_default;
 var init_Ground = __esmMin((() => {
 	init_WebGL();
 	init_Texture();
@@ -209041,7 +209045,7 @@ var init_Ground = __esmMin((() => {
 	init_Ground$1();
 	procCanvas$2 = document.createElement("canvas");
 	procCtx$2 = procCanvas$2.getContext("2d", { willReadFrequently: true });
-	_program$25 = null;
+	_program$26 = null;
 	_buffer$19 = null;
 	_lightmap = null;
 	_tileColor = null;
@@ -209050,10 +209054,481 @@ var init_Ground = __esmMin((() => {
 	_vertCount$1 = 0;
 	_width = 0;
 	Ground_default = {
-		init: init$12,
+		init: init$13,
 		free: free$7,
 		render: render$12,
 		getShadowFactor
+	};
+}));
+//#endregion
+//#region src/Renderer/SpriteBatch.vs?raw
+var SpriteBatch_default$1;
+var init_SpriteBatch$2 = __esmMin((() => {
+	SpriteBatch_default$1 = "#version 300 es\r\nprecision highp float;\r\n\r\n// The quad, shared by every sprite\r\nin vec2 aPosition;\r\nin vec2 aTextureCoord;\r\n\r\n// One sprite per instance; see SpriteBatch.js for how these are packed\r\nin vec4 aPositionZIndex;  // xyz world position, w zIndex\r\nin vec4 aOffsetSize;      // xy offset, zw size (both in world units)\r\nin vec4 aColor;\r\nin vec4 aUV;              // xy top-left, zw bottom-right, in the texture\r\nin vec4 aAngleDepthShadowCap; // angle (degrees), depth, shadow, ignore z-index cap (0/1)\r\n\r\nout vec2 vTextureCoord;\r\nflat out vec4 vUV;\r\nflat out vec4 vColor;\r\nflat out float vShadow;\r\n\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uViewModelMat;\r\nuniform mat4 uProjectionMat;\r\n\r\nuniform float uCameraZoom;\r\nuniform bool  uDisableDepthCorrection;\r\n\r\n// The same as SpriteRenderer.vs, with the per-sprite uniforms read from the instance.\r\nmat4 Project( mat4 mat, vec3 pos) {\r\n\r\n    // xyz = x(-z)y + middle of cell (0.5)\r\n    float x =  pos.x + 0.5;\r\n    float y = -pos.z;\r\n    float z =  pos.y + 0.5;\r\n\r\n    // Matrix translation\r\n    mat[3].x += mat[0].x * x + mat[1].x * y + mat[2].x * z;\r\n    mat[3].y += mat[0].y * x + mat[1].y * y + mat[2].y * z;\r\n    mat[3].z += (mat[0].z * x + mat[1].z * y + mat[2].z * z);\r\n    mat[3].w += mat[0].w * x + mat[1].w * y + mat[2].w * z;\r\n\r\n    // Spherical billboard\r\n    mat[0].xyz = vec3( 1.0, 0.0, 0.0 );\r\n    mat[1].xyz = vec3( 0.0, 1.0, 0.0 );\r\n    mat[2].xyz = vec3( 0.0, 0.0, 1.0 );\r\n\r\n    return mat;\r\n}\r\n\r\nvec3 getCameraPosition() {\r\n    return (uViewModelMat * vec4(0.0, 0.0, 0.0, 1.0)).xyz;\r\n}\r\n\r\nvec3 getCameraForward() {\r\n    return normalize((uViewModelMat * vec4(0.0, 0.0, -1.0, 0.0)).xyz);\r\n}\r\n\r\nvoid main(void) {\r\n    // Rotation, as mat4.rotateZ(-angle) in SpriteRenderer.js\r\n    float angle = -aAngleDepthShadowCap.x / 180.0 * 3.14159265358979;\r\n    float c = cos(angle);\r\n    float s = sin(angle);\r\n    vec2 scaled = aPosition * aOffsetSize.zw;\r\n    vec4 position = vec4( c * scaled.x - s * scaled.y, s * scaled.x + c * scaled.y, 0.0, 1.0 );\r\n    position.x   += aOffsetSize.x;\r\n    position.y   -= aOffsetSize.y + 0.5;\r\n\r\n    mat4 modelView = Project(uModelViewMat, aPositionZIndex.xyz);\r\n    vec4 viewPosition = modelView * position;\r\n    vec4 viewCenter   = modelView * vec4( 0.0, 0.0, 0.0, 1.0 );\r\n\r\n    gl_Position = uProjectionMat * viewPosition;\r\n\r\n    vec3 cameraPos     = getCameraPosition();\r\n    vec3 cameraForward = getCameraForward();\r\n\r\n    if (!uDisableDepthCorrection) {\r\n        // See SpriteRenderer.vs\r\n        vec3 planePoint = (uViewModelMat * viewCenter).xyz;\r\n        vec3 planeNormal = normalize(vec3(cameraForward.x, 0.0, cameraForward.z));\r\n        if (length(planeNormal) < 0.000001) {\r\n            planeNormal = cameraForward;\r\n        }\r\n\r\n        vec3 worldVertex = (uViewModelMat * viewPosition).xyz;\r\n        vec3 rayDir      = normalize(worldVertex - cameraPos);\r\n        float denom      = max(dot(planeNormal, rayDir), 0.000001);\r\n        float dist       = dot(planePoint - cameraPos, planeNormal) / denom;\r\n\r\n        vec4 planeClip       = uProjectionMat * (uModelViewMat * vec4(cameraPos + rayDir * dist, 1.0));\r\n        float correctedZBase = planeClip.z * (gl_Position.w / max(planeClip.w, 0.000001));\r\n\r\n        gl_Position.z = aAngleDepthShadowCap.w > 0.5 ? correctedZBase : min(gl_Position.z, correctedZBase);\r\n    }\r\n    gl_Position.z -= (aPositionZIndex.w * 0.01 + aAngleDepthShadowCap.y) / max(uCameraZoom, 1.0);\r\n\r\n    vTextureCoord = aTextureCoord;\r\n    vUV     = aUV;\r\n    vColor  = aColor;\r\n    vShadow = aAngleDepthShadowCap.z;\r\n}";
+}));
+//#endregion
+//#region src/Renderer/SpriteBatch.fs?raw
+var SpriteBatch_default;
+var init_SpriteBatch$1 = __esmMin((() => {
+	SpriteBatch_default = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;  // 0..1 across the frame, as in SpriteRenderer.fs\r\nflat in vec4 vUV;       // the frame's rectangle in the texture\r\nflat in vec4 vColor;\r\nflat in float vShadow;\r\nout vec4 fragColor;\r\n\r\nuniform sampler2D uDiffuse;\r\nuniform sampler2D uPalette;\r\n\r\nuniform bool uUsePal;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\nuniform vec2 uTextSize;\r\n\r\n// Where a point of the frame (0..1) is in the texture\r\nvec2 toTexture(vec2 uv) {\r\n    return mix(vUV.xy, vUV.zw, uv);\r\n}\r\n\r\n// One texel of the frame, as NEAREST with CLAMP_TO_EDGE picks it on the\r\n// frame's own texture. Done in the frame's texels, not the atlas's, so the\r\n// rounding is the frame's: a sample that falls on a texel's edge picks the\r\n// same side it did before.\r\nfloat fetchIndex(sampler2D indexT, vec2 uv, vec2 size, vec2 origin) {\r\n    vec2 texel = clamp(floor(uv * size), vec2(0.0), size - 1.0);\r\n    return texelFetch(indexT, ivec2(origin + texel), 0).x;\r\n}\r\n\r\n// The same as SpriteRenderer.fs, on the frame's own coordinates: uTextSize\r\n// is twice the texture's size, so twice the frame's is its share of it.\r\nvec4 bilinearSample(vec2 uv, sampler2D indexT, sampler2D LUT) {\r\n    vec2 atlasSize = uTextSize * 0.5;\r\n    vec2 size      = floor((vUV.zw - vUV.xy) * atlasSize + 0.5);\r\n    vec2 origin    = floor(vUV.xy * atlasSize + 0.5);\r\n    vec2 textSize  = size * 2.0;\r\n    vec2 TextInterval = 1.0 / textSize;\r\n\r\n    float tlLUT = fetchIndex(indexT, uv, size, origin);\r\n    float trLUT = fetchIndex(indexT, uv + vec2(TextInterval.x, 0.0), size, origin);\r\n    float blLUT = fetchIndex(indexT, uv + vec2(0.0, TextInterval.y), size, origin);\r\n    float brLUT = fetchIndex(indexT, uv + TextInterval, size, origin);\r\n\r\n    vec4 transparent = vec4( 0.0, 0.0, 0.0, 0.0);\r\n\r\n    vec4 tl = tlLUT == 0.0 ? transparent : vec4( texture(LUT, vec2(tlLUT,1.0)).rgb, 1.0);\r\n    vec4 tr = trLUT == 0.0 ? transparent : vec4( texture(LUT, vec2(trLUT,1.0)).rgb, 1.0);\r\n    vec4 bl = blLUT == 0.0 ? transparent : vec4( texture(LUT, vec2(blLUT,1.0)).rgb, 1.0);\r\n    vec4 br = brLUT == 0.0 ? transparent : vec4( texture(LUT, vec2(brLUT,1.0)).rgb, 1.0);\r\n\r\n    vec2 f  = fract( uv.xy * textSize );\r\n    vec4 tA = mix( tl, tr, f.x );\r\n    vec4 tB = mix( bl, br, f.x );\r\n\r\n    return mix( tA, tB, f.y );\r\n}\r\n\r\n\r\nvoid main(void) {\r\n\r\n    // Don't render if it's not shown.\r\n    if (vColor.a == 0.0) {\r\n        discard;\r\n    }\r\n\r\n    // Calculate texture\r\n    vec4 textureSample;\r\n    if (uUsePal) {\r\n        textureSample = bilinearSample( vTextureCoord, uDiffuse, uPalette );\r\n    }\r\n    else {\r\n        textureSample = texture( uDiffuse, toTexture(vTextureCoord.st) );\r\n    }\r\n\r\n    // No alpha, skip.\r\n    if ( textureSample.a == 0.0 )\r\n        discard;\r\n\r\n    // Apply shadow, apply color\r\n    textureSample.rgb   *= vShadow;\r\n    fragColor   = textureSample * vColor;\r\n\r\n    // Fog feature\r\n    if (uFogUse) {\r\n        float depth     = gl_FragCoord.z / gl_FragCoord.w;\r\n        float fogFactor = smoothstep( uFogNear, uFogFar, depth );\r\n        fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );\r\n    }\r\n}";
+}));
+//#endregion
+//#region src/Renderer/SpriteBatch.js
+/**
+* Create the program, the quad and the vertex array. The batch keeps its own
+* quad (the same one SpriteRenderer draws), so a context restore rebuilds it
+* here whatever SpriteRenderer holds.
+*
+* @param {WebGL2RenderingContext} gl
+*/
+function init$12(gl) {
+	_gl$3 = gl;
+	_generation++;
+	_program$25 = WebGL_default.createShaderProgram(gl, SpriteBatch_default$1, SpriteBatch_default);
+	_quad = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, _quad);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+		-.5,
+		.5,
+		0,
+		0,
+		.5,
+		.5,
+		1,
+		0,
+		-.5,
+		-.5,
+		0,
+		1,
+		.5,
+		-.5,
+		1,
+		1
+	]), gl.STATIC_DRAW);
+	_instanceBuffer = gl.createBuffer();
+	_vao = gl.createVertexArray();
+	const attribute = _program$25.attribute;
+	gl.bindVertexArray(_vao);
+	gl.bindBuffer(gl.ARRAY_BUFFER, _quad);
+	gl.enableVertexAttribArray(attribute.aPosition);
+	gl.vertexAttribPointer(attribute.aPosition, 2, gl.FLOAT, false, 16, 0);
+	gl.enableVertexAttribArray(attribute.aTextureCoord);
+	gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 16, 8);
+	gl.bindBuffer(gl.ARRAY_BUFFER, _instanceBuffer);
+	for (const name of [
+		"aPositionZIndex",
+		"aOffsetSize",
+		"aColor",
+		"aUV",
+		"aAngleDepthShadowCap"
+	]) {
+		gl.enableVertexAttribArray(attribute[name]);
+		gl.vertexAttribDivisor(attribute[name], 1);
+	}
+	pointInstances(0);
+	gl.bindVertexArray(null);
+}
+/**
+* Point the instance attributes at a run's first sprite (WebGL 2 has no
+* base instance, so each run moves the pointers instead).
+*
+* @param {number} first - index of the run's first sprite in the buffer
+*/
+function pointInstances(first) {
+	const gl = _gl$3;
+	const attribute = _program$25.attribute;
+	const base = first * STRIDE;
+	gl.vertexAttribPointer(attribute.aPositionZIndex, 4, gl.FLOAT, false, STRIDE, base);
+	gl.vertexAttribPointer(attribute.aOffsetSize, 4, gl.FLOAT, false, STRIDE, base + 16);
+	gl.vertexAttribPointer(attribute.aColor, 4, gl.FLOAT, false, STRIDE, base + 32);
+	gl.vertexAttribPointer(attribute.aUV, 4, gl.FLOAT, false, STRIDE, base + 48);
+	gl.vertexAttribPointer(attribute.aAngleDepthShadowCap, 4, gl.FLOAT, false, STRIDE, base + 64);
+}
+/**
+* Pack every frame of a sprite file into atlas pages, one set for palette
+* frames and one for RGBA frames. Each frame gets frame._atlas, the page and
+* its rectangle, or null when it does not fit (it then keeps its own
+* texture). A frame is surrounded by a copy of its edge pixels, so sampling
+* past its edge reads what CLAMP_TO_EDGE read on its own texture.
+*
+* @param {WebGL2RenderingContext} gl
+* @param {object} spr - a compiled sprite file (Client.loadFile)
+*/
+function buildAtlas(gl, spr) {
+	const pages = [];
+	spr._atlasPages = pages;
+	spr._atlasGeneration = _generation;
+	const maxSize = Math.min(gl.getParameter(gl.MAX_TEXTURE_SIZE) || 4096, 4096);
+	const pageWidth = Math.min(ATLAS_WIDTH, maxSize);
+	for (const type of [0, 1]) {
+		const frames = [];
+		for (let i = 0; i < spr.frames.length; i++) {
+			const frame = spr.frames[i];
+			if (!frame || !!frame.type !== !!type) continue;
+			frame._atlas = null;
+			if (frame.data && frame.width > 0 && frame.height > 0 && frame.width + 2 <= pageWidth) frames.push(frame);
+		}
+		if (!frames.length) continue;
+		frames.sort((a, b) => b.height - a.height || b.width - a.width);
+		let page = null;
+		let x = 0, y = 0, shelf = 0;
+		const closePage = () => {
+			if (page) {
+				page.height = y + shelf;
+				pages.push(page);
+			}
+		};
+		for (const frame of frames) {
+			const w = frame.width + 2;
+			const h = frame.height + 2;
+			if (!page || x + w > pageWidth) {
+				y += shelf;
+				x = 0;
+				shelf = 0;
+			}
+			if (!page || y + h > maxSize) {
+				closePage();
+				page = {
+					type,
+					width: pageWidth,
+					height: 0,
+					frames: []
+				};
+				x = 0;
+				y = 0;
+				shelf = 0;
+			}
+			page.frames.push({
+				frame,
+				x: x + 1,
+				y: y + 1
+			});
+			x += w;
+			shelf = Math.max(shelf, h);
+		}
+		closePage();
+	}
+	for (const page of pages) uploadPage(gl, page);
+}
+/**
+* Copy a page's frames, with their edge pixels repeated around them, and
+* send it to the GPU.
+*/
+function uploadPage(gl, page) {
+	const width = page.width;
+	const height = page.height;
+	const rgba = page.type === 1;
+	const pixels = rgba ? new Uint32Array(width * height) : new Uint8Array(width * height);
+	for (const { frame, x, y } of page.frames) {
+		const fw = frame.width;
+		const fh = frame.height;
+		const src = rgba ? new Uint32Array(frame.data.buffer, frame.data.byteOffset, fw * fh) : frame.data;
+		for (let row = -1; row <= fh; row++) {
+			const srcRow = Math.min(Math.max(row, 0), fh - 1) * fw;
+			const dst = (y + row) * width + x;
+			pixels[dst - 1] = src[srcRow];
+			pixels.set(src.subarray(srcRow, srcRow + fw), dst);
+			pixels[dst + fw] = src[srcRow + fw - 1];
+		}
+		frame._atlas = {
+			page,
+			u0: x / width,
+			v0: y / height,
+			u1: (x + fw) / width,
+			v1: (y + fh) / height
+		};
+	}
+	page.frames = null;
+	const precision = GraphicsSettings.pixelPerfectSprites ? gl.NEAREST : rgba ? gl.LINEAR : gl.NEAREST;
+	const format = rgba ? gl.RGBA : gl.LUMINANCE;
+	page.texture = gl.createTexture();
+	gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+	gl.bindTexture(gl.TEXTURE_2D, page.texture);
+	gl.texImage2D(gl.TEXTURE_2D, 0, format, width, height, 0, format, gl.UNSIGNED_BYTE, rgba ? new Uint8Array(pixels.buffer) : pixels);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, precision);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, precision);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+}
+var mat4$22, FLOATS, STRIDE, ATLAS_WIDTH, QUEUE_SHADOW, QUEUE_MAIN, Queue, Run, _gl$3, _program$25, _vao, _quad, _instanceBuffer, _upload, _active$3, _generation, _queues, _modelView, _viewModel, _projection, _fogColor, _frame, _glState, SpriteBatch;
+var init_SpriteBatch = __esmMin((() => {
+	init_WebGL();
+	init_gl_matrix();
+	init_Graphics();
+	init_SpriteBatch$2();
+	init_SpriteBatch$1();
+	mat4$22 = gl_matrix_default.mat4;
+	FLOATS = 20;
+	STRIDE = 80;
+	ATLAS_WIDTH = 2048;
+	QUEUE_SHADOW = 0;
+	QUEUE_MAIN = 1;
+	Queue = class {
+		constructor() {
+			this.data = new Float32Array(FLOATS * 256);
+			this.count = 0;
+			this.runs = [];
+			this.runCount = 0;
+		}
+		reserve() {
+			if ((this.count + 1) * FLOATS > this.data.length) {
+				const data = new Float32Array(this.data.length * 2);
+				data.set(this.data);
+				this.data = data;
+			}
+			return this.count++ * FLOATS;
+		}
+		clear() {
+			this.count = 0;
+			this.runCount = 0;
+		}
+	};
+	Run = class {
+		constructor() {
+			this.start = 0;
+			this.count = 0;
+			this.texture = null;
+			this.palette = null;
+			this.textSizeX = 0;
+			this.textSizeY = 0;
+			this.blendOne = null;
+			this.depthTest = true;
+			this.depthMask = true;
+			this.noCorrection = false;
+		}
+	};
+	_gl$3 = null;
+	_program$25 = null;
+	_vao = null;
+	_quad = null;
+	_instanceBuffer = null;
+	_upload = /* @__PURE__ */ new Float32Array(0);
+	_active$3 = false;
+	_generation = 0;
+	_queues = [new Queue(), new Queue()];
+	_modelView = /* @__PURE__ */ new Float32Array(16);
+	_viewModel = /* @__PURE__ */ new Float32Array(16);
+	_projection = /* @__PURE__ */ new Float32Array(16);
+	_fogColor = /* @__PURE__ */ new Float32Array(3);
+	_frame = {
+		fogUse: false,
+		fogNear: 0,
+		fogFar: 0,
+		zoom: 1
+	};
+	_glState = {
+		depthTest: true,
+		depthMask: true,
+		blendOne: null
+	};
+	SpriteBatch = class SpriteBatch {
+		/**
+		* @type {boolean} set false to draw every sprite on its own (Config `spriteBatching`)
+		*/
+		static enabled = true;
+		/**
+		* @type {number} queue ids, for record()
+		*/
+		static SHADOW = QUEUE_SHADOW;
+		static MAIN = QUEUE_MAIN;
+		/**
+		* @returns {boolean} a batch is open: SpriteRenderer records instead of drawing
+		*/
+		static get active() {
+			return _active$3;
+		}
+		/**
+		* Capture the uniforms SpriteRenderer.bind3DContext set, for the runs
+		* recorded after it.
+		*/
+		static setFrame(modelView, projection, fog, zoom) {
+			_modelView.set(modelView);
+			_projection.set(projection);
+			mat4$22.invert(_viewModel, _modelView);
+			_frame.fogUse = !!(fog.use && fog.exist);
+			_frame.fogNear = fog.near;
+			_frame.fogFar = fog.far;
+			_fogColor.set(fog.color);
+			_frame.zoom = zoom;
+		}
+		/**
+		* Start recording.
+		*
+		* @param {WebGL2RenderingContext} gl
+		* @param {object} state - the GL state now: { depthTest, depthMask }
+		* @returns {boolean} whether recording started
+		*/
+		static open(gl, state) {
+			if (!SpriteBatch.enabled || _active$3 || typeof gl.drawArraysInstanced !== "function") return false;
+			if (!_program$25 || _gl$3 !== gl) init$12(gl);
+			_glState.depthTest = state.depthTest;
+			_glState.depthMask = state.depthMask;
+			_glState.blendOne = null;
+			_active$3 = true;
+			return true;
+		}
+		/**
+		* Forget the GL state flush() left: something else drew since.
+		*/
+		static invalidate() {
+			_glState.depthTest = null;
+			_glState.depthMask = null;
+			_glState.blendOne = null;
+		}
+		/**
+		* Draw what was recorded and stop recording.
+		*
+		* @param {object} state - the GL state recording left: { depthTest, depthMask, blendOne }
+		*/
+		static close(state) {
+			if (!_active$3) return;
+			SpriteBatch.flush(state);
+			_active$3 = false;
+		}
+		/**
+		* The atlas rectangle of a frame, packing its sprite file on first use.
+		*
+		* @param {object} spr - compiled sprite file
+		* @param {object} frame - one of spr.frames
+		* @returns {object|null} { page: { texture, width, height }, u0, v0, u1, v1 }
+		*/
+		static atlasFor(spr, frame) {
+			if (!spr._atlasPages || spr._atlasGeneration !== _generation) buildAtlas(_gl$3, spr);
+			return frame._atlas || null;
+		}
+		/**
+		* Forget every GPU object made on the lost context. The context object
+		* stays the same after a restore, so the next open() would otherwise
+		* keep using them. Call from Renderer.onContextRestored.
+		*/
+		static contextRestored() {
+			_gl$3 = null;
+			_program$25 = null;
+			_vao = null;
+			_quad = null;
+			_instanceBuffer = null;
+			_active$3 = false;
+			_queues[QUEUE_SHADOW].clear();
+			_queues[QUEUE_MAIN].clear();
+		}
+		/**
+		* Record one sprite. Returns the offset in the queue's data where the
+		* caller writes the sprite's FLOATS values.
+		*
+		* @param {number} queue - SpriteBatch.SHADOW or SpriteBatch.MAIN
+		* @param {WebGLTexture} texture
+		* @param {WebGLTexture|null} palette
+		* @param {number} textSizeX - uTextSize, for palette sprites
+		* @param {number} textSizeY
+		* @param {boolean|null} blendOne - additive blend, or null for unchanged
+		* @param {boolean} depthTest
+		* @param {boolean} depthMask
+		* @param {boolean} noCorrection - disable the depth correction
+		* @returns {Float32Array} data; write the sprite at SpriteBatch.offset
+		*/
+		static record(queue, texture, palette, textSizeX, textSizeY, blendOne, depthTest, depthMask, noCorrection) {
+			const q = _queues[queue];
+			let run = q.runCount ? q.runs[q.runCount - 1] : null;
+			if (!run || run.texture !== texture || run.palette !== palette || palette && (run.textSizeX !== textSizeX || run.textSizeY !== textSizeY) || run.blendOne !== blendOne || run.depthTest !== depthTest || run.depthMask !== depthMask || run.noCorrection !== noCorrection) {
+				run = q.runs[q.runCount] || (q.runs[q.runCount] = new Run());
+				q.runCount++;
+				run.start = q.count;
+				run.count = 0;
+				run.texture = texture;
+				run.palette = palette;
+				run.textSizeX = textSizeX;
+				run.textSizeY = textSizeY;
+				run.blendOne = blendOne;
+				run.depthTest = depthTest;
+				run.depthMask = depthMask;
+				run.noCorrection = noCorrection;
+			}
+			run.count++;
+			SpriteBatch.offset = q.reserve();
+			return q.data;
+		}
+		/**
+		* @type {number} where record() put the sprite in the returned data
+		*/
+		static offset = 0;
+		/**
+		* Draw everything recorded so far: the shadows, then the rest.
+		*
+		* @param {object} state - the GL state to leave behind: { depthTest, depthMask, blendOne }
+		* @returns {number} draw calls made
+		*/
+		static flush(state) {
+			const shadow = _queues[QUEUE_SHADOW];
+			const main = _queues[QUEUE_MAIN];
+			const total = shadow.count + main.count;
+			if (!_active$3 || !total) return 0;
+			const gl = _gl$3;
+			const uniform = _program$25.uniform;
+			if (_upload.length < total * FLOATS) _upload = new Float32Array(total * FLOATS * 2);
+			_upload.set(shadow.data.subarray(0, shadow.count * FLOATS), 0);
+			_upload.set(main.data.subarray(0, main.count * FLOATS), shadow.count * FLOATS);
+			gl.bindBuffer(gl.ARRAY_BUFFER, _instanceBuffer);
+			gl.bufferData(gl.ARRAY_BUFFER, _upload, gl.STREAM_DRAW, 0, total * FLOATS);
+			gl.useProgram(_program$25);
+			gl.bindVertexArray(_vao);
+			gl.uniformMatrix4fv(uniform.uProjectionMat, false, _projection);
+			gl.uniformMatrix4fv(uniform.uModelViewMat, false, _modelView);
+			gl.uniformMatrix4fv(uniform.uViewModelMat, false, _viewModel);
+			gl.uniform1f(uniform.uCameraZoom, _frame.zoom);
+			gl.uniform1i(uniform.uFogUse, _frame.fogUse);
+			gl.uniform1f(uniform.uFogNear, _frame.fogNear);
+			gl.uniform1f(uniform.uFogFar, _frame.fogFar);
+			gl.uniform3fv(uniform.uFogColor, _fogColor);
+			gl.uniform1i(uniform.uDiffuse, 0);
+			gl.uniform1i(uniform.uPalette, 1);
+			let noCorrection = null, usePal = null, textSizeX = -1, textSizeY = -1, palette = null, draws = 0;
+			const play = (queue, base) => {
+				for (let r = 0; r < queue.runCount; r++) {
+					const run = queue.runs[r];
+					if (run.depthTest !== _glState.depthTest) {
+						_glState.depthTest = run.depthTest;
+						if (run.depthTest) gl.enable(gl.DEPTH_TEST);
+						else gl.disable(gl.DEPTH_TEST);
+					}
+					if (run.depthMask !== _glState.depthMask) gl.depthMask(_glState.depthMask = run.depthMask);
+					if (run.blendOne !== null && run.blendOne !== _glState.blendOne) {
+						_glState.blendOne = run.blendOne;
+						gl.blendFunc(gl.SRC_ALPHA, run.blendOne ? gl.ONE : gl.ONE_MINUS_SRC_ALPHA);
+					}
+					if (run.noCorrection !== noCorrection) gl.uniform1i(uniform.uDisableDepthCorrection, noCorrection = run.noCorrection);
+					const pal = run.palette !== null;
+					if (pal !== usePal) gl.uniform1i(uniform.uUsePal, usePal = pal);
+					if (pal) {
+						if (run.palette !== palette) {
+							gl.activeTexture(gl.TEXTURE1);
+							gl.bindTexture(gl.TEXTURE_2D, palette = run.palette);
+							gl.activeTexture(gl.TEXTURE0);
+						}
+						if (run.textSizeX !== textSizeX || run.textSizeY !== textSizeY) gl.uniform2f(uniform.uTextSize, textSizeX = run.textSizeX, textSizeY = run.textSizeY);
+					}
+					gl.bindTexture(gl.TEXTURE_2D, run.texture);
+					pointInstances(base + run.start);
+					gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, run.count);
+					draws++;
+				}
+			};
+			play(shadow, 0);
+			play(main, shadow.count);
+			gl.bindVertexArray(null);
+			shadow.clear();
+			main.clear();
+			if (state.depthTest !== _glState.depthTest) {
+				_glState.depthTest = state.depthTest;
+				if (state.depthTest) gl.enable(gl.DEPTH_TEST);
+				else gl.disable(gl.DEPTH_TEST);
+			}
+			if (state.depthMask !== _glState.depthMask) gl.depthMask(_glState.depthMask = state.depthMask);
+			if (state.blendOne !== null && state.blendOne !== _glState.blendOne) {
+				_glState.blendOne = state.blendOne;
+				gl.blendFunc(gl.SRC_ALPHA, state.blendOne ? gl.ONE : gl.ONE_MINUS_SRC_ALPHA);
+			}
+			return draws;
+		}
 	};
 }));
 //#endregion
@@ -209075,6 +209550,10 @@ var init_SpriteRenderer$1 = __esmMin((() => {
 */
 function RenderCanvas3D(isBlendModeOne) {
 	if (!this.image.texture || !this.color[3]) return;
+	if (SpriteBatch.active) {
+		RecordCanvas3D.call(this, isBlendModeOne);
+		return;
+	}
 	const uniform = _program$24.uniform;
 	const gl = _gl$2;
 	const use_pal = this.image.palette !== null;
@@ -209116,6 +209595,55 @@ function RenderCanvas3D(isBlendModeOne) {
 		gl.bindTexture(gl.TEXTURE_2D, _texture$4 = this.image.texture);
 	}
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+}
+/**
+* Record a sprite into the open batch: the same values RenderCanvas3D
+* uploads as uniforms, and the state it would have drawn with.
+*/
+function RecordCanvas3D(isBlendModeOne) {
+	if (isBlendModeOne === true || isBlendModeOne === false) _blendOne = isBlendModeOne;
+	const image = this.image;
+	let texture = image.texture;
+	const palette = image.palette;
+	let u0 = 0, v0 = 0, u1 = 1, v1 = 1;
+	let textSizeX = image.size[0];
+	let textSizeY = image.size[1];
+	if (image.frame && image.spr && image.frame.texture === texture) {
+		const rect = SpriteBatch.atlasFor(image.spr, image.frame);
+		if (rect) {
+			texture = rect.page.texture;
+			u0 = rect.u0;
+			v0 = rect.v0;
+			u1 = rect.u1;
+			v1 = rect.v1;
+			textSizeX = 2 * rect.page.width;
+			textSizeY = 2 * rect.page.height;
+		}
+	}
+	image.frame = null;
+	image.spr = null;
+	const data = SpriteBatch.record(this.shadowQueue ? SpriteBatch.SHADOW : SpriteBatch.MAIN, texture, palette, textSizeX, textSizeY, _blendOne, _depthTest, _depthMask, !!this.disableDepthCorrection);
+	let o = SpriteBatch.offset;
+	data[o++] = this.position[0];
+	data[o++] = this.position[1];
+	data[o++] = this.position[2];
+	data[o++] = this.zIndex++;
+	data[o++] = this.offset[0] / 175 * this.xSize;
+	data[o++] = this.offset[1] / 175 * this.ySize - .5;
+	data[o++] = this.size[0] / 175 * this.xSize;
+	data[o++] = this.size[1] / 175 * this.ySize;
+	data[o++] = this.color[0];
+	data[o++] = this.color[1];
+	data[o++] = this.color[2];
+	data[o++] = this.color[3];
+	data[o++] = u0;
+	data[o++] = v0;
+	data[o++] = u1;
+	data[o++] = v1;
+	data[o++] = this.angle;
+	data[o++] = this.depth;
+	data[o++] = this.shadow;
+	data[o] = this.ignoreDepthMinCap ? 1 : 0;
 }
 /**
 * Convert a sprite frame (RGBA or palette-indexed) into canvas ImageData,
@@ -209180,11 +209708,44 @@ function fillImageData(imageData, frame, pal, color) {
 		}
 	}
 }
-var mat4$21, RenderCanvas2D, _program$24, _buffer$18, _ctx$4, _gl$2, _groupId, _lastGroupId, _shadow, _angle, _depth, _disableDepthCorrection, _depthMask, _depthTest, _texture$4, _usepal, _pos$8, _matrix$6, _size$7, _offset, SpriteRenderer;
+/**
+* Set the depth test and depth write. Inside a batch only the state is kept:
+* each recorded sprite carries it, and SpriteBatch sets it when it draws.
+*
+* @param {boolean} depthTest
+* @param {boolean} depthMask
+*/
+function setDepth(depthTest, depthMask) {
+	const direct = !SpriteBatch.active;
+	if (_depthTest !== depthTest) {
+		_depthTest = depthTest;
+		if (direct) {
+			if (depthTest) _gl$2.enable(_gl$2.DEPTH_TEST);
+			else _gl$2.disable(_gl$2.DEPTH_TEST);
+		}
+	}
+	if (_depthMask !== depthMask) {
+		_depthMask = depthMask;
+		if (direct) _gl$2.depthMask(depthMask);
+	}
+}
+/**
+* After a batch drew with its own program: put this program back and forget
+* the bound texture.
+*/
+function syncAfterBatch() {
+	_gl$2.useProgram(_program$24);
+	_gl$2.activeTexture(_gl$2.TEXTURE0);
+	_texture$4 = null;
+	_groupId++;
+}
+var mat4$21, RenderCanvas2D, _program$24, _buffer$18, _ctx$4, _gl$2, _groupId, _lastGroupId, _shadow, _angle, _depth, _disableDepthCorrection, _depthMask, _depthTest, _blendOne, _texture$4, _usepal, _pos$8, _matrix$6, _size$7, _offset, SpriteRenderer;
 var init_SpriteRenderer = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
+	init_Configs();
 	init_Camera();
+	init_SpriteBatch();
 	init_SpriteRenderer$2();
 	init_SpriteRenderer$1();
 	mat4$21 = gl_matrix_default.mat4;
@@ -209265,6 +209826,7 @@ var init_SpriteRenderer = __esmMin((() => {
 	_disableDepthCorrection = false;
 	_depthMask = true;
 	_depthTest = true;
+	_blendOne = null;
 	_texture$4 = null;
 	_usepal = null;
 	_pos$8 = /* @__PURE__ */ new Int16Array(2);
@@ -209310,8 +209872,14 @@ var init_SpriteRenderer = __esmMin((() => {
 		static image = {
 			texture: null,
 			palette: null,
-			size: /* @__PURE__ */ new Float32Array(2)
+			size: /* @__PURE__ */ new Float32Array(2),
+			spr: null,
+			frame: null
 		};
+		/**
+		* @type {boolean} the sprite is a shadow: a batch draws it before the other sprites
+		*/
+		static shadowQueue = false;
 		/**
 		* @type {object} sprite imageData (for 2D context)
 		*/
@@ -209369,6 +209937,7 @@ var init_SpriteRenderer = __esmMin((() => {
 				]), gl.STATIC_DRAW);
 			}
 			if (!_program$24) _program$24 = WebGL_default.createShaderProgram(gl, SpriteRenderer_default$1, SpriteRenderer_default);
+			SpriteBatch.enabled = Configs.get("spriteBatching", true) !== false;
 		}
 		/**
 		* Initialize 3D Context
@@ -209381,6 +209950,11 @@ var init_SpriteRenderer = __esmMin((() => {
 		static bind3DContext(gl, modelView, projection, fog) {
 			const attribute = _program$24.attribute;
 			const uniform = _program$24.uniform;
+			if (SpriteBatch.active) {
+				this.flushBatch();
+				SpriteBatch.invalidate();
+			}
+			SpriteBatch.setFrame(modelView, projection, fog, Camera.zoom);
 			gl.useProgram(_program$24);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
@@ -209454,30 +210028,51 @@ var init_SpriteRenderer = __esmMin((() => {
 			const prevDepthTest = _depthTest;
 			const prevDepthMask = _depthMask;
 			const prevDepthCorrection = this.disableDepthCorrection;
-			if (_depthTest !== depthTest) {
-				_depthTest = depthTest;
-				if (depthTest) _gl$2.enable(_gl$2.DEPTH_TEST);
-				else _gl$2.disable(_gl$2.DEPTH_TEST);
-			}
-			if (_depthMask !== depthMask) {
-				_depthMask = depthMask;
-				_gl$2.depthMask(depthMask);
-			}
+			setDepth(depthTest, depthMask);
 			if (this.disableDepthCorrection !== depthCorrection) this.disableDepthCorrection = depthCorrection;
 			try {
 				fn();
 			} finally {
-				if (_depthTest !== prevDepthTest) {
-					_depthTest = prevDepthTest;
-					if (prevDepthTest) _gl$2.enable(_gl$2.DEPTH_TEST);
-					else _gl$2.disable(_gl$2.DEPTH_TEST);
-				}
-				if (_depthMask !== prevDepthMask) {
-					_depthMask = prevDepthMask;
-					_gl$2.depthMask(prevDepthMask);
-				}
+				setDepth(prevDepthTest, prevDepthMask);
 				if (this.disableDepthCorrection !== prevDepthCorrection) this.disableDepthCorrection = prevDepthCorrection;
 			}
+		}
+		/**
+		* Record the sprites drawn from here to endBatch() and draw them in a few
+		* instanced calls (see SpriteBatch.js). Call after bind3DContext.
+		*
+		* @param {WebGL2RenderingContext} gl
+		*/
+		static beginBatch(gl) {
+			if (SpriteBatch.open(gl, {
+				depthTest: _depthTest,
+				depthMask: _depthMask
+			})) _blendOne = null;
+		}
+		/**
+		* Draw what the batch recorded so far. Anything that draws with another
+		* program in the middle of a batch calls this first, to keep the order.
+		*/
+		static flushBatch() {
+			if (!SpriteBatch.active) return;
+			SpriteBatch.flush({
+				depthTest: _depthTest,
+				depthMask: _depthMask,
+				blendOne: _blendOne
+			});
+			syncAfterBatch();
+		}
+		/**
+		* Draw what the batch recorded and go back to drawing sprites one by one.
+		*/
+		static endBatch() {
+			if (!SpriteBatch.active) return;
+			SpriteBatch.close({
+				depthTest: _depthTest,
+				depthMask: _depthMask,
+				blendOne: _blendOne
+			});
+			syncAfterBatch();
 		}
 	};
 }));
@@ -263094,6 +263689,7 @@ var init_Renderer = __esmMin((() => {
 	init_SessionStorage();
 	init_PostProcess();
 	init_MemoryManager();
+	init_SpriteBatch();
 	init_FramePacer();
 	init_preload_helper();
 	({mat4: mat4$9} = gl_matrix_default);
@@ -263225,6 +263821,7 @@ var init_Renderer = __esmMin((() => {
 			gl.enable(gl.BLEND);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 			PostProcess.restartModules(gl);
+			SpriteBatch.contextRestored();
 			this.resize();
 			this.render();
 		}
@@ -313413,6 +314010,8 @@ function renderLayer(layer, spr, pal, size, pos, type, isBlendModeOne) {
 	SpriteRenderer.xSize = this.xSize;
 	SpriteRenderer.ySize = this.ySize;
 	SpriteRenderer.image.texture = frame.texture;
+	SpriteRenderer.image.spr = spr;
+	SpriteRenderer.image.frame = frame;
 	SpriteRenderer.render(isBlendModeOne);
 }
 /**
@@ -313581,9 +314180,11 @@ var init_EntityRender = __esmMin((() => {
 				SpriteRenderer.position[0] = this.position[0];
 				SpriteRenderer.position[1] = this.position[1];
 				SpriteRenderer.position[2] = Altitude.getCellHeight(this.position[0], this.position[1]) + .05;
+				SpriteRenderer.shadowQueue = true;
 				SpriteRenderer.runWithDepth(true, false, false, function() {
 					renderElement(self, self.files.shadow, "shadow", _position, false);
 				});
+				SpriteRenderer.shadowQueue = false;
 			}
 			SpriteRenderer.position.set(self.position);
 			this.attachments.renderBefore(Date.now());
@@ -314598,6 +315199,7 @@ var init_EntityAttachments = __esmMin((() => {
 					strEffect.ownerDirection = this.entity.direction;
 					if (!StrEffect.ready && gl) StrEffect.init(gl);
 					if (gl) {
+						SpriteRenderer.flushBatch();
 						StrEffect.beforeRender(gl, Camera.modelView, Camera.projection, _defaultFog, tick, true);
 						strEffect.render(gl, tick);
 						StrEffect.afterRender(gl);
@@ -315659,7 +316261,6 @@ function cull() {
 * Infos: RO Game doesn't seems to render ambiant and diffuse on Sprites
 */
 function render$4(gl, modelView, projection, fog, renderEffects) {
-	let i, count;
 	const tick = Date.now();
 	if (!_list.length) return;
 	_renderFrameCounter++;
@@ -315670,6 +316271,19 @@ function render$4(gl, modelView, projection, fog, renderEffects) {
 		_pickSortDirty = true;
 	}
 	SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
+	SpriteRenderer.beginBatch(gl);
+	try {
+		renderList(modelView, projection, renderEffects, tick);
+	} finally {
+		SpriteRenderer.endBatch();
+	}
+	SpriteRenderer.unbind(gl);
+}
+/**
+* The entity loop of render()
+*/
+function renderList(modelView, projection, renderEffects, tick) {
+	let i, count;
 	for (i = 0, count = _list.length; i < count; ++i) if (_list[i].objecttype != _list[i].constructor.TYPE_EFFECT && !renderEffects || _list[i].objecttype == _list[i].constructor.TYPE_EFFECT && renderEffects) {
 		if (_list[i].remove_tick && _list[i].remove_tick + _list[i].remove_delay < tick) {
 			const entityFocus = getFocusEntity();
@@ -315689,7 +316303,6 @@ function render$4(gl, modelView, projection, fog, renderEffects) {
 		if (_list[i].culled) continue;
 		_list[i].render(modelView, projection);
 	}
-	SpriteRenderer.unbind(gl);
 }
 /**
 * Intersect Entities
@@ -350320,7 +350933,7 @@ var init_LoginEngine = __esmMin((() => {
 		* Init Game
 		*/
 		static init(server) {
-			const q = new Queue();
+			const q = new Queue$1();
 			const old_server = _server;
 			Configs.setServer(server);
 			UIManager.removeComponents();
@@ -351184,7 +351797,7 @@ var GameEngine_exports = /* @__PURE__ */ __exportAll({ default: () => GameEngine
 * Load files.
 */
 function loadFiles(callback) {
-	const q = new Queue();
+	const q = new Queue$1();
 	q.add(() => {
 		Client.onFilesLoaded = (count) => {
 			if (!Configs.get("remoteClient") && !count && !window.electronAPI?.isElectron) {
@@ -351379,7 +351992,7 @@ var init_GameEngine = __esmMin((() => {
 		static init() {
 			ConsoleManager_default.init();
 			ConsoleManager_default.toggle();
-			const q = new Queue();
+			const q = new Queue$1();
 			q.add(() => {
 				if (!_thread_ready) {
 					Thread.hook("THREAD_ERROR", onThreadError);
