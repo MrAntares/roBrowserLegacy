@@ -122,26 +122,38 @@ function RecordCanvas3D(isBlendModeOne) {
 
 	const image = this.image;
 	let texture = image.texture;
-	const palette = image.palette;
+	let palette = image.palette;
+	let source = SpriteBatch.SOURCE_OWN;
+	let paletteRow = palette ? SpriteBatch.PALETTE_OWN : SpriteBatch.PALETTE_NONE;
+	let layer = 0;
 	let u0 = 0,
 		v0 = 0,
 		u1 = 1,
 		v1 = 1;
-	let textSizeX = image.size[0];
-	let textSizeY = image.size[1];
 
 	// A frame of a sprite file (set by Entity.renderLayer) is drawn from the
-	// file's atlas, so the next layer and the next entity can share the run.
+	// shared atlas, and its palette from the palette atlas, so the next layer
+	// and the next entity, whatever files they use, can share the run.
 	if (image.frame && image.spr && image.frame.texture === texture) {
 		const rect = SpriteBatch.atlasFor(image.spr, image.frame);
-		if (rect) {
-			texture = rect.page.texture;
+
+		// RGBA frames have no palette, palette frames always have one
+		if (rect && rect.rgba === !palette) {
+			source = rect.rgba ? SpriteBatch.SOURCE_RGBA : SpriteBatch.SOURCE_INDEX;
+			texture = null;
+			layer = rect.layer;
 			u0 = rect.u0;
 			v0 = rect.v0;
 			u1 = rect.u1;
 			v1 = rect.v1;
-			textSizeX = 2 * rect.page.width;
-			textSizeY = 2 * rect.page.height;
+
+			if (palette) {
+				const row = SpriteBatch.paletteRow(palette, this.palette);
+				if (row >= 0) {
+					paletteRow = row;
+					palette = null;
+				}
+			}
 		}
 	}
 	image.frame = null;
@@ -151,8 +163,8 @@ function RecordCanvas3D(isBlendModeOne) {
 		this.shadowQueue ? SpriteBatch.SHADOW : SpriteBatch.MAIN,
 		texture,
 		palette,
-		textSizeX,
-		textSizeY,
+		image.size[0],
+		image.size[1],
 		_blendOne,
 		_depthTest,
 		_depthMask,
@@ -179,7 +191,10 @@ function RecordCanvas3D(isBlendModeOne) {
 	data[o++] = this.angle;
 	data[o++] = this.depth;
 	data[o++] = this.shadow;
-	data[o] = this.ignoreDepthMinCap ? 1 : 0;
+	data[o++] = this.ignoreDepthMinCap ? 1 : 0;
+	data[o++] = source;
+	data[o++] = layer;
+	data[o] = paletteRow;
 }
 
 /**
