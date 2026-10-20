@@ -116,6 +116,7 @@ describe('MapRenderer joystick restoration', () => {
 	it('asks the worker for the new map before the loading fade, and holds its results until the fade is done', () => {
 		const free = vi.spyOn(MapRenderer, 'free').mockImplementation(() => {});
 		mocks.renderer.remove = vi.fn();
+		mocks.thread.send.mockImplementation(name => (name === 'LOAD_MAP' ? 7 : undefined));
 
 		MapRenderer.setMap('geffen.gat');
 
@@ -129,7 +130,8 @@ describe('MapRenderer joystick restoration', () => {
 		// ...but what it sends back waits for the fade, then the old map is freed first.
 		const hooks = Object.fromEntries(mocks.thread.hook.mock.calls);
 		const onComplete = load[2];
-		hooks.MAP_PROGRESS(50);
+		hooks.MAP_PROGRESS(50, 7);
+		hooks.MAP_PROGRESS(40, 6); // another request's event
 		onComplete(false, 'nope');
 		expect(mocks.background.setPercent).not.toHaveBeenCalled();
 		expect(mocks.uiManager.showErrorBox).not.toHaveBeenCalled();
@@ -139,13 +141,17 @@ describe('MapRenderer joystick restoration', () => {
 		expect(free).toHaveBeenCalledOnce();
 		expect(mocks.renderer.remove).toHaveBeenCalledOnce();
 		expect(mocks.background.setPercent).toHaveBeenCalledWith(50);
+		expect(mocks.background.setPercent).not.toHaveBeenCalledWith(40);
 		expect(mocks.uiManager.showErrorBox).toHaveBeenCalledWith('nope');
 		expect(free.mock.invocationCallOrder[0]).toBeLessThan(mocks.background.setPercent.mock.invocationCallOrder[0]);
 
 		// Results after the fade go straight through.
-		hooks.MAP_PROGRESS(60);
+		hooks.MAP_PROGRESS(60, 7);
+		expect(mocks.background.setPercent).toHaveBeenLastCalledWith(60);
+		hooks.MAP_PROGRESS(70, 6);
 		expect(mocks.background.setPercent).toHaveBeenLastCalledWith(60);
 		free.mockRestore();
+		mocks.thread.send.mockReset();
 	});
 });
 
@@ -181,9 +187,15 @@ describe('MapRenderer.cancelLoad', () => {
 		onProgress(50, 7);
 		onMapComplete(true);
 
+		expect(MapRenderer._fadeQueue).toHaveLength(2);
 		MapRenderer.cancelLoad();
-		showLoading();
+		expect(MapRenderer._fadeQueue).toHaveLength(0);
+
+		// What the worker still sends is not kept, even if the fade never ends
 		onProgress(80, 7);
+		onMapComplete(true);
+		expect(MapRenderer._fadeQueue).toHaveLength(0);
+		showLoading();
 
 		expect(MapRenderer.free).not.toHaveBeenCalled();
 		expect(mocks.background.setPercent).not.toHaveBeenCalled();

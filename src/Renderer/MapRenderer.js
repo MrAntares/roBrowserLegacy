@@ -112,6 +112,11 @@ class MapRenderer {
 	static _loadRequest = 0;
 
 	/**
+	 * @var {Array<function>} worker results of the map load in progress, held until the fade is over
+	 */
+	static _fadeQueue = [];
+
+	/**
 	 * @var {Float32Array} diffuse Modified diffuse color
 	 */
 	static diffuse = null;
@@ -170,14 +175,16 @@ class MapRenderer {
 			// loading image, rather than after the fade. What it sends back
 			// waits until the fade is done and the old map is freed, and is
 			// dropped if the load is cancelled meanwhile (loadStep, loadEvent).
+			// A cancelled load queues nothing more, and cancelLoad empties the queue.
 			let faded = false;
 			const waiting = [];
+			this._fadeQueue = waiting;
 			const afterFade =
 				fn =>
 				(...args) => {
 					if (faded) {
 						fn(...args);
-					} else {
+					} else if (loadId === MapRenderer._loadId) {
 						waiting.push(() => fn(...args));
 					}
 				};
@@ -193,10 +200,9 @@ class MapRenderer {
 			// Start Loading
 			MapRenderer._loadRequest = Thread.send('LOAD_MAP', filename, afterFade(loadStep(loadId, onMapComplete)));
 
-			Background.setLoading(function () {
+			Background.setLoading(() => {
 				// Cancelled while the loading screen was coming up
 				if (loadId !== MapRenderer._loadId) {
-					waiting.length = 0;
 					return;
 				}
 
@@ -236,6 +242,7 @@ class MapRenderer {
 	static cancelLoad() {
 		this._loadId++;
 		this._loadRequest = 0;
+		this._fadeQueue.length = 0;
 		this.loading = false;
 	}
 
