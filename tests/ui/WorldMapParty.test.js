@@ -66,4 +66,31 @@ describe('WorldMap party markers', () => {
 		expect(root.querySelector('.section#geffen').classList.contains('membersonmap')).toBe(false);
 		WorldMap.remove();
 	});
+
+	it('stops marking members who left the party, and everyone once we leave', () => {
+		vi.spyOn(console, 'log').mockImplementation(() => {});
+		WorldMap.updatePartyMembers({
+			groupInfo: [
+				{ AID: 2, state: 0, mapName: 'prontera.gat', characterName: 'Bob' },
+				{ AID: 3, state: 0, mapName: 'geffen.gat', characterName: 'Carol' }
+			]
+		});
+		WorldMap.append();
+		if (WorldMap._host.style.display === 'none') WorldMap.toggle();
+		const marked = id => WorldMap.getRoot().querySelector('.section#' + id).classList.contains('membersonmap');
+		expect(marked('prontera')).toBe(true);
+
+		WorldMap.removePartyMember(2);
+		expect(marked('prontera')).toBe(false);
+		expect(marked('geffen')).toBe(true);
+
+		// rebuilt sections keep to the current party
+		WorldMap.toggle();
+		WorldMap.toggle();
+		expect(marked('prontera')).toBe(false);
+
+		WorldMap.removePartyMember(1);
+		expect(marked('geffen')).toBe(false);
+		WorldMap.remove();
+	});
 });

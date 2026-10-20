@@ -1075,12 +1075,13 @@ class GUIComponent {
 	 * @param {object} [options]
 	 * @param {boolean} [options.text] - set the localized text
 	 * @param {boolean} [options.images] - fetch the images
-	 * @param {boolean} [options.late] - fetched after the window was built:
-	 *   keep a background the window has set itself
+	 * @param {string} [options.deferredFrom] - the node's inline background
+	 *   when its images were deferred: a different one set since then by the
+	 *   window itself stays
 	 */
-	static processDataAttrs(node, { text = true, images = true, late = false } = {}) {
+	static processDataAttrs(node, { text = true, images = true, deferredFrom } = {}) {
 		if (!_Client || !_DB) {
-			_ensureDeps().then(() => GUIComponent.processDataAttrs(node, { text, images, late }));
+			_ensureDeps().then(() => GUIComponent.processDataAttrs(node, { text, images, deferredFrom }));
 			return;
 		}
 		const background = node.dataset.background;
@@ -1133,7 +1134,7 @@ class GUIComponent {
 				}
 				// Fetched late, the window may have set its own background
 				// meanwhile (a mini layout, a selected tab): that one stays.
-				if (late && node.style.backgroundImage) return;
+				if (deferredFrom !== undefined && node.style.backgroundImage !== deferredFrom) return;
 				updateBg();
 			});
 		}
@@ -1233,7 +1234,8 @@ class GUIComponent {
 			GUIComponent.processDataAttrs(node, { images: false });
 			const { background, hover, down, active, preload } = node.dataset;
 			if (background || hover || down || active || preload) {
-				whenDrawn(node, () => GUIComponent.processDataAttrs(node, { text: false, late: true }));
+				const deferredFrom = node.style.backgroundImage;
+				whenDrawn(node, () => GUIComponent.processDataAttrs(node, { text: false, deferredFrom }));
 			}
 		}
 	}

@@ -97,6 +97,17 @@ describe('window art is fetched when first drawn', () => {
 		win.remove();
 	});
 
+	it('still draws its art over an inline image the node already had when it was deferred', () => {
+		mocks.requested = [];
+		const win = new GUIComponent('lazyinline', '');
+		win.render = () =>
+			`<div class="bg" style="background-image: url(lazyinline/placeholder.bmp)" data-background="lazyinline/bg.bmp"></div>`;
+		win.append();
+		draw(inWindow(win));
+		expect(win.getRoot().querySelector('.bg').style.backgroundImage).toContain('lazyinline/bg.bmp');
+		win.remove();
+	});
+
 	it('stops watching a window taken off the page, and watches it again when put back', () => {
 		mocks.requested = [];
 		const win = makeWindow('lazyremoved');
