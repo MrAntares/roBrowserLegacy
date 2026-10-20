@@ -207,4 +207,149 @@
       )
     )
   )
+
+  ;; frameRgbaToCanvas(srcPtr, dstPtr, width, height)
+  ;; Converts RGBA frame pixels to Canvas ImageData (data32) format with vertical flip.
+  ;; Reads 32-bit pixel as Little-Endian u32:
+  ;;   p = src32[y * width + x]
+  ;; Swizzle:
+  ;;   dst32[(height - y - 1) * width + x] =
+  ;;     ((p & 0x000000ff) << 24) |
+  ;;     ((p & 0x0000ff00) << 8)  |
+  ;;     ((p & 0x00ff0000) >> 8)  |
+  ;;     ((p & 0xff000000) >>> 24)
+  ;; Note: No alpha === 0 check is performed here.
+  (func (export "frameRgbaToCanvas")
+    (param $srcPtr i32)
+    (param $dstPtr i32)
+    (param $width i32)
+    (param $height i32)
+
+    (local $y i32)
+    (local $x i32)
+    (local $w4 i32)
+    (local $srcRow i32)
+    (local $dstRow i32)
+    (local $p i32)
+    (local $swizzled i32)
+
+    ;; w4 = width * 4
+    (local.set $w4 (i32.shl (local.get $width) (i32.const 2)))
+
+    (local.set $y (i32.const 0))
+    (block $break_y
+      (loop $loop_y
+        (br_if $break_y (i32.ge_u (local.get $y) (local.get $height)))
+
+        ;; srcRow = srcPtr + y * w4
+        (local.set $srcRow
+          (i32.add
+            (local.get $srcPtr)
+            (i32.mul (local.get $y) (local.get $w4))
+          )
+        )
+
+        ;; dstRow = dstPtr + (height - y - 1) * w4
+        (local.set $dstRow
+          (i32.add
+            (local.get $dstPtr)
+            (i32.mul
+              (i32.sub
+                (i32.sub (local.get $height) (local.get $y))
+                (i32.const 1)
+              )
+              (local.get $w4)
+            )
+          )
+        )
+
+        (local.set $x (i32.const 0))
+        (block $break_x
+          (loop $loop_x
+            (br_if $break_x (i32.ge_u (local.get $x) (local.get $width)))
+
+            ;; p = i32.load(srcRow + (x * 4))
+            (local.set $p
+              (i32.load align=4 (i32.add (local.get $srcRow) (i32.shl (local.get $x) (i32.const 2))))
+            )
+
+            ;; swizzled = ((p & 0x000000ff) << 24) |
+            ;;            ((p & 0x0000ff00) << 8)  |
+            ;;            ((p & 0x00ff0000) >> 8)  |
+            ;;            ((p & 0xff000000) >>> 24)
+            (local.set $swizzled
+              (i32.or
+                (i32.or
+                  (i32.shl (i32.and (local.get $p) (i32.const 0x000000ff)) (i32.const 24))
+                  (i32.shl (i32.and (local.get $p) (i32.const 0x0000ff00)) (i32.const 8))
+                )
+                (i32.or
+                  (i32.shr_u (i32.and (local.get $p) (i32.const 0x00ff0000)) (i32.const 8))
+                  (i32.shr_u (i32.and (local.get $p) (i32.const 0xff000000)) (i32.const 24))
+                )
+              )
+            )
+
+            ;; dst32[dstRow + (x * 4)] = swizzled
+            (i32.store align=4
+              (i32.add (local.get $dstRow) (i32.shl (local.get $x) (i32.const 2)))
+              (local.get $swizzled)
+            )
+
+            (local.set $x (i32.add (local.get $x) (i32.const 1)))
+            (br $loop_x)
+          )
+        )
+
+        (local.set $y (i32.add (local.get $y) (i32.const 1)))
+        (br $loop_y)
+      )
+    )
+  )
+
+  ;; framePalToCanvas(palPtr, srcPtr, dstPtr, width, height)
+  ;; Converts indexed 8-bit frame to 32-bit Canvas pixels using pal32 lookup.
+  ;; NO vertical flip: dst32[y * width + x] = pal32[src8[y * width + x]].
+  ;; totalPixels = width * height.
+  (func (export "framePalToCanvas")
+    (param $palPtr i32)
+    (param $srcPtr i32)
+    (param $dstPtr i32)
+    (param $width i32)
+    (param $height i32)
+
+    (local $i i32)
+    (local $totalPixels i32)
+    (local $idx i32)
+    (local $color i32)
+
+    (local.set $totalPixels (i32.mul (local.get $width) (local.get $height)))
+    (local.set $i (i32.const 0))
+
+    (block $break_loop
+      (loop $pixel_loop
+        (br_if $break_loop (i32.ge_u (local.get $i) (local.get $totalPixels)))
+
+        ;; idx = load8_u(srcPtr + i)
+        (local.set $idx
+          (i32.load8_u (i32.add (local.get $srcPtr) (local.get $i)))
+        )
+
+        ;; color = load32(palPtr + (idx << 2))
+        (local.set $color
+          (i32.load align=4 (i32.add (local.get $palPtr) (i32.shl (local.get $idx) (i32.const 2))))
+        )
+
+        ;; store32(dstPtr + (i << 2), color)
+        (i32.store align=4
+          (i32.add (local.get $dstPtr) (i32.shl (local.get $i) (i32.const 2)))
+          (local.get $color)
+        )
+
+        (local.set $i (i32.add (local.get $i) (i32.const 1)))
+        (br $pixel_loop)
+      )
+    )
+  )
 )
+
