@@ -78442,8 +78442,8 @@ var init_ClampToViewport = __esmMin((() => {}));
 function onIntersect(entries) {
 	for (const entry of entries) {
 		if (!entry.isIntersecting) continue;
-		const callbacks = _pending$1.get(entry.target);
-		_pending$1.delete(entry.target);
+		const callbacks = _pending$2.get(entry.target);
+		_pending$2.delete(entry.target);
 		_observer.unobserve(entry.target);
 		for (const callback of callbacks || []) try {
 			callback();
@@ -78462,7 +78462,7 @@ function onIntersect(entries) {
 function pendingWithin(host) {
 	const elements = [host, ...host.querySelectorAll("*")];
 	if (host.shadowRoot) elements.push(...host.shadowRoot.querySelectorAll("*"));
-	return elements.filter((element) => _pending$1.has(element));
+	return elements.filter((element) => _pending$2.has(element));
 }
 /**
 * @param {Element} element
@@ -78473,18 +78473,18 @@ function whenDrawn(element, callback) {
 		callback();
 		return;
 	}
-	const callbacks = _pending$1.get(element);
+	const callbacks = _pending$2.get(element);
 	if (callbacks) {
 		callbacks.push(callback);
 		return;
 	}
-	_pending$1.set(element, [callback]);
+	_pending$2.set(element, [callback]);
 	_observer ??= new IntersectionObserver(onIntersect);
 	_observer.observe(element);
 }
-var _pending$1, _observer;
+var _pending$2, _observer;
 var init_WhenDrawn = __esmMin((() => {
-	_pending$1 = /* @__PURE__ */ new WeakMap();
+	_pending$2 = /* @__PURE__ */ new WeakMap();
 	_observer = null;
 	/**
 	* Stop watching what waits under a window taken off the page, so the
@@ -207954,30 +207954,30 @@ function transition(callback) {
 	const transitionDuration = Configs.get("transitionDuration") ? Configs.get("transitionDuration") : 500;
 	if (Background._overlayAnim) Background._overlayAnim.stop();
 	let duration = transitionDuration;
-	if (_overlay.parentNode) {
-		if (parseFloat(_overlay.style.opacity) >= .99) duration = 1;
+	if (_overlay$1.parentNode) {
+		if (parseFloat(_overlay$1.style.opacity) >= .99) duration = 1;
 	} else {
-		_overlay.style.opacity = "0.01";
-		document.body.appendChild(_overlay);
+		_overlay$1.style.opacity = "0.01";
+		document.body.appendChild(_overlay$1);
 	}
-	const anim = animateElement(_overlay, { opacity: 1 }, duration, () => {
+	const anim = animateElement(_overlay$1, { opacity: 1 }, duration, () => {
 		callback();
 		if (Background._overlayAnim !== anim) return;
-		Background._overlayAnim = animateElement(_overlay, { opacity: .01 }, transitionDuration, () => {
-			if (_overlay.parentNode) _overlay.parentNode.removeChild(_overlay);
+		Background._overlayAnim = animateElement(_overlay$1, { opacity: .01 }, transitionDuration, () => {
+			if (_overlay$1.parentNode) _overlay$1.parentNode.removeChild(_overlay$1);
 		});
 	});
 	Background._overlayAnim = anim;
 }
-var _overlay, _container, _canvas, _ctx$5, Background;
+var _overlay$1, _container, _canvas, _ctx$5, Background;
 var init_Background = __esmMin((() => {
 	init_DBManager();
 	init_Client();
 	init_Configs();
 	init_PacketVerManager();
 	init_HtmlHelper();
-	_overlay = document.createElement("div");
-	Object.assign(_overlay.style, {
+	_overlay$1 = document.createElement("div");
+	Object.assign(_overlay$1.style, {
 		position: "absolute",
 		top: "0",
 		left: "0",
@@ -208044,7 +208044,7 @@ var init_Background = __esmMin((() => {
 		static resize(width, height) {
 			_canvas.width = width;
 			_canvas.height = height;
-			Object.assign(_overlay.style, {
+			Object.assign(_overlay$1.style, {
 				width: width + "px",
 				height: height + "px"
 			});
@@ -209260,7 +209260,7 @@ function pack(spr) {
 		for (const spot of placed) spot.frame._atlas = null;
 	};
 }
-var PALETTE_ROWS, UNIT_INDEX, UNIT_RGBA, UNIT_PALETTES, ArrayAtlas, _gl$4, _generation, _index$1, _rgba, _palettes, _paletteRows, _paletteNext, SpriteAtlas;
+var PALETTE_ROWS, UNIT_INDEX, UNIT_RGBA, UNIT_PALETTES, ArrayAtlas, _gl$5, _generation, _index$1, _rgba, _palettes, _paletteRows, _paletteNext, SpriteAtlas;
 var init_SpriteAtlas = __esmMin((() => {
 	init_Graphics();
 	PALETTE_ROWS = 512;
@@ -209436,7 +209436,7 @@ var init_SpriteAtlas = __esmMin((() => {
 			}
 		}
 	};
-	_gl$4 = null;
+	_gl$5 = null;
 	_generation = 0;
 	_index$1 = null;
 	_rgba = null;
@@ -209460,13 +209460,13 @@ var init_SpriteAtlas = __esmMin((() => {
 		* @param {WebGL2RenderingContext} gl
 		*/
 		static init(gl) {
-			if (_gl$4 === gl) return;
+			if (_gl$5 === gl) return;
 			if (_index$1) {
 				_index$1.destroy();
 				_rgba.destroy();
 			}
-			if (_palettes) _gl$4.deleteTexture(_palettes);
-			_gl$4 = gl;
+			if (_palettes) _gl$5.deleteTexture(_palettes);
+			_gl$5 = gl;
 			_generation++;
 			_index$1 = new ArrayAtlas(gl, false, 2048, 2, 16);
 			_rgba = new ArrayAtlas(gl, true, 1024, 1, 16);
@@ -209488,7 +209488,7 @@ var init_SpriteAtlas = __esmMin((() => {
 		* new generation makes every sprite file pack itself again.
 		*/
 		static contextRestored() {
-			_gl$4 = null;
+			_gl$5 = null;
 			_index$1 = null;
 			_rgba = null;
 			_palettes = null;
@@ -209527,7 +209527,7 @@ var init_SpriteAtlas = __esmMin((() => {
 			const known = _paletteRows.get(texture);
 			if (known !== void 0) return known;
 			if (_paletteNext >= PALETTE_ROWS || !data || data.length < 1024) return -1;
-			const gl = _gl$4;
+			const gl = _gl$5;
 			const row = _paletteNext++;
 			gl.activeTexture(gl.TEXTURE0 + UNIT_PALETTES);
 			gl.bindTexture(gl.TEXTURE_2D, _palettes);
@@ -209570,7 +209570,7 @@ var init_SpriteBatch$1 = __esmMin((() => {
 * @param {WebGL2RenderingContext} gl
 */
 function init$12(gl) {
-	_gl$3 = gl;
+	_gl$4 = gl;
 	_program$25 = WebGL_default.createShaderProgram(gl, SpriteBatch_default$1, SpriteBatch_default);
 	_quad = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, _quad);
@@ -209623,7 +209623,7 @@ function init$12(gl) {
 * @param {number} first - index of the run's first sprite in the buffer
 */
 function pointInstances(first) {
-	const gl = _gl$3;
+	const gl = _gl$4;
 	const attribute = _program$25.attribute;
 	const base = first * STRIDE;
 	gl.vertexAttribPointer(attribute.aPositionZIndex, 4, gl.FLOAT, false, STRIDE, base);
@@ -209633,7 +209633,7 @@ function pointInstances(first) {
 	gl.vertexAttribPointer(attribute.aAngleDepthShadowCap, 4, gl.FLOAT, false, STRIDE, base + 64);
 	gl.vertexAttribPointer(attribute.aSource, 3, gl.FLOAT, false, STRIDE, base + 80);
 }
-var mat4$22, FLOATS, STRIDE, SOURCE_OWN, SOURCE_INDEX, SOURCE_RGBA, PALETTE_NONE, PALETTE_OWN, QUEUE_SHADOW, QUEUE_MAIN, Queue$1, Run, _gl$3, _program$25, _vao, _quad, _instanceBuffer, _upload, _active$3, _queues, _modelView, _viewModel, _projection, _fogColor, _frame, _glState, SpriteBatch;
+var mat4$22, FLOATS, STRIDE, SOURCE_OWN, SOURCE_INDEX, SOURCE_RGBA, PALETTE_NONE, PALETTE_OWN, QUEUE_SHADOW, QUEUE_MAIN, Queue$1, Run, _gl$4, _program$25, _vao, _quad, _instanceBuffer, _upload, _active$3, _queues, _modelView, _viewModel, _projection, _fogColor, _frame, _glState, SpriteBatch;
 var init_SpriteBatch = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
@@ -209684,7 +209684,7 @@ var init_SpriteBatch = __esmMin((() => {
 			this.noCorrection = false;
 		}
 	};
-	_gl$3 = null;
+	_gl$4 = null;
 	_program$25 = null;
 	_vao = null;
 	_quad = null;
@@ -209754,7 +209754,7 @@ var init_SpriteBatch = __esmMin((() => {
 		*/
 		static open(gl, state) {
 			if (!SpriteBatch.enabled || _active$3 || typeof gl.drawArraysInstanced !== "function") return false;
-			if (!_program$25 || _gl$3 !== gl) init$12(gl);
+			if (!_program$25 || _gl$4 !== gl) init$12(gl);
 			SpriteAtlas.init(gl);
 			SpriteAtlas.recyclePalettes();
 			_glState.depthTest = state.depthTest;
@@ -209807,7 +209807,7 @@ var init_SpriteBatch = __esmMin((() => {
 		* keep using them. Call from Renderer.onContextRestored.
 		*/
 		static contextRestored() {
-			_gl$3 = null;
+			_gl$4 = null;
 			_program$25 = null;
 			_vao = null;
 			_quad = null;
@@ -209868,7 +209868,7 @@ var init_SpriteBatch = __esmMin((() => {
 			const main = _queues[QUEUE_MAIN];
 			const total = shadow.count + main.count;
 			if (!_active$3 || !total) return 0;
-			const gl = _gl$3;
+			const gl = _gl$4;
 			const uniform = _program$25.uniform;
 			if (_upload.length < total * FLOATS) _upload = new Float32Array(total * FLOATS * 2);
 			_upload.set(shadow.data.subarray(0, shadow.count * FLOATS), 0);
@@ -209971,7 +209971,7 @@ function RenderCanvas3D(isBlendModeOne) {
 		return;
 	}
 	const uniform = _program$24.uniform;
-	const gl = _gl$2;
+	const gl = _gl$3;
 	const use_pal = this.image.palette !== null;
 	if (isBlendModeOne) gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
 	else if (isBlendModeOne === false) gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
@@ -210147,13 +210147,13 @@ function setDepth(depthTest, depthMask) {
 	if (_depthTest !== depthTest) {
 		_depthTest = depthTest;
 		if (direct) {
-			if (depthTest) _gl$2.enable(_gl$2.DEPTH_TEST);
-			else _gl$2.disable(_gl$2.DEPTH_TEST);
+			if (depthTest) _gl$3.enable(_gl$3.DEPTH_TEST);
+			else _gl$3.disable(_gl$3.DEPTH_TEST);
 		}
 	}
 	if (_depthMask !== depthMask) {
 		_depthMask = depthMask;
-		if (direct) _gl$2.depthMask(depthMask);
+		if (direct) _gl$3.depthMask(depthMask);
 	}
 }
 /**
@@ -210161,12 +210161,12 @@ function setDepth(depthTest, depthMask) {
 * the bound texture.
 */
 function syncAfterBatch() {
-	_gl$2.useProgram(_program$24);
-	_gl$2.activeTexture(_gl$2.TEXTURE0);
+	_gl$3.useProgram(_program$24);
+	_gl$3.activeTexture(_gl$3.TEXTURE0);
 	_texture$4 = null;
 	_groupId++;
 }
-var mat4$21, RenderCanvas2D, _program$24, _buffer$18, _ctx$4, _gl$2, _groupId, _lastGroupId, _shadow, _angle, _depth, _disableDepthCorrection, _depthMask, _depthTest, _blendOne, _texture$4, _usepal, _pos$8, _matrix$6, _size$7, _offset, SpriteRenderer;
+var mat4$21, RenderCanvas2D, _program$24, _buffer$18, _ctx$4, _gl$3, _groupId, _lastGroupId, _shadow, _angle, _depth, _disableDepthCorrection, _depthMask, _depthTest, _blendOne, _texture$4, _usepal, _pos$8, _matrix$6, _size$7, _offset, SpriteRenderer;
 var init_SpriteRenderer = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
@@ -210244,7 +210244,7 @@ var init_SpriteRenderer = __esmMin((() => {
 	_program$24 = null;
 	_buffer$18 = null;
 	_ctx$4 = null;
-	_gl$2 = null;
+	_gl$3 = null;
 	_groupId = 0;
 	_lastGroupId = 0;
 	_shadow = null;
@@ -210404,7 +210404,7 @@ var init_SpriteRenderer = __esmMin((() => {
 			this.render = RenderCanvas3D;
 			this.xSize = 5;
 			this.ySize = 5;
-			_gl$2 = gl;
+			_gl$3 = gl;
 			_depthMask = true;
 			_groupId++;
 		}
@@ -210448,7 +210448,7 @@ var init_SpriteRenderer = __esmMin((() => {
 		* @param {function} execute function with this parameters before restore gl state.
 		*/
 		static runWithDepth(depthTest, depthMask, depthCorrection, fn) {
-			if (!_gl$2) {
+			if (!_gl$3) {
 				fn();
 				return;
 			}
@@ -215674,7 +215674,7 @@ function normalize3(v) {
 * Camera.modelView (the view matrix); the per-instance world is composed on top.
 */
 function render$9(gl, modelView, projection, normalMat, fog, light, tick) {
-	_gl$1 = gl;
+	_gl$2 = gl;
 	if (_instances.length === 0 || !light) return;
 	if (!_program$20) init$8(gl);
 	for (const path in _types) {
@@ -215940,8 +215940,8 @@ function detach(inst) {
 	if (idx !== -1) _instances.splice(idx, 1);
 	const type = _types[inst.path];
 	if (type && type.refcount > 0) type.refcount--;
-	if (inst.emblemTex && _gl$1) {
-		_gl$1.deleteTexture(inst.emblemTex);
+	if (inst.emblemTex && _gl$2) {
+		_gl$2.deleteTexture(inst.emblemTex);
 		inst.emblemTex = null;
 	}
 	inst.entity = null;
@@ -216031,7 +216031,7 @@ function clear() {
 	for (let i = 0; i < insts.length; i++) detach(insts[i]);
 	_poseCache = {};
 }
-var mat3$3, mat4$18, ALPHA_REF, _phaseDiffuse, _phaseAmbient, _phaseEnv, _gr2FlagDiffuse, _gr2EmpDiffuse, _gr2EmpAmbient, _gr2FlagAmbient, GR2_ROSTER, _program$20, _gl$1, _types, _missing, _instances, _poseCache, _dbgCellTile, _dbgTileInst, _dbgCellInited, _debugCell, BASE_SPHERE_HALF_EXTENT, _readyPromise, _mv, _mvp, _nmat, _lightView, _clip, CULL_MARGIN, CLIP_W_EPS, DIR_STEP_DEG, FADE, TEX_MISSING_PX, TEX_GREY_PX, A4_NIBBLE_EXPAND, _emblemCanvas, GR2_VERTEX_STRIDE, GR2_VERTEX_LAYOUT, GR2ModelRenderer_default;
+var mat3$3, mat4$18, ALPHA_REF, _phaseDiffuse, _phaseAmbient, _phaseEnv, _gr2FlagDiffuse, _gr2EmpDiffuse, _gr2EmpAmbient, _gr2FlagAmbient, GR2_ROSTER, _program$20, _gl$2, _types, _missing, _instances, _poseCache, _dbgCellTile, _dbgTileInst, _dbgCellInited, _debugCell, BASE_SPHERE_HALF_EXTENT, _readyPromise, _mv, _mvp, _nmat, _lightView, _clip, CULL_MARGIN, CLIP_W_EPS, DIR_STEP_DEG, FADE, TEX_MISSING_PX, TEX_GREY_PX, A4_NIBBLE_EXPAND, _emblemCanvas, GR2_VERTEX_STRIDE, GR2_VERTEX_LAYOUT, GR2ModelRenderer_default;
 var init_GR2ModelRenderer = __esmMin((() => {
 	init_Client();
 	init_gl_matrix();
@@ -216091,7 +216091,7 @@ var init_GR2ModelRenderer = __esmMin((() => {
 		treasurebox_2: "emp"
 	};
 	_program$20 = null;
-	_gl$1 = null;
+	_gl$2 = null;
 	_types = {};
 	_missing = {};
 	_instances = [];
@@ -220802,6 +220802,324 @@ var init_Emotions = __esmMin((() => {
 		names,
 		indexes,
 		order
+	};
+}));
+//#endregion
+//#region src/Core/PerfProbe.js
+/**
+* Percentile of a sorted array
+*
+* @param {Float32Array|Array} sorted ascending
+* @param {number} p 0..100
+* @return {number}
+*/
+function percentile(sorted, p) {
+	if (!sorted.length) return 0;
+	const index = Math.min(sorted.length - 1, Math.ceil(p / 100 * sorted.length) - 1);
+	return sorted[Math.max(0, index)];
+}
+/**
+* avg / p50 / p95 / p99 / max of the first `count` values
+*
+* @param {Float32Array|Uint32Array} values
+* @param {number} count
+* @return {object}
+*/
+function summarize(values, count) {
+	const sorted = Float64Array.from(values.subarray(0, count)).sort();
+	let sum = 0;
+	for (let i = 0; i < count; ++i) sum += sorted[i];
+	const round = (v) => Math.round(v * 100) / 100;
+	return {
+		avg: round(count ? sum / count : 0),
+		p50: round(percentile(sorted, 50)),
+		p95: round(percentile(sorted, 95)),
+		p99: round(percentile(sorted, 99)),
+		max: round(count ? sorted[count - 1] : 0)
+	};
+}
+/**
+* Record a slow frame: the gap since the previous frame started, up to the
+* end of this frame's work
+*
+* @param {number} interval ms since the previous frame started
+* @param {number} work ms spent in this frame
+* @param {number} draws draw calls in this frame
+*/
+function logSlow(interval, work, draws) {
+	_slowTotal++;
+	if (_slow.length >= MAX_SLOW) return;
+	const start = _frameTime - interval;
+	_slow.push({
+		at: Math.round(start),
+		frameMs: Math.round(interval * 10) / 10,
+		workMs: Math.round(work * 10) / 10,
+		draws
+	});
+	try {
+		performance.measure("roPerf slow frame", {
+			start,
+			end: performance.now()
+		});
+	} catch (_e) {}
+}
+/**
+* Wrap the context's draw calls to count them
+*
+* @param {WebGLRenderingContext} gl
+*/
+function wrapContext(gl) {
+	for (const name of DRAW_CALLS) {
+		const original = gl[name];
+		if (typeof original !== "function") continue;
+		const countArg = name === "drawArrays" || name === "drawArraysInstanced" ? 2 : name === "drawRangeElements" ? 3 : 1;
+		const instanceArg = name === "drawArraysInstanced" ? 3 : name === "drawElementsInstanced" ? 4 : -1;
+		gl[name] = function() {
+			_frameDraws++;
+			const instances = instanceArg < 0 ? 1 : arguments[instanceArg] | 0;
+			_frameVertices += (arguments[countArg] | 0) * instances;
+			return original.apply(gl, arguments);
+		};
+	}
+}
+/**
+* Build the overlay element
+*/
+function makeOverlay() {
+	_overlay = document.createElement("div");
+	_overlay.id = "roPerfOverlay";
+	_overlay.style.cssText = "position:fixed;top:4px;right:4px;z-index:100000;pointer-events:none;font:11px/1.3 monospace;color:#cfc;background:rgba(0,0,0,0.6);padding:3px 6px;white-space:pre;";
+	document.body.appendChild(_overlay);
+	_overlayTimer = setInterval(updateOverlay, 500);
+}
+/**
+* Refresh the overlay from the last second of frames
+*/
+function updateOverlay() {
+	if (!_overlay) return;
+	const now = performance.now();
+	let frames = 0;
+	let work = 0;
+	let worst = 0;
+	let draws = 0;
+	let elapsed = 0;
+	for (let k = _total - 1; k >= Math.max(0, _total - MAX_FRAMES) && elapsed < 1e3; --k) {
+		const i = k % MAX_FRAMES;
+		frames++;
+		elapsed += _interval[i];
+		work += _work[i];
+		draws += _draws[i];
+		worst = Math.max(worst, _interval[i]);
+	}
+	const last = _marks.maps[_marks.maps.length - 1];
+	_overlay.textContent = (frames ? Math.round(frames * 1e3 / Math.max(elapsed, 1)) : 0) + " fps  " + (frames ? (elapsed / frames).toFixed(1) : "-") + " ms (max " + worst.toFixed(0) + ")\nwork " + (frames ? (work / frames).toFixed(1) : "-") + " ms  draws " + (frames ? Math.round(draws / frames) : 0) + "\n" + (last ? last.map + " load " + Math.round(last.loadMs) + " ms" : "") + (_marks.login !== null ? "  login " + Math.round(_marks.login) + " ms" : "") + (now - _lastFrameStart > 1e3 ? "\n(no frames)" : "");
+}
+var MAX_FRAMES, HITCH_MS, SLOW_MS, MAX_SLOW, DRAW_CALLS, _interval, _work, _draws, _total, _pending$1, _windowStart, _frameStart, _frameTime, _lastFrameStart, _frameDraws, _frameVertices, _totalVertices, _gl$1, _overlay, _overlayTimer, _overlayWanted, _mapStart, _mapName$6, _mapReady, _slow, _slowTotal, _marks, PerfProbe;
+var init_PerfProbe = __esmMin((() => {
+	init_Configs();
+	MAX_FRAMES = 36e3;
+	HITCH_MS = 50;
+	SLOW_MS = 33;
+	MAX_SLOW = 1e3;
+	DRAW_CALLS = [
+		"drawArrays",
+		"drawElements",
+		"drawArraysInstanced",
+		"drawElementsInstanced",
+		"drawRangeElements"
+	];
+	_interval = new Float32Array(MAX_FRAMES);
+	_work = new Float32Array(MAX_FRAMES);
+	_draws = new Uint32Array(MAX_FRAMES);
+	_total = 0;
+	_pending$1 = 0;
+	_windowStart = 0;
+	_frameStart = 0;
+	_frameTime = 0;
+	_lastFrameStart = 0;
+	_frameDraws = 0;
+	_frameVertices = 0;
+	_totalVertices = 0;
+	_gl$1 = null;
+	_overlay = null;
+	_overlayTimer = 0;
+	_overlayWanted = true;
+	_mapStart = 0;
+	_mapName$6 = "";
+	_mapReady = 0;
+	_slow = [];
+	_slowTotal = 0;
+	_marks = {
+		login: null,
+		maps: []
+	};
+	PerfProbe = class PerfProbe {
+		/**
+		* @type {boolean} set by the first attach() when the configuration has
+		* `perfProbe: true`
+		*/
+		static enabled = false;
+		/**
+		* Called by Renderer.init: switch the probe on if the configuration asks
+		* for it, and count draw calls on this context (once per context)
+		*
+		* @param {WebGLRenderingContext} gl
+		*/
+		static attach(gl) {
+			if (!PerfProbe.enabled) {
+				if (!Configs.get("perfProbe", false)) return;
+				PerfProbe.enabled = true;
+				PerfProbe.reset();
+			}
+			if (!gl || _gl$1 === gl) return;
+			_gl$1 = gl;
+			wrapContext(gl);
+			if (!_overlay && _overlayWanted) makeOverlay();
+		}
+		/**
+		* Called by the render loop before a frame's work
+		*
+		* @param {number} now rAF timestamp
+		*/
+		static frameStart(now) {
+			_frameStart = performance.now();
+			_frameTime = now;
+			_pending$1 = _lastFrameStart ? now - _lastFrameStart : 0;
+			_lastFrameStart = now;
+			_frameDraws = 0;
+			_frameVertices = 0;
+		}
+		/**
+		* Called by the render loop after a frame's work
+		*/
+		static frameEnd() {
+			if (!_frameStart) return;
+			if (_pending$1 > 0) {
+				const i = _total % MAX_FRAMES;
+				_interval[i] = _pending$1;
+				_work[i] = performance.now() - _frameStart;
+				_draws[i] = _frameDraws;
+				_totalVertices += _frameVertices;
+				if (_pending$1 > SLOW_MS) logSlow(_pending$1, _work[i], _frameDraws);
+				_total++;
+				_pending$1 = 0;
+			}
+			if (_mapReady) {
+				const map = _marks.maps[_marks.maps.length - 1];
+				map.firstFrameMs = Math.round((performance.now() - _mapStart) * 10) / 10;
+				_mapReady = 0;
+			}
+		}
+		/**
+		* A map started loading
+		*
+		* @param {string} name
+		*/
+		static mapStart(name) {
+			_mapStart = performance.now();
+			_mapName$6 = name;
+			_lastFrameStart = 0;
+		}
+		/**
+		* Called by Renderer.stop: the pause until the loop starts again is not a
+		* frame, so the first frame after it only sets the clock
+		*/
+		static stop() {
+			_lastFrameStart = 0;
+			_pending$1 = 0;
+		}
+		/**
+		* A map finished loading and is about to be drawn
+		*/
+		static mapReady() {
+			if (!_mapStart) return;
+			_marks.maps.push({
+				map: _mapName$6,
+				loadMs: Math.round((performance.now() - _mapStart) * 10) / 10,
+				firstFrameMs: null
+			});
+			_mapReady = 1;
+		}
+		/**
+		* The login window was shown; the first time is the startup time
+		*/
+		static loginShown() {
+			if (_marks.login === null) _marks.login = Math.round(performance.now());
+		}
+		/**
+		* Start a new measurement window: frames, slow frames and map marks.
+		* The login mark is kept, since it is the startup time and happens once.
+		*/
+		static reset() {
+			_total = 0;
+			_pending$1 = 0;
+			_lastFrameStart = 0;
+			_totalVertices = 0;
+			_slow.length = 0;
+			_slowTotal = 0;
+			_marks.maps.length = 0;
+			_mapReady = 0;
+			_windowStart = performance.now();
+			try {
+				performance.clearMeasures("roPerf slow frame");
+			} catch (_e) {}
+		}
+		/**
+		* Frame statistics since the last reset
+		*
+		* @return {object}
+		*/
+		static stats() {
+			const seconds = (performance.now() - _windowStart) / 1e3;
+			const kept = Math.min(_total, MAX_FRAMES);
+			const draws = summarize(_draws, kept);
+			let hitches = 0;
+			let drawing = 0;
+			for (let i = 0; i < kept; ++i) {
+				drawing += _interval[i];
+				if (_interval[i] > HITCH_MS) hitches++;
+			}
+			const memory = performance.memory;
+			return {
+				frames: _total,
+				kept,
+				seconds: Math.round(seconds * 10) / 10,
+				drawingSeconds: Math.round(drawing / 100) / 10,
+				fps: kept ? Math.round(kept * 1e3 / Math.max(drawing, .001) * 10) / 10 : 0,
+				frameMs: summarize(_interval, kept),
+				workMs: summarize(_work, kept),
+				drawCalls: draws,
+				verticesPerFrame: _total ? Math.round(_totalVertices / _total) : 0,
+				hitches,
+				slowFrames: _slowTotal,
+				heapMB: memory ? Math.round(memory.usedJSHeapSize / 1048576) : null,
+				marks: JSON.parse(JSON.stringify(_marks))
+			};
+		}
+		/**
+		* The first 1000 frames slower than 33 ms since the last reset: when the
+		* gap started (performance.now() time), its length, and the frame's work
+		* and draws. stats().slowFrames counts them all.
+		*
+		* @return {Array}
+		*/
+		static slowFrames() {
+			return _slow.slice();
+		}
+		/**
+		* Show or hide the overlay
+		*
+		* @param {boolean} show
+		*/
+		static overlay(show) {
+			_overlayWanted = !!show;
+			if (show && !_overlay && _gl$1) makeOverlay();
+			else if (!show && _overlay) {
+				clearInterval(_overlayTimer);
+				_overlay.remove();
+				_overlay = null;
+			}
+		}
 	};
 }));
 //#endregion
@@ -254390,6 +254708,7 @@ var init_ProcessCommand = __esmMin((() => {
 	init_Camera$1();
 	init_Renderer();
 	init_Configs();
+	init_PerfProbe();
 	init_EffectConst();
 	init_StatusState();
 	init_EntityManager();
@@ -255221,6 +255540,40 @@ var init_ProcessCommand = __esmMin((() => {
 				return;
 			}
 			this.addText("Unknown weather. Usage: /weather snow|rain|leaves|sakura|fireworks|cloud|cloud2|off", this.TYPE.INFO, this.FILTER.PUBLIC_LOG);
+		}
+	};
+	if (Configs.get("perfProbe")) CommandStore.perf = {
+		description: "Performance probe. Usage: /perf [reset|slow|overlay on|off]",
+		callback: function(text) {
+			const args = text.trim().split(/\s+/).slice(1);
+			const mode = (args[0] || "").toLowerCase();
+			if (!PerfProbe.enabled) {
+				this.addText("The performance probe is not running.", this.TYPE.INFO, this.FILTER.PUBLIC_LOG);
+				return;
+			}
+			if (!mode || mode === "stats") {
+				const stats = PerfProbe.stats();
+				console.log("[PerfProbe] stats", stats);
+				this.addText(`${stats.fps} fps over ${stats.drawingSeconds} s of drawing: frame p50 ${stats.frameMs.p50} / p99 ${stats.frameMs.p99} ms, work ${stats.workMs.avg} ms, ${stats.drawCalls.avg} draws, ${stats.hitches} hitches`, this.TYPE.INFO, this.FILTER.PUBLIC_LOG);
+				return;
+			}
+			if (mode === "reset") {
+				PerfProbe.reset();
+				this.addText("Performance probe reset.", this.TYPE.INFO, this.FILTER.PUBLIC_LOG);
+				return;
+			}
+			if (mode === "slow") {
+				const slow = PerfProbe.slowFrames();
+				const total = PerfProbe.stats().slowFrames;
+				console.table(slow);
+				this.addText(total > slow.length ? `${total} frames over 33 ms since the last reset; the first ${slow.length} are listed.` : `${slow.length} frames over 33 ms since the last reset.`, this.TYPE.INFO, this.FILTER.PUBLIC_LOG);
+				return;
+			}
+			if (mode === "overlay") {
+				PerfProbe.overlay((args[1] || "on").toLowerCase() !== "off");
+				return;
+			}
+			this.addText("Usage: /perf [reset|slow|overlay on|off]", this.TYPE.INFO, this.FILTER.PUBLIC_LOG);
 		}
 	};
 	loadAliases();
@@ -263409,6 +263762,7 @@ function onMapComplete(success, error) {
 	MapRenderer.onLoad();
 	Sky_default.setUpCloudData();
 	ScreenEffectManager.startMapflagEffect(worldResource);
+	if (PerfProbe.enabled) PerfProbe.mapReady();
 	Renderer.show();
 	Renderer.render(MapRenderer.onRender);
 	Background.remove(() => {
@@ -263469,6 +263823,7 @@ var init_MapRenderer = __esmMin((() => {
 	init_Blind();
 	init_Upsampling();
 	init_WebGL();
+	init_PerfProbe();
 	mat4$11 = gl_matrix_default.mat4;
 	_pos$6 = /* @__PURE__ */ new Uint16Array(2);
 	_revealing = false;
@@ -263549,6 +263904,7 @@ var init_MapRenderer = __esmMin((() => {
 			if (stripMapExtension(this.currentMap) !== stripMapExtension(mapname)) {
 				this.loading = true;
 				BGM.stop();
+				if (PerfProbe.enabled) PerfProbe.mapStart(mapname);
 				this.currentMap = mapname;
 				const filename = mapname.replace(/\.gat$/i, ".rsw");
 				let faded = false;
@@ -264116,6 +264472,7 @@ var init_Renderer = __esmMin((() => {
 	init_SessionStorage();
 	init_PostProcess();
 	init_MemoryManager();
+	init_PerfProbe();
 	init_SpriteBatch();
 	init_FramePacer();
 	init_preload_helper();
@@ -264198,6 +264555,7 @@ var init_Renderer = __esmMin((() => {
 				this.canvas.addEventListener("webglcontextrestored", this.onContextRestored.bind(this), false);
 				this.gl = WebGL_default.getContext(this.canvas, param);
 				this.isWebGL2 = WebGL_default.isWebGL2(this.gl);
+				PerfProbe.attach(this.gl);
 				if (typeof console !== "undefined" && console.info) console.info("Renderer using WebGL " + (this.isWebGL2 ? "2" : "1") + " context");
 				window.addEventListener("resize", this.onResize.bind(this));
 				window.addEventListener("contextmenu", (event) => {
@@ -264329,6 +264687,7 @@ var init_Renderer = __esmMin((() => {
 				}
 				this._lastFrameTime = next;
 			} else this._lastFrameTime = now;
+			if (PerfProbe.enabled) PerfProbe.frameStart(now);
 			const newTick = Date.now();
 			SessionStorage_default.serverTick += newTick - this.tick;
 			this.tick = newTick;
@@ -264345,6 +264704,7 @@ var init_Renderer = __esmMin((() => {
 				}
 			}
 			Cursor.render(this.tick);
+			if (PerfProbe.enabled) PerfProbe.frameEnd();
 			this.updateId = _requestAnimationFrame(this._renderBound);
 		}
 		/**
@@ -264383,6 +264743,7 @@ var init_Renderer = __esmMin((() => {
 					console.error(e);
 				}
 				Cursor.setSceneDriven(false);
+				if (PerfProbe.enabled) PerfProbe.stop();
 				return;
 			}
 			const pos = this.renderCallbacks.indexOf(fn);
@@ -349678,6 +350039,7 @@ function createWinLogin({ name, htmlText, cssText }) {
 		if (_preferences.ID.length) _inputPassword.focus();
 		else _inputUsername.focus();
 		Component.placeOnTop();
+		if (PerfProbe.enabled) PerfProbe.loginShown();
 	};
 	Component.onKeyDown = function onKeyDown(event) {
 		if (this._host.style.display === "none") return true;
@@ -349758,6 +350120,7 @@ var init_WinLoginCommon = __esmMin((() => {
 	init_KeyEventHandler();
 	init_UIManager();
 	init_GUIComponent();
+	init_PerfProbe();
 	init_Elements();
 	init_preload_helper();
 }));
