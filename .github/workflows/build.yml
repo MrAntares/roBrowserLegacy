@@ -38,8 +38,9 @@ jobs:
           set -o pipefail
           npm run bench 2>&1 | sed -r 's/\x1B\[[0-9;]*[A-Za-z]//g' | tee /tmp/bench.txt
 
-      - name: Bench no Job Summary
+      - name: Benchmark summary
         if: always()
+        shell: bash
         run: |
           {  
             echo '## Benchmark'  
