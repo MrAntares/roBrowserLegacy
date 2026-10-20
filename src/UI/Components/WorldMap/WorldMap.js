@@ -541,8 +541,11 @@ WorldMap.onAppend = function onAppend() {
 	// set maps
 	setMapList();
 
-	// resize map container & add sections
-	selectMap();
+	// resize map container & add sections. Hidden, it waits for toggle(),
+	// which selects the map itself: the art is over 1 MB.
+	if (this._host.style.display !== 'none') {
+		selectMap();
+	}
 
 	this._host.style.top = '0px';
 	this._host.style.left = '0px';

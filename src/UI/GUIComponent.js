@@ -15,6 +15,7 @@ import UIPreferences from 'Preferences/UI.js';
 import Session from 'Engine/SessionStorage.js';
 import Targa from 'Loaders/Targa.js';
 import ClampToViewport from 'UI/ClampToViewport.js';
+import whenDrawn from 'UI/WhenDrawn.js';
 
 /**
  * Heavy modules loaded lazily to keep viewer bundles lightweight.
@@ -264,7 +265,8 @@ class GUIComponent {
 		}
 
 		// Process legacy data-* attributes (background, hover, down, text, etc.)
-		this._processAllDataAttrs();
+		// Text now; each image when its node is first drawn.
+		this._processAllDataAttrs(true);
 
 		// Create jQuery compatibility proxy
 		this._createUIProxy();
@@ -1066,9 +1068,9 @@ class GUIComponent {
 	 * Handles: data-background, data-hover, data-down, data-active, data-text, data-preload.
 	 * Static so it can be called from anywhere (e.g. dynamically created buttons).
 	 */
-	static processDataAttrs(node) {
+	static processDataAttrs(node, { text = true, images = true } = {}) {
 		if (!_Client || !_DB) {
-			_ensureDeps().then(() => GUIComponent.processDataAttrs(node));
+			_ensureDeps().then(() => GUIComponent.processDataAttrs(node, { text, images }));
 			return;
 		}
 		const background = node.dataset.background;
@@ -1100,9 +1102,11 @@ class GUIComponent {
 		};
 
 		// Localized text
-		if (msgId && _DB?.getMessage(msgId, '')) {
+		if (text && msgId && _DB?.getMessage(msgId, '')) {
 			node.textContent = _DB?.getMessage(msgId, '');
 		}
+
+		if (!images) return;
 
 		// Default background
 		if (background) {
@@ -1198,15 +1202,26 @@ class GUIComponent {
 	/**
 	 * Walk the shadow DOM and process all elements with data-* attributes.
 	 * Called once during prepare().
+	 *
+	 * @param {boolean} [deferImages] - set the text now, and fetch each
+	 *   node's images when it is first drawn (UI/WhenDrawn.js)
 	 */
-	_processAllDataAttrs() {
+	_processAllDataAttrs(deferImages = false) {
 		const root = this._shadow || this._host;
 		if (!root) return;
 
 		const selector = '[data-background],[data-hover],[data-down],[data-active],[data-text],[data-preload]';
 		const nodes = root.querySelectorAll(selector);
 		for (const node of nodes) {
-			GUIComponent.processDataAttrs(node);
+			if (!deferImages) {
+				GUIComponent.processDataAttrs(node);
+				continue;
+			}
+			GUIComponent.processDataAttrs(node, { images: false });
+			const { background, hover, down, active, preload } = node.dataset;
+			if (background || hover || down || active || preload) {
+				whenDrawn(node, () => GUIComponent.processDataAttrs(node, { text: false }));
+			}
 		}
 	}
 
