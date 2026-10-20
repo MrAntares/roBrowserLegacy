@@ -78474,6 +78474,76 @@ function UIClamp(el, WIDTH, HEIGHT, magnet) {
 }
 var init_ClampToViewport = __esmMin((() => {}));
 //#endregion
+//#region src/UI/WhenDrawn.js
+function onIntersect(entries) {
+	for (const entry of entries) {
+		if (!entry.isIntersecting) continue;
+		const callbacks = _pending$1.get(entry.target);
+		_pending$1.delete(entry.target);
+		_observer.unobserve(entry.target);
+		for (const callback of callbacks || []) try {
+			callback();
+		} catch (e) {
+			console.error("[WhenDrawn]", e);
+		}
+	}
+}
+/**
+* The host and the elements under it, in its light and shadow DOM, that
+* still wait to be drawn.
+*
+* @param {Element} host
+* @returns {Element[]}
+*/
+function pendingWithin(host) {
+	const elements = [host, ...host.querySelectorAll("*")];
+	if (host.shadowRoot) elements.push(...host.shadowRoot.querySelectorAll("*"));
+	return elements.filter((element) => _pending$1.has(element));
+}
+/**
+* @param {Element} element
+* @param {function} callback
+*/
+function whenDrawn(element, callback) {
+	if (typeof IntersectionObserver === "undefined" || !element) {
+		callback();
+		return;
+	}
+	const callbacks = _pending$1.get(element);
+	if (callbacks) {
+		callbacks.push(callback);
+		return;
+	}
+	_pending$1.set(element, [callback]);
+	_observer ??= new IntersectionObserver(onIntersect);
+	_observer.observe(element);
+}
+var _pending$1, _observer;
+var init_WhenDrawn = __esmMin((() => {
+	_pending$1 = /* @__PURE__ */ new WeakMap();
+	_observer = null;
+	/**
+	* Stop watching what waits under a window taken off the page, so the
+	* observer does not hold on to a window that is never shown again. The
+	* callbacks stay with their elements and are freed with them.
+	*
+	* @param {Element} host
+	*/
+	whenDrawn.suspend = function suspend(host) {
+		if (!_observer || !host) return;
+		for (const element of pendingWithin(host)) _observer.unobserve(element);
+	};
+	/**
+	* Watch again what waits under a window put back on the page.
+	*
+	* @param {Element} host
+	*/
+	whenDrawn.resume = function resume(host) {
+		if (!_observer || !host) return;
+		for (const element of pendingWithin(host)) _observer.observe(element);
+	};
+}));
+//#endregion
 //#region src/Preferences/Graphics.js
 var defaultGraphicsSettings, cleanDefaults, GraphicsSettings;
 var init_Graphics = __esmMin((() => {
@@ -219804,6 +219874,7 @@ var init_UIButton = __esmMin((() => {
 	init_DBManager();
 	init_Client();
 	init_Targa();
+	init_WhenDrawn();
 	UIButton = class extends HTMLElement {
 		connectedCallback() {
 			if (this._initialized) return;
@@ -219844,15 +219915,17 @@ var init_UIButton = __esmMin((() => {
 					else cb(dataURI);
 				});
 			};
-			loadBmp(bg, (uri) => {
-				bgUri = uri;
-				update();
-			});
-			loadBmp(hover, (uri) => {
-				hoverUri = uri;
-			});
-			loadBmp(down, (uri) => {
-				downUri = uri;
+			whenDrawn(this, () => {
+				loadBmp(bg, (uri) => {
+					bgUri = uri;
+					update();
+				});
+				loadBmp(hover, (uri) => {
+					hoverUri = uri;
+				});
+				loadBmp(down, (uri) => {
+					downUri = uri;
+				});
 			});
 			this.addEventListener("mouseover", () => {
 				if (this.disabled) return;
@@ -219932,6 +220005,7 @@ var init_UIImage = __esmMin((() => {
 	init_DBManager();
 	init_Client();
 	init_Targa();
+	init_WhenDrawn();
 	UIImage = class extends HTMLElement {
 		connectedCallback() {
 			if (this._initialized) return;
@@ -219952,11 +220026,11 @@ var init_UIImage = __esmMin((() => {
 			if (!target) {
 				requestAnimationFrame(() => {
 					const retryTarget = this.parentElement;
-					if (retryTarget) this._loadImage(path, retryTarget);
+					if (retryTarget) whenDrawn(retryTarget, () => this._loadImage(path, retryTarget));
 				});
 				return;
 			}
-			this._loadImage(path, target);
+			whenDrawn(target, () => this._loadImage(path, target));
 		}
 		_loadImage(path, target) {
 			Client.loadFile(DB.INTERFACE_PATH + path, (dataURI) => {
@@ -226274,6 +226348,7 @@ function createWorldMapView(map, imgData) {
 		}
 		let className = "section";
 		if (currentMap == section.id) className += " currentmap";
+		if (_partyMembersByMap[section.id]) className += " membersonmap";
 		if (sectionType === 1) {
 			const posKey = section.left + "_" + section.top;
 			if (renderedDungeonPos.has(posKey)) className += " is-dungeon-stacked";
@@ -226349,6 +226424,17 @@ function setAirplanePosition(airplane) {
 	el.style.top = "35%";
 	el.style.left = "35%";
 	el.style.transform = "rotate(75deg)";
+}
+/**
+* Mark the built sections that have party members on them
+*/
+function showPartyMembers() {
+	const root = WorldMap.getRoot();
+	root.querySelectorAll(".worldmap .section").forEach((el) => el.classList.remove("membersonmap"));
+	for (const mapId of Object.keys(_partyMembersByMap)) {
+		const el = root.querySelector(".worldmap .section#" + CSS.escape(mapId));
+		if (el) el.classList.add("membersonmap");
+	}
 }
 /**
 * Toggle all maps
@@ -226469,7 +226555,7 @@ var init_WorldMap = __esmMin((() => {
 		if (this.settings.add.length > 0) console.log("%c[WoldMap] Add Maps: ", "color:#007000", this.settings.add);
 		if (this.settings.remove.length > 0) console.log("%c[WoldMap] Remove Maps: ", "color:#007000", this.settings.remove);
 		setMapList();
-		selectMap();
+		if (this._host.style.display !== "none") selectMap();
 		this._host.style.top = "0px";
 		this._host.style.left = "0px";
 	};
@@ -226540,12 +226626,20 @@ var init_WorldMap = __esmMin((() => {
 				});
 			}
 		});
-		const root = WorldMap.getRoot();
-		root.querySelectorAll(".worldmap .section").forEach((el) => el.classList.remove("membersonmap"));
-		for (const mapId of Object.keys(_partyMembersByMap)) {
-			const el = root.querySelector(".worldmap .section#" + CSS.escape(mapId));
-			if (el) el.classList.add("membersonmap");
+		showPartyMembers();
+	};
+	/**
+	* Forget a member who left the party, or the whole party when it is us
+	*
+	* @param {number} AID
+	*/
+	WorldMap.removePartyMember = function removePartyMember(AID) {
+		if (AID === SessionStorage_default.AID) _partyMembersByMap = {};
+		else for (const mapId of Object.keys(_partyMembersByMap)) {
+			_partyMembersByMap[mapId] = _partyMembersByMap[mapId].filter((member) => member.AID !== AID);
+			if (!_partyMembersByMap[mapId].length) delete _partyMembersByMap[mapId];
 		}
+		showPartyMembers();
 	};
 	WorldMap.mouseMode = GUIComponent.MouseMode.STOP;
 	WorldMap_default = UIManager.addComponent(WorldMap);
@@ -247670,6 +247764,7 @@ function onPartyMemberLeave(pkt) {
 	}
 	if (SessionStorage_default.AID === pkt.AID) SessionStorage_default.hasParty = false;
 	controller.removePartyMember(pkt.AID, pkt.characterName);
+	WorldMap_default.removePartyMember(pkt.AID);
 }
 /**
 * Display entity life
@@ -316465,6 +316560,7 @@ var init_GUIComponent = __esmMin((() => {
 	init_SessionStorage();
 	init_Targa();
 	init_ClampToViewport();
+	init_WhenDrawn();
 	init_preload_helper();
 	_Cursor = null;
 	_DB = null;
@@ -316564,12 +316660,13 @@ var init_GUIComponent = __esmMin((() => {
 			this._container.classList.add("ui-component-root");
 			this._shadow.appendChild(this._container);
 			if (this.render) this._container.innerHTML = this.render();
-			this._processAllDataAttrs();
+			this._processAllDataAttrs(true);
 			this._createUIProxy();
 			document.body.appendChild(this._host);
 			if (this.init) this.init();
 			this._setupMouseMode();
 			this._host.remove();
+			whenDrawn.suspend(this._host);
 		}
 		/**
 		* Add the component to the DOM.
@@ -316590,6 +316687,7 @@ var init_GUIComponent = __esmMin((() => {
 				return;
 			}
 			parent.appendChild(this._host);
+			whenDrawn.resume(this._host);
 			if (this._noCursorStyle) _trackNoCursorStyle(this._noCursorStyle);
 			if (this.onKeyDown) this._bindKeyDown();
 			if (this.mouseMode === MouseMode.FREEZE) {
@@ -316631,6 +316729,7 @@ var init_GUIComponent = __esmMin((() => {
 					node.dispatchEvent(new Event("x_remove"));
 				});
 				this._host.remove();
+				whenDrawn.suspend(this._host);
 				if (this._noCursorStyle) _untrackNoCursorStyle(this._noCursorStyle);
 				if (this.mouseMode === MouseMode.FREEZE) {
 					Mouse.intersect = true;
@@ -317099,10 +317198,22 @@ var init_GUIComponent = __esmMin((() => {
 		* Process legacy data-* attributes on a single DOM element.
 		* Handles: data-background, data-hover, data-down, data-active, data-text, data-preload.
 		* Static so it can be called from anywhere (e.g. dynamically created buttons).
+		*
+		* @param {HTMLElement} node
+		* @param {object} [options]
+		* @param {boolean} [options.text] - set the localized text
+		* @param {boolean} [options.images] - fetch the images
+		* @param {string} [options.deferredFrom] - the node's inline background
+		*   when its images were deferred: a different one set since then by the
+		*   window itself stays
 		*/
-		static processDataAttrs(node) {
+		static processDataAttrs(node, { text = true, images = true, deferredFrom } = {}) {
 			if (!_Client || !_DB) {
-				_ensureDeps().then(() => GUIComponent.processDataAttrs(node));
+				_ensureDeps().then(() => GUIComponent.processDataAttrs(node, {
+					text,
+					images,
+					deferredFrom
+				}));
 				return;
 			}
 			const background = node.dataset.background;
@@ -317127,7 +317238,8 @@ var init_GUIComponent = __esmMin((() => {
 				else if (bgUri) node.style.backgroundImage = `url(${bgUri})`;
 				else node.style.backgroundImage = "";
 			};
-			if (msgId && _DB?.getMessage(msgId, "")) node.textContent = _DB?.getMessage(msgId, "");
+			if (text && msgId && _DB?.getMessage(msgId, "")) node.textContent = _DB?.getMessage(msgId, "");
+			if (!images) return;
 			if (background) _Client?.loadFile(_DB.INTERFACE_PATH + background, (dataURI) => {
 				bgUri = dataURI;
 				if (dataURI instanceof ArrayBuffer) try {
@@ -317137,6 +317249,7 @@ var init_GUIComponent = __esmMin((() => {
 				} catch (e) {
 					console.error(e.message);
 				}
+				if (deferredFrom !== void 0 && node.style.backgroundImage !== deferredFrom) return;
 				updateBg();
 			});
 			if (active) {
@@ -317202,12 +317315,29 @@ var init_GUIComponent = __esmMin((() => {
 		/**
 		* Walk the shadow DOM and process all elements with data-* attributes.
 		* Called once during prepare().
+		*
+		* @param {boolean} [deferImages] - set the text now, and fetch each
+		*   node's images when it is first drawn (UI/WhenDrawn.js)
 		*/
-		_processAllDataAttrs() {
+		_processAllDataAttrs(deferImages = false) {
 			const root = this._shadow || this._host;
 			if (!root) return;
 			const nodes = root.querySelectorAll("[data-background],[data-hover],[data-down],[data-active],[data-text],[data-preload]");
-			for (const node of nodes) GUIComponent.processDataAttrs(node);
+			for (const node of nodes) {
+				if (!deferImages) {
+					GUIComponent.processDataAttrs(node);
+					continue;
+				}
+				GUIComponent.processDataAttrs(node, { images: false });
+				const { background, hover, down, active, preload } = node.dataset;
+				if (background || hover || down || active || preload) {
+					const deferredFrom = node.style.backgroundImage;
+					whenDrawn(node, () => GUIComponent.processDataAttrs(node, {
+						text: false,
+						deferredFrom
+					}));
+				}
+			}
 		}
 		/**
 		* Compatibility shim for UIComponent.parseHTML.
@@ -323469,6 +323599,7 @@ var init_ChangeCart = __esmMin((() => {
 	init_DBManager();
 	init_ChangeCart$2();
 	init_ChangeCart$1();
+	init_WhenDrawn();
 	CART_LIMIT = 13;
 	ChangeCart = new GUIComponent("ChangeCart", ChangeCart_default$1);
 	/**
@@ -323497,14 +323628,14 @@ var init_ChangeCart = __esmMin((() => {
 				onCart(parseInt(event.currentTarget.getAttribute("data-id"), 10));
 			});
 		});
-		loadCartData();
+		whenDrawn(this._host, loadCartData);
 	};
 	/**
 	* Append to body
 	*/
 	ChangeCart.onAppend = function onAppend() {
 		this._host.style.display = "none";
-		loadCartData();
+		whenDrawn(this._host, loadCartData);
 	};
 	ChangeCart.onChangeCartSkill = function onChangeCartSkill() {
 		if (SessionStorage_default.Entity.hasCart == false) return;
@@ -323629,6 +323760,7 @@ var init_CartDecoration = __esmMin((() => {
 	init_DBManager();
 	init_CartDecoration$2();
 	init_CartDecoration$1();
+	init_WhenDrawn();
 	CartDecoration = new GUIComponent("CartDecoration", CartDecoration_default$1);
 	/**
 	* Render HTML
@@ -323660,14 +323792,14 @@ var init_CartDecoration = __esmMin((() => {
 				onCartSelected(parseInt(event.currentTarget.getAttribute("data-id"), 10));
 			});
 		});
-		preloadCartData();
+		whenDrawn(this._host, preloadCartData);
 	};
 	/**
 	* Append to body
 	*/
 	CartDecoration.onAppend = function onAppend() {
 		this._host.style.display = "none";
-		preloadCartData();
+		whenDrawn(this._host, preloadCartData);
 	};
 	/**
 	* @param {object} pkt - parsed ZC_SELECTCART packet
@@ -323765,6 +323897,7 @@ function refreshList(contentEl) {
 	const end = Math.min(EMOTICONS_COUNT, index + EMOTICONS_PER_PAGE);
 	const pos = [0, 0];
 	contentEl.innerHTML = "";
+	if (!_action) return;
 	while (index < end) {
 		const canvas = document.createElement("canvas");
 		const ctx = canvas.getContext("2d");
@@ -323796,6 +323929,7 @@ var init_Emoticons = __esmMin((() => {
 	init_Emoticons$2();
 	init_Emoticons$1();
 	init_ShortCuts();
+	init_WhenDrawn();
 	Emoticons = new GUIComponent("Emoticons", Emoticons_default$1);
 	/**
 	* Render HTML
@@ -323817,7 +323951,8 @@ var init_Emoticons = __esmMin((() => {
 	Emoticons.init = function init() {
 		const root = this.getRoot();
 		const contentEl = root.querySelector(".content");
-		Client.loadFiles(["data/sprite/ÀÌÆÑÆ®/emotion.act", "data/sprite/ÀÌÆÑÆ®/emotion.spr"], (act, spr) => {
+		const loadFiles = (files, callback) => whenDrawn(this._host, () => Client.loadFiles(files, callback));
+		loadFiles(["data/sprite/ÀÌÆÑÆ®/emotion.act", "data/sprite/ÀÌÆÑÆ®/emotion.spr"], (act, spr) => {
 			_action = act;
 			_sprite = spr;
 			TOTAL_PAGES = Math.max(0, Math.ceil(EMOTICONS_COUNT / EMOTICONS_PER_PAGE) - 1);
@@ -324591,6 +324726,7 @@ var init_CashShop$1 = __esmMin((() => {
 	init_Elements();
 	init_CashShop$3();
 	init_CashShop$2();
+	init_WhenDrawn();
 	CashShop = new GUIComponent("CashShop", CashShop_default$1);
 	/**
 	* Store cash shop items
@@ -324825,9 +324961,9 @@ var init_CashShop$1 = __esmMin((() => {
 				slide.setAttribute("data-index", index);
 				slide.setAttribute("data-url", banner.url || "");
 				slide.innerHTML = "<button class=\"btn-banner\"></button>";
-				Client.loadFile(DB.INTERFACE_PATH + "cashshop/" + banner.bmp, function(data) {
+				whenDrawn(slidesContainer || slide, () => Client.loadFile(DB.INTERFACE_PATH + "cashshop/" + banner.bmp, function(data) {
 					slide.style.backgroundImage = `url(${data})`;
-				});
+				}));
 				if (slidesContainer) slidesContainer.appendChild(slide);
 				const dot = document.createElement("li");
 				dot.className = "banner-dot" + (index === 0 ? " active" : "");
@@ -324837,7 +324973,7 @@ var init_CashShop$1 = __esmMin((() => {
 				dot.innerHTML = "<button class=\"btn-banner\"></button>";
 				if (dotsContainer) dotsContainer.appendChild(dot);
 			});
-			if (dotsContainer) _processContent(dotsContainer);
+			if (dotsContainer) whenDrawn(dotsContainer, () => _processContent(dotsContainer));
 			CashShop.currentBannerIndex = 0;
 		}
 	};
@@ -326047,6 +326183,7 @@ var init_LaphineSys = __esmMin((() => {
 	init_LaphineSys$2();
 	init_LaphineSys$1();
 	init_PacketStructure();
+	init_WhenDrawn();
 	LaphineSys = new GUIComponent("LaphineSys", LaphineSys_default$1);
 	LaphineUIState = {
 		itemId: null,
@@ -326152,7 +326289,8 @@ var init_LaphineSys = __esmMin((() => {
 			const item = e.target.closest(".item");
 			if (item) onItemInfo$6.call(item, e);
 		});
-		Client.loadFiles([
+		const loadFiles = (files, callback) => whenDrawn(this._host, () => Client.loadFiles(files, callback));
+		loadFiles([
 			DB.INTERFACE_PATH + "lapine/scrollbar_bg_btm.bmp",
 			DB.INTERFACE_PATH + "lapine/scrollbar_bg_mid.bmp",
 			DB.INTERFACE_PATH + "lapine/scrollbar_bg_top.bmp",
@@ -326616,6 +326754,7 @@ var init_LaphineUpg = __esmMin((() => {
 	init_LaphineUpg$2();
 	init_LaphineUpg$1();
 	init_PacketStructure();
+	init_WhenDrawn();
 	LaphineUpg = new GUIComponent("LaphineUpg", LaphineUpg_default$1);
 	LaphineUpgUIState = {
 		itemId: null,
@@ -326721,7 +326860,8 @@ var init_LaphineUpg = __esmMin((() => {
 			const item = e.target.closest(".item");
 			if (item) onItemInfo$5.call(item, e);
 		});
-		Client.loadFiles([
+		const loadFiles = (files, callback) => whenDrawn(this._host, () => Client.loadFiles(files, callback));
+		loadFiles([
 			DB.INTERFACE_PATH + "lapine/scrollbar_bg_btm.bmp",
 			DB.INTERFACE_PATH + "lapine/scrollbar_bg_mid.bmp",
 			DB.INTERFACE_PATH + "lapine/scrollbar_bg_top.bmp",
@@ -327784,7 +327924,7 @@ function playTimeAttackBanner() {
 	}
 	run();
 }
-var PvPTimer, TIMER_W, TIMER_H, TA_W, TA_H, TIMER_Y, TA_Y, _timerCanvas, _timerCtx, _taCanvas, _taCtx, _timefontAct, _timefontSpr, _timeAtkAct, _timeAtkSpr, _timerInterval, _startTs, _layerEntity$1, _taHideTimer, isFirstTime, PvPTimer_default;
+var PvPTimer, TIMER_W, TIMER_H, TA_W, TA_H, TIMER_Y, TA_Y, _timerCanvas, _timerCtx, _taCanvas, _taCtx, _timefontAct, _timefontSpr, _timeAtkAct, _timeAtkSpr, _timerInterval, _startTs, _layerEntity$1, _taHideTimer, isFirstTime, _bannerPending, PvPTimer_default;
 var init_PvPTimer = __esmMin((() => {
 	init_UIManager();
 	init_GUIComponent();
@@ -327793,6 +327933,7 @@ var init_PvPTimer = __esmMin((() => {
 	init_Entity$1();
 	init_PvPTimer$2();
 	init_PvPTimer$1();
+	init_WhenDrawn();
 	PvPTimer = new GUIComponent("PvPTimer", PvPTimer_default$1);
 	PvPTimer.render = () => PvPTimer_default$2;
 	PvPTimer.mouseMode = GUIComponent.MouseMode.CROSS;
@@ -327808,11 +327949,13 @@ var init_PvPTimer = __esmMin((() => {
 	_layerEntity$1 = new Entity();
 	_taHideTimer = null;
 	isFirstTime = true;
+	_bannerPending = false;
 	/**
 	* Initialize UI
 	*/
 	PvPTimer.init = function init() {
-		Client.loadFiles([
+		const loadFiles = (files, callback) => whenDrawn(this._host, () => Client.loadFiles(files, callback));
+		loadFiles([
 			"data/sprite/ÀÌÆÑÆ®/timefont.act",
 			"data/sprite/ÀÌÆÑÆ®/timefont.spr",
 			"data/sprite/ÀÌÆÑÆ®/timeattack.act",
@@ -327822,6 +327965,11 @@ var init_PvPTimer = __esmMin((() => {
 			_timefontSpr = tSpr;
 			_timeAtkAct = aAct;
 			_timeAtkSpr = aSpr;
+			if (_timerInterval) renderTimer((Date.now() / 1e3 | 0) - _startTs);
+			if (_bannerPending && this._host.style.display !== "none") {
+				_bannerPending = false;
+				playTimeAttackBanner();
+			}
 		});
 		const root = this.getRoot();
 		_timerCanvas = root.querySelector(".pvp-timer-canvas");
@@ -327845,6 +327993,7 @@ var init_PvPTimer = __esmMin((() => {
 	*/
 	PvPTimer.onRemove = function onRemove() {
 		isFirstTime = true;
+		_bannerPending = false;
 		stopTimer();
 	};
 	/**
@@ -327860,8 +328009,12 @@ var init_PvPTimer = __esmMin((() => {
 		this._host.style.display = "";
 		startTimer();
 		if (isFirstTime === true) {
-			playTimeAttackBanner();
+			_bannerPending = true;
 			isFirstTime = false;
+		}
+		if (_bannerPending && _timeAtkAct) {
+			_bannerPending = false;
+			playTimeAttackBanner();
 		}
 	};
 	PvPTimer_default = UIManager.addComponent(PvPTimer);
@@ -327943,6 +328096,7 @@ var init_PvPCount = __esmMin((() => {
 	init_SoundManager();
 	init_PvPCount$2();
 	init_PvPCount$1();
+	init_WhenDrawn();
 	PvPCount = new GUIComponent("PvPCount", PvPCount_default$1);
 	PvPCount.render = () => PvPCount_default$2;
 	PvPCount.mouseMode = GUIComponent.MouseMode.CROSS;
@@ -327957,9 +328111,11 @@ var init_PvPCount = __esmMin((() => {
 	* Initialize UI
 	*/
 	PvPCount.init = function init() {
-		Client.loadFiles(["data/sprite/ÀÌÆÑÆ®/rankfont.act", "data/sprite/ÀÌÆÑÆ®/rankfont.spr"], (rAct, rSpr) => {
+		const loadFiles = (files, callback) => whenDrawn(this._host, () => Client.loadFiles(files, callback));
+		loadFiles(["data/sprite/ÀÌÆÑÆ®/rankfont.act", "data/sprite/ÀÌÆÑÆ®/rankfont.spr"], (rAct, rSpr) => {
 			_rankfontAct = rAct;
 			_rankfontSpr = rSpr;
+			if (total > 0) renderRankText(`${ranking}/${total}`);
 		});
 		_rankCanvas = this.getRoot().querySelector(".pvp-rank-canvas");
 		if (!_rankCanvas) return;
