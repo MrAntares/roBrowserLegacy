@@ -64,6 +64,29 @@ original version.
 
 ---
 
+## WASM + JS fallback
+
+Some "hot paths" have dual implementations: WASM embedded as Base64 (generated from eg:
+`src/Loaders/wasm/*.wat`) and a JS fallback. E.g., `paletteConvert.wat` +
+`SPR.switchToRGBA()` in `Sprite.js`.
+
+When reviewing PRs that affect either implementation:
+
+- [ ] If a `.wat` file is changed, has the corresponding Base64 in the `.js` file been
+      regenerated? The two must never fall out of sync.
+- [ ] If the JS fallback is changed (byte order, vertical flip, palette layout,
+      buffer sizes), has the `.wat` file been updated to produce identical output?
+- [ ] Both implementations must be bit-exact: the same input must yield the same
+      output bytes. Request evidence (e.g., array comparison or a sprite screenshot).
+- [ ] The fallback must remain functional if `WebAssembly` is unavailable or if
+      instantiation fails—never assume that WASM is present.
+- [ ] Do not introduce SIMD opcodes (`v128`, `i32x4`, `FD` prefix) without verifying
+      support in the target engine; not all runtimes used in this project support SIMD.
+
+#### If missing regenerated files for wasm, teach user how to do it manually.
+
+---
+
 ## Testing
 
 ```bash

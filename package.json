@@ -35,6 +35,7 @@
 		"format": "prettier --write \"src/**/*.js\"",
 		"format:check": "prettier --check \"src/**/*.js\"",
 		"test": "vitest run",
+		"bench": "vitest bench --run",
 		"ci": "npm run lint && npm run format:check"
 	},
 	"type": "module",
@@ -57,7 +58,8 @@
 		"sharp": "^0.35.0",
 		"terser": "^5.19.4",
 		"vite": "^8.0.1",
-		"vitest": "^4.1.2"
+		"vitest": "^4.1.2",
+		"wabt": "^1.0.39"
 	},
 	"dependencies": {
 		"bson": "^7.2.0",

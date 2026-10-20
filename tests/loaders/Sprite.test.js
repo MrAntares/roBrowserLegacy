@@ -27,6 +27,7 @@ function encodeRLE(pixelData) {
     return new Uint8Array(out);
 }
 
+
 /**
  * Build a synthetic SPR v2.1 binary.
  * Based on real SPR structure: "SP"(2) + minor(1) + major(1) + indexed_count(2) + rgba_count(2)

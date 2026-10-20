@@ -9,6 +9,7 @@
  */
 
 import BinaryReader from 'Utils/BinaryReader.js';
+import { getPaletteConvertWasm } from 'Loaders/wasm/paletteConvert.js';
 
 /**
  * Sprite Constructor
@@ -210,42 +211,83 @@ class SPR {
 			pal = this.palette;
 		// Create a lookup table of Uint32 colors to speed up conversion
 		const pal32 = this.convert32bPal(pal, false);
-		for (let i = 0; i < this.indexed_count; ++i) {
-			const frame = frames[i];
-			if (frame.type !== SPR.TYPE_PAL) {
-				continue;
-			}
+		const wasmInstance = getPaletteConvertWasm();
 
-			const width = frame.width,
-				height = frame.height;
-			const data = frame.data; // Uint8 indexes
-			const out = new Uint8Array(width * height * 4);
+		if (wasmInstance) {
+			const memory = wasmInstance.exports.memory;
+			const convertPal = wasmInstance.exports.convertPal;
+			const palPtr = 0; // 256 * 4 bytes = 1024 bytes
+			const srcPtr = 1024;
 
-			// We map a Uint32View to the output buffer to write 4 bytes at once
-			const out32 = new Uint32Array(out.buffer);
+			// Copy palette to WASM linear memory once for all frames
+			new Uint32Array(memory.buffer, palPtr, 256).set(pal32);
 
-			/**
-			 * OLD LOGIC:
-			 * - READ: Accessed data[x + y * width] every iteration (redundant multiplication).
-			 * - WRITE: Performed 4 separate byte assignments (out[ idx2 + 3 ] = pal[ idx1 + 0 ]...out[ idx2 + 1 ] = pal[ idx1 + 2 ]).
-			 * NEW LOGIC:
-			 * - READ: Pre-calculates row offsets per line to minimize arithmetic overhead.
-			 * - WRITE: Uses a single 32-bit integer assignment to write all 4 channels (RGBA) at once.
-			 * COORDINATES: Vertical flip logic (height - y - 1) is maintained for correct visual orientation.
-			 */
-			for (let y = 0; y < height; ++y) {
-				// reverse height
-				const srcRowStart = y * width;
-				const dstRowStart = (height - y - 1) * width;
-
-				for (let x = 0; x < width; ++x) {
-					// Single 32-bit assignment from pre-calculated palette table
-					out32[dstRowStart + x] = pal32[data[srcRowStart + x]];
+			for (let i = 0; i < this.indexed_count; ++i) {
+				const frame = frames[i];
+				if (frame.type !== SPR.TYPE_PAL) {
+					continue;
 				}
-			}
 
-			frame.data = out;
-			frame.type = SPR.TYPE_RGBA;
+				const width = frame.width,
+					height = frame.height;
+				const pixelCount = width * height;
+
+				if (pixelCount <= 0) {
+					frame.data = new Uint8Array(0);
+					frame.type = SPR.TYPE_RGBA;
+					continue;
+				}
+
+				const dstPtr = srcPtr + pixelCount;
+				const totalBytesNeeded = dstPtr + pixelCount * 4;
+
+				// Grow WASM linear memory if frame requires more than current buffer capacity
+				if (memory.buffer.byteLength < totalBytesNeeded) {
+					const additionalPages = Math.ceil((totalBytesNeeded - memory.buffer.byteLength) / 65536);
+					memory.grow(additionalPages);
+					// Re-copy palette if memory buffer detached on grow
+					new Uint32Array(memory.buffer, palPtr, 256).set(pal32);
+				}
+
+				// Copy indexed pixel data to WASM linear memory
+				new Uint8Array(memory.buffer, srcPtr, pixelCount).set(frame.data);
+
+				// Convert via WASM (with vertical flip)
+				convertPal(palPtr, srcPtr, dstPtr, width, height);
+
+				// Copy converted RGBA bytes into a standalone Uint8Array
+				frame.data = new Uint8Array(new Uint8Array(memory.buffer, dstPtr, pixelCount * 4));
+				frame.type = SPR.TYPE_RGBA;
+			}
+		} else {
+			for (let i = 0; i < this.indexed_count; ++i) {
+				const frame = frames[i];
+				if (frame.type !== SPR.TYPE_PAL) {
+					continue;
+				}
+
+				const width = frame.width,
+					height = frame.height;
+				const data = frame.data; // Uint8 indexes
+				const out = new Uint8Array(width * height * 4);
+
+				// We map a Uint32View to the output buffer to write 4 bytes at once
+				const out32 = new Uint32Array(out.buffer);
+
+				for (let y = 0; y < height; ++y) {
+					// reverse height
+					const srcRowStart = y * width;
+					const dstRowStart = (height - y - 1) * width;
+
+					for (let x = 0; x < width; ++x) {
+						// Single 32-bit assignment from pre-calculated palette table
+						out32[dstRowStart + x] = pal32[data[srcRowStart + x]];
+					}
+				}
+
+				frame.data = out;
+				frame.type = SPR.TYPE_RGBA;
+			}
 		}
 
 		this.indexed_count = 0;
