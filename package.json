@@ -60,6 +60,7 @@
 		"terser": "^5.19.4",
 		"vite": "^8.0.1",
 		"vitest": "^4.1.2",
+		"vitest-canvas-mock": "^1.2.0",
 		"wabt": "^1.0.39"
 	},
 	"dependencies": {
