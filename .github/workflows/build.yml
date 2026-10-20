@@ -39,7 +39,7 @@ jobs:
       - name: Bench no Job Summary
         if: always()
         run: |
-          { echo '## Benchmark'; echo '```'; cat /tmp/bench.txt 2>/dev/null; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          { echo '## Benchmark'; echo ''; cat /tmp/bench.txt 2>/dev/null; echo ''; } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Build project
         run: npm run build
