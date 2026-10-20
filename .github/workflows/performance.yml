@@ -1,0 +1,57 @@
+name: perf
+
+on:
+  pull_request:
+    branches: [master]
+
+permissions:
+  contents: read
+
+jobs:
+  bench:
+    runs-on: ubuntu-latest
+    env:
+      NO_COLOR: "1"
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Prepare the base (master) in a separate worktree
+        run: |
+          git worktree add /tmp/base ${{ github.event.pull_request.base.sha }}
+          mkdir -p /tmp/base/tests/bench
+          cp tests/bench/*.compare.bench.js /tmp/base/tests/bench/
+
+      - name: Bench base
+        working-directory: /tmp/base
+        run: |
+          npm ci
+          npx vitest bench --run tests/bench/ --outputJson /tmp/base.json | tee /tmp/base.txt
+
+      - name: Bench PR (compare with base)
+        run: |
+          npm ci
+          npx vitest bench --run tests/bench/ --compare /tmp/base.json | tee /tmp/head.txt
+
+      - name: Post in Job Summary
+        if: always()
+        run: |
+          {
+            echo '## Benchmark: PR vs master'
+            echo '```'
+            cat /tmp/head.txt 2>/dev/null || echo 'sem resultado do PR'
+            echo '```'
+            echo '<details><summary>Base (master)</summary>'
+            echo
+            echo '```'
+            cat /tmp/base.txt 2>/dev/null || echo 'sem resultado da base'
+            echo '```'
+            echo '</details>'
+          } >> "$GITHUB_STEP_SUMMARY"
