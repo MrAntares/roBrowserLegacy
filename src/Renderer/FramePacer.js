@@ -37,6 +37,12 @@ const MIN_SAMPLES = 8;
  */
 const MAX_INTERVAL = 100;
 
+/**
+ * Share of the rate below the edge of the 1% slack where the last refreshes
+ * per frame are kept
+ */
+const EDGE_BAND = 0.0015;
+
 const _intervals = new Float32Array(SAMPLES);
 const _sorted = new Float32Array(SAMPLES);
 let _count = 0;
@@ -95,11 +101,12 @@ class FramePacer {
 	 * the frame rate at or under it. 1% of slack lets a 60.0x or 120.0x Hz
 	 * display count as 60 or 120.
 	 *
-	 * The slack is only used to choose a count, not to move to a lower one:
-	 * the last count chosen is kept while the rate it gives is still under
-	 * the limit itself. A display measured either side of the slack (60.6 Hz
-	 * for 60) would otherwise switch on every few frames between pacing and
-	 * the time limiter, and stutter.
+	 * Near the edge of the slack the last count chosen is kept: a display
+	 * measured either side of it (60.6 Hz for 60) would otherwise switch on
+	 * every few frames between pacing and the time limiter, and stutter. The
+	 * band is 0.15% below the edge, wider than the estimate wanders with
+	 * 0.1 ms of timestamp jitter (about 0.1%), so a display that really moves
+	 * under the edge (60.5 Hz) gets the lower count back.
 	 *
 	 * @param {number} limit fps
 	 * @param {number} refresh refresh interval (ms)
@@ -108,7 +115,7 @@ class FramePacer {
 	static refreshesPerFrame(limit, refresh) {
 		const display = 1000 / refresh;
 		const frames = Math.max(1, Math.ceil(display / (limit * 1.01)));
-		if (limit === _framesLimit && _frames > frames && display / (_frames - 1) > limit) {
+		if (limit === _framesLimit && _frames === frames + 1 && display / frames > limit * 1.01 * (1 - EDGE_BAND)) {
 			return _frames;
 		}
 		return frames;

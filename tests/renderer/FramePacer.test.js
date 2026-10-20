@@ -6,7 +6,7 @@ import FramePacer from 'Renderer/FramePacer.js';
  * (plus a little timestamp jitter), and return the intervals between the
  * frames it let through after the refresh rate is known.
  */
-function run(hz, limit, { seconds = 2, jitter = 0.2, random = false } = {}) {
+function run(hz, limit, { seconds = 2, jitter = 0.2, random = false, start = 1000 } = {}) {
 	const refresh = 1000 / hz;
 	const frames = [];
 	let last = 0;
@@ -14,7 +14,7 @@ function run(hz, limit, { seconds = 2, jitter = 0.2, random = false } = {}) {
 	for (let i = 0; i < hz * seconds; i++) {
 		seed = (seed * 16807) % 2147483647;
 		const offset = random ? (seed / 2147483647) * 2 - 1 : i % 2 ? 1 : -1;
-		const now = 1000 + i * refresh + offset * jitter;
+		const now = start + i * refresh + offset * jitter;
 		FramePacer.sample(now);
 		if (last === 0) {
 			last = now;
@@ -94,6 +94,14 @@ describe('FramePacer', () => {
 			expect(fps).toBeGreaterThan(limit * 0.99);
 			expect(fps).toBeLessThanOrEqual(limit * 1.01);
 		}
+	});
+
+	it('gives the lower count back when the display moves under the edge of the slack', () => {
+		// 60.65 Hz for 60 is past the edge: by time. Then 60.5 Hz is within
+		// the 1%: every refresh, evenly.
+		run(60.65, 60, { seconds: 5, jitter: 0.1, random: true });
+		const intervals = run(60.5, 60, { seconds: 10, jitter: 0.1, random: true, start: 6000 }).slice(120);
+		expect(refreshes(intervals, 60.5)).toEqual([1]);
 	});
 
 	it('measures the refresh interval from rAF timestamps', () => {
