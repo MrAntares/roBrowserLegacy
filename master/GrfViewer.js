@@ -207984,14 +207984,21 @@ function render$14() {
 function transition(callback) {
 	const transitionDuration = Configs.get("transitionDuration") ? Configs.get("transitionDuration") : 500;
 	if (Background._overlayAnim) Background._overlayAnim.stop();
-	_overlay.style.opacity = "0.01";
-	document.body.appendChild(_overlay);
-	Background._overlayAnim = animateElement(_overlay, { opacity: 1 }, transitionDuration, () => {
+	let duration = transitionDuration;
+	if (_overlay.parentNode) {
+		if (parseFloat(_overlay.style.opacity) >= .99) duration = 1;
+	} else {
+		_overlay.style.opacity = "0.01";
+		document.body.appendChild(_overlay);
+	}
+	const anim = animateElement(_overlay, { opacity: 1 }, duration, () => {
 		callback();
+		if (Background._overlayAnim !== anim) return;
 		Background._overlayAnim = animateElement(_overlay, { opacity: .01 }, transitionDuration, () => {
 			if (_overlay.parentNode) _overlay.parentNode.removeChild(_overlay);
 		});
 	});
+	Background._overlayAnim = anim;
 }
 var _overlay, _container, _canvas, _ctx$5, Background;
 var init_Background = __esmMin((() => {
@@ -262513,6 +262520,10 @@ var init_MapRenderer = __esmMin((() => {
 		*/
 		static _loadRequest = 0;
 		/**
+		* @var {Array<function>} worker results of the map load in progress, held until the fade is over
+		*/
+		static _fadeQueue = [];
+		/**
 		* @var {Float32Array} diffuse Modified diffuse color
 		*/
 		static diffuse = null;
@@ -262549,17 +262560,26 @@ var init_MapRenderer = __esmMin((() => {
 				BGM.stop();
 				this.currentMap = mapname;
 				const filename = mapname.replace(/\.gat$/i, ".rsw");
-				Background.setLoading(function() {
+				let faded = false;
+				const waiting = [];
+				this._fadeQueue = waiting;
+				const afterFade = (fn) => (...args) => {
+					if (faded) fn(...args);
+					else if (loadId === MapRenderer._loadId) waiting.push(() => fn(...args));
+				};
+				Thread.hook("MAP_PROGRESS", afterFade(loadEvent(onProgressUpdate)));
+				Thread.hook("MAP_WORLD", afterFade(loadEvent(onWorldComplete)));
+				Thread.hook("MAP_GROUND", afterFade(loadEvent(onGroundComplete)));
+				Thread.hook("MAP_ALTITUDE", afterFade(loadEvent(onAltitudeComplete)));
+				Thread.hook("MAP_MODELS", afterFade(loadEvent(onModelsComplete)));
+				Thread.hook("MAP_ANIMATED_MODEL", afterFade(loadEvent(onAnimatedModelComplete)));
+				MapRenderer._loadRequest = Thread.send("LOAD_MAP", filename, afterFade(loadStep(loadId, onMapComplete)));
+				Background.setLoading(() => {
 					if (loadId !== MapRenderer._loadId) return;
-					Thread.hook("MAP_PROGRESS", loadEvent(onProgressUpdate));
-					Thread.hook("MAP_WORLD", loadEvent(onWorldComplete));
-					Thread.hook("MAP_GROUND", loadEvent(onGroundComplete));
-					Thread.hook("MAP_ALTITUDE", loadEvent(onAltitudeComplete));
-					Thread.hook("MAP_MODELS", loadEvent(onModelsComplete));
-					Thread.hook("MAP_ANIMATED_MODEL", loadEvent(onAnimatedModelComplete));
 					MapRenderer.free();
 					Renderer.remove();
-					MapRenderer._loadRequest = Thread.send("LOAD_MAP", filename, loadStep(loadId, onMapComplete));
+					faded = true;
+					waiting.splice(0).forEach((fn) => fn());
 				});
 				return;
 			}
@@ -262583,6 +262603,7 @@ var init_MapRenderer = __esmMin((() => {
 		static cancelLoad() {
 			this._loadId++;
 			this._loadRequest = 0;
+			this._fadeQueue.length = 0;
 			this.loading = false;
 		}
 		/**
