@@ -216,8 +216,8 @@ if (!Buffer.from(outRgba512JS.buffer).equals(Buffer.from(outRgba512WASM.buffer))
 // ---------------- Vitest benchmarks ----------------
 
 describe('spriteFrame PAL 32x32', () => {
-	bench('JS', runPalSmallJS, { time: 5000, warmupTime: 500 });
-	bench('WASM', runPalSmallWASM, { time: 5000, warmupTime: 500 });
+	bench('JS', runPalSmallJS, { time: 10000, warmupTime: 50 });
+	bench('WASM', runPalSmallWASM, { time: 10000, warmupTime: 50 });
 });
 
 describe('spriteFrame PAL 256x256', () => {

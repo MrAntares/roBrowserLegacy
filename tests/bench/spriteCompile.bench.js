@@ -210,7 +210,7 @@ function makeSprite(SPR) {
 const sprWasm = makeSprite(SPR_WASM);
 const sprJS = makeSprite(SPR_JS);
 
-describe('SPR.compile() completo (8 PAL + 4 RGBA)', () => {
+describe('SPR.compile() complete (8 PAL + 4 RGBA)', () => {
 	bench('JS', () => sprJS.compile(), { time: 5000, warmupTime: 500 });
 	bench('WASM', () => sprWasm.compile(), { time: 5000, warmupTime: 500 });
 });
