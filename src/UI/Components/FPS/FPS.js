@@ -20,6 +20,7 @@
 
 import Preferences from 'Core/Preferences.js';
 import Renderer from 'Renderer/Renderer.js';
+import FramePacer from 'Renderer/FramePacer.js';
 import UIManager from 'UI/UIManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
 import 'UI/Elements/Elements.js';
@@ -145,7 +146,9 @@ FPS.onAppend = function onAppend() {
 			}
 		}
 
-		const limit = Renderer.frameLimit > 0 ? Renderer.frameLimit : _maxFPSRegistered;
+		// Judge against the rate the limit gives on this display (Renderer/FramePacer.js):
+		// 60 on 165 Hz paces to 55, and 120 on a 60 Hz display is 60, not half of 120
+		const limit = FramePacer.targetRate(Renderer.frameLimit) || _maxFPSRegistered;
 		const cls = getFPSClass(value, limit);
 
 		// Update class only if changed
