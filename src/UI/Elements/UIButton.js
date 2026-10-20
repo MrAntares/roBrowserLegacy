@@ -11,6 +11,7 @@
 import DB from 'DB/DBManager.js';
 import Client from 'Core/Client.js';
 import Targa from 'Loaders/Targa.js';
+import whenDrawn from 'UI/WhenDrawn.js';
 
 class UIButton extends HTMLElement {
 	connectedCallback() {
@@ -64,15 +65,18 @@ class UIButton extends HTMLElement {
 			});
 		};
 
-		loadBmp(bg, uri => {
-			bgUri = uri;
-			update();
-		});
-		loadBmp(hover, uri => {
-			hoverUri = uri;
-		});
-		loadBmp(down, uri => {
-			downUri = uri;
+		// Fetched when the button is first drawn, not when its window is built
+		whenDrawn(this, () => {
+			loadBmp(bg, uri => {
+				bgUri = uri;
+				update();
+			});
+			loadBmp(hover, uri => {
+				hoverUri = uri;
+			});
+			loadBmp(down, uri => {
+				downUri = uri;
+			});
 		});
 
 		this.addEventListener('mouseover', () => {

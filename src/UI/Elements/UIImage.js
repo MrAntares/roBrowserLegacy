@@ -11,6 +11,7 @@
 import DB from 'DB/DBManager.js';
 import Client from 'Core/Client.js';
 import Targa from 'Loaders/Targa.js';
+import whenDrawn from 'UI/WhenDrawn.js';
 
 class UIImage extends HTMLElement {
 	connectedCallback() {
@@ -44,12 +45,14 @@ class UIImage extends HTMLElement {
 			requestAnimationFrame(() => {
 				const retryTarget = this.parentElement;
 				if (retryTarget) {
-					this._loadImage(path, retryTarget);
+					whenDrawn(retryTarget, () => this._loadImage(path, retryTarget));
 				}
 			});
 			return;
 		}
-		this._loadImage(path, target);
+		// The element hides itself and paints its parent, so wait for the
+		// parent to be drawn before fetching.
+		whenDrawn(target, () => this._loadImage(path, target));
 	}
 
 	_loadImage(path, target) {
