@@ -23,6 +23,7 @@ import Camera from 'Renderer/Camera.js';
 import Session from 'Engine/SessionStorage.js';
 import PostProcess from 'Renderer/Effects/PostProcess.js';
 import MemoryManager from 'Core/MemoryManager.js';
+import SpriteBatch from 'Renderer/SpriteBatch.js';
 import FramePacer from 'Renderer/FramePacer.js';
 
 const { mat4 } = glMatrix;
@@ -231,6 +232,9 @@ class Renderer {
 
 		// Restart post process active modules
 		PostProcess.restartModules(gl);
+
+		// Sprite batch programs, buffers and atlas pages are rebuilt on next use
+		SpriteBatch.contextRestored();
 
 		// Trigger resize to reset viewport and framebuffers
 		this.resize();

@@ -233,6 +233,15 @@ class MemoryManager {
 					if (file.texture && gl != null && gl.isTexture(file.texture)) {
 						gl.deleteTexture(file.texture);
 					}
+					// Atlas pages SpriteBatch packed the frames into
+					if (file._atlasPages && gl != null) {
+						for (i = 0, count = file._atlasPages.length; i < count; ++i) {
+							if (file._atlasPages[i].texture && gl.isTexture(file._atlasPages[i].texture)) {
+								gl.deleteTexture(file._atlasPages[i].texture);
+							}
+						}
+						file._atlasPages = null;
+					}
 					break;
 
 				// Delete palette
