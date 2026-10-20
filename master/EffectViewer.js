@@ -11329,10 +11329,7 @@ var init_MemoryManager = __esmMin((() => {
 						for (i = 0, count = file.frames.length; i < count; ++i) if (file.frames[i].texture && gl != null && gl.isTexture(file.frames[i].texture)) gl.deleteTexture(file.frames[i].texture);
 					}
 					if (file.texture && gl != null && gl.isTexture(file.texture)) gl.deleteTexture(file.texture);
-					if (file._atlasPages && gl != null) {
-						for (i = 0, count = file._atlasPages.length; i < count; ++i) if (file._atlasPages[i].texture && gl.isTexture(file._atlasPages[i].texture)) gl.deleteTexture(file._atlasPages[i].texture);
-						file._atlasPages = null;
-					}
+					if (file._atlasRelease) file._atlasRelease();
 					break;
 				case ".pal":
 					if (file.texture && gl != null && gl.isTexture(file.texture)) gl.deleteTexture(file.texture);
@@ -209208,16 +209205,360 @@ var init_Ground = __esmMin((() => {
 	};
 }));
 //#endregion
+//#region src/Renderer/SpriteAtlas.js
+/**
+* Pack every frame of a sprite file, tallest first, and upload it.
+*/
+function pack(spr) {
+	spr._atlasGeneration = _generation;
+	const placed = [];
+	const owned = [];
+	for (const atlas of [_index$1, _rgba]) {
+		const frames = [];
+		for (let i = 0; i < spr.frames.length; i++) {
+			const frame = spr.frames[i];
+			if (!frame || !!frame.type !== atlas.rgba) continue;
+			frame._atlas = null;
+			if (frame.data && frame.width > 0 && frame.height > 0) frames.push(frame);
+		}
+		if (!frames.length) continue;
+		frames.sort((a, b) => b.height - a.height || b.width - a.width);
+		const layers = /* @__PURE__ */ new Set();
+		const spots = [];
+		for (const frame of frames) {
+			const spot = atlas.place(frame.width + 2, frame.height + 2, layers);
+			if (!spot) continue;
+			spot.frame = frame;
+			spots.push(spot);
+			const size = atlas.size;
+			frame._atlas = {
+				rgba: atlas.rgba,
+				layer: spot.layer,
+				u0: (spot.x + 1) / size,
+				v0: (spot.y + 1) / size,
+				u1: (spot.x + 1 + frame.width) / size,
+				v1: (spot.y + 1 + frame.height) / size
+			};
+		}
+		let start = 0;
+		for (let i = 1; i <= spots.length; i++) if (i === spots.length || spots[i].layer !== spots[start].layer || spots[i].y !== spots[start].y) {
+			atlas.upload(spots.slice(start, i));
+			start = i;
+		}
+		if (layers.size) owned.push({
+			atlas,
+			layers
+		});
+		placed.push(...spots);
+	}
+	const generation = _generation;
+	spr._atlasRelease = () => {
+		spr._atlasRelease = null;
+		spr._atlasGeneration = 0;
+		if (generation !== _generation) return;
+		for (const { atlas, layers } of owned) atlas.release(layers);
+		for (const spot of placed) spot.frame._atlas = null;
+	};
+}
+var PALETTE_ROWS, UNIT_INDEX, UNIT_RGBA, UNIT_PALETTES, ArrayAtlas, _gl$4, _generation, _index$1, _rgba, _palettes, _paletteRows, _paletteNext, SpriteAtlas;
+var init_SpriteAtlas = __esmMin((() => {
+	init_Graphics();
+	PALETTE_ROWS = 512;
+	UNIT_INDEX = 5;
+	UNIT_RGBA = 6;
+	UNIT_PALETTES = 7;
+	ArrayAtlas = class {
+		/**
+		* @param {WebGL2RenderingContext} gl
+		* @param {boolean} rgba - RGBA frames, or palette indices
+		* @param {number} size - width and height of a layer
+		* @param {number} layers - layers to start with
+		* @param {number} maxLayers - layers it may grow to
+		*/
+		constructor(gl, rgba, size, layers, maxLayers) {
+			this.gl = gl;
+			this.rgba = rgba;
+			this.size = Math.min(size, gl.getParameter(gl.MAX_TEXTURE_SIZE) || size);
+			this.maxLayers = Math.min(maxLayers, gl.getParameter(gl.MAX_ARRAY_TEXTURE_LAYERS) || maxLayers);
+			this.capacity = 0;
+			this.texture = null;
+			this.filter = null;
+			this.use = [];
+			this.layer = -1;
+			this.x = 0;
+			this.y = 0;
+			this.shelf = 0;
+			this.allocate(Math.min(layers, this.maxLayers));
+		}
+		/**
+		* Make the texture hold `layers` layers, keeping what the old one held.
+		*/
+		allocate(layers) {
+			const gl = this.gl;
+			const old = this.texture;
+			const texture = gl.createTexture();
+			gl.bindTexture(gl.TEXTURE_2D_ARRAY, texture);
+			gl.texStorage3D(gl.TEXTURE_2D_ARRAY, 1, this.rgba ? gl.RGBA8 : gl.R8, this.size, this.size, layers);
+			gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+			gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+			this.texture = texture;
+			this.filter = null;
+			this.updateFilter();
+			if (old) {
+				const framebuffer = gl.createFramebuffer();
+				const previous = gl.getParameter(gl.READ_FRAMEBUFFER_BINDING);
+				gl.bindFramebuffer(gl.READ_FRAMEBUFFER, framebuffer);
+				for (let i = 0; i < this.capacity; i++) {
+					gl.framebufferTextureLayer(gl.READ_FRAMEBUFFER, gl.COLOR_ATTACHMENT0, old, 0, i);
+					gl.copyTexSubImage3D(gl.TEXTURE_2D_ARRAY, 0, 0, 0, i, 0, 0, this.size, this.size);
+				}
+				gl.bindFramebuffer(gl.READ_FRAMEBUFFER, previous);
+				gl.deleteFramebuffer(framebuffer);
+				gl.deleteTexture(old);
+			}
+			for (let i = this.capacity; i < layers; i++) this.use[i] = 0;
+			this.capacity = layers;
+		}
+		/**
+		* RGBA frames are smoothed unless pixel perfect sprites are on; palette
+		* frames are read texel by texel.
+		*/
+		updateFilter() {
+			const gl = this.gl;
+			const filter = this.rgba && !GraphicsSettings.pixelPerfectSprites ? gl.LINEAR : gl.NEAREST;
+			if (filter !== this.filter) {
+				this.filter = filter;
+				gl.bindTexture(gl.TEXTURE_2D_ARRAY, this.texture);
+				gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MAG_FILTER, filter);
+				gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MIN_FILTER, filter);
+			}
+		}
+		/**
+		* Move to an empty layer: one no file lives on any more, or a new one.
+		*
+		* @returns {boolean} false when it cannot grow any more
+		*/
+		nextLayer() {
+			let layer = -1;
+			for (let i = 0; i < this.capacity; i++) if (i !== this.layer && this.use[i] === 0) {
+				layer = i;
+				break;
+			}
+			if (layer < 0) {
+				if (this.capacity >= this.maxLayers) return false;
+				layer = this.capacity;
+				this.allocate(Math.min(this.capacity * 2, this.maxLayers));
+			}
+			this.layer = layer;
+			this.x = 0;
+			this.y = 0;
+			this.shelf = 0;
+			return true;
+		}
+		/**
+		* Find room for a w x h rectangle.
+		*
+		* @param {Set} layers - the layers the file being packed is on; a layer
+		*   joins it (and is counted as used) as soon as the file has a frame on it
+		* @returns {object|null} { layer, x, y }
+		*/
+		place(w, h, layers) {
+			if (w > this.size || h > this.size) return null;
+			if (this.layer < 0 && !this.nextLayer()) return null;
+			if (this.x + w > this.size) {
+				this.y += this.shelf;
+				this.x = 0;
+				this.shelf = 0;
+			}
+			if (this.y + h > this.size) {
+				if (!this.nextLayer()) return null;
+			}
+			if (!layers.has(this.layer)) {
+				layers.add(this.layer);
+				this.use[this.layer]++;
+			}
+			const spot = {
+				layer: this.layer,
+				x: this.x,
+				y: this.y
+			};
+			this.x += w;
+			this.shelf = Math.max(this.shelf, h);
+			return spot;
+		}
+		/**
+		* A file on these layers was freed.
+		*/
+		release(layers) {
+			for (const layer of layers) if (--this.use[layer] === 0 && layer === this.layer) {
+				this.x = 0;
+				this.y = 0;
+				this.shelf = 0;
+			}
+		}
+		/**
+		* Copy one shelf of a file's frames to the GPU, with a copy of each
+		* frame's edge pixels around it, so sampling past its edge reads what
+		* CLAMP_TO_EDGE read on its own texture.
+		*
+		* @param {Array} spots - { frame, layer, x, y } on one shelf, left to right
+		*/
+		upload(spots) {
+			const gl = this.gl;
+			const first = spots[0];
+			const last = spots[spots.length - 1];
+			const left = first.x;
+			const width = last.x + last.frame.width + 2 - left;
+			let height = 0;
+			for (const spot of spots) height = Math.max(height, spot.frame.height + 2);
+			const pixels = this.rgba ? new Uint32Array(width * height) : new Uint8Array(width * height);
+			for (const { frame, x } of spots) {
+				const fw = frame.width;
+				const fh = frame.height;
+				const src = this.rgba ? new Uint32Array(frame.data.buffer, frame.data.byteOffset, fw * fh) : frame.data;
+				const dx = x - left + 1;
+				for (let row = -1; row <= fh; row++) {
+					const srcRow = Math.min(Math.max(row, 0), fh - 1) * fw;
+					const dst = (row + 1) * width + dx;
+					pixels[dst - 1] = src[srcRow];
+					pixels.set(src.subarray(srcRow, srcRow + fw), dst);
+					pixels[dst + fw] = src[srcRow + fw - 1];
+				}
+			}
+			gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+			gl.bindTexture(gl.TEXTURE_2D_ARRAY, this.texture);
+			gl.texSubImage3D(gl.TEXTURE_2D_ARRAY, 0, left, first.y, first.layer, width, height, 1, this.rgba ? gl.RGBA : gl.RED, gl.UNSIGNED_BYTE, this.rgba ? new Uint8Array(pixels.buffer) : pixels);
+		}
+		destroy() {
+			if (this.texture) {
+				this.gl.deleteTexture(this.texture);
+				this.texture = null;
+			}
+		}
+	};
+	_gl$4 = null;
+	_generation = 0;
+	_index$1 = null;
+	_rgba = null;
+	_palettes = null;
+	_paletteRows = /* @__PURE__ */ new WeakMap();
+	_paletteNext = 0;
+	SpriteAtlas = class {
+		/**
+		* @type {number} rows of the palette texture
+		*/
+		static PALETTE_ROWS = PALETTE_ROWS;
+		/**
+		* @type {number} texture units the atlas is bound to while drawing
+		*/
+		static UNIT_INDEX = UNIT_INDEX;
+		static UNIT_RGBA = UNIT_RGBA;
+		static UNIT_PALETTES = UNIT_PALETTES;
+		/**
+		* Create the textures for a context (again, if it changed).
+		*
+		* @param {WebGL2RenderingContext} gl
+		*/
+		static init(gl) {
+			if (_gl$4 === gl) return;
+			if (_index$1) {
+				_index$1.destroy();
+				_rgba.destroy();
+			}
+			if (_palettes) _gl$4.deleteTexture(_palettes);
+			_gl$4 = gl;
+			_generation++;
+			_index$1 = new ArrayAtlas(gl, false, 2048, 2, 16);
+			_rgba = new ArrayAtlas(gl, true, 1024, 1, 16);
+			_palettes = gl.createTexture();
+			gl.activeTexture(gl.TEXTURE0 + UNIT_PALETTES);
+			gl.bindTexture(gl.TEXTURE_2D, _palettes);
+			gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA8, 256, PALETTE_ROWS);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+			gl.activeTexture(gl.TEXTURE0);
+			_paletteRows = /* @__PURE__ */ new WeakMap();
+			_paletteNext = 0;
+		}
+		/**
+		* Forget the textures of a lost context, which the restored context
+		* object still matches. The next init() creates them again, and the
+		* new generation makes every sprite file pack itself again.
+		*/
+		static contextRestored() {
+			_gl$4 = null;
+			_index$1 = null;
+			_rgba = null;
+			_palettes = null;
+		}
+		/**
+		* @returns {object} { index, rgba, palettes, indexSize } the textures to bind
+		*/
+		static get textures() {
+			_rgba.updateFilter();
+			return {
+				index: _index$1.texture,
+				rgba: _rgba.texture,
+				palettes: _palettes,
+				indexSize: _index$1.size
+			};
+		}
+		/**
+		* Where a frame is in the atlas, packing its sprite file on first use.
+		*
+		* @param {object} spr - compiled sprite file
+		* @param {object} frame - one of spr.frames
+		* @returns {object|null} { rgba, layer, u0, v0, u1, v1 }, or null if it has no room
+		*/
+		static frame(spr, frame) {
+			if (spr._atlasGeneration !== _generation) pack(spr);
+			return frame._atlas || null;
+		}
+		/**
+		* The palette texture's row holding a palette, uploading it on first use.
+		*
+		* @param {WebGLTexture} texture - the palette's own texture, as a key
+		* @param {Uint8Array} data - its 256 RGBA colours
+		* @returns {number} the row, or -1 when the texture is full (or no data)
+		*/
+		static paletteRow(texture, data) {
+			const known = _paletteRows.get(texture);
+			if (known !== void 0) return known;
+			if (_paletteNext >= PALETTE_ROWS || !data || data.length < 1024) return -1;
+			const gl = _gl$4;
+			const row = _paletteNext++;
+			gl.activeTexture(gl.TEXTURE0 + UNIT_PALETTES);
+			gl.bindTexture(gl.TEXTURE_2D, _palettes);
+			gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, row, 256, 1, gl.RGBA, gl.UNSIGNED_BYTE, data.length === 1024 ? data : data.subarray(0, 1024));
+			gl.activeTexture(gl.TEXTURE0);
+			_paletteRows.set(texture, row);
+			return row;
+		}
+		/**
+		* Start the palette texture over if it filled up. Call between frames,
+		* never while sprites using its rows wait to be drawn.
+		*/
+		static recyclePalettes() {
+			if (_paletteNext >= PALETTE_ROWS) {
+				_paletteRows = /* @__PURE__ */ new WeakMap();
+				_paletteNext = 0;
+			}
+		}
+	};
+}));
+//#endregion
 //#region src/Renderer/SpriteBatch.vs?raw
 var SpriteBatch_default$1;
 var init_SpriteBatch$2 = __esmMin((() => {
-	SpriteBatch_default$1 = "#version 300 es\r\nprecision highp float;\r\n\r\n// The quad, shared by every sprite\r\nin vec2 aPosition;\r\nin vec2 aTextureCoord;\r\n\r\n// One sprite per instance; see SpriteBatch.js for how these are packed\r\nin vec4 aPositionZIndex;  // xyz world position, w zIndex\r\nin vec4 aOffsetSize;      // xy offset, zw size (both in world units)\r\nin vec4 aColor;\r\nin vec4 aUV;              // xy top-left, zw bottom-right, in the texture\r\nin vec4 aAngleDepthShadowCap; // angle (degrees), depth, shadow, ignore z-index cap (0/1)\r\n\r\nout vec2 vTextureCoord;\r\nflat out vec4 vUV;\r\nflat out vec4 vColor;\r\nflat out float vShadow;\r\n\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uViewModelMat;\r\nuniform mat4 uProjectionMat;\r\n\r\nuniform float uCameraZoom;\r\nuniform bool  uDisableDepthCorrection;\r\n\r\n// The same as SpriteRenderer.vs, with the per-sprite uniforms read from the instance.\r\nmat4 Project( mat4 mat, vec3 pos) {\r\n\r\n    // xyz = x(-z)y + middle of cell (0.5)\r\n    float x =  pos.x + 0.5;\r\n    float y = -pos.z;\r\n    float z =  pos.y + 0.5;\r\n\r\n    // Matrix translation\r\n    mat[3].x += mat[0].x * x + mat[1].x * y + mat[2].x * z;\r\n    mat[3].y += mat[0].y * x + mat[1].y * y + mat[2].y * z;\r\n    mat[3].z += (mat[0].z * x + mat[1].z * y + mat[2].z * z);\r\n    mat[3].w += mat[0].w * x + mat[1].w * y + mat[2].w * z;\r\n\r\n    // Spherical billboard\r\n    mat[0].xyz = vec3( 1.0, 0.0, 0.0 );\r\n    mat[1].xyz = vec3( 0.0, 1.0, 0.0 );\r\n    mat[2].xyz = vec3( 0.0, 0.0, 1.0 );\r\n\r\n    return mat;\r\n}\r\n\r\nvec3 getCameraPosition() {\r\n    return (uViewModelMat * vec4(0.0, 0.0, 0.0, 1.0)).xyz;\r\n}\r\n\r\nvec3 getCameraForward() {\r\n    return normalize((uViewModelMat * vec4(0.0, 0.0, -1.0, 0.0)).xyz);\r\n}\r\n\r\nvoid main(void) {\r\n    // Rotation, as mat4.rotateZ(-angle) in SpriteRenderer.js\r\n    float angle = -aAngleDepthShadowCap.x / 180.0 * 3.14159265358979;\r\n    float c = cos(angle);\r\n    float s = sin(angle);\r\n    vec2 scaled = aPosition * aOffsetSize.zw;\r\n    vec4 position = vec4( c * scaled.x - s * scaled.y, s * scaled.x + c * scaled.y, 0.0, 1.0 );\r\n    position.x   += aOffsetSize.x;\r\n    position.y   -= aOffsetSize.y + 0.5;\r\n\r\n    mat4 modelView = Project(uModelViewMat, aPositionZIndex.xyz);\r\n    vec4 viewPosition = modelView * position;\r\n    vec4 viewCenter   = modelView * vec4( 0.0, 0.0, 0.0, 1.0 );\r\n\r\n    gl_Position = uProjectionMat * viewPosition;\r\n\r\n    vec3 cameraPos     = getCameraPosition();\r\n    vec3 cameraForward = getCameraForward();\r\n\r\n    if (!uDisableDepthCorrection) {\r\n        // See SpriteRenderer.vs\r\n        vec3 planePoint = (uViewModelMat * viewCenter).xyz;\r\n        vec3 planeNormal = normalize(vec3(cameraForward.x, 0.0, cameraForward.z));\r\n        if (length(planeNormal) < 0.000001) {\r\n            planeNormal = cameraForward;\r\n        }\r\n\r\n        vec3 worldVertex = (uViewModelMat * viewPosition).xyz;\r\n        vec3 rayDir      = normalize(worldVertex - cameraPos);\r\n        float denom      = max(dot(planeNormal, rayDir), 0.000001);\r\n        float dist       = dot(planePoint - cameraPos, planeNormal) / denom;\r\n\r\n        vec4 planeClip       = uProjectionMat * (uModelViewMat * vec4(cameraPos + rayDir * dist, 1.0));\r\n        float correctedZBase = planeClip.z * (gl_Position.w / max(planeClip.w, 0.000001));\r\n\r\n        gl_Position.z = aAngleDepthShadowCap.w > 0.5 ? correctedZBase : min(gl_Position.z, correctedZBase);\r\n    }\r\n    gl_Position.z -= (aPositionZIndex.w * 0.01 + aAngleDepthShadowCap.y) / max(uCameraZoom, 1.0);\r\n\r\n    vTextureCoord = aTextureCoord;\r\n    vUV     = aUV;\r\n    vColor  = aColor;\r\n    vShadow = aAngleDepthShadowCap.z;\r\n}";
+	SpriteBatch_default$1 = "#version 300 es\r\nprecision highp float;\r\n\r\n// The quad, shared by every sprite\r\nin vec2 aPosition;\r\nin vec2 aTextureCoord;\r\n\r\n// One sprite per instance; see SpriteBatch.js for how these are packed\r\nin vec4 aPositionZIndex;  // xyz world position, w zIndex\r\nin vec4 aOffsetSize;      // xy offset, zw size (both in world units)\r\nin vec4 aColor;\r\nin vec4 aUV;              // xy top-left, zw bottom-right, in the texture\r\nin vec4 aAngleDepthShadowCap; // angle (degrees), depth, shadow, ignore z-index cap (0/1)\r\nin vec3 aSource;          // where the pixels are, atlas layer, palette row (see SpriteBatch.js)\r\n\r\nout vec2 vTextureCoord;\r\nflat out vec4 vUV;\r\nflat out vec4 vColor;\r\nflat out float vShadow;\r\nflat out vec3 vSource;    // source, atlas layer, palette row\r\n\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uViewModelMat;\r\nuniform mat4 uProjectionMat;\r\n\r\nuniform float uCameraZoom;\r\nuniform bool  uDisableDepthCorrection;\r\n\r\n// The same as SpriteRenderer.vs, with the per-sprite uniforms read from the instance.\r\nmat4 Project( mat4 mat, vec3 pos) {\r\n\r\n    // xyz = x(-z)y + middle of cell (0.5)\r\n    float x =  pos.x + 0.5;\r\n    float y = -pos.z;\r\n    float z =  pos.y + 0.5;\r\n\r\n    // Matrix translation\r\n    mat[3].x += mat[0].x * x + mat[1].x * y + mat[2].x * z;\r\n    mat[3].y += mat[0].y * x + mat[1].y * y + mat[2].y * z;\r\n    mat[3].z += (mat[0].z * x + mat[1].z * y + mat[2].z * z);\r\n    mat[3].w += mat[0].w * x + mat[1].w * y + mat[2].w * z;\r\n\r\n    // Spherical billboard\r\n    mat[0].xyz = vec3( 1.0, 0.0, 0.0 );\r\n    mat[1].xyz = vec3( 0.0, 1.0, 0.0 );\r\n    mat[2].xyz = vec3( 0.0, 0.0, 1.0 );\r\n\r\n    return mat;\r\n}\r\n\r\nvec3 getCameraPosition() {\r\n    return (uViewModelMat * vec4(0.0, 0.0, 0.0, 1.0)).xyz;\r\n}\r\n\r\nvec3 getCameraForward() {\r\n    return normalize((uViewModelMat * vec4(0.0, 0.0, -1.0, 0.0)).xyz);\r\n}\r\n\r\nvoid main(void) {\r\n    // Rotation, as mat4.rotateZ(-angle) in SpriteRenderer.js\r\n    float angle = -aAngleDepthShadowCap.x / 180.0 * 3.14159265358979;\r\n    float c = cos(angle);\r\n    float s = sin(angle);\r\n    vec2 scaled = aPosition * aOffsetSize.zw;\r\n    vec4 position = vec4( c * scaled.x - s * scaled.y, s * scaled.x + c * scaled.y, 0.0, 1.0 );\r\n    position.x   += aOffsetSize.x;\r\n    position.y   -= aOffsetSize.y + 0.5;\r\n\r\n    mat4 modelView = Project(uModelViewMat, aPositionZIndex.xyz);\r\n    vec4 viewPosition = modelView * position;\r\n    vec4 viewCenter   = modelView * vec4( 0.0, 0.0, 0.0, 1.0 );\r\n\r\n    gl_Position = uProjectionMat * viewPosition;\r\n\r\n    vec3 cameraPos     = getCameraPosition();\r\n    vec3 cameraForward = getCameraForward();\r\n\r\n    if (!uDisableDepthCorrection) {\r\n        // See SpriteRenderer.vs\r\n        vec3 planePoint = (uViewModelMat * viewCenter).xyz;\r\n        vec3 planeNormal = normalize(vec3(cameraForward.x, 0.0, cameraForward.z));\r\n        if (length(planeNormal) < 0.000001) {\r\n            planeNormal = cameraForward;\r\n        }\r\n\r\n        vec3 worldVertex = (uViewModelMat * viewPosition).xyz;\r\n        vec3 rayDir      = normalize(worldVertex - cameraPos);\r\n        float denom      = max(dot(planeNormal, rayDir), 0.000001);\r\n        float dist       = dot(planePoint - cameraPos, planeNormal) / denom;\r\n\r\n        vec4 planeClip       = uProjectionMat * (uModelViewMat * vec4(cameraPos + rayDir * dist, 1.0));\r\n        float correctedZBase = planeClip.z * (gl_Position.w / max(planeClip.w, 0.000001));\r\n\r\n        gl_Position.z = aAngleDepthShadowCap.w > 0.5 ? correctedZBase : min(gl_Position.z, correctedZBase);\r\n    }\r\n    gl_Position.z -= (aPositionZIndex.w * 0.01 + aAngleDepthShadowCap.y) / max(uCameraZoom, 1.0);\r\n\r\n    vTextureCoord = aTextureCoord;\r\n    vUV     = aUV;\r\n    vColor  = aColor;\r\n    vShadow = aAngleDepthShadowCap.z;\r\n    vSource = aSource;\r\n}";
 }));
 //#endregion
 //#region src/Renderer/SpriteBatch.fs?raw
 var SpriteBatch_default;
 var init_SpriteBatch$1 = __esmMin((() => {
-	SpriteBatch_default = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;  // 0..1 across the frame, as in SpriteRenderer.fs\r\nflat in vec4 vUV;       // the frame's rectangle in the texture\r\nflat in vec4 vColor;\r\nflat in float vShadow;\r\nout vec4 fragColor;\r\n\r\nuniform sampler2D uDiffuse;\r\nuniform sampler2D uPalette;\r\n\r\nuniform bool uUsePal;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\nuniform vec2 uTextSize;\r\n\r\n// Where a point of the frame (0..1) is in the texture\r\nvec2 toTexture(vec2 uv) {\r\n    return mix(vUV.xy, vUV.zw, uv);\r\n}\r\n\r\n// One texel of the frame, as NEAREST with CLAMP_TO_EDGE picks it on the\r\n// frame's own texture. Done in the frame's texels, not the atlas's, so the\r\n// rounding is the frame's: a sample that falls on a texel's edge picks the\r\n// same side it did before.\r\nfloat fetchIndex(sampler2D indexT, vec2 uv, vec2 size, vec2 origin) {\r\n    vec2 texel = clamp(floor(uv * size), vec2(0.0), size - 1.0);\r\n    return texelFetch(indexT, ivec2(origin + texel), 0).x;\r\n}\r\n\r\n// The same as SpriteRenderer.fs, on the frame's own coordinates: uTextSize\r\n// is twice the texture's size, so twice the frame's is its share of it.\r\nvec4 bilinearSample(vec2 uv, sampler2D indexT, sampler2D LUT) {\r\n    vec2 atlasSize = uTextSize * 0.5;\r\n    vec2 size      = floor((vUV.zw - vUV.xy) * atlasSize + 0.5);\r\n    vec2 origin    = floor(vUV.xy * atlasSize + 0.5);\r\n    vec2 textSize  = size * 2.0;\r\n    vec2 TextInterval = 1.0 / textSize;\r\n\r\n    float tlLUT = fetchIndex(indexT, uv, size, origin);\r\n    float trLUT = fetchIndex(indexT, uv + vec2(TextInterval.x, 0.0), size, origin);\r\n    float blLUT = fetchIndex(indexT, uv + vec2(0.0, TextInterval.y), size, origin);\r\n    float brLUT = fetchIndex(indexT, uv + TextInterval, size, origin);\r\n\r\n    vec4 transparent = vec4( 0.0, 0.0, 0.0, 0.0);\r\n\r\n    vec4 tl = tlLUT == 0.0 ? transparent : vec4( texture(LUT, vec2(tlLUT,1.0)).rgb, 1.0);\r\n    vec4 tr = trLUT == 0.0 ? transparent : vec4( texture(LUT, vec2(trLUT,1.0)).rgb, 1.0);\r\n    vec4 bl = blLUT == 0.0 ? transparent : vec4( texture(LUT, vec2(blLUT,1.0)).rgb, 1.0);\r\n    vec4 br = brLUT == 0.0 ? transparent : vec4( texture(LUT, vec2(brLUT,1.0)).rgb, 1.0);\r\n\r\n    vec2 f  = fract( uv.xy * textSize );\r\n    vec4 tA = mix( tl, tr, f.x );\r\n    vec4 tB = mix( bl, br, f.x );\r\n\r\n    return mix( tA, tB, f.y );\r\n}\r\n\r\n\r\nvoid main(void) {\r\n\r\n    // Don't render if it's not shown.\r\n    if (vColor.a == 0.0) {\r\n        discard;\r\n    }\r\n\r\n    // Calculate texture\r\n    vec4 textureSample;\r\n    if (uUsePal) {\r\n        textureSample = bilinearSample( vTextureCoord, uDiffuse, uPalette );\r\n    }\r\n    else {\r\n        textureSample = texture( uDiffuse, toTexture(vTextureCoord.st) );\r\n    }\r\n\r\n    // No alpha, skip.\r\n    if ( textureSample.a == 0.0 )\r\n        discard;\r\n\r\n    // Apply shadow, apply color\r\n    textureSample.rgb   *= vShadow;\r\n    fragColor   = textureSample * vColor;\r\n\r\n    // Fog feature\r\n    if (uFogUse) {\r\n        float depth     = gl_FragCoord.z / gl_FragCoord.w;\r\n        float fogFactor = smoothstep( uFogNear, uFogFar, depth );\r\n        fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );\r\n    }\r\n}";
+	SpriteBatch_default = "#version 300 es\r\nprecision highp float;\r\nprecision highp sampler2DArray;\r\n\r\nin vec2 vTextureCoord;  // 0..1 across the frame, as in SpriteRenderer.fs\r\nflat in vec4 vUV;       // the frame's rectangle in the texture\r\nflat in vec4 vColor;\r\nflat in float vShadow;\r\nflat in vec3 vSource;   // source, atlas layer, palette row (see SpriteBatch.js)\r\nout vec4 fragColor;\r\n\r\n// The sprite's own texture and palette (source 0, palette row -2)\r\nuniform sampler2D uDiffuse;\r\nuniform sampler2D uPalette;\r\nuniform vec2 uTextSize;\r\n\r\n// The shared atlas (SpriteAtlas.js)\r\nuniform sampler2DArray uIndexAtlas;\r\nuniform sampler2DArray uRGBAAtlas;\r\nuniform sampler2D uPaletteAtlas;\r\nuniform vec2 uIndexAtlasSize;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\n// Where a point of the frame (0..1) is in the texture\r\nvec2 toTexture(vec2 uv) {\r\n    return mix(vUV.xy, vUV.zw, uv);\r\n}\r\n\r\n// One texel of the frame, as NEAREST with CLAMP_TO_EDGE picks it on the\r\n// frame's own texture. Done in the frame's texels, not the atlas's, so the\r\n// rounding is the frame's: a sample that falls on a texel's edge picks the\r\n// same side it did before.\r\nfloat fetchIndex(vec2 uv, vec2 size, vec2 origin) {\r\n    ivec2 texel = ivec2(origin + clamp(floor(uv * size), vec2(0.0), size - 1.0));\r\n    if (vSource.x > 0.5) {\r\n        return texelFetch(uIndexAtlas, ivec3(texel, int(vSource.y + 0.5)), 0).x;\r\n    }\r\n    return texelFetch(uDiffuse, texel, 0).x;\r\n}\r\n\r\n// A palette colour; index is the texel's value, k / 255. On its own texture,\r\n// texture(LUT, vec2(index, 1.0)) reads colour k, except for 255: 1.0 wraps\r\n// around (palette textures REPEAT) and reads colour 0. The atlas does the same.\r\nvec4 lookup(float index) {\r\n    if (vSource.z > -0.5) {\r\n        int k = int(index * 255.0 + 0.5);\r\n        return vec4(texelFetch(uPaletteAtlas, ivec2(k == 255 ? 0 : k, int(vSource.z + 0.5)), 0).rgb, 1.0);\r\n    }\r\n    return vec4(texture(uPalette, vec2(index, 1.0)).rgb, 1.0);\r\n}\r\n\r\n// The same as SpriteRenderer.fs, on the frame's own coordinates.\r\nvec4 bilinearSample(vec2 uv) {\r\n    vec2 atlasSize = vSource.x > 0.5 ? uIndexAtlasSize : uTextSize * 0.5;\r\n    vec2 size      = floor((vUV.zw - vUV.xy) * atlasSize + 0.5);\r\n    vec2 origin    = floor(vUV.xy * atlasSize + 0.5);\r\n    vec2 textSize  = size * 2.0;\r\n    vec2 TextInterval = 1.0 / textSize;\r\n\r\n    float tlLUT = fetchIndex(uv, size, origin);\r\n    float trLUT = fetchIndex(uv + vec2(TextInterval.x, 0.0), size, origin);\r\n    float blLUT = fetchIndex(uv + vec2(0.0, TextInterval.y), size, origin);\r\n    float brLUT = fetchIndex(uv + TextInterval, size, origin);\r\n\r\n    vec4 transparent = vec4( 0.0, 0.0, 0.0, 0.0);\r\n\r\n    vec4 tl = tlLUT == 0.0 ? transparent : lookup(tlLUT);\r\n    vec4 tr = trLUT == 0.0 ? transparent : lookup(trLUT);\r\n    vec4 bl = blLUT == 0.0 ? transparent : lookup(blLUT);\r\n    vec4 br = brLUT == 0.0 ? transparent : lookup(brLUT);\r\n\r\n    vec2 f  = fract( uv.xy * textSize );\r\n    vec4 tA = mix( tl, tr, f.x );\r\n    vec4 tB = mix( bl, br, f.x );\r\n\r\n    return mix( tA, tB, f.y );\r\n}\r\n\r\n\r\nvoid main(void) {\r\n\r\n    // Don't render if it's not shown.\r\n    if (vColor.a == 0.0) {\r\n        discard;\r\n    }\r\n\r\n    // Calculate texture\r\n    vec4 textureSample;\r\n    if (abs(vSource.z + 1.0) > 0.5) { // a palette: not -1\r\n        textureSample = bilinearSample( vTextureCoord );\r\n    }\r\n    else if (vSource.x > 1.5) {\r\n        textureSample = texture( uRGBAAtlas, vec3(toTexture(vTextureCoord.st), vSource.y) );\r\n    }\r\n    else {\r\n        textureSample = texture( uDiffuse, toTexture(vTextureCoord.st) );\r\n    }\r\n\r\n    // No alpha, skip.\r\n    if ( textureSample.a == 0.0 )\r\n        discard;\r\n\r\n    // Apply shadow, apply color\r\n    textureSample.rgb   *= vShadow;\r\n    fragColor   = textureSample * vColor;\r\n\r\n    // Fog feature\r\n    if (uFogUse) {\r\n        float depth     = gl_FragCoord.z / gl_FragCoord.w;\r\n        float fogFactor = smoothstep( uFogNear, uFogFar, depth );\r\n        fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );\r\n    }\r\n}\r\n";
 }));
 //#endregion
 //#region src/Renderer/SpriteBatch.js
@@ -209230,7 +209571,6 @@ var init_SpriteBatch$1 = __esmMin((() => {
 */
 function init$12(gl) {
 	_gl$3 = gl;
-	_generation++;
 	_program$25 = WebGL_default.createShaderProgram(gl, SpriteBatch_default$1, SpriteBatch_default);
 	_quad = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, _quad);
@@ -209267,7 +209607,8 @@ function init$12(gl) {
 		"aOffsetSize",
 		"aColor",
 		"aUV",
-		"aAngleDepthShadowCap"
+		"aAngleDepthShadowCap",
+		"aSource"
 	]) {
 		gl.enableVertexAttribArray(attribute[name]);
 		gl.vertexAttribDivisor(attribute[name], 1);
@@ -209290,124 +209631,23 @@ function pointInstances(first) {
 	gl.vertexAttribPointer(attribute.aColor, 4, gl.FLOAT, false, STRIDE, base + 32);
 	gl.vertexAttribPointer(attribute.aUV, 4, gl.FLOAT, false, STRIDE, base + 48);
 	gl.vertexAttribPointer(attribute.aAngleDepthShadowCap, 4, gl.FLOAT, false, STRIDE, base + 64);
+	gl.vertexAttribPointer(attribute.aSource, 3, gl.FLOAT, false, STRIDE, base + 80);
 }
-/**
-* Pack every frame of a sprite file into atlas pages, one set for palette
-* frames and one for RGBA frames. Each frame gets frame._atlas, the page and
-* its rectangle, or null when it does not fit (it then keeps its own
-* texture). A frame is surrounded by a copy of its edge pixels, so sampling
-* past its edge reads what CLAMP_TO_EDGE read on its own texture.
-*
-* @param {WebGL2RenderingContext} gl
-* @param {object} spr - a compiled sprite file (Client.loadFile)
-*/
-function buildAtlas(gl, spr) {
-	const pages = [];
-	spr._atlasPages = pages;
-	spr._atlasGeneration = _generation;
-	const maxSize = Math.min(gl.getParameter(gl.MAX_TEXTURE_SIZE) || 4096, 4096);
-	const pageWidth = Math.min(ATLAS_WIDTH, maxSize);
-	for (const type of [0, 1]) {
-		const frames = [];
-		for (let i = 0; i < spr.frames.length; i++) {
-			const frame = spr.frames[i];
-			if (!frame || !!frame.type !== !!type) continue;
-			frame._atlas = null;
-			if (frame.data && frame.width > 0 && frame.height > 0 && frame.width + 2 <= pageWidth) frames.push(frame);
-		}
-		if (!frames.length) continue;
-		frames.sort((a, b) => b.height - a.height || b.width - a.width);
-		let page = null;
-		let x = 0, y = 0, shelf = 0;
-		const closePage = () => {
-			if (page) {
-				page.height = y + shelf;
-				pages.push(page);
-			}
-		};
-		for (const frame of frames) {
-			const w = frame.width + 2;
-			const h = frame.height + 2;
-			if (!page || x + w > pageWidth) {
-				y += shelf;
-				x = 0;
-				shelf = 0;
-			}
-			if (!page || y + h > maxSize) {
-				closePage();
-				page = {
-					type,
-					width: pageWidth,
-					height: 0,
-					frames: []
-				};
-				x = 0;
-				y = 0;
-				shelf = 0;
-			}
-			page.frames.push({
-				frame,
-				x: x + 1,
-				y: y + 1
-			});
-			x += w;
-			shelf = Math.max(shelf, h);
-		}
-		closePage();
-	}
-	for (const page of pages) uploadPage(gl, page);
-}
-/**
-* Copy a page's frames, with their edge pixels repeated around them, and
-* send it to the GPU.
-*/
-function uploadPage(gl, page) {
-	const width = page.width;
-	const height = page.height;
-	const rgba = page.type === 1;
-	const pixels = rgba ? new Uint32Array(width * height) : new Uint8Array(width * height);
-	for (const { frame, x, y } of page.frames) {
-		const fw = frame.width;
-		const fh = frame.height;
-		const src = rgba ? new Uint32Array(frame.data.buffer, frame.data.byteOffset, fw * fh) : frame.data;
-		for (let row = -1; row <= fh; row++) {
-			const srcRow = Math.min(Math.max(row, 0), fh - 1) * fw;
-			const dst = (y + row) * width + x;
-			pixels[dst - 1] = src[srcRow];
-			pixels.set(src.subarray(srcRow, srcRow + fw), dst);
-			pixels[dst + fw] = src[srcRow + fw - 1];
-		}
-		frame._atlas = {
-			page,
-			u0: x / width,
-			v0: y / height,
-			u1: (x + fw) / width,
-			v1: (y + fh) / height
-		};
-	}
-	page.frames = null;
-	const precision = GraphicsSettings.pixelPerfectSprites ? gl.NEAREST : rgba ? gl.LINEAR : gl.NEAREST;
-	const format = rgba ? gl.RGBA : gl.LUMINANCE;
-	page.texture = gl.createTexture();
-	gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-	gl.bindTexture(gl.TEXTURE_2D, page.texture);
-	gl.texImage2D(gl.TEXTURE_2D, 0, format, width, height, 0, format, gl.UNSIGNED_BYTE, rgba ? new Uint8Array(pixels.buffer) : pixels);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, precision);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, precision);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-}
-var mat4$22, FLOATS, STRIDE, ATLAS_WIDTH, QUEUE_SHADOW, QUEUE_MAIN, Queue$1, Run, _gl$3, _program$25, _vao, _quad, _instanceBuffer, _upload, _active$3, _generation, _queues, _modelView, _viewModel, _projection, _fogColor, _frame, _glState, SpriteBatch;
+var mat4$22, FLOATS, STRIDE, SOURCE_OWN, SOURCE_INDEX, SOURCE_RGBA, PALETTE_NONE, PALETTE_OWN, QUEUE_SHADOW, QUEUE_MAIN, Queue$1, Run, _gl$3, _program$25, _vao, _quad, _instanceBuffer, _upload, _active$3, _queues, _modelView, _viewModel, _projection, _fogColor, _frame, _glState, SpriteBatch;
 var init_SpriteBatch = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
-	init_Graphics();
+	init_SpriteAtlas();
 	init_SpriteBatch$2();
 	init_SpriteBatch$1();
 	mat4$22 = gl_matrix_default.mat4;
-	FLOATS = 20;
-	STRIDE = 80;
-	ATLAS_WIDTH = 2048;
+	FLOATS = 24;
+	STRIDE = 96;
+	SOURCE_OWN = 0;
+	SOURCE_INDEX = 1;
+	SOURCE_RGBA = 2;
+	PALETTE_NONE = -1;
+	PALETTE_OWN = -2;
 	QUEUE_SHADOW = 0;
 	QUEUE_MAIN = 1;
 	Queue$1 = class {
@@ -209451,7 +209691,6 @@ var init_SpriteBatch = __esmMin((() => {
 	_instanceBuffer = null;
 	_upload = /* @__PURE__ */ new Float32Array(0);
 	_active$3 = false;
-	_generation = 0;
 	_queues = [new Queue$1(), new Queue$1()];
 	_modelView = /* @__PURE__ */ new Float32Array(16);
 	_viewModel = /* @__PURE__ */ new Float32Array(16);
@@ -209478,6 +209717,14 @@ var init_SpriteBatch = __esmMin((() => {
 		*/
 		static SHADOW = QUEUE_SHADOW;
 		static MAIN = QUEUE_MAIN;
+		/**
+		* @type {number} sources and palettes, for the sprite's instance values
+		*/
+		static SOURCE_OWN = SOURCE_OWN;
+		static SOURCE_INDEX = SOURCE_INDEX;
+		static SOURCE_RGBA = SOURCE_RGBA;
+		static PALETTE_NONE = PALETTE_NONE;
+		static PALETTE_OWN = PALETTE_OWN;
 		/**
 		* @returns {boolean} a batch is open: SpriteRenderer records instead of drawing
 		*/
@@ -209508,6 +209755,8 @@ var init_SpriteBatch = __esmMin((() => {
 		static open(gl, state) {
 			if (!SpriteBatch.enabled || _active$3 || typeof gl.drawArraysInstanced !== "function") return false;
 			if (!_program$25 || _gl$3 !== gl) init$12(gl);
+			SpriteAtlas.init(gl);
+			SpriteAtlas.recyclePalettes();
 			_glState.depthTest = state.depthTest;
 			_glState.depthMask = state.depthMask;
 			_glState.blendOne = null;
@@ -209533,15 +209782,24 @@ var init_SpriteBatch = __esmMin((() => {
 			_active$3 = false;
 		}
 		/**
-		* The atlas rectangle of a frame, packing its sprite file on first use.
+		* Where a frame is in the shared atlas, packing its sprite file on first use.
 		*
 		* @param {object} spr - compiled sprite file
 		* @param {object} frame - one of spr.frames
-		* @returns {object|null} { page: { texture, width, height }, u0, v0, u1, v1 }
+		* @returns {object|null} { rgba, layer, u0, v0, u1, v1 }
 		*/
 		static atlasFor(spr, frame) {
-			if (!spr._atlasPages || spr._atlasGeneration !== _generation) buildAtlas(_gl$3, spr);
-			return frame._atlas || null;
+			return SpriteAtlas.frame(spr, frame);
+		}
+		/**
+		* The atlas row of a palette, or -1 when it has to stay on its own texture.
+		*
+		* @param {WebGLTexture} texture - the palette's texture
+		* @param {Uint8Array} data - its colours
+		* @returns {number}
+		*/
+		static paletteRow(texture, data) {
+			return SpriteAtlas.paletteRow(texture, data);
 		}
 		/**
 		* Forget every GPU object made on the lost context. The context object
@@ -209557,15 +209815,16 @@ var init_SpriteBatch = __esmMin((() => {
 			_active$3 = false;
 			_queues[QUEUE_SHADOW].clear();
 			_queues[QUEUE_MAIN].clear();
+			SpriteAtlas.contextRestored();
 		}
 		/**
 		* Record one sprite. Returns the offset in the queue's data where the
 		* caller writes the sprite's FLOATS values.
 		*
 		* @param {number} queue - SpriteBatch.SHADOW or SpriteBatch.MAIN
-		* @param {WebGLTexture} texture
-		* @param {WebGLTexture|null} palette
-		* @param {number} textSizeX - uTextSize, for palette sprites
+		* @param {WebGLTexture|null} texture - the sprite's own texture, null when it is in the atlas
+		* @param {WebGLTexture|null} palette - its own palette texture (PALETTE_OWN), or null
+		* @param {number} textSizeX - uTextSize, for its own texture and palette
 		* @param {number} textSizeY
 		* @param {boolean|null} blendOne - additive blend, or null for unchanged
 		* @param {boolean} depthTest
@@ -209576,7 +209835,7 @@ var init_SpriteBatch = __esmMin((() => {
 		static record(queue, texture, palette, textSizeX, textSizeY, blendOne, depthTest, depthMask, noCorrection) {
 			const q = _queues[queue];
 			let run = q.runCount ? q.runs[q.runCount - 1] : null;
-			if (!run || run.texture !== texture || run.palette !== palette || palette && (run.textSizeX !== textSizeX || run.textSizeY !== textSizeY) || run.blendOne !== blendOne || run.depthTest !== depthTest || run.depthMask !== depthMask || run.noCorrection !== noCorrection) {
+			if (!run || run.texture !== texture || run.palette !== palette || texture && palette && (run.textSizeX !== textSizeX || run.textSizeY !== textSizeY) || run.blendOne !== blendOne || run.depthTest !== depthTest || run.depthMask !== depthMask || run.noCorrection !== noCorrection) {
 				run = q.runs[q.runCount] || (q.runs[q.runCount] = new Run());
 				q.runCount++;
 				run.start = q.count;
@@ -209628,7 +209887,19 @@ var init_SpriteBatch = __esmMin((() => {
 			gl.uniform3fv(uniform.uFogColor, _fogColor);
 			gl.uniform1i(uniform.uDiffuse, 0);
 			gl.uniform1i(uniform.uPalette, 1);
-			let noCorrection = null, usePal = null, textSizeX = -1, textSizeY = -1, palette = null, draws = 0;
+			gl.uniform1i(uniform.uIndexAtlas, SpriteAtlas.UNIT_INDEX);
+			gl.uniform1i(uniform.uRGBAAtlas, SpriteAtlas.UNIT_RGBA);
+			gl.uniform1i(uniform.uPaletteAtlas, SpriteAtlas.UNIT_PALETTES);
+			const atlas = SpriteAtlas.textures;
+			gl.uniform2f(uniform.uIndexAtlasSize, atlas.indexSize, atlas.indexSize);
+			gl.activeTexture(gl.TEXTURE0 + SpriteAtlas.UNIT_INDEX);
+			gl.bindTexture(gl.TEXTURE_2D_ARRAY, atlas.index);
+			gl.activeTexture(gl.TEXTURE0 + SpriteAtlas.UNIT_RGBA);
+			gl.bindTexture(gl.TEXTURE_2D_ARRAY, atlas.rgba);
+			gl.activeTexture(gl.TEXTURE0 + SpriteAtlas.UNIT_PALETTES);
+			gl.bindTexture(gl.TEXTURE_2D, atlas.palettes);
+			gl.activeTexture(gl.TEXTURE0);
+			let noCorrection = null, texture = null, textSizeX = -1, textSizeY = -1, palette = null, draws = 0;
 			const play = (queue, base) => {
 				for (let r = 0; r < queue.runCount; r++) {
 					const run = queue.runs[r];
@@ -209643,17 +209914,15 @@ var init_SpriteBatch = __esmMin((() => {
 						gl.blendFunc(gl.SRC_ALPHA, run.blendOne ? gl.ONE : gl.ONE_MINUS_SRC_ALPHA);
 					}
 					if (run.noCorrection !== noCorrection) gl.uniform1i(uniform.uDisableDepthCorrection, noCorrection = run.noCorrection);
-					const pal = run.palette !== null;
-					if (pal !== usePal) gl.uniform1i(uniform.uUsePal, usePal = pal);
-					if (pal) {
-						if (run.palette !== palette) {
-							gl.activeTexture(gl.TEXTURE1);
-							gl.bindTexture(gl.TEXTURE_2D, palette = run.palette);
-							gl.activeTexture(gl.TEXTURE0);
-						}
-						if (run.textSizeX !== textSizeX || run.textSizeY !== textSizeY) gl.uniform2f(uniform.uTextSize, textSizeX = run.textSizeX, textSizeY = run.textSizeY);
+					if (run.palette !== null && run.palette !== palette) {
+						gl.activeTexture(gl.TEXTURE1);
+						gl.bindTexture(gl.TEXTURE_2D, palette = run.palette);
+						gl.activeTexture(gl.TEXTURE0);
 					}
-					gl.bindTexture(gl.TEXTURE_2D, run.texture);
+					if (run.texture !== null) {
+						if (run.palette !== null && (run.textSizeX !== textSizeX || run.textSizeY !== textSizeY)) gl.uniform2f(uniform.uTextSize, textSizeX = run.textSizeX, textSizeY = run.textSizeY);
+						if (run.texture !== texture) gl.bindTexture(gl.TEXTURE_2D, texture = run.texture);
+					}
 					pointInstances(base + run.start);
 					gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, run.count);
 					draws++;
@@ -209751,25 +210020,33 @@ function RecordCanvas3D(isBlendModeOne) {
 	if (isBlendModeOne === true || isBlendModeOne === false) _blendOne = isBlendModeOne;
 	const image = this.image;
 	let texture = image.texture;
-	const palette = image.palette;
+	let palette = image.palette;
+	let source = SpriteBatch.SOURCE_OWN;
+	let paletteRow = palette ? SpriteBatch.PALETTE_OWN : SpriteBatch.PALETTE_NONE;
+	let layer = 0;
 	let u0 = 0, v0 = 0, u1 = 1, v1 = 1;
-	let textSizeX = image.size[0];
-	let textSizeY = image.size[1];
 	if (image.frame && image.spr && image.frame.texture === texture) {
 		const rect = SpriteBatch.atlasFor(image.spr, image.frame);
-		if (rect) {
-			texture = rect.page.texture;
+		if (rect && rect.rgba === !palette) {
+			source = rect.rgba ? SpriteBatch.SOURCE_RGBA : SpriteBatch.SOURCE_INDEX;
+			texture = null;
+			layer = rect.layer;
 			u0 = rect.u0;
 			v0 = rect.v0;
 			u1 = rect.u1;
 			v1 = rect.v1;
-			textSizeX = 2 * rect.page.width;
-			textSizeY = 2 * rect.page.height;
+			if (palette) {
+				const row = SpriteBatch.paletteRow(palette, this.palette);
+				if (row >= 0) {
+					paletteRow = row;
+					palette = null;
+				}
+			}
 		}
 	}
 	image.frame = null;
 	image.spr = null;
-	const data = SpriteBatch.record(this.shadowQueue ? SpriteBatch.SHADOW : SpriteBatch.MAIN, texture, palette, textSizeX, textSizeY, _blendOne, _depthTest, _depthMask, !!this.disableDepthCorrection);
+	const data = SpriteBatch.record(this.shadowQueue ? SpriteBatch.SHADOW : SpriteBatch.MAIN, texture, palette, image.size[0], image.size[1], _blendOne, _depthTest, _depthMask, !!this.disableDepthCorrection);
 	let o = SpriteBatch.offset;
 	data[o++] = this.position[0];
 	data[o++] = this.position[1];
@@ -209790,7 +210067,10 @@ function RecordCanvas3D(isBlendModeOne) {
 	data[o++] = this.angle;
 	data[o++] = this.depth;
 	data[o++] = this.shadow;
-	data[o] = this.ignoreDepthMinCap ? 1 : 0;
+	data[o++] = this.ignoreDepthMinCap ? 1 : 0;
+	data[o++] = source;
+	data[o++] = layer;
+	data[o] = paletteRow;
 }
 /**
 * Convert a sprite frame (RGBA or palette-indexed) into canvas ImageData,
