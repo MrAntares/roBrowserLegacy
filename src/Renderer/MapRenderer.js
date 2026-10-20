@@ -112,6 +112,11 @@ class MapRenderer {
 	static _loadRequest = 0;
 
 	/**
+	 * @var {Array<function>} worker results of the map load in progress, held until the fade is over
+	 */
+	static _fadeQueue = [];
+
+	/**
 	 * @var {Float32Array} diffuse Modified diffuse color
 	 */
 	static diffuse = null;
@@ -166,24 +171,45 @@ class MapRenderer {
 			// Parse the filename (ugly RO)
 			const filename = mapname.replace(/\.gat$/i, '.rsw');
 
-			Background.setLoading(function () {
+			// The worker starts on the map now, while the screen fades to the
+			// loading image, rather than after the fade. What it sends back
+			// waits until the fade is done and the old map is freed, and is
+			// dropped if the load is cancelled meanwhile (loadStep, loadEvent).
+			// A cancelled load queues nothing more, and cancelLoad empties the queue.
+			let faded = false;
+			const waiting = [];
+			this._fadeQueue = waiting;
+			const afterFade =
+				fn =>
+				(...args) => {
+					if (faded) {
+						fn(...args);
+					} else if (loadId === MapRenderer._loadId) {
+						waiting.push(() => fn(...args));
+					}
+				};
+
+			// Hooking Thread
+			Thread.hook('MAP_PROGRESS', afterFade(loadEvent(onProgressUpdate)));
+			Thread.hook('MAP_WORLD', afterFade(loadEvent(onWorldComplete)));
+			Thread.hook('MAP_GROUND', afterFade(loadEvent(onGroundComplete)));
+			Thread.hook('MAP_ALTITUDE', afterFade(loadEvent(onAltitudeComplete)));
+			Thread.hook('MAP_MODELS', afterFade(loadEvent(onModelsComplete)));
+			Thread.hook('MAP_ANIMATED_MODEL', afterFade(loadEvent(onAnimatedModelComplete)));
+
+			// Start Loading
+			MapRenderer._loadRequest = Thread.send('LOAD_MAP', filename, afterFade(loadStep(loadId, onMapComplete)));
+
+			Background.setLoading(() => {
 				// Cancelled while the loading screen was coming up
 				if (loadId !== MapRenderer._loadId) {
 					return;
 				}
 
-				// Hooking Thread
-				Thread.hook('MAP_PROGRESS', loadEvent(onProgressUpdate));
-				Thread.hook('MAP_WORLD', loadEvent(onWorldComplete));
-				Thread.hook('MAP_GROUND', loadEvent(onGroundComplete));
-				Thread.hook('MAP_ALTITUDE', loadEvent(onAltitudeComplete));
-				Thread.hook('MAP_MODELS', loadEvent(onModelsComplete));
-				Thread.hook('MAP_ANIMATED_MODEL', loadEvent(onAnimatedModelComplete));
-
-				// Start Loading
 				MapRenderer.free();
 				Renderer.remove();
-				MapRenderer._loadRequest = Thread.send('LOAD_MAP', filename, loadStep(loadId, onMapComplete));
+				faded = true;
+				waiting.splice(0).forEach(fn => fn());
 			});
 
 			return;
@@ -216,6 +242,7 @@ class MapRenderer {
 	static cancelLoad() {
 		this._loadId++;
 		this._loadRequest = 0;
+		this._fadeQueue.length = 0;
 		this.loading = false;
 	}
 
