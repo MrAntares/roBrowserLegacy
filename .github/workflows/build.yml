@@ -38,18 +38,90 @@ jobs:
           set -o pipefail
           npm run bench 2>&1 | sed -r 's/\x1B\[[0-9;]*[A-Za-z]//g' | tee /tmp/bench.txt
 
-      - name: Bench no Job Summary
+      - name: Benchmark summary
         if: always()
+        shell: bash
         run: |
-          {
-            echo '## Benchmark'
-            echo
-            echo '| Bench | hz | min (ms) | max (ms) | mean (ms) | p75 | p99 | rme | samples |'
-            echo '|---|---:|---:|---:|---:|---:|---:|---:|---:|'
-            awk '$1 == "·" { printf "| %s | %s | %s | %s | %s | %s | %s | %s | %s |\n", $2, $3, $4, $5, $6, $7, $8, $11, $12 }' /tmp/bench.txt
-            echo
-            grep -E 'faster|slower' /tmp/bench.txt | sed 's/^ *//' | sed 's/^/**/; s/$/**/'
-          } >> "$GITHUB_STEP_SUMMARY"
+          node <<'NODE'
+          const fs = require('node:fs');
+          const outputPath = '/tmp/bench.txt';
+
+          if (!fs.existsSync(outputPath)) {
+            process.exit(0);
+          }
+
+          const raw = fs.readFileSync(outputPath, 'utf8');
+          const lines = raw.split(/\r?\n/);
+          const rows = [];
+          let currentTest = 'Benchmark';
+
+          for (const entry of lines) {
+            const line = entry.trim();
+            if (!line) continue;
+
+            if (/^[✓√]\s+/.test(line)) {
+              currentTest = line.replace(/^[✓√]\s+/, '').trim() || currentTest;
+              continue;
+            }
+
+            const match = line.match(
+              /^·\s+(.+?)\s+([0-9][0-9,]*(?:\.[0-9]+)?)\s+([0-9]+(?:\.[0-9]+)?)\s+([0-9]+(?:\.[0-9]+)?)\s+([0-9]+(?:\.[0-9]+)?)\s+([0-9]+(?:\.[0-9]+)?)\s+([0-9]+(?:\.[0-9]+)?)\s+([0-9]+(?:\.[0-9]+)?)\s+([0-9]+)\s*(.*)$/
+            );
+
+            if (match) {
+              const [
+                ,
+                bench,
+                hz,
+                min,
+                max,
+                mean,
+                p75,
+                p99,
+                rme,
+                samples,
+                result
+              ] = match;
+
+              rows.push({
+                test: currentTest,
+                bench: bench.trim(),
+                hz: hz.trim(),
+                min: min.trim(),
+                max: max.trim(),
+                mean: mean.trim(),
+                p75: p75.trim(),
+                p99: p99.trim(),
+                rme: rme.trim(),
+                samples: samples.trim(),
+                result: result.trim()
+              });
+            }
+          }
+
+          const summary = [
+            '## Benchmark',
+            '',
+            '| Test | Bench | hz | min (ms) | max (ms) | mean (ms) | p75 | p99 | rme | samples | Result |',
+            '|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---|',
+          ];
+
+          if (rows.length === 0) {
+            summary.push('');
+            summary.push('No benchmark rows were parsed from the logs.');
+            summary.push('```text');
+            summary.push(raw.trim());
+            summary.push('```');
+          } else {
+            for (const row of rows) {
+              summary.push(
+                `| ${row.test} | ${row.bench} | ${row.hz} | ${row.min} | ${row.max} | ${row.mean} | ${row.p75} | ${row.p99} | ${row.rme} | ${row.samples} | ${row.result || '-'} |`
+              );
+            }
+          }
+
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${summary.join('\n')}\n`);
+          NODE
 
       - name: Build project
         run: npm run build
