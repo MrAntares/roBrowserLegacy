@@ -14,6 +14,7 @@ import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import Entity from 'Renderer/Entity/Entity.js';
 import htmlText from './PvPTimer.html?raw';
 import cssText from './PvPTimer.css?raw';
+import whenDrawn from 'UI/WhenDrawn.js';
 
 const PvPTimer = new GUIComponent('PvPTimer', cssText);
 
@@ -54,11 +55,18 @@ let _taHideTimer = null;
 
 let isFirstTime = true;
 
+// The first show()'s banner is still to play: its sprite had not loaded,
+// or the timer was hidden before it did
+let _bannerPending = false;
+
 /**
  * Initialize UI
  */
 PvPTimer.init = function init() {
-	Client.loadFiles(
+	// Fetched when the window is first drawn, not on entering the map
+	// (UI/WhenDrawn.js).
+	const loadFiles = (files, callback) => whenDrawn(this._host, () => Client.loadFiles(files, callback));
+	loadFiles(
 		[
 			'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/timefont.act',
 			'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/timefont.spr',
@@ -70,6 +78,15 @@ PvPTimer.init = function init() {
 			_timefontSpr = tSpr;
 			_timeAtkAct = aAct;
 			_timeAtkSpr = aSpr;
+			// show() may have come first, while the fonts were loading
+			if (_timerInterval) {
+				renderTimer(((Date.now() / 1000) | 0) - _startTs);
+			}
+			// hidden again meanwhile, the next show() plays it
+			if (_bannerPending && this._host.style.display !== 'none') {
+				_bannerPending = false;
+				playTimeAttackBanner();
+			}
 		}
 	);
 
@@ -102,6 +119,7 @@ PvPTimer.onAppend = function onAppend() {
  */
 PvPTimer.onRemove = function onRemove() {
 	isFirstTime = true;
+	_bannerPending = false;
 	stopTimer();
 };
 
@@ -120,8 +138,12 @@ PvPTimer.show = function show() {
 	this._host.style.display = '';
 	startTimer();
 	if (isFirstTime === true) {
-		playTimeAttackBanner();
+		_bannerPending = true;
 		isFirstTime = false;
+	}
+	if (_bannerPending && _timeAtkAct) {
+		_bannerPending = false;
+		playTimeAttackBanner();
 	}
 };
 
