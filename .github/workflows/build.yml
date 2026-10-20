@@ -31,7 +31,10 @@ jobs:
         run: npm install
 
       - name: Run tests
-        run: npm test && npm bench --run
+        run: npm test
+
+      - name: Run benchmarks
+        run: npm run bench --run
 
       - name: Build project
         run: npm run build
