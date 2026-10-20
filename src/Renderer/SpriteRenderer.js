@@ -771,7 +771,7 @@ class SpriteRenderer {
 	 * @param {WebGL2RenderingContext} gl
 	 */
 	static beginBatch(gl) {
-		if (SpriteBatch.open(gl, _buffer, { depthTest: _depthTest, depthMask: _depthMask })) {
+		if (SpriteBatch.open(gl, { depthTest: _depthTest, depthMask: _depthMask })) {
 			_blendOne = null;
 		}
 	}

@@ -197,6 +197,14 @@ describe('SpriteBatch', () => {
 
 		expect(names(calls)).toContain('createVertexArray');
 		expect(wolf.frames[0]._atlas.page).not.toBe(page);
+
+		// Its vertex array reads a quad made on the restored context, not
+		// SpriteRenderer's, which still dates from before the loss
+		const quadData = calls.findIndex(c => c[0] === 'bufferData' && c[2].length === 16);
+		expect(quadData).toBeGreaterThan(-1);
+		const quad = calls[quadData - 1][2];
+		const vao = calls.findIndex(c => c[0] === 'bindVertexArray' && c[1]);
+		expect(calls.find((c, i) => i > vao && c[0] === 'bindBuffer')[2]).toBe(quad);
 		expect(calls.filter(c => c[0] === 'drawArraysInstanced')).toEqual([['drawArraysInstanced', 1]]);
 	});
 
