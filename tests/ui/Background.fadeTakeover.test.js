@@ -19,7 +19,7 @@ function advance(ms) {
 }
 
 const { default: Background } = await import('UI/Background.js');
-const overlay = () => [...document.body.children].find(el => el.style.zIndex === '1000');
+const overlay = () => [...document.body.children].find(el => el.style.zIndex === '1010');
 
 afterAll(() => {
 	getContext.mockRestore();
@@ -65,5 +65,60 @@ describe('Background transitions', () => {
 		expect(revealed).toHaveBeenCalledOnce();
 		advance(510);
 		expect(overlay()).toBeUndefined();
+	});
+});
+
+describe('Background depth while it is removed', () => {
+	const container = () => [...document.body.children].find(el => el.tagName === 'DIV' && el !== overlay());
+	const canvas = () => [...document.body.children].find(el => el.tagName === 'CANVAS');
+	const settle = () => {
+		for (let i = 0; i < 8; i++) advance(500);
+	};
+
+	it('keeps the image over the touch controls and under the black overlay until the screen is black', () => {
+		Background.setLoading();
+		settle();
+
+		Background.remove();
+		advance(250);
+		// The touch controls' host sits at 1000
+		expect(Number(container().style.zIndex)).toBeGreaterThan(1000);
+		expect(Number(canvas().style.zIndex)).toBeGreaterThan(1000);
+		expect(Number(overlay().style.zIndex)).toBeGreaterThan(Number(canvas().style.zIndex));
+
+		settle();
+		expect(container()).toBeUndefined();
+		expect(canvas()).toBeUndefined();
+	});
+
+	it('puts a background that replaces it during the fade to black back at its own depth', () => {
+		Background.setLoginBackground();
+		settle();
+		const depth = [container().style.zIndex, canvas().style.zIndex];
+
+		Background.remove();
+		advance(250);
+		Background.setLoginBackground();
+		expect(Number(container().style.zIndex)).toBeGreaterThan(1000);
+
+		// Still raised until the screen is black, then back where it was
+		advance(260);
+		expect([container().style.zIndex, canvas().style.zIndex]).toEqual(depth);
+		settle();
+		expect([container().style.zIndex, canvas().style.zIndex]).toEqual(depth);
+		expect(Number(container().style.zIndex)).toBeLessThan(50);
+	});
+
+	it('sets a background asked for during the fade back from black at the bottom', () => {
+		Background.remove();
+		advance(500);
+		advance(16);
+		expect(container()).toBeUndefined();
+
+		advance(100);
+		Background.setLoginBackground();
+		settle();
+		expect(Number(container().style.zIndex)).toBeLessThan(50);
+		expect(Number(canvas().style.zIndex)).toBeLessThan(50);
 	});
 });
