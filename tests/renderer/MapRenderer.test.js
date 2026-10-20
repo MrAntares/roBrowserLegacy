@@ -4,7 +4,7 @@ const mocks = vi.hoisted(() => ({
 	thread: { hook: vi.fn(), send: vi.fn() },
 	soundManager: { stop: vi.fn() },
 	bgm: { stop: vi.fn() },
-	uiManager: { removeComponents: vi.fn() },
+	uiManager: { removeComponents: vi.fn(), showErrorBox: vi.fn(() => ({ ui: { css: vi.fn() } })) },
 	background: {
 		remove: vi.fn(callback => callback()),
 		setLoading: vi.fn(),
@@ -31,7 +31,7 @@ const mocks = vi.hoisted(() => ({
 vi.mock('Core/Thread.js', () => ({ default: mocks.thread }));
 vi.mock('Audio/SoundManager.js', () => ({ default: mocks.soundManager }));
 vi.mock('Audio/BGM.js', () => ({ default: mocks.bgm }));
-vi.mock('DB/DBManager.js', () => ({ default: {} }));
+vi.mock('DB/DBManager.js', () => ({ default: { getMap: () => null } }));
 vi.mock('UI/UIManager.js', () => ({ default: mocks.uiManager }));
 vi.mock('UI/Background.js', () => ({ default: mocks.background }));
 vi.mock('UI/CursorManager.js', () => ({ default: mocks.cursor }));
@@ -112,6 +112,41 @@ describe('MapRenderer joystick restoration', () => {
 		expect(MapRenderer.loading).toBe(true);
 		expect(MapRenderer.currentMap).toBe('geffen.gat');
 	});
+
+	it('asks the worker for the new map before the loading fade, and holds its results until the fade is done', () => {
+		const free = vi.spyOn(MapRenderer, 'free').mockImplementation(() => {});
+		mocks.renderer.remove = vi.fn();
+
+		MapRenderer.setMap('geffen.gat');
+
+		// The worker already has the map...
+		const load = mocks.thread.send.mock.calls.find(([type]) => type === 'LOAD_MAP');
+		expect(load[1]).toBe('geffen.rsw');
+		expect(mocks.thread.send.mock.invocationCallOrder.at(-1)).toBeLessThan(
+			mocks.background.setLoading.mock.invocationCallOrder[0]
+		);
+
+		// ...but what it sends back waits for the fade, then the old map is freed first.
+		const hooks = Object.fromEntries(mocks.thread.hook.mock.calls);
+		const onComplete = load[2];
+		hooks.MAP_PROGRESS(50);
+		onComplete(false, 'nope');
+		expect(mocks.background.setPercent).not.toHaveBeenCalled();
+		expect(mocks.uiManager.showErrorBox).not.toHaveBeenCalled();
+		expect(free).not.toHaveBeenCalled();
+
+		mocks.background.setLoading.mock.calls[0][0]();
+		expect(free).toHaveBeenCalledOnce();
+		expect(mocks.renderer.remove).toHaveBeenCalledOnce();
+		expect(mocks.background.setPercent).toHaveBeenCalledWith(50);
+		expect(mocks.uiManager.showErrorBox).toHaveBeenCalledWith('nope');
+		expect(free.mock.invocationCallOrder[0]).toBeLessThan(mocks.background.setPercent.mock.invocationCallOrder[0]);
+
+		// Results after the fade go straight through.
+		hooks.MAP_PROGRESS(60);
+		expect(mocks.background.setPercent).toHaveBeenLastCalledWith(60);
+		free.mockRestore();
+	});
 });
 
 describe('MapRenderer.cancelLoad', () => {
@@ -133,18 +168,29 @@ describe('MapRenderer.cancelLoad', () => {
 		MapRenderer.free = originalFree;
 	});
 
-	it('does not start the worker once cancelled before the loading screen is up', () => {
+	it('drops a load cancelled before the loading screen is up, though the worker had started on it', () => {
 		let showLoading;
 		mocks.background.setLoading.mockImplementationOnce(callback => {
 			showLoading = callback;
 		});
+		mocks.thread.send.mockImplementation(name => (name === 'LOAD_MAP' ? 7 : undefined));
 
 		MapRenderer.setMap('geffen.gat');
+		const [, , onMapComplete] = mocks.thread.send.mock.calls.find(([name]) => name === 'LOAD_MAP');
+		const onProgress = mocks.thread.hook.mock.calls.find(([name]) => name === 'MAP_PROGRESS')[1];
+		onProgress(50, 7);
+		onMapComplete(true);
+
 		MapRenderer.cancelLoad();
 		showLoading();
+		onProgress(80, 7);
 
-		expect(mocks.thread.send).not.toHaveBeenCalled();
+		expect(MapRenderer.free).not.toHaveBeenCalled();
+		expect(mocks.background.setPercent).not.toHaveBeenCalled();
+		expect(mocks.background.remove).not.toHaveBeenCalled();
+		expect(MapRenderer.onLoad).not.toHaveBeenCalled();
 		expect(MapRenderer.loading).toBe(false);
+		mocks.thread.send.mockReset();
 	});
 
 	it('ignores the worker answers of a cancelled load', () => {

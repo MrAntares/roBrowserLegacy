@@ -166,24 +166,44 @@ class MapRenderer {
 			// Parse the filename (ugly RO)
 			const filename = mapname.replace(/\.gat$/i, '.rsw');
 
+			// The worker starts on the map now, while the screen fades to the
+			// loading image, rather than after the fade. What it sends back
+			// waits until the fade is done and the old map is freed, and is
+			// dropped if the load is cancelled meanwhile (loadStep, loadEvent).
+			let faded = false;
+			const waiting = [];
+			const afterFade =
+				fn =>
+				(...args) => {
+					if (faded) {
+						fn(...args);
+					} else {
+						waiting.push(() => fn(...args));
+					}
+				};
+
+			// Hooking Thread
+			Thread.hook('MAP_PROGRESS', afterFade(loadEvent(onProgressUpdate)));
+			Thread.hook('MAP_WORLD', afterFade(loadEvent(onWorldComplete)));
+			Thread.hook('MAP_GROUND', afterFade(loadEvent(onGroundComplete)));
+			Thread.hook('MAP_ALTITUDE', afterFade(loadEvent(onAltitudeComplete)));
+			Thread.hook('MAP_MODELS', afterFade(loadEvent(onModelsComplete)));
+			Thread.hook('MAP_ANIMATED_MODEL', afterFade(loadEvent(onAnimatedModelComplete)));
+
+			// Start Loading
+			MapRenderer._loadRequest = Thread.send('LOAD_MAP', filename, afterFade(loadStep(loadId, onMapComplete)));
+
 			Background.setLoading(function () {
 				// Cancelled while the loading screen was coming up
 				if (loadId !== MapRenderer._loadId) {
+					waiting.length = 0;
 					return;
 				}
 
-				// Hooking Thread
-				Thread.hook('MAP_PROGRESS', loadEvent(onProgressUpdate));
-				Thread.hook('MAP_WORLD', loadEvent(onWorldComplete));
-				Thread.hook('MAP_GROUND', loadEvent(onGroundComplete));
-				Thread.hook('MAP_ALTITUDE', loadEvent(onAltitudeComplete));
-				Thread.hook('MAP_MODELS', loadEvent(onModelsComplete));
-				Thread.hook('MAP_ANIMATED_MODEL', loadEvent(onAnimatedModelComplete));
-
-				// Start Loading
 				MapRenderer.free();
 				Renderer.remove();
-				MapRenderer._loadRequest = Thread.send('LOAD_MAP', filename, loadStep(loadId, onMapComplete));
+				faded = true;
+				waiting.splice(0).forEach(fn => fn());
 			});
 
 			return;
