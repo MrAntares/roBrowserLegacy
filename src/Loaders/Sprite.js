@@ -50,6 +50,7 @@ class SPR {
 	 * @param {ArrayBuffer} data - file content
 	 */
 	load(data) {
+		this._pal32Canvas = null;
 		this.fp = new BinaryReader(data);
 		this.header = this.fp.readBinaryString(2);
 		this.version = this.fp.readUByte() / 10 + this.fp.readUByte();
@@ -355,7 +356,15 @@ class SPR {
 			} else {
 				// Fallback JS
 				const data32 = new Uint32Array(imageData.data.buffer);
-				const frameData32 = new Uint32Array(frame.data.buffer, frame.data.byteOffset, pixelCount);
+				let frameData32;
+				if ((frame.data.byteOffset & 3) === 0) {
+					frameData32 = new Uint32Array(frame.data.buffer, frame.data.byteOffset, pixelCount);
+				} else {
+					frameData32 = new Uint32Array(pixelCount);
+					new Uint8Array(frameData32.buffer).set(
+						new Uint8Array(frame.data.buffer, frame.data.byteOffset, pixelCount * 4)
+					);
+				}
 				for (let y = 0; y < height; ++y) {
 					const srcRow = y * width;
 					const dstRow = (height - y - 1) * width; // Flip Y
@@ -390,18 +399,12 @@ class SPR {
 				const dstPtr = srcPtr + srcBytes;
 				const totalBytesNeeded = dstPtr + dstBytes;
 
-				let memoryGrew = false;
 				if (memory.buffer.byteLength < totalBytesNeeded) {
 					const additionalPages = Math.ceil((totalBytesNeeded - memory.buffer.byteLength) / 65536);
 					memory.grow(additionalPages);
-					memoryGrew = true;
 				}
 
-				// Copy pal32 if memory grew or palette was not initialized
-				if (memoryGrew || !this._pal32WasmInitialized) {
-					new Uint32Array(memory.buffer, palPtr, 256).set(pal32);
-					this._pal32WasmInitialized = true;
-				}
+				new Uint32Array(memory.buffer, palPtr, 256).set(pal32);
 
 				const frameBytes = new Uint8Array(frame.data.buffer, frame.data.byteOffset, srcBytes);
 				new Uint8Array(memory.buffer, srcPtr, srcBytes).set(frameBytes);
