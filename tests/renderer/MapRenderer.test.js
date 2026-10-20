@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 const mocks = vi.hoisted(() => ({
 	thread: { hook: vi.fn(), send: vi.fn() },
 	soundManager: { stop: vi.fn() },
-	bgm: { stop: vi.fn() },
+	bgm: { stop: vi.fn(), play: vi.fn() },
 	uiManager: { removeComponents: vi.fn(), showErrorBox: vi.fn(() => ({ ui: { css: vi.fn() } })) },
 	background: {
 		remove: vi.fn(callback => callback()),
@@ -19,12 +19,15 @@ const mocks = vi.hoisted(() => ({
 		stop: vi.fn(),
 		remove: vi.fn(),
 		getContext: vi.fn(() => ({})),
-		render: vi.fn()
+		render: vi.fn(),
+		init: vi.fn(),
+		show: vi.fn()
 	},
 	entityManager: { free: vi.fn() },
-	effectManager: { free: vi.fn() },
-	sky: { setUpCloudData: vi.fn() },
-	damage: { free: vi.fn() },
+	effectManager: { free: vi.fn(), init: vi.fn() },
+	screenEffects: { init: vi.fn(), startMapflagEffect: vi.fn() },
+	sky: { setUpCloudData: vi.fn(), init: vi.fn() },
+	damage: { free: vi.fn(), init: vi.fn() },
 	joystickUI: { onRestore: vi.fn() }
 }));
 
@@ -51,10 +54,10 @@ vi.mock('Renderer/Map/OccluderFade.js', () => ({ default: {} }));
 vi.mock('Renderer/GR2/GR2ModelRenderer.js', () => ({ default: {} }));
 vi.mock('Renderer/Map/Sounds.js', () => ({ default: {} }));
 vi.mock('Renderer/Map/Effects.js', () => ({ default: {} }));
-vi.mock('Renderer/SpriteRenderer.js', () => ({ default: {} }));
+vi.mock('Renderer/SpriteRenderer.js', () => ({ default: { init: vi.fn() } }));
 vi.mock('Renderer/EffectManager.js', () => ({ default: mocks.effectManager }));
 vi.mock('Renderer/SignboardManager.js', () => ({ default: {} }));
-vi.mock('Renderer/ScreenEffectManager.js', () => ({ default: {} }));
+vi.mock('Renderer/ScreenEffectManager.js', () => ({ default: mocks.screenEffects }));
 vi.mock('Renderer/Effects/Sky.js', () => ({ default: mocks.sky }));
 vi.mock('Renderer/Effects/Damage.js', () => ({ default: mocks.damage }));
 vi.mock('Preferences/Graphics.js', () => ({ default: {} }));
@@ -62,7 +65,7 @@ vi.mock('Preferences/Map.js', () => ({ default: { useFog: true } }));
 vi.mock('Utils/gl-matrix.js', () => ({ default: { mat4: {} } }));
 vi.mock('Network/PacketVerManager.js', () => ({ default: {} }));
 vi.mock('UI/Components/JoystickUI/JoystickUI.js', () => ({ default: mocks.joystickUI }));
-vi.mock('Renderer/Effects/PostProcess.js', () => ({ default: {} }));
+vi.mock('Renderer/Effects/PostProcess.js', () => ({ default: { register: () => {} } }));
 vi.mock('Renderer/Effects/Shaders/Bloom.js', () => ({ default: {} }));
 vi.mock('Renderer/Effects/Shaders/VerticalFlip.js', () => ({ default: {} }));
 vi.mock('Renderer/Effects/Shaders/GaussianBlur.js', () => ({ default: {} }));
@@ -72,7 +75,7 @@ vi.mock('Renderer/Effects/Shaders/Vibrance.js', () => ({ default: {} }));
 vi.mock('Renderer/Effects/Shaders/Cartoon.js', () => ({ default: {} }));
 vi.mock('Renderer/Effects/Shaders/Blind.js', () => ({ default: {} }));
 vi.mock('Renderer/Effects/Shaders/Upsampling.js', () => ({ default: {} }));
-vi.mock('Utils/WebGL.js', () => ({ default: {} }));
+vi.mock('Utils/WebGL.js', () => ({ default: { detectBadWebGL: () => false } }));
 
 const { default: MapRenderer } = await import('Renderer/MapRenderer.js');
 
@@ -152,6 +155,40 @@ describe('MapRenderer joystick restoration', () => {
 		expect(mocks.background.setPercent).toHaveBeenLastCalledWith(60);
 		free.mockRestore();
 		mocks.thread.send.mockReset();
+	});
+
+	it('starts the new map behind the closing fade, and hands over the mouse once the image is gone', () => {
+		vi.spyOn(MapRenderer, 'free').mockImplementation(() => {});
+		mocks.renderer.remove = vi.fn();
+		mocks.mouse.intersect = false;
+		let reveal;
+		mocks.background.remove.mockImplementationOnce(callback => (reveal = callback));
+
+		MapRenderer.setMap('geffen.gat');
+		mocks.background.setLoading.mock.calls[0][0]();
+		const onComplete = mocks.thread.send.mock.calls.find(([type]) => type === 'LOAD_MAP')[2];
+		onComplete(true);
+
+		// The map is set up and drawing under the loading image...
+		expect(MapRenderer.loading).toBe(false);
+		expect(MapRenderer.onLoad).toHaveBeenCalledOnce();
+		expect(mocks.renderer.show).toHaveBeenCalledOnce();
+		expect(mocks.renderer.render).toHaveBeenCalledOnce();
+		expect(MapRenderer.onLoad.mock.invocationCallOrder[0]).toBeLessThan(
+			mocks.background.remove.mock.invocationCallOrder[0]
+		);
+		expect(mocks.mouse.intersect).toBe(false);
+
+		// ...and a move the server sends meanwhile waits for the image to go.
+		MapRenderer.setMap('payon.gat');
+		expect(MapRenderer.currentMap).toBe('geffen.gat');
+		expect(mocks.background.setLoading).toHaveBeenCalledOnce();
+
+		reveal();
+		expect(mocks.mouse.intersect).toBe(true);
+		expect(MapRenderer.currentMap).toBe('payon.gat');
+		expect(mocks.background.setLoading).toHaveBeenCalledTimes(2);
+		MapRenderer.free.mockRestore();
 	});
 });
 
@@ -254,6 +291,29 @@ describe('MapRenderer.cancelLoad', () => {
 
 		expect(MapRenderer.onLoad).not.toHaveBeenCalled();
 		expect(mocks.renderer.render).not.toHaveBeenCalled();
+	});
+
+	it('drops the map change waiting behind a closing fade that is cancelled', () => {
+		mocks.renderer.remove = vi.fn();
+		mocks.mouse.intersect = false;
+		let reveal;
+		mocks.background.remove.mockImplementationOnce(callback => (reveal = callback));
+
+		MapRenderer.setMap('geffen.gat');
+		mocks.background.setLoading.mock.calls[0][0]();
+		mocks.thread.send.mock.calls.find(([type]) => type === 'LOAD_MAP')[2](true);
+		MapRenderer.setMap('payon.gat');
+
+		MapRenderer.cancelLoad();
+		reveal();
+
+		expect(mocks.mouse.intersect).toBe(false);
+		expect(mocks.background.setLoading).toHaveBeenCalledOnce();
+
+		// The next map the server sends loads at once
+		MapRenderer.setMap('izlude.gat');
+		expect(MapRenderer.currentMap).toBe('izlude.gat');
+		expect(mocks.background.setLoading).toHaveBeenCalledTimes(2);
 	});
 
 	it('lets the next map load after a cancel', () => {

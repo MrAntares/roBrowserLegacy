@@ -273,6 +273,11 @@ class Background {
 		const removal = {};
 		Background._removal = removal;
 
+		// Whatever is put on screen during the fade (the map behind, its
+		// windows) stays under the image until the screen is black.
+		_container.style.zIndex = '998';
+		_canvas.style.zIndex = '999';
+
 		transition(() => {
 			// A background set during the fade replaces the one this call was removing
 			if (Background._removal === removal) {
