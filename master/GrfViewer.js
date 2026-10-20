@@ -78555,9 +78555,10 @@ var init_Graphics = __esmMin((() => {
 		*/
 		cursor: true,
 		/**
-		* Game FPS Limit
+		* Game FPS Limit. -1: none, one frame per display refresh (rAF never runs
+		* faster than the display), which is also the smoothest
 		*/
-		fpslimit: 60,
+		fpslimit: -1,
 		/**
 		* Performance Mode
 		*/
@@ -209801,7 +209802,7 @@ var init_OccluderFade$1 = __esmMin((() => {
 }));
 //#endregion
 //#region src/Renderer/Map/OccluderFade.js
-var mat4$20, vec3$6, SHADER_INCLUDE, MODE, SETTING, QUERY, QUERY_RADIUS, FADE_IN_MS, FADE_OUT_MS, _inverse, _eye, _queries, _queryPending, _queryHit, _strength, _lastTick, OccluderFade;
+var mat4$20, vec3$6, SHADER_INCLUDE, MODE, SETTING, QUERY, QUERY_RADIUS, FADE_IN_MS, FADE_OUT_MS, _inverse, _eye, _queries, _queryPending, _queryHit, _strength, _lastTick$1, OccluderFade;
 var init_OccluderFade = __esmMin((() => {
 	init_OccluderFade$1();
 	init_Camera();
@@ -209835,7 +209836,7 @@ var init_OccluderFade = __esmMin((() => {
 	_queryPending = [false, false];
 	_queryHit = [false, false];
 	_strength = 0;
-	_lastTick = 0;
+	_lastTick$1 = 0;
 	OccluderFade = class OccluderFade {
 		static MODE = MODE;
 		static SETTING = SETTING;
@@ -209895,8 +209896,8 @@ var init_OccluderFade = __esmMin((() => {
 			_eye[0] = _inverse[12];
 			_eye[1] = _inverse[13];
 			_eye[2] = _inverse[14];
-			const dt = _lastTick ? Math.min(tick - _lastTick, 100) : 0;
-			_lastTick = tick;
+			const dt = _lastTick$1 ? Math.min(tick - _lastTick$1, 100) : 0;
+			_lastTick$1 = tick;
 			if (!OccluderFade.isActive()) {
 				_strength = 0;
 				return;
@@ -210013,7 +210014,7 @@ var init_OccluderFade = __esmMin((() => {
 				_queryHit[i] = false;
 			}
 			_strength = 0;
-			_lastTick = 0;
+			_lastTick$1 = 0;
 		}
 	};
 }));
@@ -233679,6 +233680,137 @@ var init_SoundOption = __esmMin((() => {
 	SoundOption_default = UIManager.addComponent(SoundOption);
 }));
 //#endregion
+//#region src/Renderer/FramePacer.js
+var SAMPLES, MIN_SAMPLES, MAX_INTERVAL, _intervals, _sorted, _count, _next$1, _lastTick, _frames, _framesLimit, FramePacer;
+var init_FramePacer = __esmMin((() => {
+	SAMPLES = 31;
+	MIN_SAMPLES = 8;
+	MAX_INTERVAL = 100;
+	_intervals = new Float32Array(SAMPLES);
+	_sorted = new Float32Array(SAMPLES);
+	_count = 0;
+	_next$1 = 0;
+	_lastTick = 0;
+	_frames = 0;
+	_framesLimit = 0;
+	FramePacer = class FramePacer {
+		/**
+		* Record a rAF callback, rendered or not
+		*
+		* @param {number} now rAF timestamp (ms)
+		*/
+		static sample(now) {
+			const interval = now - _lastTick;
+			_lastTick = now;
+			if (interval <= 0 || interval > MAX_INTERVAL) return;
+			_intervals[_next$1] = interval;
+			_next$1 = (_next$1 + 1) % SAMPLES;
+			_count = Math.min(_count + 1, SAMPLES);
+		}
+		/**
+		* Measured refresh interval: the mean of the middle half of the recent
+		* rAF intervals (robust to a stall, and to timestamps that jitter either
+		* side of the refresh, where a median picks one side), or 0 while there
+		* are too few
+		*
+		* @return {number} ms
+		*/
+		static refreshInterval() {
+			if (_count < MIN_SAMPLES) return 0;
+			const sorted = _sorted.subarray(0, _count);
+			sorted.set(_intervals.subarray(0, _count));
+			sorted.sort();
+			const from = _count >> 2;
+			const to = _count - from;
+			let sum = 0;
+			for (let i = from; i < to; ++i) sum += sorted[i];
+			return sum / (to - from);
+		}
+		/**
+		* How many refreshes each frame lasts, for a limit: the fewest that keep
+		* the frame rate at or under it. 1% of slack lets a 60.0x or 120.0x Hz
+		* display count as 60 or 120.
+		*
+		* Near the edge of the slack the last count chosen is kept: a display
+		* measured either side of it (60.6 Hz for 60) would otherwise switch on
+		* every few frames between pacing and the time limiter, and stutter. The
+		* band is 0.15% below the edge, wider than the estimate wanders with
+		* 0.1 ms of timestamp jitter (about 0.1%), so a display that really moves
+		* under the edge (60.5 Hz) gets the lower count back.
+		*
+		* @param {number} limit fps
+		* @param {number} refresh refresh interval (ms)
+		* @return {number} 1 or more
+		*/
+		static refreshesPerFrame(limit, refresh) {
+			const display = 1e3 / refresh;
+			const frames = Math.max(1, Math.ceil(display / (limit * 1.01)));
+			if (limit === _framesLimit && _frames === frames + 1 && display / frames > limit * 1.01 * .9985) return _frames;
+			return frames;
+		}
+		/**
+		* Whether frames can be paced evenly under a limit: the rate a whole
+		* number of refreshes gives is the display's own, or within 10% of it
+		*
+		* @param {number} limit fps
+		* @param {number} refresh refresh interval (ms)
+		* @return {boolean}
+		*/
+		static canPace(limit, refresh) {
+			const frames = FramePacer.refreshesPerFrame(limit, refresh);
+			return frames === 1 || 1e3 / refresh / frames >= limit * .9;
+		}
+		/**
+		* Whether a frame is due, and from when the next one counts
+		*
+		* @param {number} now rAF timestamp (ms)
+		* @param {number} last value returned for the previous frame
+		* @param {number} limit fps, above 0
+		* @return {number} the new `last` when a frame is due, or -1 to skip
+		*/
+		static next(now, last, limit) {
+			const elapsed = now - last;
+			const refresh = FramePacer.refreshInterval();
+			if (refresh) {
+				_frames = FramePacer.refreshesPerFrame(limit, refresh);
+				_framesLimit = limit;
+			}
+			if (!refresh || !FramePacer.canPace(limit, refresh)) {
+				const interval = 1e3 / limit;
+				return elapsed < interval ? -1 : now - elapsed % interval;
+			}
+			return elapsed < (_frames - .5) * refresh ? -1 : now;
+		}
+		/**
+		* The frame rate a limit is expected to give on this display: the display's
+		* own rate with no limit or a limit above it, the evenly paced rate when
+		* frames can be paced, otherwise the limit. With the refresh rate not known
+		* yet, the limit (0 when there is none).
+		*
+		* @param {number} limit fps, or 0 or less for none
+		* @return {number} fps
+		*/
+		static targetRate(limit) {
+			const refresh = FramePacer.refreshInterval();
+			if (!refresh) return limit > 0 ? limit : 0;
+			const display = 1e3 / refresh;
+			if (limit <= 0) return display;
+			if (!FramePacer.canPace(limit, refresh)) return Math.min(limit, display);
+			return display / FramePacer.refreshesPerFrame(limit, refresh);
+		}
+		/**
+		* Forget the measured refresh rate (for tests, or a display change)
+		*/
+		static reset() {
+			_count = 0;
+			_next$1 = 0;
+			_lastTick = 0;
+			_frames = 0;
+			_framesLimit = 0;
+		}
+	};
+}));
+//#endregion
 //#region src/UI/Components/FPS/FPS.html?raw
 var FPS_default$2;
 var init_FPS$2 = __esmMin((() => {
@@ -233696,6 +233828,7 @@ var FPS, _maxFPSRegistered, _minFPSRegistered, _tickFn, _preferences$33, FPS_def
 var init_FPS = __esmMin((() => {
 	init_Preferences$1();
 	init_Renderer();
+	init_FramePacer();
 	init_UIManager();
 	init_GUIComponent();
 	init_Elements();
@@ -233777,7 +233910,7 @@ var init_FPS = __esmMin((() => {
 					fpsLowEl.textContent = value;
 				}
 			}
-			const cls = getFPSClass(value, Renderer.frameLimit > 0 ? Renderer.frameLimit : _maxFPSRegistered);
+			const cls = getFPSClass(value, FramePacer.targetRate(Renderer.frameLimit) || _maxFPSRegistered);
 			if (cls !== lastClass) {
 				fpsRoot.style.color = FPS_COLORS[cls] || FPS_COLORS["fps-good"];
 				lastClass = cls;
@@ -233888,7 +234021,7 @@ var init_Context = __esmMin((() => {
 //#region src/UI/Components/GraphicsOption/GraphicsOption.html?raw
 var GraphicsOption_default$2;
 var init_GraphicsOption$2 = __esmMin((() => {
-	GraphicsOption_default$2 = "<div id=\"GraphicsOption\">\r\n	<div class=\"titlebar\" data-background=\"basic_interface/titlebar_mid.bmp\">\r\n		<div class=\"left\">\r\n			<button\r\n				class=\"base\"\r\n				data-background=\"basic_interface/sys_base_off.bmp\"\r\n				data-hover=\"basic_interface/sys_base_on.bmp\"\r\n			></button>\r\n			<span class=\"text\" data-text=\"1484\">Graphics Settings</span>\r\n		</div>\r\n		<div class=\"right\">\r\n			<button\r\n				class=\"base close\"\r\n				data-background=\"basic_interface/sys_close_off.bmp\"\r\n				data-hover=\"basic_interface/sys_close_on.bmp\"\r\n			></button>\r\n		</div>\r\n		<div class=\"clear\"></div>\r\n	</div>\r\n\r\n	<div class=\"tabs-container\">\r\n		<div class=\"tabs\">\r\n			<button class=\"tab-button selected\" data-tab=\"basic\">Basic</button>\r\n			<button class=\"tab-button\" data-tab=\"advanced\">Advanced</button>\r\n		</div>\r\n	</div>\r\n\r\n	<div class=\"panel\">\r\n		<div class=\"tab-content selected\" id=\"basic\">\r\n			<table>\r\n				<tr>\r\n					<td>Details</td>\r\n					<td style=\"display: inline-block; width: 260px\">\r\n						<input\r\n							class=\"details\"\r\n							type=\"range\"\r\n							value=\"100\"\r\n							max=\"100\"\r\n							min=\"25\"\r\n							step=\"5\"\r\n							style=\"width: 90%\"\r\n						/>\r\n					</td>\r\n				</tr>\r\n				<tr class=\"resolution\">\r\n					<td>Resolution</td>\r\n					<td>\r\n						<select class=\"screensize\">\r\n							<option value=\"650x480\">640 x 480</option>\r\n							<option value=\"800x600\">800 x 600</option>\r\n							<option value=\"1024x768\">1024 x 768</option>\r\n							<option value=\"1280x800\">1280 x 800</option>\r\n							<option value=\"1400x900\">1400 x 900</option>\r\n							<option value=\"1680x1050\">1680 x 1050</option>\r\n							<option value=\"full\">Full Screen</option>\r\n						</select>\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<td>Cursor</td>\r\n					<td>\r\n						<label>\r\n							<input class=\"cursor-option\" type=\"checkbox\" />\r\n							Show official cursor\r\n						</label>\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<td>FPS Limit</td>\r\n					<td>\r\n						<select class=\"fpslimit\">\r\n							<option value=\"-1\">Unlimited</option>\r\n							<option value=\"30\">30</option>\r\n							<option value=\"60\">60</option>\r\n							<option value=\"90\">90</option>\r\n							<option value=\"120\">120</option>\r\n						</select>\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<td>FPS Display</td>\r\n					<td>\r\n						<label>\r\n							<input class=\"fps\" type=\"checkbox\" />\r\n						</label>\r\n					</td>\r\n				</tr>\r\n			</table>\r\n		</div>\r\n\r\n		<div class=\"tab-content\" id=\"advanced\">\r\n			<table>\r\n				<tr>\r\n					<td title=\"Force nearest neighbor filtering for pixel-perfect sprite rendering\">\r\n						Pixel Perfect Sprites\r\n					</td>\r\n					<td>\r\n						<label>\r\n							<input class=\"pixel-perfect\" type=\"checkbox\" />\r\n							Force nearest neighbor filtering\r\n						</label>\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<td title=\"Add a glowing bloom effect to bright areas\">Bloom</td>\r\n					<td>\r\n						<label style=\"display: inline-block; margin-right: 20px\">\r\n							<input class=\"bloom\" type=\"checkbox\" />\r\n						</label>\r\n						<label style=\"display: inline-block; width: 200px\">\r\n							Intensity:\r\n							<input\r\n								class=\"bloom-intensity\"\r\n								type=\"range\"\r\n								value=\"0.5\"\r\n								min=\"0.1\"\r\n								max=\"3.0\"\r\n								step=\"0.05\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<td title=\"Apply a blur effect to the screen\">Blur</td>\r\n					<td>\r\n						<label style=\"display: inline-block; margin-right: 20px\">\r\n							<input class=\"blur\" type=\"checkbox\" />\r\n						</label>\r\n						<label style=\"display: inline-block; width: 90px\">\r\n							Intensity:\r\n							<input\r\n								class=\"blur-intensity\"\r\n								type=\"range\"\r\n								value=\"3.0\"\r\n								min=\"2.0\"\r\n								max=\"10.0\"\r\n								step=\"0.1\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n						<label style=\"display: inline-block; width: 90px\">\r\n							Area:\r\n							<input\r\n								class=\"blur-area\"\r\n								type=\"range\"\r\n								value=\"14.0\"\r\n								min=\"3.0\"\r\n								max=\"20.0\"\r\n								step=\"1.0\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<td title=\"Contrast Adaptive Sharpening for enhanced details\">Contr. Adapt. Sharp. (CAS)</td>\r\n					<td>\r\n						<label style=\"display: inline-block; margin-right: 20px\">\r\n							<input class=\"casEnabled\" type=\"checkbox\" />\r\n						</label>\r\n						<label style=\"display: inline-block; width: 90px\">\r\n							Contrast:\r\n							<input\r\n								class=\"casContrast\"\r\n								type=\"range\"\r\n								value=\"0.0\"\r\n								min=\"0.0\"\r\n								max=\"1.0\"\r\n								step=\"0.05\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n						<label style=\"display: inline-block; width: 90px\">\r\n							Sharpening:\r\n							<input\r\n								class=\"casSharpening\"\r\n								type=\"range\"\r\n								value=\"1.0\"\r\n								min=\"0.0\"\r\n								max=\"1.0\"\r\n								step=\"0.05\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<td title=\"Fast Approximate Anti-Aliasing for smoother edges\">FXAA</td>\r\n					<td>\r\n						<label style=\"display: inline-block; margin-right: 20px\">\r\n							<input class=\"fxaaEnabled\" type=\"checkbox\" />\r\n						</label>\r\n						<label style=\"display: inline-block; width: 90px\">\r\n							Subpix:\r\n							<input\r\n								class=\"fxaaSubpix\"\r\n								type=\"range\"\r\n								value=\"0.25\"\r\n								min=\"0.0\"\r\n								max=\"1.0\"\r\n								step=\"0.05\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n						<label style=\"display: inline-block; width: 90px\">\r\n							Edge Threshold:\r\n							<input\r\n								class=\"fxaaEdgeThreshold\"\r\n								type=\"range\"\r\n								value=\"0.125\"\r\n								min=\"0.063\"\r\n								max=\"0.333\"\r\n								step=\"0.03\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<td title=\"Cartoon rendering effect for stylized visuals\">Cartoon</td>\r\n					<td>\r\n						<label style=\"display: inline-block; margin-right: 20px\">\r\n							<input class=\"cartoonEnabled\" type=\"checkbox\" />\r\n						</label>\r\n						<label style=\"display: inline-block; width: 90px\">\r\n							Power:\r\n							<input\r\n								class=\"cartoonPower\"\r\n								type=\"range\"\r\n								value=\"1.5\"\r\n								min=\"0.1\"\r\n								max=\"9.9\"\r\n								step=\"0.1\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n						<label style=\"display: inline-block; width: 90px\">\r\n							Edge Slope:\r\n							<input\r\n								class=\"cartoonEdgeSlope\"\r\n								type=\"range\"\r\n								value=\"1.5\"\r\n								min=\"1.5\"\r\n								max=\"5.9\"\r\n								step=\"0.1\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<td title=\"Increase color intensity and saturation\">Vibrance</td>\r\n					<td>\r\n						<label style=\"display: inline-block; margin-right: 20px\">\r\n							<input class=\"vibranceEnabled\" type=\"checkbox\" />\r\n						</label>\r\n						<label style=\"display: inline-block; width: 200px\">\r\n							Intensity:\r\n							<input\r\n								class=\"vibrance\"\r\n								type=\"range\"\r\n								value=\"0.15\"\r\n								min=\"-0.9\"\r\n								max=\"0.9\"\r\n								step=\"0.1\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<td\r\n						title=\"Hide objects outside the viewing area, enable downsampling rendering and others to improve performance\"\r\n					>\r\n						Performance Mode\r\n					</td>\r\n					<td>\r\n						<label style=\"display: inline-block; margin-right: 20px\">\r\n							<input class=\"performanceMode\" type=\"checkbox\" />\r\n						</label>\r\n						<label style=\"display: inline-block; width: 200px\">\r\n							Culling Area:\r\n							<input\r\n								class=\"view-area\"\r\n								type=\"range\"\r\n								value=\"14.0\"\r\n								min=\"4.0\"\r\n								max=\"20.0\"\r\n								step=\"1.0\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<td\r\n						title=\"Make buildings and trees blocking the view of your character see-through (not in first person). Dither is cheaper, Alpha looks smoother.\"\r\n					>\r\n						See-through Occluders\r\n					</td>\r\n					<td>\r\n						<label style=\"display: inline-block; margin-right: 20px\">\r\n							<select class=\"occluderFade\">\r\n								<option value=\"off\">Off</option>\r\n								<option value=\"dither\">Dither (fast)</option>\r\n								<option value=\"alpha\">Alpha (smooth)</option>\r\n							</select>\r\n						</label>\r\n						<label style=\"display: inline-block; width: 120px\">\r\n							Opacity:\r\n							<input\r\n								class=\"occluderFadeOpacity\"\r\n								type=\"range\"\r\n								value=\"0.25\"\r\n								min=\"0.0\"\r\n								max=\"0.8\"\r\n								step=\"0.05\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n						<label style=\"display: inline-block; width: 120px\">\r\n							Area:\r\n							<input\r\n								class=\"occluderFadeRadius\"\r\n								type=\"range\"\r\n								value=\"5.0\"\r\n								min=\"1.5\"\r\n								max=\"12.5\"\r\n								step=\"0.5\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n					</td>\r\n				</tr>\r\n			</table>\r\n\r\n			<div class=\"reset-section\">\r\n				<button class=\"reset-button\">Reset to Default Values</button>\r\n			</div>\r\n		</div>\r\n	</div>\r\n</div>\r\n";
+	GraphicsOption_default$2 = "<div id=\"GraphicsOption\">\r\n	<div class=\"titlebar\" data-background=\"basic_interface/titlebar_mid.bmp\">\r\n		<div class=\"left\">\r\n			<button\r\n				class=\"base\"\r\n				data-background=\"basic_interface/sys_base_off.bmp\"\r\n				data-hover=\"basic_interface/sys_base_on.bmp\"\r\n			></button>\r\n			<span class=\"text\" data-text=\"1484\">Graphics Settings</span>\r\n		</div>\r\n		<div class=\"right\">\r\n			<button\r\n				class=\"base close\"\r\n				data-background=\"basic_interface/sys_close_off.bmp\"\r\n				data-hover=\"basic_interface/sys_close_on.bmp\"\r\n			></button>\r\n		</div>\r\n		<div class=\"clear\"></div>\r\n	</div>\r\n\r\n	<div class=\"tabs-container\">\r\n		<div class=\"tabs\">\r\n			<button class=\"tab-button selected\" data-tab=\"basic\">Basic</button>\r\n			<button class=\"tab-button\" data-tab=\"advanced\">Advanced</button>\r\n		</div>\r\n	</div>\r\n\r\n	<div class=\"panel\">\r\n		<div class=\"tab-content selected\" id=\"basic\">\r\n			<table>\r\n				<tr>\r\n					<td>Details</td>\r\n					<td style=\"display: inline-block; width: 260px\">\r\n						<input\r\n							class=\"details\"\r\n							type=\"range\"\r\n							value=\"100\"\r\n							max=\"100\"\r\n							min=\"25\"\r\n							step=\"5\"\r\n							style=\"width: 90%\"\r\n						/>\r\n					</td>\r\n				</tr>\r\n				<tr class=\"resolution\">\r\n					<td>Resolution</td>\r\n					<td>\r\n						<select class=\"screensize\">\r\n							<option value=\"650x480\">640 x 480</option>\r\n							<option value=\"800x600\">800 x 600</option>\r\n							<option value=\"1024x768\">1024 x 768</option>\r\n							<option value=\"1280x800\">1280 x 800</option>\r\n							<option value=\"1400x900\">1400 x 900</option>\r\n							<option value=\"1680x1050\">1680 x 1050</option>\r\n							<option value=\"full\">Full Screen</option>\r\n						</select>\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<td>Cursor</td>\r\n					<td>\r\n						<label>\r\n							<input class=\"cursor-option\" type=\"checkbox\" />\r\n							Show official cursor\r\n						</label>\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<td>FPS Limit</td>\r\n					<td>\r\n						<select class=\"fpslimit\">\r\n							<option value=\"-1\">Match display</option>\r\n							<option value=\"30\">30</option>\r\n							<option value=\"60\">60</option>\r\n							<option value=\"90\">90</option>\r\n							<option value=\"120\">120</option>\r\n						</select>\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<td>FPS Display</td>\r\n					<td>\r\n						<label>\r\n							<input class=\"fps\" type=\"checkbox\" />\r\n						</label>\r\n					</td>\r\n				</tr>\r\n			</table>\r\n		</div>\r\n\r\n		<div class=\"tab-content\" id=\"advanced\">\r\n			<table>\r\n				<tr>\r\n					<td title=\"Force nearest neighbor filtering for pixel-perfect sprite rendering\">\r\n						Pixel Perfect Sprites\r\n					</td>\r\n					<td>\r\n						<label>\r\n							<input class=\"pixel-perfect\" type=\"checkbox\" />\r\n							Force nearest neighbor filtering\r\n						</label>\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<td title=\"Add a glowing bloom effect to bright areas\">Bloom</td>\r\n					<td>\r\n						<label style=\"display: inline-block; margin-right: 20px\">\r\n							<input class=\"bloom\" type=\"checkbox\" />\r\n						</label>\r\n						<label style=\"display: inline-block; width: 200px\">\r\n							Intensity:\r\n							<input\r\n								class=\"bloom-intensity\"\r\n								type=\"range\"\r\n								value=\"0.5\"\r\n								min=\"0.1\"\r\n								max=\"3.0\"\r\n								step=\"0.05\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<td title=\"Apply a blur effect to the screen\">Blur</td>\r\n					<td>\r\n						<label style=\"display: inline-block; margin-right: 20px\">\r\n							<input class=\"blur\" type=\"checkbox\" />\r\n						</label>\r\n						<label style=\"display: inline-block; width: 90px\">\r\n							Intensity:\r\n							<input\r\n								class=\"blur-intensity\"\r\n								type=\"range\"\r\n								value=\"3.0\"\r\n								min=\"2.0\"\r\n								max=\"10.0\"\r\n								step=\"0.1\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n						<label style=\"display: inline-block; width: 90px\">\r\n							Area:\r\n							<input\r\n								class=\"blur-area\"\r\n								type=\"range\"\r\n								value=\"14.0\"\r\n								min=\"3.0\"\r\n								max=\"20.0\"\r\n								step=\"1.0\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<td title=\"Contrast Adaptive Sharpening for enhanced details\">Contr. Adapt. Sharp. (CAS)</td>\r\n					<td>\r\n						<label style=\"display: inline-block; margin-right: 20px\">\r\n							<input class=\"casEnabled\" type=\"checkbox\" />\r\n						</label>\r\n						<label style=\"display: inline-block; width: 90px\">\r\n							Contrast:\r\n							<input\r\n								class=\"casContrast\"\r\n								type=\"range\"\r\n								value=\"0.0\"\r\n								min=\"0.0\"\r\n								max=\"1.0\"\r\n								step=\"0.05\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n						<label style=\"display: inline-block; width: 90px\">\r\n							Sharpening:\r\n							<input\r\n								class=\"casSharpening\"\r\n								type=\"range\"\r\n								value=\"1.0\"\r\n								min=\"0.0\"\r\n								max=\"1.0\"\r\n								step=\"0.05\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<td title=\"Fast Approximate Anti-Aliasing for smoother edges\">FXAA</td>\r\n					<td>\r\n						<label style=\"display: inline-block; margin-right: 20px\">\r\n							<input class=\"fxaaEnabled\" type=\"checkbox\" />\r\n						</label>\r\n						<label style=\"display: inline-block; width: 90px\">\r\n							Subpix:\r\n							<input\r\n								class=\"fxaaSubpix\"\r\n								type=\"range\"\r\n								value=\"0.25\"\r\n								min=\"0.0\"\r\n								max=\"1.0\"\r\n								step=\"0.05\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n						<label style=\"display: inline-block; width: 90px\">\r\n							Edge Threshold:\r\n							<input\r\n								class=\"fxaaEdgeThreshold\"\r\n								type=\"range\"\r\n								value=\"0.125\"\r\n								min=\"0.063\"\r\n								max=\"0.333\"\r\n								step=\"0.03\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<td title=\"Cartoon rendering effect for stylized visuals\">Cartoon</td>\r\n					<td>\r\n						<label style=\"display: inline-block; margin-right: 20px\">\r\n							<input class=\"cartoonEnabled\" type=\"checkbox\" />\r\n						</label>\r\n						<label style=\"display: inline-block; width: 90px\">\r\n							Power:\r\n							<input\r\n								class=\"cartoonPower\"\r\n								type=\"range\"\r\n								value=\"1.5\"\r\n								min=\"0.1\"\r\n								max=\"9.9\"\r\n								step=\"0.1\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n						<label style=\"display: inline-block; width: 90px\">\r\n							Edge Slope:\r\n							<input\r\n								class=\"cartoonEdgeSlope\"\r\n								type=\"range\"\r\n								value=\"1.5\"\r\n								min=\"1.5\"\r\n								max=\"5.9\"\r\n								step=\"0.1\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<td title=\"Increase color intensity and saturation\">Vibrance</td>\r\n					<td>\r\n						<label style=\"display: inline-block; margin-right: 20px\">\r\n							<input class=\"vibranceEnabled\" type=\"checkbox\" />\r\n						</label>\r\n						<label style=\"display: inline-block; width: 200px\">\r\n							Intensity:\r\n							<input\r\n								class=\"vibrance\"\r\n								type=\"range\"\r\n								value=\"0.15\"\r\n								min=\"-0.9\"\r\n								max=\"0.9\"\r\n								step=\"0.1\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<td\r\n						title=\"Hide objects outside the viewing area, enable downsampling rendering and others to improve performance\"\r\n					>\r\n						Performance Mode\r\n					</td>\r\n					<td>\r\n						<label style=\"display: inline-block; margin-right: 20px\">\r\n							<input class=\"performanceMode\" type=\"checkbox\" />\r\n						</label>\r\n						<label style=\"display: inline-block; width: 200px\">\r\n							Culling Area:\r\n							<input\r\n								class=\"view-area\"\r\n								type=\"range\"\r\n								value=\"14.0\"\r\n								min=\"4.0\"\r\n								max=\"20.0\"\r\n								step=\"1.0\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n					</td>\r\n				</tr>\r\n				<tr>\r\n					<td\r\n						title=\"Make buildings and trees blocking the view of your character see-through (not in first person). Dither is cheaper, Alpha looks smoother.\"\r\n					>\r\n						See-through Occluders\r\n					</td>\r\n					<td>\r\n						<label style=\"display: inline-block; margin-right: 20px\">\r\n							<select class=\"occluderFade\">\r\n								<option value=\"off\">Off</option>\r\n								<option value=\"dither\">Dither (fast)</option>\r\n								<option value=\"alpha\">Alpha (smooth)</option>\r\n							</select>\r\n						</label>\r\n						<label style=\"display: inline-block; width: 120px\">\r\n							Opacity:\r\n							<input\r\n								class=\"occluderFadeOpacity\"\r\n								type=\"range\"\r\n								value=\"0.25\"\r\n								min=\"0.0\"\r\n								max=\"0.8\"\r\n								step=\"0.05\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n						<label style=\"display: inline-block; width: 120px\">\r\n							Area:\r\n							<input\r\n								class=\"occluderFadeRadius\"\r\n								type=\"range\"\r\n								value=\"5.0\"\r\n								min=\"1.5\"\r\n								max=\"12.5\"\r\n								step=\"0.5\"\r\n								style=\"width: 90%; vertical-align: middle\"\r\n							/>\r\n						</label>\r\n					</td>\r\n				</tr>\r\n			</table>\r\n\r\n			<div class=\"reset-section\">\r\n				<button class=\"reset-button\">Reset to Default Values</button>\r\n			</div>\r\n		</div>\r\n	</div>\r\n</div>\r\n";
 }));
 //#endregion
 //#region src/UI/Components/GraphicsOption/GraphicsOption.css?raw
@@ -263141,6 +263274,7 @@ var init_Renderer = __esmMin((() => {
 	init_SessionStorage();
 	init_PostProcess();
 	init_MemoryManager();
+	init_FramePacer();
 	init_preload_helper();
 	({mat4: mat4$9} = gl_matrix_default);
 	_requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function(callback) {
@@ -263336,6 +263470,7 @@ var init_Renderer = __esmMin((() => {
 			if (this.contextLost) return;
 			const now = typeof time === "number" ? time : Date.now();
 			if (!this._renderBound) this._renderBound = this._render.bind(this);
+			if (typeof time === "number") FramePacer.sample(now);
 			if (typeof this._lastFrameTime === "undefined" || this._lastFrameTime === 0) {
 				this._lastFrameTime = now;
 				if (!this.tick) this.tick = Date.now();
@@ -263343,13 +263478,12 @@ var init_Renderer = __esmMin((() => {
 			if (!SessionStorage_default.Playing && (this.frameLimit <= 0 || this.frameLimit > 60)) this.frameLimit = 60;
 			else if (SessionStorage_default.Playing && this.frameLimit !== GraphicsSettings.fpslimit) this.frameLimit = GraphicsSettings.fpslimit;
 			if (this.frameLimit > 0) {
-				const interval = 1e3 / this.frameLimit;
-				const elapsed = now - this._lastFrameTime;
-				if (elapsed < interval) {
+				const next = FramePacer.next(now, this._lastFrameTime, this.frameLimit);
+				if (next < 0) {
 					this.updateId = _requestAnimationFrame(this._renderBound);
 					return;
 				}
-				this._lastFrameTime = now - elapsed % interval;
+				this._lastFrameTime = next;
 			} else this._lastFrameTime = now;
 			const newTick = Date.now();
 			SessionStorage_default.serverTick += newTick - this.tick;
