@@ -141,4 +141,77 @@ describe('MapLoader', () => {
 		expect(compile).not.toHaveBeenCalled();
 		compile.mockRestore();
 	});
+
+	it('loads at most six files at once across all the steps, and a step\'s own files go first', async () => {
+		const loader = new MapLoader();
+		loader.ondata = () => {};
+		loader.onload = () => {};
+		loader.load('map.rsw');
+
+		const models = Array.from({ length: 10 }, (_, i) => ({ filename: `m${i}.rsm` }));
+		const many = {
+			...ground,
+			textures: ['t1.bmp', 't2.bmp', 't3.bmp'],
+			compile: () => ({ textures: ['t1.bmp', 't2.bmp', 't3.bmp'], waterVertCount: 1 })
+		};
+		answer('data\\map.rsw', { ...world, models, water: { ...world.water, type: 0 } });
+		await settle();
+		answer('data\\map.gnd', many);
+		await settle();
+
+		// The altitude and five early files
+		expect(files.pending.size).toBe(6);
+		expect([...files.pending.keys()]).toEqual([
+			'data\\map.gat',
+			'data\\texture\\t1.bmp',
+			'data\\texture\\t2.bmp',
+			'data\\texture\\t3.bmp',
+			'data\\model\\m0.rsm',
+			'data\\model\\m1.rsm'
+		]);
+
+		// The ground step needs the water images, not asked for early: they go
+		// before the models still waiting.
+		answer('data\\map.gat', altitude);
+		await settle();
+		answer('data\\model\\m0.rsm', { ...model });
+		await settle();
+		expect(files.asked.at(-1)).toMatch(/water000\.jpg$/);
+		expect(files.pending.size).toBe(6);
+	});
+
+	it.each([
+		['before', true],
+		['after', false]
+	])('frees the early textures when the altitude is missing, with the ground arriving %s it', async (_when, groundFirst) => {
+		const revoke = vi.fn();
+		vi.stubGlobal('URL', { ...URL, revokeObjectURL: revoke });
+
+		const loader = new MapLoader();
+		loader.ondata = () => {};
+		loader.onload = () => {};
+		loader.load('map.rsw');
+
+		answer('data\\map.rsw', { ...world, models: [] });
+		await settle();
+		if (groundFirst) {
+			answer('data\\map.gnd', ground);
+			await settle();
+			answer('data\\texture\\t1.bmp', 'blob:t1');
+			answer('data\\map.gat', null);
+			await settle();
+			answer('data\\texture\\t2.bmp', 'blob:t2');
+		} else {
+			answer('data\\map.gat', null);
+			await settle();
+			answer('data\\map.gnd', ground);
+			await settle();
+		}
+		await settle();
+
+		expect(revoke.mock.calls.map(call => call[0]).sort()).toEqual(groundFirst ? ['blob:t1', 'blob:t2'] : []);
+		// Nothing more is asked for once the load has failed
+		expect(files.pending.size).toBe(0);
+		vi.unstubAllGlobals();
+	});
 });
