@@ -1529,17 +1529,22 @@ class DB {
 	 * is shield checking
 	 *
 	 * The left-hand slot can hold either an item ID or a view ID (ClassNum, <= 500).
-	 * View IDs (1-500) default to shields unless explicitly flagged as an offhand weapon.
+	 * Shield views and weapon views share the same numeric range (1-500).
+	 *
+	 * When reliable offhand information is known (isOffhandWeapon === true/false),
+	 * that flag distinguishes weapons from shields.
+	 * When unknown (isOffhandWeapon === undefined), job-based dual-wield fallback is used:
+	 * assassins with ambiguous view IDs (<= 500) fall back to offhand weapon.
 	 *
 	 * @param {integer} id item id or view id
 	 * @param {integer} [job] job id of the owner
-	 * @param {boolean} [isOffhandWeapon] explicitly marks the equipment as an offhand weapon
+	 * @param {boolean} [isOffhandWeapon] explicitly marks whether the equipment is an offhand weapon
 	 * @return {boolean} is shield?
 	 *
 	 * @author MrUnzO
 	 */
-	static isShield(id, job, isOffhandWeapon = false) {
-		if (isOffhandWeapon) {
+	static isShield(id, job, isOffhandWeapon) {
+		if (isOffhandWeapon === true) {
 			return false;
 		}
 
@@ -1549,6 +1554,16 @@ class DB {
 
 		// Any other item ID is not a shield (offhand weapon)
 		if (id > 500) {
+			return false;
+		}
+
+		if (isOffhandWeapon === false) {
+			return id > 0;
+		}
+
+		// View ID: ambiguous between shield view and weapon view.
+		// When offhand weapon status is unknown, preserve assassin dual-wield fallback.
+		if (id > 0 && job !== undefined && DB.isAssassin(job)) {
 			return false;
 		}
 
@@ -2114,7 +2129,7 @@ class DB {
 		}
 
 		// Dual weapon (based on range id)
-		if (!DB.isShield(id, job)) {
+		if (!DB.isShield(id, job, false)) {
 			return DB.getWeaponPath(id, job, sex);
 		}
 
