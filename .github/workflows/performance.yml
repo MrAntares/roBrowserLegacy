@@ -1,4 +1,4 @@
-name: perf
+name: Benchmark
 
 on:
   pull_request:
@@ -14,16 +14,15 @@ jobs:
       NO_COLOR: "1"
     steps:
       - name: Checkout PR
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
-          cache: npm
 
-      - name: Prepare the base (master) in a separate worktree
+      - name: Prepara a base (master) em worktree separado
         run: |
           git worktree add /tmp/base ${{ github.event.pull_request.base.sha }}
           mkdir -p /tmp/base/tests/bench
@@ -32,12 +31,14 @@ jobs:
       - name: Bench base
         working-directory: /tmp/base
         run: |
-          npm ci
+          set -o pipefail
+          npm install --no-audit --no-fund
           npx vitest bench --run tests/bench/ --outputJson /tmp/base.json | tee /tmp/base.txt
 
-      - name: Bench PR (compare with base)
+      - name: Bench PR (compara com a base)
         run: |
-          npm ci
+          set -o pipefail
+          npm install --no-audit --no-fund
           npx vitest bench --run tests/bench/ --compare /tmp/base.json | tee /tmp/head.txt
 
       - name: Post in Job Summary
