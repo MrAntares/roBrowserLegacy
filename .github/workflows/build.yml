@@ -31,15 +31,17 @@ jobs:
         run: npm install
 
       - name: Test & bench
+        env:
+          NO_COLOR: "1"
+          FORCE_COLOR: "0"
         run: |
           set -o pipefail
           npm test
-          npm run bench --run | tee /tmp/bench.txt
-
+          npm run bench 2>&1 --run | sed -r 's/\x1B\[[0-9;]*[A-Za-z]//g' | tee /tmp/bench.txt
       - name: Bench no Job Summary
         if: always()
         run: |
-          { echo '## Benchmark'; echo ''; cat /tmp/bench.txt 2>/dev/null; echo ''; } >> "$GITHUB_STEP_SUMMARY"
+          { echo '## Benchmark'; cat /tmp/bench.txt 2>/dev/null; } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Build project
         run: npm run build
