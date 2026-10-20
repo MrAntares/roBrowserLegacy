@@ -23,6 +23,7 @@ import Camera from 'Renderer/Camera.js';
 import Session from 'Engine/SessionStorage.js';
 import PostProcess from 'Renderer/Effects/PostProcess.js';
 import MemoryManager from 'Core/MemoryManager.js';
+import PerfProbe from 'Core/PerfProbe.js';
 
 const { mat4 } = glMatrix;
 
@@ -145,6 +146,9 @@ class Renderer {
 
 			this.gl = WebGL.getContext(this.canvas, param);
 			this.isWebGL2 = WebGL.isWebGL2(this.gl);
+
+			// Switches the probe on when the configuration asks for it (Core/PerfProbe.js)
+			PerfProbe.attach(this.gl);
 
 			if (typeof console !== 'undefined' && console.info) {
 				console.info('Renderer using WebGL ' + (this.isWebGL2 ? '2' : '1') + ' context');
@@ -370,6 +374,10 @@ class Renderer {
 			this._lastFrameTime = now;
 		}
 
+		if (PerfProbe.enabled) {
+			PerfProbe.frameStart(now);
+		}
+
 		// Use Date.now for serverTick and Events processing, to keep existing behavior intact
 		const newTick = Date.now();
 
@@ -408,6 +416,10 @@ class Renderer {
 		}
 
 		Cursor.render(this.tick);
+
+		if (PerfProbe.enabled) {
+			PerfProbe.frameEnd();
+		}
 
 		// Schedule next frame
 		this.updateId = _requestAnimationFrame(this._renderBound);
