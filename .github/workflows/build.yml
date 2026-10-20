@@ -40,41 +40,49 @@ jobs:
 
       - name: Bench no Job Summary
         if: always()
+        shell: bash
         run: |
           node <<'NODE'
           const fs = require('node:fs');
-          const input = '/tmp/bench.txt';
 
+          const input = '/tmp/bench.txt';
           if (!fs.existsSync(input)) {
             process.exit(0);
           }
 
+          const order = [];
           const groups = new Map();
-          let currentTest = 'Benchmark';
 
-          function addBenchmark(testName, bench) {
+          const ensureGroup = (testName) => {
             if (!groups.has(testName)) {
-              groups.set(testName, []);
+              groups.set(testName, { rows: [], speed: null });
+              order.push(testName);
             }
-            groups.get(testName).push(bench);
-          }
+            return groups.get(testName);
+          };
 
-          for (const rawLine of fs.readFileSync(input, 'utf8').split(/\r?\n/)) {
-            const line = rawLine.trim();
+          const lines = fs.readFileSync(input, 'utf8').split(/\r?\n/);
+
+          for (const raw of lines) {
+            const line = raw.trim();
             if (!line) continue;
 
+            // Ex: ✓ tests/bench/paletteConvert.bench.js > palette convert 256x256 11131ms
             if (/^[✓√]\s+/.test(line)) {
-              currentTest = line.replace(/^[✓√]\s+/, '').trim() || currentTest;
+              const testName = line.replace(/^[✓√]\s+/, '').trim();
+              ensureGroup(testName);
               continue;
             }
 
+            // Ex: · JS 7,736.53 0.0895 4.4356 ...
             const benchMatch = line.match(
               /^·\s+(\S+)\s+([0-9][0-9,]*(?:\.[0-9]+)?)\s+([0-9]+(?:\.[0-9]+)?)\s+([0-9]+(?:\.[0-9]+)?)\s+([0-9]+(?:\.[0-9]+)?)\s+([0-9]+(?:\.[0-9]+)?)\s+([0-9]+(?:\.[0-9]+)?)\s+([^\s]+)\s+([0-9]+)\s*$/
             );
 
             if (benchMatch) {
               const [, bench, hz, min, max, mean, p75, p99, rme, samples] = benchMatch;
-              addBenchmark(currentTest, {
+              const group = ensureGroup(currentTestName);
+              group.rows.push({
                 bench,
                 hz,
                 min,
@@ -88,44 +96,48 @@ jobs:
               continue;
             }
 
+            // Ex: WASM - tests/bench/paletteConvert.bench.js > palette convert 256x256
+            //     1.37x faster than JS
+            const speedMatch = line.match(/^WASM\s*-\s*(.+)$/i);
+            if (speedMatch) {
+              const name = speedMatch[1].trim();
+              const group = ensureGroup(name);
+              continue;
+            }
+
             const fasterMatch = line.match(/^([0-9]+(?:\.[0-9]+)?)x\s+(faster|slower)\s+than\s+(.+)$/i);
             if (fasterMatch) {
               const [, value, direction, target] = fasterMatch;
-              const rows = groups.get(currentTest) || [];
-              if (rows.length) {
-                rows[rows.length - 1].speed = `${value}x ${direction} than ${target}`;
+              const lastTest = order[order.length - 1];
+              if (lastTest) {
+                groups.get(lastTest).speed = `${value}x ${direction} than ${target}`;
               }
             }
           }
 
           const summary = ['## Benchmark', ''];
 
-          if (groups.size === 0) {
-            summary.push('No benchmark rows were parsed from the logs.');
-            summary.push('```text');
-            summary.push(fs.readFileSync(input, 'utf8').trim());
-            summary.push('```');
-          } else {
-            for (const [testName, rows] of groups.entries()) {
-              summary.push(`### ${testName}`);
-              summary.push('');
-              summary.push('| Bench | hz | min (ms) | max (ms) | mean (ms) | p75 | p99 | rme | samples |');
-              summary.push('|---|---:|---:|---:|---:|---:|---:|---:|---:|');
+          for (const testName of order) {
+            const group = groups.get(testName);
+            if (!group || !group.rows.length) continue;
 
-              for (const row of rows) {
-                summary.push(
-                  `| ${row.bench} | ${row.hz} | ${row.min} | ${row.max} | ${row.mean} | ${row.p75} | ${row.p99} | ${row.rme} | ${row.samples} |`
-                );
-              }
+            summary.push(`### ${testName}`);
+            summary.push('');
+            summary.push('| Bench | hz | min (ms) | max (ms) | mean (ms) | p75 | p99 | rme | samples |');
+            summary.push('|---|---:|---:|---:|---:|---:|---:|---:|---:|');
 
-              const speedText = rows.find(row => row.speed)?.speed;
-              if (speedText) {
-                summary.push('');
-                summary.push(`**${speedText}**`);
-              }
-
-              summary.push('');
+            for (const row of group.rows) {
+              summary.push(
+                `| ${row.bench} | ${row.hz} | ${row.min} | ${row.max} | ${row.mean} | ${row.p75} | ${row.p99} | ${row.rme} | ${row.samples} |`
+              );
             }
+
+            if (group.speed) {
+              summary.push('');
+              summary.push(`**${group.speed}**`);
+            }
+
+            summary.push('');
           }
 
           fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${summary.join('\n')}\n`);
