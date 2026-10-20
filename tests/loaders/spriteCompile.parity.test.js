@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import { getSpriteCompileWasm, SPRITE_COMPILE_WASM_BASE64 } from 'Loaders/wasm/spriteCompile.js';
@@ -67,5 +67,52 @@ describe('spriteCompile.wat em sincronia com o Base64', () => {
 		const { buffer } = mod.toBinary({});
 		mod.destroy();
 		expect(Buffer.from(buffer).toString('base64')).toBe(SPRITE_COMPILE_WASM_BASE64);
+	});
+});
+
+async function loadSPR(fallback) {
+	vi.resetModules();
+	if (fallback) {
+		vi.doMock('Loaders/wasm/spriteCompile.js', () => ({ getSpriteCompileWasm: () => null }));
+	} else {
+		vi.doUnmock('Loaders/wasm/spriteCompile.js');
+	}
+	return (await import('Loaders/Sprite.js')).default;
+}
+
+function makeSprite(SPR) {
+	const pal = new Uint8Array(1024);
+	for (let i = 0; i < 256; i++) { pal[i * 4] = i; pal[i * 4 + 1] = (i * 3) & 0xff; pal[i * 4 + 2] = (i * 5) & 0xff; }
+	pal.set([255, 0, 255, 0], 10 * 4); // magenta
+	const palFrame = (w, h) => ({ type: SPR.TYPE_PAL, width: w, height: h,
+		data: new Uint8Array(w * h).map((_, i) => (i * 13 + (i >> 5)) & 0xff) });
+	const rgbaFrame = (w, h) => ({ type: SPR.TYPE_RGBA, width: w, height: h,
+		data: new Uint8Array(w * h * 4).map((_, i) => ((i >> 2) % 7 === 0 && (i & 3) === 0 ? 0 : (i * 31) & 0xff)) });
+	const spr = Object.create(SPR.prototype);
+	spr.palette = pal;
+	spr.frames = [palFrame(3, 5), palFrame(0, 0), palFrame(300, 300), rgbaFrame(7, 9), rgbaFrame(300, 300)];
+	spr.indexed_count = 3;
+	spr.rgba_count = 2;
+	return spr;
+}
+
+describe('SPR.compile(): WASM === fallback JS', () => {
+	afterEach(() => vi.doUnmock('Loaders/wasm/spriteCompile.js'));
+
+	it('outputs are identical frame by frame', async () => {
+		const outWasm = (await loadSPR(false).then(makeSprite)).compile();
+		const outJS = (await loadSPR(true).then(makeSprite)).compile();
+
+		expect(outWasm.frames.length).toBe(outJS.frames.length);
+		expect(outWasm.frames.length).toBeGreaterThan(0);
+		expect(outWasm.rgba_index).toBe(outJS.rgba_index);
+		expect(outWasm.old_rgba_index).toBe(outJS.old_rgba_index);
+
+		outWasm.frames.forEach((f, i) => {
+			const { data: a, ...metaA } = f;
+			const { data: b, ...metaB } = outJS.frames[i];
+			expect(metaA).toEqual(metaB);
+			expect(Buffer.from(a).equals(Buffer.from(b))).toBe(true);
+		});
 	});
 });
