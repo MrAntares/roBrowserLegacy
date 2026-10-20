@@ -53,26 +53,33 @@ jobs:
                 }  
                 nr = 0; comp = ""  
               }  
-              # cabecalho de grupo: linha com "✓" e "(N)" que nao e o arquivo .bench.js  
-              /✓/ && $0 !~ /\.bench\.js/ && /\([0-9]+/ {  
-                flush()  
-                line = $0  
-                sub(/^[^✓]*✓[[:space:]]*/, "", line)  
-                sub(/[[:space:]]*\([0-9]+\).*/, "", line)  
-                group = line  
-                next  
-              }  
               # linhas de resultado comecam com "·"  
               $1 == "·" {  
                 rows[++nr] = sprintf("| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |",  
                   group, $2, $3, $4, $5, $6, $7, $8, $11, $12)  
                 next  
               }  
-              # linha "X is Nx faster/slower than Y" -> guarda pra coluna Result  
+              # header de colunas do vitest  
+              $1 == "name" { next }  
+              # linha "X is Nx faster/slower than Y"  
               ($0 ~ /faster/ || $0 ~ /slower/) && $0 ~ /than/ {  
                 comp = $0  
                 sub(/^[[:space:]]+/, "", comp)  
                 next  
+              }  
+              # ruido do runner (RUN, Duration, resumo, checkmark de arquivo)  
+              /^[[:space:]]*$/ { next }  
+              $1 ~ /^(RUN|Duration|Started|Ended|Commands|Arrived|Deps|Processed|Collected|Waiting|Running|Passing|Failing|Pending|Skipped|Ran|Test)/ { next }  
+              $0 ~ /\.bench\.js/ { next }  
+              # qualquer outra linha com texto e cabecalho de grupo (describe/suite)  
+              {  
+                line = $0  
+                sub(/^[[:space:]✓✗×]+/, "", line)  
+                sub(/[[:space:]]*\([0-9]+[^)]*\)[[:space:]]*[0-9,.]*ms?[[:space:]]*$/, "", line)  
+                if (line != "") {  
+                  flush()  
+                  group = line  
+                }  
               }  
               END { flush() }  
             ' /tmp/bench.txt  
