@@ -102,6 +102,7 @@ let _vao = null;
 let _instanceBuffer = null;
 let _upload = new Float32Array(0);
 let _active = false;
+let _generation = 0;
 
 const _queues = [new Queue(), new Queue()];
 
@@ -123,6 +124,7 @@ const _glState = { depthTest: true, depthMask: true, blendOne: null };
  */
 function init(gl, quad) {
 	_gl = gl;
+	_generation++;
 	_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
 	_instanceBuffer = gl.createBuffer();
 	_vao = gl.createVertexArray();
@@ -177,6 +179,7 @@ function pointInstances(first) {
 function buildAtlas(gl, spr) {
 	const pages = [];
 	spr._atlasPages = pages;
+	spr._atlasGeneration = _generation;
 
 	const maxSize = Math.min(gl.getParameter(gl.MAX_TEXTURE_SIZE) || 4096, 4096);
 	const pageWidth = Math.min(ATLAS_WIDTH, maxSize);
@@ -387,10 +390,25 @@ class SpriteBatch {
 	 * @returns {object|null} { page: { texture, width, height }, u0, v0, u1, v1 }
 	 */
 	static atlasFor(spr, frame) {
-		if (!spr._atlasPages) {
+		if (!spr._atlasPages || spr._atlasGeneration !== _generation) {
 			buildAtlas(_gl, spr);
 		}
 		return frame._atlas || null;
+	}
+
+	/**
+	 * Forget every GPU object made on the lost context. The context object
+	 * stays the same after a restore, so the next open() would otherwise
+	 * keep using them. Call from Renderer.onContextRestored.
+	 */
+	static contextRestored() {
+		_gl = null;
+		_program = null;
+		_vao = null;
+		_instanceBuffer = null;
+		_active = false;
+		_queues[QUEUE_SHADOW].clear();
+		_queues[QUEUE_MAIN].clear();
 	}
 
 	/**

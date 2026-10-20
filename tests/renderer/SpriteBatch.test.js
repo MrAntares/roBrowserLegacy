@@ -182,6 +182,24 @@ describe('SpriteBatch', () => {
 		expect(wolf.frames[0]._atlas.u0).not.toBe(wolf.frames[1]._atlas.u0);
 	});
 
+	it('rebuilds its GPU objects after the context is restored', () => {
+		SpriteRenderer.beginBatch(gl);
+		draw(wolf, 0, false);
+		SpriteRenderer.endBatch();
+		const page = wolf.frames[0]._atlas.page;
+
+		// Same context object, new GPU objects
+		SpriteBatch.contextRestored();
+		calls.length = 0;
+		SpriteRenderer.beginBatch(gl);
+		draw(wolf, 0, false);
+		SpriteRenderer.endBatch();
+
+		expect(names(calls)).toContain('createVertexArray');
+		expect(wolf.frames[0]._atlas.page).not.toBe(page);
+		expect(calls.filter(c => c[0] === 'drawArraysInstanced')).toEqual([['drawArraysInstanced', 1]]);
+	});
+
 	it('draws sprites one by one when batching is off', () => {
 		SpriteBatch.enabled = false;
 		SpriteRenderer.beginBatch(gl);
