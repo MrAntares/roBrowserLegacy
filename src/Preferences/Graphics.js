@@ -27,9 +27,10 @@ const defaultGraphicsSettings = {
 	cursor: true,
 
 	/**
-	 * Game FPS Limit
+	 * Game FPS Limit. -1: none, one frame per display refresh (rAF never runs
+	 * faster than the display), which is also the smoothest
 	 */
-	fpslimit: 60,
+	fpslimit: -1,
 
 	/**
 	 * Performance Mode
