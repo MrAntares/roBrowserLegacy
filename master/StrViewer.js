@@ -78502,10 +78502,44 @@ var init_Graphics = __esmMin((() => {
 	GraphicsSettings.defaults = cleanDefaults;
 }));
 //#endregion
+//#region src/Loaders/wasm/paletteConvert.js
+var PALETTE_CONVERT_WASM_BASE64, base64ToUint8Array, _wasmInstance, _wasmFailed, getPaletteConvertWasm;
+var init_paletteConvert = __esmMin((() => {
+	PALETTE_CONVERT_WASM_BASE64 = "AGFzbQEAAAABCQFgBX9/f39/AAMCAQAFAwEAAQcXAgZtZW1vcnkCAApjb252ZXJ0UGFsAAAKdwF1AQV/IANBAnQhCUEAIQUCQANAIAUgBE8NASABIAUgA2xqIQcgAiAEIAVrQQFrIAlsaiEIQQAhBgJAA0AgBiADTw0BIAggBkECdGogACAHIAZqLQAAQQJ0aigCADYCACAGQQFqIQYMAAsLIAVBAWohBQwACwsL";
+	base64ToUint8Array = (base64) => {
+		const binaryString = atob(base64);
+		const len = binaryString.length;
+		const bytes = new Uint8Array(len);
+		for (let i = 0; i < len; ++i) bytes[i] = binaryString.charCodeAt(i);
+		return bytes;
+	};
+	_wasmInstance = null;
+	_wasmFailed = false;
+	getPaletteConvertWasm = () => {
+		if (_wasmInstance) return _wasmInstance;
+		if (_wasmFailed) return null;
+		if (typeof WebAssembly !== "object" || typeof WebAssembly.Module !== "function") {
+			_wasmFailed = true;
+			return null;
+		}
+		try {
+			const wasmBytes = base64ToUint8Array(PALETTE_CONVERT_WASM_BASE64);
+			const module = new WebAssembly.Module(wasmBytes);
+			_wasmInstance = new WebAssembly.Instance(module);
+			return _wasmInstance;
+		} catch (e) {
+			_wasmFailed = true;
+			console.warn("Loaders/wasm/paletteConvert - Failed to instantiate WASM module:", e);
+			return null;
+		}
+	};
+}));
+//#endregion
 //#region src/Loaders/Sprite.js
 var SPR;
 var init_Sprite = __esmMin((() => {
 	init_BinaryReader();
+	init_paletteConvert();
 	SPR = class SPR {
 		constructor(data) {
 			if (data) this.load(data);
@@ -78650,22 +78684,42 @@ var init_Sprite = __esmMin((() => {
 		switchToRGBA() {
 			const frames = this.frames, pal = this.palette;
 			const pal32 = this.convert32bPal(pal, false);
-			for (let i = 0; i < this.indexed_count; ++i) {
+			const wasmInstance = getPaletteConvertWasm();
+			if (wasmInstance) {
+				const memory = wasmInstance.exports.memory;
+				const convertPal = wasmInstance.exports.convertPal;
+				const palPtr = 0;
+				const srcPtr = 1024;
+				new Uint32Array(memory.buffer, palPtr, 256).set(pal32);
+				for (let i = 0; i < this.indexed_count; ++i) {
+					const frame = frames[i];
+					if (frame.type !== SPR.TYPE_PAL) continue;
+					const width = frame.width, height = frame.height;
+					const pixelCount = width * height;
+					if (pixelCount <= 0) {
+						frame.data = /* @__PURE__ */ new Uint8Array(0);
+						frame.type = SPR.TYPE_RGBA;
+						continue;
+					}
+					const dstPtr = srcPtr + pixelCount;
+					const totalBytesNeeded = dstPtr + pixelCount * 4;
+					if (memory.buffer.byteLength < totalBytesNeeded) {
+						const additionalPages = Math.ceil((totalBytesNeeded - memory.buffer.byteLength) / 65536);
+						memory.grow(additionalPages);
+						new Uint32Array(memory.buffer, palPtr, 256).set(pal32);
+					}
+					new Uint8Array(memory.buffer, srcPtr, pixelCount).set(frame.data);
+					convertPal(palPtr, srcPtr, dstPtr, width, height);
+					frame.data = new Uint8Array(new Uint8Array(memory.buffer, dstPtr, pixelCount * 4));
+					frame.type = SPR.TYPE_RGBA;
+				}
+			} else for (let i = 0; i < this.indexed_count; ++i) {
 				const frame = frames[i];
 				if (frame.type !== SPR.TYPE_PAL) continue;
 				const width = frame.width, height = frame.height;
 				const data = frame.data;
 				const out = new Uint8Array(width * height * 4);
 				const out32 = new Uint32Array(out.buffer);
-				/**
-				* OLD LOGIC:
-				* - READ: Accessed data[x + y * width] every iteration (redundant multiplication).
-				* - WRITE: Performed 4 separate byte assignments (out[ idx2 + 3 ] = pal[ idx1 + 0 ]...out[ idx2 + 1 ] = pal[ idx1 + 2 ]).
-				* NEW LOGIC:
-				* - READ: Pre-calculates row offsets per line to minimize arithmetic overhead.
-				* - WRITE: Uses a single 32-bit integer assignment to write all 4 channels (RGBA) at once.
-				* COORDINATES: Vertical flip logic (height - y - 1) is maintained for correct visual orientation.
-				*/
 				for (let y = 0; y < height; ++y) {
 					const srcRowStart = y * width;
 					const dstRowStart = (height - y - 1) * width;
