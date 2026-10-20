@@ -635,13 +635,13 @@ function onMapComplete(success, error) {
 	MapRenderer.loading = false;
 	_revealing = true;
 
-	if (PerfProbe.enabled) {
-		PerfProbe.mapReady();
-	}
-
 	MapRenderer.onLoad();
 	Sky.setUpCloudData();
 	ScreenEffectManager.startMapflagEffect(worldResource);
+
+	if (PerfProbe.enabled) {
+		PerfProbe.mapReady();
+	}
 
 	Renderer.show();
 	Renderer.render(MapRenderer.onRender);

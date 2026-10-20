@@ -193,7 +193,7 @@ describe('MapRenderer joystick restoration', () => {
 		MapRenderer.free.mockRestore();
 	});
 
-	it('marks the map ready for the perf probe before its first frame, not at the reveal', () => {
+	it('marks the map ready for the perf probe after its set-up and before its first frame, not at the reveal', () => {
 		vi.spyOn(MapRenderer, 'free').mockImplementation(() => {});
 		mocks.renderer.remove = vi.fn();
 		mocks.perfProbe.enabled = true;
@@ -207,6 +207,12 @@ describe('MapRenderer joystick restoration', () => {
 
 		expect(mocks.perfProbe.mapStart).toHaveBeenCalledWith('geffen.gat');
 		expect(mocks.perfProbe.mapReady).toHaveBeenCalledOnce();
+		expect(MapRenderer.onLoad.mock.invocationCallOrder[0]).toBeLessThan(
+			mocks.perfProbe.mapReady.mock.invocationCallOrder[0]
+		);
+		expect(mocks.screenEffects.startMapflagEffect.mock.invocationCallOrder[0]).toBeLessThan(
+			mocks.perfProbe.mapReady.mock.invocationCallOrder[0]
+		);
 		expect(mocks.perfProbe.mapReady.mock.invocationCallOrder[0]).toBeLessThan(
 			mocks.renderer.render.mock.invocationCallOrder[0]
 		);
