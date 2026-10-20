@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 const mocks = vi.hoisted(() => ({
 	session: { Entity: null },
 	graphics: { performanceMode: true, viewArea: 10 },
-	spriteRenderer: { bind3DContext: vi.fn(), unbind: vi.fn() }
+	spriteRenderer: { bind3DContext: vi.fn(), unbind: vi.fn(), beginBatch: vi.fn(), endBatch: vi.fn() }
 }));
 
 vi.mock('Engine/SessionStorage.js', () => ({ default: mocks.session }));

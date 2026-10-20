@@ -398,7 +398,6 @@ function cull() {
  * Infos: RO Game doesn't seems to render ambiant and diffuse on Sprites
  */
 function render(gl, modelView, projection, fog, renderEffects) {
-	let i, count;
 	const tick = Date.now();
 
 	// Stop rendering if no units to render (should never happened...)
@@ -417,8 +416,25 @@ function render(gl, modelView, projection, fog, renderEffects) {
 
 	// Use program
 	SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
+	SpriteRenderer.beginBatch(gl);
 
 	// Rendering
+	try {
+		renderList(modelView, projection, renderEffects, tick);
+	} finally {
+		SpriteRenderer.endBatch();
+	}
+
+	// Clean program
+	SpriteRenderer.unbind(gl);
+}
+
+/**
+ * The entity loop of render()
+ */
+function renderList(modelView, projection, renderEffects, tick) {
+	let i, count;
+
 	for (i = 0, count = _list.length; i < count; ++i) {
 		if (
 			(_list[i].objecttype != _list[i].constructor.TYPE_EFFECT && !renderEffects) ||
@@ -448,9 +464,6 @@ function render(gl, modelView, projection, fog, renderEffects) {
 			_list[i].render(modelView, projection);
 		}
 	}
-
-	// Clean program
-	SpriteRenderer.unbind(gl);
 }
 
 /**
