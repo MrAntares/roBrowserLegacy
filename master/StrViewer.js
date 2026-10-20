@@ -207979,7 +207979,7 @@ var init_Background = __esmMin((() => {
 		position: "absolute",
 		top: "0",
 		left: "0",
-		zIndex: "1000",
+		zIndex: "1010",
 		backgroundColor: "black",
 		opacity: "0"
 	});
@@ -208162,10 +208162,13 @@ var init_Background = __esmMin((() => {
 		* @param {function} callback once the overlay hide the window (optional)
 		*/
 		static remove(callback) {
-			const removal = {};
+			const removal = { zIndex: [_container.style.zIndex, _canvas.style.zIndex] };
 			Background._removal = removal;
+			_container.style.zIndex = "1008";
+			_canvas.style.zIndex = "1009";
 			transition(() => {
-				if (Background._removal === removal) {
+				if (Background._removal !== removal) [_container.style.zIndex, _canvas.style.zIndex] = removal.zIndex;
+				else {
 					Background._removal = null;
 					_container.style.zIndex = "0";
 					_canvas.style.zIndex = "0";
@@ -262393,18 +262396,25 @@ function onMapComplete(success, error) {
 	ScreenEffectManager.init(gl, worldResource);
 	registerPostProcessModules(gl);
 	JoystickUI_default.onRestore();
+	MapRenderer.loading = false;
+	_revealing = true;
+	MapRenderer.onLoad();
+	Sky_default.setUpCloudData();
+	ScreenEffectManager.startMapflagEffect(worldResource);
+	Renderer.show();
+	Renderer.render(MapRenderer.onRender);
 	Background.remove(() => {
 		if (loadId !== MapRenderer._loadId) return;
-		MapRenderer.loading = false;
-		MapRenderer.onLoad();
-		Sky_default.setUpCloudData();
-		ScreenEffectManager.startMapflagEffect(worldResource);
-		Renderer.show();
-		Renderer.render(MapRenderer.onRender);
+		_revealing = false;
 		Mouse.intersect = true;
+		if (_nextMap) {
+			const mapname = _nextMap;
+			_nextMap = null;
+			MapRenderer.setMap(mapname);
+		}
 	});
 }
-var mat4$12, _pos$6, MapRenderer;
+var mat4$12, _pos$6, _revealing, _nextMap, MapRenderer;
 var init_MapRenderer = __esmMin((() => {
 	init_Thread();
 	init_SoundManager();
@@ -262453,6 +262463,8 @@ var init_MapRenderer = __esmMin((() => {
 	init_WebGL();
 	mat4$12 = gl_matrix_default.mat4;
 	_pos$6 = /* @__PURE__ */ new Uint16Array(2);
+	_revealing = false;
+	_nextMap = null;
 	MapRenderer = class MapRenderer {
 		/**
 		* @var {string} current map's name
@@ -262516,6 +262528,10 @@ var init_MapRenderer = __esmMin((() => {
 		*/
 		static setMap(mapname) {
 			if (this.loading) return;
+			if (_revealing) {
+				_nextMap = mapname;
+				return;
+			}
 			mapname = mapname.replace(/^(\d{3})(\d@)/, "$2").replace(/^\d{3}#/, "");
 			const loadId = ++this._loadId;
 			SoundManager.stop();
@@ -262572,6 +262588,8 @@ var init_MapRenderer = __esmMin((() => {
 			this._loadRequest = 0;
 			this._fadeQueue.length = 0;
 			this.loading = false;
+			_revealing = false;
+			_nextMap = null;
 		}
 		/**
 		* Clean up data
