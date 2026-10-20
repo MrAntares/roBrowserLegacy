@@ -33,13 +33,10 @@ jobs:
       - name: Run tests
         run: npm test
 
-      - name: Run Bench
-        env:
-          NO_COLOR: "1"
-          FORCE_COLOR: "0"
+      - name: Run Benchmarks
         run: |
           set -o pipefail
-          npm run bench --run 2>&1 | sed -r 's/\x1B\[[0-9;]*[A-Za-z]//g' | tee /tmp/bench.txt
+          npm run bench 2>&1 | sed -r 's/\x1B\[[0-9;]*[A-Za-z]//g' | tee /tmp/bench.txt
 
       - name: Bench no Job Summary
         if: always()
