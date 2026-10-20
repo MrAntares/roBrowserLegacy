@@ -30,11 +30,16 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run tests
-        run: npm test
+      - name: Test & bench
+        run: |
+          set -o pipefail
+          npm test
+          npm run bench --run | tee /tmp/bench.txt
 
-      - name: Run benchmarks
-        run: npm run bench --run
+      - name: Bench no Job Summary
+        if: always()
+        run: |
+          { echo '## Benchmark'; echo '```'; cat /tmp/bench.txt 2>/dev/null; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Build project
         run: npm run build
