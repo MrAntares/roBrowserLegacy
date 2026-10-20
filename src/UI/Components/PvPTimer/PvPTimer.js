@@ -55,7 +55,8 @@ let _taHideTimer = null;
 
 let isFirstTime = true;
 
-// The first show() came before the banner's sprite had loaded
+// The first show()'s banner is still to play: its sprite had not loaded,
+// or the timer was hidden before it did
 let _bannerPending = false;
 
 /**
@@ -81,7 +82,8 @@ PvPTimer.init = function init() {
 			if (_timerInterval) {
 				renderTimer(((Date.now() / 1000) | 0) - _startTs);
 			}
-			if (_bannerPending) {
+			// hidden again meanwhile, the next show() plays it
+			if (_bannerPending && this._host.style.display !== 'none') {
 				_bannerPending = false;
 				playTimeAttackBanner();
 			}
@@ -136,12 +138,12 @@ PvPTimer.show = function show() {
 	this._host.style.display = '';
 	startTimer();
 	if (isFirstTime === true) {
-		if (_timeAtkAct) {
-			playTimeAttackBanner();
-		} else {
-			_bannerPending = true;
-		}
+		_bannerPending = true;
 		isFirstTime = false;
+	}
+	if (_bannerPending && _timeAtkAct) {
+		_bannerPending = false;
+		playTimeAttackBanner();
 	}
 };
 
