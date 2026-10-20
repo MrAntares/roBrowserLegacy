@@ -40,12 +40,11 @@ jobs:
 
       - name: Bench no Job Summary
         if: always()
-        shell: bash
         run: |
           node <<'NODE'
           const fs = require('node:fs');
-
           const input = '/tmp/bench.txt';
+
           if (!fs.existsSync(input)) {
             process.exit(0);
           }
@@ -53,15 +52,15 @@ jobs:
           const groups = new Map();
           let currentTest = 'Benchmark';
 
-          const addRow = (testName, row) => {
-            if (!groups.has(testName)) groups.set(testName, []);
-            groups.get(testName).push(row);
-          };
+          function addBenchmark(testName, bench) {
+            if (!groups.has(testName)) {
+              groups.set(testName, []);
+            }
+            groups.get(testName).push(bench);
+          }
 
-          const lines = fs.readFileSync(input, 'utf8').split(/\r?\n/);
-
-          for (const raw of lines) {
-            const line = raw.trim();
+          for (const rawLine of fs.readFileSync(input, 'utf8').split(/\r?\n/)) {
+            const line = rawLine.trim();
             if (!line) continue;
 
             if (/^[✓√]\s+/.test(line)) {
@@ -69,32 +68,13 @@ jobs:
               continue;
             }
 
-            // ignora linhas que não são benchmark
-            if (line.startsWith('Benchmark') || line.startsWith('###') || line.startsWith('|') || line.startsWith('**')) {
-              continue;
-            }
+            const benchMatch = line.match(
+              /^·\s+(\S+)\s+([0-9][0-9,]*(?:\.[0-9]+)?)\s+([0-9]+(?:\.[0-9]+)?)\s+([0-9]+(?:\.[0-9]+)?)\s+([0-9]+(?:\.[0-9]+)?)\s+([0-9]+(?:\.[0-9]+)?)\s+([0-9]+(?:\.[0-9]+)?)\s+([^\s]+)\s+([0-9]+)\s*$/
+            );
 
-            // aceita linhas no formato:
-            // · JS 12,008.44 0.0620 4.8939 0.0833 ...
-            // ou
-            // JS 12,008.44 0.0620 4.8939 0.0833 ...
-            const tokens = line.split(/\s+/);
-
-            let bench = null;
-            let vals = [];
-
-            if (tokens[0] === '·' && tokens.length >= 10) {
-              bench = tokens[1];
-              vals = tokens.slice(2);
-            } else if (tokens.length >= 9) {
-              bench = tokens[0];
-              vals = tokens.slice(1);
-            }
-
-            if (bench && vals.length >= 8) {
-              const [hz, min, max, mean, p75, p99, rme, samples] = vals;
-
-              addRow(currentTest, {
+            if (benchMatch) {
+              const [, bench, hz, min, max, mean, p75, p99, rme, samples] = benchMatch;
+              addBenchmark(currentTest, {
                 bench,
                 hz,
                 min,
@@ -105,16 +85,14 @@ jobs:
                 rme,
                 samples
               });
-
               continue;
             }
 
-            // comparação do tipo: 1.42x faster than JS
-            const faster = line.match(/^([0-9]+(?:\.[0-9]+)?)x\s+(faster|slower)\s+than\s+(.+)$/i);
-            if (faster) {
-              const [, value, direction, target] = faster;
+            const fasterMatch = line.match(/^([0-9]+(?:\.[0-9]+)?)x\s+(faster|slower)\s+than\s+(.+)$/i);
+            if (fasterMatch) {
+              const [, value, direction, target] = fasterMatch;
               const rows = groups.get(currentTest) || [];
-              if (rows.length > 0) {
+              if (rows.length) {
                 rows[rows.length - 1].speed = `${value}x ${direction} than ${target}`;
               }
             }
@@ -140,10 +118,10 @@ jobs:
                 );
               }
 
-              const speed = rows.find(r => r.speed)?.speed;
-              if (speed) {
+              const speedText = rows.find(row => row.speed)?.speed;
+              if (speedText) {
                 summary.push('');
-                summary.push(`**${speed}**`);
+                summary.push(`**${speedText}**`);
               }
 
               summary.push('');
