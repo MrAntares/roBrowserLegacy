@@ -1,4 +1,4 @@
-import { bench, describe } from 'vitest';
+import { bench, describe, vi } from 'vitest';
 import { getSpriteCompileWasm } from 'Loaders/wasm/spriteCompile.js';
 
 // Realistic sprite dimensions (e.g. 200x200 in a 256x256 Power-of-Two texture)
@@ -169,4 +169,48 @@ describe('sprite compile RGBA 100x100 -> 128x128 POT', () => {
 	if (wasm) {
 		bench('WASM', runRgbaWASM, { time: 5000, warmupTime: 500 });
 	}
+});
+
+// ---------------- SPR.compile() ----------------
+
+async function loadSPR(fallback) {
+	vi.resetModules();
+	if (fallback) {
+		vi.doMock('Loaders/wasm/spriteCompile.js', () => ({ getSpriteCompileWasm: () => null }));
+	} else {
+		vi.doUnmock('Loaders/wasm/spriteCompile.js');
+	}
+	return (await import('Loaders/Sprite.js')).default;
+}
+
+const SPR_WASM = await loadSPR(false);
+const SPR_JS = await loadSPR(true);
+
+// Paleta RGBA de 1024 bytes (com magenta no índice 10)
+const rawPal = new Uint8Array(1024);
+for (let i = 0; i < 256; i++) {
+	rawPal[i * 4] = i;
+	rawPal[i * 4 + 1] = (i * 3) & 0xff;
+	rawPal[i * 4 + 2] = (i * 5) & 0xff;
+}
+rawPal.set([255, 0, 255, 0], 10 * 4);
+
+function makeSprite(SPR) {
+	const spr = Object.create(SPR.prototype);
+	spr.palette = rawPal;
+	spr.frames = [
+		...Array.from({ length: 8 }, () => ({ type: SPR.TYPE_PAL, width: PAL_W, height: PAL_H, data: palData })),
+		...Array.from({ length: 4 }, () => ({ type: SPR.TYPE_RGBA, width: RGBA_W, height: RGBA_H, data: rgbaData }))
+	];
+	spr.indexed_count = 8;
+	spr.rgba_count = 4;
+	return spr;
+}
+
+const sprWasm = makeSprite(SPR_WASM);
+const sprJS = makeSprite(SPR_JS);
+
+describe('SPR.compile() completo (8 PAL + 4 RGBA)', () => {
+	bench('JS', () => sprJS.compile(), { time: 5000, warmupTime: 500 });
+	bench('WASM', () => sprWasm.compile(), { time: 5000, warmupTime: 500 });
 });

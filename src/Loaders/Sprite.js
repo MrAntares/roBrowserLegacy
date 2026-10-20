@@ -430,7 +430,6 @@ class SPR {
 					if (wasmMem.buffer.byteLength < totalBytesNeeded) {
 						const additionalPages = Math.ceil((totalBytesNeeded - wasmMem.buffer.byteLength) / 65536);
 						wasmMem.grow(additionalPages);
-						wasmPalInitialized = false;
 					}
 
 					if (!wasmPalInitialized) {
@@ -491,7 +490,6 @@ class SPR {
 					if (wasmMem.buffer.byteLength < totalBytesNeeded) {
 						const additionalPages = Math.ceil((totalBytesNeeded - wasmMem.buffer.byteLength) / 65536);
 						wasmMem.grow(additionalPages);
-						wasmPalInitialized = false;
 					}
 
 					// Zero-initialize destination buffer in WASM memory
