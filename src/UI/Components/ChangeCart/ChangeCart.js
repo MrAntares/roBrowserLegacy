@@ -23,6 +23,7 @@ import Client from 'Core/Client.js';
 import DB from 'DB/DBManager.js';
 import htmlText from './ChangeCart.html?raw';
 import cssText from './ChangeCart.css?raw';
+import whenDrawn from 'UI/WhenDrawn.js';
 
 // Config
 const CART_LIMIT = 13;
@@ -67,8 +68,9 @@ ChangeCart.init = function init() {
 		});
 	});
 
-	// Pre-load carts
-	loadCartData();
+	// The carts are drawn only in this window: fetch them when it is first
+	// drawn, not on entering the map (UI/WhenDrawn.js).
+	whenDrawn(this._host, loadCartData);
 };
 
 /**
@@ -103,7 +105,7 @@ function onCart(num) {
  */
 ChangeCart.onAppend = function onAppend() {
 	this._host.style.display = 'none';
-	loadCartData();
+	whenDrawn(this._host, loadCartData);
 };
 
 ChangeCart.onChangeCartSkill = function onChangeCartSkill() {

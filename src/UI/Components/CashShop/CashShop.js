@@ -24,6 +24,7 @@ import GUIComponent from 'UI/GUIComponent.js';
 import 'UI/Elements/Elements.js';
 import htmlText from './CashShop.html?raw';
 import cssText from './CashShop.css?raw';
+import whenDrawn from 'UI/WhenDrawn.js';
 
 const CashShop = new GUIComponent('CashShop', cssText);
 
@@ -360,9 +361,13 @@ CashShop.loadCashShopBanner = function loadCashShopBanner() {
 			slide.setAttribute('data-url', banner.url || '');
 			slide.innerHTML = '<button class="btn-banner"></button>';
 
-			Client.loadFile(DB.INTERFACE_PATH + 'cashshop/' + banner.bmp, function (data) {
-				slide.style.backgroundImage = `url(${data})`;
-			});
+			// The banners are about 60 KB each: fetch them when the shop is
+			// first drawn, not on entering the map (UI/WhenDrawn.js).
+			whenDrawn(slidesContainer || slide, () =>
+				Client.loadFile(DB.INTERFACE_PATH + 'cashshop/' + banner.bmp, function (data) {
+					slide.style.backgroundImage = `url(${data})`;
+				})
+			);
 
 			if (slidesContainer) slidesContainer.appendChild(slide);
 
@@ -377,7 +382,7 @@ CashShop.loadCashShopBanner = function loadCashShopBanner() {
 			if (dotsContainer) dotsContainer.appendChild(dot);
 		});
 
-		if (dotsContainer) _processContent(dotsContainer);
+		if (dotsContainer) whenDrawn(dotsContainer, () => _processContent(dotsContainer));
 
 		CashShop.currentBannerIndex = 0;
 	}

@@ -352,6 +352,7 @@ function onPartyMemberLeave(pkt) {
 	}
 
 	PartyFriends.removePartyMember(pkt.AID, pkt.characterName);
+	WorldMap.removePartyMember(pkt.AID);
 }
 
 /**

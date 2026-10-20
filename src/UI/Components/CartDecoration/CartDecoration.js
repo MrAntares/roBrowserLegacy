@@ -20,6 +20,7 @@ import Client from 'Core/Client.js';
 import DB from 'DB/DBManager.js';
 import htmlText from './CartDecoration.html?raw';
 import cssText from './CartDecoration.css?raw';
+import whenDrawn from 'UI/WhenDrawn.js';
 
 /**
  * Create Component
@@ -70,7 +71,9 @@ CartDecoration.init = function init() {
 		});
 	});
 
-	preloadCartData();
+	// The carts are drawn only in this window: fetch them when it is first
+	// drawn, not on entering the map (UI/WhenDrawn.js).
+	whenDrawn(this._host, preloadCartData);
 };
 
 /**
@@ -107,7 +110,7 @@ function onCartSelected(type) {
  */
 CartDecoration.onAppend = function onAppend() {
 	this._host.style.display = 'none';
-	preloadCartData();
+	whenDrawn(this._host, preloadCartData);
 };
 
 /**
