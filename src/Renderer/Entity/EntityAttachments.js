@@ -257,6 +257,8 @@ class AttachmentManager {
 				}
 
 				if (gl) {
+					// Sprites batched so far go first, as they would have drawn first
+					SpriteRenderer.flushBatch();
 					// Pass true for disableDepthTest since this is an entity attachment
 					StrEffect.beforeRender(gl, Camera.modelView, Camera.projection, _defaultFog, tick, true);
 					strEffect.render(gl, tick);

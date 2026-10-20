@@ -10,7 +10,9 @@
 
 import WebGL from 'Utils/WebGL.js';
 import glMatrix from 'Utils/gl-matrix.js';
+import Configs from 'Core/Configs.js';
 import Camera from './Camera.js';
+import SpriteBatch from './SpriteBatch.js';
 import _vertexShader from './SpriteRenderer.vs?raw';
 import _fragmentShader from './SpriteRenderer.fs?raw';
 
@@ -25,6 +27,12 @@ const mat4 = glMatrix.mat4;
 function RenderCanvas3D(isBlendModeOne) {
 	// Nothing to render ?
 	if (!this.image.texture || !this.color[3]) {
+		return;
+	}
+
+	// Inside a batch (the entity pass): record it, SpriteBatch draws it later
+	if (SpriteBatch.active) {
+		RecordCanvas3D.call(this, isBlendModeOne);
 		return;
 	}
 
@@ -99,6 +107,94 @@ function RenderCanvas3D(isBlendModeOne) {
 		gl.bindTexture(gl.TEXTURE_2D, (_texture = this.image.texture));
 	}
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+}
+
+/**
+ * Record a sprite into the open batch: the same values RenderCanvas3D
+ * uploads as uniforms, and the state it would have drawn with.
+ */
+function RecordCanvas3D(isBlendModeOne) {
+	// Blend follows the same rule as RenderCanvas3D: a boolean sets it,
+	// undefined keeps what the previous sprite used.
+	if (isBlendModeOne === true || isBlendModeOne === false) {
+		_blendOne = isBlendModeOne;
+	}
+
+	const image = this.image;
+	let texture = image.texture;
+	let palette = image.palette;
+	let source = SpriteBatch.SOURCE_OWN;
+	let paletteRow = palette ? SpriteBatch.PALETTE_OWN : SpriteBatch.PALETTE_NONE;
+	let layer = 0;
+	let u0 = 0,
+		v0 = 0,
+		u1 = 1,
+		v1 = 1;
+
+	// A frame of a sprite file (set by Entity.renderLayer) is drawn from the
+	// shared atlas, and its palette from the palette atlas, so the next layer
+	// and the next entity, whatever files they use, can share the run.
+	if (image.frame && image.spr && image.frame.texture === texture) {
+		const rect = SpriteBatch.atlasFor(image.spr, image.frame);
+
+		// RGBA frames have no palette, palette frames always have one
+		if (rect && rect.rgba === !palette) {
+			source = rect.rgba ? SpriteBatch.SOURCE_RGBA : SpriteBatch.SOURCE_INDEX;
+			texture = null;
+			layer = rect.layer;
+			u0 = rect.u0;
+			v0 = rect.v0;
+			u1 = rect.u1;
+			v1 = rect.v1;
+
+			if (palette) {
+				const row = SpriteBatch.paletteRow(palette, this.palette);
+				if (row >= 0) {
+					paletteRow = row;
+					palette = null;
+				}
+			}
+		}
+	}
+	image.frame = null;
+	image.spr = null;
+
+	const data = SpriteBatch.record(
+		this.shadowQueue ? SpriteBatch.SHADOW : SpriteBatch.MAIN,
+		texture,
+		palette,
+		image.size[0],
+		image.size[1],
+		_blendOne,
+		_depthTest,
+		_depthMask,
+		!!this.disableDepthCorrection
+	);
+	let o = SpriteBatch.offset;
+
+	data[o++] = this.position[0];
+	data[o++] = this.position[1];
+	data[o++] = this.position[2];
+	data[o++] = this.zIndex++;
+	data[o++] = (this.offset[0] / 175.0) * this.xSize;
+	data[o++] = (this.offset[1] / 175.0) * this.ySize - 0.5;
+	data[o++] = (this.size[0] / 175.0) * this.xSize;
+	data[o++] = (this.size[1] / 175.0) * this.ySize;
+	data[o++] = this.color[0];
+	data[o++] = this.color[1];
+	data[o++] = this.color[2];
+	data[o++] = this.color[3];
+	data[o++] = u0;
+	data[o++] = v0;
+	data[o++] = u1;
+	data[o++] = v1;
+	data[o++] = this.angle;
+	data[o++] = this.depth;
+	data[o++] = this.shadow;
+	data[o++] = this.ignoreDepthMinCap ? 1 : 0;
+	data[o++] = source;
+	data[o++] = layer;
+	data[o] = paletteRow;
 }
 
 /**
@@ -351,6 +447,11 @@ let _depthMask = true;
 let _depthTest = true;
 
 /**
+ * @type {boolean|null} blend of the last sprite recorded in a batch (null: not set yet)
+ */
+let _blendOne = null;
+
+/**
  * @type {object} last texture used
  */
 let _texture = null;
@@ -379,6 +480,48 @@ const _size = new Float32Array(2);
  * @const {Float32Array} sprite offset position
  */
 const _offset = new Float32Array(2);
+
+/**
+ * Set the depth test and depth write. Inside a batch only the state is kept:
+ * each recorded sprite carries it, and SpriteBatch sets it when it draws.
+ *
+ * @param {boolean} depthTest
+ * @param {boolean} depthMask
+ */
+function setDepth(depthTest, depthMask) {
+	const direct = !SpriteBatch.active;
+
+	if (_depthTest !== depthTest) {
+		_depthTest = depthTest;
+
+		if (direct) {
+			if (depthTest) {
+				_gl.enable(_gl.DEPTH_TEST);
+			} else {
+				_gl.disable(_gl.DEPTH_TEST);
+			}
+		}
+	}
+
+	if (_depthMask !== depthMask) {
+		_depthMask = depthMask;
+
+		if (direct) {
+			_gl.depthMask(depthMask);
+		}
+	}
+}
+
+/**
+ * After a batch drew with its own program: put this program back and forget
+ * the bound texture.
+ */
+function syncAfterBatch() {
+	_gl.useProgram(_program);
+	_gl.activeTexture(_gl.TEXTURE0);
+	_texture = null;
+	_groupId++;
+}
 
 /**
  * Sprite Renderer NameSpace
@@ -430,8 +573,17 @@ class SpriteRenderer {
 	static image = {
 		texture: null,
 		palette: null,
-		size: new Float32Array(2)
+		size: new Float32Array(2),
+		// The sprite file and frame the texture belongs to, when known; lets a
+		// batch draw it from the file's atlas. Cleared by every draw.
+		spr: null,
+		frame: null
 	};
+
+	/**
+	 * @type {boolean} the sprite is a shadow: a batch draws it before the other sprites
+	 */
+	static shadowQueue = false;
 
 	/**
 	 * @type {object} sprite imageData (for 2D context)
@@ -489,6 +641,9 @@ class SpriteRenderer {
 		if (!_program) {
 			_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
 		}
+
+		// `spriteBatching: false` draws every sprite on its own, as before
+		SpriteBatch.enabled = Configs.get('spriteBatching', true) !== false;
 	}
 
 	/**
@@ -502,6 +657,14 @@ class SpriteRenderer {
 	static bind3DContext(gl, modelView, projection, fog) {
 		const attribute = _program.attribute;
 		const uniform = _program.uniform;
+
+		// Rebinding inside a batch (after an STR attachment drew): what was
+		// recorded so far was meant for the previous uniforms.
+		if (SpriteBatch.active) {
+			this.flushBatch();
+			SpriteBatch.invalidate();
+		}
+		SpriteBatch.setFrame(modelView, projection, fog, Camera.zoom);
 
 		gl.useProgram(_program);
 		gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
@@ -599,20 +762,7 @@ class SpriteRenderer {
 		const prevDepthMask = _depthMask;
 		const prevDepthCorrection = this.disableDepthCorrection;
 
-		if (_depthTest !== depthTest) {
-			_depthTest = depthTest;
-
-			if (depthTest) {
-				_gl.enable(_gl.DEPTH_TEST);
-			} else {
-				_gl.disable(_gl.DEPTH_TEST);
-			}
-		}
-
-		if (_depthMask !== depthMask) {
-			_depthMask = depthMask;
-			_gl.depthMask(depthMask);
-		}
+		setDepth(depthTest, depthMask);
 
 		if (this.disableDepthCorrection !== depthCorrection) {
 			this.disableDepthCorrection = depthCorrection;
@@ -621,25 +771,47 @@ class SpriteRenderer {
 		try {
 			fn();
 		} finally {
-			if (_depthTest !== prevDepthTest) {
-				_depthTest = prevDepthTest;
-
-				if (prevDepthTest) {
-					_gl.enable(_gl.DEPTH_TEST);
-				} else {
-					_gl.disable(_gl.DEPTH_TEST);
-				}
-			}
-
-			if (_depthMask !== prevDepthMask) {
-				_depthMask = prevDepthMask;
-				_gl.depthMask(prevDepthMask);
-			}
+			setDepth(prevDepthTest, prevDepthMask);
 
 			if (this.disableDepthCorrection !== prevDepthCorrection) {
 				this.disableDepthCorrection = prevDepthCorrection;
 			}
 		}
+	}
+
+	/**
+	 * Record the sprites drawn from here to endBatch() and draw them in a few
+	 * instanced calls (see SpriteBatch.js). Call after bind3DContext.
+	 *
+	 * @param {WebGL2RenderingContext} gl
+	 */
+	static beginBatch(gl) {
+		if (SpriteBatch.open(gl, { depthTest: _depthTest, depthMask: _depthMask })) {
+			_blendOne = null;
+		}
+	}
+
+	/**
+	 * Draw what the batch recorded so far. Anything that draws with another
+	 * program in the middle of a batch calls this first, to keep the order.
+	 */
+	static flushBatch() {
+		if (!SpriteBatch.active) {
+			return;
+		}
+		SpriteBatch.flush({ depthTest: _depthTest, depthMask: _depthMask, blendOne: _blendOne });
+		syncAfterBatch();
+	}
+
+	/**
+	 * Draw what the batch recorded and go back to drawing sprites one by one.
+	 */
+	static endBatch() {
+		if (!SpriteBatch.active) {
+			return;
+		}
+		SpriteBatch.close({ depthTest: _depthTest, depthMask: _depthMask, blendOne: _blendOne });
+		syncAfterBatch();
 	}
 }
 

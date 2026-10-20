@@ -233,6 +233,10 @@ class MemoryManager {
 					if (file.texture && gl != null && gl.isTexture(file.texture)) {
 						gl.deleteTexture(file.texture);
 					}
+					// Give back the room SpriteAtlas packed the frames into
+					if (file._atlasRelease) {
+						file._atlasRelease();
+					}
 					break;
 
 				// Delete palette
