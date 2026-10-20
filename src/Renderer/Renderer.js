@@ -335,8 +335,11 @@ class Renderer {
 			this._renderBound = this._render.bind(this);
 		}
 
-		// Every rAF, rendered or not, measures the display's refresh rate
-		FramePacer.sample(now);
+		// Every rAF, rendered or not, measures the display's refresh rate.
+		// The fallback timer is not a refresh, so it leaves the limit by time.
+		if (typeof time === 'number') {
+			FramePacer.sample(now);
+		}
 
 		// initialize lastFrameTime on first run
 		if (typeof this._lastFrameTime === 'undefined' || this._lastFrameTime === 0) {
