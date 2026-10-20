@@ -24,6 +24,7 @@ import Session from 'Engine/SessionStorage.js';
 import PostProcess from 'Renderer/Effects/PostProcess.js';
 import MemoryManager from 'Core/MemoryManager.js';
 import PerfProbe from 'Core/PerfProbe.js';
+import FramePacer from 'Renderer/FramePacer.js';
 
 const { mat4 } = glMatrix;
 
@@ -338,6 +339,12 @@ class Renderer {
 			this._renderBound = this._render.bind(this);
 		}
 
+		// Every rAF, rendered or not, measures the display's refresh rate.
+		// The fallback timer is not a refresh, so it leaves the limit by time.
+		if (typeof time === 'number') {
+			FramePacer.sample(now);
+		}
+
 		// initialize lastFrameTime on first run
 		if (typeof this._lastFrameTime === 'undefined' || this._lastFrameTime === 0) {
 			this._lastFrameTime = now;
@@ -355,20 +362,17 @@ class Renderer {
 			this.frameLimit = GraphicsSettings.fpslimit;
 		}
 
-		// Throttle when frameLimit > 0
+		// Throttle when frameLimit > 0, in whole display refreshes (Renderer/FramePacer.js)
 		if (this.frameLimit > 0) {
-			const interval = 1000 / this.frameLimit;
-			const elapsed = now - this._lastFrameTime;
+			const next = FramePacer.next(now, this._lastFrameTime, this.frameLimit);
 
-			if (elapsed < interval) {
+			if (next < 0) {
 				// Not enough time elapsed for next allowed frame — schedule next rAF and exit
 				this.updateId = _requestAnimationFrame(this._renderBound);
 				return;
 			}
 
-			// Advance lastFrameTime preserving alignment (avoid time drift)
-			// keep lastFrameTime at nearest interval boundary
-			this._lastFrameTime = now - (elapsed % interval);
+			this._lastFrameTime = next;
 		} else {
 			// No limit => run every rAF
 			this._lastFrameTime = now;

@@ -354,6 +354,10 @@ function createWorldMapView(map, imgData) {
 			if (currentMap == section.id) {
 				className += ' currentmap';
 			}
+			// party members reported while the map was not built
+			if (_partyMembersByMap[section.id]) {
+				className += ' membersonmap';
+			}
 
 			if (sectionType === 1) {
 				const posKey = section.left + '_' + section.top;
@@ -541,8 +545,11 @@ WorldMap.onAppend = function onAppend() {
 	// set maps
 	setMapList();
 
-	// resize map container & add sections
-	selectMap();
+	// resize map container & add sections. Hidden, it waits for toggle(),
+	// which selects the map itself: the art is over 1 MB.
+	if (this._host.style.display !== 'none') {
+		selectMap();
+	}
 
 	this._host.style.top = '0px';
 	this._host.style.left = '0px';
@@ -628,13 +635,39 @@ WorldMap.updatePartyMembers = function updatePartyMembers(pkt) {
 		}
 	});
 
+	showPartyMembers();
+};
+
+/**
+ * Forget a member who left the party, or the whole party when it is us
+ *
+ * @param {number} AID
+ */
+WorldMap.removePartyMember = function removePartyMember(AID) {
+	if (AID === Session.AID) {
+		_partyMembersByMap = {};
+	} else {
+		for (const mapId of Object.keys(_partyMembersByMap)) {
+			_partyMembersByMap[mapId] = _partyMembersByMap[mapId].filter(member => member.AID !== AID);
+			if (!_partyMembersByMap[mapId].length) {
+				delete _partyMembersByMap[mapId];
+			}
+		}
+	}
+	showPartyMembers();
+};
+
+/**
+ * Mark the built sections that have party members on them
+ */
+function showPartyMembers() {
 	const root = WorldMap.getRoot();
 	root.querySelectorAll('.worldmap .section').forEach(el => el.classList.remove('membersonmap'));
 	for (const mapId of Object.keys(_partyMembersByMap)) {
 		const el = root.querySelector('.worldmap .section#' + CSS.escape(mapId));
 		if (el) el.classList.add('membersonmap');
 	}
-};
+}
 
 /**
  * Toggle all maps
