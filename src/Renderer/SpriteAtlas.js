@@ -290,6 +290,9 @@ class SpriteAtlas {
 			_index.destroy();
 			_rgba.destroy();
 		}
+		if (_palettes) {
+			_gl.deleteTexture(_palettes);
+		}
 		_gl = gl;
 		_generation++;
 		_index = new ArrayAtlas(gl, false, 2048, 2, 16);
@@ -306,6 +309,18 @@ class SpriteAtlas {
 		gl.activeTexture(gl.TEXTURE0);
 		_paletteRows = new WeakMap();
 		_paletteNext = 0;
+	}
+
+	/**
+	 * Forget the textures of a lost context, which the restored context
+	 * object still matches. The next init() creates them again, and the
+	 * new generation makes every sprite file pack itself again.
+	 */
+	static contextRestored() {
+		_gl = null;
+		_index = null;
+		_rgba = null;
+		_palettes = null;
 	}
 
 	/**

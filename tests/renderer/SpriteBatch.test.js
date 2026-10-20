@@ -283,10 +283,12 @@ describe('SpriteBatch', () => {
 		expect(calls.filter(c => c[0] === 'drawArraysInstanced')).toEqual([['drawArraysInstanced', 1]]);
 	});
 
-	it('rebuilds its GPU objects after the context is restored', () => {
+	it('rebuilds its GPU objects and repacks after the context is restored', () => {
 		SpriteRenderer.beginBatch(gl);
 		draw(wolf, 0, false);
 		SpriteRenderer.endBatch();
+		const generation = wolf._atlasGeneration;
+		const palettes = SpriteAtlas.textures.palettes;
 
 		// Same context object, new GPU objects
 		SpriteBatch.contextRestored();
@@ -296,6 +298,8 @@ describe('SpriteBatch', () => {
 		SpriteRenderer.endBatch();
 
 		expect(names(calls)).toContain('createVertexArray');
+		expect(SpriteAtlas.textures.palettes).not.toBe(palettes);
+		expect(wolf._atlasGeneration).not.toBe(generation);
 
 		// Its vertex array reads a quad made on the restored context, not
 		// SpriteRenderer's, which still dates from before the loss
@@ -305,6 +309,22 @@ describe('SpriteBatch', () => {
 		const vao = calls.findIndex(c => c[0] === 'bindVertexArray' && c[1]);
 		expect(calls.find((c, i) => i > vao && c[0] === 'bindBuffer')[2]).toBe(quad);
 		expect(calls.filter(c => c[0] === 'drawArraysInstanced')).toEqual([['drawArraysInstanced', 1]]);
+	});
+
+	it('deletes the old palette texture when the context changes', () => {
+		SpriteRenderer.beginBatch(gl);
+		draw(wolf, 0, false);
+		SpriteRenderer.endBatch();
+		const palettes = SpriteAtlas.textures.palettes;
+		const oldCalls = calls;
+
+		const next = fakeGL();
+		SpriteRenderer.init(next.gl);
+		SpriteRenderer.bind3DContext(next.gl, M, M, FOG);
+		SpriteRenderer.beginBatch(next.gl);
+		SpriteRenderer.endBatch();
+
+		expect(oldCalls.some(c => c[0] === 'deleteTexture' && c[1] === palettes)).toBe(true);
 	});
 
 	it('draws sprites one by one when batching is off', () => {

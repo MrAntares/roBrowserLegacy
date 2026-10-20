@@ -314,6 +314,7 @@ class SpriteBatch {
 		_active = false;
 		_queues[QUEUE_SHADOW].clear();
 		_queues[QUEUE_MAIN].clear();
+		SpriteAtlas.contextRestored();
 	}
 
 	/**
