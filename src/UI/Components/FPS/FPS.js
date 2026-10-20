@@ -36,6 +36,9 @@ FPS.render = () => htmlText;
 /** @type {number} */
 let _maxFPSRegistered = 0;
 
+/** @type {number} */
+let _minFPSRegistered = Infinity;
+
 /** @type {function} */
 let _tickFn = null;
 
@@ -87,8 +90,14 @@ FPS.onAppend = function onAppend() {
 	const root = this.getRoot();
 	const fpsEl = root.querySelector('#fpsCounter');
 	const fpsRoot = root.querySelector('#FPS');
+	const fpsLowEl = root.querySelector('#fpsLowCounter');
+
+	_minFPSRegistered = Infinity;
+	_maxFPSRegistered = 0;
+	fpsLowEl.textContent = '--';
 
 	let startTime = 0;
+	let lastResetTime = 0;
 	let frame = 0;
 	let lastValue = null;
 	let lastClass = null;
@@ -108,6 +117,12 @@ FPS.onAppend = function onAppend() {
 	}
 
 	function tick(time) {
+		if (startTime === 0) {
+			lastResetTime = time;
+			startTime = time;
+			frame = 0;
+			return;
+		}
 		frame++;
 		if (time - startTime < 1000) {
 			return;
@@ -122,6 +137,14 @@ FPS.onAppend = function onAppend() {
 
 		// Check if FPS increased
 		if (_maxFPSRegistered < value) _maxFPSRegistered = value;
+
+		if (time - lastResetTime > 5000) {
+			if (value < _minFPSRegistered) {
+				_minFPSRegistered = value;
+				fpsLowEl.textContent = value;
+			}
+		}
+
 		const limit = Renderer.frameLimit > 0 ? Renderer.frameLimit : _maxFPSRegistered;
 		const cls = getFPSClass(value, limit);
 
