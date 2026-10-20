@@ -14,8 +14,9 @@
  *   /perf reset        start a new measurement window
  *   /perf slow         frames over 33 ms since the reset (console.table)
  *   /perf overlay on|off
- * Slow frames are also performance.measure entries named 'roPerf slow frame',
- * so a Chrome trace or performance.getEntriesByName() finds them.
+ * The first 1000 slow frames of a window are also performance.measure entries
+ * named 'roPerf slow frame', so a Chrome trace or
+ * performance.getEntriesByName() finds them.
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
  */
@@ -66,6 +67,7 @@ let _mapName = '';
 let _mapReady = 0;
 
 const _slow = [];
+let _slowTotal = 0; // slow frames since the reset, including those past MAX_SLOW
 
 const _marks = {
 	login: null,
@@ -119,15 +121,18 @@ function summarize(values, count) {
  * @param {number} draws draw calls in this frame
  */
 function logSlow(interval, work, draws) {
-	const start = _frameTime - interval;
-	if (_slow.length < MAX_SLOW) {
-		_slow.push({
-			at: Math.round(start),
-			frameMs: Math.round(interval * 10) / 10,
-			workMs: Math.round(work * 10) / 10,
-			draws
-		});
+	_slowTotal++;
+	// Past the cap, neither the log nor the browser's User Timing buffer grows
+	if (_slow.length >= MAX_SLOW) {
+		return;
 	}
+	const start = _frameTime - interval;
+	_slow.push({
+		at: Math.round(start),
+		frameMs: Math.round(interval * 10) / 10,
+		workMs: Math.round(work * 10) / 10,
+		draws
+	});
 	try {
 		performance.measure('roPerf slow frame', { start, end: performance.now() });
 	} catch (_e) {
@@ -147,12 +152,16 @@ function wrapContext(gl) {
 			continue;
 		}
 		// drawArrays(mode, first, count); drawElements(mode, count, ...);
-		// drawRangeElements(mode, start, end, count, ...)
+		// drawRangeElements(mode, start, end, count, ...);
+		// drawArraysInstanced(mode, first, count, instances);
+		// drawElementsInstanced(mode, count, type, offset, instances)
 		const countArg =
 			name === 'drawArrays' || name === 'drawArraysInstanced' ? 2 : name === 'drawRangeElements' ? 3 : 1;
+		const instanceArg = name === 'drawArraysInstanced' ? 3 : name === 'drawElementsInstanced' ? 4 : -1;
 		gl[name] = function () {
 			_frameDraws++;
-			_frameVertices += arguments[countArg] | 0;
+			const instances = instanceArg < 0 ? 1 : arguments[instanceArg] | 0;
+			_frameVertices += (arguments[countArg] | 0) * instances;
 			return original.apply(gl, arguments);
 		};
 	}
@@ -295,6 +304,15 @@ class PerfProbe {
 	}
 
 	/**
+	 * Called by Renderer.stop: the pause until the loop starts again is not a
+	 * frame, so the first frame after it only sets the clock
+	 */
+	static stop() {
+		_lastFrameStart = 0;
+		_pending = 0;
+	}
+
+	/**
 	 * A map finished loading and is about to be drawn
 	 */
 	static mapReady() {
@@ -319,7 +337,8 @@ class PerfProbe {
 	}
 
 	/**
-	 * Start a new measurement window
+	 * Start a new measurement window: frames, slow frames and map marks.
+	 * The login mark is kept, since it is the startup time and happens once.
 	 */
 	static reset() {
 		_total = 0;
@@ -327,7 +346,15 @@ class PerfProbe {
 		_lastFrameStart = 0;
 		_totalVertices = 0;
 		_slow.length = 0;
+		_slowTotal = 0;
+		_marks.maps.length = 0;
+		_mapReady = 0;
 		_windowStart = performance.now();
+		try {
+			performance.clearMeasures('roPerf slow frame');
+		} catch (_e) {
+			// no User Timing
+		}
 	}
 
 	/**
@@ -340,7 +367,9 @@ class PerfProbe {
 		const kept = Math.min(_total, MAX_FRAMES);
 		const draws = summarize(_draws, kept);
 		let hitches = 0;
+		let drawing = 0; // ms between frames, without map loads and other pauses
 		for (let i = 0; i < kept; ++i) {
+			drawing += _interval[i];
 			if (_interval[i] > HITCH_MS) {
 				hitches++;
 			}
@@ -350,20 +379,24 @@ class PerfProbe {
 			frames: _total,
 			kept,
 			seconds: Math.round(seconds * 10) / 10,
-			fps: Math.round((_total / Math.max(seconds, 0.001)) * 10) / 10,
+			drawingSeconds: Math.round(drawing / 100) / 10,
+			// From the kept frames' intervals, so map loads and pauses do not lower it
+			fps: kept ? Math.round(((kept * 1000) / Math.max(drawing, 0.001)) * 10) / 10 : 0,
 			frameMs: summarize(_interval, kept),
 			workMs: summarize(_work, kept),
 			drawCalls: draws,
 			verticesPerFrame: _total ? Math.round(_totalVertices / _total) : 0,
 			hitches,
+			slowFrames: _slowTotal,
 			heapMB: memory ? Math.round(memory.usedJSHeapSize / 1048576) : null,
 			marks: JSON.parse(JSON.stringify(_marks))
 		};
 	}
 
 	/**
-	 * Frames slower than 33 ms since the last reset: when the gap started
-	 * (performance.now() time), its length, and the frame's work and draws
+	 * The first 1000 frames slower than 33 ms since the last reset: when the
+	 * gap started (performance.now() time), its length, and the frame's work
+	 * and draws. stats().slowFrames counts them all.
 	 *
 	 * @return {Array}
 	 */

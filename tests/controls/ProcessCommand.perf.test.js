@@ -7,7 +7,9 @@ const mocks = vi.hoisted(() => ({
 		enabled: true,
 		stats: () => ({
 			fps: 59.9,
-			seconds: 10,
+			seconds: 12,
+			drawingSeconds: 10,
+			slowFrames: 1,
 			frameMs: { p50: 16.7, p99: 18 },
 			workMs: { avg: 4.2 },
 			drawCalls: { avg: 120 },
@@ -84,7 +86,7 @@ describe('/perf', () => {
 
 	it('prints a summary in the chat and the whole stats in the console', () => {
 		run('perf');
-		expect(lastText()).toBe('59.9 fps over 10 s: frame p50 16.7 / p99 18 ms, work 4.2 ms, 120 draws, 1 hitches');
+		expect(lastText()).toBe('59.9 fps over 10 s of drawing: frame p50 16.7 / p99 18 ms, work 4.2 ms, 120 draws, 1 hitches');
 		expect(console.log).toHaveBeenCalledWith('[PerfProbe] stats', expect.objectContaining({ fps: 59.9 }));
 	});
 

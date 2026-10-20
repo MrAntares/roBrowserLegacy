@@ -472,6 +472,9 @@ class Renderer {
 				console.error(e);
 			}
 			Cursor.setSceneDriven(false);
+			if (PerfProbe.enabled) {
+				PerfProbe.stop();
+			}
 			return;
 		}
 		const pos = this.renderCallbacks.indexOf(fn);

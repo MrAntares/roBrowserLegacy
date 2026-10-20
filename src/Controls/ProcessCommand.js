@@ -1048,7 +1048,7 @@ if (Configs.get('perfProbe')) {
 				const stats = PerfProbe.stats();
 				console.log('[PerfProbe] stats', stats);
 				this.addText(
-					`${stats.fps} fps over ${stats.seconds} s: frame p50 ${stats.frameMs.p50} / p99 ${stats.frameMs.p99} ms, ` +
+					`${stats.fps} fps over ${stats.drawingSeconds} s of drawing: frame p50 ${stats.frameMs.p50} / p99 ${stats.frameMs.p99} ms, ` +
 						`work ${stats.workMs.avg} ms, ${stats.drawCalls.avg} draws, ${stats.hitches} hitches`,
 					this.TYPE.INFO,
 					this.FILTER.PUBLIC_LOG
@@ -1064,9 +1064,12 @@ if (Configs.get('perfProbe')) {
 
 			if (mode === 'slow') {
 				const slow = PerfProbe.slowFrames();
+				const total = PerfProbe.stats().slowFrames;
 				console.table(slow);
 				this.addText(
-					`${slow.length} frames over 33 ms since the last reset.`,
+					total > slow.length
+						? `${total} frames over 33 ms since the last reset; the first ${slow.length} are listed.`
+						: `${slow.length} frames over 33 ms since the last reset.`,
 					this.TYPE.INFO,
 					this.FILTER.PUBLIC_LOG
 				);

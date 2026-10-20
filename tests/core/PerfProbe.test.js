@@ -16,7 +16,9 @@ function makeGl() {
 	return {
 		calls,
 		drawArrays: (...a) => calls.push(['drawArrays', ...a]),
-		drawElements: (...a) => calls.push(['drawElements', ...a])
+		drawElements: (...a) => calls.push(['drawElements', ...a]),
+		drawArraysInstanced: (...a) => calls.push(['drawArraysInstanced', ...a]),
+		drawElementsInstanced: (...a) => calls.push(['drawElementsInstanced', ...a])
 	};
 }
 
@@ -87,6 +89,73 @@ describe('PerfProbe', () => {
 		expect(PerfProbe.slowFrames()).toHaveLength(0);
 	});
 
+	it('counts every instance of an instanced draw', async () => {
+		const PerfProbe = await load(true);
+		const gl = makeGl();
+		PerfProbe.attach(gl);
+		for (const t of [0, 16]) {
+			PerfProbe.frameStart(1000 + t);
+			gl.drawArraysInstanced(5, 0, 4, 640);
+			gl.drawElementsInstanced(4, 6, 0x1403, 0, 10);
+			PerfProbe.frameEnd();
+		}
+		expect(PerfProbe.stats().verticesPerFrame).toBe(4 * 640 + 6 * 10);
+	});
+
+	it('does not count a renderer pause as a frame', async () => {
+		const PerfProbe = await load(true);
+		PerfProbe.attach(makeGl());
+		for (const t of [0, 16, 32]) {
+			PerfProbe.frameStart(1000 + t);
+			PerfProbe.frameEnd();
+		}
+		PerfProbe.stop();
+		for (const t of [30000, 30016]) {
+			PerfProbe.frameStart(1000 + t);
+			PerfProbe.frameEnd();
+		}
+		const stats = PerfProbe.stats();
+		expect(stats.frames).toBe(3);
+		expect(stats.frameMs.max).toBe(16);
+		expect(stats.hitches).toBe(0);
+		expect(PerfProbe.slowFrames()).toHaveLength(0);
+	});
+
+	it('takes the frame rate from the frames, not from the time spent loading', async () => {
+		const PerfProbe = await load(true);
+		const now = vi.spyOn(performance, 'now').mockReturnValue(1);
+		PerfProbe.attach(makeGl());
+		for (let frame = 0; frame <= 300; frame++) {
+			PerfProbe.frameStart(1000 + frame * 20);
+			PerfProbe.frameEnd();
+		}
+		now.mockReturnValue(11001); // 6 s drawing, 5 s loading
+		const stats = PerfProbe.stats();
+		now.mockRestore();
+		expect(stats.fps).toBe(50);
+		expect(stats.drawingSeconds).toBe(6);
+		expect(stats.seconds).toBe(11);
+	});
+
+	it('stops logging and measuring slow frames at the cap, and says how many there were', async () => {
+		const PerfProbe = await load(true);
+		const measure = vi.spyOn(performance, 'measure').mockImplementation(() => {});
+		const clear = vi.spyOn(performance, 'clearMeasures').mockImplementation(() => {});
+		PerfProbe.attach(makeGl());
+		for (let frame = 0; frame <= 1200; frame++) {
+			PerfProbe.frameStart(1000 + frame * 40);
+			PerfProbe.frameEnd();
+		}
+		expect(PerfProbe.slowFrames()).toHaveLength(1000);
+		expect(measure).toHaveBeenCalledTimes(1000);
+		expect(PerfProbe.stats().slowFrames).toBe(1200);
+		PerfProbe.reset();
+		expect(clear).toHaveBeenCalledWith('roPerf slow frame');
+		expect(PerfProbe.stats().slowFrames).toBe(0);
+		measure.mockRestore();
+		clear.mockRestore();
+	});
+
 	it('records map load and login marks', async () => {
 		const PerfProbe = await load(true);
 		PerfProbe.attach(makeGl());
@@ -101,5 +170,10 @@ describe('PerfProbe', () => {
 		expect(marks.maps).toHaveLength(1);
 		expect(marks.maps[0].map).toBe('iz_dun04.gat');
 		expect(marks.maps[0].firstFrameMs).toBeTypeOf('number');
+
+		// A reset starts a new window for the map marks; the startup time stays
+		PerfProbe.reset();
+		expect(PerfProbe.stats().marks.maps).toHaveLength(0);
+		expect(PerfProbe.stats().marks.login).toBe(marks.login);
 	});
 });
