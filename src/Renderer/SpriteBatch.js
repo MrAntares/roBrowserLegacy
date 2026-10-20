@@ -12,8 +12,11 @@
  * blending and depth come out as they did one sprite at a time.
  *
  * Two things make consecutive sprites share a run:
- * - every frame of a sprite file is packed into one atlas texture, so the
- *   layers of a wolf, and the next wolf, sample the same texture;
+ * - every frame of every sprite file, and every palette, is packed into the
+ *   textures of SpriteAtlas, which each sprite picks from with its own
+ *   instance values, so the body, head, headgear and weapon of a player, each
+ *   a file of its own with a palette of its own, and the next player, are
+ *   drawn from the same textures;
  * - shadows are recorded into a queue of their own, drawn before everything
  *   else. A shadow writes no depth and lies on the ground, so drawing them
  *   first only changes one thing: a body standing behind another entity is
@@ -24,7 +27,7 @@
 
 import WebGL from 'Utils/WebGL.js';
 import glMatrix from 'Utils/gl-matrix.js';
-import GraphicsSettings from 'Preferences/Graphics.js';
+import SpriteAtlas from './SpriteAtlas.js';
 import _vertexShader from './SpriteBatch.vs?raw';
 import _fragmentShader from './SpriteBatch.fs?raw';
 
@@ -37,14 +40,24 @@ const mat4 = glMatrix.mat4;
  *  8-11 color
  * 12-15 texture rectangle (u0, v0, u1, v1)
  * 16-19 angle, depth, shadow, ignoreDepthMinCap (0 or 1)
+ * 20-23 source (see below), atlas layer, palette row, padding
+ *
+ * The source is where the sprite's pixels are: SOURCE_OWN its own texture
+ * (the run's), SOURCE_INDEX or SOURCE_RGBA the atlas. The palette row is the
+ * palette's row in the atlas, PALETTE_NONE for RGBA, or PALETTE_OWN for the
+ * run's own palette texture.
  */
-const FLOATS = 20;
+const FLOATS = 24;
 const STRIDE = FLOATS * 4;
 
 /**
- * Widest atlas page; frames wider than this keep their own texture.
+ * @const {number} sources and palettes, as the shaders read them
  */
-const ATLAS_WIDTH = 2048;
+const SOURCE_OWN = 0;
+const SOURCE_INDEX = 1;
+const SOURCE_RGBA = 2;
+const PALETTE_NONE = -1;
+const PALETTE_OWN = -2;
 
 /**
  * @const {number} queue ids
@@ -103,7 +116,6 @@ let _quad = null;
 let _instanceBuffer = null;
 let _upload = new Float32Array(0);
 let _active = false;
-let _generation = 0;
 
 const _queues = [new Queue(), new Queue()];
 
@@ -126,7 +138,6 @@ const _glState = { depthTest: true, depthMask: true, blendOne: null };
  */
 function init(gl) {
 	_gl = gl;
-	_generation++;
 	_program = WebGL.createShaderProgram(gl, _vertexShader, _fragmentShader);
 	_quad = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, _quad);
@@ -148,7 +159,7 @@ function init(gl) {
 	gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 4 * 4, 2 * 4);
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, _instanceBuffer);
-	for (const name of ['aPositionZIndex', 'aOffsetSize', 'aColor', 'aUV', 'aAngleDepthShadowCap']) {
+	for (const name of ['aPositionZIndex', 'aOffsetSize', 'aColor', 'aUV', 'aAngleDepthShadowCap', 'aSource']) {
 		gl.enableVertexAttribArray(attribute[name]);
 		gl.vertexAttribDivisor(attribute[name], 1);
 	}
@@ -173,141 +184,7 @@ function pointInstances(first) {
 	gl.vertexAttribPointer(attribute.aColor, 4, gl.FLOAT, false, STRIDE, base + 8 * 4);
 	gl.vertexAttribPointer(attribute.aUV, 4, gl.FLOAT, false, STRIDE, base + 12 * 4);
 	gl.vertexAttribPointer(attribute.aAngleDepthShadowCap, 4, gl.FLOAT, false, STRIDE, base + 16 * 4);
-}
-
-/**
- * Pack every frame of a sprite file into atlas pages, one set for palette
- * frames and one for RGBA frames. Each frame gets frame._atlas, the page and
- * its rectangle, or null when it does not fit (it then keeps its own
- * texture). A frame is surrounded by a copy of its edge pixels, so sampling
- * past its edge reads what CLAMP_TO_EDGE read on its own texture.
- *
- * @param {WebGL2RenderingContext} gl
- * @param {object} spr - a compiled sprite file (Client.loadFile)
- */
-function buildAtlas(gl, spr) {
-	const pages = [];
-	spr._atlasPages = pages;
-	spr._atlasGeneration = _generation;
-
-	const maxSize = Math.min(gl.getParameter(gl.MAX_TEXTURE_SIZE) || 4096, 4096);
-	const pageWidth = Math.min(ATLAS_WIDTH, maxSize);
-
-	for (const type of [0, 1]) {
-		const frames = [];
-		for (let i = 0; i < spr.frames.length; i++) {
-			const frame = spr.frames[i];
-			if (!frame || !!frame.type !== !!type) {
-				continue;
-			}
-			frame._atlas = null;
-			if (frame.data && frame.width > 0 && frame.height > 0 && frame.width + 2 <= pageWidth) {
-				frames.push(frame);
-			}
-		}
-		if (!frames.length) {
-			continue;
-		}
-
-		// Shelf packing, tallest first
-		frames.sort((a, b) => b.height - a.height || b.width - a.width);
-
-		let page = null;
-		let x = 0,
-			y = 0,
-			shelf = 0;
-
-		const closePage = () => {
-			if (page) {
-				page.height = y + shelf;
-				pages.push(page);
-			}
-		};
-
-		for (const frame of frames) {
-			const w = frame.width + 2;
-			const h = frame.height + 2;
-
-			if (!page || x + w > pageWidth) {
-				// next shelf
-				y += shelf;
-				x = 0;
-				shelf = 0;
-			}
-			if (!page || y + h > maxSize) {
-				closePage();
-				page = { type, width: pageWidth, height: 0, frames: [] };
-				x = 0;
-				y = 0;
-				shelf = 0;
-			}
-
-			page.frames.push({ frame, x: x + 1, y: y + 1 });
-			x += w;
-			shelf = Math.max(shelf, h);
-		}
-		closePage();
-	}
-
-	for (const page of pages) {
-		uploadPage(gl, page);
-	}
-}
-
-/**
- * Copy a page's frames, with their edge pixels repeated around them, and
- * send it to the GPU.
- */
-function uploadPage(gl, page) {
-	const width = page.width;
-	const height = page.height;
-	const rgba = page.type === 1;
-	const pixels = rgba ? new Uint32Array(width * height) : new Uint8Array(width * height);
-
-	for (const { frame, x, y } of page.frames) {
-		const fw = frame.width;
-		const fh = frame.height;
-		const src = rgba ? new Uint32Array(frame.data.buffer, frame.data.byteOffset, fw * fh) : frame.data;
-
-		for (let row = -1; row <= fh; row++) {
-			const srcRow = Math.min(Math.max(row, 0), fh - 1) * fw;
-			const dst = (y + row) * width + x;
-			pixels[dst - 1] = src[srcRow];
-			pixels.set(src.subarray(srcRow, srcRow + fw), dst);
-			pixels[dst + fw] = src[srcRow + fw - 1];
-		}
-
-		frame._atlas = {
-			page,
-			u0: x / width,
-			v0: y / height,
-			u1: (x + fw) / width,
-			v1: (y + fh) / height
-		};
-	}
-	page.frames = null;
-
-	const precision = GraphicsSettings.pixelPerfectSprites ? gl.NEAREST : rgba ? gl.LINEAR : gl.NEAREST;
-	const format = rgba ? gl.RGBA : gl.LUMINANCE;
-
-	page.texture = gl.createTexture();
-	gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-	gl.bindTexture(gl.TEXTURE_2D, page.texture);
-	gl.texImage2D(
-		gl.TEXTURE_2D,
-		0,
-		format,
-		width,
-		height,
-		0,
-		format,
-		gl.UNSIGNED_BYTE,
-		rgba ? new Uint8Array(pixels.buffer) : pixels
-	);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, precision);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, precision);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+	gl.vertexAttribPointer(attribute.aSource, 3, gl.FLOAT, false, STRIDE, base + 20 * 4);
 }
 
 /**
@@ -324,6 +201,15 @@ class SpriteBatch {
 	 */
 	static SHADOW = QUEUE_SHADOW;
 	static MAIN = QUEUE_MAIN;
+
+	/**
+	 * @type {number} sources and palettes, for the sprite's instance values
+	 */
+	static SOURCE_OWN = SOURCE_OWN;
+	static SOURCE_INDEX = SOURCE_INDEX;
+	static SOURCE_RGBA = SOURCE_RGBA;
+	static PALETTE_NONE = PALETTE_NONE;
+	static PALETTE_OWN = PALETTE_OWN;
 
 	/**
 	 * @returns {boolean} a batch is open: SpriteRenderer records instead of drawing
@@ -361,6 +247,8 @@ class SpriteBatch {
 		if (!_program || _gl !== gl) {
 			init(gl);
 		}
+		SpriteAtlas.init(gl);
+		SpriteAtlas.recyclePalettes();
 		_glState.depthTest = state.depthTest;
 		_glState.depthMask = state.depthMask;
 		_glState.blendOne = null;
@@ -391,17 +279,25 @@ class SpriteBatch {
 	}
 
 	/**
-	 * The atlas rectangle of a frame, packing its sprite file on first use.
+	 * Where a frame is in the shared atlas, packing its sprite file on first use.
 	 *
 	 * @param {object} spr - compiled sprite file
 	 * @param {object} frame - one of spr.frames
-	 * @returns {object|null} { page: { texture, width, height }, u0, v0, u1, v1 }
+	 * @returns {object|null} { rgba, layer, u0, v0, u1, v1 }
 	 */
 	static atlasFor(spr, frame) {
-		if (!spr._atlasPages || spr._atlasGeneration !== _generation) {
-			buildAtlas(_gl, spr);
-		}
-		return frame._atlas || null;
+		return SpriteAtlas.frame(spr, frame);
+	}
+
+	/**
+	 * The atlas row of a palette, or -1 when it has to stay on its own texture.
+	 *
+	 * @param {WebGLTexture} texture - the palette's texture
+	 * @param {Uint8Array} data - its colours
+	 * @returns {number}
+	 */
+	static paletteRow(texture, data) {
+		return SpriteAtlas.paletteRow(texture, data);
 	}
 
 	/**
@@ -425,9 +321,9 @@ class SpriteBatch {
 	 * caller writes the sprite's FLOATS values.
 	 *
 	 * @param {number} queue - SpriteBatch.SHADOW or SpriteBatch.MAIN
-	 * @param {WebGLTexture} texture
-	 * @param {WebGLTexture|null} palette
-	 * @param {number} textSizeX - uTextSize, for palette sprites
+	 * @param {WebGLTexture|null} texture - the sprite's own texture, null when it is in the atlas
+	 * @param {WebGLTexture|null} palette - its own palette texture (PALETTE_OWN), or null
+	 * @param {number} textSizeX - uTextSize, for its own texture and palette
 	 * @param {number} textSizeY
 	 * @param {boolean|null} blendOne - additive blend, or null for unchanged
 	 * @param {boolean} depthTest
@@ -443,7 +339,7 @@ class SpriteBatch {
 			!run ||
 			run.texture !== texture ||
 			run.palette !== palette ||
-			(palette && (run.textSizeX !== textSizeX || run.textSizeY !== textSizeY)) ||
+			(texture && palette && (run.textSizeX !== textSizeX || run.textSizeY !== textSizeY)) ||
 			run.blendOne !== blendOne ||
 			run.depthTest !== depthTest ||
 			run.depthMask !== depthMask ||
@@ -516,9 +412,22 @@ class SpriteBatch {
 		gl.uniform3fv(uniform.uFogColor, _fogColor);
 		gl.uniform1i(uniform.uDiffuse, 0);
 		gl.uniform1i(uniform.uPalette, 1);
+		gl.uniform1i(uniform.uIndexAtlas, SpriteAtlas.UNIT_INDEX);
+		gl.uniform1i(uniform.uRGBAAtlas, SpriteAtlas.UNIT_RGBA);
+		gl.uniform1i(uniform.uPaletteAtlas, SpriteAtlas.UNIT_PALETTES);
+
+		const atlas = SpriteAtlas.textures;
+		gl.uniform2f(uniform.uIndexAtlasSize, atlas.indexSize, atlas.indexSize);
+		gl.activeTexture(gl.TEXTURE0 + SpriteAtlas.UNIT_INDEX);
+		gl.bindTexture(gl.TEXTURE_2D_ARRAY, atlas.index);
+		gl.activeTexture(gl.TEXTURE0 + SpriteAtlas.UNIT_RGBA);
+		gl.bindTexture(gl.TEXTURE_2D_ARRAY, atlas.rgba);
+		gl.activeTexture(gl.TEXTURE0 + SpriteAtlas.UNIT_PALETTES);
+		gl.bindTexture(gl.TEXTURE_2D, atlas.palettes);
+		gl.activeTexture(gl.TEXTURE0);
 
 		let noCorrection = null,
-			usePal = null,
+			texture = null,
 			textSizeX = -1,
 			textSizeY = -1,
 			palette = null,
@@ -547,22 +456,21 @@ class SpriteBatch {
 					gl.uniform1i(uniform.uDisableDepthCorrection, (noCorrection = run.noCorrection));
 				}
 
-				const pal = run.palette !== null;
-				if (pal !== usePal) {
-					gl.uniform1i(uniform.uUsePal, (usePal = pal));
+				// A run in the atlas binds nothing: the atlas is bound already
+				if (run.palette !== null && run.palette !== palette) {
+					gl.activeTexture(gl.TEXTURE1);
+					gl.bindTexture(gl.TEXTURE_2D, (palette = run.palette));
+					gl.activeTexture(gl.TEXTURE0);
 				}
-				if (pal) {
-					if (run.palette !== palette) {
-						gl.activeTexture(gl.TEXTURE1);
-						gl.bindTexture(gl.TEXTURE_2D, (palette = run.palette));
-						gl.activeTexture(gl.TEXTURE0);
-					}
-					if (run.textSizeX !== textSizeX || run.textSizeY !== textSizeY) {
+				if (run.texture !== null) {
+					if (run.palette !== null && (run.textSizeX !== textSizeX || run.textSizeY !== textSizeY)) {
 						gl.uniform2f(uniform.uTextSize, (textSizeX = run.textSizeX), (textSizeY = run.textSizeY));
+					}
+					if (run.texture !== texture) {
+						gl.bindTexture(gl.TEXTURE_2D, (texture = run.texture));
 					}
 				}
 
-				gl.bindTexture(gl.TEXTURE_2D, run.texture);
 				pointInstances(base + run.start);
 				gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, run.count);
 				draws++;

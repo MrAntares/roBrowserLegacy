@@ -11,11 +11,13 @@ in vec4 aOffsetSize;      // xy offset, zw size (both in world units)
 in vec4 aColor;
 in vec4 aUV;              // xy top-left, zw bottom-right, in the texture
 in vec4 aAngleDepthShadowCap; // angle (degrees), depth, shadow, ignore z-index cap (0/1)
+in vec3 aSource;          // where the pixels are, atlas layer, palette row (see SpriteBatch.js)
 
 out vec2 vTextureCoord;
 flat out vec4 vUV;
 flat out vec4 vColor;
 flat out float vShadow;
+flat out vec3 vSource;    // source, atlas layer, palette row
 
 uniform mat4 uModelViewMat;
 uniform mat4 uViewModelMat;
@@ -97,4 +99,5 @@ void main(void) {
     vUV     = aUV;
     vColor  = aColor;
     vShadow = aAngleDepthShadowCap.z;
+    vSource = aSource;
 }
