@@ -233535,7 +233535,7 @@ var init_SoundOption = __esmMin((() => {
 //#region src/UI/Components/FPS/FPS.html?raw
 var FPS_default$2;
 var init_FPS$2 = __esmMin((() => {
-	FPS_default$2 = "<div id=\"FPS\">\r\n	<div class=\"titlebar\">\r\n		<div class=\"left\"><span id=\"fpsCounter\">--</span> FPS</div>\r\n	</div>\r\n</div>\r\n";
+	FPS_default$2 = "<div id=\"FPS\">\r\n	<div class=\"titlebar\">\r\n		<div class=\"left\"><span id=\"fpsCounter\">--</span> FPS</div>\r\n		<div class=\"left fps-low\"><span id=\"fpsLowCounter\">--</span> lowest</div>\r\n	</div>\r\n</div>\r\n";
 }));
 //#endregion
 //#region src/UI/Components/FPS/FPS.css?raw
@@ -233545,7 +233545,7 @@ var init_FPS$1 = __esmMin((() => {
 }));
 //#endregion
 //#region src/UI/Components/FPS/FPS.js
-var FPS, _maxFPSRegistered, _tickFn, _preferences$33, FPS_default;
+var FPS, _maxFPSRegistered, _minFPSRegistered, _tickFn, _preferences$33, FPS_default;
 var init_FPS = __esmMin((() => {
 	init_Preferences$1();
 	init_Renderer();
@@ -233557,6 +233557,7 @@ var init_FPS = __esmMin((() => {
 	FPS = new GUIComponent("FPS", FPS_default$1);
 	FPS.render = () => FPS_default$2;
 	_maxFPSRegistered = 0;
+	_minFPSRegistered = Infinity;
 	_tickFn = null;
 	_preferences$33 = Preferences.get("FPS", {
 		show: false,
@@ -233588,7 +233589,12 @@ var init_FPS = __esmMin((() => {
 		const root = this.getRoot();
 		const fpsEl = root.querySelector("#fpsCounter");
 		const fpsRoot = root.querySelector("#FPS");
+		const fpsLowEl = root.querySelector("#fpsLowCounter");
+		_minFPSRegistered = Infinity;
+		_maxFPSRegistered = 0;
+		fpsLowEl.textContent = "--";
 		let startTime = 0;
+		let lastResetTime = 0;
 		let frame = 0;
 		let lastValue = null;
 		let lastClass = null;
@@ -233604,6 +233610,12 @@ var init_FPS = __esmMin((() => {
 			return "fps-bad";
 		}
 		function tick(time) {
+			if (startTime === 0) {
+				lastResetTime = time;
+				startTime = time;
+				frame = 0;
+				return;
+			}
 			frame++;
 			if (time - startTime < 1e3) return;
 			const value = +(frame / ((time - startTime) / 1e3)).toFixed(1);
@@ -233612,6 +233624,12 @@ var init_FPS = __esmMin((() => {
 				lastValue = value;
 			}
 			if (_maxFPSRegistered < value) _maxFPSRegistered = value;
+			if (time - lastResetTime > 5e3) {
+				if (value < _minFPSRegistered) {
+					_minFPSRegistered = value;
+					fpsLowEl.textContent = value;
+				}
+			}
 			const cls = getFPSClass(value, Renderer.frameLimit > 0 ? Renderer.frameLimit : _maxFPSRegistered);
 			if (cls !== lastClass) {
 				fpsRoot.style.color = FPS_COLORS[cls] || FPS_COLORS["fps-good"];
