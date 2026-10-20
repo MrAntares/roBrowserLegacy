@@ -36,6 +36,7 @@
 		"format:check": "prettier --check \"src/**/*.js\"",
 		"test": "vitest run",
 		"bench": "vitest bench --run",
+		"wasm:build": "node ./applications/tools/build-wasm.mjs",
 		"ci": "npm run lint && npm run format:check"
 	},
 	"type": "module",
