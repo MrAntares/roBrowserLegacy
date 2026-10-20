@@ -44,19 +44,24 @@ jobs:
         run: |
           node <<'NODE'
           const fs = require('node:fs');
-          const outputPath = '/tmp/bench.txt';
+          const input = '/tmp/bench.txt';
 
-          if (!fs.existsSync(outputPath)) {
+          if (!fs.existsSync(input)) {
             process.exit(0);
           }
 
-          const raw = fs.readFileSync(outputPath, 'utf8');
-          const lines = raw.split(/\r?\n/);
-          const rows = [];
+          const groups = new Map();
           let currentTest = 'Benchmark';
 
-          for (const entry of lines) {
-            const line = entry.trim();
+          function addBenchmark(testName, bench) {
+            if (!groups.has(testName)) {
+              groups.set(testName, []);
+            }
+            groups.get(testName).push(bench);
+          }
+
+          for (const rawLine of fs.readFileSync(input, 'utf8').split(/\r?\n/)) {
+            const line = rawLine.trim();
             if (!line) continue;
 
             if (/^[✓√]\s+/.test(line)) {
@@ -64,13 +69,13 @@ jobs:
               continue;
             }
 
-            const match = line.match(
-              /^·\s+(.+?)\s+([0-9][0-9,]*(?:\.[0-9]+)?)\s+([0-9]+(?:\.[0-9]+)?)\s+([0-9]+(?:\.[0-9]+)?)\s+([0-9]+(?:\.[0-9]+)?)\s+([0-9]+(?:\.[0-9]+)?)\s+([0-9]+(?:\.[0-9]+)?)\s+([0-9]+(?:\.[0-9]+)?)\s+([0-9]+)\s*(.*)$/
+            const benchMatch = line.match(
+              /^·\s+(\S+)\s+([0-9][0-9,]*(?:\.[0-9]+)?)\s+([0-9]+(?:\.[0-9]+)?)\s+([0-9]+(?:\.[0-9]+)?)\s+([0-9]+(?:\.[0-9]+)?)\s+([0-9]+(?:\.[0-9]+)?)\s+([0-9]+(?:\.[0-9]+)?)\s+([^\s]+)\s+([0-9]+)\s*$/
             );
 
-            if (match) {
-              const [
-                ,
+            if (benchMatch) {
+              const [, bench, hz, min, max, mean, p75, p99, rme, samples] = benchMatch;
+              addBenchmark(currentTest, {
                 bench,
                 hz,
                 min,
@@ -79,44 +84,48 @@ jobs:
                 p75,
                 p99,
                 rme,
-                samples,
-                result
-              ] = match;
-
-              rows.push({
-                test: currentTest,
-                bench: bench.trim(),
-                hz: hz.trim(),
-                min: min.trim(),
-                max: max.trim(),
-                mean: mean.trim(),
-                p75: p75.trim(),
-                p99: p99.trim(),
-                rme: rme.trim(),
-                samples: samples.trim(),
-                result: result.trim()
+                samples
               });
+              continue;
+            }
+
+            const fasterMatch = line.match(/^([0-9]+(?:\.[0-9]+)?)x\s+(faster|slower)\s+than\s+(.+)$/i);
+            if (fasterMatch) {
+              const [, value, direction, target] = fasterMatch;
+              const rows = groups.get(currentTest) || [];
+              if (rows.length) {
+                rows[rows.length - 1].speed = `${value}x ${direction} than ${target}`;
+              }
             }
           }
 
-          const summary = [
-            '## Benchmark',
-            '',
-            '| Test | Bench | hz | min (ms) | max (ms) | mean (ms) | p75 | p99 | rme | samples | Result |',
-            '|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---|',
-          ];
+          const summary = ['## Benchmark', ''];
 
-          if (rows.length === 0) {
-            summary.push('');
+          if (groups.size === 0) {
             summary.push('No benchmark rows were parsed from the logs.');
             summary.push('```text');
-            summary.push(raw.trim());
+            summary.push(fs.readFileSync(input, 'utf8').trim());
             summary.push('```');
           } else {
-            for (const row of rows) {
-              summary.push(
-                `| ${row.test} | ${row.bench} | ${row.hz} | ${row.min} | ${row.max} | ${row.mean} | ${row.p75} | ${row.p99} | ${row.rme} | ${row.samples} | ${row.result || '-'} |`
-              );
+            for (const [testName, rows] of groups.entries()) {
+              summary.push(`### ${testName}`);
+              summary.push('');
+              summary.push('| Bench | hz | min (ms) | max (ms) | mean (ms) | p75 | p99 | rme | samples |');
+              summary.push('|---|---:|---:|---:|---:|---:|---:|---:|---:|');
+
+              for (const row of rows) {
+                summary.push(
+                  `| ${row.bench} | ${row.hz} | ${row.min} | ${row.max} | ${row.mean} | ${row.p75} | ${row.p99} | ${row.rme} | ${row.samples} |`
+                );
+              }
+
+              const speedText = rows.find(row => row.speed)?.speed;
+              if (speedText) {
+                summary.push('');
+                summary.push(`**${speedText}**`);
+              }
+
+              summary.push('');
             }
           }
 
