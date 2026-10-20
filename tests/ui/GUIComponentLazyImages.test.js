@@ -84,6 +84,40 @@ describe('window art is fetched when first drawn', () => {
 		win.remove();
 	});
 
+	it('keeps a background the window set before its art was drawn', () => {
+		mocks.requested = [];
+		const win = makeWindow('lazystate');
+		win.append();
+		// e.g. a mini layout or a selected tab, set in onAppend
+		const bg = win.getRoot().querySelector('.bg');
+		bg.style.backgroundImage = 'url(lazystate/mini.bmp)';
+		draw(inWindow(win));
+		expect(mocks.requested).toContain('lazystate/bg.bmp');
+		expect(bg.style.backgroundImage).toContain('lazystate/mini.bmp');
+		win.remove();
+	});
+
+	it('stops watching a window taken off the page, and watches it again when put back', () => {
+		mocks.requested = [];
+		const win = makeWindow('lazyremoved');
+		win.prepare();
+		const watched = () => [...mocks.observed].filter(inWindow(win)).length;
+		expect(watched()).toBe(0);
+		win.append();
+		expect(watched()).toBe(2);
+		win.remove();
+		expect(watched()).toBe(0);
+		win.append();
+		expect(watched()).toBe(2);
+		draw(inWindow(win));
+		expect(mocks.requested.sort()).toEqual([
+			'lazyremoved/bg.bmp',
+			'lazyremoved/close_a.bmp',
+			'lazyremoved/extra.bmp'
+		]);
+		win.remove();
+	});
+
 	it('waits for <ui-button> and <ui-image> to be drawn too', async () => {
 		mocks.requested = [];
 		const host = document.createElement('div');

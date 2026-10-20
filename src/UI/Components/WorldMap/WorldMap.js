@@ -354,6 +354,10 @@ function createWorldMapView(map, imgData) {
 			if (currentMap == section.id) {
 				className += ' currentmap';
 			}
+			// party members reported while the map was not built
+			if (_partyMembersByMap[section.id]) {
+				className += ' membersonmap';
+			}
 
 			if (sectionType === 1) {
 				const posKey = section.left + '_' + section.top;

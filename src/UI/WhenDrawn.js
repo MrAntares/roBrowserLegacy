@@ -34,6 +34,21 @@ function onIntersect(entries) {
 }
 
 /**
+ * The host and the elements under it, in its light and shadow DOM, that
+ * still wait to be drawn.
+ *
+ * @param {Element} host
+ * @returns {Element[]}
+ */
+function pendingWithin(host) {
+	const elements = [host, ...host.querySelectorAll('*')];
+	if (host.shadowRoot) {
+		elements.push(...host.shadowRoot.querySelectorAll('*'));
+	}
+	return elements.filter(element => _pending.has(element));
+}
+
+/**
  * @param {Element} element
  * @param {function} callback
  */
@@ -51,3 +66,29 @@ export default function whenDrawn(element, callback) {
 	_observer ??= new IntersectionObserver(onIntersect);
 	_observer.observe(element);
 }
+
+/**
+ * Stop watching what waits under a window taken off the page, so the
+ * observer does not hold on to a window that is never shown again. The
+ * callbacks stay with their elements and are freed with them.
+ *
+ * @param {Element} host
+ */
+whenDrawn.suspend = function suspend(host) {
+	if (!_observer || !host) return;
+	for (const element of pendingWithin(host)) {
+		_observer.unobserve(element);
+	}
+};
+
+/**
+ * Watch again what waits under a window put back on the page.
+ *
+ * @param {Element} host
+ */
+whenDrawn.resume = function resume(host) {
+	if (!_observer || !host) return;
+	for (const element of pendingWithin(host)) {
+		_observer.observe(element);
+	}
+};

@@ -282,6 +282,7 @@ class GUIComponent {
 		this._setupMouseMode();
 
 		this._host.remove();
+		whenDrawn.suspend(this._host);
 	}
 
 	// ─── Lifecycle: append ─────────────────────────────────
@@ -310,6 +311,7 @@ class GUIComponent {
 		}
 
 		parent.appendChild(this._host);
+		whenDrawn.resume(this._host);
 		if (this._noCursorStyle) {
 			_trackNoCursorStyle(this._noCursorStyle);
 		}
@@ -385,6 +387,7 @@ class GUIComponent {
 
 			// Detach from DOM
 			this._host.remove();
+			whenDrawn.suspend(this._host);
 			if (this._noCursorStyle) {
 				_untrackNoCursorStyle(this._noCursorStyle);
 			}
@@ -1067,10 +1070,17 @@ class GUIComponent {
 	 * Process legacy data-* attributes on a single DOM element.
 	 * Handles: data-background, data-hover, data-down, data-active, data-text, data-preload.
 	 * Static so it can be called from anywhere (e.g. dynamically created buttons).
+	 *
+	 * @param {HTMLElement} node
+	 * @param {object} [options]
+	 * @param {boolean} [options.text] - set the localized text
+	 * @param {boolean} [options.images] - fetch the images
+	 * @param {boolean} [options.late] - fetched after the window was built:
+	 *   keep a background the window has set itself
 	 */
-	static processDataAttrs(node, { text = true, images = true } = {}) {
+	static processDataAttrs(node, { text = true, images = true, late = false } = {}) {
 		if (!_Client || !_DB) {
-			_ensureDeps().then(() => GUIComponent.processDataAttrs(node, { text, images }));
+			_ensureDeps().then(() => GUIComponent.processDataAttrs(node, { text, images, late }));
 			return;
 		}
 		const background = node.dataset.background;
@@ -1121,6 +1131,9 @@ class GUIComponent {
 						console.error(e.message);
 					}
 				}
+				// Fetched late, the window may have set its own background
+				// meanwhile (a mini layout, a selected tab): that one stays.
+				if (late && node.style.backgroundImage) return;
 				updateBg();
 			});
 		}
@@ -1220,7 +1233,7 @@ class GUIComponent {
 			GUIComponent.processDataAttrs(node, { images: false });
 			const { background, hover, down, active, preload } = node.dataset;
 			if (background || hover || down || active || preload) {
-				whenDrawn(node, () => GUIComponent.processDataAttrs(node, { text: false }));
+				whenDrawn(node, () => GUIComponent.processDataAttrs(node, { text: false, late: true }));
 			}
 		}
 	}

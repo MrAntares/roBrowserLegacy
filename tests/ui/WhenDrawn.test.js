@@ -66,4 +66,26 @@ describe('whenDrawn', () => {
 		expect(error).toHaveBeenCalled();
 		error.mockRestore();
 	});
+
+	it('stops watching under a host taken off the page, and resumes when it is back', () => {
+		globalThis.IntersectionObserver = FakeObserver;
+		const host = document.createElement('div');
+		const shadow = host.attachShadow({ mode: 'open' });
+		const inner = document.createElement('span');
+		shadow.appendChild(inner);
+		const callback = vi.fn();
+		whenDrawn(host, callback);
+		whenDrawn(inner, callback);
+
+		whenDrawn.suspend(host);
+		expect(observed.has(host)).toBe(false);
+		expect(observed.has(inner)).toBe(false);
+
+		whenDrawn.resume(host);
+		expect(observed.has(host)).toBe(true);
+		expect(observed.has(inner)).toBe(true);
+		draw(inner);
+		draw(host);
+		expect(callback).toHaveBeenCalledTimes(2);
+	});
 });
