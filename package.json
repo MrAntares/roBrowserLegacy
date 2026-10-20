@@ -36,6 +36,7 @@
 		"format:check": "prettier --check \"src/**/*.js\"",
 		"test": "vitest run",
 		"bench": "vitest bench --run",
+		"wasm:build": "node ./applications/tools/build-wasm.mjs",
 		"ci": "npm run lint && npm run format:check"
 	},
 	"type": "module",
@@ -59,6 +60,7 @@
 		"terser": "^5.19.4",
 		"vite": "^8.0.1",
 		"vitest": "^4.1.2",
+		"vitest-canvas-mock": "^1.2.0",
 		"wabt": "^1.0.39"
 	},
 	"dependencies": {

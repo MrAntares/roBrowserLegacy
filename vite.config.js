@@ -71,6 +71,7 @@ export default defineConfig({
 		setupFiles: ['./tests/setup.js'],
 		include: ['tests/**/*.test.js'],
 		exclude: [...configDefaults.exclude, 'tests/bench/**'],
+		execArgv: ['--no-experimental-webstorage'],
 		benchmark: {
 			include: ['tests/bench/**/*.bench.js'],
 		},

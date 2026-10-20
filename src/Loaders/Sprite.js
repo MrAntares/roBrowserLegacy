@@ -10,6 +10,7 @@
 
 import BinaryReader from 'Utils/BinaryReader.js';
 import { getPaletteConvertWasm } from 'Loaders/wasm/paletteConvert.js';
+import { getSpriteCompileWasm } from 'Loaders/wasm/spriteCompile.js';
 
 /**
  * Sprite Constructor
@@ -383,6 +384,22 @@ class SPR {
 		let out;
 		const output = new Array(count);
 
+		// Pre-calculate the palette with flip=true once for fast transparency checking across all PAL frames
+		let pal32 = null;
+		const MAGENTA = 0xffff00ff;
+
+		const wasmInstance = getSpriteCompileWasm();
+		let wasmMem = null;
+		let wasmPalPtr = 0;
+		let wasmSrcPtr = 0;
+		let wasmPalInitialized = false;
+
+		if (wasmInstance) {
+			wasmMem = wasmInstance.exports.memory;
+			wasmPalPtr = 0; // 256 * 4 bytes = 1024 bytes
+			wasmSrcPtr = 1024;
+		}
+
 		for (i = 0; i < count; ++i) {
 			// Avoid look up
 			frame = frames[i];
@@ -398,28 +415,63 @@ class SPR {
 
 			// If palette.
 			if (frame.type === SPR.TYPE_PAL) {
-				// Pre-calculate the palette with flip=true for fast checking
-				const pal32 = this.convert32bPal(this.palette, true);
+				if (!pal32) {
+					pal32 = this.convert32bPal(this.palette, true);
+				}
 
-				// This creates values in 0xAABBGGRR format (Little Endian).
-				// Magenta (R=255, G=0, B=255, A=255) becomes 0xFFFF00FF.
-				const MAGENTA = 0xffff00ff;
+				if (width <= 0 || height <= 0) {
+					out = new Uint8Array(gl_width * gl_height);
+				} else if (wasmInstance) {
+					const srcBytes = width * height;
+					const dstBytes = gl_width * gl_height;
+					const dstPtr = wasmSrcPtr + srcBytes;
+					const totalBytesNeeded = dstPtr + dstBytes;
 
-				out = new Uint8Array(gl_width * gl_height);
-				for (let y = 0; y < height; ++y) {
-					const srcRow = y * width;
-					const dstRow = (y + start_y) * gl_width + start_x; // precomputed destination row offset
-					for (let x = 0; x < width; ++x) {
-						const idx = data[srcRow + x];
+					if (wasmMem.buffer.byteLength < totalBytesNeeded) {
+						const additionalPages = Math.ceil((totalBytesNeeded - wasmMem.buffer.byteLength) / 65536);
+						wasmMem.grow(additionalPages);
+					}
 
-						// Fast transparency check using pre-calculated 32-bit palette
-						// OLD: O(pixels * 3)
-						// NEW: O(256) + O(pixels * 1)
-						// Set all colors to 0 if collor is Magenta (RO Magic Collor)
-						if (pal32[idx] === MAGENTA) {
-							out[dstRow + x] = 0; // Fully transparent pixel
-						} else {
-							out[dstRow + x] = idx;
+					if (!wasmPalInitialized) {
+						new Uint32Array(wasmMem.buffer, wasmPalPtr, 256).set(pal32);
+						wasmPalInitialized = true;
+					}
+
+					// Zero-initialize destination buffer in WASM memory
+					new Uint8Array(wasmMem.buffer, dstPtr, dstBytes).fill(0);
+					// Copy source indices into WASM memory
+					new Uint8Array(wasmMem.buffer, wasmSrcPtr, srcBytes).set(data);
+
+					wasmInstance.exports.compilePal(
+						wasmPalPtr,
+						wasmSrcPtr,
+						dstPtr,
+						width,
+						height,
+						gl_width,
+						gl_height,
+						start_x,
+						start_y
+					);
+
+					out = new Uint8Array(new Uint8Array(wasmMem.buffer, dstPtr, dstBytes));
+				} else {
+					out = new Uint8Array(gl_width * gl_height);
+					for (let y = 0; y < height; ++y) {
+						const srcRow = y * width;
+						const dstRow = (y + start_y) * gl_width + start_x; // precomputed destination row offset
+						for (let x = 0; x < width; ++x) {
+							const idx = data[srcRow + x];
+
+							// Fast transparency check using pre-calculated 32-bit palette
+							// OLD: O(pixels * 3)
+							// NEW: O(256) + O(pixels * 1)
+							// Set all colors to 0 if collor is Magenta (RO Magic Collor)
+							if (pal32[idx] === MAGENTA) {
+								out[dstRow + x] = 0; // Fully transparent pixel
+							} else {
+								out[dstRow + x] = idx;
+							}
 						}
 					}
 				}
@@ -427,34 +479,57 @@ class SPR {
 
 			// RGBA Images
 			else {
-				out = new Uint8Array(gl_width * gl_height * 4);
-				// Use 32-bit views destination for maximum throughput
-				const out32 = new Uint32Array(out.buffer);
+				if (width <= 0 || height <= 0) {
+					out = new Uint8Array(gl_width * gl_height * 4);
+				} else if (wasmInstance) {
+					const srcBytes = width * height * 4;
+					const dstBytes = gl_width * gl_height * 4;
+					const dstPtr = wasmSrcPtr + srcBytes;
+					const totalBytesNeeded = dstPtr + dstBytes;
 
-				for (let y = 0; y < height; ++y) {
-					const srcRow = (height - y - 1) * width * 4;
-					const dstRow = (y + start_y) * gl_width + start_x;
+					if (wasmMem.buffer.byteLength < totalBytesNeeded) {
+						const additionalPages = Math.ceil((totalBytesNeeded - wasmMem.buffer.byteLength) / 65536);
+						wasmMem.grow(additionalPages);
+					}
 
-					for (let x = 0; x < width; ++x) {
-						const srcIdx = srcRow + x * 4;
+					// Zero-initialize destination buffer in WASM memory
+					new Uint8Array(wasmMem.buffer, dstPtr, dstBytes).fill(0);
+					// Copy source RGBA into WASM memory
+					new Uint8Array(wasmMem.buffer, wasmSrcPtr, srcBytes).set(data);
 
-						/**
-						 * OLD LOGIC: Manual per-channel assignments (out[dst+0]=... out[dst+3]=...). 4 loads + 4 stores + branches.
-						 * NEW LOGIC: Reads RGBA bytes, remaps color channels using bitwise operations, and writes the result as a single 32-bit integer. 4 loads + 1 store.
-						 */
+					wasmInstance.exports.compileRgba(wasmSrcPtr, dstPtr, width, height, gl_width, start_x, start_y);
 
-						// Set all colors to 0 if alpha is also 0
-						// This fixes white outlines appearing on RGBA sprites
-						const a = data[srcIdx];
-						if (a === 0) {
-							out32[dstRow + x] = 0; // Fully transparent pixel
-						} else {
-							const r = data[srcIdx + 3];
-							const g = data[srcIdx + 2];
-							const b = data[srcIdx + 1];
-							// Writing (A<<24 | B<<16 | G<<8 | R) produces LE memory bytes [R, G, B, A], which matches Canvas ImageData (RGBA).
-							// Reconstruct as 32-bit integer (A B G R -> 0xAABBGGRR)
-							out32[dstRow + x] = (a << 24) | (b << 16) | (g << 8) | r;
+					out = new Uint8Array(new Uint8Array(wasmMem.buffer, dstPtr, dstBytes));
+				} else {
+					out = new Uint8Array(gl_width * gl_height * 4);
+					// Use 32-bit views destination for maximum throughput
+					const out32 = new Uint32Array(out.buffer);
+
+					for (let y = 0; y < height; ++y) {
+						const srcRow = (height - y - 1) * width * 4;
+						const dstRow = (y + start_y) * gl_width + start_x;
+
+						for (let x = 0; x < width; ++x) {
+							const srcIdx = srcRow + x * 4;
+
+							/**
+							 * OLD LOGIC: Manual per-channel assignments (out[dst+0]=... out[dst+3]=...). 4 loads + 4 stores + branches.
+							 * NEW LOGIC: Reads RGBA bytes, remaps color channels using bitwise operations, and writes the result as a single 32-bit integer. 4 loads + 1 store.
+							 */
+
+							// Set all colors to 0 if alpha is also 0
+							// This fixes white outlines appearing on RGBA sprites
+							const a = data[srcIdx];
+							if (a === 0) {
+								out32[dstRow + x] = 0; // Fully transparent pixel
+							} else {
+								const r = data[srcIdx + 3];
+								const g = data[srcIdx + 2];
+								const b = data[srcIdx + 1];
+								// Writing (A<<24 | B<<16 | G<<8 | R) produces LE memory bytes [R, G, B, A], which matches Canvas ImageData (RGBA).
+								// Reconstruct as 32-bit integer (A B G R -> 0xAABBGGRR)
+								out32[dstRow + x] = (a << 24) | (b << 16) | (g << 8) | r;
+							}
 						}
 					}
 				}

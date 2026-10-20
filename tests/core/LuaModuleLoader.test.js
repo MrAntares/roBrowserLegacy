@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { defaultAiVfs } from '../fixtures/defaultAIfs.js'; 
 
 vi.mock('Renderer/EntityManager.js', () => ({
 	default: {
@@ -531,45 +532,7 @@ describe('LuaModuleLoader', () => {
 
 	describe('AIDriver compatibility with Ragnarok Online AI scripts', () => {
 		it('initializes AIDriver and executes AI scripts that use require("AI\\\\Const.lua") and nested modules', async () => {
-			const aiVfs = {
-				'AI/Const.lua': `
-					V_OWNER = 0
-					V_POSITION = 1
-					FOLLOW_ST = 1
-				`,
-				'AI/Util.lua': `
-					require "AI\\\\Const.lua"
-					List = {}
-					function List.new()
-						return { first = 0, last = -1 }
-					end
-				`,
-				'AI/ExtraTactics.lua': `
-					return {
-						getFollowState = function()
-							return FOLLOW_ST
-						end
-					}
-				`,
-				'AI/AI.lua': `
-					require "AI\\\\Const.lua"
-					require "AI\\\\Util.lua"
-					local tactics = require("ExtraTactics")
-					pcall(function() dofile("AI/USER_AI/AggressiveRelogPath.lua") end)
-					MyState = tactics.getFollowState()
-					function AI(myid)
-						MoveToOwner(myid)
-					end
-				`,
-				'AI/AI_M.lua': `
-					require "AI\\\\Const.lua"
-					require "AI\\\\Util.lua"
-					MyState = FOLLOW_ST
-					function AI(myid)
-						MoveToOwner(myid)
-					end
-				`
-			};
+			const aiVfs = { ...defaultAiVfs };
 
 			vi.spyOn(Client, 'loadFile').mockImplementation((filename, onload, onerror) => {
 				if (filename in aiVfs) {
@@ -638,8 +601,8 @@ describe('LuaModuleLoader', () => {
 				}
 			});
 
-			const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-			const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+			const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => { });
+			const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => { });
 
 			const vms = await Promise.all([
 				CLua.Lua.create({ customWasmUri: wasmDataUri }),
