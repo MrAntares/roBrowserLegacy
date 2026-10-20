@@ -23,6 +23,7 @@ import MapPreferences from 'Preferences/Map.js';
 import CameraPreferences from 'Preferences/Camera.js';
 import Renderer from 'Renderer/Renderer.js';
 import Configs from 'Core/Configs.js';
+import PerfProbe from 'Core/PerfProbe.js';
 import EffectConst from 'DB/Effects/EffectConst.js';
 import StatusState from 'DB/Status/StatusState.js';
 import EntityManager from 'Renderer/EntityManager.js';
@@ -1026,6 +1027,61 @@ if (Configs.get('development')) {
 				this.TYPE.INFO,
 				this.FILTER.PUBLIC_LOG
 			);
+		}
+	};
+}
+
+// Performance probe readout, when the configuration switches the probe on (Core/PerfProbe.js)
+if (Configs.get('perfProbe')) {
+	CommandStore.perf = {
+		description: 'Performance probe. Usage: /perf [reset|slow|overlay on|off]',
+		callback: function (text) {
+			const args = text.trim().split(/\s+/).slice(1);
+			const mode = (args[0] || '').toLowerCase();
+
+			if (!PerfProbe.enabled) {
+				this.addText('The performance probe is not running.', this.TYPE.INFO, this.FILTER.PUBLIC_LOG);
+				return;
+			}
+
+			if (!mode || mode === 'stats') {
+				const stats = PerfProbe.stats();
+				console.log('[PerfProbe] stats', stats);
+				this.addText(
+					`${stats.fps} fps over ${stats.drawingSeconds} s of drawing: frame p50 ${stats.frameMs.p50} / p99 ${stats.frameMs.p99} ms, ` +
+						`work ${stats.workMs.avg} ms, ${stats.drawCalls.avg} draws, ${stats.hitches} hitches`,
+					this.TYPE.INFO,
+					this.FILTER.PUBLIC_LOG
+				);
+				return;
+			}
+
+			if (mode === 'reset') {
+				PerfProbe.reset();
+				this.addText('Performance probe reset.', this.TYPE.INFO, this.FILTER.PUBLIC_LOG);
+				return;
+			}
+
+			if (mode === 'slow') {
+				const slow = PerfProbe.slowFrames();
+				const total = PerfProbe.stats().slowFrames;
+				console.table(slow);
+				this.addText(
+					total > slow.length
+						? `${total} frames over 33 ms since the last reset; the first ${slow.length} are listed.`
+						: `${slow.length} frames over 33 ms since the last reset.`,
+					this.TYPE.INFO,
+					this.FILTER.PUBLIC_LOG
+				);
+				return;
+			}
+
+			if (mode === 'overlay') {
+				PerfProbe.overlay((args[1] || 'on').toLowerCase() !== 'off');
+				return;
+			}
+
+			this.addText('Usage: /perf [reset|slow|overlay on|off]', this.TYPE.INFO, this.FILTER.PUBLIC_LOG);
 		}
 	};
 }

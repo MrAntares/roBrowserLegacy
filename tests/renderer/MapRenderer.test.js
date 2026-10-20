@@ -28,7 +28,8 @@ const mocks = vi.hoisted(() => ({
 	screenEffects: { init: vi.fn(), startMapflagEffect: vi.fn() },
 	sky: { setUpCloudData: vi.fn(), init: vi.fn() },
 	damage: { free: vi.fn(), init: vi.fn() },
-	joystickUI: { onRestore: vi.fn() }
+	joystickUI: { onRestore: vi.fn() },
+	perfProbe: { enabled: false, mapStart: vi.fn(), mapReady: vi.fn() }
 }));
 
 vi.mock('Core/Thread.js', () => ({ default: mocks.thread }));
@@ -76,6 +77,7 @@ vi.mock('Renderer/Effects/Shaders/Cartoon.js', () => ({ default: {} }));
 vi.mock('Renderer/Effects/Shaders/Blind.js', () => ({ default: {} }));
 vi.mock('Renderer/Effects/Shaders/Upsampling.js', () => ({ default: {} }));
 vi.mock('Utils/WebGL.js', () => ({ default: { detectBadWebGL: () => false } }));
+vi.mock('Core/PerfProbe.js', () => ({ default: mocks.perfProbe }));
 
 const { default: MapRenderer } = await import('Renderer/MapRenderer.js');
 
@@ -188,6 +190,36 @@ describe('MapRenderer joystick restoration', () => {
 		expect(mocks.mouse.intersect).toBe(true);
 		expect(MapRenderer.currentMap).toBe('payon.gat');
 		expect(mocks.background.setLoading).toHaveBeenCalledTimes(2);
+		MapRenderer.free.mockRestore();
+	});
+
+	it('marks the map ready for the perf probe after its set-up and before its first frame, not at the reveal', () => {
+		vi.spyOn(MapRenderer, 'free').mockImplementation(() => {});
+		mocks.renderer.remove = vi.fn();
+		mocks.perfProbe.enabled = true;
+		let reveal;
+		mocks.background.remove.mockImplementationOnce(callback => (reveal = callback));
+
+		MapRenderer.setMap('geffen.gat');
+		mocks.background.setLoading.mock.calls[0][0]();
+		const onComplete = mocks.thread.send.mock.calls.find(([type]) => type === 'LOAD_MAP')[2];
+		onComplete(true);
+
+		expect(mocks.perfProbe.mapStart).toHaveBeenCalledWith('geffen.gat');
+		expect(mocks.perfProbe.mapReady).toHaveBeenCalledOnce();
+		expect(MapRenderer.onLoad.mock.invocationCallOrder[0]).toBeLessThan(
+			mocks.perfProbe.mapReady.mock.invocationCallOrder[0]
+		);
+		expect(mocks.screenEffects.startMapflagEffect.mock.invocationCallOrder[0]).toBeLessThan(
+			mocks.perfProbe.mapReady.mock.invocationCallOrder[0]
+		);
+		expect(mocks.perfProbe.mapReady.mock.invocationCallOrder[0]).toBeLessThan(
+			mocks.renderer.render.mock.invocationCallOrder[0]
+		);
+
+		reveal();
+		expect(mocks.perfProbe.mapReady).toHaveBeenCalledOnce();
+		mocks.perfProbe.enabled = false;
 		MapRenderer.free.mockRestore();
 	});
 });

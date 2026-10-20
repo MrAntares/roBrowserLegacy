@@ -60,7 +60,7 @@ Example: `import Sprite from 'Loaders/Sprite.js';`
 6. **UI** (`src/UI/`): UIManager, UIVersionManager, GUIComponent (base class, Shadow DOM), Custom Elements (`src/UI/Elements/`), CursorManager, Scrollbar, Background, TouchDrag, ClampToViewport, WhenDrawn (runs a callback the first time an element is drawn; window art waits for it), 100+ component directories
 7. **Controls** (`src/Controls/`): EntityControl, MapControl, KeyEventHandler, MouseEventHandler, ProcessCommand, BattleMode, ScreenShot
 8. **Audio** (`src/Audio/`): BGM.js, SoundManager.js
-9. **Core** (`src/Core/`): Client, Configs, Context, Events, FileManager, FileSystem, MemoryItem, MemoryManager, Mobile, Preferences, Thread, ThreadEventHandler, AIDriver, LuaModuleLoader
+9. **Core** (`src/Core/`): Client, Configs, Context, Events, FileManager, FileSystem, MemoryItem, MemoryManager, Mobile, Preferences, Thread, ThreadEventHandler, AIDriver, LuaModuleLoader, PerfProbe (opt-in frame/draw-call/map-load probe, `perfProbe: true`)
 10. **Preferences** (`src/Preferences/`): Audio, Graphics, Controls, UI, Camera, Map, ShortCutControls
 11. **Plugins** (`src/Plugins/`): PluginManager.js
 12. **Utils** (`src/Utils/`): BinaryReader, BinaryWriter, Struct, Inflate, PathFinding, WebGL, Texture, Executable, CRC32, CodepageManager, ConsoleManager, HTMLEntity, Queue, Base62, colors, partyColors, gl-matrix
@@ -384,6 +384,7 @@ All 13 existing versioned component families (`BasicInfo`, `CharCreate`, `CharSe
 
 - Set `development: true` in ROConfig to enable console output
 - Set `enableConsole: true` for console without full dev mode
+- Set `perfProbe: true` to measure frame times, draw calls, map loads and startup (`src/Core/PerfProbe.js`); read it in game with `/perf`
 - ConsoleManager (`src/Utils/ConsoleManager.js`) silences ALL console  
   output in production — if you see no logs, check these flags first
 

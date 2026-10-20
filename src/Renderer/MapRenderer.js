@@ -55,6 +55,7 @@ import Blind from 'Renderer/Effects/Shaders/Blind.js';
 
 import Upsampling from 'Renderer/Effects/Shaders/Upsampling.js';
 import WebGL from 'Utils/WebGL.js';
+import PerfProbe from 'Core/PerfProbe.js';
 
 const mat4 = glMatrix.mat4;
 const _pos = new Uint16Array(2);
@@ -180,6 +181,10 @@ class MapRenderer {
 		if (oldMap !== newMap) {
 			this.loading = true;
 			BGM.stop();
+
+			if (PerfProbe.enabled) {
+				PerfProbe.mapStart(mapname);
+			}
 			this.currentMap = mapname;
 
 			// Parse the filename (ugly RO)
@@ -633,6 +638,10 @@ function onMapComplete(success, error) {
 	MapRenderer.onLoad();
 	Sky.setUpCloudData();
 	ScreenEffectManager.startMapflagEffect(worldResource);
+
+	if (PerfProbe.enabled) {
+		PerfProbe.mapReady();
+	}
 
 	Renderer.show();
 	Renderer.render(MapRenderer.onRender);
