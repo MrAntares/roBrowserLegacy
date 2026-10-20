@@ -25,7 +25,7 @@ Object.assign(_overlay.style, {
 	position: 'absolute',
 	top: '0',
 	left: '0',
-	zIndex: '1000',
+	zIndex: '1010',
 	backgroundColor: 'black',
 	opacity: '0'
 });
@@ -270,17 +270,21 @@ class Background {
 	 * @param {function} callback once the overlay hide the window (optional)
 	 */
 	static remove(callback) {
-		const removal = {};
+		const removal = { zIndex: [_container.style.zIndex, _canvas.style.zIndex] };
 		Background._removal = removal;
 
 		// Whatever is put on screen during the fade (the map behind, its
-		// windows) stays under the image until the screen is black.
-		_container.style.zIndex = '998';
-		_canvas.style.zIndex = '999';
+		// windows, the touch controls at 1000) stays under the image until
+		// the screen is black.
+		_container.style.zIndex = '1008';
+		_canvas.style.zIndex = '1009';
 
 		transition(() => {
-			// A background set during the fade replaces the one this call was removing
-			if (Background._removal === removal) {
+			// A background set during the fade replaces the one this call was removing:
+			// it stays, back at the depth it had before the fade.
+			if (Background._removal !== removal) {
+				[_container.style.zIndex, _canvas.style.zIndex] = removal.zIndex;
+			} else {
 				Background._removal = null;
 				_container.style.zIndex = '0';
 				_canvas.style.zIndex = '0';
