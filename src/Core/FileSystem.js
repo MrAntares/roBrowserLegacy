@@ -439,8 +439,10 @@ class FileSystem {
 				.getFile(String(_writeCount++), { create: true });
 			const writer = tmpEntry.createWriter();
 
+			// write() does not shorten a longer file left under that name
 			writer.truncate(0);
 			writer.write(new Blob([buffer]));
+			// Replaces the file already under that name, if any
 			tmpEntry.moveTo(dir, name);
 		} catch (e) {
 			console.warn(`[FileSystem] cannot cache ${filename}: ${e.name}`);
