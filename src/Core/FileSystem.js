@@ -50,6 +50,33 @@ const _available = !!(self.requestFileSystemSync || self.webkitRequestFileSystem
 let _save = false;
 
 /**
+ * Chromium's FileSystem may refuse a name outside printable ASCII
+ * (SecurityError), as the client's Korean folders: those characters and `%`
+ * are stored percent-encoded.
+ */
+const _unsafeChars = /[^\x20-\x7e]|%/g;
+
+/**
+ * @param {string} path
+ * @returns {string} the name it is stored under
+ */
+function toStoredPath(path) {
+	return path.replace(_unsafeChars, encodeURIComponent);
+}
+
+/**
+ * @param {string} name
+ * @returns {string} the name it was stored for
+ */
+function fromStoredName(name) {
+	try {
+		return decodeURIComponent(name);
+	} catch (_e) {
+		return name;
+	}
+}
+
+/**
  * Normalize file path
  *
  * @param {array} FileList
@@ -153,7 +180,7 @@ function processUpload(index) {
 	}
 
 	_fs.root.getFile(
-		'/__tmp_upload/' + file._path,
+		'/__tmp_upload/' + toStoredPath(file._path),
 		{ create: true },
 		function (fileEntry) {
 			fileEntry.createWriter(function (writer) {
@@ -222,7 +249,7 @@ function buildHierarchy() {
 	_fs_sync.root.getDirectory('/__tmp_upload/', { create: true });
 
 	for (i = 0, count = keys.length; i < count; ++i) {
-		_fs_sync.root.getDirectory('/__tmp_upload/' + keys[i], { create: true });
+		_fs_sync.root.getDirectory('/__tmp_upload/' + toStoredPath(keys[i]), { create: true });
 	}
 }
 
@@ -274,7 +301,7 @@ class FileSystem {
 		let fileEntry;
 
 		try {
-			fileEntry = _fs_sync.root.getFile(filename, { create: false });
+			fileEntry = _fs_sync.root.getFile(toStoredPath(filename), { create: false });
 		} catch (_e) {
 			// not found
 			return null;
@@ -314,7 +341,7 @@ class FileSystem {
 		}
 
 		_fs.root.getFile(
-			filename,
+			toStoredPath(filename),
 			{ create: false },
 			fileEntry => {
 				if (fileEntry.isFile) {
@@ -339,12 +366,12 @@ class FileSystem {
 			return;
 		}
 
-		const filename = filePath.replace(/\\/g, '/');
+		const filename = toStoredPath(filePath.replace(/\\/g, '/'));
 		const directories = filename.split('/').slice(0, -1);
 		let path = '';
 
-		// Best effort: Chromium refuses some names (SecurityError), and a throw
-		// here would fail the caller's load of a file it already has.
+		// Best effort: a throw here would fail the caller's load of a file it
+		// already has.
 		try {
 			// Create hierarchy
 			while (directories.length) {
@@ -387,7 +414,7 @@ class FileSystem {
 		const entries = _fs_sync.root.createReader().readEntries();
 
 		for (i = 0, count = entries.length; i < count; ++i) {
-			if (entries[i].isFile && entries[i].name.match(regex)) {
+			if (entries[i].isFile && fromStoredName(entries[i].name).match(regex)) {
 				list.push(entries[i].file());
 			}
 		}
