@@ -142,7 +142,7 @@ class Targa {
 		if (wasm && wasm.exports.decodeRLE) {
 			const memory = wasm.exports.memory;
 			const srcPtr = 0;
-			const srcBytes = data.length - offset;
+			const srcBytes = Math.max(0, data.length - offset);
 			// keep the destination 4-byte aligned (i32 stores)
 			const dstPtr = (srcBytes + 3) & ~3;
 			const totalBytesNeeded = dstPtr + outputSize;
