@@ -314549,7 +314549,7 @@ var init_EntityRender = __esmMin((() => {
 						}
 						if (isLookingBack(direction)) {
 							if (self.robe > 0) {
-								SpriteRenderer.zIndex = bodyZOffset + robeCorrection(false);
+								SpriteRenderer.zIndex = hat_offsets + robeCorrection(false);
 								renderElement(self, self.files.robe, "robe", _position, true);
 							}
 							if (SessionStorage_default.Playing == true && self.hasCart == true) {
