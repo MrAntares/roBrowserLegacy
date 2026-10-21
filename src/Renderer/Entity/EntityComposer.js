@@ -1,5 +1,5 @@
-import SpriteRenderer from '../SpriteRenderer.js';
-import SpriteBatch from '../SpriteBatch.js';
+import SpriteRenderer from 'Renderer/SpriteRenderer.js';
+import SpriteBatch from 'Renderer/SpriteBatch.js';
 import GraphicsSettings from 'Preferences/Graphics.js';
 import { getFrameCanvas } from 'Renderer/SpriteRenderer.js';
 
@@ -19,7 +19,7 @@ const STALE_MS = 2000;
 const MAX_TEXTURES = 512;
 
 const cache = new Map();
-const canvasCache = new Map();
+const canvasCache = new WeakMap();
 
 // Textures waiting for the pending batch to be drawn: deleting one while a
 // queued draw still references it would blank the sprite.
