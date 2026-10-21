@@ -1,3 +1,12 @@
+/**
+ * Renderer/Entity/EntityCompose.js
+ * Single sprite Player composer.
+ *
+ * This file is part of ROBrowser, (http://www.robrowser.com/).
+ *
+ * @author AoShinHo
+ */
+
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import SpriteBatch from 'Renderer/SpriteBatch.js';
 import GraphicsSettings from 'Preferences/Graphics.js';
