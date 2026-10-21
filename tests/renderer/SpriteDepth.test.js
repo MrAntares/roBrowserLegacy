@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { mat4 } from 'Utils/gl-matrix.js';
+import _vertexShader from 'Renderer/SpriteRenderer.vs?raw';
 import _fragmentShader from 'Renderer/SpriteRenderer.fs?raw';
+import _batchVertexShader from 'Renderer/SpriteBatch.vs?raw';
 import _batchFragmentShader from 'Renderer/SpriteBatch.fs?raw';
 
 /**
@@ -129,13 +131,40 @@ function depthAt(q, sx, sy, fragmentMin) {
 	return null;
 }
 
-for (const [name, shader] of [
-	['SpriteRenderer', _fragmentShader],
-	['SpriteBatch', _batchFragmentShader]
+// The lines of each shader the model above stands for
+const VERTEX_DEPTH = [
+	/out float vBillboardZ;/,
+	/out float vPlaneZ;/,
+	/float billboardZ = gl_Position\.z;/,
+	/planeZ = correctedZBase;/,
+	/vBillboardZ\s*=\s*billboardZ - zOffset;/,
+	/vPlaneZ\s*=\s*planeZ - zOffset;/,
+	/gl_Position\.z\s*=\s*min\(vBillboardZ, vPlaneZ\);/
+];
+const FRAGMENT_DEPTH = [
+	/in float vBillboardZ;/,
+	/in float vPlaneZ;/,
+	/float fragDepth = min\(vBillboardZ, vPlaneZ\) \* gl_FragCoord\.w \* 0\.5 \+ 0\.5;/,
+	/gl_FragDepth\s*=\s*fragDepth;/,
+	/float depth\s*=\s*fragDepth \/ gl_FragCoord\.w;/
+];
+
+for (const [name, vertexShader, fragmentShader] of [
+	['SpriteRenderer', _vertexShader, _fragmentShader],
+	['SpriteBatch', _batchVertexShader, _batchFragmentShader]
 ]) {
-	const fragmentMin = shader.includes('gl_FragDepth');
+	const fragmentMin = fragmentShader.includes('gl_FragDepth');
 
 	describe(`${name} depth`, () => {
+		it('writes the depth the model takes, and fogs at that depth', () => {
+			for (const line of VERTEX_DEPTH) {
+				expect(vertexShader).toMatch(line);
+			}
+			for (const line of FRAGMENT_DEPTH) {
+				expect(fragmentShader).toMatch(line);
+			}
+		});
+
 		for (const latitude of [50, 65]) {
 			for (const zoom of [15, 50, 125]) {
 				it(`keeps the hair of a sitting Dancer seen from behind in front of her body (lat ${latitude}, zoom ${zoom})`, () => {

@@ -106,8 +106,9 @@ void main(void) {
     if ( textureSample.a == 0.0 )
         discard;
 
-    // Clip-space depth back to window depth
-    gl_FragDepth = min(vBillboardZ, vPlaneZ) * gl_FragCoord.w * 0.5 + 0.5;
+    // Clip-space depth back to window depth, fogged at the same depth
+    float fragDepth = min(vBillboardZ, vPlaneZ) * gl_FragCoord.w * 0.5 + 0.5;
+    gl_FragDepth    = fragDepth;
 
     // Apply shadow, apply color
     textureSample.rgb   *= vShadow;
@@ -115,7 +116,7 @@ void main(void) {
 
     // Fog feature
     if (uFogUse) {
-        float depth     = gl_FragCoord.z / gl_FragCoord.w;
+        float depth     = fragDepth / gl_FragCoord.w;
         float fogFactor = smoothstep( uFogNear, uFogFar, depth );
         fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );
     }

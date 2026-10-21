@@ -41,7 +41,8 @@ varyings. Perspective-correct interpolation gives their exact value at the
 fragment, and `gl_FragDepth` writes the min. The vertex depth still holds the
 per-vertex min, for clipping.
 
-Writing `gl_FragDepth` turns off early depth testing for sprites.
+Writing `gl_FragDepth` turns off early depth testing for sprites. The fog
+reads the same depth, not `gl_FragCoord.z`, which still holds the vertex one.
 
 ## Deviations
 
