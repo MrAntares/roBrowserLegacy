@@ -133,6 +133,10 @@ PetInformations.onAppend = function onAppend() {
 		}
 	}
 
+	if (!_preferences.show) {
+		this._host.style.display = 'none';
+	}
+
 	this._host.style.top = `${Math.min(Math.max(0, _preferences.y), Renderer.height - this._host.getBoundingClientRect().height)}px`;
 	this._host.style.left = `${Math.min(Math.max(0, _preferences.x), Renderer.width - this._host.getBoundingClientRect().width)}px`;
 };
@@ -171,7 +175,19 @@ PetInformations.onShortCut = function onShortCut(key) {
  * @param {object} pet info
  */
 PetInformations.setInformations = function setInformations(info) {
+	if (!info) {
+		return;
+	}
+
+	if (!this.__loaded) {
+		this.append();
+		this._host.style.display = 'none';
+	}
+
 	const root = PetInformations.getRoot();
+	if (!root) {
+		return;
+	}
 
 	const nameInput = root.querySelector('.name');
 	if (nameInput) {
@@ -254,6 +270,9 @@ PetInformations.setInformations = function setInformations(info) {
  */
 PetInformations.setIntimacy = function setIntimacy(val) {
 	const root = PetInformations.getRoot();
+	if (!root) {
+		return;
+	}
 	const el = root.querySelector('.intimacy');
 	if (el) {
 		el.textContent = DB.getMessage(val < 100 ? 672 : val < 250 ? 673 : val < 600 ? 669 : val < 900 ? 674 : 675);
@@ -281,6 +300,9 @@ PetInformations.setFeedConfig = function setFeedConfig(flag) {
  */
 PetInformations.setHunger = function setHunger(val) {
 	const root = PetInformations.getRoot();
+	if (!root) {
+		return;
+	}
 	const el = root.querySelector('.hunger');
 	if (el) {
 		el.textContent = DB.getMessage(val < 10 ? 667 : val < 25 ? 668 : val < 75 ? 669 : val < 90 ? 670 : 671);
