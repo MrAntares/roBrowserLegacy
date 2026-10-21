@@ -1,14 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import { mat4 } from 'Utils/gl-matrix.js';
 import _fragmentShader from 'Renderer/SpriteRenderer.fs?raw';
+import _batchFragmentShader from 'Renderer/SpriteBatch.fs?raw';
 
 /**
  * Depth of SpriteRenderer.vs/.fs ported to JS. Each sprite has two depth candidates, the billboard
  * and a vertical plane through its anchor. Taken per vertex, the min is interpolated linearly in
  * screen space; taken per fragment (gl_FragDepth), it is the min of the two perspective-correct
- * candidates. The shader source picks the model.
+ * candidates. The shader source picks the model: SpriteRenderer draws one sprite at a time,
+ * SpriteBatch the entities in instanced batches, both must agree.
  */
-const FRAGMENT_MIN = _fragmentShader.includes('gl_FragDepth');
 const CORNERS = [
 	[-0.5, 0.5],
 	[0.5, 0.5],
@@ -104,7 +105,7 @@ function quad(cam, layer, anchor, zIndex) {
 }
 
 // NDC depth of the quad at a screen point, null outside
-function depthAt(q, sx, sy) {
+function depthAt(q, sx, sy, fragmentMin) {
 	for (let t = 0; t < STRIP.length; t++) {
 		const v = STRIP[t].map(i => q.vertices[i]);
 		const det = (v[1].y - v[2].y) * (v[0].x - v[2].x) + (v[2].x - v[1].x) * (v[0].y - v[2].y);
@@ -116,7 +117,7 @@ function depthAt(q, sx, sy) {
 			continue;
 		}
 
-		if (!FRAGMENT_MIN) {
+		if (!fragmentMin) {
 			return l.reduce((sum, li, i) => sum + (li * Math.min(v[i].billboardZ, v[i].planeZ)) / v[i].w, 0);
 		}
 
@@ -128,51 +129,58 @@ function depthAt(q, sx, sy) {
 	return null;
 }
 
-describe('SpriteRenderer depth', () => {
-	for (const latitude of [50, 65]) {
-		for (const zoom of [15, 50, 125]) {
-			it(`keeps the hair of a sitting Dancer seen from behind in front of her body (lat ${latitude}, zoom ${zoom})`, () => {
-				const cam = camera(zoom, latitude);
-				const { body, head } = DANCER_SIT_BACK;
-				const headAnchor = [body.anchor[0] - head.anchor[0], body.anchor[1] - head.anchor[1]];
-				const bodyQuad = quad(cam, body, [0, 0], 150);
-				const headQuad = quad(cam, head, headAnchor, 300);
+for (const [name, shader] of [
+	['SpriteRenderer', _fragmentShader],
+	['SpriteBatch', _batchFragmentShader]
+]) {
+	const fragmentMin = shader.includes('gl_FragDepth');
 
-				const xs = headQuad.vertices.map(v => v.x);
-				const ys = headQuad.vertices.map(v => v.y);
-				let samples = 0;
-				let lost = 0;
+	describe(`${name} depth`, () => {
+		for (const latitude of [50, 65]) {
+			for (const zoom of [15, 50, 125]) {
+				it(`keeps the hair of a sitting Dancer seen from behind in front of her body (lat ${latitude}, zoom ${zoom})`, () => {
+					const cam = camera(zoom, latitude);
+					const { body, head } = DANCER_SIT_BACK;
+					const headAnchor = [body.anchor[0] - head.anchor[0], body.anchor[1] - head.anchor[1]];
+					const bodyQuad = quad(cam, body, [0, 0], 150);
+					const headQuad = quad(cam, head, headAnchor, 300);
 
-				for (let i = 0; i <= 40; i++) {
-					for (let j = 0; j <= 40; j++) {
-						const sx = Math.min(...xs) + ((Math.max(...xs) - Math.min(...xs)) * i) / 40;
-						const sy = Math.min(...ys) + ((Math.max(...ys) - Math.min(...ys)) * j) / 40;
-						const bodyZ = depthAt(bodyQuad, sx, sy);
-						const headZ = depthAt(headQuad, sx, sy);
+					const xs = headQuad.vertices.map(v => v.x);
+					const ys = headQuad.vertices.map(v => v.y);
+					let samples = 0;
+					let lost = 0;
 
-						if (bodyZ === null || headZ === null) {
-							continue;
-						}
-						samples++;
-						if (headZ >= bodyZ) {
-							lost++;
+					for (let i = 0; i <= 40; i++) {
+						for (let j = 0; j <= 40; j++) {
+							const sx = Math.min(...xs) + ((Math.max(...xs) - Math.min(...xs)) * i) / 40;
+							const sy = Math.min(...ys) + ((Math.max(...ys) - Math.min(...ys)) * j) / 40;
+							const bodyZ = depthAt(bodyQuad, sx, sy, fragmentMin);
+							const headZ = depthAt(headQuad, sx, sy, fragmentMin);
+
+							if (bodyZ === null || headZ === null) {
+								continue;
+							}
+							samples++;
+							if (headZ >= bodyZ) {
+								lost++;
+							}
 						}
 					}
-				}
 
-				expect(samples).toBeGreaterThan(100);
-				expect(lost).toBe(0);
-			});
+					expect(samples).toBeGreaterThan(100);
+					expect(lost).toBe(0);
+				});
+			}
 		}
-	}
 
-	it('keeps the feet below the anchor on the billboard depth, in front of the ground', () => {
-		const cam = camera(50, 50);
-		const bodyQuad = quad(cam, DANCER_SIT_BACK.body, [0, 0], 150);
-		const bottom = bodyQuad.vertices[2];
-		const z = depthAt(bodyQuad, bottom.x + 0.0001, bottom.y + 0.0001);
+		it('keeps the feet below the anchor on the billboard depth, in front of the ground', () => {
+			const cam = camera(50, 50);
+			const bodyQuad = quad(cam, DANCER_SIT_BACK.body, [0, 0], 150);
+			const bottom = bodyQuad.vertices[2];
+			const z = depthAt(bodyQuad, bottom.x + 0.0001, bottom.y + 0.0001, fragmentMin);
 
-		expect(bottom.billboardZ).toBeLessThan(bottom.planeZ);
-		expect(z).toBeCloseTo(bottom.billboardZ / bottom.w, 4);
+			expect(bottom.billboardZ).toBeLessThan(bottom.planeZ);
+			expect(z).toBeCloseTo(bottom.billboardZ / bottom.w, 4);
+		});
 	});
-});
+}

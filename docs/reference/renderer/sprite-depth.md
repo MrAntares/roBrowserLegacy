@@ -2,6 +2,8 @@
 
 How `SpriteRenderer.vs` / `.fs` give each fragment of a sprite its depth, and
 why the min of the two candidates is taken in the fragment shader.
+`SpriteBatch.vs` / `.fs`, which draw the entities in instanced batches, do the
+same with the per-sprite values read from the instance.
 
 ## Rules
 

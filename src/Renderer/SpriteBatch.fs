@@ -3,6 +3,8 @@ precision highp float;
 precision highp sampler2DArray;
 
 in vec2 vTextureCoord;  // 0..1 across the frame, as in SpriteRenderer.fs
+in float vBillboardZ;
+in float vPlaneZ;
 flat in vec4 vUV;       // the frame's rectangle in the texture
 flat in vec4 vColor;
 flat in float vShadow;
@@ -103,6 +105,9 @@ void main(void) {
     // No alpha, skip.
     if ( textureSample.a == 0.0 )
         discard;
+
+    // Clip-space depth back to window depth
+    gl_FragDepth = min(vBillboardZ, vPlaneZ) * gl_FragCoord.w * 0.5 + 0.5;
 
     // Apply shadow, apply color
     textureSample.rgb   *= vShadow;
