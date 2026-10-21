@@ -1,67 +1,31 @@
 import SpriteRenderer from '../SpriteRenderer.js';
+import SpriteBatch from '../SpriteBatch.js';
+import GraphicsSettings from 'Preferences/Graphics.js';
+import { getFrameCanvas } from 'Renderer/SpriteRenderer.js';
 
-const MAX_TEXTURES = 128;
+/**
+ * How long a composite can stay in the cache without being drawn before its
+ * texture is released (2 seconds).
+ * @type {number}
+ */
+const STALE_MS = 2000;
+
+/**
+ * Safety cap on the number of composite textures kept alive at the same time.
+ * Every composite owns a texture of its own, so this bounds the video memory
+ * used when a lot of entities are visible at once.
+ * @type {number}
+ */
+const MAX_TEXTURES = 512;
+
 const cache = new Map();
-const scratchCanvases = new Map();
+const canvasCache = new Map();
+
+// Textures waiting for the pending batch to be drawn: deleting one while a
+// queued draw still references it would blank the sprite.
+const pendingDeletion = [];
 let active = null;
 let cacheGL = null;
-
-function getScratch(width, height) {
-	const key = `${width}x${height}`;
-	let scratch = scratchCanvases.get(key);
-	if (!scratch) {
-		const canvas = document.createElement('canvas');
-		canvas.width = width;
-		canvas.height = height;
-		const ctx = canvas.getContext('2d');
-		scratch = { canvas, ctx, imageData: ctx.createImageData(width, height) };
-		scratchCanvases.set(key, scratch);
-	}
-	return scratch;
-}
-
-function createLayerCanvas(frame, palette, color) {
-	const { canvas, ctx, imageData } = getScratch(frame.width, frame.height);
-	const input = frame.data;
-	const output = new Uint32Array(imageData.data.buffer);
-	const rMul = color[0];
-	const gMul = color[1];
-	const bMul = color[2];
-	const aMul = color[3];
-
-	if (frame.type === 1) {
-		const input32 = new Uint32Array(input.buffer, input.byteOffset, input.byteLength >>> 2);
-		if (rMul === 1 && gMul === 1 && bMul === 1 && aMul === 1) {
-			output.set(input32);
-		} else {
-			for (let i = 0; i < output.length; i++) {
-				const pixel = input32[i];
-				if (!pixel) {
-					output[i] = 0;
-					continue;
-				}
-				const r = (pixel & 0xff) * rMul;
-				const g = ((pixel >>> 8) & 0xff) * gMul;
-				const b = ((pixel >>> 16) & 0xff) * bMul;
-				const a = ((pixel >>> 24) & 0xff) * aMul;
-				output[i] = (a << 24) | (b << 16) | (g << 8) | r;
-			}
-		}
-	} else {
-		const pal32 = new Uint32Array(256);
-		for (let i = 1; i < 256; i++) {
-			const p = i * 4;
-			const r = (palette[p] * rMul) | 0;
-			const g = (palette[p + 1] * gMul) | 0;
-			const b = (palette[p + 2] * bMul) | 0;
-			const a = (255 * aMul) | 0;
-			pal32[i] = (a << 24) | (b << 16) | (g << 8) | r;
-		}
-		for (let i = 0; i < output.length; i++) output[i] = pal32[input[i]];
-	}
-	ctx.putImageData(imageData, 0, 0);
-	return canvas;
-}
 
 function capture(entity, frame, palette, offset) {
 	if (!active || !frame || frame.width <= 0 || frame.height <= 0) return false;
@@ -114,11 +78,23 @@ function sameKey(a, b) {
 	return true;
 }
 
-function evictOldest(gl) {
-	const oldest = cache.keys().next().value;
-	const entry = cache.get(oldest);
-	if (entry && entry.texture && gl) gl.deleteTexture(entry.texture);
-	cache.delete(oldest);
+/**
+ * Delete the texture of a composite.
+ *
+ * The texture is deleted with the context it was created with, not with the
+ * current one: the two may differ after a context loss.
+ *
+ * @param {object} entry - the cache entry
+ * @param {WebGLRenderingContext} gl - fallback context
+ */
+function releaseEntry(entry, gl) {
+	const ctx = (entry && entry.gl) || gl;
+	if (entry && entry.texture && ctx) {
+		ctx.deleteTexture(entry.texture);
+	}
+	if (entry) {
+		entry.texture = null;
+	}
 }
 
 function useEntry(entry) {
@@ -190,7 +166,10 @@ class EntityComposer {
 			cacheGL = gl;
 			entry = null;
 		}
+		const now = Date.now();
+
 		if (gl && entry && sameKey(entry.key, key)) {
+			entry.lastUsed = now;
 			cache.delete(work.entity);
 			cache.set(work.entity, entry);
 			useEntry(entry);
@@ -202,11 +181,13 @@ class EntityComposer {
 				texture: gl ? gl.createTexture() : null,
 				canvas: document.createElement('canvas'),
 				ctx: null,
-				gl
+				gl,
+				lastUsed: now
 			};
 			entry.ctx = entry.canvas.getContext('2d');
-			if (cache.size >= MAX_TEXTURES) evictOldest(gl);
 			cache.set(work.entity, entry);
+		} else {
+			entry.lastUsed = now;
 		}
 		if (entry.canvas.width !== width || entry.canvas.height !== height) {
 			entry.canvas.width = width;
@@ -221,7 +202,7 @@ class EntityComposer {
 		entry.offsetY = minY + height / 2;
 		entry.ctx.clearRect(0, 0, width, height);
 		for (const layer of work.layers) {
-			const source = createLayerCanvas(layer.frame, layer.palette, layer.color);
+			const source = getFrameCanvas(canvasCache, layer.frame, layer.palette, layer.color);
 			entry.ctx.save();
 			entry.ctx.translate(layer.x - minX, layer.y - minY);
 			entry.ctx.rotate((layer.angle / 180) * Math.PI);
@@ -237,14 +218,86 @@ class EntityComposer {
 		}
 		if (gl) {
 			gl.bindTexture(gl.TEXTURE_2D, entry.texture);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+			const filter = GraphicsSettings.pixelPerfectSprites ? gl.NEAREST : gl.LINEAR;
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter);
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 			gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
 			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, entry.canvas);
 		}
 		useEntry(entry);
+	}
+
+	/**
+	 * Release the composites that were not drawn for a while.
+	 *
+	 * Call it once per frame, AFTER the batch has been drawn: a texture can
+	 * only be deleted when no queued draw references it anymore. Deleting one
+	 * earlier (while the entity pass is still recording) blanks the sprite it
+	 * belongs to, since the draw only happens at flush time.
+	 *
+	 * @param {WebGLRenderingContext} gl
+	 */
+	static endFrame(gl) {
+		// The textures freed during the frame: the batch has been drawn, so
+		// nothing references them anymore.
+		for (const entry of pendingDeletion) {
+			releaseEntry(entry, gl);
+		}
+		pendingDeletion.length = 0;
+
+		// The composites that were not drawn for a while.
+		const now = Date.now();
+		for (const [entity, entry] of cache) {
+			if (now - entry.lastUsed > STALE_MS) {
+				cache.delete(entity);
+				releaseEntry(entry, gl);
+			}
+		}
+
+		// Safety cap: the least recently drawn composites go first. Applied
+		// here and not in end(), so a texture is never deleted while the
+		// batch still holds a draw of it.
+		if (cache.size > MAX_TEXTURES) {
+			const entries = [...cache.entries()].sort((a, b) => a[1].lastUsed - b[1].lastUsed);
+			for (let i = 0; i < entries.length - MAX_TEXTURES; i++) {
+				cache.delete(entries[i][0]);
+				releaseEntry(entries[i][1], gl);
+			}
+		}
+	}
+
+	/**
+	 * Forget the composite of an entity that left the scene.
+	 *
+	 * The texture is deleted right away when no batch is recording, and after
+	 * the next flush when a batch still holds a draw of it.
+	 *
+	 * @param {object} entity
+	 */
+	static remove(entity) {
+		const entry = cache.get(entity);
+		if (!entry) {
+			return;
+		}
+		cache.delete(entity);
+
+		if (SpriteBatch.active) {
+			pendingDeletion.push(entry);
+		} else {
+			releaseEntry(entry);
+		}
+	}
+
+	/**
+	 * Forget every composite: the WebGL context was lost, its textures are
+	 * gone and cannot be deleted anymore.
+	 */
+	static reset() {
+		cache.clear();
+		pendingDeletion.length = 0;
+		cacheGL = null;
 	}
 }
 
