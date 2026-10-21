@@ -14,6 +14,11 @@ const watFiles = [
 		wat: 'src/Loaders/wasm/spriteCompile.wat',
 		js: 'src/Loaders/wasm/spriteCompile.js',
 		exportConst: 'SPRITE_COMPILE_WASM_BASE64'
+	},
+	{
+		wat: 'src/Loaders/wasm/targa.wat',
+		js: 'src/Loaders/wasm/targa.js',
+		exportConst: 'TARGA_WASM_BASE64'
 	}
 ];
 
@@ -28,6 +33,12 @@ for (const { wat, js, exportConst } of watFiles) {
 
 	const watSource = fs.readFileSync(watPath, 'utf8');
 	const wasmModule = wabt.parseWat(path.basename(watPath), watSource);
+
+	// Validate before emitting: `toBinary()` does not type-check the module, so an
+	// invalid WAT (e.g. a 3-operand i32.add) would silently produce a binary that
+	// fails at WebAssembly.Module() instantiation time.
+	wasmModule.validate({});
+
 	const { buffer } = wasmModule.toBinary({});
 	wasmModule.destroy();
 

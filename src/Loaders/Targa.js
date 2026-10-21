@@ -8,6 +8,8 @@
  * @author Vincent Thibault
  */
 
+import { getTargaWasm } from 'Loaders/wasm/targa.js';
+
 /**
  * TGA Namespace
  * @constructor
@@ -123,13 +125,49 @@ class Targa {
 
 		// RLE encoded
 		if (this.header.hasEncoding) {
-			this.imageData = decodeRLE(data, offset, pixelSize, pixelTotal);
+			this.imageData = this.decodeRLEData(data, offset, pixelSize, pixelTotal);
 		}
 
 		// RAW pixels
 		else {
 			this.imageData = data.subarray(offset, offset + (this.header.hasColorMap ? imageSize : pixelTotal));
 		}
+	}
+
+	/**
+	 * Decode RLE data using WASM if available, otherwise JS fallback
+	 */
+	decodeRLEData(data, offset, pixelSize, outputSize) {
+		const wasm = getTargaWasm();
+		if (wasm && wasm.exports.decodeRLE) {
+			const memory = wasm.exports.memory;
+			const srcPtr = 0;
+			const srcBytes = data.length - offset;
+			// keep the destination 4-byte aligned (i32 stores)
+			const dstPtr = (srcBytes + 3) & ~3;
+			const totalBytesNeeded = dstPtr + outputSize;
+
+			if (memory.buffer.byteLength < totalBytesNeeded) {
+				memory.grow(Math.ceil((totalBytesNeeded - memory.buffer.byteLength) / 65536));
+			}
+
+			// Copy source data to WASM memory
+			new Uint8Array(memory.buffer, srcPtr, srcBytes).set(data.subarray(offset));
+
+			// Decode RLE
+			const bytesWritten = wasm.exports.decodeRLE(srcPtr, dstPtr, srcBytes, outputSize, pixelSize);
+
+			// Return decoded data (always exactly `outputSize` bytes)
+			if (bytesWritten >= outputSize) {
+				return new Uint8Array(new Uint8Array(memory.buffer, dstPtr, outputSize));
+			}
+			const out = new Uint8Array(outputSize);
+			out.set(new Uint8Array(memory.buffer, dstPtr, bytesWritten));
+			return out;
+		}
+
+		// JS fallback
+		return decodeRLE(data, offset, pixelSize, outputSize);
 	}
 
 	/**
@@ -146,6 +184,18 @@ class Targa {
 			imageData = { width: width, height: height, data: new Uint8ClampedArray(width * height * 4) };
 		}
 		const origin = (this.header.flags & Targa.Origin.MASK) >> Targa.Origin.SHIFT;
+
+		// Try WASM path first
+		const wasm = getTargaWasm();
+		if (wasm && wasm.exports.convertToRgba) {
+			const mode = this.getConvertMode();
+			if (mode !== -1) {
+				const ok = this.convertToRgbaWasm(wasm, imageData, mode, origin);
+				if (ok) return imageData;
+			}
+		}
+
+		// JS fallback (existing implementation)
 		let x_start, x_step, x_end, y_start, y_step, y_end;
 
 		if (origin === Targa.Origin.TOP_LEFT || origin === Targa.Origin.TOP_RIGHT) {
@@ -229,6 +279,7 @@ class Targa {
 					}
 				}
 				break;
+
 			case 24:
 				for (let y = y_start; y !== y_end; y += y_step) {
 					const rowOffset = y * width;
@@ -261,6 +312,88 @@ class Targa {
 			}
 		}
 		return imageData;
+	}
+
+	/**
+	 * Convert image data to RGBA using WASM
+	 */
+	convertToRgbaWasm(wasm, imageData, mode, origin) {
+		const memory = wasm.exports.memory;
+		const width = this.header.width;
+		const height = this.header.height;
+		const pixelSize = this.header.pixelDepth >> 3;
+		const srcBytes = this.imageData.length;
+		const dstBytes = width * height * 4;
+
+		// Layout in WASM memory:
+		// 0..1023: palette (1024 bytes, zero-filled)
+		// 1024..1024+srcBytes: source image data
+		// 1024+srcBytes..1024+srcBytes+dstBytes: destination RGBA
+		const colorMapPtr = 0;
+		const srcPtr = 1024;
+		// keep the destination 4-byte aligned (i32 stores)
+		const dstPtr = (srcPtr + srcBytes + 3) & ~3;
+		const totalBytesNeeded = dstPtr + dstBytes;
+
+		// Truncated file: the JS fallback tolerates a short source, the WASM
+		// converter would read past the source region. Bail out to the JS path.
+		if (srcBytes < width * height * pixelSize) {
+			return false;
+		}
+
+		if (memory.buffer.byteLength < totalBytesNeeded) {
+			memory.grow(Math.ceil((totalBytesNeeded - memory.buffer.byteLength) / 65536));
+		}
+
+		// Zero-fill palette region
+		new Uint8Array(memory.buffer, colorMapPtr, 1024).fill(0);
+
+		// Copy palette if present (max 768 bytes for 256*3)
+		if (this.palette) {
+			const palLen = Math.min(this.palette.length, 1024);
+			new Uint8Array(memory.buffer, colorMapPtr, palLen).set(this.palette.subarray(0, palLen));
+		}
+
+		// Copy source image data
+		new Uint8Array(memory.buffer, srcPtr, srcBytes).set(this.imageData);
+
+		// Convert using WASM
+		wasm.exports.convertToRgba(srcPtr, dstPtr, width, height, pixelSize, origin, mode, colorMapPtr);
+
+		// Copy result back to imageData
+		const out = new Uint8Array(memory.buffer, dstPtr, dstBytes);
+		const target = new Uint8Array(imageData.data.buffer);
+		target.set(out);
+
+		return true;
+	}
+
+	/**
+	 * Determine conversion mode for WASM
+	 */
+	getConvertMode() {
+		let mode = -1;
+		switch (this.header.pixelDepth) {
+			case 8:
+				mode = this.header.isGreyColor ? 0 : 1;
+				break;
+			case 16:
+				mode = this.header.isGreyColor ? 2 : 3;
+				break;
+			case 24:
+				mode = 4;
+				break;
+			case 32:
+				mode = 5;
+				break;
+		}
+
+		// For mode 1 (8-bit indexed), ensure palette exists
+		if (mode === 1 && !this.palette) {
+			return -1;
+		}
+
+		return mode;
 	}
 
 	/**
