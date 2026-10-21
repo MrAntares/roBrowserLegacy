@@ -314552,17 +314552,21 @@ var init_EntityRender = __esmMin((() => {
 							if (self.action === self.ACTION.WALK && !(direction > 2 && direction < 6)) bodyZOffset += 250;
 						}
 						SpriteRenderer.zIndex = bodyZOffset + 125;
+						let hat_offsets = bodyZOffset + 125;
 						renderElement(self, self.files.head, "head", _position, false);
 						if (self.accessory3 > 0 && self.accessory3 !== self.accessory) {
-							SpriteRenderer.zIndex = bodyZOffset + 100;
+							hat_offsets += 100;
+							SpriteRenderer.zIndex = hat_offsets;
 							renderElement(self, self.files.accessory3, "head", _position, false);
 						}
 						if (self.accessory2 > 0 && self.accessory2 !== self.accessory && self.accessory2 !== self.accessory3) {
-							SpriteRenderer.zIndex = bodyZOffset + 200;
+							hat_offsets += 100;
+							SpriteRenderer.zIndex = hat_offsets;
 							renderElement(self, self.files.accessory2, "head", _position, false);
 						}
 						if (self.accessory > 0) {
-							SpriteRenderer.zIndex = bodyZOffset + 300;
+							hat_offsets += 100;
+							SpriteRenderer.zIndex = hat_offsets;
 							renderElement(self, self.files.accessory, "head", _position, false);
 						}
 						if (isLookingBack(direction)) {
