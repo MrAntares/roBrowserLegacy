@@ -17,8 +17,8 @@ import KEYS from 'Controls/KeyEventHandler.js';
 import PathFinding from 'Utils/PathFinding.js';
 import GraphicsSettings from 'Preferences/Graphics.js';
 import Altitude from 'Renderer/Map/Altitude.js';
-import Water from 'Renderer/Map/Water.js';
 import GR2ModelRenderer from 'Renderer/GR2/GR2ModelRenderer.js';
+import EntityComposer from 'Renderer/Entity/EntityComposer.js';
 const _list = [];
 
 /**
@@ -172,6 +172,7 @@ function addEntity(entity) {
 function free() {
 	_list.forEach(entity => {
 		releaseGr2(entity);
+		EntityComposer.remove(entity);
 		entity.clean();
 	});
 
@@ -202,6 +203,7 @@ function removeEntity(gid) {
 
 	if (entity) {
 		releaseGr2(entity);
+		EntityComposer.remove(entity);
 		entity.clean();
 		_gidMap.delete(gid);
 		const index = _list.indexOf(entity);
@@ -402,6 +404,9 @@ function render(gl, modelView, projection, fog, renderEffects) {
 
 	// Stop rendering if no units to render (should never happened...)
 	if (!_list.length) {
+		// Nothing is drawn, but the composites of the entities that just left
+		// still have to be released.
+		EntityComposer.endFrame(gl);
 		return;
 	}
 
@@ -423,6 +428,10 @@ function render(gl, modelView, projection, fog, renderEffects) {
 		renderList(modelView, projection, renderEffects, tick);
 	} finally {
 		SpriteRenderer.endBatch();
+
+		// The batch has been drawn: the composite textures that are not used
+		// anymore can be released safely now.
+		EntityComposer.endFrame(gl);
 	}
 
 	// Clean program
@@ -451,6 +460,9 @@ function renderList(modelView, projection, renderEffects, tick) {
 
 				_gidMap.delete(_list[i].GID);
 				releaseGr2(_list[i]);
+				// The batch is still recording here: the composite texture is
+				// released after the flush, not now.
+				EntityComposer.remove(_list[i]);
 				_list[i].clean();
 				_list.splice(i, 1);
 				i--;

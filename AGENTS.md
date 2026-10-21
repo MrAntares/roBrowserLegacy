@@ -56,7 +56,7 @@ Example: `import Sprite from 'Loaders/Sprite.js';`
 2. **Network** (`src/Network/`): PacketRegister, PacketStructure, PacketCrypt, PacketVersions.js, PacketVerManager, PacketLength, NetworkManager, SocketHelpers (WebSocket/NodeSocket)
 3. **Loaders** (`src/Loaders/`): GameFileDecrypt, GameFile, Sprite, Action, Ground (.gnd), Altitude (.gat), World (.rsw), Str (.str effects), Model, GR2Loader (.gr2 3D skeletal models via granny-ro-js), MapLoader, Targa, /wasm loader files
 4. **Database** (`src/DB/`): DBManager + data subdirectories (Effects, Items, Jobs, Map, Monsters, Pets, Skills, Status) + Emotions, TownInfo; `Skills/SkillTreeMerge.js` merges client `skilltreeview.lub` layouts with the built-in skill tree
-5. **Renderer** (`src/Renderer/`): Renderer.js (WebGL context), MapRenderer, EntityManager, EffectManager, ScreenEffectManager, SignboardManager, Camera, SpriteRenderer, SpriteBatch (instanced entity sprite draws), SpriteAtlas (shared sprite frame and palette atlas for SpriteBatch), ItemObject + subdirectories (Effects, Entity, GR2, Map)
+5. **Renderer** (`src/Renderer/`): Renderer.js (WebGL context), MapRenderer, EntityManager, EffectManager, ScreenEffectManager, SignboardManager, Camera, SpriteRenderer, SpriteBatch (instanced entity sprite draws), SpriteAtlas (shared sprite frame and palette atlas for SpriteBatch), EntityComposer (composes and caches layered entity sprites for drawing), ItemObject + subdirectories (Effects, Entity, GR2, Map)
 6. **UI** (`src/UI/`): UIManager, UIVersionManager, GUIComponent (base class, Shadow DOM), Custom Elements (`src/UI/Elements/`), CursorManager, Scrollbar, Background, TouchDrag, ClampToViewport, WhenDrawn (runs a callback the first time an element is drawn; window art waits for it), 100+ component directories
 7. **Controls** (`src/Controls/`): EntityControl, MapControl, KeyEventHandler, MouseEventHandler, ProcessCommand, BattleMode, ScreenShot
 8. **Audio** (`src/Audio/`): BGM.js, SoundManager.js
@@ -139,14 +139,14 @@ Example: `import Sprite from 'Loaders/Sprite.js';`
 - `this.ui` proxy on `GUIComponent` provides a minimal jQuery-compatible API for legacy interop; internal component code must use native DOM and Shadow DOM APIs directly (`this.getRoot().querySelector(...)`)
 - All 13 multi-version component families have been deduplicated into shared `*Common.js` factories (see `docs/GUIComponent_Version_Dedup_Factory.md`)
 
-    > **UI Reference & Architecture Docs:**
-    >
-    > - **L1 — Primary** [`docs/UIComponent_to_GUIComponent.md`](docs/UIComponent_to_GUIComponent.md): consolidated operational memory (invariants, rules, failure matrix, custom elements). **Start here.**
-    > - **L2 — Reflex** [`docs/UIComponent_to_GUIComponent_Firmware.md`](docs/UIComponent_to_GUIComponent_Firmware.md): compressed decision matrix for rapid lookup.
-    > - **L0 — Archive** [`docs/UIComponent_to_GUIComponent_Scars.md`](docs/UIComponent_to_GUIComponent_Scars.md): full historical guide, postmortems, per-component migration reference.
-    > - **Factory Deduplication** [`docs/GUIComponent_Version_Dedup_Factory.md`](docs/GUIComponent_Version_Dedup_Factory.md): rules and patterns for unified `*Common.js` factories.
-    > - **Custom Elements**: [`docs/CustomElements.md`](docs/CustomElements.md) — reference for `<ui-button>`, `<ui-text>`, `<ui-image>`.
-    > - **Historical Issue:** [Issue #1140](https://github.com/MrAntares/roBrowserLegacy/issues/1140) tracked the completed UIComponent→GUIComponent migration.
+**UI Reference & Architecture Docs:**
+
+- **L1 — Primary** [`docs/UIComponent_to_GUIComponent.md`](docs/UIComponent_to_GUIComponent.md): consolidated operational memory (invariants, rules, failure matrix, custom elements). **Start here.**
+- **L2 — Reflex** [`docs/UIComponent_to_GUIComponent_Firmware.md`](docs/UIComponent_to_GUIComponent_Firmware.md): compressed decision matrix for rapid lookup.
+- **L0 — Archive** [`docs/UIComponent_to_GUIComponent_Scars.md`](docs/UIComponent_to_GUIComponent_Scars.md): full historical guide, postmortems, per-component migration reference.
+- **Factory Deduplication** [`docs/GUIComponent_Version_Dedup_Factory.md`](docs/GUIComponent_Version_Dedup_Factory.md): rules and patterns for unified `*Common.js` factories.
+- **Custom Elements**: [`docs/CustomElements.md`](docs/CustomElements.md) — reference for `<ui-button>`, `<ui-text>`, `<ui-image>`.
+- **Historical Issue:** [Issue #1140](https://github.com/MrAntares/roBrowserLegacy/issues/1140) tracked the completed UIComponent→GUIComponent migration.
 
 - **Intro.js**: File upload & server selection
 - **WinList.js**: Character selection
@@ -181,6 +181,12 @@ Example: `import Sprite from 'Loaders/Sprite.js';`
 - **Visual**: StrEffect, RsmEffect, ThreeDEffect, TwoDEffect, Cylinder, Songs, Trail, WaterfallEffect
 - **Screen**: PostProcess
 - **Post-Processing Shaders** (`Effects/Shaders/`): Blind, Bloom, CAS, Cartoon, FXAA, GaussianBlur, Upsampling, VerticalFlip, Vibrance
+
+### Renderer Entity Modules (`src/Renderer/Entity/`)
+
+- **Composition**: `Entity.js` composes `Controls/EntityControl.js` with 16 behavior mixins; `Player.js` specializes the player entity.
+- **Behavior mixins**: `EntityAction`, `EntityAnimations`, `EntityAttachments`, `EntityAura`, `EntityCast`, `EntityDialog`, `EntityDisplay`, `EntityDropEffect`, `EntityEmblem`, `EntityLife`, `EntityOverlay`, `EntityRender`, `EntityRoom`, `EntitySound`, `EntityState`, `EntityView`, `EntityWalk`.
+- **Sprite composition**: `EntityRender` delegates layered player-sprite capture and composition to `EntityComposer`; the composer caches the combined texture for `SpriteBatch` rendering. `EntityManager` releases cached composites when entities are removed and after batch rendering, while `Renderer` resets them after WebGL context loss.
 
 ### Behavior Reference Notes (`docs/reference/`)
 

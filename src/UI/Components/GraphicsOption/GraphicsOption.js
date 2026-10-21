@@ -20,7 +20,6 @@ import htmlText from './GraphicsOption.html?raw';
 import cssText from './GraphicsOption.css?raw';
 
 import MemoryManager from 'Core/MemoryManager.js';
-import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 
 /**
  * Create Component
@@ -233,12 +232,6 @@ function onTogglePixelPerfect() {
 			}
 		}
 		reloadSprites();
-	} else {
-		ChatBox.addText(
-			'[System] Pixel Perfect is disabled. Reload the page (F5) to apply the changes.',
-			ChatBox.TYPE.INFO,
-			ChatBox.FILTER.PUBLIC_LOG
-		);
 	}
 }
 
@@ -418,6 +411,13 @@ function onResetToDefaults() {
 		}
 	});
 	GraphicsSettings.save();
+
+	//Reload Sprites
+	const gl = Renderer.getContext();
+	const sprFiles = MemoryManager.search(/\.spr$/i);
+	for (let i = 0; i < sprFiles.length; i++) {
+		MemoryManager.remove(gl, sprFiles[i]);
+	}
 
 	GraphicsOption.onAppend();
 }
