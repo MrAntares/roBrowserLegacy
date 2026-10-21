@@ -238,6 +238,13 @@ describe('FileSystem with a cache that only takes ASCII names', () => {
 		expect(FileSystem.search('data.grf')).toHaveLength(1);
 	});
 
+	it('lists an older root file named like an Object property', async () => {
+		const FileSystem = await load();
+		state.stored['constructor'] = new Blob([new Uint8Array([1])]);
+
+		expect(FileSystem.search('constructor')).toHaveLength(1);
+	});
+
 	it('misses a Korean path quietly when no copy can be read', async () => {
 		const FileSystem = await load();
 

@@ -486,7 +486,7 @@ class FileSystem {
 			entries = [];
 		}
 
-		const found = {};
+		const found = Object.create(null);
 
 		for (i = 0, count = entries.length; i < count; ++i) {
 			const name = fromStoredName(entries[i].name);
