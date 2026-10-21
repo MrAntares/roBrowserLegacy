@@ -314565,7 +314565,7 @@ var init_EntityRender = __esmMin((() => {
 							bodyZOffset *= 2;
 							if (self.action === self.ACTION.WALK && !(direction > 2 && direction < 6)) bodyZOffset += 250;
 						}
-						SpriteRenderer.zIndex = bodyZOffset + 50;
+						SpriteRenderer.zIndex = bodyZOffset + 125;
 						renderElement(self, self.files.head, "head", _position, false);
 						if (self.accessory3 > 0 && self.accessory3 !== self.accessory) {
 							SpriteRenderer.zIndex = bodyZOffset + 100;
