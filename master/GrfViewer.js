@@ -78170,6 +78170,39 @@ var init_SessionStorage = __esmMin((() => {
 	};
 }));
 //#endregion
+//#region src/Loaders/wasm/targa.js
+var TARGA_WASM_BASE64, base64ToUint8Array$2, _wasmInstance$2, _wasmFailed$2, getTargaWasm;
+var init_targa = __esmMin((() => {
+	TARGA_WASM_BASE64 = "AGFzbQEAAAABCgFgBX9/f39/AX8DAgEABQMBAAEHFgIGbWVtb3J5AgAJZGVjb2RlUkxFAAAKuwIBuAIBCn9BACEFQQAhDAJAA0AgDCADTw0BQQAhBiAFIAJJBEAgACAFai0AACEGCyAFQQFqIQUgBkH/AHEhByAHQQFqIQcgBkGAAXEEQCAFIQsgACALaiEKIAUgBGohBSAMIAcgBGxqIANLBEBBfw8LQQAhCQJAA0AgCSAHTw0BIAwgA08NAUEAIQgCQANAIAggBE8NASAMIANPDQFBACEOIAsgCGogAkkEQCAKIAhqLQAAIQ4LIAEgDGogDjoAACAMQQFqIQwgCEEBaiEIDAALCyAJQQFqIQkMAAsLBSAHIARsIQ1BACEIAkADQCAIIA1PDQEgDCADTw0BQQAhDiAFIAJJBEAgACAFai0AACEOCyABIAxqIA46AAAgBUEBaiEFIAxBAWohDCAIQQFqIQgMAAsLCwwACwsgDAs=";
+	base64ToUint8Array$2 = (base64) => {
+		const binaryString = atob(base64);
+		const len = binaryString.length;
+		const bytes = new Uint8Array(len);
+		for (let i = 0; i < len; ++i) bytes[i] = binaryString.charCodeAt(i);
+		return bytes;
+	};
+	_wasmInstance$2 = null;
+	_wasmFailed$2 = false;
+	getTargaWasm = () => {
+		if (_wasmInstance$2) return _wasmInstance$2;
+		if (_wasmFailed$2) return null;
+		if (typeof WebAssembly !== "object" || typeof WebAssembly.Module !== "function") {
+			_wasmFailed$2 = true;
+			return null;
+		}
+		try {
+			const wasmBytes = base64ToUint8Array$2(TARGA_WASM_BASE64);
+			const module = new WebAssembly.Module(wasmBytes);
+			_wasmInstance$2 = new WebAssembly.Instance(module);
+			return _wasmInstance$2;
+		} catch (e) {
+			_wasmFailed$2 = true;
+			console.warn("Loaders/wasm/targa - Failed to instantiate WASM module:", e);
+			return null;
+		}
+	};
+}));
+//#endregion
 //#region src/Loaders/Targa.js
 /**
 * Check the header of TGA file to detect errors
@@ -78203,6 +78236,7 @@ function decodeRLE(data, offset, pixelSize, outputSize) {
 		count = (c & 127) + 1;
 		if (c & 128) {
 			for (i = 0; i < pixelSize; ++i) pixels[i] = data[offset++];
+			if (pos + count * pixelSize > outputSize) throw new RangeError("Targa: RLE packet exceeds image size");
 			for (i = 0; i < count; ++i) {
 				output.set(pixels, pos);
 				pos += pixelSize;
@@ -78216,6 +78250,7 @@ function decodeRLE(data, offset, pixelSize, outputSize) {
 }
 var Targa;
 var init_Targa = __esmMin((() => {
+	init_targa();
 	Targa = class Targa {
 		constructor() {}
 		/**
@@ -78296,8 +78331,35 @@ var init_Targa = __esmMin((() => {
 			const pixelSize = this.header.pixelDepth >> 3;
 			const imageSize = this.header.width * this.header.height;
 			const pixelTotal = imageSize * pixelSize;
-			if (this.header.hasEncoding) this.imageData = decodeRLE(data, offset, pixelSize, pixelTotal);
+			if (this.header.hasEncoding) this.imageData = this.decodeRLEData(data, offset, pixelSize, pixelTotal);
 			else this.imageData = data.subarray(offset, offset + (this.header.hasColorMap ? imageSize : pixelTotal));
+		}
+		/**
+		* Decode RLE data using WASM if available, otherwise JS fallback
+		*/
+		decodeRLEData(data, offset, pixelSize, outputSize) {
+			const wasm = getTargaWasm();
+			if (wasm && wasm.exports.decodeRLE) {
+				const memory = wasm.exports.memory;
+				const srcPtr = 0;
+				const maxNeeded = outputSize + Math.ceil(outputSize / pixelSize);
+				const srcBytes = Math.min(Math.max(0, data.length - offset), maxNeeded);
+				const dstPtr = srcBytes + 3 & -4;
+				const totalBytesNeeded = dstPtr + outputSize;
+				if (memory.buffer.byteLength < totalBytesNeeded) try {
+					memory.grow(Math.ceil((totalBytesNeeded - memory.buffer.byteLength) / 65536));
+				} catch (_e) {
+					return decodeRLE(data, offset, pixelSize, outputSize);
+				}
+				new Uint8Array(memory.buffer, srcPtr, srcBytes).set(data.subarray(offset, offset + srcBytes));
+				const bytesWritten = wasm.exports.decodeRLE(srcPtr, dstPtr, srcBytes, outputSize, pixelSize);
+				if (bytesWritten < 0) throw new RangeError("Targa: RLE packet exceeds image size");
+				if (bytesWritten >= outputSize) return new Uint8Array(new Uint8Array(memory.buffer, dstPtr, outputSize));
+				const out = new Uint8Array(outputSize);
+				out.set(new Uint8Array(memory.buffer, dstPtr, bytesWritten));
+				return out;
+			}
+			return decodeRLE(data, offset, pixelSize, outputSize);
 		}
 		/**
 		* Return a ImageData object from a TGA file
