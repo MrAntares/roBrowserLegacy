@@ -412,6 +412,13 @@ function onResetToDefaults() {
 	});
 	GraphicsSettings.save();
 
+	//Reload Sprites
+	const gl = Renderer.getContext();
+	const sprFiles = MemoryManager.search(/\.spr$/i);
+	for (let i = 0; i < sprFiles.length; i++) {
+		MemoryManager.remove(gl, sprFiles[i]);
+	}
+
 	GraphicsOption.onAppend();
 }
 
