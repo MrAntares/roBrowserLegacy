@@ -502,7 +502,7 @@ const renderEntity = (function renderEntityClosure() {
 					}
 
 					SpriteRenderer.zIndex = bodyZOffset + 125;
-
+					let hat_offsets = bodyZOffset + 125;
 					// Draw Head
 					renderElement(self, self.files.head, 'head', _position, false);
 
@@ -511,8 +511,9 @@ const renderEntity = (function renderEntityClosure() {
 
 					// Hat Middle
 					if (self.accessory3 > 0 && self.accessory3 !== self.accessory) {
+						hat_offsets += 100;
 						// accessory already rendered, avoid render same item again
-						SpriteRenderer.zIndex = bodyZOffset + 100;
+						SpriteRenderer.zIndex = hat_offsets;
 						renderElement(self, self.files.accessory3, 'head', _position, false);
 					}
 
@@ -523,13 +524,15 @@ const renderEntity = (function renderEntityClosure() {
 						self.accessory2 !== self.accessory3
 					) {
 						// accessory and accessory3 already rendered, avoid render same item again
-						SpriteRenderer.zIndex = bodyZOffset + 200;
+						hat_offsets += 100;
+						SpriteRenderer.zIndex = hat_offsets;
 						renderElement(self, self.files.accessory2, 'head', _position, false);
 					}
 
 					// Hat Bottom
 					if (self.accessory > 0) {
-						SpriteRenderer.zIndex = bodyZOffset + 300;
+						hat_offsets += 100;
+						SpriteRenderer.zIndex = hat_offsets;
 						renderElement(self, self.files.accessory, 'head', _position, false);
 					}
 
