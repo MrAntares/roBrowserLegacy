@@ -1,5 +1,5 @@
 /**
- * Renderer/Entity/EntityCompose.js
+ * Renderer/Entity/EntityComposer.js
  * Single sprite Player composer.
  *
  * This file is part of ROBrowser, (http://www.robrowser.com/).
