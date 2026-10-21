@@ -531,6 +531,10 @@ class SpriteRenderer {
 		return _gl;
 	}
 
+	static get is2D() {
+		return this.render === RenderCanvas2D;
+	}
+
 	static renderCanvas(canvas) {
 		if (this.render !== RenderCanvas2D) {
 			return false;
