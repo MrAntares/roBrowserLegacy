@@ -210066,6 +210066,39 @@ function fillImageData(imageData, frame, pal, color) {
 		}
 	}
 }
+function getFrameCanvas(_cache, frame, pal, color) {
+	let entry = _cache.get(frame);
+	if (!entry) {
+		entry = {
+			rgba: /* @__PURE__ */ new Map(),
+			byPalette: /* @__PURE__ */ new WeakMap()
+		};
+		_cache.set(frame, entry);
+	}
+	let byColor;
+	if (frame.type === 1 || !pal) byColor = entry.rgba;
+	else {
+		byColor = entry.byPalette.get(pal);
+		if (!byColor) {
+			byColor = /* @__PURE__ */ new Map();
+			entry.byPalette.set(pal, byColor);
+		}
+	}
+	const colorKey = `${color[0]},${color[1]},${color[2]},${color[3]}`;
+	let canvas = byColor.get(colorKey);
+	if (!canvas) {
+		if (byColor.size >= MAX_COLORS_PER_PALETTE) byColor.delete(byColor.keys().next().value);
+		canvas = document.createElement("canvas");
+		canvas.width = frame.width;
+		canvas.height = frame.height;
+		const ctx = canvas.getContext("2d");
+		const imageData = ctx.createImageData(frame.width, frame.height);
+		fillImageData(imageData, frame, pal, color);
+		ctx.putImageData(imageData, 0, 0);
+		byColor.set(colorKey, canvas);
+	}
+	return canvas;
+}
 /**
 * Set the depth test and depth write. Inside a batch only the state is kept:
 * each recorded sprite carries it, and SpriteBatch sets it when it draws.
@@ -210097,7 +210130,7 @@ function syncAfterBatch() {
 	_texture$4 = null;
 	_groupId++;
 }
-var mat4$22, RenderCanvas2D, _program$24, _buffer$18, _ctx$4, _gl$3, _groupId, _lastGroupId, _shadow, _angle, _depth, _disableDepthCorrection, _depthMask, _depthTest, _blendOne, _texture$4, _usepal, _pos$8, _matrix$6, _size$7, _offset, SpriteRenderer;
+var mat4$22, MAX_COLORS_PER_PALETTE, RenderCanvas2D, _program$24, _buffer$18, _ctx$4, _gl$3, _groupId, _lastGroupId, _shadow, _angle, _depth, _disableDepthCorrection, _depthMask, _depthTest, _blendOne, _texture$4, _usepal, _pos$8, _matrix$6, _size$7, _offset, SpriteRenderer;
 var init_SpriteRenderer = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
@@ -210107,42 +210140,9 @@ var init_SpriteRenderer = __esmMin((() => {
 	init_SpriteRenderer$2();
 	init_SpriteRenderer$1();
 	mat4$22 = gl_matrix_default.mat4;
+	MAX_COLORS_PER_PALETTE = 8;
 	RenderCanvas2D = (function RenderCanvas2DClosure() {
 		const _cache = /* @__PURE__ */ new WeakMap();
-		const MAX_COLORS_PER_PALETTE = 8;
-		function getFrameCanvas(frame, pal, color) {
-			let entry = _cache.get(frame);
-			if (!entry) {
-				entry = {
-					rgba: /* @__PURE__ */ new Map(),
-					byPalette: /* @__PURE__ */ new WeakMap()
-				};
-				_cache.set(frame, entry);
-			}
-			let byColor;
-			if (frame.type === 1 || !pal) byColor = entry.rgba;
-			else {
-				byColor = entry.byPalette.get(pal);
-				if (!byColor) {
-					byColor = /* @__PURE__ */ new Map();
-					entry.byPalette.set(pal, byColor);
-				}
-			}
-			const colorKey = `${color[0]},${color[1]},${color[2]},${color[3]}`;
-			let canvas = byColor.get(colorKey);
-			if (!canvas) {
-				if (byColor.size >= MAX_COLORS_PER_PALETTE) byColor.delete(byColor.keys().next().value);
-				canvas = document.createElement("canvas");
-				canvas.width = frame.width;
-				canvas.height = frame.height;
-				const ctx = canvas.getContext("2d");
-				const imageData = ctx.createImageData(frame.width, frame.height);
-				fillImageData(imageData, frame, pal, color);
-				ctx.putImageData(imageData, 0, 0);
-				byColor.set(colorKey, canvas);
-			}
-			return canvas;
-		}
 		return function() {
 			if (this.sprite.width <= 0 || this.sprite.height <= 0) return;
 			let scale_x, scale_y;
@@ -210163,7 +210163,7 @@ var init_SpriteRenderer = __esmMin((() => {
 				scale_y *= -1;
 				_size$7[1] *= -1;
 			}
-			const canvas = getFrameCanvas(frame, pal, this.color);
+			const canvas = getFrameCanvas(_cache, frame, pal, this.color);
 			_ctx$4.save();
 			_ctx$4.translate(_x | 0, _y | 0);
 			_ctx$4.rotate(this.angle / 180 * Math.PI);
@@ -210192,6 +210192,22 @@ var init_SpriteRenderer = __esmMin((() => {
 	_size$7 = /* @__PURE__ */ new Float32Array(2);
 	_offset = /* @__PURE__ */ new Float32Array(2);
 	SpriteRenderer = class {
+		static get gl() {
+			return _gl$3;
+		}
+		static get is2D() {
+			return this.render === RenderCanvas2D;
+		}
+		static renderCanvas(canvas) {
+			if (this.render !== RenderCanvas2D) return false;
+			_ctx$4.save();
+			_ctx$4.translate(_pos$8[0] + this.offset[0], _pos$8[1] + this.offset[1] - 17.5);
+			_ctx$4.rotate(this.angle / 180 * Math.PI);
+			_ctx$4.scale(Math.sign(this.size[0]) || 1, Math.sign(this.size[1]) || 1);
+			_ctx$4.drawImage(canvas, -Math.abs(this.size[0]) / 2, -Math.abs(this.size[1]) / 2, Math.abs(this.size[0]), Math.abs(this.size[1]));
+			_ctx$4.restore();
+			return true;
+		}
 		/**
 		* @type {function} functions to use to render
 		*/
@@ -235006,7 +235022,7 @@ function onTogglePixelPerfect() {
 			for (let i = 0; i < sprFiles.length; i++) MemoryManager.remove(gl, sprFiles[i]);
 		}
 		reloadSprites();
-	} else ChatBox_default.addText("[System] Pixel Perfect is disabled. Reload the page (F5) to apply the changes.", ChatBox_default.TYPE.INFO, ChatBox_default.FILTER.PUBLIC_LOG);
+	}
 }
 /**
 * Post-Processing
@@ -235147,6 +235163,9 @@ function onResetToDefaults() {
 		if (defaultSettings.hasOwnProperty(key)) GraphicsSettings[key] = defaultSettings[key];
 	});
 	GraphicsSettings.save();
+	const gl = Renderer.getContext();
+	const sprFiles = MemoryManager.search(/\.spr$/i);
+	for (let i = 0; i < sprFiles.length; i++) MemoryManager.remove(gl, sprFiles[i]);
 	GraphicsOption.onAppend();
 }
 var GraphicsOption, _preferences$32, GraphicsOption_default;
@@ -235162,7 +235181,6 @@ var init_GraphicsOption = __esmMin((() => {
 	init_GraphicsOption$2();
 	init_GraphicsOption$1();
 	init_MemoryManager();
-	init_ChatBox();
 	GraphicsOption = new GUIComponent("GraphicsOption", GraphicsOption_default$1);
 	_preferences$32 = Preferences.get("GraphicsOption", {
 		x: 300,
@@ -264017,6 +264035,242 @@ var init_Camera = __esmMin((() => {
 		}
 	};
 }));
+// src/Renderer/Entity/EntityComposer.js
+function capture(entity, frame, palette, offset) {
+	if (!active || !frame || frame.width <= 0 || frame.height <= 0) return false;
+	const width = Math.abs(SpriteRenderer.size[0]);
+	const height = Math.abs(SpriteRenderer.size[1]);
+	const angle = SpriteRenderer.angle;
+	const radians = angle / 180 * Math.PI;
+	const boundsWidth = Math.abs(width * Math.cos(radians)) + Math.abs(height * Math.sin(radians));
+	const boundsHeight = Math.abs(width * Math.sin(radians)) + Math.abs(height * Math.cos(radians));
+	active.layers.push({
+		frame,
+		palette,
+		color: Array.from(SpriteRenderer.color),
+		angle,
+		width: SpriteRenderer.size[0],
+		height: SpriteRenderer.size[1],
+		x: offset[0],
+		y: offset[1],
+		boundsWidth,
+		boundsHeight
+	});
+	return true;
+}
+function makeKey(layers, width, height) {
+	const parts = [width, height];
+	for (const layer of layers) parts.push(layer.frame, layer.palette, layer.color[0], layer.color[1], layer.color[2], layer.color[3], layer.angle, layer.width, layer.height, layer.x, layer.y, layer.boundsWidth, layer.boundsHeight);
+	return parts;
+}
+function sameKey(a, b) {
+	if (!a || a.length !== b.length) return false;
+	for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
+	return true;
+}
+/**
+* Delete the texture of a composite.
+*
+* The texture is deleted with the context it was created with, not with the
+* current one: the two may differ after a context loss.
+*
+* @param {object} entry - the cache entry
+* @param {WebGLRenderingContext} gl - fallback context
+*/
+function releaseEntry(entry, gl) {
+	const ctx = entry && entry.gl || gl;
+	if (entry && entry.texture && ctx) ctx.deleteTexture(entry.texture);
+	if (entry) entry.texture = null;
+}
+function useEntry(entry) {
+	if (SpriteRenderer.renderCanvas(entry.canvas)) return;
+	SpriteRenderer.image.size[0] = entry.width;
+	SpriteRenderer.image.size[1] = entry.height;
+	SpriteRenderer.size[0] = entry.width;
+	SpriteRenderer.size[1] = entry.height;
+	SpriteRenderer.offset[0] = entry.offsetX;
+	SpriteRenderer.offset[1] = entry.offsetY;
+	SpriteRenderer.angle = 0;
+	SpriteRenderer.color.set([
+		1,
+		1,
+		1,
+		1
+	]);
+	SpriteRenderer.image.texture = entry.texture;
+	SpriteRenderer.image.palette = null;
+	SpriteRenderer.image.frame = null;
+	SpriteRenderer.image.spr = null;
+	SpriteRenderer.sprite = {
+		type: 1,
+		width: entry.width,
+		height: entry.height
+	};
+	SpriteRenderer.render(false);
+}
+var STALE_MS, MAX_TEXTURES, cache, canvasCache, pendingDeletion, active, cacheGL, EntityComposer;
+var init_EntityComposer = __esmMin((() => {
+	init_SpriteRenderer();
+	init_SpriteBatch();
+	init_Graphics();
+	STALE_MS = 2e3;
+	MAX_TEXTURES = 512;
+	cache = /* @__PURE__ */ new Map();
+	canvasCache = /* @__PURE__ */ new WeakMap();
+	pendingDeletion = [];
+	active = null;
+	cacheGL = null;
+	EntityComposer = class {
+		static begin(entity) {
+			active = SpriteRenderer.gl && !SpriteRenderer.is2D ? {
+				entity,
+				layers: []
+			} : null;
+		}
+		static get active() {
+			return !!active;
+		}
+		static suspend(callback) {
+			const current = active;
+			active = null;
+			try {
+				callback();
+			} finally {
+				active = current;
+			}
+		}
+		static capture(entity, frame, palette, offset) {
+			return capture(entity, frame, palette, offset);
+		}
+		static end() {
+			const work = active;
+			active = null;
+			if (!work || !work.layers.length) return;
+			let minX = Infinity;
+			let minY = Infinity;
+			let maxX = -Infinity;
+			let maxY = -Infinity;
+			for (const layer of work.layers) {
+				minX = Math.min(minX, layer.x - layer.boundsWidth / 2);
+				minY = Math.min(minY, layer.y - layer.boundsHeight / 2);
+				maxX = Math.max(maxX, layer.x + layer.boundsWidth / 2);
+				maxY = Math.max(maxY, layer.y + layer.boundsHeight / 2);
+			}
+			const width = Math.max(1, Math.ceil(maxX - minX));
+			const height = Math.max(1, Math.ceil(maxY - minY));
+			const key = makeKey(work.layers, width, height);
+			const gl = SpriteRenderer.gl;
+			let entry = cache.get(work.entity);
+			if (cacheGL !== gl) {
+				if (cacheGL && gl) for (const cached of cache.values()) cacheGL.deleteTexture(cached.texture);
+				cache.clear();
+				cacheGL = gl;
+				entry = null;
+			}
+			const now = Date.now();
+			if (gl && entry && sameKey(entry.key, key)) {
+				entry.lastUsed = now;
+				cache.delete(work.entity);
+				cache.set(work.entity, entry);
+				useEntry(entry);
+				return;
+			}
+			if (!entry) {
+				entry = {
+					texture: gl ? gl.createTexture() : null,
+					canvas: document.createElement("canvas"),
+					ctx: null,
+					gl,
+					lastUsed: now
+				};
+				entry.ctx = entry.canvas.getContext("2d");
+				cache.set(work.entity, entry);
+			} else entry.lastUsed = now;
+			if (entry.canvas.width !== width || entry.canvas.height !== height) {
+				entry.canvas.width = width;
+				entry.canvas.height = height;
+			}
+			entry.width = width;
+			entry.height = height;
+			entry.key = key;
+			entry.minX = minX;
+			entry.minY = minY;
+			entry.offsetX = minX + width / 2;
+			entry.offsetY = minY + height / 2;
+			entry.ctx.clearRect(0, 0, width, height);
+			for (const layer of work.layers) {
+				const source = getFrameCanvas(canvasCache, layer.frame, layer.palette, layer.color);
+				entry.ctx.save();
+				entry.ctx.translate(layer.x - minX, layer.y - minY);
+				entry.ctx.rotate(layer.angle / 180 * Math.PI);
+				entry.ctx.scale(Math.sign(layer.width) || 1, Math.sign(layer.height) || 1);
+				entry.ctx.drawImage(source, -Math.abs(layer.width) / 2, -Math.abs(layer.height) / 2, Math.abs(layer.width), Math.abs(layer.height));
+				entry.ctx.restore();
+			}
+			if (gl) {
+				gl.bindTexture(gl.TEXTURE_2D, entry.texture);
+				const filter = GraphicsSettings.pixelPerfectSprites ? gl.NEAREST : gl.LINEAR;
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+				gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+				gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, entry.canvas);
+			}
+			useEntry(entry);
+		}
+		/**
+		* Release the composites that were not drawn for a while.
+		*
+		* Call it once per frame, AFTER the batch has been drawn: a texture can
+		* only be deleted when no queued draw references it anymore. Deleting one
+		* earlier (while the entity pass is still recording) blanks the sprite it
+		* belongs to, since the draw only happens at flush time.
+		*
+		* @param {WebGLRenderingContext} gl
+		*/
+		static endFrame(gl) {
+			for (const entry of pendingDeletion) releaseEntry(entry, gl);
+			pendingDeletion.length = 0;
+			const now = Date.now();
+			for (const [entity, entry] of cache) if (now - entry.lastUsed > STALE_MS) {
+				cache.delete(entity);
+				releaseEntry(entry, gl);
+			}
+			if (cache.size > MAX_TEXTURES) {
+				const entries = [...cache.entries()].sort((a, b) => a[1].lastUsed - b[1].lastUsed);
+				for (let i = 0; i < entries.length - MAX_TEXTURES; i++) {
+					cache.delete(entries[i][0]);
+					releaseEntry(entries[i][1], gl);
+				}
+			}
+		}
+		/**
+		* Forget the composite of an entity that left the scene.
+		*
+		* The texture is deleted right away when no batch is recording, and after
+		* the next flush when a batch still holds a draw of it.
+		*
+		* @param {object} entity
+		*/
+		static remove(entity) {
+			const entry = cache.get(entity);
+			if (!entry) return;
+			cache.delete(entity);
+			if (SpriteBatch.active) pendingDeletion.push(entry);
+			else releaseEntry(entry);
+		}
+		/**
+		* Forget every composite: the WebGL context was lost, its textures are
+		* gone and cannot be deleted anymore.
+		*/
+		static reset() {
+			cache.clear();
+			pendingDeletion.length = 0;
+			cacheGL = null;
+		}
+	};
+}));
 // src/Renderer/Renderer.js
 var Renderer_exports = /* @__PURE__ */ __exportAll({ default: () => Renderer });
 var mat4$10, _requestAnimationFrame, _cancelAnimationFrame, Renderer;
@@ -264035,6 +264289,7 @@ var init_Renderer = __esmMin((() => {
 	init_MemoryManager();
 	init_PerfProbe();
 	init_SpriteBatch();
+	init_EntityComposer();
 	init_FramePacer();
 	init_preload_helper();
 	({mat4: mat4$10} = gl_matrix_default);
@@ -264168,6 +264423,7 @@ var init_Renderer = __esmMin((() => {
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 			PostProcess.restartModules(gl);
 			SpriteBatch.contextRestored();
+			EntityComposer.reset();
 			this.resize();
 			this.render();
 		}
@@ -314307,6 +314563,7 @@ function renderLayer(layer, spr, pal, size, pos, type, isBlendModeOne) {
 	SpriteRenderer.image.texture = frame.texture;
 	SpriteRenderer.image.spr = spr;
 	SpriteRenderer.image.frame = frame;
+	if (EntityComposer.capture(this, frame, pal.palette, SpriteRenderer.offset)) return;
 	SpriteRenderer.render(isBlendModeOne);
 }
 /**
@@ -314330,6 +314587,7 @@ var init_EntityRender = __esmMin((() => {
 	init_DBManager();
 	init_Graphics();
 	init_GR2ModelRenderer();
+	init_EntityComposer();
 	WALK_DIST_TO_MOTION = 170.2;
 	_snapshotPool = [];
 	_scratchPosition = /* @__PURE__ */ new Float32Array(3);
@@ -314489,87 +314747,45 @@ var init_EntityRender = __esmMin((() => {
 				case Entity.TYPE_MERC:
 					SpriteRenderer.position[2] = SpriteRenderer.position[2] + .2;
 					SpriteRenderer.runWithDepth(true, true, false, function() {
+						SpriteRenderer.zIndex = 150;
+						EntityComposer.begin(self);
 						let cartidx;
-						const RIDING_STATUS = self.effectState & (StatusState_default.EffectState.RIDING | StatusState_default.EffectState.DRAGON1 | StatusState_default.EffectState.DRAGON2 | StatusState_default.EffectState.DRAGON3 | StatusState_default.EffectState.DRAGON4 | StatusState_default.EffectState.DRAGON5 | StatusState_default.EffectState.WUGRIDER) || self.allRidingState;
-						function robeCorrection(lookingFront) {
-							if (self.robe > 0 && self.robeHeight && self.bodyHeight) {
-								if (self.robeHeight + (self.action === self.ACTION.SIT ? 0 : RIDING_STATUS && lookingFront ? 50 : 25) > self.bodyHeight + 64) {
-									if ((self.action === self.ACTION.ATTACK || self.action === self.ACTION.ATTACK1 || self.action === self.ACTION.ATTACK2 || self.action === self.ACTION.ATTACK3) && !lookingFront) return -450;
-									if (self.action === self.ACTION.SIT) return lookingFront ? -450 : RIDING_STATUS ? 1 : -100;
-									return lookingFront ? -300 : RIDING_STATUS ? 100 : 1;
-								}
-							}
-							if (self.action === self.ACTION.SIT) return lookingFront ? -100 : 550;
-							return lookingFront ? 1 : 400;
-						}
-						if (self.shield && behind) SpriteRenderer.runWithDepth(true, false, false, function() {
-							SpriteRenderer.zIndex = -1;
-							renderElement(self, self.files.shield, "shield", _position, true);
-						});
+						if (self.shield && behind) renderElement(self, self.files.shield, "shield", _position, true);
 						if (!isLookingBack(direction)) {
 							if (SessionStorage_default.Playing == true && self.hasCart == true) {
 								cartidx = DB.isSuperNovice(self._job) ? 0 : self.CartNum;
-								SpriteRenderer.runWithDepth(true, false, false, function() {
-									SpriteRenderer.zIndex = -1;
+								EntityComposer.suspend(() => {
+									SpriteRenderer.shadowQueue = true;
 									renderElement(self, self.files.cart_shadow, "cartshadow", _position, false);
-									SpriteRenderer.zIndex = 1;
-									renderElement(self, self.files.cart[cartidx], "cart", _position, false);
+									SpriteRenderer.shadowQueue = false;
 								});
+								renderElement(self, self.files.cart[cartidx], "cart", _position, false);
 							}
-							if (self.robe > 0) {
-								SpriteRenderer.zIndex = robeCorrection(true);
-								renderElement(self, self.files.robe, "robe", _position, true);
-							}
+							renderElement(self, self.files.robe, "robe", _position, true);
 						}
-						SpriteRenderer.zIndex = 150;
-						if (RIDING_STATUS && !isLookingBack(direction) && (self.action === self.ACTION.SIT || self.action === self.ACTION.WALK)) SpriteRenderer.zIndex *= 2;
 						renderElement(self, self.files.body, "body", _position, true);
-						let bodyZOffset = 250;
-						if (RIDING_STATUS) {
-							bodyZOffset *= 2;
-							if (self.action === self.ACTION.WALK && !(direction > 2 && direction < 6)) bodyZOffset += 250;
-						}
-						SpriteRenderer.zIndex = bodyZOffset + 125;
-						let hat_offsets = bodyZOffset + 125;
 						renderElement(self, self.files.head, "head", _position, false);
-						if (self.accessory3 > 0 && self.accessory3 !== self.accessory) {
-							hat_offsets += 100;
-							SpriteRenderer.zIndex = hat_offsets;
-							renderElement(self, self.files.accessory3, "head", _position, false);
-						}
-						if (self.accessory2 > 0 && self.accessory2 !== self.accessory && self.accessory2 !== self.accessory3) {
-							hat_offsets += 100;
-							SpriteRenderer.zIndex = hat_offsets;
-							renderElement(self, self.files.accessory2, "head", _position, false);
-						}
-						if (self.accessory > 0) {
-							hat_offsets += 100;
-							SpriteRenderer.zIndex = hat_offsets;
-							renderElement(self, self.files.accessory, "head", _position, false);
-						}
+						if (self.accessory3 > 0 && self.accessory3 !== self.accessory) renderElement(self, self.files.accessory3, "head", _position, false);
+						if (self.accessory2 > 0 && self.accessory2 !== self.accessory && self.accessory2 !== self.accessory3) renderElement(self, self.files.accessory2, "head", _position, false);
+						if (self.accessory > 0) renderElement(self, self.files.accessory, "head", _position, false);
 						if (isLookingBack(direction)) {
-							if (self.robe > 0) {
-								SpriteRenderer.zIndex = hat_offsets + robeCorrection(false);
-								renderElement(self, self.files.robe, "robe", _position, true);
-							}
+							if (self.robe > 0) renderElement(self, self.files.robe, "robe", _position, true);
 							if (SessionStorage_default.Playing == true && self.hasCart == true) {
-								SpriteRenderer.zIndex = bodyZOffset + 500;
 								cartidx = DB.isSuperNovice(self._job) ? 0 : self.CartNum;
-								SpriteRenderer.runWithDepth(true, false, false, function() {
+								EntityComposer.suspend(() => {
+									SpriteRenderer.shadowQueue = true;
 									renderElement(self, self.files.cart_shadow, "cartshadow", _position, false);
-									renderElement(self, self.files.cart[cartidx], "cart", _position, false);
+									SpriteRenderer.shadowQueue = false;
 								});
+								renderElement(self, self.files.cart[cartidx], "cart", _position, false);
 							}
 						}
 						if (self.weapon > 0) {
-							SpriteRenderer.zIndex = bodyZOffset + 250;
 							renderElement(self, self.files.weapon, "weapon", _position, true);
 							renderElement(self, self.files.weapon_trail, "weapon_trail", _position, true);
 						}
-						if (self.shield > 0 && !behind) {
-							SpriteRenderer.zIndex = bodyZOffset + 300;
-							renderElement(self, self.files.shield, "shield", _position, true);
-						}
+						if (self.shield > 0 && !behind) renderElement(self, self.files.shield, "shield", _position, true);
+						EntityComposer.end();
 					});
 					break;
 				case Entity.TYPE_HOM:
@@ -314668,11 +314884,13 @@ var init_EntityRender = __esmMin((() => {
 			const isOVERTHRUST = entity.getOpt3(StatusState_default.Status.OVERTHRUST);
 			const isEXPLOSIONSPIRITS = entity.getOpt3(StatusState_default.Status.EXPLOSIONSPIRITS);
 			const isBERSERK = entity.getOpt3(StatusState_default.Status.BERSERK);
-			renderSecondBody(entity, layers, spr, pal, files, type, _position, {
+			const renderSecondary = () => renderSecondBody(entity, layers, spr, pal, files, type, _position, {
 				enableHalo: entity.getOpt3(StatusState_default.Status.ASSUMPTIO) || !!entity._enableHalo,
 				enableTrail: isENERGYCOAT || isBUNSIN || isHALLUCINATIONWALK || isQUICKEN || isOVERTHRUST || isEXPLOSIONSPIRITS || isBERSERK || !!entity._fastMoveTrail || !!entity._enableTrail,
 				blurType: isBUNSIN ? 5 : isHALLUCINATIONWALK ? 3 : entity._blurType || 1
 			});
+			if (EntityComposer.active) EntityComposer.suspend(renderSecondary);
+			else renderSecondary();
 			for (let i = 0, count = layers.length; i < count; ++i) entity.renderLayer(layers[i], spr, pal, files.size, _position, type, isBlendModeOne);
 			if (is_main && animation.pos.length) {
 				position[0] = animation.pos[0].x;
@@ -316386,6 +316604,7 @@ function addEntity(entity) {
 function free() {
 	_list.forEach((entity) => {
 		releaseGr2(entity);
+		EntityComposer.remove(entity);
 		entity.clean();
 	});
 	_list.length = 0;
@@ -316412,6 +316631,7 @@ function removeEntity(gid) {
 	const entity = _gidMap.get(gid);
 	if (entity) {
 		releaseGr2(entity);
+		EntityComposer.remove(entity);
 		entity.clean();
 		_gidMap.delete(gid);
 		const index = _list.indexOf(entity);
@@ -316549,7 +316769,10 @@ function cull() {
 */
 function render$5(gl, modelView, projection, fog, renderEffects) {
 	const tick = Date.now();
-	if (!_list.length) return;
+	if (!_list.length) {
+		EntityComposer.endFrame(gl);
+		return;
+	}
 	_renderFrameCounter++;
 	if (_renderSortDirty || (GraphicsSettings.performanceMode ? _renderFrameCounter >= 6 : _renderFrameCounter >= 3)) {
 		_list.sort(sort);
@@ -316563,6 +316786,7 @@ function render$5(gl, modelView, projection, fog, renderEffects) {
 		renderList(modelView, projection, renderEffects, tick);
 	} finally {
 		SpriteRenderer.endBatch();
+		EntityComposer.endFrame(gl);
 	}
 	SpriteRenderer.unbind(gl);
 }
@@ -316580,6 +316804,7 @@ function renderList(modelView, projection, renderEffects, tick) {
 			}
 			_gidMap.delete(_list[i].GID);
 			releaseGr2(_list[i]);
+			EntityComposer.remove(_list[i]);
 			_list[i].clean();
 			_list.splice(i, 1);
 			i--;
@@ -316729,8 +316954,8 @@ var init_EntityManager = __esmMin((() => {
 	init_PathFinding();
 	init_Graphics();
 	init_Altitude();
-	init_Water();
 	init_GR2ModelRenderer();
+	init_EntityComposer();
 	_list = [];
 	_gidMap = /* @__PURE__ */ new Map();
 	_renderSortDirty = true;
