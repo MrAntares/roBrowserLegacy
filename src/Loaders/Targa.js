@@ -8,6 +8,8 @@
  * @author Vincent Thibault
  */
 
+import { getTargaWasm } from 'Loaders/wasm/targa.js';
+
 /**
  * TGA Namespace
  * @constructor
@@ -123,13 +125,63 @@ class Targa {
 
 		// RLE encoded
 		if (this.header.hasEncoding) {
-			this.imageData = decodeRLE(data, offset, pixelSize, pixelTotal);
+			this.imageData = this.decodeRLEData(data, offset, pixelSize, pixelTotal);
 		}
 
 		// RAW pixels
 		else {
 			this.imageData = data.subarray(offset, offset + (this.header.hasColorMap ? imageSize : pixelTotal));
 		}
+	}
+
+	/**
+	 * Decode RLE data using WASM if available, otherwise JS fallback
+	 */
+	decodeRLEData(data, offset, pixelSize, outputSize) {
+		const wasm = getTargaWasm();
+		if (wasm && wasm.exports.decodeRLE) {
+			const memory = wasm.exports.memory;
+			const srcPtr = 0;
+			// The worst case for the source copy is one header byte per pixel plus
+			// the raw payload, i.e. outputSize + ceil(outputSize / pixelSize).
+			// Limiting the copy keeps trailing data from growing the memory.
+			const maxNeeded = outputSize + Math.ceil(outputSize / pixelSize);
+			const srcBytes = Math.min(Math.max(0, data.length - offset), maxNeeded);
+			// keep the destination 4-byte aligned (i32 stores)
+			const dstPtr = (srcBytes + 3) & ~3;
+			const totalBytesNeeded = dstPtr + outputSize;
+
+			if (memory.buffer.byteLength < totalBytesNeeded) {
+				try {
+					memory.grow(Math.ceil((totalBytesNeeded - memory.buffer.byteLength) / 65536));
+				} catch (_e) {
+					return decodeRLE(data, offset, pixelSize, outputSize);
+				}
+			}
+
+			// Copy source data to WASM memory
+			new Uint8Array(memory.buffer, srcPtr, srcBytes).set(data.subarray(offset, offset + srcBytes));
+
+			// Decode RLE
+			const bytesWritten = wasm.exports.decodeRLE(srcPtr, dstPtr, srcBytes, outputSize, pixelSize);
+
+			// The run does not fit in the output buffer: the JS fallback throws
+			// a RangeError in that case, so the WASM path must do the same.
+			if (bytesWritten < 0) {
+				throw new RangeError('Targa: RLE packet exceeds image size');
+			}
+
+			// Return decoded data (always exactly `outputSize` bytes)
+			if (bytesWritten >= outputSize) {
+				return new Uint8Array(new Uint8Array(memory.buffer, dstPtr, outputSize));
+			}
+			const out = new Uint8Array(outputSize);
+			out.set(new Uint8Array(memory.buffer, dstPtr, bytesWritten));
+			return out;
+		}
+
+		// JS fallback
+		return decodeRLE(data, offset, pixelSize, outputSize);
 	}
 
 	/**
@@ -146,6 +198,7 @@ class Targa {
 			imageData = { width: width, height: height, data: new Uint8ClampedArray(width * height * 4) };
 		}
 		const origin = (this.header.flags & Targa.Origin.MASK) >> Targa.Origin.SHIFT;
+
 		let x_start, x_step, x_end, y_start, y_step, y_end;
 
 		if (origin === Targa.Origin.TOP_LEFT || origin === Targa.Origin.TOP_RIGHT) {
@@ -229,6 +282,7 @@ class Targa {
 					}
 				}
 				break;
+
 			case 24:
 				for (let y = y_start; y !== y_end; y += y_step) {
 					const rowOffset = y * width;
@@ -350,6 +404,12 @@ function decodeRLE(data, offset, pixelSize, outputSize) {
 			// Bind pixel tmp array
 			for (i = 0; i < pixelSize; ++i) {
 				pixels[i] = data[offset++];
+			}
+
+			// The run does not fit in the output buffer: throw a RangeError,
+			// like the WASM decoder does (it reports the overflow with -1).
+			if (pos + count * pixelSize > outputSize) {
+				throw new RangeError('Targa: RLE packet exceeds image size');
 			}
 
 			// Copy pixel array
