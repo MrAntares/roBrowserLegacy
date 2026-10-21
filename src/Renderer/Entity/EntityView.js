@@ -777,6 +777,14 @@ function UpdateGeneric(type, func, fallback) {
 					if (fallback && !final) {
 						_val = DB[fallback](val);
 						filepath = DB[func](_val, _this.job, _this._sex);
+						// An expansion look (Main Gauche 31, Mace 62, ...) is drawn from a sprite
+						// named after it, which only some jobs have: the Druid line has just the
+						// base-type sprites (kRO data.grf: druid_*_dagger, axe, two-handed axe,
+						// club). Draw the base weapon type for them instead of nothing.
+						if (type === 'weapon' && filepath === path) {
+							_val = DB.getWeaponType(val, true);
+							filepath = DB[func](_val, _this.job, _this._sex);
+						}
 						if (filepath) {
 							LoadView(filepath, true);
 						}
