@@ -254,7 +254,19 @@ MercenaryInformations.setKills = function setKills(kills) {
  * Update UI with mercenary data
  */
 MercenaryInformations.setInformations = function setInformations(info) {
+	if (!info) {
+		return;
+	}
+
+	if (!this.__loaded) {
+		this.append();
+		this._host.style.display = 'none';
+	}
+
 	const root = MercenaryInformations.getRoot();
+	if (!root) {
+		return;
+	}
 
 	const nameEl = root.querySelector('.name');
 	if (nameEl) {

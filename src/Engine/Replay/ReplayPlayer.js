@@ -39,8 +39,8 @@ import {
 	ReplayEventSubOpCode,
 	WindowIdToComponent
 } from 'Engine/Replay/ReplayTypes.js';
-import ReplaySocket from './ReplaySocket.js';
 import ReplayParser from './ReplayParser.js';
+import ReplaySocket from './ReplaySocket.js';
 
 export default class ReplayPlayer {
 	constructor() {
@@ -632,7 +632,10 @@ export default class ReplayPlayer {
 		// Apply party and friends
 		if (this._groupAndFriendsBuffer) {
 			if (this._groupAndFriendsBuffer.groupInfo && typeof PartyFriends?.setParty === 'function') {
-				PartyFriends.setParty(this._groupAndFriendsBuffer.groupName || '', this._groupAndFriendsBuffer.groupInfo);
+				PartyFriends.setParty(
+					this._groupAndFriendsBuffer.groupName || '',
+					this._groupAndFriendsBuffer.groupInfo
+				);
 			}
 			if (this._groupAndFriendsBuffer.friendInfo && typeof PartyFriends?.setFriends === 'function') {
 				PartyFriends.setFriends(this._groupAndFriendsBuffer.friendInfo);
@@ -660,8 +663,12 @@ export default class ReplayPlayer {
 				const compName = WindowIdToComponent[win.windowId];
 				if (compName) {
 					const comp = UIManager.getComponent(compName);
-					if (comp && !comp.ui) {
-						comp.append();
+					if (comp) {
+						if (!comp.ui) {
+							comp.append();
+						} else if (typeof comp.ui.show === 'function') {
+							comp.ui.show();
+						}
 					}
 				}
 			}

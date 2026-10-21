@@ -271,11 +271,18 @@ HomunInformations.onKeyDown = function onKeyDown(event) {
  * @param {object} homunculus info
  */
 HomunInformations.setInformations = function setInformations(info) {
-	const root = HomunInformations.getRoot();
+	if (!info) {
+		return;
+	}
 
 	if (!this.__loaded) {
 		this.append();
 		this._host.style.display = 'none';
+	}
+
+	const root = HomunInformations.getRoot();
+	if (!root) {
+		return;
 	}
 
 	if (info.szName) {
