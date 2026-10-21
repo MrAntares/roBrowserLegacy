@@ -377,7 +377,9 @@ const renderEntity = (function renderEntityClosure() {
 
 			// Keep shadow on ground: depth test on, depth write off, disabledepthcorrection
 			SpriteRenderer.shadowQueue = true;
-			renderElement(self, self.files.shadow, 'shadow', _position, false);
+			SpriteRenderer.runWithDepth(true, false, false, function () {
+				renderElement(self, self.files.shadow, 'shadow', _position, false);
+			});
 			SpriteRenderer.shadowQueue = false;
 		}
 
@@ -419,9 +421,11 @@ const renderEntity = (function renderEntityClosure() {
 							cartidx = DB.isSuperNovice(self._job) ? 0 : self.CartNum;
 
 							// Draw Cart
-							SpriteRenderer.shadowQueue = true;
-							renderElement(self, self.files.cart_shadow, 'cartshadow', _position, false);
-							SpriteRenderer.shadowQueue = false;
+							EntityComposer.suspend(() => {
+								SpriteRenderer.shadowQueue = true;
+								renderElement(self, self.files.cart_shadow, 'cartshadow', _position, false);
+								SpriteRenderer.shadowQueue = false;
+							});
 							renderElement(self, self.files.cart[cartidx], 'cart', _position, false);
 						}
 
@@ -465,9 +469,11 @@ const renderEntity = (function renderEntityClosure() {
 						// Draw Cart
 						if (Session.Playing == true && self.hasCart == true) {
 							cartidx = DB.isSuperNovice(self._job) ? 0 : self.CartNum;
-							SpriteRenderer.shadowQueue = true;
-							renderElement(self, self.files.cart_shadow, 'cartshadow', _position, false);
-							SpriteRenderer.shadowQueue = false;
+							EntityComposer.suspend(() => {
+								SpriteRenderer.shadowQueue = true;
+								renderElement(self, self.files.cart_shadow, 'cartshadow', _position, false);
+								SpriteRenderer.shadowQueue = false;
+							});
 							renderElement(self, self.files.cart[cartidx], 'cart', _position, false);
 						}
 					}
