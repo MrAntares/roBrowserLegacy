@@ -36,6 +36,27 @@ describe('SkillAction & Attack Slices', () => {
 		expect(doramSlice).toEqual({ frame: 0, length: 4 });
 	});
 
+	it('plays the whole Doram attack when a rod or foxtail is equipped', () => {
+		expect(DB.getAttackSlice(JobId.DO_SUMMONER, WeaponType.ROD)).toBeNull();
+		expect(DB.getAttackSlice(JobId.SPIRIT_HANDLER, WeaponType.FOXTAIL_GREEN)).toBeNull();
+	});
+
+	it('picks the attack action that holds the weapon for Doram and Druid', () => {
+		// 0 = ATTACK1 (no weapon frames), 1 = ATTACK2, 2 = ATTACK3
+		for (const job of [JobId.DO_SUMMONER, JobId.DO_SUMMONER_B, JobId.SPIRIT_HANDLER, JobId.SPIRIT_HANDLER_RIDING1]) {
+			expect(DB.getWeaponAction(WeaponType.NONE, job, 0)).toBe(0);
+			expect(DB.getWeaponAction(WeaponType.ROD, job, 0)).toBe(1);
+			expect(DB.getWeaponAction(WeaponType.FOXTAIL_BROWN, job, 1)).toBe(1);
+		}
+		for (const job of [JobId.DRUID, JobId.DRUID_B, JobId.KARNOS, JobId.ALITEA, JobId.ALITEA_RIDING]) {
+			expect(DB.getWeaponAction(WeaponType.NONE, job, 0)).toBe(0);
+			expect(DB.getWeaponAction(WeaponType.SHORTSWORD, job, 0)).toBe(1);
+			expect(DB.getWeaponAction(WeaponType.AXE, job, 1)).toBe(2);
+			expect(DB.getWeaponAction(WeaponType.TWOHANDAXE, job, 0)).toBe(2);
+			expect(DB.getWeaponAction(WeaponType.MACE, job, 1)).toBe(2);
+		}
+	});
+
 	it('returns null for standard single-sheet attack classes', () => {
 		const knightSlice = DB.getAttackSlice(JobId.KNIGHT, WeaponType.SWORD);
 		expect(knightSlice).toBeNull();
