@@ -527,6 +527,30 @@ function syncAfterBatch() {
  * Sprite Renderer NameSpace
  */
 class SpriteRenderer {
+	static get gl() {
+		return _gl;
+	}
+
+	static renderCanvas(canvas) {
+		if (this.render !== RenderCanvas2D) {
+			return false;
+		}
+
+		_ctx.save();
+		_ctx.translate(_pos[0] + this.offset[0], _pos[1] + this.offset[1] - 17.5);
+		_ctx.rotate((this.angle / 180) * Math.PI);
+		_ctx.scale(Math.sign(this.size[0]) || 1, Math.sign(this.size[1]) || 1);
+		_ctx.drawImage(
+			canvas,
+			-Math.abs(this.size[0]) / 2,
+			-Math.abs(this.size[1]) / 2,
+			Math.abs(this.size[0]),
+			Math.abs(this.size[1])
+		);
+		_ctx.restore();
+		return true;
+	}
+
 	/**
 	 * @type {function} functions to use to render
 	 */

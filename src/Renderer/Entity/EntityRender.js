@@ -31,6 +31,7 @@ import Session from 'Engine/SessionStorage.js';
 import DB from 'DB/DBManager.js';
 import GraphicsSettings from 'Preferences/Graphics.js';
 import GR2ModelRenderer from 'Renderer/GR2/GR2ModelRenderer.js';
+import EntityComposer from './EntityComposer.js';
 
 /**
  * Load dependencies
@@ -405,6 +406,7 @@ const renderEntity = (function renderEntityClosure() {
 				// depthWrite = allow entity to occlude others
 				// depthCorrection ENABLED (required for isometric depth)
 				SpriteRenderer.runWithDepth(true, true, false, function () {
+					EntityComposer.begin(self);
 					let cartidx;
 					// madogear don't appear costumes
 					const RIDING_STATUS =
@@ -567,6 +569,7 @@ const renderEntity = (function renderEntityClosure() {
 						SpriteRenderer.zIndex = bodyZOffset + 300;
 						renderElement(self, self.files.shield, 'shield', _position, true);
 					}
+					EntityComposer.end();
 				});
 				break;
 			case Entity.TYPE_HOM:
@@ -909,7 +912,8 @@ const renderElement = (function renderElementClosure() {
 		const isEXPLOSIONSPIRITS = entity.getOpt3(StatusConst.Status.EXPLOSIONSPIRITS);
 		const isBERSERK = entity.getOpt3(StatusConst.Status.BERSERK);
 
-		renderSecondBody(entity, layers, spr, pal, files, type, _position, {
+		const renderSecondary = () =>
+			renderSecondBody(entity, layers, spr, pal, files, type, _position, {
 			enableHalo: entity.getOpt3(StatusConst.Status.ASSUMPTIO) || !!entity._enableHalo,
 			enableTrail:
 				isENERGYCOAT ||
@@ -922,7 +926,12 @@ const renderElement = (function renderElementClosure() {
 				!!entity._fastMoveTrail ||
 				!!entity._enableTrail,
 			blurType: isBUNSIN ? 5 : isHALLUCINATIONWALK ? 3 : entity._blurType || 1
-		});
+			});
+		if (EntityComposer.active) {
+			EntityComposer.suspend(renderSecondary);
+		} else {
+			renderSecondary();
+		}
 
 		// Render all frames
 		for (let i = 0, count = layers.length; i < count; ++i) {
@@ -1210,6 +1219,9 @@ function renderLayer(layer, spr, pal, size, pos, type, isBlendModeOne) {
 	SpriteRenderer.image.texture = frame.texture;
 	SpriteRenderer.image.spr = spr;
 	SpriteRenderer.image.frame = frame;
+
+	// Collect player layers so the composed character is submitted once.
+	if (EntityComposer.capture(this, frame, pal.palette, SpriteRenderer.offset)) return;
 
 	// Draw Sprite
 	SpriteRenderer.render(isBlendModeOne);
