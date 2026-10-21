@@ -19,7 +19,26 @@ import BasicInfo from 'UI/Components/BasicInfo/BasicInfo.js';
 import WinStats from 'UI/Components/WinStats/WinStats.js';
 import Inventory from 'UI/Components/Inventory/Inventory.js';
 import CartItems from 'UI/Components/CartItems/CartItems.js';
-import { ReplayState, replayLog } from 'Engine/Replay/ReplayTypes.js';
+import ShortCut from 'UI/Components/ShortCut/ShortCut.js';
+import Storage from 'UI/Components/Storage/Storage.js';
+import PartyFriends from 'UI/Components/PartyFriends/PartyFriends.js';
+import Quest from 'UI/Components/Quest/Quest.js';
+import HomunInformations from 'UI/Components/HomunInformations/HomunInformations.js';
+import MercenaryInformations from 'UI/Components/MercenaryInformations/MercenaryInformations.js';
+import PetInformations from 'UI/Components/PetInformations/PetInformations.js';
+import Navigation from 'UI/Components/Navigation/Navigation.js';
+import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
+import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import BGM from 'Audio/BGM.js';
+import EntityManager from 'Renderer/EntityManager.js';
+import UIManager from 'UI/UIManager.js';
+import BinaryReader, { SEEK_SET } from 'Utils/BinaryReader.js';
+import {
+	ReplayState,
+	replayLog,
+	ReplayEventSubOpCode,
+	WindowIdToComponent
+} from 'Engine/Replay/ReplayTypes.js';
 import ReplaySocket from './ReplaySocket.js';
 import ReplayParser from './ReplayParser.js';
 
@@ -42,8 +61,20 @@ export default class ReplayPlayer {
 		this._sessionData = null;
 		this._itemsBuffer = null;
 		this._petBuffer = null;
+		this._homunBuffer = null;
+		this._mercenaryBuffer = null;
+		this._elementalBuffer = null;
 		this._statusBuffer = null;
 		this._efstListBuffer = [];
+		this._hotkeysBuffer = [];
+		this._questsBuffer = null;
+		this._groupAndFriendsBuffer = null;
+		this._memorialDungeonBuffer = null;
+		this._entryQueueBuffer = null;
+		this._navigationBuffer = null;
+		this._actorNamesBuffer = null;
+		this._openWindowsBuffer = [];
+		this._windowDragAll = null;
 		this._initialBuffer = []; // Array of { type, typeName, chunks }
 		this._packetStreamBuffer = []; // Array of { id, time, length, data, packetId }
 
@@ -73,8 +104,20 @@ export default class ReplayPlayer {
 		this._sessionData = result.sessionBuffer;
 		this._itemsBuffer = result.itemsBuffer;
 		this._petBuffer = result.petBuffer;
+		this._homunBuffer = result.homunBuffer;
+		this._mercenaryBuffer = result.mercenaryBuffer;
+		this._elementalBuffer = result.elementalBuffer;
 		this._statusBuffer = result.statusBuffer;
 		this._efstListBuffer = result.efstListBuffer || [];
+		this._hotkeysBuffer = result.hotkeysBuffer || [];
+		this._questsBuffer = result.questsBuffer || null;
+		this._groupAndFriendsBuffer = result.groupAndFriendsBuffer || null;
+		this._memorialDungeonBuffer = result.memorialDungeonBuffer || null;
+		this._entryQueueBuffer = result.entryQueueBuffer || null;
+		this._navigationBuffer = result.navigationBuffer || null;
+		this._actorNamesBuffer = result.actorNamesBuffer || null;
+		this._openWindowsBuffer = result.openWindowsBuffer || [];
+		this._windowDragAll = result.windowDragAll;
 		this._initialBuffer = result.initialBuffer;
 		this._packetStreamBuffer = result.packetStreamBuffer;
 		this.durationMs = result.durationMs || 0;
@@ -247,6 +290,47 @@ export default class ReplayPlayer {
 		} else {
 			Session.petId = 0;
 			Session.pet = {};
+		}
+
+		// Homunculus data in Session
+		if (s.homun && s.homun.gid) {
+			Session.homunId = s.homun.gid;
+			Session.homun = s.homun;
+		} else {
+			Session.homunId = 0;
+			Session.homun = {};
+		}
+
+		// Mercenary data in Session
+		if (s.mercenary && s.mercenary.gid) {
+			Session.mercenaryId = s.mercenary.gid;
+			Session.mercenary = s.mercenary;
+		} else {
+			Session.mercenaryId = 0;
+			Session.mercenary = {};
+		}
+
+		// Elemental data in Session
+		if (s.elemental && s.elemental.gid) {
+			Session.elementalId = s.elemental.gid;
+			Session.elemental = s.elemental;
+		} else {
+			Session.elementalId = 0;
+			Session.elemental = {};
+		}
+
+		// Replay metadata
+		if (s.tailMagic || s.region !== undefined || s.service !== undefined || s.serverType !== undefined) {
+			Session.replayMeta = {
+				tailMagic: s.tailMagic,
+				region: s.region,
+				service: s.service,
+				serverType: s.serverType,
+				mapType: s.mapType,
+				packetCount: s.packetCount,
+				endFileOffset: s.endFileOffset,
+				saveUiOptions: s.saveUiOptions
+			};
 		}
 
 		// Instantiate player entity
@@ -519,6 +603,73 @@ export default class ReplayPlayer {
 					cartUI.setItems(this._itemsBuffer.cart);
 				}
 			}
+
+			// Add storage items
+			const storageUI = Storage?.getUI ? Storage : null;
+			if (storageUI && this._itemsBuffer.storage?.length > 0) {
+				if (typeof storageUI.setItems === 'function') {
+					storageUI.setItems(this._itemsBuffer.storage);
+				}
+			}
+		}
+
+		// Apply companion UIs
+		if (this._homunBuffer && typeof HomunInformations?.setInformations === 'function') {
+			HomunInformations.setInformations(this._homunBuffer);
+		}
+		if (this._mercenaryBuffer && typeof MercenaryInformations?.setInformations === 'function') {
+			MercenaryInformations.setInformations(this._mercenaryBuffer);
+		}
+		if (this._petBuffer && typeof PetInformations?.setInformations === 'function') {
+			PetInformations.setInformations(this._petBuffer);
+		}
+
+		// Apply hotkeys
+		if (this._hotkeysBuffer?.length > 0 && typeof ShortCut?.setList === 'function') {
+			ShortCut.setList(this._hotkeysBuffer);
+		}
+
+		// Apply party and friends
+		if (this._groupAndFriendsBuffer) {
+			if (this._groupAndFriendsBuffer.groupInfo && typeof PartyFriends?.setParty === 'function') {
+				PartyFriends.setParty(this._groupAndFriendsBuffer.groupName || '', this._groupAndFriendsBuffer.groupInfo);
+			}
+			if (this._groupAndFriendsBuffer.friendInfo && typeof PartyFriends?.setFriends === 'function') {
+				PartyFriends.setFriends(this._groupAndFriendsBuffer.friendInfo);
+			}
+		}
+
+		// Apply quests
+		if (this._questsBuffer?.questInfo && typeof Quest?.setQuestList === 'function') {
+			Quest.setQuestList(this._questsBuffer.questInfo);
+		}
+
+		// Pre-populate actor names in EntityManager
+		if (this._actorNamesBuffer?.actors?.length > 0) {
+			for (const actor of this._actorNamesBuffer.actors) {
+				const entity = EntityManager.get(actor.gid);
+				if (entity?.display) {
+					entity.display.name = actor.name;
+				}
+			}
+		}
+
+		// Open initial windows
+		if (this._openWindowsBuffer?.length > 0) {
+			for (const win of this._openWindowsBuffer) {
+				const compName = WindowIdToComponent[win.windowId];
+				if (compName) {
+					const comp = UIManager.getComponent(compName);
+					if (comp && !comp.ui) {
+						comp.append();
+					}
+				}
+			}
+		}
+
+		// Apply navigation target if active
+		if (this._navigationBuffer?.isPathActive && typeof Navigation?.setTargetCoordinatesText === 'function') {
+			Navigation.setTargetCoordinatesText(this._navigationBuffer.x, this._navigationBuffer.y);
 		}
 
 		// Update UI components with character session values
@@ -563,7 +714,11 @@ export default class ReplayPlayer {
 		while (this._streamChunkIndex < this._packetStreamBuffer.length) {
 			const chunk = this._packetStreamBuffer[this._streamChunkIndex];
 			if (chunk.time <= logicalTime) {
-				this._pushPacket(chunk.data);
+				if (chunk.packetId === 2222 || chunk.packetId === 0x08ae) {
+					this._handleReplayEvent(chunk.data);
+				} else {
+					this._pushPacket(chunk.data);
+				}
 				this._streamChunkIndex++;
 			} else {
 				break;
@@ -574,6 +729,131 @@ export default class ReplayPlayer {
 			replayLog('[Replay] Replay finished');
 			this._setState(ReplayState.REPLAY_FINISHED);
 			this.stop();
+		}
+	}
+
+	/**
+	 * Handles synthetic replay events (Opcode 2222 / 0x08AE).
+	 * Format: [packetId: Uint16 (2222), length: Uint16, subOpCode: Uint16, payload...]
+	 */
+	_handleReplayEvent(data) {
+		if (!data || data.byteLength < 6) {
+			return;
+		}
+		const reader = new BinaryReader(data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength));
+		reader.seek(2, SEEK_SET); // Skip packetId
+		const len = reader.readUShort();
+		const subOpCode = reader.readUShort();
+
+		switch (subOpCode) {
+			case ReplayEventSubOpCode.WINDOW_MOVE: {
+				const windowId = reader.readUShort();
+				const x = reader.readShort();
+				const y = reader.readShort();
+				const compName = WindowIdToComponent[windowId];
+				if (compName) {
+					const comp = UIManager.getComponent(compName);
+					if (comp?.ui) {
+						comp.ui.css({ left: `${x}px`, top: `${y}px` });
+					}
+				}
+				break;
+			}
+			case ReplayEventSubOpCode.ITEM_DESC: {
+				const itid = reader.readUInt();
+				if (ItemInfo?.setItem) {
+					ItemInfo.setItem({ ITID: itid, IsIdentified: true });
+					if (!ItemInfo.ui) {
+						ItemInfo.append();
+					}
+				}
+				break;
+			}
+			case ReplayEventSubOpCode.WINDOW_MSG: {
+				const _msgType = reader.readUShort();
+				const msgLen = len > 8 ? len - 8 : 0;
+				if (msgLen > 0 && ChatBox?.addText) {
+					const text = reader.readBinaryString(msgLen);
+					ChatBox.addText(text, ChatBox.TYPE_INFO);
+				}
+				break;
+			}
+			case ReplayEventSubOpCode.SET_TARGET: {
+				const targetGid = reader.readUInt();
+				if (Session.Entity) {
+					Session.Entity.target = targetGid ? EntityManager.get(targetGid) : null;
+				}
+				break;
+			}
+			case ReplayEventSubOpCode.SET_MAP_INFO: {
+				const mapName = reader.readBinaryString(16);
+				replayLog(`[ReplayEvent] SET_MAP_INFO: ${mapName}`);
+				break;
+			}
+			case ReplayEventSubOpCode.MAP_TRANSITION: {
+				const mapName = reader.readBinaryString(16);
+				replayLog(`[ReplayEvent] MAP_TRANSITION: ${mapName}`);
+				break;
+			}
+			case ReplayEventSubOpCode.SET_BGM_AMBIENT: {
+				const bgmLen = len > 6 ? len - 6 : 0;
+				if (bgmLen > 0) {
+					const bgmName = reader.readBinaryString(bgmLen);
+					if (BGM?.play && bgmName) {
+						BGM.play(bgmName);
+					}
+				}
+				break;
+			}
+			case ReplayEventSubOpCode.SET_SESSION_TEXT: {
+				const textLen = len > 6 ? len - 6 : 0;
+				if (textLen > 0) {
+					const text = reader.readBinaryString(textLen);
+					replayLog(`[ReplayEvent] SET_SESSION_TEXT: ${text}`);
+				}
+				break;
+			}
+			case ReplayEventSubOpCode.NAVIGATION_PATH:
+			case ReplayEventSubOpCode.NAVIGATION_ARROW:
+			case ReplayEventSubOpCode.NAVIGATION_ACTIVE: {
+				if (len >= 10 && typeof Navigation?.setTargetCoordinatesText === 'function') {
+					const x = reader.readUShort();
+					const y = reader.readUShort();
+					Navigation.setTargetCoordinatesText(x, y);
+				}
+				break;
+			}
+			case ReplayEventSubOpCode.MAKE_WINDOW: {
+				const windowId = reader.readUShort();
+				const compName = WindowIdToComponent[windowId];
+				if (compName) {
+					const comp = UIManager.getComponent(compName);
+					if (comp && !comp.ui) {
+						comp.append();
+					}
+				}
+				break;
+			}
+			case ReplayEventSubOpCode.WINDOW_ACTION: {
+				const windowId = reader.readUShort();
+				const action = reader.readUShort();
+				replayLog(`[ReplayEvent] WINDOW_ACTION: win=${windowId}, action=${action}`);
+				break;
+			}
+			case ReplayEventSubOpCode.CLOSE_WINDOW: {
+				const windowId = reader.readUShort();
+				const compName = WindowIdToComponent[windowId];
+				if (compName) {
+					const comp = UIManager.getComponent(compName);
+					if (comp?.ui) {
+						comp.remove();
+					}
+				}
+				break;
+			}
+			default:
+				replayLog(`[ReplayEvent] Unhandled subOpCode: ${subOpCode}`);
+				break;
 		}
 	}
 
