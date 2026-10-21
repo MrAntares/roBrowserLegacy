@@ -3,6 +3,8 @@ precision highp float;
 precision highp sampler2DArray;
 
 in vec2 vTextureCoord;  // 0..1 across the frame, as in SpriteRenderer.fs
+in float vBillboardZ;
+in float vPlaneZ;
 flat in vec4 vUV;       // the frame's rectangle in the texture
 flat in vec4 vColor;
 flat in float vShadow;
@@ -104,13 +106,17 @@ void main(void) {
     if ( textureSample.a == 0.0 )
         discard;
 
+    // Clip-space depth back to window depth, fogged at the same depth
+    float fragDepth = min(vBillboardZ, vPlaneZ) * gl_FragCoord.w * 0.5 + 0.5;
+    gl_FragDepth    = fragDepth;
+
     // Apply shadow, apply color
     textureSample.rgb   *= vShadow;
     fragColor   = textureSample * vColor;
 
     // Fog feature
     if (uFogUse) {
-        float depth     = gl_FragCoord.z / gl_FragCoord.w;
+        float depth     = fragDepth / gl_FragCoord.w;
         float fogFactor = smoothstep( uFogNear, uFogFar, depth );
         fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );
     }
