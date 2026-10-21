@@ -41,7 +41,12 @@
         (br_if $break_while (i32.ge_u (local.get $outputPos) (local.get $outputSize)))
 
         ;; c = data[pos++]
-        (local.set $c (i32.load8_u (i32.add (local.get $dataPtr) (local.get $pos))))
+        (local.set $c (i32.const 0))
+        (if (i32.lt_u (local.get $pos) (local.get $dataSize))
+          (then
+            (local.set $c (i32.load8_u (i32.add (local.get $dataPtr) (local.get $pos))))
+          )
+        )
         (local.set $pos (i32.add (local.get $pos) (i32.const 1)))
 
         ;; count = (c & 0x7f) + 1
