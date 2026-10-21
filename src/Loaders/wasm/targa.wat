@@ -60,6 +60,17 @@
             (local.set $pixelsPtr (i32.add (local.get $dataPtr) (local.get $pixelSrc)))
             (local.set $pos (i32.add (local.get $pos) (local.get $pixelSize)))
 
+            ;; Parity with the JS fallback: `output.set(pixels, pos)` throws a
+            ;; RangeError when the run does not fit in the output buffer. The
+            ;; overflow is detected on the last repetition of the run, so
+            ;; testing the whole run is equivalent. Signal the error to the
+            ;; caller with -1 instead of silently truncating the output.
+            (if (i32.gt_u
+                  (i32.add (local.get $outputPos)
+                           (i32.mul (local.get $count) (local.get $pixelSize)))
+                  (local.get $outputSize))
+              (then (return (i32.const -1))))
+
             (local.set $rep (i32.const 0))
             (block $break_rep
               (loop $loop_rep

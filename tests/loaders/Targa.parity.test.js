@@ -239,6 +239,18 @@ describe.each([['WASM', false], ['fallback JS', true]])('Targa RLE decoding via 
 		expect(tga.imageData).toEqual(referenceRLE(file, 18 + palette.length, 1, 256 * 256));
 	});
 
+	it('rejects an RLE run longer than the image', async () => {
+		const Targa = await loadTarga({ fallback });
+		const file = buildTGA({
+			width: 1,
+			height: 1,
+			pixelDepth: 24,
+			imageType: 10,
+			payload: Uint8Array.from([0x81, 1, 2, 3])
+		});
+		expect(() => new Targa().load(file)).toThrow(RangeError);
+	});
+
 	it('zero-fills a truncated stream instead of returning a short buffer', async () => {
 		const Targa = await loadTarga({ fallback });
 

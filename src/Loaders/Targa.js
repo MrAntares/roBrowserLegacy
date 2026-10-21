@@ -142,20 +142,34 @@ class Targa {
 		if (wasm && wasm.exports.decodeRLE) {
 			const memory = wasm.exports.memory;
 			const srcPtr = 0;
-			const srcBytes = Math.max(0, data.length - offset);
+			// The worst case for the source copy is one header byte per pixel plus
+			// the raw payload, i.e. outputSize + ceil(outputSize / pixelSize).
+			// Limiting the copy keeps trailing data from growing the memory.
+			const maxNeeded = outputSize + Math.ceil(outputSize / pixelSize);
+			const srcBytes = Math.min(Math.max(0, data.length - offset), maxNeeded);
 			// keep the destination 4-byte aligned (i32 stores)
 			const dstPtr = (srcBytes + 3) & ~3;
 			const totalBytesNeeded = dstPtr + outputSize;
 
 			if (memory.buffer.byteLength < totalBytesNeeded) {
-				memory.grow(Math.ceil((totalBytesNeeded - memory.buffer.byteLength) / 65536));
+				try {
+					memory.grow(Math.ceil((totalBytesNeeded - memory.buffer.byteLength) / 65536));
+				} catch (_e) {
+					return decodeRLE(data, offset, pixelSize, outputSize);
+				}
 			}
 
 			// Copy source data to WASM memory
-			new Uint8Array(memory.buffer, srcPtr, srcBytes).set(data.subarray(offset));
+			new Uint8Array(memory.buffer, srcPtr, srcBytes).set(data.subarray(offset, offset + srcBytes));
 
 			// Decode RLE
 			const bytesWritten = wasm.exports.decodeRLE(srcPtr, dstPtr, srcBytes, outputSize, pixelSize);
+
+			// The run does not fit in the output buffer: the JS fallback throws
+			// a RangeError in that case, so the WASM path must do the same.
+			if (bytesWritten < 0) {
+				throw new RangeError('Targa: RLE packet exceeds image size');
+			}
 
 			// Return decoded data (always exactly `outputSize` bytes)
 			if (bytesWritten >= outputSize) {
@@ -390,6 +404,12 @@ function decodeRLE(data, offset, pixelSize, outputSize) {
 			// Bind pixel tmp array
 			for (i = 0; i < pixelSize; ++i) {
 				pixels[i] = data[offset++];
+			}
+
+			// The run does not fit in the output buffer: throw a RangeError,
+			// like the WASM decoder does (it reports the overflow with -1).
+			if (pos + count * pixelSize > outputSize) {
+				throw new RangeError('Targa: RLE packet exceeds image size');
 			}
 
 			// Copy pixel array
