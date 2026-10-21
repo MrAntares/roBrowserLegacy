@@ -215,6 +215,38 @@ describe('FileSystem with a cache that only takes ASCII names', () => {
 		expect(FileSystem.search('x\uD800.grf')).toHaveLength(1);
 	});
 
+	it('still reads the client an older version stored at the root', async () => {
+		const FileSystem = await load();
+		state.stored['DATA.INI'] = new Blob(['[Data]']);
+		state.stored['data.grf'] = new Blob([new Uint8Array([1])]);
+		state.stored['data/texture/old.bmp'] = new Blob([new Uint8Array([2])]);
+
+		expect(FileSystem.search('DATA.INI')).toHaveLength(1);
+		expect(FileSystem.search(/\.grf$/i)).toHaveLength(1);
+		expect(FileSystem.getFileSync('data\\texture\\old.bmp')).toBe(state.stored['data/texture/old.bmp']);
+		await expect(new Promise((ok, ko) => FileSystem.getFile('data.grf', ok, ko))).resolves.toBe(
+			state.stored['data.grf']
+		);
+	});
+
+	it('lists a file once when both an older and a new copy exist', async () => {
+		const FileSystem = await load();
+		state.stored['data.grf'] = new Blob([new Uint8Array([1])]);
+
+		FileSystem.saveFile('data.grf', new Uint8Array([2]).buffer);
+
+		expect(FileSystem.search('data.grf')).toHaveLength(1);
+	});
+
+	it('misses a Korean path quietly when no copy can be read', async () => {
+		const FileSystem = await load();
+
+		expect(FileSystem.getFileSync(`${KOREAN_DIR}\\none.bmp`)).toBeNull();
+		await expect(
+			new Promise((ok, ko) => FileSystem.getFile(`${KOREAN_DIR}\\none.bmp`, ok, () => ko('miss')))
+		).rejects.toBe('miss');
+	});
+
 	it('leaves no empty entry behind when the write fails', async () => {
 		const FileSystem = await load();
 		vi.spyOn(console, 'warn').mockImplementation(() => {});
