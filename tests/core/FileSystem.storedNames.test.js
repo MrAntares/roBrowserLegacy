@@ -43,15 +43,19 @@ function asciiOnlyFileSystem() {
 			delete stored[key];
 		},
 		moveTo: (dir, name) => {
+			const target = (dir.prefix || '') + name;
 			for (const k in stored) {
 				if (k === key || k.startsWith(key + '/')) {
-					stored[name + k.slice(key.length)] = stored[k];
+					stored[target + k.slice(key.length)] = stored[k];
 					delete stored[k];
 				}
 			}
 		},
 		createWriter: cb => {
 			const writer = {
+				truncate() {
+					stored[key] = new Blob([]);
+				},
 				write(blob) {
 					writeTo(key, blob);
 					if (writer.onwriteend) {
@@ -65,6 +69,8 @@ function asciiOnlyFileSystem() {
 	const dirEntry = prefix => ({
 		isFile: false,
 		isDirectory: true,
+		prefix,
+		getFile: (name, opts) => root.getFile(prefix + name, opts),
 		createReader: () => ({
 			readEntries: () => {
 				const names = {};
@@ -186,6 +192,27 @@ describe('FileSystem with a cache that only takes ASCII names', () => {
 		expect(Object.keys(state.stored)).toHaveLength(2);
 		expect(FileSystem.getFileSync(emoji)).not.toBeNull();
 		expect(FileSystem.getFileSync(lone)).not.toBeNull();
+	});
+
+	it('keeps the cached file when replacing it fails', async () => {
+		const FileSystem = await load();
+		vi.spyOn(console, 'warn').mockImplementation(() => {});
+		FileSystem.saveFile('data\\texture\\t.bmp', new Uint8Array([1]).buffer);
+		const first = FileSystem.getFileSync('data\\texture\\t.bmp');
+		state.failWrite = true;
+
+		FileSystem.saveFile('data\\texture\\t.bmp', new Uint8Array([2]).buffer);
+
+		expect(FileSystem.getFileSync('data\\texture\\t.bmp')).toBe(first);
+		expect(Object.keys(state.stored)).toEqual(['cache-v2/data/texture/t.bmp']);
+	});
+
+	it('finds an archive whose name holds a lone surrogate', async () => {
+		const FileSystem = await load();
+
+		FileSystem.saveFile('x\uD800.grf', new Uint8Array([1]).buffer);
+
+		expect(FileSystem.search('x\uD800.grf')).toHaveLength(1);
 	});
 
 	it('leaves no empty entry behind when the write fails', async () => {

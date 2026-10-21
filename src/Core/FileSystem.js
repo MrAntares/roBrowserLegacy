@@ -57,6 +57,13 @@ let _save = false;
  * client stored under raw names, which an encoded name could match.
  */
 const _storeDir = 'cache-v2/';
+
+/**
+ * A file is written here first, then moved over its name: a failed write
+ * never leaves an empty or half-replaced file under that name.
+ */
+const _writeDir = 'cache-write/';
+let _writeCount = 0;
 const _unsafeChars = /[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x20-\x7e]|%/g;
 
 /**
@@ -85,11 +92,16 @@ function toStoredPath(path) {
  * @returns {string} the name it was stored for
  */
 function fromStoredName(name) {
-	try {
-		return decodeURIComponent(name);
-	} catch (_e) {
-		return name;
-	}
+	return name.replace(/%u([0-9a-f]{4})|(?:%[0-9A-F]{2})+/gi, (match, unit) => {
+		if (unit) {
+			return String.fromCharCode(parseInt(unit, 16));
+		}
+		try {
+			return decodeURIComponent(match);
+		} catch (_e) {
+			return match;
+		}
+	});
 }
 
 /**
@@ -384,9 +396,11 @@ class FileSystem {
 		}
 
 		const filename = toStoredPath(filePath.replace(/\\/g, '/'));
-		const directories = filename.split('/').slice(0, -1);
+		const directories = filename.split('/');
+		const name = directories.pop();
 		let path = '';
-		let fileEntry = null;
+		let dir = _fs_sync.root;
+		let tmpEntry = null;
 
 		// Best effort: a throw here would fail the caller's load of a file it
 		// already has.
@@ -394,20 +408,23 @@ class FileSystem {
 			// Create hierarchy
 			while (directories.length) {
 				path += directories.shift() + '/';
-				_fs_sync.root.getDirectory(path, { create: true });
+				dir = _fs_sync.root.getDirectory(path, { create: true });
 			}
 
-			fileEntry = _fs_sync.root.getFile(filename, { create: true });
-			const writer = fileEntry.createWriter();
+			tmpEntry = _fs_sync.root
+				.getDirectory(_writeDir, { create: true })
+				.getFile(String(_writeCount++), { create: true });
+			const writer = tmpEntry.createWriter();
 
+			writer.truncate(0);
 			writer.write(new Blob([buffer]));
+			tmpEntry.moveTo(dir, name);
 		} catch (e) {
 			console.warn(`[FileSystem] cannot cache ${filename}: ${e.name}`);
 
-			// An entry left empty would be read as the file on the next load
-			if (fileEntry) {
+			if (tmpEntry) {
 				try {
-					fileEntry.remove();
+					tmpEntry.remove();
 				} catch (_e) {
 					// nothing more to do
 				}
