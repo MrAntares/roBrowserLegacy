@@ -220,6 +220,25 @@ describe.each([['WASM', false], ['fallback JS', true]])('Targa RLE decoding via 
 		expect(Buffer.from(tga.imageData).equals(Buffer.from(expected))).toBe(true);
 	});
 
+	it.each([3, 256 * 3])('zero-fills missing RLE pixels with %i palette bytes', async paletteBytes => {
+		const Targa = await loadTarga({ fallback });
+		const palette = makePalette();
+		const file = buildTGA({
+			width: 256,
+			height: 256,
+			pixelDepth: 8,
+			imageType: 9,
+			palette,
+			payload: new Uint8Array(0)
+		}).subarray(0, 18 + paletteBytes);
+
+		const tga = new Targa();
+		tga.load(file);
+
+		expect(tga.palette).toEqual(palette.subarray(0, paletteBytes));
+		expect(tga.imageData).toEqual(referenceRLE(file, 18 + palette.length, 1, 256 * 256));
+	});
+
 	it('zero-fills a truncated stream instead of returning a short buffer', async () => {
 		const Targa = await loadTarga({ fallback });
 
