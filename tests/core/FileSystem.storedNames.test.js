@@ -3,8 +3,8 @@
  *
  * Chromium's FileSystem may refuse every name outside printable ASCII
  * (SecurityError), as the client's Korean folders (EUC-KR bytes read as
- * latin1). Such names are stored percent-encoded, and found again under the
- * client's own path.
+ * latin1). Such names are stored percent-encoded, under a folder of their
+ * own, and found again under the client's own path.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -149,12 +149,20 @@ describe('FileSystem with a cache that only takes ASCII names', () => {
 		expect(FileSystem.getFileSync(path)).toBe(state.stored[keys[0]]);
 	});
 
-	it('keeps an ASCII name as it is', async () => {
+	it('keeps an ASCII name unencoded', async () => {
 		const FileSystem = await load();
 
 		FileSystem.saveFile('data\\sprite\\poring.spr', new Uint8Array([1]).buffer);
 
-		expect(Object.keys(state.stored)).toEqual(['data/sprite/poring.spr']);
+		expect(Object.keys(state.stored)).toEqual(['cache-v2/data/sprite/poring.spr']);
+	});
+
+	it('never reads a file an older client stored under its raw name', async () => {
+		const FileSystem = await load();
+		state.stored['100%25.grf'] = new Blob([new Uint8Array([9])]);
+
+		expect(FileSystem.getFileSync('100%.grf')).toBeNull();
+		expect(FileSystem.search('100%.grf')).toHaveLength(0);
 	});
 
 	it('matches a search against the client name', async () => {
@@ -202,7 +210,7 @@ describe('FileSystem with a cache that only takes ASCII names', () => {
 
 		const keys = Object.keys(state.stored);
 		expect(keys).toHaveLength(1);
-		expect(keys[0]).toMatch(/^data\/texture\/[\x20-\x7e]+\/prt_01\.bmp$/);
+		expect(keys[0]).toMatch(/^cache-v2\/data\/texture\/[\x20-\x7e]+\/prt_01\.bmp$/);
 		expect(FileSystem.getFileSync(path)).toBe(file);
 	});
 });

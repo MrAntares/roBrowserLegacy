@@ -53,7 +53,10 @@ let _save = false;
  * Chromium's FileSystem may refuse a name outside printable ASCII
  * (SecurityError), as the client's Korean folders: those characters and `%`
  * are stored percent-encoded. A surrogate pair is encoded as one character.
+ * Encoded files live under their own folder, apart from the files an older
+ * client stored under raw names, which an encoded name could match.
  */
+const _storeDir = 'cache-v2/';
 const _unsafeChars = /[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x20-\x7e]|%/g;
 
 /**
@@ -74,7 +77,7 @@ function encodeChar(char) {
  * @returns {string} the name it is stored under
  */
 function toStoredPath(path) {
-	return path.replace(_unsafeChars, encodeChar);
+	return _storeDir + path.replace(_unsafeChars, encodeChar);
 }
 
 /**
@@ -260,6 +263,7 @@ function buildHierarchy() {
 
 	// Directory where to upload data
 	_fs_sync.root.getDirectory('/__tmp_upload/', { create: true });
+	_fs_sync.root.getDirectory('/__tmp_upload/' + _storeDir, { create: true });
 
 	for (i = 0, count = keys.length; i < count; ++i) {
 		_fs_sync.root.getDirectory('/__tmp_upload/' + toStoredPath(keys[i]), { create: true });
@@ -434,7 +438,13 @@ class FileSystem {
 			return list;
 		}
 
-		const entries = _fs_sync.root.createReader().readEntries();
+		let entries;
+		try {
+			entries = _fs_sync.root.getDirectory(_storeDir, {}).createReader().readEntries();
+		} catch (_e) {
+			// nothing stored yet
+			return list;
+		}
 
 		for (i = 0, count = entries.length; i < count; ++i) {
 			if (entries[i].isFile && fromStoredName(entries[i].name).match(regex)) {
