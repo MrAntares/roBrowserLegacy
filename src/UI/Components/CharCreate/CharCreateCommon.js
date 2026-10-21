@@ -612,16 +612,14 @@ export function createCharCreate(config) {
 			);
 
 			Client.loadFile(`${DB.INTERFACE_PATH}make_character_ver2/bt_hairstyle_normal.bmp`, dataURI => {
-				const el = root.querySelector(`.style${_prevhead}`);
-				if (el) {
+				root.querySelectorAll(`.style${_prevhead}`).forEach(el => {
 					el.style.backgroundImage = `url(${dataURI})`;
-				}
+				});
 			});
 			Client.loadFile(`${DB.INTERFACE_PATH}make_character_ver2/bt_hairstyle_select.bmp`, dataURI => {
-				const el = root.querySelector(`.style${_curhead}`);
-				if (el) {
+				root.querySelectorAll(`.style${_curhead}`).forEach(el => {
 					el.style.backgroundImage = `url(${dataURI})`;
-				}
+				});
 			});
 		}
 	}
@@ -813,10 +811,9 @@ export function createCharCreate(config) {
 
 		_prevhead = _model.entity.head;
 		Client.loadFile(`${DB.INTERFACE_PATH}make_character_ver2/bt_hairstyle_normal.bmp`, dataURI => {
-			const el = root.querySelector(`.style${_prevhead}`);
-			if (el) {
+			root.querySelectorAll(`.style${_prevhead}`).forEach(el => {
 				el.style.backgroundImage = `url(${dataURI})`;
-			}
+			});
 		});
 
 		_curhead = value;
@@ -881,10 +878,10 @@ export function createCharCreate(config) {
 		// In between changes of race, it needs to clear everything
 		for (let i = 1; i <= 24; i++) {
 			Client.loadFile(`${DB.INTERFACE_PATH}make_character_ver2/bt_hairstyle_normal.bmp`, dataURI => {
-				const el = root.querySelector(`.style${i}`);
-				if (el) {
+				// Each race/gender list has its own .style{n} button, so paint them all
+				root.querySelectorAll(`.style${i}`).forEach(el => {
 					el.style.backgroundImage = `url(${dataURI})`;
-				}
+				});
 			});
 		}
 
