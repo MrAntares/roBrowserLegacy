@@ -13,7 +13,6 @@ A function that has depth available carries an
 | note | what it covers |
 |---|---|
 | [body-palette.md](body-palette.md) | Which palette file dresses a dyed body on a mount, and why a halter-lead mount depends on the client build |
-| [sprite-depth.md](sprite-depth.md) | How a sprite fragment gets its depth, and why the billboard / plane min is taken per fragment |
 
 ## Reading the markers
 
