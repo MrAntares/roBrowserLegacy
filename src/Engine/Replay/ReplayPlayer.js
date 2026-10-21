@@ -33,12 +33,7 @@ import BGM from 'Audio/BGM.js';
 import EntityManager from 'Renderer/EntityManager.js';
 import UIManager from 'UI/UIManager.js';
 import BinaryReader, { SEEK_SET } from 'Utils/BinaryReader.js';
-import {
-	ReplayState,
-	replayLog,
-	ReplayEventSubOpCode,
-	WindowIdToComponent
-} from 'Engine/Replay/ReplayTypes.js';
+import { ReplayState, replayLog, ReplayEventSubOpCode, WindowIdToComponent } from 'Engine/Replay/ReplayTypes.js';
 import ReplayParser from './ReplayParser.js';
 import ReplaySocket from './ReplaySocket.js';
 
@@ -302,10 +297,13 @@ export default class ReplayPlayer {
 		}
 
 		// Mercenary data in Session
-		if (s.mercenary && s.mercenary.gid) {
-			Session.mercenaryId = s.mercenary.gid;
+		if (s.mercenary && (s.mercenary.gid || s.mercenary.GID)) {
+			const mercId = s.mercenary.gid || s.mercenary.GID;
+			Session.mercId = mercId;
+			Session.mercenaryId = mercId;
 			Session.mercenary = s.mercenary;
 		} else {
+			Session.mercId = 0;
 			Session.mercenaryId = 0;
 			Session.mercenary = {};
 		}
@@ -605,11 +603,45 @@ export default class ReplayPlayer {
 			}
 
 			// Add storage items
-			const storageUI = Storage?.getUI ? Storage : null;
+			const storageUI = Storage?.getUI ? Storage.getUI() || Storage : Storage;
 			if (storageUI && this._itemsBuffer.storage?.length > 0) {
+				if (typeof storageUI.prepare === 'function' && !storageUI.__loaded) {
+					storageUI.prepare();
+				}
 				if (typeof storageUI.setItems === 'function') {
 					storageUI.setItems(this._itemsBuffer.storage);
 				}
+			}
+		}
+
+		// Restore companion IDs in Session (after onConnectionAccepted reset them)
+		if (this._sessionData?.pet) {
+			const petId = this._sessionData.pet.aid || this._sessionData.pet.AID;
+			if (petId) {
+				Session.petId = petId;
+				Session.pet = this._sessionData.pet;
+			}
+		}
+		if (this._sessionData?.homun) {
+			const homunId = this._sessionData.homun.gid || this._sessionData.homun.GID;
+			if (homunId) {
+				Session.homunId = homunId;
+				Session.homun = this._sessionData.homun;
+			}
+		}
+		if (this._sessionData?.mercenary) {
+			const mercId = this._sessionData.mercenary.gid || this._sessionData.mercenary.GID;
+			if (mercId) {
+				Session.mercId = mercId;
+				Session.mercenaryId = mercId;
+				Session.mercenary = this._sessionData.mercenary;
+			}
+		}
+		if (this._sessionData?.elemental) {
+			const eleId = this._sessionData.elemental.gid || this._sessionData.elemental.GID;
+			if (eleId) {
+				Session.elementalId = eleId;
+				Session.elemental = this._sessionData.elemental;
 			}
 		}
 
@@ -631,25 +663,55 @@ export default class ReplayPlayer {
 
 		// Apply party and friends
 		if (this._groupAndFriendsBuffer) {
-			if (this._groupAndFriendsBuffer.groupInfo && typeof PartyFriends?.setParty === 'function') {
+			if (this._groupAndFriendsBuffer.groupInfo?.length > 0 && typeof PartyFriends?.setParty === 'function') {
 				PartyFriends.setParty(
 					this._groupAndFriendsBuffer.groupName || '',
 					this._groupAndFriendsBuffer.groupInfo
 				);
 			}
-			if (this._groupAndFriendsBuffer.friendInfo && typeof PartyFriends?.setFriends === 'function') {
+			if (this._groupAndFriendsBuffer.friendInfo?.length > 0 && typeof PartyFriends?.setFriends === 'function') {
 				PartyFriends.setFriends(this._groupAndFriendsBuffer.friendInfo);
 			}
 		}
 
 		// Apply quests
-		if (this._questsBuffer?.questInfo && typeof Quest?.setQuestList === 'function') {
-			Quest.setQuestList(this._questsBuffer.questInfo);
+		if (this._questsBuffer) {
+			const quests = this._questsBuffer.quests || this._questsBuffer.questInfo;
+			if (Array.isArray(quests) && quests.length > 0 && typeof Quest?.setQuestList === 'function') {
+				const questList = {};
+				for (const q of quests) {
+					const questId = q.questID || q.id || q;
+					const questInfo = DB.getQuestInfo(questId) || {};
+					questList[questId] = {
+						questID: questId,
+						title: questInfo.Title || '',
+						summary: questInfo.Summary || '',
+						description: questInfo.Description || '',
+						icon: questInfo.IconName || 'ico_nq.bmp',
+						npc_spr: questInfo.NpcSpr || null,
+						npc_navi: questInfo.NpcNavi || null,
+						npc_pos_x: questInfo.NpcPosX || null,
+						npc_pos_y: questInfo.NpcPosY || null,
+						reward_item_list: questInfo.RewardItemList || [],
+						reward_exp_base: questInfo.RewardEXP || 0,
+						reward_exp_job: questInfo.RewardJEXP || 0,
+						active: q.active !== undefined ? q.active : q.data?.byteLength > 4 ? q.data[4] !== 0 : true,
+						start_time: 0,
+						end_time: 0,
+						count: 0,
+						hunt_list: []
+					};
+				}
+				Quest.setQuestList(questList);
+			} else if (quests && typeof quests === 'object' && typeof Quest?.setQuestList === 'function') {
+				Quest.setQuestList(quests);
+			}
 		}
 
 		// Pre-populate actor names in EntityManager
-		if (this._actorNamesBuffer?.actors?.length > 0) {
-			for (const actor of this._actorNamesBuffer.actors) {
+		const actors = this._actorNamesBuffer?.actorNames || this._actorNamesBuffer?.actors;
+		if (actors?.length > 0) {
+			for (const actor of actors) {
 				const entity = EntityManager.get(actor.gid);
 				if (entity?.display) {
 					entity.display.name = actor.name;
@@ -662,13 +724,17 @@ export default class ReplayPlayer {
 			for (const win of this._openWindowsBuffer) {
 				const compName = WindowIdToComponent[win.windowId];
 				if (compName) {
-					const comp = UIManager.getComponent(compName);
-					if (comp) {
-						if (!comp.ui) {
-							comp.append();
-						} else if (typeof comp.ui.show === 'function') {
-							comp.ui.show();
+					try {
+						const comp = UIManager.getComponent(compName);
+						if (comp) {
+							if (!comp.__active || !comp._host?.parentNode) {
+								comp.append();
+							} else if (typeof comp.ui?.show === 'function') {
+								comp.ui.show();
+							}
 						}
+					} catch (e) {
+						replayLog(`[ReplayPlayer] Error opening window ${compName}:`, e);
 					}
 				}
 			}
@@ -676,7 +742,11 @@ export default class ReplayPlayer {
 
 		// Apply navigation target if active
 		if (this._navigationBuffer?.isPathActive && typeof Navigation?.setTargetCoordinatesText === 'function') {
-			Navigation.setTargetCoordinatesText(this._navigationBuffer.x, this._navigationBuffer.y);
+			const navX = this._navigationBuffer.endX ?? this._navigationBuffer.x;
+			const navY = this._navigationBuffer.endY ?? this._navigationBuffer.y;
+			if (navX !== undefined && navY !== undefined) {
+				Navigation.setTargetCoordinatesText(navX, navY);
+			}
 		}
 
 		// Update UI components with character session values
@@ -747,120 +817,176 @@ export default class ReplayPlayer {
 		if (!data || data.byteLength < 6) {
 			return;
 		}
-		const reader = new BinaryReader(data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength));
-		reader.seek(2, SEEK_SET); // Skip packetId
-		const len = reader.readUShort();
-		const subOpCode = reader.readUShort();
+		try {
+			const reader = new BinaryReader(data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength));
+			reader.seek(2, SEEK_SET); // Skip packetId
+			const len = reader.readUShort();
+			const subOpCode = reader.readUShort();
+			const totalLen = data.byteLength;
 
-		switch (subOpCode) {
-			case ReplayEventSubOpCode.WINDOW_MOVE: {
-				const windowId = reader.readUShort();
-				const x = reader.readShort();
-				const y = reader.readShort();
-				const compName = WindowIdToComponent[windowId];
-				if (compName) {
-					const comp = UIManager.getComponent(compName);
-					if (comp?.ui) {
-						comp.ui.css({ left: `${x}px`, top: `${y}px` });
+			// Header check: declared length must not be less than header or exceed buffer
+			if (len < 6 || len > totalLen) {
+				return;
+			}
+
+			switch (subOpCode) {
+				case ReplayEventSubOpCode.WINDOW_MOVE: {
+					if (totalLen < 12 || len < 12) {
+						return;
 					}
-				}
-				break;
-			}
-			case ReplayEventSubOpCode.ITEM_DESC: {
-				const itid = reader.readUInt();
-				if (ItemInfo?.setItem) {
-					ItemInfo.setItem({ ITID: itid, IsIdentified: true });
-					if (!ItemInfo.ui) {
-						ItemInfo.append();
+					const windowId = reader.readUShort();
+					const x = reader.readShort();
+					const y = reader.readShort();
+					const compName = WindowIdToComponent[windowId];
+					if (compName) {
+						try {
+							const comp = UIManager.getComponent(compName);
+							if (comp?.ui) {
+								comp.ui.css({ left: `${x}px`, top: `${y}px` });
+							}
+						} catch (_e) {
+							// Ignored if component not found
+						}
 					}
+					break;
 				}
-				break;
-			}
-			case ReplayEventSubOpCode.WINDOW_MSG: {
-				const _msgType = reader.readUShort();
-				const msgLen = len > 8 ? len - 8 : 0;
-				if (msgLen > 0 && ChatBox?.addText) {
-					const text = reader.readBinaryString(msgLen);
-					ChatBox.addText(text, ChatBox.TYPE_INFO);
-				}
-				break;
-			}
-			case ReplayEventSubOpCode.SET_TARGET: {
-				const targetGid = reader.readUInt();
-				if (Session.Entity) {
-					Session.Entity.target = targetGid ? EntityManager.get(targetGid) : null;
-				}
-				break;
-			}
-			case ReplayEventSubOpCode.SET_MAP_INFO: {
-				const mapName = reader.readBinaryString(16);
-				replayLog(`[ReplayEvent] SET_MAP_INFO: ${mapName}`);
-				break;
-			}
-			case ReplayEventSubOpCode.MAP_TRANSITION: {
-				const mapName = reader.readBinaryString(16);
-				replayLog(`[ReplayEvent] MAP_TRANSITION: ${mapName}`);
-				break;
-			}
-			case ReplayEventSubOpCode.SET_BGM_AMBIENT: {
-				const bgmLen = len > 6 ? len - 6 : 0;
-				if (bgmLen > 0) {
-					const bgmName = reader.readBinaryString(bgmLen);
-					if (BGM?.play && bgmName) {
-						BGM.play(bgmName);
+				case ReplayEventSubOpCode.ITEM_DESC: {
+					if (totalLen < 10 || len < 10) {
+						return;
 					}
-				}
-				break;
-			}
-			case ReplayEventSubOpCode.SET_SESSION_TEXT: {
-				const textLen = len > 6 ? len - 6 : 0;
-				if (textLen > 0) {
-					const text = reader.readBinaryString(textLen);
-					replayLog(`[ReplayEvent] SET_SESSION_TEXT: ${text}`);
-				}
-				break;
-			}
-			case ReplayEventSubOpCode.NAVIGATION_PATH:
-			case ReplayEventSubOpCode.NAVIGATION_ARROW:
-			case ReplayEventSubOpCode.NAVIGATION_ACTIVE: {
-				if (len >= 10 && typeof Navigation?.setTargetCoordinatesText === 'function') {
-					const x = reader.readUShort();
-					const y = reader.readUShort();
-					Navigation.setTargetCoordinatesText(x, y);
-				}
-				break;
-			}
-			case ReplayEventSubOpCode.MAKE_WINDOW: {
-				const windowId = reader.readUShort();
-				const compName = WindowIdToComponent[windowId];
-				if (compName) {
-					const comp = UIManager.getComponent(compName);
-					if (comp && !comp.ui) {
-						comp.append();
+					const itid = reader.readUInt();
+					if (ItemInfo?.setItem) {
+						if (!ItemInfo.__active) {
+							ItemInfo.append();
+						}
+						ItemInfo.setItem({ ITID: itid, IsIdentified: true });
 					}
+					break;
 				}
-				break;
-			}
-			case ReplayEventSubOpCode.WINDOW_ACTION: {
-				const windowId = reader.readUShort();
-				const action = reader.readUShort();
-				replayLog(`[ReplayEvent] WINDOW_ACTION: win=${windowId}, action=${action}`);
-				break;
-			}
-			case ReplayEventSubOpCode.CLOSE_WINDOW: {
-				const windowId = reader.readUShort();
-				const compName = WindowIdToComponent[windowId];
-				if (compName) {
-					const comp = UIManager.getComponent(compName);
-					if (comp?.ui) {
-						comp.remove();
+				case ReplayEventSubOpCode.WINDOW_MSG: {
+					if (totalLen < 8 || len < 8) {
+						return;
 					}
+					const _msgType = reader.readUShort();
+					const msgLen = Math.min(len - 8, totalLen - 8);
+					if (msgLen > 0 && ChatBox?.addText) {
+						const text = reader.readBinaryString(msgLen);
+						ChatBox.addText(text, ChatBox.TYPE_INFO);
+					}
+					break;
 				}
-				break;
+				case ReplayEventSubOpCode.SET_TARGET: {
+					if (totalLen < 10 || len < 10) {
+						return;
+					}
+					const targetGid = reader.readUInt();
+					if (Session.Entity) {
+						Session.Entity.target = targetGid ? EntityManager.get(targetGid) : null;
+					}
+					break;
+				}
+				case ReplayEventSubOpCode.SET_MAP_INFO: {
+					if (totalLen < 22 || len < 22) {
+						return;
+					}
+					const mapName = reader.readBinaryString(16);
+					replayLog(`[ReplayEvent] SET_MAP_INFO: ${mapName}`);
+					break;
+				}
+				case ReplayEventSubOpCode.MAP_TRANSITION: {
+					if (totalLen < 22 || len < 22) {
+						return;
+					}
+					const mapName = reader.readBinaryString(16);
+					replayLog(`[ReplayEvent] MAP_TRANSITION: ${mapName}`);
+					break;
+				}
+				case ReplayEventSubOpCode.SET_BGM_AMBIENT: {
+					const bgmLen = Math.min(len > 6 ? len - 6 : 0, totalLen > 6 ? totalLen - 6 : 0);
+					if (bgmLen > 0) {
+						const bgmName = reader.readBinaryString(bgmLen);
+						if (BGM?.play && bgmName) {
+							BGM.play(bgmName);
+						}
+					}
+					break;
+				}
+				case ReplayEventSubOpCode.SET_SESSION_TEXT: {
+					const textLen = Math.min(len > 6 ? len - 6 : 0, totalLen > 6 ? totalLen - 6 : 0);
+					if (textLen > 0) {
+						const text = reader.readBinaryString(textLen);
+						replayLog(`[ReplayEvent] SET_SESSION_TEXT: ${text}`);
+					}
+					break;
+				}
+				case ReplayEventSubOpCode.NAVI_PATH:
+				case ReplayEventSubOpCode.NAVI_WAYPOINT:
+				case ReplayEventSubOpCode.NAVI_TARGET:
+				case ReplayEventSubOpCode.NAVIGATION_PATH:
+				case ReplayEventSubOpCode.NAVIGATION_ARROW:
+				case ReplayEventSubOpCode.NAVIGATION_ACTIVE: {
+					if (totalLen >= 10 && len >= 10 && typeof Navigation?.setTargetCoordinatesText === 'function') {
+						const x = reader.readUShort();
+						const y = reader.readUShort();
+						Navigation.setTargetCoordinatesText(x, y);
+					}
+					break;
+				}
+				case ReplayEventSubOpCode.MAKE_WINDOW: {
+					if (totalLen < 8 || len < 8) {
+						return;
+					}
+					const windowId = reader.readUShort();
+					const compName = WindowIdToComponent[windowId];
+					if (compName) {
+						try {
+							const comp = UIManager.getComponent(compName);
+							if (comp) {
+								if (!comp.__active || !comp._host?.parentNode) {
+									comp.append();
+								} else if (comp.ui && typeof comp.ui.show === 'function') {
+									comp.ui.show();
+								}
+							}
+						} catch (e) {
+							replayLog(`[ReplayEvent] MAKE_WINDOW error for ${compName}:`, e);
+						}
+					}
+					break;
+				}
+				case ReplayEventSubOpCode.WINDOW_ACTION: {
+					if (totalLen < 10 || len < 10) {
+						return;
+					}
+					const windowId = reader.readUShort();
+					const action = reader.readUShort();
+					replayLog(`[ReplayEvent] WINDOW_ACTION: win=${windowId}, action=${action}`);
+					break;
+				}
+				case ReplayEventSubOpCode.CLOSE_WINDOW: {
+					if (totalLen < 8 || len < 8) {
+						return;
+					}
+					const windowId = reader.readUShort();
+					const compName = WindowIdToComponent[windowId];
+					if (compName) {
+						try {
+							const comp = UIManager.getComponent(compName);
+							if (comp && (comp.__active || comp._host?.parentNode)) {
+								comp.remove();
+							}
+						} catch (e) {
+							replayLog(`[ReplayEvent] CLOSE_WINDOW error for ${compName}:`, e);
+						}
+					}
+					break;
+				}
+				default:
+					replayLog(`[ReplayEvent] Unhandled subOpCode: ${subOpCode}`);
+					break;
 			}
-			default:
-				replayLog(`[ReplayEvent] Unhandled subOpCode: ${subOpCode}`);
-				break;
+		} catch (e) {
+			console.warn('[ReplayPlayer] Error handling replay event:', e);
 		}
 	}
 

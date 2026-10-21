@@ -51,21 +51,24 @@ export const ContainerType = {
  * Handled in CGameMode::ProcessReplayEventPacket (0xC4A5D0).
  */
 export const ReplayEventSubOpCode = {
-	WINDOW_MOVE: 900,        // 0x384: Resize/move window (UIWindow::SendMsg 6)
-	ITEM_DESC: 901,          // 0x385: Item description event (ITEM_DESC)
-	WINDOW_MSG: 902,         // 0x386: Generic window message
-	SET_TARGET: 903,         // 0x387: CGameMode::m_selectedTargetId / cursor target
-	SET_MAP_INFO: 904,       // 0x388: Map coords and title strings in CGameMode
-	MAP_TRANSITION: 905,     // 0x389: Map transition / mode change (CGameMode::virt24)
-	SET_BGM_AMBIENT: 906,    // 0x38A: Map BGM and ambient sound
-	SET_SESSION_TEXT: 907,   // 0x38B: Chat / session speech dialogs
-	NAVIGATION_MSG: 908,     // 0x38C: Navigation window message
-	MAKE_WINDOW: 909,        // 0x38D: Open UI window (UIWindowMgr::MakeWindow)
-	NAVI_PATH: 910,          // 0x38E: Navigation route path (CNavigationMgr)
-	NAVI_WAYPOINT: 911,      // 0x38F: Navigation waypoint update
-	NAVI_TARGET: 912,        // 0x390: Navigation destination coordinates
-	WINDOW_ACTION: 913,      // 0x391: UI window action / click (UIWindow::SendMsg)
-	CLOSE_WINDOW: 914        // 0x392: Close UI window (UIWindowMgr::DeleteWindow)
+	WINDOW_MOVE: 900, // 0x384: Resize/move window (UIWindow::SendMsg 6)
+	ITEM_DESC: 901, // 0x385: Item description event (ITEM_DESC)
+	WINDOW_MSG: 902, // 0x386: Generic window message
+	SET_TARGET: 903, // 0x387: CGameMode::m_selectedTargetId / cursor target
+	SET_MAP_INFO: 904, // 0x388: Map coords and title strings in CGameMode
+	MAP_TRANSITION: 905, // 0x389: Map transition / mode change (CGameMode::virt24)
+	SET_BGM_AMBIENT: 906, // 0x38A: Map BGM and ambient sound
+	SET_SESSION_TEXT: 907, // 0x38B: Chat / session speech dialogs
+	NAVIGATION_MSG: 908, // 0x38C: Navigation window message
+	MAKE_WINDOW: 909, // 0x38D: Open UI window (UIWindowMgr::MakeWindow)
+	NAVI_PATH: 910, // 0x38E: Navigation route path (CNavigationMgr)
+	NAVI_WAYPOINT: 911, // 0x38F: Navigation waypoint update
+	NAVI_TARGET: 912, // 0x390: Navigation destination coordinates
+	NAVIGATION_PATH: 910, // 0x38E: Navigation route path (alias)
+	NAVIGATION_ARROW: 911, // 0x38F: Navigation waypoint update (alias)
+	NAVIGATION_ACTIVE: 912, // 0x390: Navigation destination coordinates (alias)
+	WINDOW_ACTION: 913, // 0x391: UI window action / click (UIWindow::SendMsg)
+	CLOSE_WINDOW: 914 // 0x392: Close UI window (UIWindowMgr::DeleteWindow)
 };
 
 export const ReplaySpeedRate = [0.25, 0.5, 1.0, 2.0, 4.0];
@@ -490,4 +493,3 @@ export const WindowIdToComponent = {
 	23: 'WorldMap',
 	24: 'Navigation'
 };
-

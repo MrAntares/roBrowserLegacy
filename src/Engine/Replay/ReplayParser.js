@@ -402,22 +402,26 @@ export default class ReplayParser {
 				buf.tailMagic = tailMagic;
 			}
 
-			const region = readU32ById(replayData, ReplayOpCodes.Region) ?? readU8ById(replayData, ReplayOpCodes.Region);
+			const region =
+				readU32ById(replayData, ReplayOpCodes.Region) ?? readU8ById(replayData, ReplayOpCodes.Region);
 			if (region !== null) {
 				buf.region = region;
 			}
 
-			const service = readU32ById(replayData, ReplayOpCodes.Service) ?? readU8ById(replayData, ReplayOpCodes.Service);
+			const service =
+				readU32ById(replayData, ReplayOpCodes.Service) ?? readU8ById(replayData, ReplayOpCodes.Service);
 			if (service !== null) {
 				buf.service = service;
 			}
 
-			const serverType = readU32ById(replayData, ReplayOpCodes.ServerType) ?? readU8ById(replayData, ReplayOpCodes.ServerType);
+			const serverType =
+				readU32ById(replayData, ReplayOpCodes.ServerType) ?? readU8ById(replayData, ReplayOpCodes.ServerType);
 			if (serverType !== null) {
 				buf.serverType = serverType;
 			}
 
-			const mapType = readU32ById(replayData, ReplayOpCodes.Maptype) ?? readU8ById(replayData, ReplayOpCodes.Maptype);
+			const mapType =
+				readU32ById(replayData, ReplayOpCodes.Maptype) ?? readU8ById(replayData, ReplayOpCodes.Maptype);
 			if (mapType !== null) {
 				buf.mapType = mapType;
 			}
@@ -432,7 +436,9 @@ export default class ReplayParser {
 				buf.endFileOffset = endFileOffset;
 			}
 
-			const saveUiOptions = readU32ById(replayData, ReplayOpCodes.SaveUiOptions) ?? readU8ById(replayData, ReplayOpCodes.SaveUiOptions);
+			const saveUiOptions =
+				readU32ById(replayData, ReplayOpCodes.SaveUiOptions) ??
+				readU8ById(replayData, ReplayOpCodes.SaveUiOptions);
 			if (saveUiOptions !== null) {
 				buf.saveUiOptions = saveUiOptions;
 			}
@@ -889,7 +895,8 @@ export default class ReplayParser {
 			const hunger = readU32ById(ReplayOpCodes.PetFullness) ?? 0;
 			const intimacy = readU32ById(ReplayOpCodes.PetRelation) ?? 0;
 			const accessory = readU32ById(ReplayOpCodes.PetAccessory) ?? 0;
-			const isNameModified = readU32ById(ReplayOpCodes.PetIsNameModified) ?? readU8ById(ReplayOpCodes.PetIsNameModified) ?? 0;
+			const isNameModified =
+				readU32ById(ReplayOpCodes.PetIsNameModified) ?? readU8ById(ReplayOpCodes.PetIsNameModified) ?? 0;
 			const eggIndex = readU32ById(ReplayOpCodes.PetEggIndex) ?? 0;
 			const oldFullness = readU32ById(ReplayOpCodes.PetOldFullness) ?? 0;
 
@@ -1079,7 +1086,8 @@ export default class ReplayParser {
 				const view = new DataView(chunk.data.buffer, chunk.data.byteOffset, chunk.data.byteLength);
 				if (chunk.data.byteLength >= 4) {
 					const questId = view.getUint32(0, true);
-					quests.push({ questID: questId, data: chunk.data });
+					const active = chunk.data.byteLength > 4 ? chunk.data[4] !== 0 : true;
+					quests.push({ questID: questId, active, data: chunk.data });
 				}
 			}
 		}
@@ -1217,6 +1225,8 @@ export default class ReplayParser {
 			startY: readU32ById(ReplayOpCodes.NaviStartY) ?? 0,
 			endX: readU32ById(ReplayOpCodes.NaviEndX) ?? 0,
 			endY: readU32ById(ReplayOpCodes.NaviEndY) ?? 0,
+			x: readU32ById(ReplayOpCodes.NaviEndX) ?? 0,
+			y: readU32ById(ReplayOpCodes.NaviEndY) ?? 0,
 			targetGid: readU32ById(ReplayOpCodes.NaviTargetGid) ?? 0,
 			targetType: readU32ById(ReplayOpCodes.NaviTargetType) ?? 0,
 			startMap: readStringById(ReplayOpCodes.NaviStartMap),
@@ -1260,7 +1270,7 @@ export default class ReplayParser {
 			}
 		}
 
-		return { actorNames, guildNames };
+		return { actorNames, actors: actorNames, guildNames };
 	}
 
 	buildOpenWindowsBuffer() {
