@@ -501,7 +501,7 @@ const renderEntity = (function renderEntityClosure() {
 						}
 					}
 
-					SpriteRenderer.zIndex = bodyZOffset + 50;
+					SpriteRenderer.zIndex = bodyZOffset + 125;
 
 					// Draw Head
 					renderElement(self, self.files.head, 'head', _position, false);
