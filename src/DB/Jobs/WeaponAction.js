@@ -319,22 +319,22 @@ WeaponAction[JobId.LINKER] = [
 
 // Doram weapon sprites draw only in ATTACK2 (and READYFIGHT): their ATTACK1 is
 // the bare-paw swipe, with no weapon frames. Foxtails resolve to ROD.
-WeaponAction[JobId.DO_SUMMONER] = new (function () {
-	this[WeaponType.NONE] = 0;
-	this[WeaponType.ROD] = 1;
-	this[WeaponType.TWOHANDROD] = 1;
-})();
+WeaponAction[JobId.DO_SUMMONER] = {
+	[WeaponType.NONE]: 0,
+	[WeaponType.ROD]: 1,
+	[WeaponType.TWOHANDROD]: 1
+};
 
 // Druid weapon sprites: daggers swing in ATTACK2, axes and clubs in ATTACK3.
 // ATTACK1 is the unarmed punch, with no weapon frames.
-WeaponAction[JobId.DRUID] = new (function () {
-	this[WeaponType.NONE] = 0;
-	this[WeaponType.SHORTSWORD] = 1;
-	this[WeaponType.AXE] = 2;
-	this[WeaponType.TWOHANDAXE] = 2;
-	this[WeaponType.MACE] = 2;
-	this[WeaponType.TWOHANDMACE] = 2;
-})();
+WeaponAction[JobId.DRUID] = {
+	[WeaponType.NONE]: 0,
+	[WeaponType.SHORTSWORD]: 1,
+	[WeaponType.AXE]: 2,
+	[WeaponType.TWOHANDAXE]: 2,
+	[WeaponType.MACE]: 2,
+	[WeaponType.TWOHANDMACE]: 2
+};
 
 function duplicateEntry(origin) {
 	const value = WeaponAction[origin];
