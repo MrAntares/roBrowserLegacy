@@ -45,6 +45,16 @@ it('follows the job lineage up to the nearest job with a line', () => {
 	expect(text('a\n2^CC3399x^000000\n8^CC3399y^000000', JobId.SAGE)).toBe('a|x');
 });
 
+it("keeps an alias's line after the skill tree is reloaded", async () => {
+	// A client's skilltreeview.lub gives each job its own copy of the tree, so a
+	// baby Mage must still find the Mage line without a shared object.
+	const { default: SkillTreeView } = await import('DB/Skills/SkillTreeView.js');
+	const { resetSkillTree } = await import('DB/Skills/SkillTreeMerge.js');
+	resetSkillTree(SkillTreeView);
+	expect(SkillTreeView[JobId.MAGICIAN_B]).not.toBe(SkillTreeView[JobId.MAGICIAN]);
+	expect(text('a\n2^CC3399x^000000\n8^CC3399y^000000', JobId.MAGICIAN_B)).toBe('a|x');
+});
+
 it('leaves out every job line when no job applies', () => {
 	expect(text(earthSpike, JobId.SWORDMAN)).toBe('Earth Spike|Max Level: 5|Skill Form: Active|');
 	expect(text(earthSpike, null)).toBe('Earth Spike|Max Level: 5|Skill Form: Active|');

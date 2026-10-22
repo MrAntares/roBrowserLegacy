@@ -1,3 +1,5 @@
+import { BuiltInTreeGroup } from 'DB/Skills/SkillTreeMerge.js';
+
 function getOwnedSkill(ownedSkills, skillId) {
 	return ownedSkills?.get?.(skillId) ?? ownedSkills?.[skillId] ?? null;
 }
@@ -28,11 +30,12 @@ function getJobLineage(jobId, skillTreeView) {
 /**
  * Find which of candidateJobIds applies to the character's job: the first one
  * met walking up the job's lineage (the job, then the job before it, and so
- * on). Aliased jobs in SkillTreeView share the same tree object, so an alias
- * matches its canonical job's entry. Returns the matching candidate as given,
- * or undefined.
+ * on). An alias matches its canonical job's entry: aliased jobs share one
+ * tree object in SkillTreeView, and, once a reset or a client file has given
+ * each its own copy, the same group in treeGroup. Returns the matching
+ * candidate as given, or undefined.
  */
-export function findLineageJob(candidateJobIds, jobId, skillTreeView) {
+export function findLineageJob(candidateJobIds, jobId, skillTreeView, treeGroup = BuiltInTreeGroup) {
 	const candidates = Array.from(candidateJobIds, String);
 
 	for (const lineageJobId of getJobLineage(jobId, skillTreeView)) {
@@ -41,11 +44,12 @@ export function findLineageJob(candidateJobIds, jobId, skillTreeView) {
 		}
 
 		const lineageTree = skillTreeView[lineageJobId];
-		if (!lineageTree) {
-			continue;
-		}
-
-		const canonicalJobId = candidates.find(candidateJobId => skillTreeView[candidateJobId] === lineageTree);
+		const lineageGroup = treeGroup[lineageJobId];
+		const canonicalJobId = candidates.find(
+			candidateJobId =>
+				(lineageTree && skillTreeView[candidateJobId] === lineageTree) ||
+				(lineageGroup !== undefined && treeGroup[candidateJobId] === lineageGroup)
+		);
 		if (canonicalJobId !== undefined) {
 			return canonicalJobId;
 		}
