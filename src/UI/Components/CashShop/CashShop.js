@@ -276,6 +276,10 @@ CashShop.init = function init() {
 	const searchInput = root.querySelector('.cashshop-search');
 	if (searchInput) {
 		searchInput.addEventListener('keydown', e => {
+			// Enter that picks an IME candidate is not a search yet
+			if (e.isComposing || e.keyCode === 229) {
+				return;
+			}
 			if (e.which === KEYS.ENTER || e.key === 'Enter') {
 				e.preventDefault();
 				onClickSearch();
@@ -757,8 +761,8 @@ function onClickSearch() {
 				const it = DB.getItemInfo(items[iit].itemId);
 
 				if (it.identifiedDisplayName) {
-					const matches = new RegExp(val).test(it.identifiedDisplayName.toLowerCase());
-					if (matches) {
+					// Plain text: a name search, so "[" or "+" is just a character
+					if (it.identifiedDisplayName.toLowerCase().includes(val)) {
 						newList.push(items[iit]);
 					}
 				}

@@ -52,6 +52,7 @@ vi.mock('UI/UIManager.js', () => ({
 }));
 
 const { default: CashShop } = await import('UI/Components/CashShop/CashShop.js');
+const { default: UIManager } = await import('UI/UIManager.js');
 
 function shownItems() {
 	return [...CashShop.getRoot().querySelectorAll('#panel-items .item')].map(el => Number(el.dataset.index));
@@ -73,5 +74,29 @@ describe('Cash Shop search', () => {
 		input.dispatchEvent(enter);
 		expect(shownItems()).toEqual([501]);
 		expect(enter.defaultPrevented).toBe(true);
+	});
+
+	it('waits for an IME candidate to be picked before searching', () => {
+		CashShop.cashShopListItem = [];
+		CashShop.readCashShopItems({ tabNum: 0, count: 1, items: [{ itemId: 501, price: 10 }] });
+		CashShop.readCashShopItems({ tabNum: 1, count: 1, items: [{ itemId: 512, price: 1 }] });
+		CashShop.renderCashShopItems([]);
+
+		const input = CashShop.getRoot().querySelector('.cashshop-search');
+		input.value = 'apple';
+		input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', isComposing: true, bubbles: true }));
+		expect(shownItems()).toEqual([]);
+	});
+
+	it('searches for regular expression characters as plain text', () => {
+		CashShop.cashShopListItem = [];
+		CashShop.readCashShopItems({ tabNum: 0, count: 1, items: [{ itemId: 501, price: 10 }] });
+
+		const input = CashShop.getRoot().querySelector('.cashshop-search');
+		input.value = '[';
+		UIManager.showMessageBox.mockClear();
+		input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
+		// The search ran to the end and found nothing, rather than throwing
+		expect(UIManager.showMessageBox).toHaveBeenCalledWith('No items found in auction search', 'ok');
 	});
 });
