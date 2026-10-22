@@ -55,4 +55,18 @@ describe('EntityView weapon with an expansion look', () => {
 		e.weapon = MAIN_GAUCHE;
 		expect(e.files.weapon.spr).toBe(`weapon${SHORTSWORD}_${JobId.DRUID}.spr`);
 	});
+
+	it('draws the look again after a change to a class that has it', () => {
+		files.clear();
+		files.add(`weapon${SHORTSWORD}_${JobId.DRUID}.spr`);
+		files.add(`weapon${MAIN_GAUCHE}_${JobId.KNIGHT}.spr`);
+		// The body loads, then the view puts the weapon back on
+		files.add(`body${JobId.KNIGHT}_0.spr`);
+		const e = wielder(JobId.DRUID);
+		e.weapon = MAIN_GAUCHE;
+		expect(e.weapon).toBe(MAIN_GAUCHE);
+
+		e.job = JobId.KNIGHT;
+		expect(e.files.weapon.spr).toBe(`weapon${MAIN_GAUCHE}_${JobId.KNIGHT}.spr`);
+	});
 });

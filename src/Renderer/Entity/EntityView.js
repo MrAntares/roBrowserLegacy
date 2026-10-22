@@ -707,6 +707,8 @@ function UpdateGeneric(type, func, fallback) {
 		let path;
 		const _this = this;
 		let _val = val;
+		// Set when a weapon look is drawn from its base type's sprite
+		let keepLook = false;
 
 		// Nothing to load
 		if (val <= 0) {
@@ -746,7 +748,8 @@ function UpdateGeneric(type, func, fallback) {
 			Client.loadFile(
 				filepath + '.spr',
 				function () {
-					_this['_' + type] = _val;
+					// Keep the look itself, so a later job change can draw its sprite
+					_this['_' + type] = keepLook ? val : _val;
 
 					// Head accessories should not be applied if they should be suppressed
 					const isAccessory = type === 'accessory' || type === 'accessory2' || type === 'accessory3';
@@ -784,6 +787,7 @@ function UpdateGeneric(type, func, fallback) {
 						if (type === 'weapon' && filepath === path) {
 							_val = DB.getWeaponType(val, true);
 							filepath = DB[func](_val, _this.job, _this._sex);
+							keepLook = true;
 						}
 						if (filepath) {
 							LoadView(filepath, true);
