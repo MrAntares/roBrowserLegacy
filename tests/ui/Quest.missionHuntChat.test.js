@@ -71,4 +71,11 @@ describe('Quest mission hunt chat lines', () => {
 		expect(mocks.addText).toHaveBeenCalledTimes(3);
 		expect(mocks.addText.mock.calls[2][0]).toBe('Mission [Poring Hunt], you killed [Poring]. (2/5)');
 	});
+
+	it('shows a count that goes back to zero', () => {
+		Quest.updateMissionHunt({ huntID: 1000, maxCount: 5, huntCount: 3 }, 1, 1000);
+		Quest.updateMissionHunt({ questID: 1, huntID: 1000, maxCount: 5, huntCount: 0 }, 1, 1000);
+
+		expect(mocks.addText.mock.calls.at(-1)[0]).toBe('Mission [Poring Hunt], you killed [Poring]. (0/5)');
+	});
 });

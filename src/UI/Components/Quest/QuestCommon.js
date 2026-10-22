@@ -332,7 +332,8 @@ export function createQuest(config) {
 		if (hunt_info.maxCount) {
 			hunt.maxCount = hunt_info.maxCount;
 		}
-		if (hunt_info.huntCount) {
+		// A count can go back to 0, so take any number the server sends
+		if (typeof hunt_info.huntCount === 'number') {
 			hunt.huntCount = hunt_info.huntCount;
 		}
 		if (hunt_info.mobGID) {
