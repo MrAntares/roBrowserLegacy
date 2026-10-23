@@ -343827,6 +343827,17 @@ var init_CharCreate$2 = __esmMin((() => {
 	CharCreate_default$1 = ":host {\r\n	width: 576px;\r\n	height: 342px;\r\n}\r\n\r\n#charcreate {\r\n	position: absolute;\r\n	width: 576px;\r\n	height: 342px;\r\n}\r\n\r\n/** Name **/\r\n#charcreate input {\r\n	position: absolute;\r\n	top: 244px;\r\n	left: 62px;\r\n	width: 97px;\r\n	height: 14px;\r\n	padding-top: 2px;\r\n	padding-left: 3px;\r\n	background-color: transparent;\r\n	border: 0;\r\n}\r\n\r\n/** Chargen **/\r\n#charcreate .chargen ui-button {\r\n	position: absolute;\r\n	width: 13px;\r\n	height: 13px;\r\n}\r\n#charcreate .chargen .left {\r\n	top: 135px;\r\n	left: 47px;\r\n}\r\n#charcreate .chargen .up {\r\n	top: 105px;\r\n	left: 87px;\r\n}\r\n#charcreate .chargen .right {\r\n	top: 135px;\r\n	left: 127px;\r\n}\r\n#charcreate .chargen canvas {\r\n	position: absolute;\r\n	top: 120px;\r\n	left: 62px;\r\n}\r\n\r\n/** Graph buttons **/\r\n#charcreate .graph ui-button {\r\n	position: absolute;\r\n	width: 36px;\r\n	height: 36px;\r\n}\r\n#charcreate .graph .str {\r\n	top: 50px;\r\n	left: 270px;\r\n}\r\n#charcreate .graph .int {\r\n	top: 243px;\r\n	left: 270px;\r\n}\r\n#charcreate .graph .vit {\r\n	top: 104px;\r\n	left: 348px;\r\n}\r\n#charcreate .graph .dex {\r\n	top: 190px;\r\n	left: 191px;\r\n}\r\n#charcreate .graph .agi {\r\n	top: 103px;\r\n	left: 191px;\r\n}\r\n#charcreate .graph .luk {\r\n	top: 190px;\r\n	left: 348px;\r\n}\r\n#charcreate .graph canvas {\r\n	position: absolute;\r\n	left: 209px;\r\n	top: 86px;\r\n}\r\n\r\n/** Stats infos **/\r\n#charcreate .info {\r\n	position: absolute;\r\n	top: 40px;\r\n	left: 480px;\r\n}\r\n#charcreate .info div {\r\n	position: absolute;\r\n	left: 0px;\r\n}\r\n#charcreate .info .str {\r\n	top: 0px;\r\n}\r\n#charcreate .info .agi {\r\n	top: 16px;\r\n}\r\n#charcreate .info .vit {\r\n	top: 32px;\r\n}\r\n#charcreate .info .int {\r\n	top: 48px;\r\n}\r\n#charcreate .info .dex {\r\n	top: 64px;\r\n}\r\n#charcreate .info .luk {\r\n	top: 80px;\r\n}\r\n\r\n/** Buttons **/\r\n#charcreate .btns {\r\n	position: absolute;\r\n	bottom: 4px;\r\n	width: 100%;\r\n	height: 20px;\r\n}\r\n#charcreate .btn {\r\n	position: absolute;\r\n	width: 42px;\r\n	height: 20px;\r\n}\r\n#charcreate .make {\r\n	right: 50px;\r\n}\r\n#charcreate .cancel {\r\n	right: 4px;\r\n}\r\n\r\n#charcreate .btns ui-button {\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: 0;\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n}\r\n";
 }));
 // src/UI/Components/CharCreate/CharCreateCommon.js
+/**
+* The buttons for one hairstyle, one in each race/gender list. A list with
+* fewer styles keeps empty .styleN cells to hold the grid; those get no frame.
+*
+* @param {HTMLElement} root
+* @param {number} style
+* @return {HTMLElement[]}
+*/
+function hairstyleButtons(root, style) {
+	return Array.from(root.querySelectorAll(`.style${style}`)).filter((el) => el.querySelector(".hstyle_button"));
+}
 function createCharCreate(config) {
 	const { name, htmlText, cssText, hostHeight = 342, hostWidth = 576, hasStats = false, hasRace = false, gridHairstyle = false, chargenCanvasSelector = ".content canvas", graphCanvasSelector = ".graph canvas", statButtonsSelector = ".graph ui-button", hairArrows = [], humanCanvasSelector = "#canvas_human", doramCanvasSelector = "#canvas_doram", modelCanvasSelector = "#canvas_model", nameInputSelector = "input", nameInputEvent = "mousedown", cancelSelectors = [".cancel"], makeSelector = ".make" } = config;
 	const Component = new GUIComponent(name, cssText);
@@ -344205,12 +344216,14 @@ function createCharCreate(config) {
 				if (el) el.style.backgroundImage = `url(${dataURI})`;
 			});
 			Client.loadFile(`${DB.INTERFACE_PATH}make_character_ver2/bt_hairstyle_normal.bmp`, (dataURI) => {
-				const el = root.querySelector(`.style${_prevhead}`);
-				if (el) el.style.backgroundImage = `url(${dataURI})`;
+				hairstyleButtons(root, _prevhead).forEach((el) => {
+					el.style.backgroundImage = `url(${dataURI})`;
+				});
 			});
 			Client.loadFile(`${DB.INTERFACE_PATH}make_character_ver2/bt_hairstyle_select.bmp`, (dataURI) => {
-				const el = root.querySelector(`.style${_curhead}`);
-				if (el) el.style.backgroundImage = `url(${dataURI})`;
+				hairstyleButtons(root, _curhead).forEach((el) => {
+					el.style.backgroundImage = `url(${dataURI})`;
+				});
 			});
 		}
 	}
@@ -344347,8 +344360,9 @@ function createCharCreate(config) {
 		const value = parseInt(target.getAttribute("for"));
 		_prevhead = _model.entity.head;
 		Client.loadFile(`${DB.INTERFACE_PATH}make_character_ver2/bt_hairstyle_normal.bmp`, (dataURI) => {
-			const el = root.querySelector(`.style${_prevhead}`);
-			if (el) el.style.backgroundImage = `url(${dataURI})`;
+			hairstyleButtons(root, _prevhead).forEach((el) => {
+				el.style.backgroundImage = `url(${dataURI})`;
+			});
 		});
 		_curhead = value;
 		updateCharacterGrid(type, value);
@@ -344395,8 +344409,9 @@ function createCharCreate(config) {
 			value = 4218;
 		}
 		for (let i = 1; i <= 24; i++) Client.loadFile(`${DB.INTERFACE_PATH}make_character_ver2/bt_hairstyle_normal.bmp`, (dataURI) => {
-			const el = root.querySelector(`.style${i}`);
-			if (el) el.style.backgroundImage = `url(${dataURI})`;
+			hairstyleButtons(root, i).forEach((el) => {
+				el.style.backgroundImage = `url(${dataURI})`;
+			});
 		});
 		_prevhead = 1;
 		_curhead = 1;
