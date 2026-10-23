@@ -160051,10 +160051,10 @@ var init_PacketStructure = __esmMin((() => {
 		return pkt;
 	};
 	PACKET.ZC.SE_PC_BUY_CASHITEM_RESULT = function PACKET_ZC_SE_PC_BUY_CASHITEM_RESULT(fp, end) {
-		this.kafraPoints = fp.readUShort();
-		this.itemId = fp.readShort();
-		this.result = fp.readShort();
-		this.cashPoints = fp.readUShort();
+		this.itemId = fp.readULong();
+		this.result = fp.readUShort();
+		this.cashPoints = fp.readULong();
+		this.kafraPoints = fp.readULong();
 	};
 	PACKET.ZC.SE_PC_BUY_CASHITEM_RESULT.size = 16;
 	PACKET.CA.SSO_LOGIN_REQa = function PACKET_CA_SSO_LOGIN_REQa() {
@@ -325588,10 +325588,10 @@ function onClickSearch() {
 	const newList = [];
 	CashShop.isSearch = true;
 	CashShop.activeCashMenu = 9;
-	if (val && CashShop.cashShopListItem.length > 0) for (let i = 0; i < CashShop.cashShopListItem.length; ++i) {
-		const items = CashShop.cashShopListItem[i].items;
+	if (val && CashShop.cashShopListItem.length > 0) for (const tab of CashShop.cashShopListItem.filter(Boolean)) {
+		const items = tab.items;
 		for (let iit = 0; iit < items.length; ++iit) {
-			items[iit].tab = CashShop.cashShopListItem[i].tabNum;
+			items[iit].tab = tab.tabNum;
 			const it = DB.getItemInfo(items[iit].itemId);
 			if (it.identifiedDisplayName) {
 				if (new RegExp(val).test(it.identifiedDisplayName.toLowerCase())) newList.push(items[iit]);
@@ -325771,7 +325771,7 @@ function onClickActionBuyItem() {
 */
 function onClickMenu(target) {
 	const root = _root$6();
-	const selectedMenu = target.dataset.index.toUpperCase();
+	const selectedMenu = parseInt(target.dataset.index, 10);
 	const searchInput = root.querySelector("#cashshop-search");
 	if (searchInput) searchInput.value = "";
 	if (selectedMenu !== CashShop.activeCashMenu) {
@@ -326190,11 +326190,7 @@ var init_CashShop$1 = __esmMin((() => {
 						CashShop.checkCartItemLen = 0;
 						UIManager.showMessageBox("Successfully done buying items from cash shop!", "ok");
 						ChatBox_default.addText("Successfully done buying items from cash shop!", ChatBox_default.TYPE.INFO, ChatBox_default.FILTER.PUBLIC_LOG);
-						const root = _root$6();
-						const cashpointSpan = root.querySelector("#cashpoint span");
-						if (cashpointSpan) cashpointSpan.textContent = res.cashPoints;
-						const cashpointFooter = root.querySelector(".cashpoint_footer");
-						if (cashpointFooter) cashpointFooter.textContent = res.cashPoints;
+						CashShop.readPoints(res.cashPoints, res.kafraPoints, CashShop.activeCashMenu);
 						onResetCartListCashShop();
 					}
 					break;
@@ -326212,12 +326208,26 @@ var init_CashShop$1 = __esmMin((() => {
 			}
 		}
 	};
-	CashShop.readCashShopItems = function readCashShopItems(items) {
-		CashShop.cashShopListItem.push({
-			count: items.count,
-			items: items.items,
-			tabNum: items.tabNum
-		});
+	/**
+	* Store a tab's items by its tab number, which is also the menu's data-index
+	*
+	* rAthena sends one ZC_ACK_SCHEDULER_CASHITEM per tab that has items, skipping
+	* empty tabs, and splits a tab too big for one packet over several.
+	*
+	* @param {object} pkt - PACKET.ZC.ACK_SCHEDULER_CASHITEM
+	*/
+	CashShop.readCashShopItems = function readCashShopItems(pkt) {
+		const tab = CashShop.cashShopListItem[pkt.tabNum];
+		if (tab) {
+			tab.items = tab.items.concat(pkt.items);
+			tab.count = tab.items.length;
+			return;
+		}
+		CashShop.cashShopListItem[pkt.tabNum] = {
+			count: pkt.count,
+			items: pkt.items,
+			tabNum: pkt.tabNum
+		};
 	};
 	/**
 	* Load Cash Shop Components
