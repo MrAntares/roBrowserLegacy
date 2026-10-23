@@ -334638,6 +334638,7 @@ function onEquipementTakeOff(pkt) {
 function onItemEquip(pkt) {
 	if (pkt.result == 1) {
 		const item = InventoryController.removeItem(pkt.index, 1);
+		if (item && pkt.viewid !== void 0) item.wItemSpriteNumber = pkt.viewid;
 		EquipmentController.equip(item, pkt.wearLocation);
 		ChatBox_default.addText(DB.getItemName(item) + " " + DB.getMessage(170), ChatBox_default.TYPE.BLUE, ChatBox_default.FILTER.ITEM);
 		const CostumeCheckTop = EquipmentController.checkEquipLoc(EquipmentLocation_default.COSTUME_HEAD_TOP);
