@@ -7020,7 +7020,7 @@ PACKET.ZC.NOTIFY_MAPPROPERTY2.size = 4;
 PACKET.ZC.SPRITE_CHANGE2 = function PACKET_ZC_SPRITE_CHANGE2(fp, end) {
 	this.GID = fp.readULong();
 	this.type = fp.readUChar();
-	if (PACKETVER.value >= 20180704) {
+	if (PACKETVER.value >= 20181121) {
 		this.value = fp.readULong();
 		this.value2 = fp.readULong();
 	} else {
@@ -7028,7 +7028,7 @@ PACKET.ZC.SPRITE_CHANGE2 = function PACKET_ZC_SPRITE_CHANGE2(fp, end) {
 		this.value2 = fp.readShort();
 	}
 };
-PACKET.ZC.SPRITE_CHANGE2.size = PACKETVER.value >= 20180704 ? 15 : 11;
+PACKET.ZC.SPRITE_CHANGE2.size = PACKETVER.value >= 20181121 ? 15 : 11;
 
 // 0x1d8
 PACKET.ZC.NOTIFY_STANDENTRY2 = function PACKET_ZC_NOTIFY_STANDENTRY2(fp, end) {
@@ -10200,7 +10200,7 @@ PACKET.ZC.NOTIFY_MOVEENTRY6 = function PACKET_ZC_NOTIFY_MOVEENTRY6(fp, end) {
 	this.job = fp.readShort();
 	this.head = fp.readShort();
 	this.weapon = fp.readLong();
-	if (PACKETVER.value >= 20180704) {
+	if (PACKETVER.value >= 20181121) {
 		this.shield = fp.readLong();
 	} else {
 		this.shield = 0;
@@ -10239,7 +10239,7 @@ PACKET.ZC.NOTIFY_STANDENTRY6 = function PACKET_ZC_NOTIFY_STANDENTRY6(fp, end) {
 	this.job = fp.readShort();
 	this.head = fp.readShort();
 	this.weapon = fp.readLong();
-	if (PACKETVER.value >= 20180704) {
+	if (PACKETVER.value >= 20181121) {
 		this.shield = fp.readLong();
 	} else {
 		this.shield = 0;
@@ -10277,7 +10277,7 @@ PACKET.ZC.NOTIFY_NEWENTRY6 = function PACKET_ZC_NOTIFY_NEWENTRY6(fp, end) {
 	this.job = fp.readShort();
 	this.head = fp.readShort();
 	this.weapon = fp.readLong();
-	if (PACKETVER.value >= 20180704) {
+	if (PACKETVER.value >= 20181121) {
 		this.shield = fp.readLong();
 	} else {
 		this.shield = 0;
@@ -12756,7 +12756,7 @@ PACKET.ZC.NOTIFY_MOVEENTRY11 = function PACKET_ZC_NOTIFY_MOVEENTRY11(fp, end) {
 	this.job = fp.readShort();
 	this.head = fp.readUShort();
 	this.weapon = fp.readULong();
-	if (PACKETVER.value >= 20180704) {
+	if (PACKETVER.value >= 20181121) {
 		this.shield = fp.readULong();
 	} else {
 		this.shield = 0;
@@ -12800,7 +12800,7 @@ PACKET.ZC.NOTIFY_NEWENTRY11 = function PACKET_ZC_NOTIFY_NEWENTRY11(fp, end) {
 	this.job = fp.readShort();
 	this.head = fp.readShort();
 	this.weapon = fp.readLong();
-	if (PACKETVER.value >= 20180704) {
+	if (PACKETVER.value >= 20181121) {
 		this.shield = fp.readLong();
 	} else {
 		this.shield = 0;
@@ -12843,7 +12843,7 @@ PACKET.ZC.NOTIFY_STANDENTRY11 = function PACKET_ZC_NOTIFY_STANDENTRY11(fp, end) 
 	this.job = fp.readShort();
 	this.head = fp.readShort();
 	this.weapon = fp.readLong();
-	if (PACKETVER.value >= 20180704) {
+	if (PACKETVER.value >= 20181121) {
 		this.shield = fp.readLong();
 	} else {
 		this.shield = 0;
@@ -13617,8 +13617,8 @@ PACKET.ZC.STORE_ASSISTANT_ENTRY = function PACKET_ZC_STORE_ASSISTANT_ENTRY(fp, e
 	this.PosDir = [fp.readShort(), fp.readShort(), 4];
 	this.sex = fp.readUChar();
 	this.head = fp.readShort();
-	this.weapon = PACKETVER.value >= 20180704 ? fp.readULong() : fp.readUShort();
-	this.shield = PACKETVER.value >= 20180704 ? fp.readULong() : fp.readUShort();
+	this.weapon = PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort();
+	this.shield = PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort();
 	this.accessory = fp.readShort();
 	this.accessory2 = fp.readShort();
 	this.accessory3 = fp.readShort();
@@ -14310,8 +14310,8 @@ PACKET.ZC.STORE_ASSISTANT_ENTRY_V2 = function PACKET_ZC_STORE_ASSISTANT_ENTRY_V2
 	this.PosDir = [fp.readShort(), fp.readShort(), 4];
 	this.sex = fp.readUChar();
 	this.head = fp.readShort();
-	this.weapon = PACKETVER.value >= 20180704 ? fp.readULong() : fp.readUShort();
-	this.shield = PACKETVER.value >= 20180704 ? fp.readULong() : fp.readUShort();
+	this.weapon = PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort();
+	this.shield = PACKETVER.value >= 20181121 ? fp.readULong() : fp.readUShort();
 	this.accessory = fp.readShort();
 	this.accessory2 = fp.readShort();
 	this.accessory3 = fp.readShort();

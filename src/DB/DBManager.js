@@ -1537,8 +1537,10 @@ class DB {
 	 *
 	 * When reliable offhand information is known (isOffhandWeapon === true/false),
 	 * that flag distinguishes weapons from shields.
-	 * When unknown (isOffhandWeapon === undefined), job-based dual-wield fallback is used:
-	 * assassins with ambiguous view IDs (<= 500) fall back to offhand weapon.
+	 * When explicitly marked (isOffhandWeapon is true/false), that classification is honored.
+	 * When unknown (isOffhandWeapon === undefined), ambiguous view IDs (<= 500) are preserved
+	 * as shields unless reliable weapon evidence is present (e.g. item ID > 500), rather than
+	 * assuming every assassin's shield view is a weapon.
 	 *
 	 * @param {integer} id item id or view id
 	 * @param {integer} [job] job id of the owner
@@ -1565,28 +1567,15 @@ class DB {
 			return true;
 		}
 
-		// Any other item ID (> 500) is not a shield (offhand weapon)
+		// Any other item ID (> 500) is not a shield (reliable offhand weapon evidence)
 		if (num > 500) {
 			return false;
 		}
 
 		// View ID (1-500):
-		// In Ragnarok Online, ONLY Assassin-line jobs can dual-wield weapons in the left-hand slot.
-		// For all other jobs, ANY view ID in their left hand is a shield!
-		if (!job || !DB.isAssassin(job)) {
-			return true;
-		}
-
-		// For Assassin-line jobs:
-		// In RO, Assassins can only dual-wield Daggers (view ID 1) and 1H Swords (view ID 2).
-		// They CANNOT dual-wield 2H Swords (3) or Spears (4), so view IDs 3 (Shield) and 4 (Mirror Shield) are always shields.
-		if (num === 3 || num === 4) {
-			return true;
-		}
-
-		// View ID 1 (Guard / Dagger) and 2 (Buckler / 1H Sword):
-		// When offhand weapon status is unknown for an assassin, preserve dual-wield fallback.
-		return false;
+		// Ambiguous offhand view IDs default to shields unless explicitly classified
+		// as an offhand weapon from a reliable source.
+		return true;
 	}
 
 	static getPCAttackMotion(job, sex, itemID, isDualWeapon) {
@@ -2173,16 +2162,7 @@ class DB {
 			return null;
 		}
 
-		return (
-			'data/sprite/\xb9\xe6\xc6\xd0/' +
-			baseClass +
-			'/' +
-			baseClass +
-			'_' +
-			SexTable[sex] +
-			'_' +
-			suffix
-		);
+		return 'data/sprite/\xb9\xe6\xc6\xd0/' + baseClass + '/' + baseClass + '_' + SexTable[sex] + '_' + suffix;
 	}
 
 	/**

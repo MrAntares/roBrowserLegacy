@@ -21,10 +21,10 @@ describe('DB.isShield', () => {
 		expect(DB.isShield(1)).toBe(true);
 	});
 
-	it('preserves assassin dual-wield fallback for ambiguous view id when offhand is unknown', () => {
-		expect(DB.isShield(1, JobId.ASSASSIN)).toBe(false);
-		expect(DB.isShield(1, JobId.ASSASSIN, undefined)).toBe(false);
-		expect(DB.isShield(2, JobId.ASSASSIN)).toBe(false);
+	it('preserves ambiguous view id as shield for an assassin when offhand is unknown', () => {
+		expect(DB.isShield(1, JobId.ASSASSIN)).toBe(true);
+		expect(DB.isShield(1, JobId.ASSASSIN, undefined)).toBe(true);
+		expect(DB.isShield(2, JobId.ASSASSIN)).toBe(true);
 	});
 
 	it('recognises shield view id 3 and 4 as shields even for assassins (cannot dual-wield 2h swords/spears)', () => {
@@ -49,8 +49,8 @@ describe('DB.isShield', () => {
 		expect(DB.isShield(1201, JobId.ASSASSIN)).toBe(false);
 		// Dagger view ID (1: SHORTSWORD) when offhand weapon is flagged
 		expect(DB.isShield(1, JobId.ASSASSIN, true)).toBe(false);
-		// Dagger view ID (1) when offhand weapon is unknown (fallback to dual-wield)
-		expect(DB.isShield(1, JobId.ASSASSIN)).toBe(false);
+		// Guard view ID (1) when offhand weapon is unknown (preserves ambiguous view as shield)
+		expect(DB.isShield(1, JobId.ASSASSIN)).toBe(true);
 	});
 
 	it('never treats 0 or invalid inputs as a shield', () => {

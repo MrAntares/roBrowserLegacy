@@ -162,12 +162,16 @@ describe('Integration with DB.isShield', () => {
 		const offhandRemote = isOwnOffhandWeapon(other, me, inv, equip);
 		expect(offhandRemote).toBeUndefined();
 
-		// Remote assassin with view ID 1: dual-wield fallback treats as weapon
-		expect(DB.isShield(1, JobId.ASSASSIN, offhandRemote)).toBe(false);
+		// Remote assassin with view ID 1: preserves ambiguous view ID as shield
+		expect(DB.isShield(1, JobId.ASSASSIN, offhandRemote)).toBe(true);
+		// Remote assassin with view ID 2: preserves ambiguous view ID as shield
+		expect(DB.isShield(2, JobId.ASSASSIN, offhandRemote)).toBe(true);
 		// Remote swordman with view ID 1: recognized as shield
 		expect(DB.isShield(1, JobId.SWORDMAN, offhandRemote)).toBe(true);
 		// Remote assassin with shield item ID (2101): recognized as shield
 		expect(DB.isShield(2101, JobId.ASSASSIN, offhandRemote)).toBe(true);
+		// Remote assassin with weapon item ID (1201): recognized as offhand weapon via item ID evidence
+		expect(DB.isShield(1201, JobId.ASSASSIN, offhandRemote)).toBe(false);
 	});
 });
 
@@ -196,10 +200,18 @@ describe('Spawn and SPRITE_CHANGE2 resolution paths', () => {
 		expect(result.shield).toBe(1);
 	});
 
-	it('handles spawn path for remote assassin with ambiguous view ID (preserves dual-wield)', () => {
+	it('handles spawn path for remote assassin with ambiguous view ID (preserves shield)', () => {
 		const { inv, equip } = createInventoryAndEquipment();
-		const result = resolveEntityWeapons(1, 1, remoteAssassin, me, inv, equip);
-		expect(result.weapon).toBe(DB.mountWeapon(DB.getWeaponType(1, true), DB.getWeaponType(1, true)));
+		// Remote assassin sends weapon view 2 and shield view 1
+		const result = resolveEntityWeapons(2, 1, remoteAssassin, me, inv, equip);
+		expect(result.weapon).toBe(DB.getWeaponViewID(2));
+		expect(result.shield).toBe(1);
+	});
+
+	it('handles spawn path for remote assassin with weapon item ID (reliable weapon evidence)', () => {
+		const { inv, equip } = createInventoryAndEquipment();
+		const result = resolveEntityWeapons(1, 1201, remoteAssassin, me, inv, equip);
+		expect(result.weapon).toBe(DB.mountWeapon(DB.getWeaponType(1, true), DB.getWeaponType(1201, true)));
 		expect(result.shield).toBe(0);
 	});
 
@@ -228,10 +240,18 @@ describe('Spawn and SPRITE_CHANGE2 resolution paths', () => {
 		expect(result.shield).toBe(1);
 	});
 
-	it('handles SPRITE_CHANGE2 path for remote assassin with ambiguous view ID', () => {
+	it('handles SPRITE_CHANGE2 path for remote assassin with ambiguous view ID (preserves shield)', () => {
 		const { inv, equip } = createInventoryAndEquipment();
-		const result = resolveEntityWeapons(1, 1, remoteAssassin, me, inv, equip);
-		expect(result.weapon).toBe(DB.mountWeapon(DB.getWeaponType(1, true), DB.getWeaponType(1, true)));
+		// Remote assassin sends weapon view 2 and shield view 1
+		const result = resolveEntityWeapons(2, 1, remoteAssassin, me, inv, equip);
+		expect(result.weapon).toBe(DB.getWeaponViewID(2));
+		expect(result.shield).toBe(1);
+	});
+
+	it('handles SPRITE_CHANGE2 path for remote assassin with weapon item ID (reliable weapon evidence)', () => {
+		const { inv, equip } = createInventoryAndEquipment();
+		const result = resolveEntityWeapons(1, 1201, remoteAssassin, me, inv, equip);
+		expect(result.weapon).toBe(DB.mountWeapon(DB.getWeaponType(1, true), DB.getWeaponType(1201, true)));
 		expect(result.shield).toBe(0);
 	});
 
@@ -242,7 +262,7 @@ describe('Spawn and SPRITE_CHANGE2 resolution paths', () => {
 		expect(result.shield).toBe(2101);
 	});
 
-	it('handles left-hand first swap when server sends weapon 0 and shield non-zero', () => {
+	it('handles left-hand first swap when server sends weapon 0 and shield non-zero for own assassin', () => {
 		const { inv, equip } = createInventoryAndEquipment();
 		equip.equip({ index: 5, ITID: 1201, type: ItemType.WEAPON, location: EquipLocation.SHIELD }, EquipLocation.SHIELD);
 
@@ -250,5 +270,12 @@ describe('Spawn and SPRITE_CHANGE2 resolution paths', () => {
 		const result = resolveEntityWeapons(0, 1, ownAssassin, me, inv, equip);
 		expect(result.weapon).toBe(DB.getWeaponViewID(1));
 		expect(result.shield).toBe(0);
+	});
+
+	it('does not swap shield to weapon for remote assassin with weapon 0 and ambiguous shield view', () => {
+		const { inv, equip } = createInventoryAndEquipment();
+		const result = resolveEntityWeapons(0, 1, remoteAssassin, me, inv, equip);
+		expect(result.weapon).toBe(0);
+		expect(result.shield).toBe(1);
 	});
 });

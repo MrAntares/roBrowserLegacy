@@ -7,8 +7,8 @@ import DB from 'DB/DBManager.js';
  *
  * Resolvable only for our own character (entity.GID === sessionEntity.GID).
  * For other entities, the server transmits only view IDs without equipment
- * type metadata, so we return undefined (unknown) so callers can apply the
- * job-based dual-wield fallback.
+ * type metadata, so we return undefined (unknown) so callers can preserve
+ * ambiguous offhand views as shields unless explicit weapon evidence is provided.
  *
  * @param {object} entity - Target entity
  * @param {object} sessionEntity - Local player entity (Session.Entity)
@@ -73,21 +73,12 @@ export function resolveEntityWeapons(weaponVal, shieldVal, entity, sessionEntity
 
 	const job = entity ? entity.job : undefined;
 	const isAssassin = typeof DB.isAssassin === 'function' ? DB.isAssassin(job) : false;
-	const isShield = typeof DB.isShield === 'function'
-		? DB.isShield(shield, job, offhand)
-		: (shield > 0);
-	const getWeaponType = typeof DB.getWeaponType === 'function'
-		? (w, flag) => DB.getWeaponType(w, flag)
-		: w => w;
-	const getWeaponViewID = typeof DB.getWeaponViewID === 'function'
-		? w => DB.getWeaponViewID(w)
-		: w => w;
-	const isKatar = typeof DB.isKatar === 'function'
-		? wt => DB.isKatar(wt)
-		: () => false;
-	const mountWeapon = typeof DB.mountWeapon === 'function'
-		? (w1, w2) => DB.mountWeapon(w1, w2)
-		: (w1, w2) => ((w1 << 7) | w2);
+	const isShield = typeof DB.isShield === 'function' ? DB.isShield(shield, job, offhand) : shield > 0;
+	const getWeaponType = typeof DB.getWeaponType === 'function' ? (w, flag) => DB.getWeaponType(w, flag) : w => w;
+	const getWeaponViewID = typeof DB.getWeaponViewID === 'function' ? w => DB.getWeaponViewID(w) : w => w;
+	const isKatar = typeof DB.isKatar === 'function' ? wt => DB.isKatar(wt) : () => false;
+	const mountWeapon =
+		typeof DB.mountWeapon === 'function' ? (w1, w2) => DB.mountWeapon(w1, w2) : (w1, w2) => (w1 << 7) | w2;
 
 	// When switching from katar to sword/knife, server can put it in left hand instead of right hand first.
 	// Only apply this swap to Assassin-line jobs, never to non-dual-wield classes!
