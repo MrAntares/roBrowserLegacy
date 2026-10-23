@@ -200,6 +200,13 @@ function onEquipementTakeOff(pkt) {
 function onItemEquip(pkt) {
 	if (pkt.result == 1) {
 		const item = Inventory.removeItem(pkt.index, 1);
+		// The equip window draws headgear and garments from wItemSpriteNumber,
+		// which only the inventory lists sent at login carry. An item received
+		// later (pickup, NPC, trade) has none, so it drew nothing until relog.
+		// The ack's view id is the same number (0 for slots not drawn).
+		if (item && pkt.viewid !== undefined) {
+			item.wItemSpriteNumber = pkt.viewid;
+		}
 		Equipment.equip(item, pkt.wearLocation);
 		ChatBox.addText(DB.getItemName(item) + ' ' + DB.getMessage(170), ChatBox.TYPE.BLUE, ChatBox.FILTER.ITEM);
 
