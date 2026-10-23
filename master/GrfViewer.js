@@ -85892,6 +85892,19 @@ var init_WeaponAction = __esmMin((() => {
 		this[WeaponType_default.TWOHANDROD] = 1;
 		this[WeaponType_default.SHORTSWORD] = 2;
 	})()];
+	WeaponAction[JobConst_default.DO_SUMMONER] = {
+		[WeaponType_default.NONE]: 0,
+		[WeaponType_default.ROD]: 1,
+		[WeaponType_default.TWOHANDROD]: 1
+	};
+	WeaponAction[JobConst_default.DRUID] = {
+		[WeaponType_default.NONE]: 0,
+		[WeaponType_default.SHORTSWORD]: 1,
+		[WeaponType_default.AXE]: 2,
+		[WeaponType_default.TWOHANDAXE]: 2,
+		[WeaponType_default.MACE]: 2,
+		[WeaponType_default.TWOHANDMACE]: 2
+	};
 	duplicateEntry$4(JobConst_default.NOVICE, JobConst_default.NOVICE_H, JobConst_default.NOVICE_B);
 	duplicateEntry$4(JobConst_default.SWORDMAN, JobConst_default.SWORDMAN_H, JobConst_default.SWORDMAN_B);
 	duplicateEntry$4(JobConst_default.MAGICIAN, JobConst_default.MAGICIAN_H, JobConst_default.MAGICIAN_B);
@@ -85918,6 +85931,8 @@ var init_WeaponAction = __esmMin((() => {
 	duplicateEntry$4(JobConst_default.NINJA, JobConst_default.NINJA_B, JobConst_default.KAGEROU, JobConst_default.KAGEROU_B, JobConst_default.OBORO, JobConst_default.OBORO_B, JobConst_default.SHINKIRO, JobConst_default.SHIRANUI);
 	duplicateEntry$4(JobConst_default.GUNSLINGER, JobConst_default.GUNSLINGER_B, JobConst_default.REBELLION, JobConst_default.REBELLION_B, JobConst_default.NIGHT_WATCH);
 	duplicateEntry$4(JobConst_default.LINKER, JobConst_default.LINKER_B, JobConst_default.SOUL_REAPER, JobConst_default.SOUL_REAPER_B, JobConst_default.SOUL_ASCETIC);
+	duplicateEntry$4(JobConst_default.DO_SUMMONER, JobConst_default.DO_SUMMONER_B, JobConst_default.DO_CART_SUMMONER1, JobConst_default.SPIRIT_HANDLER, JobConst_default.SPIRIT_HANDLER_RIDING1);
+	duplicateEntry$4(JobConst_default.DRUID, JobConst_default.DRUID_B, JobConst_default.DRUID_RIDING, JobConst_default.KARNOS, JobConst_default.KARNOS_B, JobConst_default.KARNOS_RIDING, JobConst_default.ALITEA, JobConst_default.ALITEA_RIDING);
 }));
 // src/DB/Jobs/WeaponJobTable.js
 function duplicateEntry$3(origin) {
@@ -309236,7 +309251,7 @@ var init_DBManager = __esmMin((() => {
 				case JobConst_default.DO_SUMMONER:
 				case JobConst_default.DO_SUMMONER_B:
 				case JobConst_default.SPIRIT_HANDLER:
-				case JobConst_default.SPIRIT_HANDLER_RIDING1: return {
+				case JobConst_default.SPIRIT_HANDLER_RIDING1: if (type === WeaponType_default.NONE) return {
 					frame: 0,
 					length: 4
 				};
@@ -313485,6 +313500,7 @@ function UpdateGeneric(type, func, fallback) {
 		let path;
 		const _this = this;
 		let _val = val;
+		let keepLook = false;
 		if (!val || val <= 0) {
 			this["_" + type] = 0;
 			if (this.files[type]) {
@@ -313512,7 +313528,7 @@ function UpdateGeneric(type, func, fallback) {
 		function LoadView(filepath, final) {
 			Client.loadFile(filepath + ".act");
 			Client.loadFile(filepath + ".spr", function() {
-				_this["_" + type] = _val;
+				_this["_" + type] = keepLook ? val : _val;
 				if (!(type === "accessory" || type === "accessory2" || type === "accessory3") || !shouldSuppressHead.call(_this)) {
 					_this.files[type].spr = filepath + ".spr";
 					_this.files[type].act = filepath + ".act";
@@ -313532,6 +313548,11 @@ function UpdateGeneric(type, func, fallback) {
 				if (fallback && !final) {
 					_val = DB[fallback](val);
 					filepath = DB[func](_val, _this.job, _this._sex);
+					if (type === "weapon" && filepath === path) {
+						_val = DB.getWeaponType(val, true);
+						filepath = DB[func](_val, _this.job, _this._sex);
+						keepLook = true;
+					}
 					if (filepath) LoadView(filepath, true);
 				} else if (type === "robe" && !final) {
 					const fallbackPath = DB.getRobePathNoSex(val, _this.job, _this._sex);
