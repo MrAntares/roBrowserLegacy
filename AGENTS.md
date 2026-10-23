@@ -11,7 +11,7 @@ roBrowserLegacy is a web-based Ragnarok Online client built with ES6 modules and
 - **100 UI Components** in `src/UI/Components/` (all migrated to `GUIComponent`)
 - **42 Renderer Effect modules** (33 effect JS files in `src/Renderer/Effects/` + 9 post-processing shaders in `src/Renderer/Effects/Shaders/`, plus companion GLSL shaders)
 - **19 Entity modules** in `src/Renderer/Entity/` (`Entity.js`, `Player.js`, `EntityOverlay.js`, and 16 entity mixins; 17 mixins composed dynamically into `Entity` with `Controls/EntityControl.js`)
-- **28 MapEngine subsystems** in `src/Engine/MapEngine/`
+- **29 MapEngine subsystems** in `src/Engine/MapEngine/`
 - **23 packet versions** supported (kRO 2003–2025) in `src/Network/Packets/`
 
 ## Architecture
@@ -52,7 +52,7 @@ Example: `import Sprite from 'Loaders/Sprite.js';`
 
 ### Core Service Layers
 
-1. **Engine** (`src/Engine/`): GameEngine (orchestrator), LoginEngine (auth), CharEngine (character), MapEngine (28 subsystems), SessionStorage, Replay (ReplayParser, ReplayPlayer, ReplaySocket, ReplayTypes), State
+1. **Engine** (`src/Engine/`): GameEngine (orchestrator), LoginEngine (auth), CharEngine (character), MapEngine (29 subsystems), SessionStorage, Replay (ReplayParser, ReplayPlayer, ReplaySocket, ReplayTypes), State
 2. **Network** (`src/Network/`): PacketRegister, PacketStructure, PacketCrypt, PacketVersions.js, PacketVerManager, PacketLength, NetworkManager, SocketHelpers (WebSocket/NodeSocket)
 3. **Loaders** (`src/Loaders/`): GameFileDecrypt, GameFile, Sprite, Action, Ground (.gnd), Altitude (.gat), World (.rsw), Str (.str effects), Model, GR2Loader (.gr2 3D skeletal models via granny-ro-js), MapLoader, Targa, /wasm loader files
 4. **Database** (`src/DB/`): DBManager + data subdirectories (Effects, Items, Jobs, Map, Monsters, Pets, Skills, Status) + Emotions, TownInfo; `Skills/SkillTreeMerge.js` merges client `skilltreeview.lub` layouts with the built-in skill tree
@@ -69,7 +69,7 @@ Example: `import Sprite from 'Loaders/Sprite.js';`
 
 1. **Init**: GameEngine loads config → Client loads GRFs/executable → PACKETVER is set from config or auto-detected from executable PE timestamp
 2. **Login**: LoginEngine → NetworkManager connects via WebSocket (browser) or NodeSocket (Electron) → authenticates with versioned packets
-3. **Map Entry**: MapEngine loads map/entity data → Renderer displays → Controls enable input → 28 MapEngine subsystems manage live state
+3. **Map Entry**: MapEngine loads map/entity data → Renderer displays → Controls enable input → 29 MapEngine subsystems manage live state
 4. **Runtime**: InputHandler → ProcessCommand → NetworkManager sends → packet handlers update state → EntityManager updates → Renderer draws
 
 ### Multi-Platform Support
@@ -117,7 +117,7 @@ Example: `import Sprite from 'Loaders/Sprite.js';`
 - **MapLoader.js**: Map loading orchestration
 - **Targa.js**: Parse .tga (image format)
 
-### MapEngine Subsystems (`src/Engine/MapEngine/`, 28 files)
+### MapEngine Subsystems (`src/Engine/MapEngine/`, 29 files)
 
 - **Main.js**: Core game loop and state management
 - **Entity.js**: Main entity controller
@@ -131,6 +131,7 @@ Example: `import Sprite from 'Loaders/Sprite.js';`
 - **Item.js, Storage.js, Skill.js**: Core gameplay
 - **Mail.js, Rodex.js**: Messaging systems
 - **Captcha.js, PCGoldTimer.js**: Security/timer systems
+- **OffhandWeapon.js**: offhandweapon system
 
 ### GUI Components (`src/UI/Components/`, 100 directories)
 
