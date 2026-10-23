@@ -139068,11 +139068,20 @@ function keepBuiltInSkills(tree, jobIds, builtIn = BuiltInSkillTreeView) {
 		}
 	}
 }
-var isSkill, BuiltInSkillTreeView;
+var isSkill, BuiltInSkillTreeView, BuiltInTreeGroup;
 var init_SkillTreeMerge = __esmMin((() => {
 	init_SkillTreeView();
 	isSkill = (key) => /^\d+$/.test(key);
 	BuiltInSkillTreeView = Object.freeze(Object.fromEntries(Object.entries(SkillTreeView).map(([jobId, entry]) => [jobId, Object.freeze({ ...entry })])));
+	BuiltInTreeGroup = (() => {
+		const first = /* @__PURE__ */ new Map();
+		const group = {};
+		for (const [jobId, entry] of Object.entries(SkillTreeView)) {
+			if (!first.has(entry)) first.set(entry, jobId);
+			group[jobId] = first.get(entry);
+		}
+		return Object.freeze(group);
+	})();
 }));
 // src/DB/Jobs/JobHitSoundTable.js
 function duplicateEntry$1(origin) {
@@ -232144,6 +232153,146 @@ var init_GuildCompanion = __esmMin((() => {
 	GuildCompanion.needFocus = true;
 	GuildCompanion_default = UIManager.addComponent(GuildCompanion);
 }));
+// src/UI/Components/SkillList/SkillRequirements.js
+function getOwnedSkill(ownedSkills, skillId) {
+	return ownedSkills?.get?.(skillId) ?? ownedSkills?.[skillId] ?? null;
+}
+function getOwnedLevel(ownedSkills, skillId) {
+	return getOwnedSkill(ownedSkills, skillId)?.level ?? 0;
+}
+function getJobLineage(jobId, skillTreeView) {
+	const lineage = [];
+	const visited = /* @__PURE__ */ new Set();
+	let currentJobId = jobId;
+	while (currentJobId != null && !visited.has(currentJobId)) {
+		visited.add(currentJobId);
+		lineage.push(currentJobId);
+		const tree = skillTreeView[currentJobId];
+		if (!tree || tree.beforeJob == null) break;
+		currentJobId = tree.beforeJob;
+	}
+	return lineage;
+}
+/**
+* Find which of candidateJobIds applies to the character's job: the first one
+* met walking up the job's lineage (the job, then the job before it, and so
+* on). An alias matches its canonical job's entry: aliased jobs share one
+* tree object in SkillTreeView, and, once a reset or a client file has given
+* each its own copy, the same group in treeGroup. Returns the matching
+* candidate as given, or undefined.
+*/
+function findLineageJob(candidateJobIds, jobId, skillTreeView, treeGroup = BuiltInTreeGroup) {
+	const candidates = Array.from(candidateJobIds, String);
+	for (const lineageJobId of getJobLineage(jobId, skillTreeView)) {
+		if (candidates.includes(String(lineageJobId))) return String(lineageJobId);
+		const lineageTree = skillTreeView[lineageJobId];
+		const lineageGroup = treeGroup[lineageJobId];
+		const canonicalJobId = candidates.find((candidateJobId) => lineageTree && skillTreeView[candidateJobId] === lineageTree || lineageGroup !== void 0 && treeGroup[candidateJobId] === lineageGroup);
+		if (canonicalJobId !== void 0) return canonicalJobId;
+	}
+}
+/**
+* Resolve the requirements that apply to a skill for the active character job.
+* Job-specific entries override the generic list, including explicit empty
+* overrides.
+*/
+function resolveSkillRequirements(skill, jobId, skillTreeView) {
+	if (!skill) return [];
+	const jobRequirements = skill.NeedSkillList;
+	if (jobRequirements) {
+		const lineageJobId = findLineageJob(Object.keys(jobRequirements), jobId, skillTreeView);
+		if (lineageJobId !== void 0) return jobRequirements[lineageJobId];
+	}
+	return skill._NeedSkillList ?? [];
+}
+function clonePlan(plan) {
+	return new Map(Array.from(plan, ([skillId, choice]) => [skillId, { ...choice }]));
+}
+function calculatePlanCost(plan, ownedSkills) {
+	let cost = 0;
+	for (const [skillId, choice] of plan) if (!choice.isQuest) cost += Math.max(0, choice.count - getOwnedLevel(ownedSkills, skillId));
+	return cost;
+}
+function getPlannedLevel(plan, ownedSkills, skillId) {
+	return Math.max(plan.get(skillId)?.count ?? 0, getOwnedLevel(ownedSkills, skillId));
+}
+/**
+* Build a complete candidate plan for one more level of skillId. The input
+* plan is never mutated. A null result means the complete prerequisite chain
+* is invalid or cannot be afforded.
+*/
+function stageSkillPlan({ plan, skillId, ownedSkills, skillInfo, skillTreeView, jobId, availablePoints }) {
+	const candidate = clonePlan(plan);
+	const visiting = /* @__PURE__ */ new Set();
+	const stage = (currentSkillId, requiredLevel = null) => {
+		const info = skillInfo[currentSkillId];
+		if (!info || visiting.has(currentSkillId)) return false;
+		const ownedLevel = getOwnedLevel(ownedSkills, currentSkillId);
+		if (info.Type === "Quest" && ownedLevel <= 0) return requiredLevel == null;
+		const currentLevel = Math.max(candidate.get(currentSkillId)?.count ?? 0, ownedLevel);
+		const targetLevel = requiredLevel == null ? Math.min(currentLevel + 1, info.MaxLv) : Math.max(currentLevel, requiredLevel);
+		if (targetLevel > info.MaxLv) return false;
+		candidate.set(currentSkillId, {
+			count: targetLevel,
+			isQuest: false
+		});
+		visiting.add(currentSkillId);
+		for (const [requiredSkillId, level] of resolveSkillRequirements(info, jobId, skillTreeView)) if (!stage(requiredSkillId, level)) {
+			visiting.delete(currentSkillId);
+			return false;
+		}
+		visiting.delete(currentSkillId);
+		return true;
+	};
+	if (!stage(skillId)) return null;
+	const cost = calculatePlanCost(candidate, ownedSkills);
+	if (cost > availablePoints) return null;
+	return {
+		plan: candidate,
+		cost
+	};
+}
+function validateSkillPlan({ plan, ownedSkills, skillInfo, skillTreeView, jobId, availablePoints }) {
+	if (calculatePlanCost(plan, ownedSkills) > availablePoints) return false;
+	for (const [skillId, choice] of plan) {
+		const info = skillInfo[skillId];
+		const ownedLevel = getOwnedLevel(ownedSkills, skillId);
+		if (!info || choice.count < ownedLevel || choice.count > info.MaxLv) return false;
+		for (const [requiredSkillId, requiredLevel] of resolveSkillRequirements(info, jobId, skillTreeView)) if (getPlannedLevel(plan, ownedSkills, requiredSkillId) < requiredLevel) return false;
+	}
+	return true;
+}
+/**
+* Return one skill id per upgrade packet, ordered so every prerequisite is
+* upgraded before its dependants. A null result means the staged plan is no
+* longer valid against the authoritative skill state.
+*/
+function createSkillUpgradeOrder(options) {
+	if (!validateSkillPlan(options)) return null;
+	const { plan, ownedSkills, skillInfo, skillTreeView, jobId } = options;
+	const order = [];
+	const visited = /* @__PURE__ */ new Set();
+	const visiting = /* @__PURE__ */ new Set();
+	const visit = (skillId) => {
+		if (visited.has(skillId)) return true;
+		if (visiting.has(skillId)) return false;
+		const info = skillInfo[skillId];
+		if (!info) return false;
+		visiting.add(skillId);
+		for (const [requiredSkillId] of resolveSkillRequirements(info, jobId, skillTreeView)) if (plan.has(requiredSkillId) && !visit(requiredSkillId)) return false;
+		visiting.delete(skillId);
+		visited.add(skillId);
+		const count = plan.get(skillId)?.count ?? getOwnedLevel(ownedSkills, skillId);
+		const upgrades = Math.max(0, count - getOwnedLevel(ownedSkills, skillId));
+		for (let i = 0; i < upgrades; i++) order.push(skillId);
+		return true;
+	};
+	for (const skillId of plan.keys()) if (!visit(skillId)) return null;
+	return order;
+}
+var init_SkillRequirements = __esmMin((() => {
+	init_SkillTreeMerge();
+}));
 // src/UI/Components/SkillDescription/SkillDescription.html?raw
 var SkillDescription_default$2;
 var init_SkillDescription$2 = __esmMin((() => {
@@ -232156,19 +232305,49 @@ var init_SkillDescription$1 = __esmMin((() => {
 }));
 // src/UI/Components/SkillDescription/SkillDescription.js
 /**
+* Keep only the job-specific lines that apply to the character's job, without
+* their job id, as the official client does: a Sage reads "Requirement:
+* Seismic Weapon 1" and never sees the Wizard's line. When several of the
+* line's jobs are in the character's lineage, the nearest one wins, as it
+* does for the skill tree's own requirements. Lines for other jobs are left
+* out. Numbers in the monster id range are not job ids and stay as they are.
+*
+* @param {string} txt - skill description text
+* @param {number} jobId - the character's job
+* @returns {string}
+*/
+function _resolveJobLines(txt, jobId) {
+	const lines = txt.split("\n");
+	const lineJob = lines.map((line) => {
+		const id = line.match(_jobLineReg)?.[1];
+		const n = Number(id);
+		return id !== void 0 && (n < 1e3 || n >= 4e3) ? id : null;
+	});
+	const jobIds = new Set(lineJob.filter((id) => id !== null));
+	if (!jobIds.size) return txt;
+	const kept = jobId == null ? void 0 : findLineageJob(jobIds, jobId, SkillTreeView);
+	const out = [];
+	lines.forEach((line, i) => {
+		if (lineJob[i] === null) out.push(line);
+		else if (lineJob[i] === kept) out.push(line.slice(lineJob[i].length));
+	});
+	return out.join("\n");
+}
+/**
 * Sanitize and format RO text with ^rrggbb color codes, ^nItemID^NNN
 * item name substitution, and newline conversion.
 *
 * @param {string} value - raw skill description text
+* @param {?number} jobId - the character's job, for job-specific lines
 * @returns {string} safe HTML string
 */
-function _formatROText(value) {
+function _formatROText(value, jobId = null) {
 	const tmp = document.createElement("div");
 	tmp.innerHTML = String(value);
 	tmp.querySelectorAll("*").forEach((el) => {
 		if (!_allowedTags.has(el.tagName.toLowerCase())) el.replaceWith(...el.childNodes);
 	});
-	let txt = tmp.innerHTML;
+	let txt = _resolveJobLines(tmp.innerHTML, jobId);
 	let result;
 	const colorReg = /\^([a-fA-F0-9]{6})/;
 	while (result = colorReg.exec(txt)) txt = txt.replace(result[0], `<span style="color:#${result[1]}">`) + "</span>";
@@ -232177,10 +232356,13 @@ function _formatROText(value) {
 	txt = txt.replace(/\n/g, "<br/>");
 	return txt;
 }
-var _allowedTags, SkillDescription$1, SkillDescription_default;
+var _allowedTags, _jobLineReg, SkillDescription$1, SkillDescription_default;
 var init_SkillDescription = __esmMin((() => {
 	init_DBManager();
 	init_Renderer();
+	init_SessionStorage();
+	init_SkillTreeView();
+	init_SkillRequirements();
 	init_KeyEventHandler();
 	init_MouseEventHandler();
 	init_UIManager();
@@ -232192,6 +232374,7 @@ var init_SkillDescription = __esmMin((() => {
 		"i",
 		"b"
 	]);
+	_jobLineReg = /^(\d+)(?=\^[a-fA-F0-9]{6})/;
 	SkillDescription$1 = new GUIComponent("SkillDescription", SkillDescription_default$1);
 	SkillDescription$1.render = () => SkillDescription_default$2;
 	/**
@@ -232229,7 +232412,11 @@ var init_SkillDescription = __esmMin((() => {
 	SkillDescription$1.setSkill = function setSkill(id) {
 		this.uid = id;
 		const content = this.getRoot().querySelector(".content");
-		if (content) content.innerHTML = _formatROText(DB.getSkillDescription(id));
+		if (content) {
+			const entity = SessionStorage_default.Entity;
+			const jobId = entity ? entity._job || entity.job : null;
+			content.innerHTML = _formatROText(DB.getSkillDescription(id), jobId);
+		}
 		const hostWidth = this._host.getBoundingClientRect().width;
 		const hostHeight = this._host.getBoundingClientRect().height;
 		this._host.style.top = `${Math.min(Mouse.screen.y + 10, Renderer.height - hostHeight)}px`;
@@ -236203,135 +236390,6 @@ function attachTouchDrag(container, { itemSelector, getPayload, createGhost = nu
 	};
 }
 var init_TouchDrag = __esmMin((() => {}));
-// src/UI/Components/SkillList/SkillRequirements.js
-function getOwnedSkill(ownedSkills, skillId) {
-	return ownedSkills?.get?.(skillId) ?? ownedSkills?.[skillId] ?? null;
-}
-function getOwnedLevel(ownedSkills, skillId) {
-	return getOwnedSkill(ownedSkills, skillId)?.level ?? 0;
-}
-function getJobLineage(jobId, skillTreeView) {
-	const lineage = [];
-	const visited = /* @__PURE__ */ new Set();
-	let currentJobId = jobId;
-	while (currentJobId != null && !visited.has(currentJobId)) {
-		visited.add(currentJobId);
-		lineage.push(currentJobId);
-		const tree = skillTreeView[currentJobId];
-		if (!tree || tree.beforeJob == null) break;
-		currentJobId = tree.beforeJob;
-	}
-	return lineage;
-}
-/**
-* Resolve the requirements that apply to a skill for the active character job.
-* Job-specific entries override the generic list, including explicit empty
-* overrides. Aliased jobs in SkillTreeView share the same tree object, so an
-* alias can inherit the canonical job's override.
-*/
-function resolveSkillRequirements(skill, jobId, skillTreeView) {
-	if (!skill) return [];
-	const jobRequirements = skill.NeedSkillList;
-	if (jobRequirements) {
-		const requirementJobs = Object.keys(jobRequirements);
-		for (const lineageJobId of getJobLineage(jobId, skillTreeView)) {
-			if (Object.hasOwn(jobRequirements, lineageJobId)) return jobRequirements[lineageJobId];
-			const lineageTree = skillTreeView[lineageJobId];
-			if (!lineageTree) continue;
-			const canonicalJobId = requirementJobs.find((requirementJobId) => {
-				return skillTreeView[requirementJobId] === lineageTree;
-			});
-			if (canonicalJobId !== void 0) return jobRequirements[canonicalJobId];
-		}
-	}
-	return skill._NeedSkillList ?? [];
-}
-function clonePlan(plan) {
-	return new Map(Array.from(plan, ([skillId, choice]) => [skillId, { ...choice }]));
-}
-function calculatePlanCost(plan, ownedSkills) {
-	let cost = 0;
-	for (const [skillId, choice] of plan) if (!choice.isQuest) cost += Math.max(0, choice.count - getOwnedLevel(ownedSkills, skillId));
-	return cost;
-}
-function getPlannedLevel(plan, ownedSkills, skillId) {
-	return Math.max(plan.get(skillId)?.count ?? 0, getOwnedLevel(ownedSkills, skillId));
-}
-/**
-* Build a complete candidate plan for one more level of skillId. The input
-* plan is never mutated. A null result means the complete prerequisite chain
-* is invalid or cannot be afforded.
-*/
-function stageSkillPlan({ plan, skillId, ownedSkills, skillInfo, skillTreeView, jobId, availablePoints }) {
-	const candidate = clonePlan(plan);
-	const visiting = /* @__PURE__ */ new Set();
-	const stage = (currentSkillId, requiredLevel = null) => {
-		const info = skillInfo[currentSkillId];
-		if (!info || visiting.has(currentSkillId)) return false;
-		const ownedLevel = getOwnedLevel(ownedSkills, currentSkillId);
-		if (info.Type === "Quest" && ownedLevel <= 0) return requiredLevel == null;
-		const currentLevel = Math.max(candidate.get(currentSkillId)?.count ?? 0, ownedLevel);
-		const targetLevel = requiredLevel == null ? Math.min(currentLevel + 1, info.MaxLv) : Math.max(currentLevel, requiredLevel);
-		if (targetLevel > info.MaxLv) return false;
-		candidate.set(currentSkillId, {
-			count: targetLevel,
-			isQuest: false
-		});
-		visiting.add(currentSkillId);
-		for (const [requiredSkillId, level] of resolveSkillRequirements(info, jobId, skillTreeView)) if (!stage(requiredSkillId, level)) {
-			visiting.delete(currentSkillId);
-			return false;
-		}
-		visiting.delete(currentSkillId);
-		return true;
-	};
-	if (!stage(skillId)) return null;
-	const cost = calculatePlanCost(candidate, ownedSkills);
-	if (cost > availablePoints) return null;
-	return {
-		plan: candidate,
-		cost
-	};
-}
-function validateSkillPlan({ plan, ownedSkills, skillInfo, skillTreeView, jobId, availablePoints }) {
-	if (calculatePlanCost(plan, ownedSkills) > availablePoints) return false;
-	for (const [skillId, choice] of plan) {
-		const info = skillInfo[skillId];
-		const ownedLevel = getOwnedLevel(ownedSkills, skillId);
-		if (!info || choice.count < ownedLevel || choice.count > info.MaxLv) return false;
-		for (const [requiredSkillId, requiredLevel] of resolveSkillRequirements(info, jobId, skillTreeView)) if (getPlannedLevel(plan, ownedSkills, requiredSkillId) < requiredLevel) return false;
-	}
-	return true;
-}
-/**
-* Return one skill id per upgrade packet, ordered so every prerequisite is
-* upgraded before its dependants. A null result means the staged plan is no
-* longer valid against the authoritative skill state.
-*/
-function createSkillUpgradeOrder(options) {
-	if (!validateSkillPlan(options)) return null;
-	const { plan, ownedSkills, skillInfo, skillTreeView, jobId } = options;
-	const order = [];
-	const visited = /* @__PURE__ */ new Set();
-	const visiting = /* @__PURE__ */ new Set();
-	const visit = (skillId) => {
-		if (visited.has(skillId)) return true;
-		if (visiting.has(skillId)) return false;
-		const info = skillInfo[skillId];
-		if (!info) return false;
-		visiting.add(skillId);
-		for (const [requiredSkillId] of resolveSkillRequirements(info, jobId, skillTreeView)) if (plan.has(requiredSkillId) && !visit(requiredSkillId)) return false;
-		visiting.delete(skillId);
-		visited.add(skillId);
-		const count = plan.get(skillId)?.count ?? getOwnedLevel(ownedSkills, skillId);
-		const upgrades = Math.max(0, count - getOwnedLevel(ownedSkills, skillId));
-		for (let i = 0; i < upgrades; i++) order.push(skillId);
-		return true;
-	};
-	for (const skillId of plan.keys()) if (!visit(skillId)) return null;
-	return order;
-}
-var init_SkillRequirements = __esmMin((() => {}));
 // src/UI/Components/SkillList/SkillListCommon.js
 function _escapeHTML$2(text) {
 	const div = document.createElement("div");
