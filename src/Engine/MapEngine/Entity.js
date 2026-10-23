@@ -1302,8 +1302,10 @@ function onEntityViewChange(pkt) {
 				entity.weapon = resolved.weapon;
 				entity.shield = resolved.shield;
 			} else {
-				entity.weapon = pkt.value;
-				entity.shield = pkt.value2;
+				entity.weapon = DB.getWeaponViewID(pkt.value);
+				if (pkt.value2 !== undefined) {
+					entity.shield = pkt.value2;
+				}
 			}
 
 			// load self aura

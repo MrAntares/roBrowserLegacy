@@ -67,28 +67,47 @@ export function isOwnOffhandWeapon(entity, sessionEntity, inventory, equipment) 
  * @returns {{ weapon: number, shield: number }}
  */
 export function resolveEntityWeapons(weaponVal, shieldVal, entity, sessionEntity, inventory, equipment) {
-	let weapon = weaponVal;
-	let shield = shieldVal;
+	let weapon = weaponVal || 0;
+	let shield = shieldVal || 0;
 	const offhand = isOwnOffhandWeapon(entity, sessionEntity, inventory, equipment);
 
+	const job = entity ? entity.job : undefined;
+	const isAssassin = typeof DB.isAssassin === 'function' ? DB.isAssassin(job) : false;
+	const isShield = typeof DB.isShield === 'function'
+		? DB.isShield(shield, job, offhand)
+		: (shield > 0);
+	const getWeaponType = typeof DB.getWeaponType === 'function'
+		? (w, flag) => DB.getWeaponType(w, flag)
+		: w => w;
+	const getWeaponViewID = typeof DB.getWeaponViewID === 'function'
+		? w => DB.getWeaponViewID(w)
+		: w => w;
+	const isKatar = typeof DB.isKatar === 'function'
+		? wt => DB.isKatar(wt)
+		: () => false;
+	const mountWeapon = typeof DB.mountWeapon === 'function'
+		? (w1, w2) => DB.mountWeapon(w1, w2)
+		: (w1, w2) => ((w1 << 7) | w2);
+
 	// When switching from katar to sword/knife, server can put it in left hand instead of right hand first.
-	if (weapon == 0 && shield != 0 && !DB.isShield(shield, entity.job, offhand)) {
+	// Only apply this swap to Assassin-line jobs, never to non-dual-wield classes!
+	if (isAssassin && weapon === 0 && shield !== 0 && !isShield) {
 		weapon = shield;
 		shield = 0;
 	}
 
-	const weaponType = DB.getWeaponType(weapon, true);
-	const viewId = DB.getWeaponViewID(weapon);
+	const weaponType = getWeaponType(weapon, true);
+	const viewId = getWeaponViewID(weapon);
 
-	if (DB.isAssassin(entity.job) && shield !== 0 && !DB.isShield(shield, entity.job, offhand) && weapon !== 0) {
-		const secondaryWeaponType = DB.getWeaponType(shield, true);
+	if (isAssassin && shield !== 0 && !isShield && weapon !== 0) {
+		const secondaryWeaponType = getWeaponType(shield, true);
 		return {
-			weapon: DB.mountWeapon(weaponType, secondaryWeaponType),
+			weapon: mountWeapon(weaponType, secondaryWeaponType),
 			shield: 0
 		};
 	}
 
-	if (DB.isKatar(weaponType)) {
+	if (isKatar(weaponType)) {
 		return {
 			weapon: viewId,
 			shield: viewId

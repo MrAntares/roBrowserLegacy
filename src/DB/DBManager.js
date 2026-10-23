@@ -1518,11 +1518,15 @@ class DB {
 	 * @return {boolean}
 	 */
 	static isShieldItem(id) {
-		// shields has the following ranges:
-		// 2100 - 2199
-		// 28900 - 28999
-		// 460000 - 460099
-		return (id >= 2100 && id <= 2199) || (id >= 28900 && id <= 28999) || (id >= 460000 && id <= 460099);
+		const num = Number(id);
+		if (isNaN(num) || num <= 0) {
+			return false;
+		}
+		// Shield item ID ranges from official client (CSession_sub_D6EAC0):
+		// 2101 - 2199 (Classic shields)
+		// 28901 - 28998 (Shadow / specialized shields)
+		// 460000 - 469999 (Modern / renewal shields)
+		return (num >= 2100 && num <= 2199) || (num >= 28900 && num <= 28999) || (num >= 460000 && num <= 469999);
 	}
 
 	/**
@@ -1544,30 +1548,45 @@ class DB {
 	 * @author MrUnzO
 	 */
 	static isShield(id, job, isOffhandWeapon) {
+		const num = Number(id);
+		if (isNaN(num) || num <= 0) {
+			return false;
+		}
+
 		if (isOffhandWeapon === true) {
 			return false;
 		}
 
-		if (DB.isShieldItem(id)) {
+		if (isOffhandWeapon === false) {
 			return true;
 		}
 
-		// Any other item ID is not a shield (offhand weapon)
-		if (id > 500) {
+		if (DB.isShieldItem(num)) {
+			return true;
+		}
+
+		// Any other item ID (> 500) is not a shield (offhand weapon)
+		if (num > 500) {
 			return false;
 		}
 
-		if (isOffhandWeapon === false) {
-			return id > 0;
+		// View ID (1-500):
+		// In Ragnarok Online, ONLY Assassin-line jobs can dual-wield weapons in the left-hand slot.
+		// For all other jobs, ANY view ID in their left hand is a shield!
+		if (!job || !DB.isAssassin(job)) {
+			return true;
 		}
 
-		// View ID: ambiguous between shield view and weapon view.
-		// When offhand weapon status is unknown, preserve assassin dual-wield fallback.
-		if (id > 0 && job !== undefined && DB.isAssassin(job)) {
-			return false;
+		// For Assassin-line jobs:
+		// In RO, Assassins can only dual-wield Daggers (view ID 1) and 1H Swords (view ID 2).
+		// They CANNOT dual-wield 2H Swords (3) or Spears (4), so view IDs 3 (Shield) and 4 (Mirror Shield) are always shields.
+		if (num === 3 || num === 4) {
+			return true;
 		}
 
-		return id > 0;
+		// View ID 1 (Guard / Dagger) and 2 (Buckler / 1H Sword):
+		// When offhand weapon status is unknown for an assassin, preserve dual-wield fallback.
+		return false;
 	}
 
 	static getPCAttackMotion(job, sex, itemID, isDualWeapon) {
@@ -2124,7 +2143,7 @@ class DB {
 	 * @param {boolean} sex
 	 */
 	static getShieldPath(id, job, sex) {
-		if (id === 0) {
+		if (!id || id <= 0) {
 			return null;
 		}
 
@@ -2136,8 +2155,22 @@ class DB {
 		const baseClass = WeaponJobTable[job] || WeaponJobTable[0];
 
 		// ItemID to View Id
+		let viewId = id;
 		if (id in ItemTable && 'ClassNum' in ItemTable[id]) {
-			id = ItemTable[id].ClassNum;
+			viewId = ItemTable[id].ClassNum;
+		}
+
+		if (!viewId || viewId <= 0) {
+			return null;
+		}
+
+		let suffix = '';
+		if (viewId in ShieldTable) {
+			suffix = ShieldTable[viewId];
+		} else if (viewId >= 5) {
+			suffix = viewId + '_\xb9\xe6\xc6\xd0';
+		} else {
+			return null;
 		}
 
 		return (
@@ -2148,7 +2181,7 @@ class DB {
 			'_' +
 			SexTable[sex] +
 			'_' +
-			(ShieldTable[id] || ShieldTable[1])
+			suffix
 		);
 	}
 

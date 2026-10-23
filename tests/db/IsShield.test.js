@@ -7,6 +7,8 @@ describe('DB.isShield', () => {
 		expect(DB.isShield(2101)).toBe(true);
 		expect(DB.isShield(28901, JobId.ASSASSIN)).toBe(true);
 		expect(DB.isShield(460001, JobId.ASSASSIN)).toBe(true);
+		expect(DB.isShield(460500, JobId.ASSASSIN)).toBe(true);
+		expect(DB.isShield(469999, JobId.ASSASSIN)).toBe(true);
 	});
 
 	it('treats other item ids as offhand weapons', () => {
@@ -22,6 +24,12 @@ describe('DB.isShield', () => {
 	it('preserves assassin dual-wield fallback for ambiguous view id when offhand is unknown', () => {
 		expect(DB.isShield(1, JobId.ASSASSIN)).toBe(false);
 		expect(DB.isShield(1, JobId.ASSASSIN, undefined)).toBe(false);
+		expect(DB.isShield(2, JobId.ASSASSIN)).toBe(false);
+	});
+
+	it('recognises shield view id 3 and 4 as shields even for assassins (cannot dual-wield 2h swords/spears)', () => {
+		expect(DB.isShield(3, JobId.ASSASSIN)).toBe(true);
+		expect(DB.isShield(4, JobId.ASSASSIN)).toBe(true);
 	});
 
 	it('treats view id 1 as a shield for an assassin when explicitly flagged as not an offhand weapon', () => {
@@ -45,13 +53,39 @@ describe('DB.isShield', () => {
 		expect(DB.isShield(1, JobId.ASSASSIN)).toBe(false);
 	});
 
-	it('never treats 0 as a shield', () => {
+	it('never treats 0 or invalid inputs as a shield', () => {
 		expect(DB.isShield(0)).toBe(false);
 		expect(DB.isShield(0, JobId.SWORDMAN)).toBe(false);
+		expect(DB.isShield(null)).toBe(false);
+		expect(DB.isShield(undefined)).toBe(false);
+		expect(DB.isShield(-1)).toBe(false);
 	});
 
-	it('keeps item and view detection separate', () => {
+	it('keeps item and view detection separate and validates full item ranges', () => {
 		expect(DB.isShieldItem(1)).toBe(false);
 		expect(DB.isShieldItem(2101)).toBe(true);
+		expect(DB.isShieldItem(28950)).toBe(true);
+		expect(DB.isShieldItem(460500)).toBe(true);
+		expect(DB.isShieldItem(469999)).toBe(true);
+		expect(DB.isShieldItem(470000)).toBe(false);
+	});
+});
+
+describe('DB.getShieldPath', () => {
+	it('returns null for 0 or non-existent shields', () => {
+		expect(DB.getShieldPath(0, JobId.SWORDMAN, 1)).toBeNull();
+		expect(DB.getShieldPath(null, JobId.SWORDMAN, 1)).toBeNull();
+		expect(DB.getShieldPath(undefined, JobId.SWORDMAN, 1)).toBeNull();
+	});
+
+	it('returns correct sprite path for classic shields (viewId 1..4)', () => {
+		const path = DB.getShieldPath(1, JobId.SWORDMAN, 1);
+		expect(path).toContain('data/sprite/\xb9\xe6\xc6\xd0');
+		expect(path).toContain('\xb0\xa1\xb5\xe5'); // Guard in Korean
+	});
+
+	it('returns custom sprite path for modern custom shields (viewId >= 5)', () => {
+		const path = DB.getShieldPath(5, JobId.SWORDMAN, 1);
+		expect(path).toContain('5_\xb9\xe6\xc6\xd0');
 	});
 });

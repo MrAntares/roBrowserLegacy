@@ -709,8 +709,13 @@ function UpdateGeneric(type, func, fallback) {
 		let _val = val;
 
 		// Nothing to load
-		if (val <= 0) {
+		if (!val || val <= 0) {
 			this['_' + type] = 0;
+			if (this.files[type]) {
+				this.files[type].spr = null;
+				this.files[type].act = null;
+				this.files[type].pal = null;
+			}
 			return;
 		}
 
