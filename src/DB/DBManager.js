@@ -2368,7 +2368,11 @@ class DB {
 			case JobId.DO_SUMMONER_B:
 			case JobId.SPIRIT_HANDLER:
 			case JobId.SPIRIT_HANDLER_RIDING1:
-				return { frame: 0, length: 4 };
+				// The bare-paw ATTACK1 only; a rod or foxtail plays the whole ATTACK2
+				if (type === WeaponType.NONE) {
+					return { frame: 0, length: 4 };
+				}
+				break;
 		}
 		return null;
 	}
