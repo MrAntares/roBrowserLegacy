@@ -21,6 +21,25 @@ const BuiltInSkillTreeView = Object.freeze(
 );
 
 /**
+ * Jobs that share one tree in the built-in layout, such as a baby job and the
+ * job it copies, each mapped to the first job of its group. Read from
+ * SkillTreeView's shared objects before anything replaces an entry: a reset
+ * and a client file both give every job its own copy, so after either the
+ * shared object can no longer tell an alias from its job.
+ */
+const BuiltInTreeGroup = (() => {
+	const first = new Map();
+	const group = {};
+	for (const [jobId, entry] of Object.entries(SkillTreeView)) {
+		if (!first.has(entry)) {
+			first.set(entry, jobId);
+		}
+		group[jobId] = first.get(entry);
+	}
+	return Object.freeze(group);
+})();
+
+/**
  * Put the tree back to the built-in layout, dropping every job and position a
  * previously loaded client file added.
  *
@@ -77,4 +96,4 @@ function keepBuiltInSkills(tree, jobIds, builtIn = BuiltInSkillTreeView) {
 	}
 }
 
-export { BuiltInSkillTreeView, resetSkillTree, keepBuiltInSkills };
+export { BuiltInSkillTreeView, BuiltInTreeGroup, resetSkillTree, keepBuiltInSkills };
