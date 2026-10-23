@@ -147,12 +147,26 @@ function onEquipementTakeOff(pkt) {
 			Session.Entity.robe = Equipment.checkEquipLoc(EquipLocation.COSTUME_ROBE);
 		}
 		if (pkt.wearLocation & EquipLocation.WEAPON) {
-			const resolved = resolveEntityWeapons(0, Session.Entity.shield, Session.Entity, Session.Entity, Inventory, Equipment);
+			const resolved = resolveEntityWeapons(
+				0,
+				Session.Entity.shield,
+				Session.Entity,
+				Session.Entity,
+				Inventory,
+				Equipment
+			);
 			Session.Entity.weapon = resolved.weapon;
 			Session.Entity.shield = resolved.shield;
 		}
 		if (pkt.wearLocation & EquipLocation.SHIELD) {
-			const resolved = resolveEntityWeapons(Session.Entity.weapon, 0, Session.Entity, Session.Entity, Inventory, Equipment);
+			const resolved = resolveEntityWeapons(
+				Session.Entity.weapon,
+				0,
+				Session.Entity,
+				Session.Entity,
+				Inventory,
+				Equipment
+			);
 			Session.Entity.weapon = resolved.weapon;
 			Session.Entity.shield = resolved.shield;
 		}
@@ -210,9 +224,16 @@ function onItemEquip(pkt) {
 		}
 
 		if (pkt.wearLocation & EquipLocation.WEAPON || pkt.wearLocation & EquipLocation.SHIELD) {
-			const weaponVal = (pkt.wearLocation & EquipLocation.WEAPON) ? pkt.viewid : Session.Entity.weapon;
-			const shieldVal = (pkt.wearLocation & EquipLocation.SHIELD) ? pkt.viewid : Session.Entity.shield;
-			const resolved = resolveEntityWeapons(weaponVal, shieldVal, Session.Entity, Session.Entity, Inventory, Equipment);
+			const weaponVal = pkt.wearLocation & EquipLocation.WEAPON ? pkt.viewid : Session.Entity.weapon;
+			const shieldVal = pkt.wearLocation & EquipLocation.SHIELD ? pkt.viewid : Session.Entity.shield;
+			const resolved = resolveEntityWeapons(
+				weaponVal,
+				shieldVal,
+				Session.Entity,
+				Session.Entity,
+				Inventory,
+				Equipment
+			);
 			Session.Entity.weapon = resolved.weapon;
 			Session.Entity.shield = resolved.shield;
 		}
