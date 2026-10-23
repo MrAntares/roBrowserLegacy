@@ -162215,7 +162215,7 @@ var init_PacketStructure = __esmMin((() => {
 	PACKET.ZC.SPRITE_CHANGE2 = function PACKET_ZC_SPRITE_CHANGE2(fp, end) {
 		this.GID = fp.readULong();
 		this.type = fp.readUChar();
-		if (PacketVerManager_default.value >= 20180704) {
+		if (PacketVerManager_default.value >= 20181121) {
 			this.value = fp.readULong();
 			this.value2 = fp.readULong();
 		} else {
@@ -162223,7 +162223,7 @@ var init_PacketStructure = __esmMin((() => {
 			this.value2 = fp.readShort();
 		}
 	};
-	PACKET.ZC.SPRITE_CHANGE2.size = PacketVerManager_default.value >= 20180704 ? 15 : 11;
+	PACKET.ZC.SPRITE_CHANGE2.size = PacketVerManager_default.value >= 20181121 ? 15 : 11;
 	PACKET.ZC.NOTIFY_STANDENTRY2 = function PACKET_ZC_NOTIFY_STANDENTRY2(fp, end) {
 		this.GID = fp.readULong();
 		this.speed = fp.readShort();
@@ -164788,6 +164788,7 @@ var init_PacketStructure = __esmMin((() => {
 		this.head = fp.readShort();
 		this.weapon = fp.readLong();
 		if (PacketVerManager_default.value >= 20181121) this.shield = fp.readLong();
+		else this.shield = 0;
 		this.accessory = fp.readShort();
 		this.moveStartTime = fp.readULong();
 		this.accessory2 = fp.readShort();
@@ -164821,6 +164822,7 @@ var init_PacketStructure = __esmMin((() => {
 		this.head = fp.readShort();
 		this.weapon = fp.readLong();
 		if (PacketVerManager_default.value >= 20181121) this.shield = fp.readLong();
+		else this.shield = 0;
 		this.accessory = fp.readShort();
 		this.accessory2 = fp.readShort();
 		this.accessory3 = fp.readShort();
@@ -164853,6 +164855,7 @@ var init_PacketStructure = __esmMin((() => {
 		this.head = fp.readShort();
 		this.weapon = fp.readLong();
 		if (PacketVerManager_default.value >= 20181121) this.shield = fp.readLong();
+		else this.shield = 0;
 		this.accessory = fp.readShort();
 		this.accessory2 = fp.readShort();
 		this.accessory3 = fp.readShort();
@@ -166785,6 +166788,7 @@ var init_PacketStructure = __esmMin((() => {
 		this.head = fp.readUShort();
 		this.weapon = fp.readULong();
 		if (PacketVerManager_default.value >= 20181121) this.shield = fp.readULong();
+		else this.shield = 0;
 		this.accessory = fp.readUShort();
 		this.moveStartTime = fp.readULong();
 		this.accessory2 = fp.readUShort();
@@ -166823,6 +166827,7 @@ var init_PacketStructure = __esmMin((() => {
 		this.head = fp.readShort();
 		this.weapon = fp.readLong();
 		if (PacketVerManager_default.value >= 20181121) this.shield = fp.readLong();
+		else this.shield = 0;
 		this.accessory = fp.readShort();
 		this.accessory2 = fp.readShort();
 		this.accessory3 = fp.readShort();
@@ -166860,6 +166865,7 @@ var init_PacketStructure = __esmMin((() => {
 		this.head = fp.readShort();
 		this.weapon = fp.readLong();
 		if (PacketVerManager_default.value >= 20181121) this.shield = fp.readLong();
+		else this.shield = 0;
 		this.accessory = fp.readShort();
 		this.accessory2 = fp.readShort();
 		this.accessory3 = fp.readShort();
@@ -246930,12 +246936,12 @@ function createEquipment({ name, htmlText, cssText, entityRender = true, enchant
 	else Component.setCostumeConfig = function setCostumeConfig(_on) {};
 	Component.equip = function equip(item, location) {
 		const it = DB.getItemInfo(item.ITID);
-		if (entityRender) item.equipped = location;
-		_list[item.index] = item;
-		if (!entityRender && arguments.length === 1) {
+		if (!location && arguments.length === 1) {
 			if ("WearState" in item) location = item.WearState;
 			else if ("location" in item) location = item.location;
 		}
+		item.equipped = location;
+		_list[item.index] = item;
 		function add3Dots(string, limit) {
 			function stripHTML(str) {
 				const div = document.createElement("div");
@@ -246984,6 +246990,16 @@ function createEquipment({ name, htmlText, cssText, entityRender = true, enchant
 	};
 	Component.onLevelUp = function onLevelUp() {
 		if (UIVersionManager.getEquipmentVersion() > 0 && _btnLevelUp) document.body.appendChild(_btnLevelUp);
+	};
+	Component.getEquippedItem = function getEquippedItem(index) {
+		return _list[index] || null;
+	};
+	Component.getEquippedItemByLocation = function getEquippedItemByLocation(location) {
+		for (const key in _list) {
+			const item = _list[key];
+			if ((item ? item.equipped || item.WearState || item.location || item.WearLocation || 0 : 0) & location) return item;
+		}
+		return null;
 	};
 	Component.checkEquipLoc = function checkEquipLoc(location) {
 		if (!entityRender) return 0;
@@ -308515,16 +308531,45 @@ var init_DBManager = __esmMin((() => {
 			return "data/texture/" + (PetIllustration_default[id] || PetIllustration_default[1002]);
 		}
 		/**
+		* Is the item ID a shield item?
+		* Only checks inventory item IDs, never view IDs.
+		*
+		* @param {integer} id item id
+		* @return {boolean}
+		*/
+		static isShieldItem(id) {
+			const num = Number(id);
+			if (isNaN(num) || num <= 0) return false;
+			return num >= 2100 && num <= 2199 || num >= 28900 && num <= 28999 || num >= 46e4 && num <= 469999;
+		}
+		/**
 		* is shield checking
 		*
-		* @param {integer} id
+		* The left-hand slot can hold either an item ID or a view ID (ClassNum, <= 500).
+		* Shield views and weapon views share the same numeric range (1-500).
+		*
+		* When reliable offhand information is known (isOffhandWeapon === true/false),
+		* that flag distinguishes weapons from shields.
+		* When explicitly marked (isOffhandWeapon is true/false), that classification is honored.
+		* When unknown (isOffhandWeapon === undefined), ambiguous view IDs (<= 500) are preserved
+		* as shields unless reliable weapon evidence is present (e.g. item ID > 500), rather than
+		* assuming every assassin's shield view is a weapon.
+		*
+		* @param {integer} id item id or view id
+		* @param {integer} [job] job id of the owner
+		* @param {boolean} [isOffhandWeapon] explicitly marks whether the equipment is an offhand weapon
 		* @return {boolean} is shield?
 		*
 		* @author MrUnzO
 		*/
-		static isShield(id) {
-			if (id >= 2100 && id <= 2199 || id >= 28900 && id <= 28999 || id >= 46e4 && id <= 460099) return true;
-			return false;
+		static isShield(id, job, isOffhandWeapon) {
+			const num = Number(id);
+			if (isNaN(num) || num <= 0) return false;
+			if (isOffhandWeapon === true) return false;
+			if (isOffhandWeapon === false) return true;
+			if (DB.isShieldItem(num)) return true;
+			if (num > 500) return false;
+			return true;
 		}
 		static getPCAttackMotion(job, sex, itemID, isDualWeapon) {
 			if (isDualWeapon) switch (job) {
@@ -309051,11 +309096,17 @@ var init_DBManager = __esmMin((() => {
 		* @param {boolean} sex
 		*/
 		static getShieldPath(id, job, sex) {
-			if (id === 0) return null;
-			if (!DB.isShield(id)) return DB.getWeaponPath(id, job, sex);
+			if (!id || id <= 0) return null;
+			if (!DB.isShield(id, job, false)) return DB.getWeaponPath(id, job, sex);
 			const baseClass = WeaponJobTable[job] || WeaponJobTable[0];
-			if (id in ItemTable_default && "ClassNum" in ItemTable_default[id]) id = ItemTable_default[id].ClassNum;
-			return "data/sprite/¹æÆÐ/" + baseClass + "/" + baseClass + "_" + SexTable[sex] + "_" + (ShieldTable_default[id] || ShieldTable_default[1]);
+			let viewId = id;
+			if (id in ItemTable_default && "ClassNum" in ItemTable_default[id]) viewId = ItemTable_default[id].ClassNum;
+			if (!viewId || viewId <= 0) return null;
+			let suffix = "";
+			if (viewId in ShieldTable_default) suffix = ShieldTable_default[viewId];
+			else if (viewId >= 5) suffix = viewId + "_¹æÆÐ";
+			else return null;
+			return "data/sprite/¹æÆÐ/" + baseClass + "/" + baseClass + "_" + SexTable[sex] + "_" + suffix;
 		}
 		/**
 		* @return {string} Path to weapon
@@ -313434,8 +313485,13 @@ function UpdateGeneric(type, func, fallback) {
 		let path;
 		const _this = this;
 		let _val = val;
-		if (val <= 0) {
+		if (!val || val <= 0) {
 			this["_" + type] = 0;
+			if (this.files[type]) {
+				this.files[type].spr = null;
+				this.files[type].act = null;
+				this.files[type].pal = null;
+			}
 			return;
 		}
 		switch (type) {
@@ -330850,6 +330906,92 @@ var init_SkillAction = __esmMin((() => {
 	};
 	SkillAction[SkillConst_default.NV_BASIC] = SkillAction[SkillConst_default.TF_BACKSLIDING] = SkillAction[SkillConst_default.NV_TRICKDEAD] = SkillAction[SkillConst_default.TK_READYSTORM] = SkillAction[SkillConst_default.TK_READYDOWN] = SkillAction[SkillConst_default.TK_READYTURN] = SkillAction[SkillConst_default.TK_READYCOUNTER] = SkillAction[SkillConst_default.TK_HIGHJUMP] = SkillAction[SkillConst_default.TK_DODGE] = SkillAction[SkillConst_default.LK_TENSIONRELAX] = SkillAction[SkillConst_default.NC_F_SIDESLIDE] = SkillAction[SkillConst_default.NC_B_SIDESLIDE] = SkillAction[SkillConst_default.SU_HIDE] = SkillAction[SkillConst_default.SU_STOOP] = false;
 }));
+// src/Engine/MapEngine/OffhandWeapon.js
+/**
+* Check whether the local player is currently holding an offhand weapon.
+*
+* Resolvable only for our own character (entity.GID === sessionEntity.GID).
+* For other entities, the server transmits only view IDs without equipment
+* type metadata, so we return undefined (unknown) so callers can preserve
+* ambiguous offhand views as shields unless explicit weapon evidence is provided.
+*
+* @param {object} entity - Target entity
+* @param {object} sessionEntity - Local player entity (Session.Entity)
+* @param {object} [inventory] - Inventory component
+* @param {object} [equipment] - Equipment component
+* @returns {boolean|undefined} true if own offhand is weapon, false if own offhand is not weapon, undefined if unknown/other entity
+*/
+function isOwnOffhandWeapon(entity, sessionEntity, inventory, equipment) {
+	if (!entity || !sessionEntity || entity.GID !== sessionEntity.GID) return;
+	if (equipment) {
+		if (typeof equipment.getEquippedItemByLocation === "function") {
+			const item = equipment.getEquippedItemByLocation(EquipmentLocation_default.SHIELD);
+			if (item) return item.type === ItemType_default.WEAPON;
+		}
+		if (typeof equipment.getEquippedItem === "function" && inventory) {
+			const indexes = inventory.equippedItems || [];
+			for (let i = 0; i < indexes.length; i++) {
+				const item = equipment.getEquippedItem(indexes[i]);
+				if ((item ? item.equipped || item.WearState || item.location || item.WearLocation || 0 : 0) & EquipmentLocation_default.SHIELD) return item.type === ItemType_default.WEAPON;
+			}
+		}
+	}
+	if (inventory) {
+		const indexes = inventory.equippedItems || [];
+		for (let i = 0; i < indexes.length; i++) {
+			const item = typeof inventory.getItemByIndex === "function" ? inventory.getItemByIndex(indexes[i]) : null;
+			if ((item ? item.equipped || item.WearState || item.location || item.WearLocation || 0 : 0) & EquipmentLocation_default.SHIELD) return item.type === ItemType_default.WEAPON;
+		}
+	}
+	return false;
+}
+/**
+* Resolve weapon and shield values for an entity given packet values.
+* Used by both spawn (onEntitySpam) and view change (onEntityViewChange) handling.
+*
+* @param {number} weaponVal - Weapon ID or view ID from packet
+* @param {number} shieldVal - Shield / offhand ID or view ID from packet
+* @param {object} entity - Entity being updated
+* @param {object} sessionEntity - Local player entity (Session.Entity)
+* @param {object} [inventory] - Inventory component
+* @param {object} [equipment] - Equipment component
+* @returns {{ weapon: number, shield: number }}
+*/
+function resolveEntityWeapons(weaponVal, shieldVal, entity, sessionEntity, inventory, equipment) {
+	let weapon = weaponVal || 0;
+	let shield = shieldVal || 0;
+	const offhand = isOwnOffhandWeapon(entity, sessionEntity, inventory, equipment);
+	const job = entity ? entity.job : void 0;
+	const isAssassin = typeof DB.isAssassin === "function" ? DB.isAssassin(job) : false;
+	const isShield = typeof DB.isShield === "function" ? DB.isShield(shield, job, offhand) : shield > 0;
+	const getWeaponType = typeof DB.getWeaponType === "function" ? (w, flag) => DB.getWeaponType(w, flag) : (w) => w;
+	const getWeaponViewID = typeof DB.getWeaponViewID === "function" ? (w) => DB.getWeaponViewID(w) : (w) => w;
+	const isKatar = typeof DB.isKatar === "function" ? (wt) => DB.isKatar(wt) : () => false;
+	const mountWeapon = typeof DB.mountWeapon === "function" ? (w1, w2) => DB.mountWeapon(w1, w2) : (w1, w2) => w1 << 7 | w2;
+	if (isAssassin && weapon === 0 && shield !== 0 && !isShield) {
+		weapon = shield;
+		shield = 0;
+	}
+	const weaponType = getWeaponType(weapon, true);
+	const viewId = getWeaponViewID(weapon);
+	if (isAssassin && shield !== 0 && !isShield && weapon !== 0) return {
+		weapon: mountWeapon(weaponType, getWeaponType(shield, true)),
+		shield: 0
+	};
+	if (isKatar(weaponType)) return {
+		weapon: viewId,
+		shield: viewId
+	};
+	return {
+		weapon: viewId,
+		shield
+	};
+}
+var init_OffhandWeapon = __esmMin((() => {
+	init_EquipmentLocation();
+	init_ItemType();
+	init_DBManager();
+}));
 // src/DB/Monsters/AttackEffectTable.js
 var AE, JOB;
 var init_AttackEffectTable = __esmMin((() => {
@@ -331056,23 +331198,9 @@ function onEntitySpam(pkt) {
 		EntityManager.add(entity.wug);
 	}
 	if (entity.objecttype === Entity.TYPE_PC) {
-		if (pkt.weapon == 0 && pkt.shield != 0 && !DB.isShield(pkt.shield)) {
-			pkt.weapon = pkt.shield;
-			pkt.shield = 0;
-		}
-		const weaponType = DB.getWeaponType(pkt.weapon, true);
-		const viewId = DB.getWeaponViewID(pkt.weapon);
-		if (DB.isAssassin(entity.job) && pkt.shield !== 0 && !DB.isShield(pkt.shield) && pkt.weapon !== 0) {
-			const secondaryWeaponType = DB.getWeaponType(pkt.shield, true);
-			entity.weapon = DB.mountWeapon(weaponType, secondaryWeaponType);
-			entity.shield = 0;
-		} else if (DB.isKatar(weaponType)) {
-			entity.weapon = viewId;
-			entity.shield = viewId;
-		} else {
-			entity.weapon = viewId;
-			entity.shield = pkt.shield;
-		}
+		const resolved = resolveEntityWeapons(pkt.weapon, pkt.shield, entity, SessionStorage_default.Entity, InventoryController, EquipmentController);
+		entity.weapon = resolved.weapon;
+		entity.shield = resolved.shield;
 		if (PacketVerManager_default.value > 20150513) {
 			if (entity.body !== pkt.body) entity.body = pkt.body;
 		}
@@ -331739,26 +331867,12 @@ function onEntityViewChange(pkt) {
 			break;
 		case 2:
 			if (pkt instanceof PACKET.ZC.SPRITE_CHANGE2) {
-				if (pkt.value === 0 && pkt.value2 !== 0 && !DB.isShield(pkt.value2)) {
-					pkt.value = pkt.value2;
-					pkt.value2 = 0;
-				}
-				const weaponType = DB.getWeaponType(pkt.value, true);
-				const viewId = DB.getWeaponViewID(pkt.value);
-				if (DB.isAssassin(entity.job) && pkt.value2 !== 0 && !DB.isShield(pkt.value2)) {
-					const secondaryWeaponType = DB.getWeaponType(pkt.value2, true);
-					entity.weapon = DB.mountWeapon(weaponType, secondaryWeaponType);
-					entity.shield = 0;
-				} else if (DB.isKatar(weaponType)) {
-					entity.weapon = viewId;
-					entity.shield = viewId;
-				} else {
-					entity.weapon = viewId;
-					entity.shield = pkt.value2;
-				}
+				const resolved = resolveEntityWeapons(pkt.value, pkt.value2, entity, SessionStorage_default.Entity, InventoryController, EquipmentController);
+				entity.weapon = resolved.weapon;
+				entity.shield = resolved.shield;
 			} else {
-				entity.weapon = pkt.value;
-				entity.shield = pkt.value2;
+				entity.weapon = DB.getWeaponViewID(pkt.value);
+				if (pkt.value2 !== void 0) entity.shield = pkt.value2;
 			}
 			entity.aura.load(EffectManager);
 			if (entity.falcon) entity.falcon.set({
@@ -332906,6 +333020,7 @@ var init_Entity = __esmMin((() => {
 	init_EffectConst();
 	init_PetMessageConst();
 	init_JobConst();
+	init_OffhandWeapon();
 	init_AttackEffectTable();
 	init_SoundManager();
 	init_Events();
@@ -334468,8 +334583,16 @@ function onEquipementTakeOff(pkt) {
 		if (pkt.wearLocation & EquipmentLocation_default.HEAD_MID) SessionStorage_default.Entity.accessory3 = EquipmentController.checkEquipLoc(EquipmentLocation_default.COSTUME_HEAD_MID);
 		if (pkt.wearLocation & EquipmentLocation_default.HEAD_BOTTOM) SessionStorage_default.Entity.accessory = EquipmentController.checkEquipLoc(EquipmentLocation_default.COSTUME_HEAD_BOTTOM);
 		if (pkt.wearLocation & EquipmentLocation_default.GARMENT) SessionStorage_default.Entity.robe = EquipmentController.checkEquipLoc(EquipmentLocation_default.COSTUME_ROBE);
-		if (pkt.wearLocation & EquipmentLocation_default.WEAPON) SessionStorage_default.Entity.weapon = 0;
-		if (pkt.wearLocation & EquipmentLocation_default.SHIELD) SessionStorage_default.Entity.shield = 0;
+		if (pkt.wearLocation & EquipmentLocation_default.WEAPON) {
+			const resolved = resolveEntityWeapons(0, SessionStorage_default.Entity.shield, SessionStorage_default.Entity, SessionStorage_default.Entity, InventoryController, EquipmentController);
+			SessionStorage_default.Entity.weapon = resolved.weapon;
+			SessionStorage_default.Entity.shield = resolved.shield;
+		}
+		if (pkt.wearLocation & EquipmentLocation_default.SHIELD) {
+			const resolved = resolveEntityWeapons(SessionStorage_default.Entity.weapon, 0, SessionStorage_default.Entity, SessionStorage_default.Entity, InventoryController, EquipmentController);
+			SessionStorage_default.Entity.weapon = resolved.weapon;
+			SessionStorage_default.Entity.shield = resolved.shield;
+		}
 		if (pkt.wearLocation & EquipmentLocation_default.COSTUME_HEAD_TOP) SessionStorage_default.Entity.accessory2 = EquipmentController.checkEquipLoc(EquipmentLocation_default.HEAD_TOP);
 		if (pkt.wearLocation & EquipmentLocation_default.COSTUME_HEAD_MID) SessionStorage_default.Entity.accessory3 = EquipmentController.checkEquipLoc(EquipmentLocation_default.HEAD_MID);
 		if (pkt.wearLocation & EquipmentLocation_default.COSTUME_HEAD_BOTTOM) SessionStorage_default.Entity.accessory = EquipmentController.checkEquipLoc(EquipmentLocation_default.HEAD_BOTTOM);
@@ -334497,8 +334620,11 @@ function onItemEquip(pkt) {
 		if (pkt.wearLocation & EquipmentLocation_default.HEAD_MID) SessionStorage_default.Entity.accessory3 = CostumeCheckMid ? CostumeCheckMid : pkt.viewid;
 		if (pkt.wearLocation & EquipmentLocation_default.HEAD_BOTTOM) SessionStorage_default.Entity.accessory = CostumeCheckBot ? CostumeCheckBot : pkt.viewid;
 		if (pkt.wearLocation & EquipmentLocation_default.GARMENT) SessionStorage_default.Entity.robe = CostumeCheckRobe ? CostumeCheckRobe : pkt.viewid;
-		if (pkt.wearLocation & EquipmentLocation_default.WEAPON) SessionStorage_default.Entity.weapon = pkt.viewid;
-		if (pkt.wearLocation & EquipmentLocation_default.SHIELD) SessionStorage_default.Entity.shield = pkt.viewid;
+		if (pkt.wearLocation & EquipmentLocation_default.WEAPON || pkt.wearLocation & EquipmentLocation_default.SHIELD) {
+			const resolved = resolveEntityWeapons(pkt.wearLocation & EquipmentLocation_default.WEAPON ? pkt.viewid : SessionStorage_default.Entity.weapon, pkt.wearLocation & EquipmentLocation_default.SHIELD ? pkt.viewid : SessionStorage_default.Entity.shield, SessionStorage_default.Entity, SessionStorage_default.Entity, InventoryController, EquipmentController);
+			SessionStorage_default.Entity.weapon = resolved.weapon;
+			SessionStorage_default.Entity.shield = resolved.shield;
+		}
 		if (pkt.wearLocation & EquipmentLocation_default.COSTUME_HEAD_TOP) SessionStorage_default.Entity.accessory2 = pkt.viewid;
 		if (pkt.wearLocation & EquipmentLocation_default.COSTUME_HEAD_MID) SessionStorage_default.Entity.accessory3 = pkt.viewid;
 		if (pkt.wearLocation & EquipmentLocation_default.COSTUME_HEAD_BOTTOM) SessionStorage_default.Entity.accessory = pkt.viewid;
@@ -334907,6 +335033,7 @@ var init_Item = __esmMin((() => {
 	init_Equipment();
 	init_PlayerViewEquip();
 	init_SwitchEquip();
+	init_OffhandWeapon();
 	init_Storage$1();
 	init_MakeItemSelection();
 	init_ItemListWindowSelection();
