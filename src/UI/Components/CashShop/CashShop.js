@@ -461,11 +461,7 @@ CashShop.setSuccessCashShopUpdate = function setSuccessCashShopUpdate(res) {
 						ChatBox.TYPE.INFO,
 						ChatBox.FILTER.PUBLIC_LOG
 					);
-					const root = _root();
-					const cashpointSpan = root.querySelector('#cashpoint span');
-					if (cashpointSpan) cashpointSpan.textContent = res.cashPoints;
-					const cashpointFooter = root.querySelector('.cashpoint_footer');
-					if (cashpointFooter) cashpointFooter.textContent = res.cashPoints;
+					CashShop.readPoints(res.cashPoints, res.kafraPoints, CashShop.activeCashMenu);
 					onResetCartListCashShop();
 				}
 				break;
@@ -497,12 +493,26 @@ CashShop.setSuccessCashShopUpdate = function setSuccessCashShopUpdate(res) {
 	}
 };
 
-CashShop.readCashShopItems = function readCashShopItems(items) {
-	CashShop.cashShopListItem.push({
-		count: items.count,
-		items: items.items,
-		tabNum: items.tabNum
-	});
+/**
+ * Store a tab's items by its tab number, which is also the menu's data-index
+ *
+ * rAthena sends one ZC_ACK_SCHEDULER_CASHITEM per tab that has items, skipping
+ * empty tabs, and splits a tab too big for one packet over several.
+ *
+ * @param {object} pkt - PACKET.ZC.ACK_SCHEDULER_CASHITEM
+ */
+CashShop.readCashShopItems = function readCashShopItems(pkt) {
+	const tab = CashShop.cashShopListItem[pkt.tabNum];
+	if (tab) {
+		tab.items = tab.items.concat(pkt.items);
+		tab.count = tab.items.length;
+		return;
+	}
+	CashShop.cashShopListItem[pkt.tabNum] = {
+		count: pkt.count,
+		items: pkt.items,
+		tabNum: pkt.tabNum
+	};
 };
 
 /**
@@ -739,10 +749,11 @@ function onClickSearch() {
 	CashShop.isSearch = true;
 	CashShop.activeCashMenu = 9;
 	if (val && CashShop.cashShopListItem.length > 0) {
-		for (let i = 0; i < CashShop.cashShopListItem.length; ++i) {
-			const items = CashShop.cashShopListItem[i].items;
+		// Indexed by tab number: a tab with no items has no entry
+		for (const tab of CashShop.cashShopListItem.filter(Boolean)) {
+			const items = tab.items;
 			for (let iit = 0; iit < items.length; ++iit) {
-				items[iit].tab = CashShop.cashShopListItem[i].tabNum;
+				items[iit].tab = tab.tabNum;
 				const it = DB.getItemInfo(items[iit].itemId);
 
 				if (it.identifiedDisplayName) {
@@ -977,7 +988,7 @@ function onClickActionBuyItem() {
  */
 function onClickMenu(target) {
 	const root = _root();
-	const selectedMenu = target.dataset.index.toUpperCase();
+	const selectedMenu = parseInt(target.dataset.index, 10);
 
 	const searchInput = root.querySelector('#cashshop-search');
 	if (searchInput) searchInput.value = '';

@@ -4247,11 +4247,12 @@ PACKET.CZ.SE_PC_BUY_CASHITEM_LIST.prototype.build = function () {
 };
 
 //0x0849
+// <item id>.L <result>.W <cash points>.L <kafra points>.L
 PACKET.ZC.SE_PC_BUY_CASHITEM_RESULT = function PACKET_ZC_SE_PC_BUY_CASHITEM_RESULT(fp, end) {
-	this.kafraPoints = fp.readUShort();
-	this.itemId = fp.readShort();
-	this.result = fp.readShort();
-	this.cashPoints = fp.readUShort();
+	this.itemId = fp.readULong();
+	this.result = fp.readUShort();
+	this.cashPoints = fp.readULong();
+	this.kafraPoints = fp.readULong();
 };
 PACKET.ZC.SE_PC_BUY_CASHITEM_RESULT.size = 16;
 
