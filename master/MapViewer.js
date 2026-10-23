@@ -237559,10 +237559,20 @@ function createQuest(config) {
 	* @param {number} huntID
 	*/
 	Quest.updateMissionHunt = function updateMissionHunt(hunt_info, questID, huntID) {
-		if (hunt_info.huntIDCount) _questList[questID].hunt_list[huntID].huntIDCount = hunt_info.huntIDCount;
-		if (hunt_info.maxCount) _questList[questID].hunt_list[huntID].maxCount = hunt_info.maxCount;
-		if (hunt_info.huntCount) _questList[questID].hunt_list[huntID].huntCount = hunt_info.huntCount;
-		if (hunt_info.mobGID) _questList[questID].hunt_list[huntID].mobGID = hunt_info.mobGID;
+		const hunt = _questList[questID].hunt_list[huntID];
+		const prevHuntCount = hunt.huntCount;
+		const prevMaxCount = hunt.maxCount;
+		if (hunt_info.huntIDCount) hunt.huntIDCount = hunt_info.huntIDCount;
+		if (hunt_info.maxCount) hunt.maxCount = hunt_info.maxCount;
+		if (typeof hunt_info.huntCount === "number") hunt.huntCount = hunt_info.huntCount;
+		if (hunt_info.mobGID) hunt.mobGID = hunt_info.mobGID;
+		if (hunt.huntCount === prevHuntCount && hunt.maxCount === prevMaxCount) {
+			if (questWindow) {
+				questWindow.ClearQuestList();
+				questWindow.setQuestList(_questList, _questNotShowList);
+			}
+			return;
+		}
 		const mob_name = _questList[questID].hunt_list[huntID].mobName;
 		const chat_quest_text = `Mission [${DB.getQuestInfo(questID).Title}], you killed [${mob_name}]. (${_questList[questID].hunt_list[huntID].huntCount}/${_questList[questID].hunt_list[huntID].maxCount})`;
 		let self_msg;
