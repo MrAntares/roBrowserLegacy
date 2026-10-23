@@ -272,6 +272,21 @@ CashShop.init = function init() {
 	// Prevent dragover on whole component
 	container.addEventListener('dragover', stopPropagation);
 
+	// Enter in the search box searches, as the magnifier does
+	const searchInput = root.querySelector('.cashshop-search');
+	if (searchInput) {
+		searchInput.addEventListener('keydown', e => {
+			// Enter that picks an IME candidate is not a search yet
+			if (e.isComposing || e.keyCode === 229) {
+				return;
+			}
+			if (e.which === KEYS.ENTER || e.key === 'Enter') {
+				e.preventDefault();
+				onClickSearch();
+			}
+		});
+	}
+
 	const cartListItems = root.querySelector('#cart-list .items');
 	if (cartListItems && cartListItems.children.length > 0) {
 		onResetCartListCashShop();
@@ -757,8 +772,8 @@ function onClickSearch() {
 				const it = DB.getItemInfo(items[iit].itemId);
 
 				if (it.identifiedDisplayName) {
-					const matches = new RegExp(val).test(it.identifiedDisplayName.toLowerCase());
-					if (matches) {
+					// Plain text: a name search, so "[" or "+" is just a character
+					if (it.identifiedDisplayName.toLowerCase().includes(val)) {
 						newList.push(items[iit]);
 					}
 				}
