@@ -4,69 +4,6 @@ Repository instructions for AI coding agents working on **roBrowserLegacy**, a b
 
 **Read this file before changing code.** If a task touches an area covered by a linked guide or behavior reference, read that document before editing the area. Treat the codebase as the source of truth for current file names and implementation details; approximate counts and examples in this document may become stale.
 
----
-
-## 1. Operating Rules for Agents
-
-### Before editing
-
-1. Read this file and any task-specific instructions already present in the repository.
-2. Inspect the current repository state, relevant source files, callers/consumers, tests, and configuration. Do not assume the current implementation still matches a summary in documentation.
-3. Search for existing patterns in the same subsystem before introducing a new abstraction or convention.
-4. Read linked design documents and `docs/reference/` notes that apply to the behavior being changed.
-5. Identify the intended behavior, compatibility constraints, affected platforms, and tests that can verify the change.
-
-### While editing
-
-- Make the smallest focused change that fully solves the task.
-- Preserve existing public interfaces and architectural invariants unless the user explicitly asks to change them.
-- Follow established patterns in the affected subsystem rather than introducing a parallel implementation.
-- Avoid unrelated refactors, formatting churn, and speculative changes.
-- Do not infer protocol behavior from names alone. Trace the packet definition, version mapping, handler, and relevant tests.
-- Do not claim a behavior is verified unless it was checked in code, by a test, or by a runtime/build command.
-
-### Before finishing
-
-1. Run `npm run lint:fix && npm run format`.
-2. Run `npm run ci`.
-3. Run `npm test`.
-4. If build-sensitive code changed (for example, entry points, aliases, workers, or build configuration), run the relevant `npm run build*` target.
-5. Review the final diff for unintended changes, generated files, secrets, and unrelated formatting.
-6. Report what changed, the tests/build commands run, and any checks that could not be completed. Never report a command as passing unless it actually completed successfully.
-
-If a command cannot run because of the environment or a known project limitation, state that clearly and continue with the strongest relevant checks available.
-
----
-
-## 2. Quick Reference
-
-### Common commands
-
-```bash
-npm run dev                  # Vite development server (demo.html)
-npm test                     # Vitest suite (tests/**/*.test.js)
-npm run lint                 # ESLint check
-npm run lint:fix             # ESLint auto-fix
-npm run lint:check           # ESLint with a zero-warning threshold
-npm run format               # Prettier write ("src/**/*.js")
-npm run format:check         # Prettier check ("src/**/*.js")
-npm run ci                   # lint + format:check; used by CI
-npm run build                # Full web build via applications/tools/builder-web.mjs (all apps + PWA)
-npm run build:online         # Full online client (Online.js)
-npm run build:all            # All seven apps: Online + six viewers
-npm run build:pwa            # PWA build (Online + Thread + manifest)
-npm run build:threadhandler  # Build ThreadEventHandler.js separately as a Web Worker
-npm run electron              # Run Electron app
-npm run electron:dev          # Run Electron with DevTools
-npm run electron:build        # Package Electron app into dist/Desktop/
-```
-
-- Node.js requirement: `>=22`, pinned in `.nvmrc`; CI currently uses Node 24.
-- Check `package.json` for the authoritative, current script list.
-- Web build output: `dist/Web/`.
-- Electron build output: `dist/Desktop/`.
-
----
 
 ## 3. Non-Negotiable Constraints
 
@@ -427,26 +364,38 @@ When changing configuration, verify where the setting is defined, merged, consum
 ---
 
 ## 10. Task Playbooks
+## Add a UI component  
 
-### Add a UI component
-
-**Read first:**
-
-- `docs/UIComponent_to_GUIComponent.md` — primary guide.
-- `docs/UIComponent_to_GUIComponent_Firmware.md` — quick reference.
-- `docs/UIComponent_to_GUIComponent_Scars.md` — historical migration edge cases.
-- `docs/CustomElements.md` — custom-element reference.
-- `docs/Scrollbar.md` — custom scrollbar reference (`data-scrollbar-skin`).
-
-Then:
-
-1. Create `src/UI/Components/NewComponent/` with `NewComponent.js`, `NewComponent.html`, and `NewComponent.css`.
-2. Instantiate `new GUIComponent('Name', cssText)` and assign `Component.render = () => htmlText` following neighboring components.
-3. Use `<ui-button>`, `<ui-text>`, and `<ui-image>` as appropriate; do not reintroduce legacy `data-*`-based UI patterns.
-4. Put dimensions and positioning on `:host`; put inner layout rules on `#Name`.
-5. Use native DOM and Shadow DOM APIs inside the component, such as `this.getRoot().querySelector(...)`. The `this.ui` jQuery-like proxy exists for legacy interop only; do not use it for new internal code.
-6. Register the component with `UIManager.addComponent(Component)`.
-7. Add a shortcut in `src/Controls/ProcessCommand.js` only if the component needs a keyboard shortcut.
+UI uses `GUIComponent` (Shadow DOM) + Custom Elements. No legacy `data-*` UI patterns.  
+  
+### DSL  
+- `new GUIComponent('Name', cssText)` — constructor takes name + CSS only.  
+- `Component.render = () => htmlText` — HTML returned as a string (required).  
+- Markup: `<ui-button bg hover down>`, `<ui-text msg>`, `<ui-image src>` (see docs/CustomElements.md).  
+- CSS: dimensions/position on `:host`; inner layout on `#Name`. Do not set  
+  position/z-index on `:host` (JS sets absolute/z-index:50 in prepare()).  
+- Query internals with `this.getRoot().querySelector(...)`; never query `document`.  
+  `this.ui` is jQuery-compat interop only — don't use for new code.  
+- `Component.mouseMode = GUIComponent.MouseMode.{CROSS|STOP|FREEZE}`; `needFocus`.  
+  
+### Auto-bound hooks (define only what you need)  
+- `render()`   — returns HTML string. Required.  
+- `init()`     — runs ONCE in prepare(); host briefly in DOM. One-time setup/binding.  
+- `onAppend()` — runs EVERY append(); position restore, per-show work.  
+- `onRemove()` — runs EVERY remove(); save prefs, cleanup.  
+- `onKeyDown`  — if present, auto-bound on append / unbound on remove.  
+- `onResize()`, `onRestore()` — called when defined.  
+  
+### Register & mount  
+- `export default UIManager.addComponent(Component);`  
+- Show: `Component.append(target?)` (default document.body; target = element or selector).  
+  Hide: `Component.remove()`.  
+- Keyboard shortcut: add in src/Controls/ProcessCommand.js only if needed.  
+  
+### Files  
+src/UI/Components/Name/Name.{js,html,css}  
+  
+Additional Reference: docs/Scrollbar.md.
 8. Add or update tests where practical and verify the relevant UI/version lifecycle.
 
 ### Implement a packet handler
