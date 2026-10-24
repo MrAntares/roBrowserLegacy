@@ -707,10 +707,17 @@ function UpdateGeneric(type, func, fallback) {
 		let path;
 		const _this = this;
 		let _val = val;
+		// Set when a weapon look is drawn from its base type's sprite
+		let keepLook = false;
 
 		// Nothing to load
-		if (val <= 0) {
+		if (!val || val <= 0) {
 			this['_' + type] = 0;
+			if (this.files[type]) {
+				this.files[type].spr = null;
+				this.files[type].act = null;
+				this.files[type].pal = null;
+			}
 			return;
 		}
 
@@ -746,7 +753,8 @@ function UpdateGeneric(type, func, fallback) {
 			Client.loadFile(
 				filepath + '.spr',
 				function () {
-					_this['_' + type] = _val;
+					// Keep the look itself, so a later job change can draw its sprite
+					_this['_' + type] = keepLook ? val : _val;
 
 					// Head accessories should not be applied if they should be suppressed
 					const isAccessory = type === 'accessory' || type === 'accessory2' || type === 'accessory3';
@@ -777,6 +785,15 @@ function UpdateGeneric(type, func, fallback) {
 					if (fallback && !final) {
 						_val = DB[fallback](val);
 						filepath = DB[func](_val, _this.job, _this._sex);
+						// An expansion look (Main Gauche 31, Mace 62, ...) is drawn from a sprite
+						// named after it, which only some jobs have: the Druid line has just the
+						// base-type sprites (kRO data.grf: druid_*_dagger, axe, two-handed axe,
+						// club). Draw the base weapon type for them instead of nothing.
+						if (type === 'weapon' && filepath === path) {
+							_val = DB.getWeaponType(val, true);
+							filepath = DB[func](_val, _this.job, _this._sex);
+							keepLook = true;
+						}
 						if (filepath) {
 							LoadView(filepath, true);
 						}

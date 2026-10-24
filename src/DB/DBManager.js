@@ -1511,22 +1511,71 @@ class DB {
 	}
 
 	/**
+	 * Is the item ID a shield item?
+	 * Only checks inventory item IDs, never view IDs.
+	 *
+	 * @param {integer} id item id
+	 * @return {boolean}
+	 */
+	static isShieldItem(id) {
+		const num = Number(id);
+		if (isNaN(num) || num <= 0) {
+			return false;
+		}
+		// Shield item ID ranges from official client (CSession_sub_D6EAC0):
+		// 2101 - 2199 (Classic shields)
+		// 28901 - 28998 (Shadow / specialized shields)
+		// 460000 - 469999 (Modern / renewal shields)
+		return (num >= 2100 && num <= 2199) || (num >= 28900 && num <= 28999) || (num >= 460000 && num <= 469999);
+	}
+
+	/**
 	 * is shield checking
 	 *
-	 * @param {integer} id
+	 * The left-hand slot can hold either an item ID or a view ID (ClassNum, <= 500).
+	 * Shield views and weapon views share the same numeric range (1-500).
+	 *
+	 * When reliable offhand information is known (isOffhandWeapon === true/false),
+	 * that flag distinguishes weapons from shields.
+	 * When explicitly marked (isOffhandWeapon is true/false), that classification is honored.
+	 * When unknown (isOffhandWeapon === undefined), ambiguous view IDs (<= 500) are preserved
+	 * as shields unless reliable weapon evidence is present (e.g. item ID > 500), rather than
+	 * assuming every assassin's shield view is a weapon.
+	 *
+	 * @param {integer} id item id or view id
+	 * @param {integer} [job] job id of the owner
+	 * @param {boolean} [isOffhandWeapon] explicitly marks whether the equipment is an offhand weapon
 	 * @return {boolean} is shield?
 	 *
 	 * @author MrUnzO
 	 */
-	static isShield(id) {
-		// shields has the following ranges:
-		// 2100 - 2199
-		// 28900 - 28999
-		// 460000 - 460099
-		if ((id >= 2100 && id <= 2199) || (id >= 28900 && id <= 28999) || (id >= 460000 && id <= 460099)) {
+	static isShield(id, job, isOffhandWeapon) {
+		const num = Number(id);
+		if (isNaN(num) || num <= 0) {
+			return false;
+		}
+
+		if (isOffhandWeapon === true) {
+			return false;
+		}
+
+		if (isOffhandWeapon === false) {
 			return true;
 		}
-		return false;
+
+		if (DB.isShieldItem(num)) {
+			return true;
+		}
+
+		// Any other item ID (> 500) is not a shield (reliable offhand weapon evidence)
+		if (num > 500) {
+			return false;
+		}
+
+		// View ID (1-500):
+		// Ambiguous offhand view IDs default to shields unless explicitly classified
+		// as an offhand weapon from a reliable source.
+		return true;
 	}
 
 	static getPCAttackMotion(job, sex, itemID, isDualWeapon) {
@@ -2083,32 +2132,37 @@ class DB {
 	 * @param {boolean} sex
 	 */
 	static getShieldPath(id, job, sex) {
-		if (id === 0) {
+		if (!id || id <= 0) {
 			return null;
 		}
 
 		// Dual weapon (based on range id)
-		if (!DB.isShield(id)) {
+		if (!DB.isShield(id, job, false)) {
 			return DB.getWeaponPath(id, job, sex);
 		}
 
 		const baseClass = WeaponJobTable[job] || WeaponJobTable[0];
 
 		// ItemID to View Id
+		let viewId = id;
 		if (id in ItemTable && 'ClassNum' in ItemTable[id]) {
-			id = ItemTable[id].ClassNum;
+			viewId = ItemTable[id].ClassNum;
 		}
 
-		return (
-			'data/sprite/\xb9\xe6\xc6\xd0/' +
-			baseClass +
-			'/' +
-			baseClass +
-			'_' +
-			SexTable[sex] +
-			'_' +
-			(ShieldTable[id] || ShieldTable[1])
-		);
+		if (!viewId || viewId <= 0) {
+			return null;
+		}
+
+		let suffix = '';
+		if (viewId in ShieldTable) {
+			suffix = ShieldTable[viewId];
+		} else if (viewId >= 5) {
+			suffix = viewId + '_\xb9\xe6\xc6\xd0';
+		} else {
+			return null;
+		}
+
+		return 'data/sprite/\xb9\xe6\xc6\xd0/' + baseClass + '/' + baseClass + '_' + SexTable[sex] + '_' + suffix;
 	}
 
 	/**
@@ -2314,7 +2368,11 @@ class DB {
 			case JobId.DO_SUMMONER_B:
 			case JobId.SPIRIT_HANDLER:
 			case JobId.SPIRIT_HANDLER_RIDING1:
-				return { frame: 0, length: 4 };
+				// The bare-paw ATTACK1 only; a rod or foxtail plays the whole ATTACK2
+				if (type === WeaponType.NONE) {
+					return { frame: 0, length: 4 };
+				}
+				break;
 		}
 		return null;
 	}

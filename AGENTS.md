@@ -172,7 +172,7 @@ Notable implementation: `src/DB/Skills/SkillTreeMerge.js` merges the skill layou
 
 #### Subsystem module breakdown
 
-1. **Engine** (`src/Engine/`): GameEngine (orchestrator), LoginEngine (auth), CharEngine (character), MapEngine (28 subsystems), SessionStorage, Replay (ReplayParser, ReplayPlayer, ReplaySocket, ReplayTypes), State
+1. **Engine** (`src/Engine/`): GameEngine (orchestrator), LoginEngine (auth), CharEngine (character), MapEngine (29 subsystems), SessionStorage, Replay (ReplayParser, ReplayPlayer, ReplaySocket, ReplayTypes), State
 2. **Network** (`src/Network/`): PacketRegister, PacketStructure, PacketCrypt, PacketVersions.js, PacketVerManager, PacketLength, NetworkManager, SocketHelpers (WebSocket/NodeSocket)
 3. **Loaders** (`src/Loaders/`): GameFileDecrypt, GameFile, Sprite, Action, Ground (.gnd), Altitude (.gat), World (.rsw), Str (.str effects), Model, GR2Loader (.gr2 3D skeletal models via granny-ro-js), MapLoader, Targa, /wasm loader files
 4. **Database** (`src/DB/`): DBManager + data subdirectories (Effects, Items, Jobs, Map, Monsters, Pets, Skills, Status) + Emotions, TownInfo; `Skills/SkillTreeMerge.js` merges client `skilltreeview.lub` layouts with the built-in skill tree
@@ -201,6 +201,11 @@ The Entity system is composition-based, not inheritance-based. Approximately 17 
 - Add or modify behavior through the appropriate mixin or composition path.
 - Do not replace this with subclasses or move mixin behavior into a new inheritance tree.
 - Before changing Entity state, inspect creation/removal flows and map transitions; these are known edge-case areas.
+
+1. **Init**: GameEngine loads config → Client loads GRFs/executable → PACKETVER is set from config or auto-detected from executable PE timestamp
+2. **Login**: LoginEngine → NetworkManager connects via WebSocket (browser) or NodeSocket (Electron) → authenticates with versioned packets
+3. **Map Entry**: MapEngine loads map/entity data → Renderer displays → Controls enable input → 29 MapEngine subsystems manage live state
+4. **Runtime**: InputHandler → ProcessCommand → NetworkManager sends → packet handlers update state → EntityManager updates → Renderer draws
 
 #### Packet versioning
 
@@ -270,6 +275,7 @@ These lists are orientation aids, not exhaustive inventories. Verify the source 
 - **Item.js, Storage.js, Skill.js**: Core gameplay
 - **Mail.js, Rodex.js**: Messaging systems
 - **Captcha.js, PCGoldTimer.js**: Security/timer systems
+- **OffhandWeapon.js**: offhandweapon system
 
 ### GUI Components (`src/UI/Components/`, 100 directories)
 

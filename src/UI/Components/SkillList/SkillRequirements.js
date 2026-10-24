@@ -1,3 +1,5 @@
+import { BuiltInTreeGroup } from 'DB/Skills/SkillTreeMerge.js';
+
 function getOwnedSkill(ownedSkills, skillId) {
 	return ownedSkills?.get?.(skillId) ?? ownedSkills?.[skillId] ?? null;
 }
@@ -26,10 +28,40 @@ function getJobLineage(jobId, skillTreeView) {
 }
 
 /**
+ * Find which of candidateJobIds applies to the character's job: the first one
+ * met walking up the job's lineage (the job, then the job before it, and so
+ * on). An alias matches its canonical job's entry: aliased jobs share one
+ * tree object in SkillTreeView, and, once a reset or a client file has given
+ * each its own copy, the same group in treeGroup. Returns the matching
+ * candidate as given, or undefined.
+ */
+export function findLineageJob(candidateJobIds, jobId, skillTreeView, treeGroup = BuiltInTreeGroup) {
+	const candidates = Array.from(candidateJobIds, String);
+
+	for (const lineageJobId of getJobLineage(jobId, skillTreeView)) {
+		if (candidates.includes(String(lineageJobId))) {
+			return String(lineageJobId);
+		}
+
+		const lineageTree = skillTreeView[lineageJobId];
+		const lineageGroup = treeGroup[lineageJobId];
+		const canonicalJobId = candidates.find(
+			candidateJobId =>
+				(lineageTree && skillTreeView[candidateJobId] === lineageTree) ||
+				(lineageGroup !== undefined && treeGroup[candidateJobId] === lineageGroup)
+		);
+		if (canonicalJobId !== undefined) {
+			return canonicalJobId;
+		}
+	}
+
+	return undefined;
+}
+
+/**
  * Resolve the requirements that apply to a skill for the active character job.
  * Job-specific entries override the generic list, including explicit empty
- * overrides. Aliased jobs in SkillTreeView share the same tree object, so an
- * alias can inherit the canonical job's override.
+ * overrides.
  */
 export function resolveSkillRequirements(skill, jobId, skillTreeView) {
 	if (!skill) {
@@ -38,24 +70,9 @@ export function resolveSkillRequirements(skill, jobId, skillTreeView) {
 
 	const jobRequirements = skill.NeedSkillList;
 	if (jobRequirements) {
-		const requirementJobs = Object.keys(jobRequirements);
-
-		for (const lineageJobId of getJobLineage(jobId, skillTreeView)) {
-			if (Object.hasOwn(jobRequirements, lineageJobId)) {
-				return jobRequirements[lineageJobId];
-			}
-
-			const lineageTree = skillTreeView[lineageJobId];
-			if (!lineageTree) {
-				continue;
-			}
-
-			const canonicalJobId = requirementJobs.find(requirementJobId => {
-				return skillTreeView[requirementJobId] === lineageTree;
-			});
-			if (canonicalJobId !== undefined) {
-				return jobRequirements[canonicalJobId];
-			}
+		const lineageJobId = findLineageJob(Object.keys(jobRequirements), jobId, skillTreeView);
+		if (lineageJobId !== undefined) {
+			return jobRequirements[lineageJobId];
 		}
 	}
 
