@@ -87,17 +87,6 @@ Never violate these rules unless the user explicitly directs a change to the rel
 
 roBrowserLegacy is a web-based Ragnarok Online client. It uses ES modules, Vite plus a custom build tool, and WebGL. It can run in a browser, as a PWA, and as an Electron desktop app.
 
-### Dual-Client Workspace Context
-
-The workspace environment references two implementations of Ragnarok Online:
-
-1. **`d:\webserver\htdocs\dhxj_-_Client_Source` (Ground Truth / Reference Source)**:
-    - Classic C++ client source code for Ragnarok Online.
-    - Dictates the authoritative truths ("dita as verdades") on how game mechanics, calculations, formulas, state machines, packet structures/handlers, entity interactions, and client behaviors must function.
-2. **`d:\webserver\htdocs\roBrowserLegacy` (JavaScript Web Client)**:
-    - Web-based implementation in JavaScript (ES modules) and WebGL designed to run in browsers, PWA, and Electron.
-    - When porting, verifying, fixing, or implementing mechanics and logic in `roBrowserLegacy`, always consult `dhxj_-_Client_Source` as the primary reference for accuracy.
-
 ### Key Statistics
 
 - **14 subsystems** in `src/` (App, Audio, Controls, Core, DB, Engine, Loaders, Network, Plugins, Preferences, Renderer, UI, Utils, Vendors)
