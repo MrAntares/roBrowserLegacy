@@ -7,27 +7,27 @@ Instructions for working on `GameEngine.js`, `LoginEngine.js`, `CharEngine.js`, 
 - **Packet handlers & PACKETVER routing:** Read [`src/Network/AGENTS.md`](../Network/AGENTS.md).
 - **UI component integration:** Read [`src/UI/AGENTS.md`](../UI/AGENTS.md) and [`docs/UIComponent_to_GUIComponent.md`](../../docs/UIComponent_to_GUIComponent.md).
 - **Original Windows client behavioral notes:**
-  - Guild systems (`src/Engine/MapEngine/Guild.js`): [`docs/reference/guild/README.md`](../../docs/reference/guild/README.md)
-  - Pet systems (`src/Engine/MapEngine/Pet.js`): [`docs/reference/pet/README.md`](../../docs/reference/pet/README.md)
-  - Chat parsing: [`docs/reference/chat/README.md`](../../docs/reference/chat/README.md)
+    - Guild systems (`src/Engine/MapEngine/Guild.js`): [`docs/reference/guild/README.md`](../../docs/reference/guild/README.md)
+    - Pet systems (`src/Engine/MapEngine/Pet.js`): [`docs/reference/pet/README.md`](../../docs/reference/pet/README.md)
+    - Chat parsing: [`docs/reference/chat/README.md`](../../docs/reference/chat/README.md)
 
 ---
 
 ## Core Engine Invariants
 
 1. **Packet-to-Engine Routing:**
-   - Register inbound packet handlers via `Network.hookPacket(PACKET.<FAMILY>.*, handler)` in the owning engine:
-     - `PACKET.AC.*` / `PACKET.SC.*` → `LoginEngine.js`
-     - `PACKET.HC.*` → `CharEngine.js` (and `MapEngine` where cross-server packets apply)
-     - `PACKET.ZC.*` → `MapEngine.js` or the corresponding `src/Engine/MapEngine/*.js` subsystem
-   - Outbound packets (`PACKET.CA.*`, `PACKET.CH.*`, `PACKET.CZ.*`, `PACKET.CS.*`) are instantiated, populated, and sent via `Network.sendPacket(pkt)`. Always verify `PACKETVER`-dependent fields in `src/Network/PacketVersions.js` and `PacketStructure.js`.
+    - Register inbound packet handlers via `Network.hookPacket(PACKET.<FAMILY>.*, handler)` in the owning engine:
+        - `PACKET.AC.*` / `PACKET.SC.*` → `LoginEngine.js`
+        - `PACKET.HC.*` → `CharEngine.js` (and `MapEngine` where cross-server packets apply)
+        - `PACKET.ZC.*` → `MapEngine.js` or the corresponding `src/Engine/MapEngine/*.js` subsystem
+    - Outbound packets (`PACKET.CA.*`, `PACKET.CH.*`, `PACKET.CZ.*`, `PACKET.CS.*`) are instantiated, populated, and sent via `Network.sendPacket(pkt)`. Always verify `PACKETVER`-dependent fields in `src/Network/PacketVersions.js` and `PacketStructure.js`.
 2. **Entity Lifecycle & Map Transitions (`src/Engine/MapEngine/Entity.js`):**
-   - `src/Engine/MapEngine/Entity.js` manages unit spawning, status updates, actions, and removal based on server packets.
-   - Inspect creation, removal, and map-teleport cleanup carefully—this file contains known edge cases around attack/damage miss, status handling, floor footprints, cast bar progress,pending transformations, and NPC minimap mark cleanup.
+    - `src/Engine/MapEngine/Entity.js` manages unit spawning, status updates, actions, and removal based on server packets.
+    - Inspect creation, removal, and map-teleport cleanup carefully—this file contains known edge cases around attack/damage miss, status handling, floor footprints, cast bar progress,pending transformations, and NPC minimap mark cleanup.
 3. **Versioned UI Selection:**
-   - When opening or updating versioned UI families from `MapEngine`, `LoginEngine`, or `CharEngine`, interact through the `UIVersionManager` controller (`Component.selectUIVersion()`, `Component.getUI()`) rather than hardcoding a single version sibling (`V0`, `V1`, etc.).
+    - When opening or updating versioned UI families from `MapEngine`, `LoginEngine`, or `CharEngine`, interact through the `UIVersionManager` controller (`Component.selectUIVersion()`, `Component.getUI()`) rather than hardcoding a single version sibling (`V0`, `V1`, etc.).
 4. **Original Client Deviations:**
-   - Before changing subtle gameplay/UI behaviors in `Guild.js`, `Pet.js`, or chat handling, check `docs/reference/` to see whether the current implementation matches a verified Windows client behavior or an intentional documented deviation.
+    - Before changing subtle gameplay/UI behaviors in `Guild.js`, `Pet.js`, or chat handling, check `docs/reference/` to see whether the current implementation matches a verified Windows client behavior or an intentional documented deviation.
 
 ---
 

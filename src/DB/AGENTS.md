@@ -12,17 +12,17 @@ Instructions for working on `DBManager.js` and game data tables (`Effects/`, `It
 ## Core DB Invariants
 
 1. **Do Not Change Numeric Constants Without Explicit Justification:**
-   - Numeric IDs in `src/DB/` (`JobConst.js`, `SkillConst.js`, `StatusConst.js`, `StatusProperty.js`, `EmotionsConst.js`, `EquipmentLocation.js`, `ItemType.js`, `WeaponType.js`, `EffectConst.js`, `PetMessageConst.js`) are pinned by regression tests in `tests/db/`.
-   - Changing an existing numeric ID breaks server protocol compatibility unless intentionally updating to match an official kRO change.
+    - Numeric IDs in `src/DB/` (`JobConst.js`, `SkillConst.js`, `StatusConst.js`, `StatusProperty.js`, `EmotionsConst.js`, `EquipmentLocation.js`, `ItemType.js`, `WeaponType.js`, `EffectConst.js`, `PetMessageConst.js`) are pinned by regression tests in `tests/db/`.
+    - Changing an existing numeric ID breaks server protocol compatibility unless intentionally updating to match an official kRO change.
 2. **Respect the Text Encoding Contract (`docs/Encoding.md`):**
-   - `Client.loadFile` / `FileManager` returns raw `Uint8Array` bytes.
-   - User-facing text tables (item names/descriptions, messages, skill descriptions, town info) must decode bytes with `TextEncoding.decode(buffer, userCharpage)` (`useCharPage = true` in `loadTable`).
-   - GRF filesystem paths and internal lookups use `'windows-1252'`.
-   - Base64-encoded CSV tables (used in newer kRO clients) decode Base64 first, then UTF-8; plain-text tables are tab/line-separated.
+    - `Client.loadFile` / `FileManager` returns raw `Uint8Array` bytes.
+    - User-facing text tables (item names/descriptions, messages, skill descriptions, town info) must decode bytes with `TextEncoding.decode(buffer, userCharpage)` (`useCharPage = true` in `loadTable`).
+    - GRF filesystem paths and internal lookups use `'windows-1252'`.
+    - Base64-encoded CSV tables (used in newer kRO clients) decode Base64 first, then UTF-8; plain-text tables are tab/line-separated.
 3. **Preserve Skill Tree Merging (`src/DB/Skills/SkillTreeMerge.js`):**
-   - `SkillTreeMerge.js` merges client-supplied `skilltreeview.lub` layouts with the built-in `SkillTreeView.js` definitions (`resetSkillTree`, `keepBuiltInSkills`). Preserve fallback behavior when client files are missing or partial.
+    - `SkillTreeMerge.js` merges client-supplied `skilltreeview.lub` layouts with the built-in `SkillTreeView.js` definitions (`resetSkillTree`, `keepBuiltInSkills`). Preserve fallback behavior when client files are missing or partial.
 4. **Known Incomplete Areas:**
-   - `src/DB/DBManager.js` contains legacy TODOs and incomplete mappings for newer kRO content; verify callers before altering existing lookup return types.
+    - `src/DB/DBManager.js` contains legacy TODOs and incomplete mappings for newer kRO content; verify callers before altering existing lookup return types.
 
 ---
 

@@ -23,9 +23,9 @@ Before modifying or creating UI components, read the applicable reference guides
 4. **Native DOM Ownership:** The `this.ui` proxy on `GUIComponent` provides a minimal jQuery-compatible API for legacy external interop only; internal component code must use native DOM APIs directly.
 5. **Geometry Authority:** Put external dimensions and positioning (`top`, `left`, `width`, `height`) on `:host`; put internal layout rules on `#ComponentName`. Do not duplicate identical dimensions on both `:host` and the inner root, and do not set `position`/`z-index` on `:host` (JS sets `absolute`/`z-index: 50` in `prepare()`).
 6. **Lifecycle Separation:**
-   - `init()`: Bind event listeners once, register drag behavior, establish one-time DOM references, set initial inline visibility (toggle components only; never hide on-demand components in `init()`).
-   - `onAppend()`: Restore position/preferences, sync runtime layout, apply global side effects. Never rebind event listeners here.
-   - `onRemove()`: Save preferences, clean up external listeners and side effects.
+    - `init()`: Bind event listeners once, register drag behavior, establish one-time DOM references, set initial inline visibility (toggle components only; never hide on-demand components in `init()`).
+    - `onAppend()`: Restore position/preferences, sync runtime layout, apply global side effects. Never rebind event listeners here.
+    - `onRemove()`: Save preferences, clean up external listeners and side effects.
 7. **Asset-Driven Rendering:** Window frames, buttons, and backgrounds come from BMP/TGA images inside GRF files (loaded via `Client.loadFile` and `DBManager.INTERFACE_PATH`). Window art waits for `WhenDrawn.js` before fetching when hidden. Prefer `<ui-button>`, `<ui-text>`, and `<ui-image>` (importing `UI/Elements/Elements.js`) over legacy `data-*` attributes handled by `GUIComponent.processDataAttrs()`.
 8. **Visibility & Events:** Manage runtime visibility with explicit inline `style.display` (never jQuery `.show()`/`.hide()`). Use `element.isConnected` instead of `closest('body')`. Replace `return false` with explicit `e.preventDefault(); e.stopImmediatePropagation();`. Suppress native context menus on right-click (`contextmenu` listener).
 9. **Input Protection:** Components containing `<input>`, `<select>`, or `<textarea>` must set `captureKeyEvents = true` and guard `onKeyDown` with `this.isEditableFocused()`.
@@ -41,6 +41,7 @@ Before modifying or creating UI components, read the applicable reference guides
 UI uses `GUIComponent` (Shadow DOM) + Custom Elements. No legacy `data-*` UI patterns.
 
 #### DSL
+
 - `new GUIComponent('Name', cssText)` — constructor takes name + CSS only.
 - `Component.render = () => htmlText` — HTML returned as a string (required).
 - Markup: `<ui-button bg hover down>`, `<ui-text msg>`, `<ui-image src>` (import `UI/Elements/Elements.js`; see [`docs/CustomElements.md`](../../docs/CustomElements.md)).
@@ -49,6 +50,7 @@ UI uses `GUIComponent` (Shadow DOM) + Custom Elements. No legacy `data-*` UI pat
 - `Component.mouseMode = GUIComponent.MouseMode.{CROSS|STOP|FREEZE}`; `needFocus`.
 
 #### Auto-bound hooks (define only what you need)
+
 - `render()` — returns HTML string. Required.
 - `init()` — runs ONCE in `prepare()`; host briefly in DOM. One-time setup/binding.
 - `onAppend()` — runs EVERY `append()`; position restore, per-show work.
@@ -57,6 +59,7 @@ UI uses `GUIComponent` (Shadow DOM) + Custom Elements. No legacy `data-*` UI pat
 - `onResize()`, `onRestore()` — called when defined.
 
 #### Register, mount & test
+
 - `export default UIManager.addComponent(Component);`
 - Show: `Component.append(target?)` (default `document.body`; target = element or selector). Hide: `Component.remove()`.
 - Keyboard shortcut: add in `src/Controls/ProcessCommand.js` only if needed.

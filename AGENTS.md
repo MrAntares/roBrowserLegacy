@@ -8,20 +8,20 @@ Global repository instructions for AI coding agents working on **roBrowserLegacy
 
 Consult **only** the scoped instructions and reference documents relevant to your task. Mandatory references are prerequisites, not optional suggestions.
 
-| Task / Subsystem | Required Documentation |
-| --- | --- |
-| **UI components, Shadow DOM, custom elements, scrollbars** | [`src/UI/AGENTS.md`](src/UI/AGENTS.md) → [`docs/UIComponent_to_GUIComponent.md`](docs/UIComponent_to_GUIComponent.md), [`docs/CustomElements.md`](docs/CustomElements.md), [`docs/Scrollbar.md`](docs/Scrollbar.md) |
-| **Versioned UI deduplication (`*Common.js` factories)** | [`src/UI/AGENTS.md`](src/UI/AGENTS.md) → [`docs/GUIComponent_Version_Dedup_Factory.md`](docs/GUIComponent_Version_Dedup_Factory.md) |
-| **Packets, opcodes, lengths, `PACKETVER`, sockets** | [`src/Network/AGENTS.md`](src/Network/AGENTS.md) |
-| **WebGL renderer, `Entity` mixins, effects, shaders, GR2** | [`src/Renderer/AGENTS.md`](src/Renderer/AGENTS.md) → [`docs/reference/renderer/README.md`](docs/reference/renderer/README.md) |
-| **Game/Login/Char/Map engines & gameplay handlers** | [`src/Engine/AGENTS.md`](src/Engine/AGENTS.md) → [`docs/reference/README.md`](docs/reference/README.md) |
-| **Binary asset loaders (`.grf`, `.spr`, `.rsw`, `.gr2`, WASM)** | [`src/Loaders/AGENTS.md`](src/Loaders/AGENTS.md) → [`docs/Encoding.md`](docs/Encoding.md) |
-| **Database tables, constants, item/skill/status lookups** | [`src/DB/AGENTS.md`](src/DB/AGENTS.md) → [`docs/Encoding.md`](docs/Encoding.md) |
-| **VFS (`Client`/`FileManager`), `ROConfig`, Workers, Lua/AI** | [`src/Core/AGENTS.md`](src/Core/AGENTS.md) → [`docs/LuaModuleResolution.md`](docs/LuaModuleResolution.md), [`docs/Encoding.md`](docs/Encoding.md) |
-| **Controls, Audio, Preferences, Plugins, Utils** | [`docs/Architecture.md`](docs/Architecture.md) |
-| **Original Windows client behavioral notes (Guild, Chat, Pet, Mounts)** | [`docs/reference/README.md`](docs/reference/README.md) |
-| **Architecture overview, JS modernization, debugging, glossary** | [`docs/Architecture.md`](docs/Architecture.md) |
-| **Code review & PR invariants** | [`REVIEW.md`](REVIEW.md) |
+| Task / Subsystem                                                        | Required Documentation                                                                                                                                                                                              |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **UI components, Shadow DOM, custom elements, scrollbars**              | [`src/UI/AGENTS.md`](src/UI/AGENTS.md) → [`docs/UIComponent_to_GUIComponent.md`](docs/UIComponent_to_GUIComponent.md), [`docs/CustomElements.md`](docs/CustomElements.md), [`docs/Scrollbar.md`](docs/Scrollbar.md) |
+| **Versioned UI deduplication (`*Common.js` factories)**                 | [`src/UI/AGENTS.md`](src/UI/AGENTS.md) → [`docs/GUIComponent_Version_Dedup_Factory.md`](docs/GUIComponent_Version_Dedup_Factory.md)                                                                                 |
+| **Packets, opcodes, lengths, `PACKETVER`, sockets**                     | [`src/Network/AGENTS.md`](src/Network/AGENTS.md)                                                                                                                                                                    |
+| **WebGL renderer, `Entity` mixins, effects, shaders, GR2**              | [`src/Renderer/AGENTS.md`](src/Renderer/AGENTS.md) → [`docs/reference/renderer/README.md`](docs/reference/renderer/README.md)                                                                                       |
+| **Game/Login/Char/Map engines & gameplay handlers**                     | [`src/Engine/AGENTS.md`](src/Engine/AGENTS.md) → [`docs/reference/README.md`](docs/reference/README.md)                                                                                                             |
+| **Binary asset loaders (`.grf`, `.spr`, `.rsw`, `.gr2`, WASM)**         | [`src/Loaders/AGENTS.md`](src/Loaders/AGENTS.md) → [`docs/Encoding.md`](docs/Encoding.md)                                                                                                                           |
+| **Database tables, constants, item/skill/status lookups**               | [`src/DB/AGENTS.md`](src/DB/AGENTS.md) → [`docs/Encoding.md`](docs/Encoding.md)                                                                                                                                     |
+| **VFS (`Client`/`FileManager`), `ROConfig`, Workers, Lua/AI**           | [`src/Core/AGENTS.md`](src/Core/AGENTS.md) → [`docs/LuaModuleResolution.md`](docs/LuaModuleResolution.md), [`docs/Encoding.md`](docs/Encoding.md)                                                                   |
+| **Controls, Audio, Preferences, Plugins, Utils**                        | [`docs/Architecture.md`](docs/Architecture.md)                                                                                                                                                                      |
+| **Original Windows client behavioral notes (Guild, Chat, Pet, Mounts)** | [`docs/reference/README.md`](docs/reference/README.md)                                                                                                                                                              |
+| **Architecture overview, JS modernization, debugging, glossary**        | [`docs/Architecture.md`](docs/Architecture.md)                                                                                                                                                                      |
+| **Code review & PR invariants**                                         | [`REVIEW.md`](REVIEW.md)                                                                                                                                                                                            |
 
 > **Hierarchical Discovery Note:** When working in `src/<Subsystem>/`, always open and read the corresponding `src/<Subsystem>/AGENTS.md` file first if your coding agent does not load nested `AGENTS.md` files automatically.
 

@@ -12,18 +12,18 @@ Instructions for working on client file access, runtime configuration, Web Worke
 ## Core Invariants
 
 1. **Configuration & Globals (`Configs.js`, `Config.js`, `ROConfig`):**
-   - `Config.js` (generated in `dist/Web/Config.js` by `applications/tools/builder-web.mjs` and present in `applications/pwa/Config.js`) contains default settings (`window.ROConfigBase`). Do not hand-edit generated `Config.js` files unless specifically changing the builder generator or defaults.
-   - `Config.local.js` (`window.ROConfigLocal`) provides optional local overrides and is gitignored. Avoid leaking local server configuration into committed files.
-   - `window.ROConfig` is the merged runtime configuration object consumed by `Configs.js`.
-   - Important `ROConfig` options include `servers` (`address`, `port`, `version`, `langtype`, `packetver`, `renewal`, `socketProxy`, `remoteClient`, `adminList`), `packetver`, `packetDump`, `skipIntro`, `skipServerList`, `remoteClient`, `plugins`, `aura`, `autoLogin`, `development`, `enableConsole`, `disableConsole`, `perfProbe`, `loadLua`, `customItemInfo`, `luaSearchPaths`, `luaRemoteBaseUrl`, and `webserverAddress` (Electron).
-   - When adding or modifying a configuration option, verify where it is defined, merged, read via `Configs.get(...)`, and exposed across Browser, PWA, and Electron targets.
+    - `Config.js` (generated in `dist/Web/Config.js` by `applications/tools/builder-web.mjs` and present in `applications/pwa/Config.js`) contains default settings (`window.ROConfigBase`). Do not hand-edit generated `Config.js` files unless specifically changing the builder generator or defaults.
+    - `Config.local.js` (`window.ROConfigLocal`) provides optional local overrides and is gitignored. Avoid leaking local server configuration into committed files.
+    - `window.ROConfig` is the merged runtime configuration object consumed by `Configs.js`.
+    - Important `ROConfig` options include `servers` (`address`, `port`, `version`, `langtype`, `packetver`, `renewal`, `socketProxy`, `remoteClient`, `adminList`), `packetver`, `packetDump`, `skipIntro`, `skipServerList`, `remoteClient`, `plugins`, `aura`, `autoLogin`, `development`, `enableConsole`, `disableConsole`, `perfProbe`, `loadLua`, `customItemInfo`, `luaSearchPaths`, `luaRemoteBaseUrl`, and `webserverAddress` (Electron).
+    - When adding or modifying a configuration option, verify where it is defined, merged, read via `Configs.get(...)`, and exposed across Browser, PWA, and Electron targets.
 2. **Web Worker & Global Consumers (`Thread.js`, `ThreadEventHandler.js`):**
-   - `src/Core/ThreadEventHandler.js` is the Web Worker entry point (built via `npm run build:threadhandler` or `npm run build`).
-   - Do not remove existing global assignments (such as `SEEK_CUR`, `SEEK_SET`, `SEEK_END` from `Utils/BinaryReader.js`, `ROConfig`, or `ROBrowser`) until every consumer—including Web Worker code and `applications/api/api.js`—has been audited.
+    - `src/Core/ThreadEventHandler.js` is the Web Worker entry point (built via `npm run build:threadhandler` or `npm run build`).
+    - Do not remove existing global assignments (such as `SEEK_CUR`, `SEEK_SET`, `SEEK_END` from `Utils/BinaryReader.js`, `ROConfig`, or `ROBrowser`) until every consumer—including Web Worker code and `applications/api/api.js`—has been audited.
 3. **VFS Raw Bytes Pipeline (`Client.js`, `FileManager.js`, `MemoryManager.js`):**
-   - `FileManager` loads raw bytes from GRFs or Remote Client HTTP endpoints. Never decode text inside `FileManager`; consumers (`DBManager`, loaders, `LuaModuleLoader`) determine the encoding context.
+    - `FileManager` loads raw bytes from GRFs or Remote Client HTTP endpoints. Never decode text inside `FileManager`; consumers (`DBManager`, loaders, `LuaModuleLoader`) determine the encoding context.
 4. **Lua Module Loader Cache Generations (`LuaModuleLoader.js`):**
-   - `LuaModuleLoader` tracks VFS and remote HTTP request generations independently so replacing `Client.loadFile` or calling `LuaModuleLoader.clearCache()` invalidates stale in-flight requests without poisoning negative lookup caches. Preserve generation tracking when editing `LuaModuleLoader.js`.
+    - `LuaModuleLoader` tracks VFS and remote HTTP request generations independently so replacing `Client.loadFile` or calling `LuaModuleLoader.clearCache()` invalidates stale in-flight requests without poisoning negative lookup caches. Preserve generation tracking when editing `LuaModuleLoader.js`.
 
 ---
 

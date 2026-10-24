@@ -12,18 +12,18 @@ Instructions for working on packet structures, opcode registration, packet lengt
 ## Core Network & Protocol Invariants
 
 1. **Do Not Modify `PacketVerManager.js` Detection Logic Without Explicit Instruction:**
-   - `src/Network/PacketVerManager.js` controls `PACKETVER` selection, character block-size calculation (`calculateBlockSize` / `parseCharInfo`), and `PACKETVER.addSupport` version resolution across kRO client dates. Changing detection or block-size thresholds without explicit authorization can break compatibility across 23 supported packet-version years (kRO 2003–2025).
+    - `src/Network/PacketVerManager.js` controls `PACKETVER` selection, character block-size calculation (`calculateBlockSize` / `parseCharInfo`), and `PACKETVER.addSupport` version resolution across kRO client dates. Changing detection or block-size thresholds without explicit authorization can break compatibility across 23 supported packet-version years (kRO 2003–2025).
 2. **Never Generalize Away Date-Specific Protocol Layouts:**
-   - Packet structures (`PacketStructure.js`), outbound packet layouts (`PacketVersions.js`), and packet byte lengths (`src/Network/Packets/packetsYYYY_len_main.js`) vary by client date (`PACKETVER`).
-   - Do not infer protocol behavior from packet names alone. Trace the packet definition, version mapping, length table entry, and engine handler across the target `PACKETVER` range.
-   - Verify that changes to `PacketStructure.js`, `PacketVersions.js`, or `PacketLength.js` target the exact `PACKETVER` date range and do not regress earlier or later client versions.
+    - Packet structures (`PacketStructure.js`), outbound packet layouts (`PacketVersions.js`), and packet byte lengths (`src/Network/Packets/packetsYYYY_len_main.js`) vary by client date (`PACKETVER`).
+    - Do not infer protocol behavior from packet names alone. Trace the packet definition, version mapping, length table entry, and engine handler across the target `PACKETVER` range.
+    - Verify that changes to `PacketStructure.js`, `PacketVersions.js`, or `PacketLength.js` target the exact `PACKETVER` date range and do not regress earlier or later client versions.
 3. **Keep Browser and Electron Socket Implementations Compatible:**
-   - Browser connections use `src/Network/SocketHelpers/WebSocket.js` and require `wsProxy` (TCP-to-WebSocket translation).
-   - Electron connections use `src/Network/SocketHelpers/NodeSocket.js`, communicating over direct TCP via the Electron preload `contextBridge`.
-   - Replay playback uses `src/Engine/Replay/ReplaySocket.js`.
-   - All socket implementations must satisfy the shared contract expected by `NetworkManager.js`.
+    - Browser connections use `src/Network/SocketHelpers/WebSocket.js` and require `wsProxy` (TCP-to-WebSocket translation).
+    - Electron connections use `src/Network/SocketHelpers/NodeSocket.js`, communicating over direct TCP via the Electron preload `contextBridge`.
+    - Replay playback uses `src/Engine/Replay/ReplaySocket.js`.
+    - All socket implementations must satisfy the shared contract expected by `NetworkManager.js`.
 4. **Server Compatibility Note:**
-   - Server-side `packet_obfuscation` (rAthena/Hercules) is not supported unless explicitly implemented via `PacketCrypt.js`; invalid opcodes often indicate obfuscation or a `PACKETVER` mismatch.
+    - Server-side `packet_obfuscation` (rAthena/Hercules) is not supported unless explicitly implemented via `PacketCrypt.js`; invalid opcodes often indicate obfuscation or a `PACKETVER` mismatch.
 
 ---
 
@@ -45,15 +45,15 @@ Instructions for working on packet structures, opcode registration, packet lengt
 ### Implement a Packet Handler
 
 1. **Define or update the packet schema** in `src/Network/PacketStructure.js`:
-   - Inbound packets (`ZC`, `AC`, `HC`, `SC`) implement `init(fp, end)` using `BinaryReader` methods (`fp.readLong()`, `fp.readShort()`, `fp.readBinaryString()`, etc.).
-   - Outbound packets (`CZ`, `CA`, `CH`, `CS`) implement `build()` using `BinaryWriter`.
+    - Inbound packets (`ZC`, `AC`, `HC`, `SC`) implement `init(fp, end)` using `BinaryReader` methods (`fp.readLong()`, `fp.readShort()`, `fp.readBinaryString()`, etc.).
+    - Outbound packets (`CZ`, `CA`, `CH`, `CS`) implement `build()` using `BinaryWriter`.
 2. **Map the opcode** in `src/Network/PacketRegister.js` (for inbound packets).
 3. **Add or update packet lengths** in the relevant `src/Network/Packets/packetsYYYY_len_main.js` file(s) (`-1` for variable-length packets whose bytes 2–3 carry the packet length).
 4. **For outbound `CZ` packets**, add or update the date-specific definitions in `src/Network/PacketVersions.js` as required.
 5. **Implement the handler** in the appropriate engine module and register it via `Network.hookPacket(PACKET.<FAMILY>.*, handler)`:
-   - `PACKET.ZC.*` → `src/Engine/MapEngine.js` or `src/Engine/MapEngine/*.js`
-   - `PACKET.AC.*` / `PACKET.SC.*` → `src/Engine/LoginEngine.js`
-   - `PACKET.HC.*` → `src/Engine/CharEngine.js` (and `MapEngine` where applicable)
+    - `PACKET.ZC.*` → `src/Engine/MapEngine.js` or `src/Engine/MapEngine/*.js`
+    - `PACKET.AC.*` / `PACKET.SC.*` → `src/Engine/LoginEngine.js`
+    - `PACKET.HC.*` → `src/Engine/CharEngine.js` (and `MapEngine` where applicable)
 6. **Trace version variations:** Check whether the opcode is reused or superseded in newer/older `PACKETVER` dates.
 7. **Validate:** Test with `packetDump: true` in `ROConfig` and add/update unit tests in `tests/network/` (using synthetic `ArrayBuffer`/`BinaryReader` fixtures).
 
