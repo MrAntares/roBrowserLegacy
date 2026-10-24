@@ -366,12 +366,12 @@ For new code, prefer arrow functions, template literals, `async`/`await`, ES cla
 When touching legacy patterns, modernize the code you are already changing when doing so is safe and behavior-preserving. Common replacements include:
 
 | Older pattern                              | Preferred pattern                                                                |
-| ------------------------------------------ | -------------------------------------------------------------------------------- | ----------- | ---------------------------------------------------------------------------- |
+| ------------------------------------------ | -------------------------------------------------------------------------------- |
 | Callback `function(a, b) { ... }`          | `(a, b) => { ... }` when lexical `this` is correct.                              |
 | String concatenation with variables        | Template literals.                                                               |
 | Constructor function and prototype methods | ES class and instance methods.                                                   |
 | Object-literal singleton methods           | Static class methods when the conversion is safe and consistent with the module. |
-| `var x = obj.x                             |                                                                                  | defaultVal` | Destructuring defaults or explicit defaulting where semantics are preserved. |
+| `var x = obj.x \|\| defaultVal`            | Destructuring defaults or explicit defaulting where semantics are preserved.     |
 | Global assignment consumed by modules      | Explicit ES imports where feasible and after auditing all consumers.             |
 
 **Important `this` caveat:** arrow functions capture `this` lexically. Before converting jQuery callbacks, handlers, or prototype methods, verify whether the function depends on dynamic `this`. Keep a regular function where dynamic binding is required, or convert the entire relevant module consistently.
