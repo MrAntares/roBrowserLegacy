@@ -450,8 +450,13 @@ function add(gl, modelData) {
 		}
 	}
 
+	// Matrices wrap over several rows: a single row wider than MAX_TEXTURE_SIZE
+	// (8192 on many GPUs) is rejected and the models draw as stray polygons
 	const totalMatrices = nodes.length * numInstances;
-	const matrixData = new Float32Array(totalMatrices * 16);
+	const matricesPerRow = Math.min(totalMatrices, Math.floor(gl.getParameter(gl.MAX_TEXTURE_SIZE) / 4));
+	const matrixTexWidth = matricesPerRow * 4;
+	const matrixTexHeight = Math.ceil(totalMatrices / matricesPerRow);
+	const matrixData = new Float32Array(matrixTexWidth * matrixTexHeight * 4);
 
 	// Create float matrix texture
 	const matrixTexture = gl.createTexture();
@@ -460,8 +465,7 @@ function add(gl, modelData) {
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-	// Total pixels = totalMatrices * 4, height = 1
-	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, totalMatrices * 4, 1, 0, gl.RGBA, gl.FLOAT, matrixData);
+	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, matrixTexWidth, matrixTexHeight, 0, gl.RGBA, gl.FLOAT, matrixData);
 	gl.bindTexture(gl.TEXTURE_2D, null);
 
 	// Create Model Object
@@ -487,7 +491,8 @@ function add(gl, modelData) {
 		buffer: gl.createBuffer(),
 		matrixTexture: matrixTexture,
 		matrixData: matrixData,
-		totalMatrices: totalMatrices,
+		matrixTexWidth: matrixTexWidth,
+		matrixTexHeight: matrixTexHeight,
 		meshInfos: meshInfos,
 
 		// State
@@ -800,9 +805,19 @@ function updateModelBuffer(gl, model, frame, force) {
 		}
 	}
 
-	// 3. Upload Matrix Texture to GPU (1 row of width totalMatrices * 4)
+	// 3. Upload Matrix Texture to GPU
 	gl.bindTexture(gl.TEXTURE_2D, model.matrixTexture);
-	gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, model.totalMatrices * 4, 1, gl.RGBA, gl.FLOAT, matrixData);
+	gl.texSubImage2D(
+		gl.TEXTURE_2D,
+		0,
+		0,
+		0,
+		model.matrixTexWidth,
+		model.matrixTexHeight,
+		gl.RGBA,
+		gl.FLOAT,
+		matrixData
+	);
 	gl.bindTexture(gl.TEXTURE_2D, null);
 }
 
