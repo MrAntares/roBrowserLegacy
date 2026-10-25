@@ -157,7 +157,7 @@ Read these documents on demand when a task touches the behavior or workflow they
 - **Behavior references** (`docs/reference/`):
     - **README.md**: Index of focused notes explaining non-obvious behavior established by comparison with the original Windows client
     - **guild/**: Guild window tabs, dialogs, member data, emblems, and related packets
-    - **chat/**: Parsing and display of received chat lines
+    - **chat/**: Parsing and display of received chat lines; chat tabs (click, rename, filters of a new tab, All on)
     - **renderer/**: Entity rendering behavior, including mounted body palettes
     - **pet/**: Pet name display in chat
     - Read applicable notes before changing behavior they cover; they document observed behavior and intentional deviations, not a replacement for the code

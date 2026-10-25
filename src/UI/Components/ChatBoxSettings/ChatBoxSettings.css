@@ -144,4 +144,13 @@
 	margin-top: 5px;
 	width: 231px;
 	float: right;
+	cursor: pointer;
+}
+#ChatBoxSettings .footer-opt .allon {
+	width: 10px;
+	height: 12px;
+	border: none;
+	background-color: transparent;
+	background-repeat: no-repeat;
+	vertical-align: middle;
 }

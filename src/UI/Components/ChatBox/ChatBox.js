@@ -372,15 +372,42 @@ ChatBox.init = function init() {
 		input.addEventListener('dragover', stopPropagation);
 	});
 
-	// Button change name (tab inputs)
-	root.querySelectorAll('.header input').forEach(input => {
-		input.addEventListener('dblclick', function () {
-			this.type = 'text';
-			this.select();
-		});
-		input.addEventListener('blur', function () {
-			this.type = 'button';
-		});
+	// Double-click renames a tab: Enter keeps the new name, anything else drops it
+	// See docs/reference/chat/tabs.md
+	const header = root.querySelector('table.header');
+	header.addEventListener('dblclick', event => {
+		const tab = event.target.closest('table.header tr td.tab');
+		const input = tab && tab.querySelector('input');
+		if (input) {
+			input.readOnly = false;
+			input.focus();
+			input.select();
+		}
+	});
+	header.addEventListener('keydown', event => {
+		const input = event.target.closest('table.header tr td.tab input');
+		if (!input || input.readOnly) {
+			return;
+		}
+		if (event.key === 'Enter') {
+			event.stopPropagation();
+			const name = input.value.trim();
+			if (name) {
+				ChatBox.tabs[input.closest('td.tab').dataset.tab].name = name;
+				input.blur();
+			}
+		} else if (event.key === 'Escape') {
+			event.stopPropagation();
+			input.blur();
+		}
+	});
+	header.addEventListener('focusout', event => {
+		const input = event.target.closest('table.header tr td.tab input');
+		if (input) {
+			input.readOnly = true;
+			input.value = ChatBox.tabs[input.closest('td.tab').dataset.tab].name;
+			ChatBoxSettings.updateTab(ChatBox.activeTab, input.value);
+		}
 	});
 
 	// Private message selection
@@ -510,6 +537,19 @@ ChatBox.init = function init() {
 			event => {
 				if (event.target.closest('table.header tr td.tab')) {
 					event.stopPropagation();
+
+					// A click only switches tab: the name is not focused until a double-click
+					// (a click inside the name being edited only moves the caret)
+					const input = event.target.closest('td.tab input');
+					if (!input || input.readOnly) {
+						event.preventDefault();
+
+						// and it drops a rename in progress
+						const editing = root.querySelector('table.header tr td.tab input:not([readonly])');
+						if (editing) {
+							editing.blur();
+						}
+					}
 				}
 			},
 			true
@@ -576,7 +616,8 @@ ChatBox.init = function init() {
 	if (battleopt2) {
 		battleopt2.addEventListener('click', () => {
 			if (ChatBox.tabCount <= 5) {
-				ChatBox.addNewTab();
+				// As in the client, a tab the player adds starts with every filter off
+				ChatBox.addNewTab(undefined, []);
 				ChatBox.onAppend();
 			}
 		});
@@ -791,18 +832,11 @@ ChatBox.addNewTab = function addNewTab(name, settings) {
 			`
 			<td class="tab" data-tab="${tabID}">
 				<div class="on">
-					<input type="text" value="${tabName}"/>
+					<input type="text" value="${ChatBox.escapeHTML(tabName)}" readonly/>
 				</div>
 			</td>
 		`
 		);
-	}
-
-	const newTabInput = root.querySelector(`table.header tr td.tab[data-tab="${tabID}"] div input`);
-	if (newTabInput) {
-		newTabInput.addEventListener('change', function () {
-			ChatBox.tabs[tabID].name = this.value;
-		});
 	}
 
 	const contentWrapper = root.querySelector('.body .contentwrapper');
@@ -886,9 +920,6 @@ ChatBox.onRemove = function OnRemove() {
 	_preferences.activeTab = this.activeTab;
 
 	_preferences.save();
-
-	this.lastTabID = -1;
-	this.activeTab = 0;
 };
 
 /**
@@ -919,13 +950,6 @@ ChatBox.onKeyDown = function OnKeyDown(event) {
 	const root = _root();
 	const messageBox = root.querySelector('.input-chatbox');
 	const nickBox = root.querySelector('.input .username');
-
-	const onInput = root.querySelector('.header tr td div.on input');
-	if (onInput) {
-		onInput.addEventListener('keyup', function () {
-			ChatBoxSettings.updateTab(ChatBox.activeTab, this.value);
-		});
-	}
 
 	const activeElement = KEYS.getDeepActiveElement();
 	const isChatInputFocused = activeElement === messageBox || activeElement === nickBox;
@@ -1598,9 +1622,10 @@ ChatBox.saveCurrentTabChat = function saveCurrentTabChat() {
 	data += '</body></html>';
 
 	const url = window.URL.createObjectURL(new Blob([data], { type: 'text/plain' }));
+	const name = ChatBox.escapeHTML(ChatBox.tabs[ChatBox.activeTab].name);
 
 	ChatBox.addText(
-		`Chat History [${ChatBox.tabs[ChatBox.activeTab].name}] ${date} can be saved by <a style="color:#F88" download="ChatHistory [${ChatBox.tabs[ChatBox.activeTab].name}] (${date.replace('/', '-')}).html" href="${url}" target="_blank">clicking here</a>.`,
+		`Chat History [${name}] ${date} can be saved by <a style="color:#F88" download="ChatHistory [${name}] (${date.replace('/', '-')}).html" href="${url}" target="_blank">clicking here</a>.`,
 		ChatBox.TYPE.PUBLIC,
 		ChatBox.FILTER.PUBLIC_LOG,
 		null,

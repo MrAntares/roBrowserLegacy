@@ -78,8 +78,46 @@ ChatBoxSettings.init = function init() {
 		});
 	}
 
+	// "All on" turns every filter of the tab on, or every one off when they all are
+	const allOn = root.querySelector('.footer-opt');
+	if (allOn) {
+		allOn.addEventListener('click', () => {
+			ChatBoxSettings.tabOption[ChatBoxSettings.activeTab] = isAllOn() ? [] : filterIds();
+			ChatBoxSettings.updateTab(ChatBoxSettings.activeTab, root.querySelector('.tabname').textContent);
+		});
+	}
+
 	this.draggable('.titlebar');
 };
+
+/**
+ * @returns {Array<number>} the id of every filter in the list
+ */
+function filterIds() {
+	const buttons = ChatBoxSettings.getRoot().querySelectorAll('.listoption button');
+	return Array.from(buttons, btn => parseInt(btn.getAttribute('data-id'), 10));
+}
+
+/**
+ * @returns {boolean} every filter of the active tab is on
+ */
+function isAllOn() {
+	const optList = ChatBoxSettings.tabOption[ChatBoxSettings.activeTab] || [];
+	return filterIds().every(id => optList.includes(id));
+}
+
+/**
+ * Tick the "All on" box when every filter of the active tab is on
+ */
+function updateAllOn() {
+	const box = ChatBoxSettings.getRoot().querySelector('.footer-opt .allon');
+	if (!box) {
+		return;
+	}
+	Client.loadFile(`${DB.INTERFACE_PATH}checkbox_${isAllOn() ? 1 : 0}.bmp`, data => {
+		box.style.backgroundImage = `url(${data})`;
+	});
+}
 
 /**
  * Once in HTML
@@ -127,6 +165,8 @@ function onClickOption(btn) {
 			ChatBoxSettings.tabOption[ChatBoxSettings.activeTab].push(dataId);
 		}
 	}
+
+	updateAllOn();
 }
 
 /**
@@ -193,6 +233,8 @@ ChatBoxSettings.updateTab = function updateTab(tabID, tabName) {
 			btn.classList.add('on');
 		}
 	});
+
+	updateAllOn();
 };
 
 /**
