@@ -222744,14 +222744,38 @@ var init_ChatBox$1 = __esmMin((() => {
 // src/UI/Components/ChatBoxSettings/ChatBoxSettings.html?raw
 var ChatBoxSettings_default$2;
 var init_ChatBoxSettings$2 = __esmMin((() => {
-	ChatBoxSettings_default$2 = "<div id=\"ChatBoxSettings\">\r\n	<div class=\"titlebar\" data-background=\"basic_interface/titlebar_mid.bmp\">\r\n		<div class=\"left\">\r\n			<button\r\n				class=\"base\"\r\n				data-background=\"basic_interface/sys_base_off.bmp\"\r\n				data-hover=\"basic_interface/sys_base_on.bmp\"\r\n			></button>\r\n			<span class=\"title\"><span class=\"tabname\"></span> message log settings</span>\r\n		</div>\r\n		<div class=\"right\">\r\n			<button\r\n				class=\"base close\"\r\n				data-background=\"basic_interface/sys_close_off.bmp\"\r\n				data-hover=\"basic_interface/sys_close_on.bmp\"\r\n			></button>\r\n		</div>\r\n		<div class=\"clear\"></div>\r\n	</div>\r\n	<div class=\"panel\" data-background=\"basic_interface/chatwin1_mid.bmp\">\r\n		<div class=\"content resize\">\r\n			<div class=\"listoption\">\r\n				<button data-id=\"0\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"1291\">\r\n					Public Log\r\n				</button>\r\n				<button data-id=\"1\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"1277\">\r\n					Public Chat\r\n				</button>\r\n				<button data-id=\"2\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"1278\">Whisper</button>\r\n				<button data-id=\"3\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"1279\">Party</button>\r\n				<button data-id=\"4\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"1280\">Guild</button>\r\n				<button data-id=\"5\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"1281\">Item</button>\r\n				<button data-id=\"6\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"1282\">\r\n					Equipment on/off\r\n				</button>\r\n				<button data-id=\"7\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"1283\">\r\n					Abnormal Status\r\n				</button>\r\n				<button data-id=\"8\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"1284\">\r\n					Party Item\r\n				</button>\r\n				<button data-id=\"9\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"1285\">\r\n					Party Status\r\n				</button>\r\n				<button data-id=\"10\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"1286\">\r\n					Skill Fail\r\n				</button>\r\n				<button data-id=\"11\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"1287\">\r\n					Party Setup\r\n				</button>\r\n				<button data-id=\"12\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"1288\">\r\n					Equip Damage\r\n				</button>\r\n				<button data-id=\"13\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"1289\">WOE</button>\r\n				<button data-id=\"14\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"1549\">\r\n					Party Search\r\n				</button>\r\n				<button data-id=\"15\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"1618\">Battle</button>\r\n				<button data-id=\"16\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"1619\">\r\n					Party Battle\r\n				</button>\r\n				<button data-id=\"17\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"1620\">EXP</button>\r\n				<button data-id=\"18\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"1621\">\r\n					Party EXP\r\n				</button>\r\n				<button data-id=\"19\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"1622\">Quest</button>\r\n				<button data-id=\"20\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"1623\">\r\n					Battlefield\r\n				</button>\r\n				<button data-id=\"21\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"2365\">Clan</button>\r\n				<!--<button data-id=\"22\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"\">Call</button>-->\r\n			</div>\r\n			<div class=\"clear\"></div>\r\n			<div class=\"footer-opt\">All on</div>\r\n		</div>\r\n	</div>\r\n	<button class=\"extend\"></button>\r\n</div>\r\n";
+	ChatBoxSettings_default$2 = "<div id=\"ChatBoxSettings\">\r\n	<div class=\"titlebar\" data-background=\"basic_interface/titlebar_mid.bmp\">\r\n		<div class=\"left\">\r\n			<button\r\n				class=\"base\"\r\n				data-background=\"basic_interface/sys_base_off.bmp\"\r\n				data-hover=\"basic_interface/sys_base_on.bmp\"\r\n			></button>\r\n			<span class=\"title\"><span class=\"tabname\"></span> message log settings</span>\r\n		</div>\r\n		<div class=\"right\">\r\n			<button\r\n				class=\"base close\"\r\n				data-background=\"basic_interface/sys_close_off.bmp\"\r\n				data-hover=\"basic_interface/sys_close_on.bmp\"\r\n			></button>\r\n		</div>\r\n		<div class=\"clear\"></div>\r\n	</div>\r\n	<div class=\"panel\" data-background=\"basic_interface/chatwin1_mid.bmp\">\r\n		<div class=\"content resize\">\r\n			<div class=\"listoption\">\r\n				<button data-id=\"0\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"1291\">\r\n					Public Log\r\n				</button>\r\n				<button data-id=\"1\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"1277\">\r\n					Public Chat\r\n				</button>\r\n				<button data-id=\"2\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"1278\">Whisper</button>\r\n				<button data-id=\"3\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"1279\">Party</button>\r\n				<button data-id=\"4\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"1280\">Guild</button>\r\n				<button data-id=\"5\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"1281\">Item</button>\r\n				<button data-id=\"6\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"1282\">\r\n					Equipment on/off\r\n				</button>\r\n				<button data-id=\"7\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"1283\">\r\n					Abnormal Status\r\n				</button>\r\n				<button data-id=\"8\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"1284\">\r\n					Party Item\r\n				</button>\r\n				<button data-id=\"9\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"1285\">\r\n					Party Status\r\n				</button>\r\n				<button data-id=\"10\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"1286\">\r\n					Skill Fail\r\n				</button>\r\n				<button data-id=\"11\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"1287\">\r\n					Party Setup\r\n				</button>\r\n				<button data-id=\"12\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"1288\">\r\n					Equip Damage\r\n				</button>\r\n				<button data-id=\"13\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"1289\">WOE</button>\r\n				<button data-id=\"14\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"1549\">\r\n					Party Search\r\n				</button>\r\n				<button data-id=\"15\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"1618\">Battle</button>\r\n				<button data-id=\"16\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"1619\">\r\n					Party Battle\r\n				</button>\r\n				<button data-id=\"17\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"1620\">EXP</button>\r\n				<button data-id=\"18\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"1621\">\r\n					Party EXP\r\n				</button>\r\n				<button data-id=\"19\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"1622\">Quest</button>\r\n				<button data-id=\"20\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"1623\">\r\n					Battlefield\r\n				</button>\r\n				<button data-id=\"21\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"2365\">Clan</button>\r\n				<!--<button data-id=\"22\" data-background=\"basic_interface/grp_offline.bmp\" data-text=\"\">Call</button>-->\r\n			</div>\r\n			<div class=\"clear\"></div>\r\n			<div class=\"footer-opt\">\r\n				<button class=\"allon\" data-background=\"checkbox_0.bmp\" data-preload=\"checkbox_1.bmp\"></button>\r\n				All on\r\n			</div>\r\n		</div>\r\n	</div>\r\n	<button class=\"extend\"></button>\r\n</div>\r\n";
 }));
 // src/UI/Components/ChatBoxSettings/ChatBoxSettings.css?raw
 var ChatBoxSettings_default$1;
 var init_ChatBoxSettings$1 = __esmMin((() => {
-	ChatBoxSettings_default$1 = ":host {\r\n	width: 255px;\r\n	height: 232px;\r\n	top: 50%;\r\n	left: 50%;\r\n}\r\n\r\n#ChatBoxSettings {\r\n	position: absolute;\r\n	width: 255px;\r\n	height: auto;\r\n}\r\n\r\n#ChatBoxSettings table {\r\n	border-spacing: 0px;\r\n	display: inline-block;\r\n}\r\n\r\n#ChatBoxSettings .titlebar {\r\n	width: 100%;\r\n	height: 17px;\r\n	background-color: white;\r\n	background-repeat: repeat-x;\r\n	border-radius: 4px 4px 0px 0px;\r\n}\r\n#ChatBoxSettings .titlebar .base {\r\n	width: 11px;\r\n	height: 11px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	vertical-align: middle;\r\n}\r\n#ChatBoxSettings .titlebar .text {\r\n	text-shadow: 1px 1px white;\r\n	vertical-align: -2px;\r\n	display: inline-block;\r\n	height: 13px;\r\n	font-size: 11px;\r\n	font-weight: bold;\r\n}\r\n\r\n#ChatBoxSettings .titlebar .left {\r\n	margin-left: 3px;\r\n	float: left;\r\n}\r\n#ChatBoxSettings .titlebar .right {\r\n	float: right;\r\n	margin-right: 3px;\r\n}\r\n#ChatBoxSettings .titlebar .clear {\r\n	clear: both;\r\n}\r\n\r\n#ChatBoxSettings .panel {\r\n	background-color: white;\r\n}\r\n#ChatBoxSettings .content {\r\n	height: 197px;\r\n}\r\n#ChatBoxSettings .content .clear {\r\n	clear: both;\r\n}\r\n\r\n#ChatBoxSettings .content .members {\r\n	width: 26%;\r\n	height: 120px;\r\n	float: left;\r\n	overflow-y: auto;\r\n	overflow-x: hidden;\r\n	padding-top: 5px;\r\n	padding-left: 3px;\r\n}\r\n#ChatBoxSettings .content .owner {\r\n	color: #36716d;\r\n}\r\n\r\n#ChatBoxSettings .send {\r\n	height: 30px;\r\n	position: relative;\r\n	padding-left: 5px;\r\n}\r\n#ChatBoxSettings .send input {\r\n	width: 100%;\r\n	height: 20px;\r\n	padding: 0px;\r\n	border: none;\r\n	border-top: 1px solid #ccc;\r\n}\r\n\r\n#ChatBoxSettings .overlay {\r\n	position: absolute;\r\n	display: none;\r\n	white-space: nowrap;\r\n	z-index: 900;\r\n	height: 13px;\r\n	padding: 5px;\r\n	background: rgba(0, 0, 0, 0.7);\r\n	color: white;\r\n	text-shadow: 1px 1px black;\r\n}\r\n#ChatBoxSettings .overlay.grey {\r\n	color: #aaa;\r\n}\r\n\r\n#ChatBoxSettings .extend {\r\n	width: 13px;\r\n	height: 13px;\r\n	border: none;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	position: absolute;\r\n	bottom: 0px;\r\n	right: 0px;\r\n}\r\n#ChatBoxSettings .listoption {\r\n	width: 231px;\r\n	float: right;\r\n	background: #ffffff;\r\n	height: 166px;\r\n	overflow-y: auto;\r\n	padding-left: 5px;\r\n	padding-bottom: 5px;\r\n	border-left: 1px solid #cfcfcf;\r\n	border-bottom: 1px solid #cfcfcf;\r\n}\r\n#ChatBoxSettings .listoption button {\r\n	width: 100%;\r\n	text-align: left;\r\n	background: #fff;\r\n	border: 0;\r\n	margin-bottom: 3px;\r\n	margin-top: 2px;\r\n	background-repeat: no-repeat;\r\n	padding-left: 19px;\r\n	height: 15px;\r\n	text-overflow: ellipsis;\r\n}\r\n#ChatBoxSettings .listoption button:hover {\r\n	border: 1px solid #000;\r\n}\r\n\r\n#ChatBoxSettings .footer-opt {\r\n	margin-top: 5px;\r\n	width: 231px;\r\n	float: right;\r\n}\r\n";
+	ChatBoxSettings_default$1 = ":host {\r\n	width: 255px;\r\n	height: 232px;\r\n	top: 50%;\r\n	left: 50%;\r\n}\r\n\r\n#ChatBoxSettings {\r\n	position: absolute;\r\n	width: 255px;\r\n	height: auto;\r\n}\r\n\r\n#ChatBoxSettings table {\r\n	border-spacing: 0px;\r\n	display: inline-block;\r\n}\r\n\r\n#ChatBoxSettings .titlebar {\r\n	width: 100%;\r\n	height: 17px;\r\n	background-color: white;\r\n	background-repeat: repeat-x;\r\n	border-radius: 4px 4px 0px 0px;\r\n}\r\n#ChatBoxSettings .titlebar .base {\r\n	width: 11px;\r\n	height: 11px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	vertical-align: middle;\r\n}\r\n#ChatBoxSettings .titlebar .text {\r\n	text-shadow: 1px 1px white;\r\n	vertical-align: -2px;\r\n	display: inline-block;\r\n	height: 13px;\r\n	font-size: 11px;\r\n	font-weight: bold;\r\n}\r\n\r\n#ChatBoxSettings .titlebar .left {\r\n	margin-left: 3px;\r\n	float: left;\r\n}\r\n#ChatBoxSettings .titlebar .right {\r\n	float: right;\r\n	margin-right: 3px;\r\n}\r\n#ChatBoxSettings .titlebar .clear {\r\n	clear: both;\r\n}\r\n\r\n#ChatBoxSettings .panel {\r\n	background-color: white;\r\n}\r\n#ChatBoxSettings .content {\r\n	height: 197px;\r\n}\r\n#ChatBoxSettings .content .clear {\r\n	clear: both;\r\n}\r\n\r\n#ChatBoxSettings .content .members {\r\n	width: 26%;\r\n	height: 120px;\r\n	float: left;\r\n	overflow-y: auto;\r\n	overflow-x: hidden;\r\n	padding-top: 5px;\r\n	padding-left: 3px;\r\n}\r\n#ChatBoxSettings .content .owner {\r\n	color: #36716d;\r\n}\r\n\r\n#ChatBoxSettings .send {\r\n	height: 30px;\r\n	position: relative;\r\n	padding-left: 5px;\r\n}\r\n#ChatBoxSettings .send input {\r\n	width: 100%;\r\n	height: 20px;\r\n	padding: 0px;\r\n	border: none;\r\n	border-top: 1px solid #ccc;\r\n}\r\n\r\n#ChatBoxSettings .overlay {\r\n	position: absolute;\r\n	display: none;\r\n	white-space: nowrap;\r\n	z-index: 900;\r\n	height: 13px;\r\n	padding: 5px;\r\n	background: rgba(0, 0, 0, 0.7);\r\n	color: white;\r\n	text-shadow: 1px 1px black;\r\n}\r\n#ChatBoxSettings .overlay.grey {\r\n	color: #aaa;\r\n}\r\n\r\n#ChatBoxSettings .extend {\r\n	width: 13px;\r\n	height: 13px;\r\n	border: none;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	position: absolute;\r\n	bottom: 0px;\r\n	right: 0px;\r\n}\r\n#ChatBoxSettings .listoption {\r\n	width: 231px;\r\n	float: right;\r\n	background: #ffffff;\r\n	height: 166px;\r\n	overflow-y: auto;\r\n	padding-left: 5px;\r\n	padding-bottom: 5px;\r\n	border-left: 1px solid #cfcfcf;\r\n	border-bottom: 1px solid #cfcfcf;\r\n}\r\n#ChatBoxSettings .listoption button {\r\n	width: 100%;\r\n	text-align: left;\r\n	background: #fff;\r\n	border: 0;\r\n	margin-bottom: 3px;\r\n	margin-top: 2px;\r\n	background-repeat: no-repeat;\r\n	padding-left: 19px;\r\n	height: 15px;\r\n	text-overflow: ellipsis;\r\n}\r\n#ChatBoxSettings .listoption button:hover {\r\n	border: 1px solid #000;\r\n}\r\n\r\n#ChatBoxSettings .footer-opt {\r\n	margin-top: 5px;\r\n	width: 231px;\r\n	float: right;\r\n	cursor: pointer;\r\n}\r\n#ChatBoxSettings .footer-opt .allon {\r\n	width: 10px;\r\n	height: 12px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	vertical-align: middle;\r\n}\r\n";
 }));
 // src/UI/Components/ChatBoxSettings/ChatBoxSettings.js
+/**
+* @returns {Array<number>} the id of every filter in the list
+*/
+function filterIds() {
+	const buttons = ChatBoxSettings.getRoot().querySelectorAll(".listoption button");
+	return Array.from(buttons, (btn) => parseInt(btn.getAttribute("data-id"), 10));
+}
+/**
+* @returns {boolean} every filter of the active tab is on
+*/
+function isAllOn() {
+	const optList = ChatBoxSettings.tabOption[ChatBoxSettings.activeTab] || [];
+	return filterIds().every((id) => optList.includes(id));
+}
+/**
+* Tick the "All on" box when every filter of the active tab is on
+*/
+function updateAllOn() {
+	const box = ChatBoxSettings.getRoot().querySelector(".footer-opt .allon");
+	if (!box) return;
+	Client.loadFile(`${DB.INTERFACE_PATH}checkbox_${isAllOn() ? 1 : 0}.bmp`, (data) => {
+		box.style.backgroundImage = `url(${data})`;
+	});
+}
 /**
 * Handle option button click
 */
@@ -222773,6 +222797,7 @@ function onClickOption(btn) {
 		if (idsIndex > -1) ChatBoxSettings.tabOption[ChatBoxSettings.activeTab].splice(idsIndex, 1);
 		else ChatBoxSettings.tabOption[ChatBoxSettings.activeTab].push(dataId);
 	}
+	updateAllOn();
 }
 /**
 * Resize ChatBoxSettings
@@ -222855,6 +222880,11 @@ var init_ChatBoxSettings = __esmMin((() => {
 			const btn = event.target.closest("button");
 			if (btn) onClickOption(btn);
 		});
+		const allOn = root.querySelector(".footer-opt");
+		if (allOn) allOn.addEventListener("click", () => {
+			ChatBoxSettings.tabOption[ChatBoxSettings.activeTab] = isAllOn() ? [] : filterIds();
+			ChatBoxSettings.updateTab(ChatBoxSettings.activeTab, root.querySelector(".tabname").textContent);
+		});
 		this.draggable(".titlebar");
 	};
 	/**
@@ -222896,6 +222926,7 @@ var init_ChatBoxSettings = __esmMin((() => {
 				btn.classList.add("on");
 			}
 		});
+		updateAllOn();
 	};
 	ChatBoxSettings.onRemove = function onRemove() {
 		_preferences$42.y = parseInt(this._host.style.top, 10) || 0;
@@ -223413,14 +223444,38 @@ var init_ChatBox = __esmMin((() => {
 			input.addEventListener("drop", onDropText$2);
 			input.addEventListener("dragover", stopPropagation$12);
 		});
-		root.querySelectorAll(".header input").forEach((input) => {
-			input.addEventListener("dblclick", function() {
-				this.type = "text";
-				this.select();
-			});
-			input.addEventListener("blur", function() {
-				this.type = "button";
-			});
+		const header = root.querySelector("table.header");
+		header.addEventListener("dblclick", (event) => {
+			const tab = event.target.closest("table.header tr td.tab");
+			const input = tab && tab.querySelector("input");
+			if (input) {
+				input.readOnly = false;
+				input.focus();
+				input.select();
+			}
+		});
+		header.addEventListener("keydown", (event) => {
+			const input = event.target.closest("table.header tr td.tab input");
+			if (!input || input.readOnly) return;
+			if (event.key === "Enter") {
+				event.stopPropagation();
+				const name = input.value.trim();
+				if (name) {
+					ChatBox.tabs[input.closest("td.tab").dataset.tab].name = name;
+					input.blur();
+				}
+			} else if (event.key === "Escape") {
+				event.stopPropagation();
+				input.blur();
+			}
+		});
+		header.addEventListener("focusout", (event) => {
+			const input = event.target.closest("table.header tr td.tab input");
+			if (input) {
+				input.readOnly = true;
+				input.value = ChatBox.tabs[input.closest("td.tab").dataset.tab].name;
+				ChatBoxSettings_default.updateTab(ChatBox.activeTab, input.value);
+			}
 		});
 		const listBtn = root.querySelector(".input .list");
 		if (listBtn) {
@@ -223509,7 +223564,15 @@ var init_ChatBox = __esmMin((() => {
 				}
 			}, true);
 			root.querySelector("#chatbox").addEventListener("mousedown", (event) => {
-				if (event.target.closest("table.header tr td.tab")) event.stopPropagation();
+				if (event.target.closest("table.header tr td.tab")) {
+					event.stopPropagation();
+					const input = event.target.closest("td.tab input");
+					if (!input || input.readOnly) {
+						event.preventDefault();
+						const editing = root.querySelector("table.header tr td.tab input:not([readonly])");
+						if (editing) editing.blur();
+					}
+				}
 			}, true);
 		})();
 		const chatBody = root.querySelector(".body");
@@ -223547,7 +223610,7 @@ var init_ChatBox = __esmMin((() => {
 		const battleopt2 = root.querySelector(".chat-function .battleopt2");
 		if (battleopt2) battleopt2.addEventListener("click", () => {
 			if (ChatBox.tabCount <= 5) {
-				ChatBox.addNewTab();
+				ChatBox.addNewTab(void 0, []);
 				ChatBox.onAppend();
 			}
 		});
@@ -223685,14 +223748,10 @@ var init_ChatBox = __esmMin((() => {
 		if (opttab) opttab.insertAdjacentHTML("beforebegin", `
 			<td class="tab" data-tab="${tabID}">
 				<div class="on">
-					<input type="text" value="${tabName}"/>
+					<input type="text" value="${ChatBox.escapeHTML(tabName)}" readonly/>
 				</div>
 			</td>
 		`);
-		const newTabInput = root.querySelector(`table.header tr td.tab[data-tab="${tabID}"] div input`);
-		if (newTabInput) newTabInput.addEventListener("change", function() {
-			ChatBox.tabs[tabID].name = this.value;
-		});
 		const contentWrapper = root.querySelector(".body .contentwrapper");
 		if (contentWrapper) contentWrapper.insertAdjacentHTML("beforeend", `<div class="content active" data-content="${tabID}" data-scrollbar-skin="chatbox"></div>`);
 		const newContent = root.querySelector(`.body .content[data-content="${tabID}"]`);
@@ -223747,8 +223806,6 @@ var init_ChatBox = __esmMin((() => {
 		_preferences$41.tabOption = ChatBoxSettings_default.tabOption;
 		_preferences$41.activeTab = this.activeTab;
 		_preferences$41.save();
-		this.lastTabID = -1;
-		this.activeTab = 0;
 	};
 	/**
 	* @param {number} key id to check
@@ -223766,10 +223823,6 @@ var init_ChatBox = __esmMin((() => {
 		const root = _root$19();
 		const messageBox = root.querySelector(".input-chatbox");
 		const nickBox = root.querySelector(".input .username");
-		const onInput = root.querySelector(".header tr td div.on input");
-		if (onInput) onInput.addEventListener("keyup", function() {
-			ChatBoxSettings_default.updateTab(ChatBox.activeTab, this.value);
-		});
 		const activeElement = KEYS.getDeepActiveElement();
 		const isChatInputFocused = activeElement === messageBox || activeElement === nickBox;
 		if (activeElement && !isChatInputFocused && (activeElement.tagName && activeElement.tagName.match(/input|select|textarea/i) || activeElement.isContentEditable)) return true;
@@ -224080,7 +224133,8 @@ var init_ChatBox = __esmMin((() => {
 		data += contentEl ? contentEl.outerHTML : "";
 		data += "</body></html>";
 		const url = window.URL.createObjectURL(new Blob([data], { type: "text/plain" }));
-		ChatBox.addText(`Chat History [${ChatBox.tabs[ChatBox.activeTab].name}] ${date} can be saved by <a style="color:#F88" download="ChatHistory [${ChatBox.tabs[ChatBox.activeTab].name}] (${date.replace("/", "-")}).html" href="${url}" target="_blank">clicking here</a>.`, ChatBox.TYPE.PUBLIC, ChatBox.FILTER.PUBLIC_LOG, null, true);
+		const name = ChatBox.escapeHTML(ChatBox.tabs[ChatBox.activeTab].name);
+		ChatBox.addText(`Chat History [${name}] ${date} can be saved by <a style="color:#F88" download="ChatHistory [${name}] (${date.replace("/", "-")}).html" href="${url}" target="_blank">clicking here</a>.`, ChatBox.TYPE.PUBLIC, ChatBox.FILTER.PUBLIC_LOG, null, true);
 	};
 	ChatBox.applyFontScale = function applyFontScale() {
 		const root = _root$19();
