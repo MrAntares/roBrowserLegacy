@@ -18,6 +18,7 @@ import Commands from 'Controls/ProcessCommand.js';
 import Events from 'Core/Events.js';
 import Configs from 'Core/Configs.js';
 import Cylinder from 'Renderer/Effects/Cylinder.js';
+import EffectPrim from 'Renderer/Effects/EffectPrim.js';
 import AreaSpawner from 'Renderer/Effects/AreaSpawner.js';
 import groundScatter from 'Renderer/Effects/GroundScatter.js';
 import StrEffect from 'Renderer/Effects/StrEffect.js';
@@ -552,6 +553,9 @@ class EffectManager {
 
 						if (effect.ready) {
 							effect.render(gl, tick);
+						} else if (effect.endTick > 0 && tick > effect.endTick) {
+							// Never became ready (its texture is missing): expire it anyway
+							effect.needCleanUp = true;
 						}
 					}
 
@@ -767,6 +771,10 @@ class EffectManager {
 
 			case 'CYLINDER':
 				EffectManager.add(new Cylinder(Params.effect, Params.Inst, Params.Init), Params);
+				break;
+
+			case 'PRIM':
+				EffectManager.add(new EffectPrim(Params.effect, Params.Inst, Params.Init), Params);
 				break;
 
 			case 'AREA_SPAWN':
