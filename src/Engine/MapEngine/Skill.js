@@ -139,7 +139,7 @@ function onSkillToGround(pkt) {
 	position[1] = pkt.yPos;
 	position[2] = Altitude.getCellHeight(pkt.xPos, pkt.yPos);
 
-	EffectManager.spamSkill(pkt.SKID, pkt.AID, position, null, pkt.AID);
+	EffectManager.spamSkill(pkt.SKID, pkt.AID, position, null, pkt.AID, pkt.level);
 
 	// Ground Truth / Canonical C++ (GameActorMsgHandler.cpp line 1069):
 	// Relocation skills on ground: SKID_MO_BODYRELOCATION, SKID_NJ_SHADOWJUMP, SKID_RL_FALLEN_ANGEL, SKID_SU_LOPE

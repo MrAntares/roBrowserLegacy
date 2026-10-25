@@ -39,6 +39,36 @@
  *	- successEffectIdOnCaster: 	Triggers on the caster when a skill yealds a "successful" result.
  *								Can be used for non-damaging skills that has an effect by a chance
  *
+ *	- groundEffectIdByLevel:	[file for level 1, level 2, ...]; plays one at the cell of a ground skill, picked by the
+ *								skill level (a level past the end plays the last).
+ *
+ *	- successEffectIdOnCasterByLevel, successEffectIdOnTargetByLevel:
+ *								Like successEffectIdOnCaster / successEffectId, one file per skill level.
+ *
+ *	- successEffectIdOnCasterByScreenDirection:
+ *								[12 files]; plays the one for the screen sector (30 degrees each) the target is in,
+ *								seen from the caster (Renderer/Effects/ScreenDirection.js).
+ *
+ *	- successEffectIdOnTargetByScreenSide:
+ *								{ right, left }; plays one on the target, picked by which half of the screen the
+ *								target is in, seen from the caster.
+ *
+ *	- successEffectIdOnCasterAimed:
+ *								Plays on the caster, turned on screen toward the target.
+ *
+ *	- successEffectThrowAtTarget:
+ *								Plays an `arcThrow` row thrown from the caster onto the target's spot.
+ *
+ *	- successEffectGridIds:		Files played over a shuffled n x n grid around the target, one spot per row and
+ *								column; n from successEffectGridSizeByLevel, spots successEffectGridStep ms apart.
+ *								An entry that is a list plays one of its files at random per spot.
+ *
+ *	- successEffectSpinSets:	Files played as sets of copies at the target, each copy turned on screen
+ *								(Renderer/Effects/SpinSets.js).
+ *
+ *	- damageEffectIdOnCaster, damageEffectIdOnTarget:
+ *								Play as each damage packet of the skill arrives. A nested list plays one entry at random.
+ *
  *	- hideCastBar:				When set to true hides the cast bar when casting.
  *	- hideCastAura:			When set to true hides the elemental magic circle when casting.
  *

@@ -19,12 +19,17 @@ import Events from 'Core/Events.js';
 import Configs from 'Core/Configs.js';
 import Cylinder from 'Renderer/Effects/Cylinder.js';
 import AreaSpawner from 'Renderer/Effects/AreaSpawner.js';
+import groundScatter from 'Renderer/Effects/GroundScatter.js';
 import StrEffect from 'Renderer/Effects/StrEffect.js';
+import BezierArcThrowStrEffect from 'Renderer/Effects/BezierArcThrow.js';
 import RsmEffect from 'Renderer/Effects/RsmEffect.js';
 import TwoDEffect from 'Renderer/Effects/TwoDEffect.js';
 import ThreeDEffect from 'Renderer/Effects/ThreeDEffect.js';
 import Entity from 'Renderer/Entity/Entity.js';
 import EntityManager from 'Renderer/EntityManager.js';
+import { screenAngle, screenSector, screenSide } from 'Renderer/Effects/ScreenDirection.js';
+import shuffledGrid from 'Renderer/Effects/ShuffledGrid.js';
+import spinSets, { SPIN_SLOT } from 'Renderer/Effects/SpinSets.js';
 import Renderer from 'Renderer/Renderer.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Sound from 'Audio/SoundManager.js';
@@ -115,13 +120,23 @@ function spamSTR(Params) {
 		fallbacks.unshift({ filename: 'data/texture/effect/' + pick(Params.effect.file) + '.str', texturePath });
 	}
 
-	const str = new StrEffect(
-		'data/texture/effect/' + filename + '.str',
-		Params.Inst.position,
-		Params.Inst.startTick,
-		texturePath,
-		fallbacks
-	);
+	// Thrown from the owner onto the position (Thundering Orb's orb)
+	const str = Params.effect.arcThrow
+		? new BezierArcThrowStrEffect(
+				'data/texture/effect/' + filename + '.str',
+				Params.Inst.position,
+				Params.Inst.startTick,
+				texturePath,
+				fallbacks,
+				Params.Init.ownerEntity
+			)
+		: new StrEffect(
+				'data/texture/effect/' + filename + '.str',
+				Params.Inst.position,
+				Params.Inst.startTick,
+				texturePath,
+				fallbacks
+			);
 
 	// A row from the client's EZ2 table carries its PosX/PosY: placed as the
 	// client places those effects (StrEffect.layout).
@@ -670,6 +685,13 @@ class EffectManager {
 			? Params.Inst.position
 			: [Params.Inst.position[0], Params.Inst.position[1], Params.Inst.position[2]];
 
+		// Some world-placed copies land at a random spot around the position (official units).
+		if (Params.effect.groundScatter && !Params.effect.attachedEntity) {
+			const [dx, dy] = groundScatter(Params.effect.groundScatter);
+			Params.Inst.position[0] += dx;
+			Params.Inst.position[1] += dy;
+		}
+
 		// Repeat
 		Params.Inst.persistent = Params.Init.persistent || false;
 
@@ -721,9 +743,14 @@ class EffectManager {
 			: 0;
 
 		//Start and End
+		// delayStart may be worked out per cast (from the caster's motion, say)
+		const delayStart =
+			typeof Params.effect.delayStart === 'function'
+				? Params.effect.delayStart(Params)
+				: Params.effect.delayStart;
 		Params.Inst.startTick =
 			Params.Inst.startTick +
-			(Params.Inst.noDelay ? Params.Inst.delayOffset + Params.Inst.delayLate : Params.effect.delayStart || 0);
+			(Params.Inst.noDelay ? Params.Inst.delayOffset + Params.Inst.delayLate : delayStart || 0);
 		Params.Inst.endTick =
 			Params.Inst.duration > 0
 				? Params.Inst.startTick + (Params.Inst.noDelay ? Params.Inst.delayOffset : 0) + Params.Inst.duration
@@ -899,8 +926,10 @@ class EffectManager {
 	 * @param {number} target aid
 	 * @param {Array} position
 	 * @param {number} tick
+	 * @param {number} srcAID caster aid
+	 * @param {number} [level] skill level from the ground packet
 	 */
-	static spamSkill(skillId, destAID, position, tick, srcAID) {
+	static spamSkill(skillId, destAID, position, tick, srcAID, level) {
 		let effects, EF_Init_Par;
 		if (!(skillId in SkillEffect)) {
 			return;
@@ -922,6 +951,24 @@ class EffectManager {
 
 				EffectManager.spam(EF_Init_Par);
 			});
+		}
+
+		// One file at the cell, picked by skill level (index level - 1; a level
+		// past the end plays the last). Only from the ground packet, which
+		// carries the cell and the level. Typhoon Wing's size.
+		const groundByLevel = SkillEffect[skillId].groundEffectIdByLevel;
+		if (groundByLevel && groundByLevel.length && position && level > 0) {
+			const effectId = groundByLevel[Math.min(level, groundByLevel.length) - 1];
+			if (effectId) {
+				EffectManager.spam({
+					effectId: effectId,
+					ownerAID: destAID,
+					position: position,
+					startTick: tick,
+					otherAID: srcAID,
+					skillLevel: level
+				});
+			}
 		}
 
 		if (SkillEffect[skillId].effectIdOnCaster && srcAID) {
@@ -949,8 +996,10 @@ class EffectManager {
 	 * @param {number} skill id
 	 * @param {number} target aid
 	 * @param {number} tick
+	 * @param {number} srcAID caster aid
+	 * @param {number} [level] skill level from the packet
 	 */
-	static spamSkillSuccess(skillId, destAID, tick, srcAID) {
+	static spamSkillSuccess(skillId, destAID, tick, srcAID, level) {
 		let effects, EF_Init_Par;
 		if (!(skillId in SkillEffect)) {
 			return;
@@ -973,6 +1022,37 @@ class EffectManager {
 			});
 		}
 
+		// One file on the caster, picked by skill level (index level - 1; a
+		// level past the end plays the last). Grenade Fragment's element.
+		const byLevel = SkillEffect[skillId].successEffectIdOnCasterByLevel;
+		if (byLevel && byLevel.length && level > 0) {
+			const effectId = byLevel[Math.min(level, byLevel.length) - 1];
+			if (effectId) {
+				EffectManager.spam({
+					effectId: effectId,
+					ownerAID: srcAID,
+					startTick: tick,
+					otherAID: destAID,
+					skillLevel: level
+				});
+			}
+		}
+
+		// The same pick on the target, following it. Thundering Call's size.
+		const byLevelOnTarget = SkillEffect[skillId].successEffectIdOnTargetByLevel;
+		if (byLevelOnTarget && byLevelOnTarget.length && level > 0 && destAID) {
+			const effectId = byLevelOnTarget[Math.min(level, byLevelOnTarget.length) - 1];
+			if (effectId) {
+				EffectManager.spam({
+					effectId: effectId,
+					ownerAID: destAID,
+					startTick: tick,
+					otherAID: srcAID,
+					skillLevel: level
+				});
+			}
+		}
+
 		if (SkillEffect[skillId].successEffectIdOnCaster) {
 			effects = Array.isArray(SkillEffect[skillId].successEffectIdOnCaster)
 				? SkillEffect[skillId].successEffectIdOnCaster
@@ -989,6 +1069,168 @@ class EffectManager {
 				EffectManager.spam(EF_Init_Par);
 			});
 		}
+
+		// One of 12 files on the caster, picked by which way the target lies on screen
+		// (ScreenDirection.screenSector). Chul Ho Sonic Claw's waves.
+		const byDirection = SkillEffect[skillId].successEffectIdOnCasterByScreenDirection;
+		if (byDirection && srcAID && destAID) {
+			const srcEntity = EntityManager.get(srcAID);
+			const destEntity = EntityManager.get(destAID);
+			if (srcEntity && destEntity) {
+				const angle = screenAngle(srcEntity.position, destEntity.position);
+				const effectId = byDirection[screenSector(angle)];
+				if (effectId) {
+					EffectManager.spam({
+						effectId: effectId,
+						ownerAID: srcAID,
+						startTick: tick,
+						otherAID: destAID
+					});
+				}
+			}
+		}
+
+		// One effect on the caster, turned on screen toward the target once, at
+		// the start (screenTurn = ScreenDirection.screenAngle). Needs a target.
+		// Quill Spear.
+		const aimed = SkillEffect[skillId].successEffectIdOnCasterAimed;
+		if (aimed && srcAID && destAID) {
+			const srcEntity = EntityManager.get(srcAID);
+			const destEntity = EntityManager.get(destAID);
+			if (srcEntity && destEntity) {
+				EffectManager.spam({
+					effectId: aimed,
+					ownerAID: srcAID,
+					startTick: tick,
+					otherAID: destAID,
+					screenTurn: screenAngle(srcEntity.position, destEntity.position)
+				});
+			}
+		}
+
+		// Thrown from the caster onto the target's spot (BezierArcThrow rows).
+		// Wind Bomb's tornado.
+		const thrown = SkillEffect[skillId].successEffectThrowAtTarget;
+		if (thrown && srcAID && destAID) {
+			const destEntity = EntityManager.get(destAID);
+			if (destEntity && EntityManager.get(srcAID)) {
+				EffectManager.spam({
+					effectId: thrown,
+					ownerAID: srcAID,
+					position: destEntity.position.slice(),
+					startTick: tick,
+					otherAID: destAID
+				});
+			}
+		}
+
+		// One effect where the target stands (its rows are not attached, so it stays
+		// put), picked by which half of the screen the target is in, seen from the
+		// caster (ScreenDirection.screenSide). Radiant Spear's leftdown/rightdown spear.
+		const bySide = SkillEffect[skillId].successEffectIdOnTargetByScreenSide;
+		if (bySide && srcAID && destAID) {
+			const srcEntity = EntityManager.get(srcAID);
+			const destEntity = EntityManager.get(destAID);
+			if (srcEntity && destEntity) {
+				const effectId = bySide[screenSide(screenAngle(srcEntity.position, destEntity.position))];
+				if (effectId) {
+					EffectManager.spam({
+						effectId: effectId,
+						ownerAID: destAID,
+						startTick: tick,
+						otherAID: srcAID
+					});
+				}
+			}
+		}
+
+		// Copies spread over a grid around the target, one per row and column,
+		// placed once on the ground and started a step apart. The grid size
+		// comes from the skill level (a level past the end uses the last size).
+		// An entry that is a list plays one of its files at random per spot.
+		// Hell's Drive's blasts.
+		const gridIds = SkillEffect[skillId].successEffectGridIds;
+		const gridSizes = SkillEffect[skillId].successEffectGridSizeByLevel;
+		const center = gridIds && level > 0 ? EntityManager.get(destAID) || EntityManager.get(srcAID) : null;
+		if (center && gridSizes && gridSizes.length) {
+			const size = gridSizes[Math.min(level, gridSizes.length) - 1];
+			const step = SkillEffect[skillId].successEffectGridStep || 0;
+			const start = tick || Renderer.tick;
+			const [x, y, z] = center.position;
+			shuffledGrid(size).forEach(([dx, dy], k) => {
+				gridIds.forEach(entry => {
+					// .at() rather than [i]: CodeQL takes a random index into a list for a
+					// security value (js/insecure-randomness). This only picks which effect plays.
+					const effectId = Array.isArray(entry) ? entry.at(Math.floor(Math.random() * entry.length)) : entry;
+					EffectManager.spam({
+						effectId: effectId,
+						ownerAID: destAID,
+						position: [x + dx, y + dy, z],
+						startTick: start + step * k,
+						otherAID: srcAID,
+						skillLevel: level
+					});
+				});
+			});
+		}
+
+		// Sets of copies at the target, one set per file, each copy turned on
+		// screen and started in its own 32 ms slot (SpinSets.js). Placed once on
+		// the ground. Kunai - Nightmare's blades.
+		const spinIds = SkillEffect[skillId].successEffectSpinSets;
+		const spinAt = spinIds ? EntityManager.get(destAID) || EntityManager.get(srcAID) : null;
+		if (spinAt) {
+			const start = tick || Renderer.tick;
+			const [x, y, z] = spinAt.position;
+			spinSets(spinIds.length).forEach(({ set, turn, slot }) => {
+				EffectManager.spam({
+					effectId: spinIds[set],
+					ownerAID: destAID,
+					position: [x, y, z],
+					startTick: start + SPIN_SLOT * slot,
+					otherAID: srcAID,
+					screenTurn: turn
+				});
+			});
+		}
+	}
+
+	/**
+	 * Spam skill effects as a damage packet arrives, before the hit lands
+	 * (damageEffectIdOnCaster, damageEffectIdOnTarget). Every damage packet
+	 * counts, splash and misses included.
+	 *
+	 * @param {number} skillId skill id
+	 * @param {number} destAID target aid
+	 * @param {number} tick
+	 * @param {number} srcAID caster aid
+	 * @param {function} [random] returns a number in [0, 1)
+	 */
+	static spamSkillDamage(skillId, destAID, tick, srcAID, random = Math.random) {
+		const skill = SkillEffect[skillId];
+		if (!skill) {
+			return;
+		}
+
+		const play = (field, ownerAID, otherAID) => {
+			if (!skill[field] || !ownerAID) {
+				return;
+			}
+			(Array.isArray(skill[field]) ? skill[field] : [skill[field]]).forEach(entry => {
+				// A list plays one of its effects, picked at random (Demolition's two strikes).
+				// .at() as in spamSkill: an effect id is not a security value.
+				const effectId = Array.isArray(entry) ? entry.at(Math.floor(random() * entry.length)) : entry;
+				EffectManager.spam({
+					effectId: effectId,
+					ownerAID: ownerAID,
+					startTick: tick,
+					otherAID: otherAID
+				});
+			});
+		};
+
+		play('damageEffectIdOnCaster', srcAID, destAID);
+		play('damageEffectIdOnTarget', destAID, srcAID);
 	}
 
 	/**
