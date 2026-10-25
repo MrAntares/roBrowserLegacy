@@ -19,14 +19,12 @@ UI uses `GUIComponent` (Shadow DOM) + Custom Elements. No legacy `data-*` UI pat
 - `onRemove()` — runs EVERY `remove()`; save prefs, cleanup.
 - `onKeyDown` — if present, auto-bound on `append` / unbound on `remove`.
 - `onResize()`, `onRestore()` — called when defined.
-- `show()`, `hide()` — runtime show and hide UI
-
 
 #### Register, mount & test
 
 - `export default UIManager.addComponent(Component);`
 - Add on specified *Engine: `Component.append()`. Remove: `Component.remove()`.
-- Keyboard shortcut: add in `src/Controls/ProcessCommand.js` only if needed.
+- Add `show()`, `hide()` — runtime show and hide UI in specified buttons or add in `src/Controls/ProcessCommand.js` only if needed.
 - Files: `src/UI/Components/Name/Name.{js,html,css}` (additional reference: [`docs/Scrollbar.md`](../../docs/Scrollbar.md)).
 - Add or update tests in `tests/ui/` and verify the relevant UI/version lifecycle.
 
