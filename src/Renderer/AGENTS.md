@@ -51,38 +51,40 @@ Instructions for working on the WebGL renderer, Entity composition system (`src/
 
 ---
 
-### Renderer entity modules — `src/Renderer/Entity/` 
+### Renderer entity modules — `src/Renderer/Entity/`
 
-**Composition:** 
-- `Entity.js` composes `Controls/EntityControl.js` with 16 behavior mixins. 
-- `Player.js` specializes the player entity. 
- 
-**Behavior mixins:** 
-- `EntityAction` 
-- `EntityAnimations` 
-- `EntityAttachments` 
-- `EntityAura` 
-- `EntityCast` 
-- `EntityDialog` 
-- `EntityDisplay` 
-- `EntityDropEffect` 
-- `EntityEmblem` 
-- `EntityLife` 
-- `EntityRender` 
-- `EntityRoom` 
-- `EntitySound` 
-- `EntityState` 
-- `EntityView` 
-- `EntityWalk` 
- 
-**Sprite composition and lifecycle:** 
- 
-`EntityRender` delegates layered player-sprite capture and composition to `EntityComposer`. The composer caches the combined texture for `SpriteBatch` rendering. 
- 
-- `EntityManager` releases cached composites when entities are removed and after batch rendering. 
-- `Renderer` resets composites after WebGL context loss. 
- 
-Preserve these ownership and cleanup paths when changing entity rendering, caching, or WebGL resource lifecycle behavior. 
+**Composition:**
+
+- `Entity.js` composes `Controls/EntityControl.js` with 16 behavior mixins.
+- `Player.js` specializes the player entity.
+
+**Behavior mixins:**
+
+- `EntityAction`
+- `EntityAnimations`
+- `EntityAttachments`
+- `EntityAura`
+- `EntityCast`
+- `EntityDialog`
+- `EntityDisplay`
+- `EntityDropEffect`
+- `EntityEmblem`
+- `EntityLife`
+- `EntityRender`
+- `EntityRoom`
+- `EntitySound`
+- `EntityState`
+- `EntityView`
+- `EntityWalk`
+
+**Sprite composition and lifecycle:**
+
+`EntityRender` delegates layered player-sprite capture and composition to `EntityComposer`. The composer caches the combined texture for `SpriteBatch` rendering.
+
+- `EntityManager` releases cached composites when entities are removed and after batch rendering.
+- `Renderer` resets composites after WebGL context loss.
+
+Preserve these ownership and cleanup paths when changing entity rendering, caching, or WebGL resource lifecycle behavior.
 
 ## Core Renderer & Entity Invariants
 

@@ -44,21 +44,20 @@ For architecture, conventions, and subsystem details, see [AGENTS.md](AGENTS.md)
 
 When no bugs are found, confirm explicitly that the PR was reviewed and no issues were identified. Don't just skip the review silently.
 
-
 ---
 
 ## JavaScript Modernization Review Guidelines
 
 When reviewing code check modernized the code are already changed when doing so is safe and behavior-preserving. Do **not** flag modernization outside of code changed.
 
-| Older Pattern | Preferred Pattern |
-| --- | --- |
-| Callback `function(a, b) { ... }` | `(a, b) => { ... }` **only** when lexical `this` is safe. |
-| String concatenation with variables | Template literals (`` `${a}${b}` ``). |
+| Older Pattern                            | Preferred Pattern                                                                                  |
+| ---------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Callback `function(a, b) { ... }`        | `(a, b) => { ... }` **only** when lexical `this` is safe.                                          |
+| String concatenation with variables      | Template literals (`` `${a}${b}` ``).                                                              |
 | Constructor function + prototype methods | ES `class` and instance methods (except `Entity.js` mixins and `Entity.prototype` data whitelist). |
-| Object-literal singleton methods | Static `class` methods when safe and consistent with the module. |
-| `var x = obj.x \|\| defaultVal` | `const` / `let` with destructuring defaults or explicit defaulting where semantics match. |
-| File-local global assignment | Explicit ES module imports/exports after auditing all consumers. |
+| Object-literal singleton methods         | Static `class` methods when safe and consistent with the module.                                   |
+| `var x = obj.x \|\| defaultVal`          | `const` / `let` with destructuring defaults or explicit defaulting where semantics match.          |
+| File-local global assignment             | Explicit ES module imports/exports after auditing all consumers.                                   |
 
 **Critical `this` Caveat:** Arrow functions capture `this` lexically. Before converting callbacks, event handlers, asset/canvas loaders, or prototype methods, verify whether the caller invokes the function with dynamic `this` (`.call()` / `.apply()`). Keep a regular `function()` wherever dynamic binding is required.
 

@@ -1,47 +1,48 @@
 # AGENTS.md — UI Subsystem (`src/UI/`)
 
-The UI uses `GUIComponent`, Shadow DOM, native DOM APIs, and Custom Elements. 
- 
-- All 100 UI components use `GUIComponent`. 
-- Versioned component siblings have been deduplicated into shared `*Common.js` factories across 13 multi-version component families. 
-- The `this.ui` proxy on `GUIComponent` provides a minimal jQuery-compatible API for legacy interoperability. Internal component code must use native DOM and Shadow DOM APIs directly, such as `this.getRoot().querySelector(...)`. 
-- UI appearance is primarily asset-driven. Window frames, buttons, and backgrounds use BMP assets from GRF files. CSS is structural and positional rather than the primary source of visual styling. 
-- Components use Custom Elements such as `<ui-button>`, `<ui-text>`, and `<ui-image>`, or legacy `data-*` attributes processed by `GUIComponent.processDataAttrs()`. 
- 
-**Primary references:** 
+The UI uses `GUIComponent`, Shadow DOM, native DOM APIs, and Custom Elements.
+
+- All 100 UI components use `GUIComponent`.
+- Versioned component siblings have been deduplicated into shared `*Common.js` factories across 13 multi-version component families.
+- The `this.ui` proxy on `GUIComponent` provides a minimal jQuery-compatible API for legacy interoperability. Internal component code must use native DOM and Shadow DOM APIs directly, such as `this.getRoot().querySelector(...)`.
+- UI appearance is primarily asset-driven. Window frames, buttons, and backgrounds use BMP assets from GRF files. CSS is structural and positional rather than the primary source of visual styling.
+- Components use Custom Elements such as `<ui-button>`, `<ui-text>`, and `<ui-image>`, or legacy `data-*` attributes processed by `GUIComponent.processDataAttrs()`.
+
+**Primary references:**
+
 - `docs/how-to/ui-component-development.md` — adding new UI.
-- `docs/GUIComponent_Version_Dedup_Factory.md` — factory pattern rules. 
-- `docs/CustomElements.md` — Custom Elements reference. 
+- `docs/GUIComponent_Version_Dedup_Factory.md` — factory pattern rules.
+- `docs/CustomElements.md` — Custom Elements reference.
 
 Instructions for working on the UI subsystem, components (`src/UI/Components/`), custom elements (`src/UI/Elements/`), and UI managers.
 
-The UI component tree contains 100 component directories. 
- 
-The following index groups component names by functional area; it is a navigation aid, not a substitute for inspecting the relevant component implementation. 
- 
-| Functional area | Components | 
-|---|---| 
-| Login and entry | `Intro`, `WinList`, `WinLogin` | 
-| Inventory and items | `Inventory`, `Equipment`, `Storage`, `Bank`, `CashShop`, `CartItems` | 
-| Communication | `ChatBox`, `ChatRoom`, `ChatRoomCreate`, `WhisperBox`, `ChatBoxSettings` | 
-| NPC interactions | `NpcBox`, `NpcStore`, `NpcMenu` | 
-| Skills | `SkillList`, `SkillListMH`, `SkillDescription`, `SkillTargetSelection` | 
-| Game systems | `Quest`, `Mail`, `Rodex`, `Trade`, `Vending`, `VendingShop`, `VendingReport` | 
-| Crafting and upgrades | `Refine`, `RefineWeaponSelection`, `Enchant`, `EnchantGrade`, `ItemCompare`, `ItemReform`, `LaphineSys`, `LaphineUpg` | 
-| Social | `Clan`, `Guild`, `PartyFriends`, `EntityRoom` | 
-| Navigation | `MiniMap`, `WorldMap`, `Navigation`, `MapName` | 
-| Asset viewers | `GrfViewer`, `ModelViewer`, `StrViewer`, `EffectViewer`, `GrannyModelViewer` | 
-| Character information | `BasicInfo`, `WinStats`, `StatusIcons`, `Sense` | 
-| Hotkeys | `ShortCut`, `ShortCuts`, `ShortCutOption` | 
-| General interface | `Emoticons`, `Announce`, `FPS`, `Escape`, `Error`, `WinPopup`, `WinPrompt` | 
-| Character management | `CharCreate`, `CharSelect`, `PincodeWindow` | 
-| Companions | `HomunInformations`, `MercenaryInformations`, `PetInformations`, `PetEvolution` | 
-| Item display | `CardIllustration`, `ItemInfo`, `ItemObtain`, `ItemPreview`, `ItemSelection` | 
-| Crafting utilities | `MakeArrowSelection`, `MakeItemSelection`, `MakeReadBook` | 
-| Equipment management | `PlayerViewEquip`, `SwitchEquip`, `ChangeCart` | 
-| Settings | `GraphicsOption`, `SoundOption` | 
-| Miscellaneous systems | `Captcha`, `CheckAttendance`, `Reputation`, `SlotMachine`, `PvPCount`, `PvPTimer`, `PCGoldTimer` | 
-| Interface elements | `ContextMenu`, `EntitySignboard`, `JoystickUI`, `MobileUI` | 
+The UI component tree contains 100 component directories.
+
+The following index groups component names by functional area; it is a navigation aid, not a substitute for inspecting the relevant component implementation.
+
+| Functional area       | Components                                                                                                            |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Login and entry       | `Intro`, `WinList`, `WinLogin`                                                                                        |
+| Inventory and items   | `Inventory`, `Equipment`, `Storage`, `Bank`, `CashShop`, `CartItems`                                                  |
+| Communication         | `ChatBox`, `ChatRoom`, `ChatRoomCreate`, `WhisperBox`, `ChatBoxSettings`                                              |
+| NPC interactions      | `NpcBox`, `NpcStore`, `NpcMenu`                                                                                       |
+| Skills                | `SkillList`, `SkillListMH`, `SkillDescription`, `SkillTargetSelection`                                                |
+| Game systems          | `Quest`, `Mail`, `Rodex`, `Trade`, `Vending`, `VendingShop`, `VendingReport`                                          |
+| Crafting and upgrades | `Refine`, `RefineWeaponSelection`, `Enchant`, `EnchantGrade`, `ItemCompare`, `ItemReform`, `LaphineSys`, `LaphineUpg` |
+| Social                | `Clan`, `Guild`, `PartyFriends`, `EntityRoom`                                                                         |
+| Navigation            | `MiniMap`, `WorldMap`, `Navigation`, `MapName`                                                                        |
+| Asset viewers         | `GrfViewer`, `ModelViewer`, `StrViewer`, `EffectViewer`, `GrannyModelViewer`                                          |
+| Character information | `BasicInfo`, `WinStats`, `StatusIcons`, `Sense`                                                                       |
+| Hotkeys               | `ShortCut`, `ShortCuts`, `ShortCutOption`                                                                             |
+| General interface     | `Emoticons`, `Announce`, `FPS`, `Escape`, `Error`, `WinPopup`, `WinPrompt`                                            |
+| Character management  | `CharCreate`, `CharSelect`, `PincodeWindow`                                                                           |
+| Companions            | `HomunInformations`, `MercenaryInformations`, `PetInformations`, `PetEvolution`                                       |
+| Item display          | `CardIllustration`, `ItemInfo`, `ItemObtain`, `ItemPreview`, `ItemSelection`                                          |
+| Crafting utilities    | `MakeArrowSelection`, `MakeItemSelection`, `MakeReadBook`                                                             |
+| Equipment management  | `PlayerViewEquip`, `SwitchEquip`, `ChangeCart`                                                                        |
+| Settings              | `GraphicsOption`, `SoundOption`                                                                                       |
+| Miscellaneous systems | `Captcha`, `CheckAttendance`, `Reputation`, `SlotMachine`, `PvPCount`, `PvPTimer`, `PCGoldTimer`                      |
+| Interface elements    | `ContextMenu`, `EntitySignboard`, `JoystickUI`, `MobileUI`                                                            |
 
 ## Mandatory Prerequisites
 
