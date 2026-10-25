@@ -35,7 +35,7 @@ Instructions for working on `DBManager.js` and game data tables (`Effects/`, `It
 - `Map/` — `MapState.js`, `MapTable.js`, `WorldMap.js`.
 - `Monsters/` — `AttackEffectTable.js`, `MonsterNameTable.js`, `MonsterTable.js`, `ShadowTable.js`.
 - `Pets/` — `PetAction.js`, `PetEmotionTable.js`, `PetFriendlyState.js`, `PetHungryState.js`, `PetIllustration.js`, `PetMessageConst.js`.
-- `Skills/` — `SkillAction.js`, `SkillConst.js`, `SkillEffect.js`, `SkillInfo.js`, `SkillTreeMerge.js`, `SkillTreeView.js`, `SkillUnit.js`, `SkillUnitConst.js`.
+- `Skills/` — `CastAuraRule.js` (which skills get the element cast aura; 4th-job skills play only their own `castAuraEffectId` / `beginCastEffectId`), `SkillAction.js`, `SkillConst.js`, `SkillEffect.js`, `SkillInfo.js`, `SkillTreeMerge.js`, `SkillTreeView.js`, `SkillUnit.js`, `SkillUnitConst.js`.
 - `Status/` — `StatusConst.js`, `StatusEffectTable.js` (effects drawn on an actor while a status is on), `StatusInfo.js`, `StatusProperty.js`, `StatusState.js`.
 - `Emotions.js`, `EmotionsConst.js`, `TownInfo.js`.
 

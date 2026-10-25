@@ -106,10 +106,12 @@ describe('ground units that loop an EZ2 effect', () => {
 
 	it('leave the skill cast to the unit', () => {
 		const skillEffect = read('DB/Skills/SkillEffect.js');
+		const row = skill => (skillEffect.match(new RegExp(`^SkillEffect\\[SK\\.${skill}\\] = \\{[^}]*\\};`, 'm')) || [''])[0];
 		for (const skill of ['HN_JACK_FROST_NOVA', 'HN_GROUND_GRAVITATION', 'SOA_TOTEM_OF_TUTELARY', 'SH_HYUN_ROKS_BREEZE']) {
-			expect(skillEffect, skill).not.toContain(`SkillEffect[SK.${skill}] =`);
+			// At most a cast aura: the skill's own effect comes from its unit
+			expect(row(skill), skill).not.toMatch(/\b(effectId|successEffectId|groundEffectId):/);
 		}
-		expect(skillEffect).toContain("SkillEffect[SK.NW_MISSION_BOMBARD] = { hitEffectId: 'ef_nw_mission_bombard_hit' };");
+		expect(row('NW_MISSION_BOMBARD')).toMatch(/^SkillEffect\[SK\.NW_MISSION_BOMBARD\] = \{ hitEffectId: 'ef_nw_mission_bombard_hit'[ ,]/);
 		expect(skillEffect).toContain("SkillEffect[SK.IG_CROSS_RAIN] = { effectIdOnCaster: 'ef_ig_cross_rain_cast' };");
 	});
 
