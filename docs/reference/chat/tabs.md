@@ -44,6 +44,8 @@ number of characters.
   blank name does nothing.
 - Escape, a click on a tab, or the focus leaving the name in any other way ends
   the rename and puts the saved name back.
+- A click inside the name being edited only moves the caret, as in any text
+  field: the rename stays open.
 - A tab added with `+` starts with every filter off, as in the client.
 - The filter window's `All on` box (label included) does the same as the
   client's.
