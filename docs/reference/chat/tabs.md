@@ -15,6 +15,7 @@ everything below.
 | Enter while renaming | keeps the new name and closes the edit box; with an empty name, nothing happens and the edit box stays |
 | Escape while renaming | closes the edit box and keeps the old name |
 | click on any tab while renaming | closes the edit box and keeps the old name |
+| click inside the edit box while renaming | goes to the edit box, not the tabs: the rename stays open |
 | right click on a tab | nothing |
 
 A single click never gives the keyboard focus to a tab: what had it, the chat
@@ -44,8 +45,8 @@ number of characters.
   blank name does nothing.
 - Escape, a click on a tab, or the focus leaving the name in any other way ends
   the rename and puts the saved name back.
-- A click inside the name being edited only moves the caret, as in any text
-  field: the rename stays open.
+- A click inside the name being edited only moves the caret: the rename stays
+  open, as in the client.
 - A tab added with `+` starts with every filter off, as in the client.
 - The filter window's `All on` box (label included) does the same as the
   client's.
@@ -72,7 +73,12 @@ edit box, sends message `0x16` to the chat window, whose handler
 (`fcn.005d5e80`) only repaints when the index did not change. Double-click
 `fcn.0055c9b0`: sets the edit text, moves it over the tab and gives it the
 focus (`fcn.00642460`); on focus the text is selected `[0, len]`
-(`fcn.0052a120`). End of rename: tab-control `fcn.00565410`, message 0 from the
+(`fcn.0052a120`). The edit box is a child of the tab control (`AddChild`
+`fcn.00a887a0`), and a click goes to the deepest child under the cursor: the
+window manager's hit-test (`fcn.0062e5e0`, called from `fcn.0063e390`, which
+then calls slot `+0x58` on the result) recurses through `UIWindow` slot
+`+0xb8` (`fcn.00a8e950`), so a click on the open edit box never reaches the
+tab click above. End of rename: tab-control `fcn.00565410`, message 0 from the
 edit box, argument 0 = Enter (empty text: no-op; width check, refusal message
 `0x629`), argument 1 = Escape (`fcn.0063ca70` case `0x1b`), which only hides
 it. The edit box's kill-focus path (`fcn.0052d860` -> `fcn.00531bd0`) never
