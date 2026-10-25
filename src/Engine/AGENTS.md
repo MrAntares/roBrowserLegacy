@@ -45,6 +45,22 @@ Instructions for working on `GameEngine.js`, `LoginEngine.js`, `CharEngine.js`, 
 
 ### MapEngine Subsystems (`src/Engine/MapEngine/`, 29 files)
 
+The MapEngine contains 29 files covering game-loop management, state, gameplay, social systems, commerce, companions, and interaction handlers. 
+ 
+| Files / modules | Responsibility | 
+|---|---| 
+| `Main.js`, `Entity.js` | Core game loop, state management, and entity control | 
+| `UIOpen.js`, `MapState.js` | UI component lifecycle and state persistence | 
+| `Achievement.js`, `Quest.js`, `Guild.js`, `Clan.js` | Progression and group systems | 
+| `Group.js`, `Friends.js`, `PrivateMessage.js`, `ChatRoom.js` | Social features | 
+| `CashShop.js`, `Bank.js`, `Roulette.js` | Commerce systems | 
+| `Homun.js`, `Pet.js`, `Mercenary.js` | Companion systems | 
+| `NPC.js`, `Store.js`, `Trade.js` | NPC and trade interactions | 
+| `Item.js`, `Storage.js`, `Skill.js` | Core gameplay systems | 
+| `Mail.js`, `Rodex.js` | Messaging systems | 
+| `Captcha.js`, `PCGoldTimer.js` | Security and timer systems | 
+| `OffhandWeapon.js` | Offhand weapon handling | 
+ 
 - **Core Loop & State:** `Main.js` (player stats, status properties, server tick, warp/restart), `MapState.js` (map flags/state), `UIOpen.js` (server-triggered UI window lifecycle).
 - **Entities & Combat:** `Entity.js` (unit spawn/move/action/vanish/status/effects), `Skill.js` (skill list, casting, ground skills, auto-spell), `OffhandWeapon.js` (dual-wield / offhand weapon vs shield resolution).
 - **Items & Storage:** `Item.js` (pickup, drop, inventory, equipment, cards, refine, reform, enchant, Laphine), `Storage.js` (Kafra/guild storage).

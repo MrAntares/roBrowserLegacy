@@ -1,26 +1,44 @@
-# UI Component Development
+### Add a UI Component
 
-## Adding a New UI Component
+UI uses `GUIComponent` (Shadow DOM) + Custom Elements. No legacy `data-*` UI patterns.
 
-**All components use GUIComponent (Shadow DOM):**
+#### DSL
 
-1. Create directory in `src/UI/Components/NewComponent/`
-2. Create `NewComponent.js`, `NewComponent.html`, `NewComponent.css`
-3. Instantiate `new GUIComponent('Name', cssText)` with `Component.render = () => htmlText`
-4. Use Custom Elements (`<ui-button>`, `<ui-text>`, `<ui-image>`) instead of `data-*` attributes
-5. CSS: dimensions/position on `:host`, inner layout on `#Name`
-6. Register with `UIManager.addComponent(Component)`
-7. Add keyboard shortcut in `src/Controls/ProcessCommand.js` if needed
+- `new GUIComponent('Name', cssText)` — constructor takes name + CSS only.
+- `Component.render = () => htmlText` — HTML returned as a string (required).
+- Markup: `<ui-button bg hover down>`, `<ui-text msg>`, `<ui-image src>` (import `UI/Elements/Elements.js`; see [`docs/CustomElements.md`](../../docs/CustomElements.md)).
+- CSS: dimensions/position on `:host`; inner layout on `#Name`. Do not set `position`/`z-index` on `:host` (JS sets `absolute`/`z-index: 50` in `prepare()`).
+- Query internals with `this.getRoot().querySelector(...)`; never query `document`. `this.ui` is jQuery-compat interop only — don't use for new code.
+- `Component.mouseMode = GUIComponent.MouseMode.{CROSS|STOP|FREEZE}`; `needFocus`.
 
-Consult **L1** [UIComponent_to_GUIComponent.md](../UIComponent_to_GUIComponent.md) first; fall back to **L2** [UIComponent_to_GUIComponent_Firmware.md](../UIComponent_to_GUIComponent_Firmware.md) for quick lookups and **L0** [UIComponent_to_GUIComponent_Scars.md](../UIComponent_to_GUIComponent_Scars.md) for historical edge cases. See [CustomElements.md](../CustomElements.md) for element reference.
+#### Auto-bound hooks (define only what you need)
 
-## Deduplicating Versioned Components
+- `render()` — returns HTML string. Required.
+- `init()` — runs ONCE in `prepare()`; host briefly in DOM. One-time setup/binding.
+- `onAppend()` — runs EVERY `append()`; position restore, per-show work.
+- `onRemove()` — runs EVERY `remove()`; save prefs, cleanup.
+- `onKeyDown` — if present, auto-bound on `append` / unbound on `remove`.
+- `onResize()`, `onRestore()` — called when defined.
 
-**Before starting, you MUST read [GUIComponent_Version_Dedup_Factory.md](../GUIComponent_Version_Dedup_Factory.md) — it contains invariants that cannot be violated.**
+#### Register, mount & test
 
-All 13 existing versioned component families (`BasicInfo`, `CharCreate`, `CharSelect`, `Equipment`, `Inventory`, `MiniMap`, `PartyFriends`, `PlayerViewEquip`, `Quest`, `SkillList`, `Storage`, `WinLogin`, `WinStats`) have been unified into `*Common.js` factories. For any new multi-version components:
+- `export default UIManager.addComponent(Component);`
+- Add on specified *Engine: `Component.append()`. Remove: `Component.remove()`.
+- Add `show()`, `hide()` — runtime show and hide UI in specified buttons or add in `src/Controls/ProcessCommand.js` only if needed.
+- Files: `src/UI/Components/Name/Name.{js,html,css}` (additional reference: [`docs/Scrollbar.md`](../../docs/Scrollbar.md)).
+- Add or update tests in `tests/ui/` and verify the relevant UI/version lifecycle.
 
-1. Create a `ComponentNameCommon.js` in the component folder
-2. Export `createComponentName({ name, htmlText, cssText, ...flags })`
-3. Move shared JS into the factory, parametrizing version differences with flags
-4. Thin each version file to imports + `createComponentName(...)`
+### Deduplicate Versioned UI Components into a Shared Factory
+
+**Mandatory:** Read [`docs/GUIComponent_Version_Dedup_Factory.md`](../../docs/GUIComponent_Version_Dedup_Factory.md) before making changes.
+
+Existing unified families (13/13) include `BasicInfo`, `CharCreate`, `CharSelect`, `Equipment`, `Inventory`, `MiniMap`, `PartyFriends`, `PlayerViewEquip`, `Quest`, `SkillList`, `Storage`, `WinLogin`, and `WinStats`.
+
+For a new multi-version component family or version sibling:
+
+1. Create `ComponentNameCommon.js` in the component directory exporting `createComponentName({ name, htmlText, cssText, ...flags })`.
+2. Declare all per-instance state inside `createComponentName` (never at module scope shared across versions).
+3. Move shared logic into the factory and represent real, pre-existing version differences through explicit capability flags.
+4. Keep each version-specific module thin (imports + `createComponentName(...)` call).
+5. Preserve each version's exact component `name` string, `Preferences.get(...)` keys, and `versionInfo` PACKETVER mappings in `UIVersionManager`.
+6. Add or update tests in `tests/ui/`.
