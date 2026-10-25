@@ -372,15 +372,42 @@ ChatBox.init = function init() {
 		input.addEventListener('dragover', stopPropagation);
 	});
 
-	// Button change name (tab inputs)
-	root.querySelectorAll('.header input').forEach(input => {
-		input.addEventListener('dblclick', function () {
-			this.type = 'text';
-			this.select();
-		});
-		input.addEventListener('blur', function () {
-			this.type = 'button';
-		});
+	// Double-click renames a tab: Enter keeps the new name, anything else drops it
+	// See docs/reference/chat/tabs.md
+	const header = root.querySelector('table.header');
+	header.addEventListener('dblclick', event => {
+		const tab = event.target.closest('table.header tr td.tab');
+		const input = tab && tab.querySelector('input');
+		if (input) {
+			input.readOnly = false;
+			input.focus();
+			input.select();
+		}
+	});
+	header.addEventListener('keydown', event => {
+		const input = event.target.closest('table.header tr td.tab input');
+		if (!input || input.readOnly) {
+			return;
+		}
+		if (event.key === 'Enter') {
+			event.stopPropagation();
+			const name = input.value.trim();
+			if (name) {
+				ChatBox.tabs[input.closest('td.tab').dataset.tab].name = name;
+				input.blur();
+			}
+		} else if (event.key === 'Escape') {
+			event.stopPropagation();
+			input.blur();
+		}
+	});
+	header.addEventListener('focusout', event => {
+		const input = event.target.closest('table.header tr td.tab input');
+		if (input) {
+			input.readOnly = true;
+			input.value = ChatBox.tabs[input.closest('td.tab').dataset.tab].name;
+			ChatBoxSettings.updateTab(ChatBox.activeTab, input.value);
+		}
 	});
 
 	// Private message selection
@@ -510,6 +537,18 @@ ChatBox.init = function init() {
 			event => {
 				if (event.target.closest('table.header tr td.tab')) {
 					event.stopPropagation();
+
+					// A click only switches tab: the name is not focused until a double-click
+					const input = event.target.closest('td.tab input');
+					if (!input || input.readOnly) {
+						event.preventDefault();
+
+						// and it drops a rename in progress
+						const editing = root.querySelector('table.header tr td.tab input:not([readonly])');
+						if (editing) {
+							editing.blur();
+						}
+					}
 				}
 			},
 			true
@@ -791,18 +830,11 @@ ChatBox.addNewTab = function addNewTab(name, settings) {
 			`
 			<td class="tab" data-tab="${tabID}">
 				<div class="on">
-					<input type="text" value="${tabName}"/>
+					<input type="text" value="${tabName}" readonly/>
 				</div>
 			</td>
 		`
 		);
-	}
-
-	const newTabInput = root.querySelector(`table.header tr td.tab[data-tab="${tabID}"] div input`);
-	if (newTabInput) {
-		newTabInput.addEventListener('change', function () {
-			ChatBox.tabs[tabID].name = this.value;
-		});
 	}
 
 	const contentWrapper = root.querySelector('.body .contentwrapper');
