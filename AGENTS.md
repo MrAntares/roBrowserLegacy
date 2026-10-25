@@ -58,6 +58,20 @@ Behavior references and how-to guides are consulted on demand. Follow the route 
 
 If documentation and implementation disagree, inspect the affected code and report the discrepancy. Do not infer undocumented behavior from the intended architecture alone.
 
+## 2.1. Supporting Subsystems Without Dedicated `AGENTS.md`
+
+Subsystems with scoped instructions are routed through their own `AGENTS.md`. For directories without one, use this index to locate likely entry points; inspect neighboring code when ownership is unclear.
+
+| Directory | Key entry points / responsibilities |
+|---|---|
+| `src/Controls/` | `EntityControl.js` (mixed into `Entity`), `MapControl.js`, `KeyEventHandler.js`, `MouseEventHandler.js`, `ProcessCommand.js` (chat commands and shortcuts), `BattleMode.js`, `ScreenShot.js` |
+| `src/Audio/` | `BGM.js` (background music), `SoundManager.js` (spatial and UI `.wav` effects) |
+| `src/Preferences/` | Persistent preference schemas: `Audio.js`, `Camera.js`, `Controls.js`, `Graphics.js`, `Map.js`, `ShortCutControls.js`, `UI.js` |
+| `src/Plugins/` | `PluginManager.js`; loads and configures custom client plugins from `ROConfig.plugins` |
+| `src/Utils/` | Binary I/O, structures, compression, pathfinding, WebGL and texture helpers, executable parsing, CRC32, codepages, console, HTML helpers, queues, encoding/crypto utilities, colors, and `gl-matrix.js` |
+| `src/Vendors/` | Frozen third-party libraries; excluded from ESLint. **Never modify.** |
+
+
 ## 3. Cross-Cutting Constraints
 
 ### Protected code and data
