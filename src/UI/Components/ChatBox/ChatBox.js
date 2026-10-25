@@ -615,7 +615,8 @@ ChatBox.init = function init() {
 	if (battleopt2) {
 		battleopt2.addEventListener('click', () => {
 			if (ChatBox.tabCount <= 5) {
-				ChatBox.addNewTab();
+				// As in the client, a tab the player adds starts with every filter off
+				ChatBox.addNewTab(undefined, []);
 				ChatBox.onAppend();
 			}
 		});

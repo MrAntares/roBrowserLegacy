@@ -20,6 +20,12 @@ everything below.
 A single click never gives the keyboard focus to a tab: what had it, the chat
 input for example, keeps it.
 
+A tab added with the `+` button starts with **every filter off**: it shows
+nothing until the player ticks message types in the filter window. It is not a
+copy of the current tab. The two tabs of a first run come from the client's Lua
+data, not from the exe. At most 10 tabs exist, counting the ones torn off into
+their own window.
+
 A new name is refused with a message box when the tabs would no longer fit in
 the window: the check is the number of tabs times the width of the name drawn
 at 12 px plus 10, against the window width minus 90. There is no limit on the
@@ -36,6 +42,7 @@ number of characters.
   blank name does nothing.
 - Escape, a click on a tab, or the focus leaving the name in any other way ends
   the rename and puts the saved name back.
+- A tab added with `+` starts with every filter off, as in the client.
 
 ## Deviations
 
@@ -46,6 +53,7 @@ number of characters.
   with no way to see it.
 - **No width check.** A name that would not fit is not refused; it scrolls
   inside its tab.
+- **Six tabs at most**, not ten.
 - **No tab drag.** The client can tear a tab off into its own chat window when
   the window's drag toggle is on. The port does not.
 
@@ -62,6 +70,10 @@ focus (`fcn.00642460`); on focus the text is selected `[0, len]`
 edit box, argument 0 = Enter (empty text: no-op; width check, refusal message
 `0x629`), argument 1 = Escape (`fcn.0063ca70` case `0x1b`), which only hides
 it. The edit box's kill-focus path (`fcn.0052d860` -> `fcn.00531bd0`) never
-calls the tab control. mars26: the same shape in `fcn.00774670`,
-`fcn.007880c0`, `fcn.007879e0`, `fcn.00790e10`, `fcn.008f1fd0`. ver12: tab
+calls the tab control. New tab: chat-window case `0x16e` of `fcn.005d5e80`
+names it `NewTab_<n>` and zeroes its 22 filter bytes (`0x005d792d`-`0x005d793e`);
+the 10-tab cap is `this+0xf0 = 0xa` set in the ctor (`0x005b30a7`), refused with
+message `0x62a`. mars26: the same shape in `fcn.00774670`,
+`fcn.007880c0`, `fcn.007879e0`, `fcn.00790e10`, `fcn.008f1fd0`, new tab at
+`0x00824a48` in `fcn.00822e10`. ver12: tab
 click `fcn.004a00f0`, two tabs, no edit box.
