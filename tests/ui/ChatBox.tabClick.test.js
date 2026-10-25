@@ -196,6 +196,32 @@ describe('ChatBox - clicking a tab', () => {
 	});
 });
 
+describe('ChatBox - a tab name with markup', () => {
+	const markup = '"><img src=x onerror=alert(1)>';
+
+	it('shows it as text in its tab', () => {
+		ChatBox.addNewTab(markup);
+		const input = host.querySelector('.header tr td div.on input');
+
+		expect(input.value).toBe(markup);
+		expect(host.querySelector('.header img')).toBeNull();
+	});
+
+	it('shows it as text in the /savechat line', () => {
+		window.URL.createObjectURL = vi.fn(() => 'blob:chat');
+		const addText = vi.spyOn(ChatBox, 'addText').mockImplementation(() => {});
+		ChatBox.tabs[ChatBox.activeTab].name = markup;
+		ChatBox.saveCurrentTabChat();
+		const line = document.createElement('div');
+		line.innerHTML = addText.mock.calls[0][0];
+		addText.mockRestore();
+
+		expect(line.querySelector('img')).toBeNull();
+		expect(line.textContent).toContain(`Chat History [${markup}]`);
+		expect(line.querySelector('a').getAttribute('download')).toContain(markup);
+	});
+});
+
 describe('ChatBox - the + button', () => {
 	it('adds a tab with every filter off', () => {
 		const before = ChatBox.tabCount;
