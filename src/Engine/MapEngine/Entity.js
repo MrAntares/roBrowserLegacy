@@ -51,6 +51,7 @@ import MiniMap from 'UI/Components/MiniMap/MiniMap.js';
 import PartyFriends from 'UI/Components/PartyFriends/PartyFriends.js';
 import Equipment from 'UI/Components/Equipment/Equipment.js';
 import ScreenEffectManager from 'Renderer/ScreenEffectManager.js';
+import { updateStatusEffects } from 'Engine/MapEngine/StatusEffects.js';
 
 // Excludes for skill name display
 const SkillNameDisplayExclude = [
@@ -1473,7 +1474,7 @@ function onEntityUseSkill(pkt) {
  * @param {object} pkt - PACKET.ZC.SKILL_ENTRY
  */
 function onSkillAppear(pkt) {
-	EffectManager.spamSkillZone(pkt.job, pkt.xPos, pkt.yPos, pkt.AID, pkt.creatorAID);
+	EffectManager.spamSkillZone(pkt.job, pkt.xPos, pkt.yPos, pkt.AID, pkt.creatorAID, pkt.level, pkt.range);
 }
 
 /**
@@ -1482,6 +1483,7 @@ function onSkillAppear(pkt) {
  * @param {object} pkt - PACKET.ZC.SKILL_DISAPPEAR
  */
 function onSkillDisapear(pkt) {
+	EffectManager.spamSkillZoneEnd(pkt.AID);
 	EffectManager.remove(null, pkt.AID);
 	const entity = EntityManager.get(pkt.AID);
 	if (entity) {
@@ -2380,6 +2382,9 @@ function onEntityStatusChange(pkt) {
 			break;
 	}
 
+	// MSG_STATE_CHANGE3 and MSG_STATE_CHANGE5 (0x8ff, 0x984) carry no state: the
+	// server sends them for statuses already on when an actor comes into view.
+	updateStatusEffects(pkt.AID, pkt.index, Object.prototype.hasOwnProperty.call(pkt, 'state') ? pkt.state : 1);
 	processBlockStatus(entity, pkt);
 
 	// Modify icon

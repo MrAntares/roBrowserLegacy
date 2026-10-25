@@ -36,12 +36,14 @@ import WorldMap from './Map/WorldMap.js';
 import SKID from './Skills/SkillConst.js';
 import SkillInfo from './Skills/SkillInfo.js';
 import SkillTreeView from './Skills/SkillTreeView.js';
+import SkillUnit, { SkillUnitEnd } from './Skills/SkillUnit.js';
 import { resetSkillTree, keepBuiltInSkills } from './Skills/SkillTreeMerge.js';
 import JobHitSoundTable from './Jobs/JobHitSoundTable.js';
 import WeaponTrailTable from './Items/WeaponTrailTable.js';
 import TownInfo from './TownInfo.js';
 import StatusInfo from './Status/StatusInfo.js';
 import SC from './Status/StatusConst.js';
+import StatusEffectTable from './Status/StatusEffectTable.js';
 import XmlParse from 'Vendors/xmlparse.js';
 import Base62 from 'Utils/Base62.js';
 import { BSON } from 'bson';
@@ -4651,6 +4653,28 @@ function skillPlaysFile(skillEntry, EffectTable, file, keyOf = strFileKey) {
 }
 
 /**
+ * Whether a status in StatusEffectTable draws this STR file.
+ *
+ * @param {object} EffectTable
+ * @param {string} file STR path without extension
+ * @return {boolean}
+ */
+function statusPlaysFile(EffectTable, file) {
+	return Object.values(StatusEffectTable).some(row => skillPlaysFile(row, EffectTable, file));
+}
+
+/**
+ * Whether a skill unit in SkillUnit.js draws this STR file (its start, loop or end rows).
+ *
+ * @param {object} EffectTable
+ * @param {string} file STR path without extension
+ * @return {boolean}
+ */
+function unitPlaysFile(EffectTable, file) {
+	return [SkillUnit, SkillUnitEnd].some(table => skillPlaysFile(table, EffectTable, file));
+}
+
+/**
  * Merge Ez2STREffect from BSON into EffectTable and SkillEffect
  */
 function mergeEz2Effects(EffectTable, SkillEffect) {
@@ -4827,13 +4851,16 @@ function mergeEz2Effects(EffectTable, SkillEffect) {
 		//   played from a skill's cast nothing would ever stop it;
 		// - the skill already has another variant of it: the official client
 		//   picks one by stage, element or direction, and all at once is a pile;
-		// - a sibling skill already draws it.
+		// - a sibling skill already draws it;
+		// - a status (StatusEffectTable.js) or a skill unit (SkillUnit.js) draws it.
 		const file = EffectTable[effectName][0].file;
 		if (
 			skillId &&
 			!entry.IsInfinite &&
 			!skillPlaysFile(SkillEffect[skillId], EffectTable, file, strVariantKey) &&
-			!siblingPlaysFile(skillId, file)
+			!siblingPlaysFile(skillId, file) &&
+			!statusPlaysFile(EffectTable, file) &&
+			!unitPlaysFile(EffectTable, file)
 		) {
 			const skillEntry = SkillEffect[skillId] || (SkillEffect[skillId] = {});
 			const field = meta.field;

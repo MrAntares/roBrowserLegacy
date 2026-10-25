@@ -6588,8 +6588,8 @@ export default {
 			texturePath: 'hyper_novice/hn_jupitel_thunder_storm/jupitel_thunder_storm_ball/'
 		}
 	],
-
-	// Jack Frost Nova (HN_JACK_FROST_NOVA), from the client's own effect folders.
+	// Drawn once where the unit appears when the client has no ez2streffect.bson
+	// (SkillUnitFallback in SkillUnit.js)
 	ef_hn_jack_frost_nova: [
 		{
 			type: 'STR',
@@ -6608,8 +6608,8 @@ export default {
 			renderBeforeEntities: true
 		}
 	],
-
-	// Ground Gravitation (HN_GROUND_GRAVITATION), from the client's own effect folders.
+	// Drawn once where the unit appears when the client has no ez2streffect.bson
+	// (SkillUnitFallback in SkillUnit.js)
 	ef_hn_ground_gravitation: [
 		{
 			type: 'STR',
@@ -6636,11 +6636,6 @@ export default {
 			file: 'hyper_novice/hn_breakinglimit/breakinglimit/breakinglimit',
 			texturePath: 'hyper_novice/hn_breakinglimit/breakinglimit/',
 			wav: 'effect/hyper_novice/hn_breakinglimit'
-		},
-		{
-			type: 'STR',
-			file: 'hyper_novice/hn_breakinglimit/breakinglimit_buff/breakinglimit_buff',
-			texturePath: 'hyper_novice/hn_breakinglimit/breakinglimit_buff/'
 		}
 	],
 
@@ -6651,11 +6646,6 @@ export default {
 			file: 'hyper_novice/hn_rulebreak/rulebreak/rulebreak',
 			texturePath: 'hyper_novice/hn_rulebreak/rulebreak/',
 			wav: 'effect/hyper_novice/hn_rulebreak'
-		},
-		{
-			type: 'STR',
-			file: 'hyper_novice/hn_rulebreak/rulebreak_buff/rulebreak_buff',
-			texturePath: 'hyper_novice/hn_rulebreak/rulebreak_buff/'
 		}
 	],
 
@@ -10435,8 +10425,8 @@ export default {
 			wav: 'effect/spirit_handler/sh_colors_of_hyun_rok'
 		}
 	],
-
-	// Hyunrok Breeze (SH_HYUN_ROKS_BREEZE), from the client's own effect folders.
+	// Drawn once where the unit appears when the client has no ez2streffect.bson
+	// (SkillUnitFallback in SkillUnit.js)
 	ef_sh_hyun_roks_breeze: [
 		{
 			type: 'STR',
@@ -10473,19 +10463,6 @@ export default {
 			texturePath: 'spirit_handler/sh_temporary_communion/temporary_communion/',
 			min: 'spirit_handler/sh_temporary_communion/temporary_communion/min_temporary_communion',
 			wav: 'effect/spirit_handler/sh_temporary_communion'
-		},
-		{
-			type: 'STR',
-			file: 'spirit_handler/sh_temporary_communion/temporary_communion_buff/temporary_communion_buff',
-			texturePath: 'spirit_handler/sh_temporary_communion/temporary_communion_buff/',
-			min: 'spirit_handler/sh_temporary_communion/temporary_communion_buff/min_temporary_communion_buff'
-		},
-		{
-			type: 'STR',
-			file: 'spirit_handler/sh_temporary_communion/temporary_communion_buff_bottom/temporary_communion_buff_bottom',
-			texturePath: 'spirit_handler/sh_temporary_communion/temporary_communion_buff_bottom/',
-			min: 'spirit_handler/sh_temporary_communion/temporary_communion_buff_bottom/min_temporary_communion_buff_bottom',
-			renderBeforeEntities: true
 		}
 	],
 
@@ -12715,8 +12692,8 @@ export default {
 			wav: 'effect/soul_ascetic/soa_soul_gathering'
 		}
 	],
-
-	// Totem Of Tutelary (SOA_TOTEM_OF_TUTELARY), from the client's own effect folders.
+	// Drawn once where the unit appears when the client has no ez2streffect.bson
+	// (SkillUnitFallback in SkillUnit.js)
 	ef_soa_totem_of_tutelary: [
 		{
 			type: 'STR',
@@ -12844,12 +12821,6 @@ export default {
 			texturePath: 'soul_ascetic/soa_soul_of_heaven_and_earth/soul_of_heaven_and_earth/',
 			min: 'soul_ascetic/soa_soul_of_heaven_and_earth/soul_of_heaven_and_earth/min_soul_of_heaven_and_earth',
 			wav: 'effect/soul_ascetic/soa_soul_of_heaven_and_earth'
-		},
-		{
-			type: 'STR',
-			file: 'soul_ascetic/soa_soul_of_heaven_and_earth/soul_of_heaven_and_earth_buff/soul_of_heaven_and_earth_buff',
-			texturePath: 'soul_ascetic/soa_soul_of_heaven_and_earth/soul_of_heaven_and_earth_buff/',
-			min: 'soul_ascetic/soa_soul_of_heaven_and_earth/soul_of_heaven_and_earth_buff/min_soul_of_heaven_and_earth_buff'
 		}
 	],
 
@@ -18308,23 +18279,27 @@ export default {
 		}
 	],
 
-	// Cross Rain (IG_CROSS_RAIN), from the client's own effect folders.
-	ef_ig_cross_rain: [
+	// Cross Rain's unit (official effect 2462): every 9 - level / 3 ticks a
+	// spear of rain lands at a random point of a square around the unit, 3 cells
+	// wide at levels 1-3, 5 at 4-6, 7 at 7-9, 9 at 10.
+	ef_ig_cross_rain_field: [
+		{
+			type: 'AREA_SPAWN',
+			spawnEffectId: 'ef_ig_cross_rain_drop',
+			interval: 150,
+			intervalByLevel: [150, 150, 400 / 3, 400 / 3, 400 / 3, 350 / 3, 350 / 3, 350 / 3, 100, 100],
+			areaByLevel: [3, 3, 3, 5, 5, 5, 7, 7, 7, 9]
+		}
+	],
+
+	// One drop of Cross Rain's unit (no sound)
+	ef_ig_cross_rain_drop: [
 		{
 			type: 'STR',
 			file: 'imperial_guard/ig_cross_rain/new_crossrain/new_cross_rain/new_cross_rain',
 			texturePath: 'imperial_guard/ig_cross_rain/new_crossrain/new_cross_rain/',
 			min: 'imperial_guard/ig_cross_rain/new_crossrain/new_cross_rain/min_new_cross_rain',
-			fallback: ['crossrain/cross_rain/cross_rain'],
-			wav: 'effect/ig_cross_rain'
-		},
-		{
-			type: 'STR',
-			file: 'imperial_guard/ig_cross_rain/new_crossrain/new_cross_rain_bottom/new_cross_rain_bottom',
-			texturePath: 'imperial_guard/ig_cross_rain/new_crossrain/new_cross_rain_bottom/',
-			min: 'imperial_guard/ig_cross_rain/new_crossrain/new_cross_rain_bottom/min_new_cross_rain_bottom',
-			fallback: ['crossrain/cross_rain_bottom/cross_rain_bottom'],
-			renderBeforeEntities: true
+			fallback: ['crossrain/cross_rain/cross_rain']
 		}
 	],
 
@@ -20106,20 +20081,9 @@ export default {
 	// Servant Weapon Sign (DK_SERVANT_W_SIGN), from the client's own effect folders.
 	ef_dk_servant_w_sign: [
 		{
-			type: 'STR',
-			file: 'dragon_knight/dk_servant_w_sign/servant_sign/servant_sign',
-			texturePath: 'dragon_knight/dk_servant_w_sign/servant_sign/',
-			min: 'dragon_knight/dk_servant_w_sign/servant_sign/min_servant_sign',
-			fallback: ['servant_sign/servant_sign/servant_sign'],
-			wav: 'effect/dk_servant_w_sign'
-		},
-		{
-			type: 'STR',
-			file: 'dragon_knight/dk_servant_w_sign/servant_sign_bottom/servant_sign_bottom',
-			texturePath: 'dragon_knight/dk_servant_w_sign/servant_sign_bottom/',
-			min: 'dragon_knight/dk_servant_w_sign/servant_sign_bottom/min_servant_sign_bottom',
-			fallback: ['servant_sign/servant_sign_bottom/servant_sign_bottom'],
-			renderBeforeEntities: true
+			// The sign itself loops with the Servant Sign status (StatusEffectTable.js)
+			wav: 'effect/dk_servant_w_sign',
+			attachedEntity: true
 		}
 	],
 
@@ -20256,12 +20220,9 @@ export default {
 	// Vigor (DK_VIGOR), from the client's own effect folders.
 	ef_dk_vigor: [
 		{
-			type: 'STR',
-			file: 'dragon_knight/dk_vigor/vigor_buff/vigor_buff',
-			texturePath: 'dragon_knight/dk_vigor/vigor_buff/',
-			min: 'dragon_knight/dk_vigor/vigor_buff/min_vigor_buff',
-			fallback: ['vigor/vigor_buff/vigor_buff'],
-			wav: 'effect/dk_vigor'
+			// The buff itself loops with the Vigor status (StatusEffectTable.js)
+			wav: 'effect/dk_vigor',
+			attachedEntity: true
 		}
 	],
 
@@ -22148,18 +22109,32 @@ export default {
 	],
 
 	// Mission Bombard (NW_MISSION_BOMBARD), from the client's own effect folders.
-	ef_nw_mission_bombard: [
+	ef_nw_mission_bombard_hit: [
 		{
 			type: 'STR',
-			file: 'night_watch/nw_mission_bombard/mission_bombard/mission_bombard',
+			file: 'night_watch/nw_mission_bombard/mission_bombard/mission_bombard_hit',
 			texturePath: 'night_watch/nw_mission_bombard/mission_bombard/',
-			min: 'night_watch/nw_mission_bombard/mission_bombard/min_mission_bombard',
-			wav: 'effect/night_watch/nw_mission_bombard'
+			min: 'night_watch/nw_mission_bombard/mission_bombard/min_mission_bombard_hit'
 		}
 	],
 
-	// Mission Bombard (NW_MISSION_BOMBARD), from the client's own effect folders.
-	ef_nw_mission_bombard_hit: [
+	// Mission Bombard's unit (official effect 2354): while the unit stands,
+	// every 15 ticks (250 ms) three blasts land at random points of a 9x9
+	// square around it, each drawn at a random size from 0.5 to 1.
+	ef_nw_mission_bombard_field: [
+		{
+			type: 'AREA_SPAWN',
+			spawnEffectId: 'ef_nw_mission_bombard_drop',
+			interval: 250,
+			count: 3,
+			areaByLevel: [9],
+			area: 9,
+			scaleRange: [0.5, 1]
+		}
+	],
+
+	// One blast of Mission Bombard's unit (no sound)
+	ef_nw_mission_bombard_drop: [
 		{
 			type: 'STR',
 			file: 'night_watch/nw_mission_bombard/mission_bombard/mission_bombard_hit',

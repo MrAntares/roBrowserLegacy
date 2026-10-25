@@ -11,13 +11,14 @@
  */
 import EffectDB from 'DB/Effects/EffectTable.js';
 import SkillEffect from 'DB/Skills/SkillEffect.js';
-import SkillUnit from 'DB/Skills/SkillUnit.js';
+import SkillUnit, { SkillUnitEnd, SkillUnitFallback } from 'DB/Skills/SkillUnit.js';
 import SU from 'DB/Skills/SkillUnitConst.js';
 import ItemEffect from 'DB/Items/ItemEffect.js';
 import Commands from 'Controls/ProcessCommand.js';
 import Events from 'Core/Events.js';
 import Configs from 'Core/Configs.js';
 import Cylinder from 'Renderer/Effects/Cylinder.js';
+import AreaSpawner from 'Renderer/Effects/AreaSpawner.js';
 import StrEffect from 'Renderer/Effects/StrEffect.js';
 import RsmEffect from 'Renderer/Effects/RsmEffect.js';
 import TwoDEffect from 'Renderer/Effects/TwoDEffect.js';
@@ -741,6 +742,25 @@ class EffectManager {
 				EffectManager.add(new Cylinder(Params.effect, Params.Inst, Params.Init), Params);
 				break;
 
+			case 'AREA_SPAWN':
+				EffectManager.add(
+					new AreaSpawner(
+						Params.effect,
+						Params.Inst,
+						Params.Init,
+						(effectId, position, startTick, scale) =>
+							EffectManager.spam(
+								Object.assign(
+									{ effectId, position, startTick, otherAID: Params.Init.otherAID },
+									scale && { scale }
+								)
+							),
+						(x, y) => Altitude.getCellHeight(x, y)
+					),
+					Params
+				);
+				break;
+
 			case '2D':
 				EffectManager.add(new TwoDEffect(Params.effect, Params.Inst, Params.Init), Params);
 				break;
@@ -787,8 +807,11 @@ class EffectManager {
 	 * @param {number} position x
 	 * @param {number} position y
 	 * @param {number} skill unique id
+	 * @param {number} creator id
+	 * @param {number} [level] skill level, when the packet has it
+	 * @param {number} [range] skill unit range, when the packet has it
 	 */
-	static spamSkillZone(unit_id, xPos, yPos, uid, creatorUid) {
+	static spamSkillZone(unit_id, xPos, yPos, uid, creatorUid, level, range) {
 		// No effect mode (/effect)
 		if (!Preferences.effect) {
 			return;
@@ -798,9 +821,17 @@ class EffectManager {
 			return;
 		}
 
-		const effectId = SkillUnit[unit_id];
+		// A unit can play several effects (an official unit's start and loop rows)
+		let effectIds = [SkillUnit[unit_id]].flat().filter(effectId => effectId in EffectDB);
 
-		if (!(effectId in EffectDB)) {
+		// Without the client's EZ2 table, the unit's older effect, played once
+		let persistent = true;
+		if (!effectIds.length && unit_id in SkillUnitFallback) {
+			effectIds = SkillUnitFallback[unit_id].filter(effectId => effectId in EffectDB);
+			persistent = false;
+		}
+
+		if (!effectIds.length) {
 			return;
 		}
 
@@ -818,21 +849,47 @@ class EffectManager {
 				? entity.constructor.TYPE_UNIT
 				: entity.constructor.TYPE_EFFECT;
 		entity.creatorGID = creatorUid;
+		entity.skillUnitId = unit_id;
 
 		EntityManager.add(entity);
 
-		// Effect
-		const EF_Init_Par = {
-			effectId: effectId,
-			ownerAID: uid,
-			position: [xPos, yPos, Altitude.getCellHeight(xPos, yPos)],
-			startTick: Renderer.tick,
-			persistent: true,
-			duration: -1, // Infinite by default but the effect param can have a duration that overrides this
-			otherAID: creatorUid
-		};
+		// Effects
+		effectIds.forEach(effectId => {
+			const EF_Init_Par = {
+				effectId: effectId,
+				ownerAID: uid,
+				position: [xPos, yPos, Altitude.getCellHeight(xPos, yPos)],
+				startTick: Renderer.tick,
+				// A row's own `repeat` wins over this (spamEffect). EZ2 rows set it from
+				// IsInfinite, so a unit's start rows play once and only its loops repeat.
+				persistent: persistent,
+				duration: -1, // Infinite by default but the effect param can have a duration that overrides this
+				otherAID: creatorUid,
+				skillLevel: level,
+				unitRange: range
+			};
 
-		EffectManager.spam(EF_Init_Par);
+			EffectManager.spam(EF_Init_Par);
+		});
+	}
+
+	/**
+	 * Play a skill unit's end effects where it stood, when it goes
+	 *
+	 * @param {number} uid skill unique id
+	 */
+	static spamSkillZoneEnd(uid) {
+		if (!Preferences.effect) {
+			return;
+		}
+
+		const entity = EntityManager.get(uid);
+		if (!entity || !(entity.skillUnitId in SkillUnitEnd)) {
+			return;
+		}
+
+		const position = [entity.position[0], entity.position[1], entity.position[2]];
+		SkillUnitEnd[entity.skillUnitId].forEach(effectId => EffectManager.spam({ effectId, position }));
 	}
 
 	/**
@@ -1262,6 +1319,22 @@ class EffectManager {
 
 	static debug() {
 		console.log('%c[DEBUG] EffectManager _list: ', 'color:#F5B342', _list);
+	}
+
+	/**
+	 * Whether an actor already has an effect running (or waiting to start)
+	 *
+	 * @param {number} AID effect owner ID
+	 * @param {mixed} effectID effect ID
+	 * @return {boolean}
+	 */
+	static has(AID, effectID) {
+		return Object.keys(_list).some(name =>
+			_list[name].some(
+				effect =>
+					effect._Params && effect._Params.Init.ownerAID === AID && effect._Params.Inst.effectID === effectID
+			)
+		);
 	}
 
 	/**

@@ -6,8 +6,9 @@ import vm from 'node:vm';
 
 const sourceRoot = process.env.EFFECT_SOURCE_ROOT || join(process.cwd(), 'src');
 
-// mergeEz2Effects over `records`, with `SkillEffect` as the hand-written rows.
-function merge(records, EffectTable, SkillEffect, moreSkills = {}) {
+// mergeEz2Effects over `records`, with `SkillEffect` as the hand-written rows
+// and `units` as SkillUnit.js ({ start: SkillUnit, end: SkillUnitEnd }).
+function merge(records, EffectTable, SkillEffect, StatusEffectTable = {}, units = {}, moreSkills = {}) {
 	const db = readFileSync(join(sourceRoot, 'DB/DBManager.js'), 'utf8');
 	const start = db.indexOf('function loadBSONFile(');
 	const end = db.indexOf('function loadAttendanceFile(');
@@ -15,7 +16,10 @@ function merge(records, EffectTable, SkillEffect, moreSkills = {}) {
 	const context = vm.createContext({
 		console: { log() {} },
 		Ez2streffect: records,
-		SKID: { DR_CUTTING_WIND: 6542, KR_THUNDERING_CALL: 6600, KR_THUNDERING_CALL_S: 6601, ...moreSkills }
+		SKID: { DR_CUTTING_WIND: 6542, KR_THUNDERING_CALL: 6600, KR_THUNDERING_CALL_S: 6601, ...moreSkills },
+		StatusEffectTable,
+		SkillUnit: units.start || {},
+		SkillUnitEnd: units.end || {}
 	});
 	vm.runInContext(db.slice(start, end), context);
 	context.mergeEz2Effects(EffectTable, SkillEffect);
@@ -174,7 +178,34 @@ describe('kRO effect table merged into skills', () => {
 		const call = { thundering_call_hit: { FilePath: 'KR_THUNDERING_CALL\\thundering_call_hit.str' } };
 		const EffectTable = { ef_x: [{ type: 'STR', file: 'kr_thundering_call/thundering_call_hit' }] };
 		const db = { 6602: { effectId: 'ef_x' } };
-		const skills = merge(call, EffectTable, db, { KR_THUNDERING_CALLX: 6602 });
+		const skills = merge(call, EffectTable, db, {}, {}, { KR_THUNDERING_CALLX: 6602 });
 		assert.equal(skills[6600].hitEffectId, 'thundering_call_hit');
+	});
+
+	it('does not add a file a status already plays', () => {
+		const EffectTable = {};
+		const records = {
+			cutting_wind_start: { FilePath: 'DRUID\\DR_CUTTING_WIND\\cutting_wind_start.str' },
+			cutting_wind_buff: { FilePath: 'DRUID\\DR_CUTTING_WIND\\cutting_wind_buff.str' }
+		};
+		const skills = merge(records, EffectTable, {}, { 1000: { loop: ['cutting_wind_buff'] } });
+		assert.equal(skills[6542].effectId, 'cutting_wind_start');
+		// Without the status row, the buff would play once on the cast as well
+		assert.deepEqual([...merge(records, {}, {})[6542].effectId], ['cutting_wind_start', 'cutting_wind_buff']);
+	});
+
+	it('does not add a file a skill unit plays', () => {
+		const EffectTable = {};
+		const nova = {
+			cutting_wind_start: { FilePath: 'DRUID\\DR_CUTTING_WIND\\cutting_wind_start.str' },
+			cutting_wind_end: { FilePath: 'DRUID\\DR_CUTTING_WIND\\cutting_wind_end.str' },
+			cutting_wind_hit: { FilePath: 'DRUID\\DR_CUTTING_WIND\\cutting_wind_hit\\cutting_wind_hit.str' }
+		};
+		const units = { start: { 300: ['cutting_wind_start'] }, end: { 300: ['cutting_wind_end'] } };
+		const skills = merge(nova, EffectTable, {}, {}, units);
+		assert.equal(skills[6542].effectId, undefined);
+		assert.equal(skills[6542].hitEffectId, 'cutting_wind_hit');
+		// Without the unit rows, the unit's start and end would play on the cast
+		assert.deepEqual([...merge(nova, {}, {})[6542].effectId], ['cutting_wind_start', 'cutting_wind_end']);
 	});
 });
