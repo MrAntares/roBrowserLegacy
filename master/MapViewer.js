@@ -223448,7 +223448,7 @@ var init_ChatBox = __esmMin((() => {
 				const clipboard = (event.originalEvent || event).clipboardData || event.clipboardData;
 				let pastedText = clipboard ? clipboard.getData("text/plain") : "";
 				if (!pastedText) return;
-				pastedText = pastedText.replace(/\u00A0/g, " ");
+				pastedText = pastedText.replace(/\u00A0/g, " ").replace(/\r\n?|\n/g, " ");
 				const currentText = extractChatMessage$1(inputChatbox);
 				const remaining = MAX_LENGTH - currentText.length;
 				if (remaining <= 0) return;
