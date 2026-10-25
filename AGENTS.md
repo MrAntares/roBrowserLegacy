@@ -43,25 +43,156 @@ Never violate these rules unless the user explicitly directs a change to the con
 
 ---
 
-## 3. Operating Rules & Workflow
+## Key Architectural Decisions
 
-1. **Before editing:** Read the relevant scoped `AGENTS.md` and linked reference docs from the routing table. Inspect the current source files, callers, and tests—do not assume documentation summaries or packet names alone reflect the implementation.
-2. **While editing:** Make the smallest focused change that solves the task. Follow established subsystem patterns, preserve public interfaces, and avoid unrelated formatting churn or sweeping refactors.
-3. **Before finishing:** Ask the user whether to run lint, format, and relevant tests before executing them. If confirmed, run the requested checks and report the exact commands executed along with any checks that could not be run. Never report a check as passing unless it actually ran and succeeded.
+- **Entity system uses composition, not inheritance.** 17 mixin modules (16 in `src/Renderer/Entity/` + `Controls/EntityControl.js`) are composed into `Entity.js`. Do not refactor to class inheritance — the mixins are applied dynamically at runtime via `.call(this)`.
+- **Packet versioning is date-based.** PACKETVER is configured per server (`packetver`) or auto-detected from the kRO executable PE timestamp. `PacketVersions.js` maps dates to packet definitions (`PACKETVER.addSupport`), and `PacketLength.js` maps dates to packet lengths across 23 packet versions. Changing detection logic in `PacketVerManager.js` can break compatibility.
+- **Two socket paths exist by design.** Browser uses `WebSocket.js` (requires wsProxy for TCP↔WS translation). Electron uses `NodeSocket.js` (direct TCP via preload contextBridge). Both implement the same interface for `NetworkManager`.
+- **Vendors are frozen.** `src/Vendors/` is excluded from ESLint. Never modify vendored files.
+- **UI is 100% GUIComponent.** All 100 UI components use `GUIComponent` (Shadow DOM + native DOM + Custom Elements). Legacy `UIComponent` has been completely removed; `UIManager.addComponent()` strictly requires `GUIComponent` instances. All versioned component siblings have been deduplicated into shared `*Common.js` factories. Primary guide: `docs/UIComponent_to_GUIComponent.md` (L1). For reflex lookup see `docs/UIComponent_to_GUIComponent_Firmware.md` (L2); for historical edge cases see `docs/UIComponent_to_GUIComponent_Scars.md` (L0, archive); for factory pattern rules see `docs/GUIComponent_Version_Dedup_Factory.md`.
+- **UI is asset-driven, not CSS-driven.** Window frames, buttons, and backgrounds come from BMP images in GRF files. Components use Custom Elements (`<ui-button>`, `<ui-text>`, `<ui-image>`) or legacy `data-*` attributes processed by `GUIComponent.processDataAttrs()`. CSS is structural/positional only.
 
----
+## Subsystem Reference
 
-## 4. Code Conventions
+### Network Packet Handling
 
-- **Formatting & Lint:** Enforced by ESLint (`eslint.config.js`) and Prettier (`npm run ci`).
-- **Style:** Single quotes (`avoidEscape: true`), semicolons required, no trailing commas (`comma-dangle: 'never'`), braces required for all control-flow bodies (`curly: 'all'`).
-- **Variables & Safety:** Use `const` by default, `let` when reassigned, never `var`. Prefix intentionally unused variables/parameters with `_`. Never use `eval`, implied eval, `new Function`, or `with`.
-- **Naming:** `PascalCase` for classes/constructors, `camelCase` for functions/methods, `UPPER_SNAKE_CASE` for DB/protocol constants, `_prefix` for private/internal properties.
-- **Modernization on Touch:** When editing legacy code, modernize only the touched lines if safe (watch out for dynamic `this` in callbacks—keep `function()` where callers use `.call`/`.apply`; see [`docs/Architecture.md`](docs/Architecture.md)).
+- **NetworkManager.js**: Connection management, packet dispatch, and packet handler hooking (`Network.hookPacket`)
+- **PacketRegister.js**: Maps packet opcode IDs (`0x69`, `0x6a`, etc.) to packet schema constructors in `PacketStructure.js`
+- **PacketStructure.js**: Defines AC/ZC/HC/CZ packet schemas and data structures
+- **PacketVersions.js**: Packet definition tables keyed by client date (registered via `PACKETVER.addSupport`)
+- **PacketLength.js**: Packet length lookup and initialization for each PACKETVER
+- **PacketCrypt.js**: Packet encryption/decryption
+- **PacketVerManager.js**: Active PACKETVER state manager, packet length coordinator, and character info parser
+- **Packets/**: 23 version-specific length files (`packets2003_len_main.js` through `packets2025_len_main.js`)
+- **SocketHelpers/**: WebSocket.js (browser), NodeSocket.js (Electron desktop)
+- Pattern: Define schema in `PacketStructure.js` → map opcode in `PacketRegister.js` → define lengths in `Packets/` (and outbound tables in `PacketVersions.js` if needed) → hook response handler via `Network.hookPacket(PACKET.<FAMILY>.*, handler)` in the appropriate engine (e.g., `PACKET.ZC.*` for MapEngine, `PACKET.AC.*` / `PACKET.SC.*` for LoginEngine, `PACKET.HC.*` for CharEngine)
 
----
+### Asset Loaders (`src/Loaders/`)
 
-## 5. Commands, Testing & Validation
+- **GameFileDecrypt.js**: Decrypt GRF files (DES/RC4)
+- **GameFile.js**: GRF file container parsing
+- **Action.js**: Parse .act (sprite animation frames)
+- **Sprite.js**: Parse .spr (sprite texture/palette data)
+- **Ground.js**: Parse .gnd (ground mesh/texture data)
+- **Altitude.js**: Parse .gat (map height/collision data)
+- **World.js**: Parse .rsw (resource world — models, lights, sounds)
+- **Str.js**: Parse .str (visual effect files, compiled .ezv format)
+- **Model.js**: Parse .rsm (3D model data)
+- **GR2Loader.js**: Parse Granny3D .gr2 skeletal model files via `granny-ro-js` (superseded legacy `GrannyModel.js`)
+- **MapLoader.js**: Map loading orchestration
+- **Targa.js**: Parse .tga (image format)
 
-Check [.nvmrc](.nvmrc) and [package.json](package.json) for Node.js requirements.
-Check [package.json](package.json) for script commands.
+### MapEngine Subsystems (`src/Engine/MapEngine/`, 29 files)
+
+- **Main.js**: Core game loop and state management
+- **Entity.js**: Main entity controller
+- **UIOpen.js**: UI component lifecycle
+- **MapState.js**: State persistence
+- **Achievement.js, Quest.js, Guild.js, Clan.js**: Progress systems
+- **Group.js, Friends.js, PrivateMessage.js, ChatRoom.js**: Social features
+- **CashShop.js, Bank.js, Roulette.js**: Commerce systems
+- **Homun.js, Pet.js, Mercenary.js**: Companion systems
+- **NPC.js, Store.js, Trade.js**: Interaction systems
+- **Item.js, Storage.js, Skill.js**: Core gameplay
+- **Mail.js, Rodex.js**: Messaging systems
+- **Captcha.js, PCGoldTimer.js**: Security/timer systems
+- **OffhandWeapon.js**: offhandweapon system
+
+### GUI Components (`src/UI/Components/`, 100 directories)
+
+- All 100 components are built with `GUIComponent` using Shadow DOM + native DOM + Custom Elements (`<ui-button>`, `<ui-text>`, `<ui-image>`)
+- `UIManager.addComponent()` requires a `GUIComponent` instance
+- `this.ui` proxy on `GUIComponent` provides a minimal jQuery-compatible API for legacy interop; internal component code must use native DOM and Shadow DOM APIs directly (`this.getRoot().querySelector(...)`)
+- All 13 multi-version component families have been deduplicated into shared `*Common.js` factories (see `docs/GUIComponent_Version_Dedup_Factory.md`)
+
+**UI Reference & Architecture Docs:**
+
+- **Factory Deduplication** [`docs/GUIComponent_Version_Dedup_Factory.md`](docs/GUIComponent_Version_Dedup_Factory.md): rules and patterns for unified `*Common.js` factories.
+- **Custom Elements**: [`docs/CustomElements.md`](docs/CustomElements.md) — reference for `<ui-button>`, `<ui-text>`, `<ui-image>`.
+
+- **Intro.js**: File upload & server selection
+- **WinList.js**: Character selection
+- **WinLogin.js**: Account authentication
+- **Inventory, Equipment, Storage, Bank, CashShop, CartItems**: Item management
+- **ChatBox, ChatRoom, ChatRoomCreate, WhisperBox, ChatBoxSettings**: Communication
+- **NpcBox, NpcStore, NpcMenu**: NPC interaction
+- **SkillList, SkillListMH, SkillDescription, SkillTargetSelection**: Skill system
+- **Quest, Mail, Rodex, Trade, Vending, VendingShop, VendingReport**: Game systems
+- **Refine, RefineWeaponSelection, Enchant, EnchantGrade, ItemCompare, ItemReform, LaphineSys, LaphineUpg**: Crafting/upgrade
+- **Clan, Guild, PartyFriends, EntityRoom**: Social systems
+- **MiniMap, WorldMap, Navigation, MapName**: Navigation
+- **GrfViewer, ModelViewer, StrViewer, EffectViewer, GrannyModelViewer**: Asset viewers
+- **BasicInfo, WinStats, StatusIcons, Sense**: Character info
+- **ShortCut, ShortCuts, ShortCutOption**: Hotkey systems
+- **Emoticons, Announce, FPS, Escape, Error, WinPopup, WinPrompt**: Misc UI
+- **CharCreate, CharSelect, PincodeWindow**: Character management
+- **HomunInformations, MercenaryInformations, PetInformations, PetEvolution**: Companion UI
+- **CardIllustration, ItemInfo, ItemObtain, ItemPreview, ItemSelection**: Item display
+- **MakeArrowSelection, MakeItemSelection, MakeReadBook**: Crafting UI
+- **PlayerViewEquip, SwitchEquip, ChangeCart**: Equipment UI
+- **GraphicsOption, SoundOption**: Settings
+- **Captcha, CheckAttendance, Reputation, SlotMachine, PvPCount, PvPTimer, PCGoldTimer**: Misc systems
+- **ContextMenu, EntitySignboard, JoystickUI, MobileUI**: Interface elements
+
+### Renderer Effects (`src/Renderer/Effects/`)
+
+- **Weather**: CloudWeatherEffect, PokJukWeatherEffect, RainWeather, SakuraWeatherEffect, SnowWeather, Sky
+- **Auras/Spheres**: GroundAura, SwirlingAura, SpiritSphere, WarlockSphere, Level99Bubble, QuadHorn
+- **Ground**: GroundEffect, FlatColorTile, PropertyGround, LPEffect, SpiderWeb, Tiles
+- **Combat**: Damage, MagnumBreak, PoisonEffect, MagicTarget, MagicRing, LockOnTarget
+- **Visual**: StrEffect, RsmEffect, ThreeDEffect, TwoDEffect, Cylinder, Songs, Trail, WaterfallEffect
+- **Screen**: PostProcess
+- **Post-Processing Shaders** (`Effects/Shaders/`): Blind, Bloom, CAS, Cartoon, FXAA, GaussianBlur, Upsampling, VerticalFlip, Vibrance
+
+### Renderer Entity Modules (`src/Renderer/Entity/`)
+
+- **Composition**: `Entity.js` composes `Controls/EntityControl.js` with 16 behavior mixins; `Player.js` specializes the player entity.
+- **Behavior mixins**: `EntityAction`, `EntityAnimations`, `EntityAttachments`, `EntityAura`, `EntityCast`, `EntityDialog`, `EntityDisplay`, `EntityDropEffect`, `EntityEmblem`, `EntityLife`, `EntityOverlay`, `EntityRender`, `EntityRoom`, `EntitySound`, `EntityState`, `EntityView`, `EntityWalk`.
+- **Sprite composition**: `EntityRender` delegates layered player-sprite capture and composition to `EntityComposer`; the composer caches the combined texture for `SpriteBatch` rendering. `EntityManager` releases cached composites when entities are removed and after batch rendering, while `Renderer` resets them after WebGL context loss.
+
+### Behavior Reference Documentation
+
+Read these documents on demand when a task touches the behavior or workflow they cover:
+
+- **Behavior references** (`docs/reference/`):
+    - **README.md**: Index of focused notes explaining non-obvious behavior established by comparison with the original Windows client
+    - **guild/**: Guild window tabs, dialogs, member data, emblems, and related packets
+    - **chat/**: Parsing and display of received chat lines
+    - **renderer/**: Entity rendering behavior, including mounted body palettes
+    - **pet/**: Pet name display in chat
+    - Read applicable notes before changing behavior they cover; they document observed behavior and intentional deviations, not a replacement for the code
+- **How-to guides** (`docs/how-to/`):
+    - [UI component development](docs/how-to/ui-component-development.md): creating components and deduplicating versioned components
+    - [Network packet development](docs/how-to/network-packet-development.md): implementing packet handlers and adding packet versions
+    - [Renderer effects](docs/how-to/renderer-effects.md): creating renderer effects
+    - [Troubleshooting and diagnostics](docs/how-to/troubleshooting-and-diagnostics.md): troubleshooting, runtime diagnostics, and common bug hotspots
+
+### Tests (`tests/`)
+
+- Tests are grouped by subsystem: `controls/`, `db/`, `engine/`, `loaders/`, `network/`, `renderer/`, `ui/`, and `util/`
+- **setup.js**: Shared test environment setup
+- **fixtures/**: Shared test data and fixture documentation
+
+### Globals Still in Use
+
+- **ROConfig**: Runtime configuration object
+- **SEEK_CUR, SEEK_SET, SEEK_END**: BinaryReader constants (prefer importing from `Utils/BinaryReader.js`)
+
+## Important Gotchas
+
+- **PACKETVER mismatch**: Client and server packet definitions must align; debug by comparing hex packets
+- **GRF paths**: Case-sensitive on Linux; relative to Remote Client or local file list
+- **Texture limits**: WebGL has max texture dimensions; large sprite sheets can fail
+- **Path aliases**: Always use aliases (e.g., `'Utils/BinaryReader.js'`) instead of relative paths
+- **Global removal requires audit**: Before removing a global assignment (e.g., `SEEK_CUR`), verify all consumers including Web Workers have been updated to use ES6 imports
+
+## Glossary
+
+- **GID**: Global ID — unique identifier for game entities
+- **GRF**: Game Resource File — container format for Ragnarok assets
+- **PACKETVER**: Packet version — determines network protocol format based on kRO client date
+- **wsProxy**: WebSocket proxy for TCP ↔ WebSocket translation
+- **Entity**: Game object (player, NPC, monster) with rendering and state
+- **Effect**: Visual effect (weather, auras, particles) managed by EffectManager
+- **kRO**: Korean Ragnarok Online — reference client for packet versions
+
