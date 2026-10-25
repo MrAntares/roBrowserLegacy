@@ -332,7 +332,8 @@ ChatBox.init = function init() {
 				return;
 			}
 
-			pastedText = pastedText.replace(/\u00A0/g, ' ');
+			// The input is one line: a pasted line break becomes a space.
+			pastedText = pastedText.replace(/\u00A0/g, ' ').replace(/\r\n?|\n/g, ' ');
 
 			const currentText = extractChatMessage(inputChatbox);
 			const remaining = MAX_LENGTH - currentText.length;
