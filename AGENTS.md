@@ -1,82 +1,67 @@
-# AI Agent Instructions for roBrowserLegacy
+# AGENTS.md
 
-## Project Overview
+Global repository instructions for AI coding agents working on **roBrowserLegacy**, a browser-based Ragnarok Online client built with ES modules, Vite + a custom builder (`applications/tools/builder-web.mjs`), and WebGL (OpenGL ES 2.0). Runs in Web Browsers, as a PWA, and as an Electron desktop app.
 
-roBrowserLegacy is a web-based Ragnarok Online client built with ES6 modules and WebGL. It supports multiple platforms (browser, PWA, Electron desktop) and provides a complete game client experience.
+---
 
-### Key Statistics
+## 1. Documentation Routing (Read Before Editing)
 
-- **14 subsystems** in `src/` (App, Audio, Controls, Core, DB, Engine, Loaders, Network, Plugins, Preferences, Renderer, UI, Utils, Vendors)
-- **7 application entry points** in `src/App/` (1 game client: `Online.js` + 6 viewers: `EffectViewer.js`, `GrannyModelViewer.js`, `GrfViewer.js`, `MapViewer.js`, `ModelViewer.js`, `StrViewer.js`; plus `PreLoader.js` utility and `ThreadEventHandler.js` Web Worker in `src/Core/`)
-- **100 UI Components** in `src/UI/Components/` (all migrated to `GUIComponent`)
-- **42 Renderer Effect modules** (33 effect JS files in `src/Renderer/Effects/` + 9 post-processing shaders in `src/Renderer/Effects/Shaders/`, plus companion GLSL shaders)
-- **19 Entity modules** in `src/Renderer/Entity/` (`Entity.js`, `Player.js`, `EntityOverlay.js`, and 16 entity mixins; 17 mixins composed dynamically into `Entity` with `Controls/EntityControl.js`)
-- **29 MapEngine subsystems** in `src/Engine/MapEngine/`
-- **23 packet versions** supported (kRO 2003–2025) in `src/Network/Packets/`
+Consult **only** the scoped instructions and reference documents relevant to your task. Mandatory references are prerequisites, not optional suggestions.
 
-## Architecture
+| Task / Subsystem                                                        | Required Documentation                                                                                                                                                                                              |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **UI components, Shadow DOM, custom elements, scrollbars**              | [`src/UI/AGENTS.md`](src/UI/AGENTS.md) → [`docs/UIComponent_to_GUIComponent.md`](docs/UIComponent_to_GUIComponent.md), [`docs/CustomElements.md`](docs/CustomElements.md), [`docs/Scrollbar.md`](docs/Scrollbar.md) |
+| **Versioned UI deduplication (`*Common.js` factories)**                 | [`src/UI/AGENTS.md`](src/UI/AGENTS.md) → [`docs/GUIComponent_Version_Dedup_Factory.md`](docs/GUIComponent_Version_Dedup_Factory.md)                                                                                 |
+| **Packets, opcodes, lengths, `PACKETVER`, sockets**                     | [`src/Network/AGENTS.md`](src/Network/AGENTS.md)                                                                                                                                                                    |
+| **WebGL renderer, `Entity` mixins, effects, shaders, GR2**              | [`src/Renderer/AGENTS.md`](src/Renderer/AGENTS.md) → [`docs/reference/renderer/README.md`](docs/reference/renderer/README.md)                                                                                       |
+| **Game/Login/Char/Map engines & gameplay handlers**                     | [`src/Engine/AGENTS.md`](src/Engine/AGENTS.md) → [`docs/reference/README.md`](docs/reference/README.md)                                                                                                             |
+| **Binary asset loaders (`.grf`, `.spr`, `.rsw`, `.gr2`, WASM)**         | [`src/Loaders/AGENTS.md`](src/Loaders/AGENTS.md) → [`docs/Encoding.md`](docs/Encoding.md)                                                                                                                           |
+| **Database tables, constants, item/skill/status lookups**               | [`src/DB/AGENTS.md`](src/DB/AGENTS.md) → [`docs/Encoding.md`](docs/Encoding.md)                                                                                                                                     |
+| **VFS (`Client`/`FileManager`), `ROConfig`, Workers, Lua/AI**           | [`src/Core/AGENTS.md`](src/Core/AGENTS.md) → [`docs/LuaModuleResolution.md`](docs/LuaModuleResolution.md), [`docs/Encoding.md`](docs/Encoding.md)                                                                   |
+| **Controls, Audio, Preferences, Plugins, Utils**                        | [`docs/Architecture.md`](docs/Architecture.md)                                                                                                                                                                      |
+| **Original Windows client behavioral notes (Guild, Chat, Pet, Mounts)** | [`docs/reference/README.md`](docs/reference/README.md)                                                                                                                                                              |
+| **Architecture overview, JS modernization, debugging, glossary**        | [`docs/Architecture.md`](docs/Architecture.md)                                                                                                                                                                      |
+| **Code review & PR invariants**                                         | [`REVIEW.md`](REVIEW.md)                                                                                                                                                                                            |
 
-### ES6 Modules
+> **Hierarchical Discovery Note:** When working in `src/<Subsystem>/`, always open and read the corresponding `src/<Subsystem>/AGENTS.md` file first if your coding agent does not load nested `AGENTS.md` files automatically.
 
-All source files use ES6 `import`/`export`. Vite bundles them into optimized ES modules.
+---
 
-```javascript
-import { BinaryReader } from 'Utils/BinaryReader.js';
-import Configs from 'Core/Configs.js';
-```
+## 2. Non-Negotiable Constraints
 
-- Base path: `src/` (directory structure mirrors module paths)
-- Output: `dist/Web/` for web, `dist/Desktop/` for Electron
-- Build: Vite + custom builder script (`applications/tools/builder-web.mjs`)
+Never violate these rules unless the user explicitly directs a change to the constraint:
 
-### Module Path Aliases
+- **Do not modify `src/Vendors/`.** Vendored third-party files are frozen and excluded from ESLint.
+- **Do not convert the `Entity` mixin/composition system into class inheritance.** 17 mixins (`src/Renderer/Entity/*` + `Controls/EntityControl.js`) are applied dynamically via `.call(this)`, and `Entity.prototype` properties act as an `Entity.prototype.hasOwnProperty` security whitelist for `Entity.set()`.
+- **Do not change `PACKETVER` detection or block-size logic in `src/Network/PacketVerManager.js` without explicit instruction.**
+- **Do not reintroduce the removed legacy `UIComponent` or jQuery UI patterns.** All UI components must use `GUIComponent`, Shadow DOM (`this.getRoot()`), and native DOM APIs.
+- **Do not change numeric IDs in `src/DB/*Const.js` tables** unless intentionally matching an official kRO update.
+- **Use configured path aliases with explicit `.js` extensions** for cross-directory imports (e.g., `import Client from 'Core/Client.js';`). Aliases (`App`, `Audio`, `Controls`, `Core`, `DB`, `Engine`, `Loaders`, `Network`, `Plugins`, `Preferences`, `Renderer`, `UI`, `Utils`, `Vendors` → `src/<Alias>`) must stay synchronized in both `vite.config.js` and `applications/tools/builder-web.mjs`.
+- **Do not remove existing global assignments** (`ROConfig`, `ROBrowser`, `SEEK_CUR`, `SEEK_SET`, `SEEK_END`, `window._OBJ_DRAG_`) without auditing every consumer, including Web Workers and `applications/`.
+- **Do not hand-edit generated defaults in `Config.js`** unless the task specifically requires changing the generator (`applications/tools/builder-web.mjs`) or default config.
+- **Never commit proprietary game assets** (`.grf`, `.spr`, `.act`, `.bmp`, `.mp3`). Test fixtures must be synthetic in-memory buffers.
 
-| Alias       | Path             |
-| ----------- | ---------------- |
-| App         | src/App/         |
-| Audio       | src/Audio/       |
-| Controls    | src/Controls/    |
-| Core        | src/Core/        |
-| DB          | src/DB/          |
-| Engine      | src/Engine/      |
-| Loaders     | src/Loaders/     |
-| Network     | src/Network/     |
-| Plugins     | src/Plugins/     |
-| Preferences | src/Preferences/ |
-| Renderer    | src/Renderer/    |
-| UI          | src/UI/          |
-| Utils       | src/Utils/       |
-| Vendors     | src/Vendors/     |
+---
 
-Example: `import Sprite from 'Loaders/Sprite.js';`
+## 3. Operating Rules & Workflow
 
-### Core Service Layers
+1. **Before editing:** Read the relevant scoped `AGENTS.md` and linked reference docs from the routing table. Inspect the current source files, callers, and tests—do not assume documentation summaries or packet names alone reflect the implementation.
+2. **While editing:** Make the smallest focused change that solves the task. Follow established subsystem patterns, preserve public interfaces, and avoid unrelated formatting churn or sweeping refactors.
+3. **Before finishing:** Ask the user whether to run lint, format, and relevant tests before executing them. If confirmed, run the requested checks and report the exact commands executed along with any checks that could not be run. Never report a check as passing unless it actually ran and succeeded.
 
-1. **Engine** (`src/Engine/`): GameEngine (orchestrator), LoginEngine (auth), CharEngine (character), MapEngine (29 subsystems), SessionStorage, Replay (ReplayParser, ReplayPlayer, ReplaySocket, ReplayTypes), State
-2. **Network** (`src/Network/`): PacketRegister, PacketStructure, PacketCrypt, PacketVersions.js, PacketVerManager, PacketLength, NetworkManager, SocketHelpers (WebSocket/NodeSocket)
-3. **Loaders** (`src/Loaders/`): GameFileDecrypt, GameFile, Sprite, Action, Ground (.gnd), Altitude (.gat), World (.rsw), Str (.str effects), Model, GR2Loader (.gr2 3D skeletal models via granny-ro-js), MapLoader, Targa, /wasm loader files
-4. **Database** (`src/DB/`): DBManager + data subdirectories (Effects, Items, Jobs, Map, Monsters, Pets, Skills, Status) + Emotions, TownInfo; `Skills/SkillTreeMerge.js` merges client `skilltreeview.lub` layouts with the built-in skill tree
-5. **Renderer** (`src/Renderer/`): Renderer.js (WebGL context), MapRenderer, EntityManager, EffectManager, ScreenEffectManager, SignboardManager, Camera, SpriteRenderer, SpriteBatch (instanced entity sprite draws), SpriteAtlas (shared sprite frame and palette atlas for SpriteBatch), EntityComposer (composes and caches layered entity sprites for drawing), ItemObject + subdirectories (Effects, Entity, GR2, Map)
-6. **UI** (`src/UI/`): UIManager, UIVersionManager, GUIComponent (base class, Shadow DOM), Custom Elements (`src/UI/Elements/`), CursorManager, Scrollbar, Background, TouchDrag, ClampToViewport, WhenDrawn (runs a callback the first time an element is drawn; window art waits for it), 100+ component directories
-7. **Controls** (`src/Controls/`): EntityControl, MapControl, KeyEventHandler, MouseEventHandler, ProcessCommand, BattleMode, ScreenShot
-8. **Audio** (`src/Audio/`): BGM.js, SoundManager.js
-9. **Core** (`src/Core/`): Client, Configs, Context, Events, FileManager, FileSystem, MemoryItem, MemoryManager, Mobile, Preferences, Thread, ThreadEventHandler, AIDriver, LuaModuleLoader, PerfProbe (opt-in frame/draw-call/map-load probe, `perfProbe: true`)
-10. **Preferences** (`src/Preferences/`): Audio, Graphics, Controls, UI, Camera, Map, ShortCutControls
-11. **Plugins** (`src/Plugins/`): PluginManager.js
-12. **Utils** (`src/Utils/`): BinaryReader, BinaryWriter, Struct, Inflate, PathFinding, WebGL, Texture, Executable, CRC32, CodepageManager, ConsoleManager, HTMLEntity, Queue, Base62, colors, partyColors, gl-matrix
+---
 
-### Data Flow
+## 4. Code Conventions
 
-1. **Init**: GameEngine loads config → Client loads GRFs/executable → PACKETVER is set from config or auto-detected from executable PE timestamp
-2. **Login**: LoginEngine → NetworkManager connects via WebSocket (browser) or NodeSocket (Electron) → authenticates with versioned packets
-3. **Map Entry**: MapEngine loads map/entity data → Renderer displays → Controls enable input → 29 MapEngine subsystems manage live state
-4. **Runtime**: InputHandler → ProcessCommand → NetworkManager sends → packet handlers update state → EntityManager updates → Renderer draws
+- **Formatting & Lint:** Enforced by ESLint (`eslint.config.js`) and Prettier (`npm run ci`).
+- **Style:** Single quotes (`avoidEscape: true`), semicolons required, no trailing commas (`comma-dangle: 'never'`), braces required for all control-flow bodies (`curly: 'all'`).
+- **Variables & Safety:** Use `const` by default, `let` when reassigned, never `var`. Prefix intentionally unused variables/parameters with `_`. Never use `eval`, implied eval, `new Function`, or `with`.
+- **Naming:** `PascalCase` for classes/constructors, `camelCase` for functions/methods, `UPPER_SNAKE_CASE` for DB/protocol constants, `_prefix` for private/internal properties.
+- **Modernization on Touch:** When editing legacy code, modernize only the touched lines if safe (watch out for dynamic `this` in callbacks—keep `function()` where callers use `.call`/`.apply`; see [`docs/Architecture.md`](docs/Architecture.md)).
 
-### Multi-Platform Support
+---
 
-- **Browser**: WebSocket via wsProxy, ES modules loaded as `<script type='module'>`
-- **PWA**: Progressive Web App with manifest and service worker support
-- **Electron Desktop**: Direct TCP via NodeSocket (Electron preload), packaged executables
+## 5. Commands, Testing & Validation
 
 ## Key Architectural Decisions
 
@@ -256,3 +241,4 @@ Formatting is handled by **Prettier** (defaults). ESLint extends `eslint:recomme
 - **Entity**: Game object (player, NPC, monster) with rendering and state
 - **Effect**: Visual effect (weather, auras, particles) managed by EffectManager
 - **kRO**: Korean Ragnarok Online — reference client for packet versions
+
