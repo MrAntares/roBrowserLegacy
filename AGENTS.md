@@ -46,7 +46,6 @@ Use this table to find the relevant subsystem map and supporting documentation. 
 | Binary asset loading and encoding | `src/Loaders/AGENTS.md` → `docs/Encoding.md` |
 | Database tables, constants, item/skill/status lookups | `src/DB/AGENTS.md` → `docs/Encoding.md` |
 | VFS, `ROConfig`, Workers, Lua / AI | `src/Core/AGENTS.md` → `docs/LuaModuleResolution.md`, `docs/Encoding.md` |
-| Controls, Audio, Preferences, Plugins, Utils | `docs/Architecture.md` |
 | Tests and test infrastructure | `tests/AGENTS.md` |
 | Original Windows client behavior | `docs/reference/README.md` → relevant behavior reference |
 | UI component development | `docs/how-to/ui-component-development.md` |
