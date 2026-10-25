@@ -539,6 +539,7 @@ ChatBox.init = function init() {
 					event.stopPropagation();
 
 					// A click only switches tab: the name is not focused until a double-click
+					// (a click inside the name being edited only moves the caret)
 					const input = event.target.closest('td.tab input');
 					if (!input || input.readOnly) {
 						event.preventDefault();
