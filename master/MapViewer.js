@@ -211064,7 +211064,7 @@ var init_Models = __esmMin((() => {
 // src/Renderer/Map/AnimatedModels.vs?raw
 var AnimatedModels_default$2;
 var init_AnimatedModels$2 = __esmMin((() => {
-	AnimatedModels_default$2 = "#version 300 es  \r\nprecision highp float;  \r\n  \r\nin vec3 aPosition;  \r\nin vec3 aNormal;  \r\nin vec2 aTextureCoord;  \r\nin float aAlpha;  \r\nin float aMatrixIndex;  \r\n  \r\nout vec2 vTextureCoord;  \r\nout float vLightWeighting;  \r\nout float vAlpha;  \r\nout float vFogFactor;  \r\nout vec3 vWorldPos;  \r\n  \r\nuniform mat4 uModelViewMat;  \r\nuniform mat4 uProjectionMat;  \r\nuniform mat3 uNormalMat;  \r\n  \r\nuniform vec3 uLightDirection;  \r\nuniform float uLightOpacity;  \r\nuniform vec3 uLightAmbient;  \r\nuniform vec3 uLightDiffuse;  \r\n  \r\nuniform bool uFogUse;  \r\nuniform float uFogNear;  \r\nuniform float uFogFar;  \r\n  \r\nuniform highp sampler2D uMatrixTexture;  \r\n  \r\nmat4 fetchMatrix(int index) {  \r\n    int pixelIndex = index * 4;  \r\n    vec4 row0 = texelFetch(uMatrixTexture, ivec2(pixelIndex, 0), 0);  \r\n    vec4 row1 = texelFetch(uMatrixTexture, ivec2(pixelIndex + 1, 0), 0);  \r\n    vec4 row2 = texelFetch(uMatrixTexture, ivec2(pixelIndex + 2, 0), 0);  \r\n    vec4 row3 = texelFetch(uMatrixTexture, ivec2(pixelIndex + 3, 0), 0);  \r\n    return mat4(row0, row1, row2, row3);  \r\n}  \r\n  \r\nvoid main(void) {  \r\n    mat4 M = fetchMatrix(int(aMatrixIndex));  \r\n    vec4 worldPos = M * vec4(aPosition, 1.0);  \r\n    vec4 position = uModelViewMat * worldPos;  \r\n    gl_Position = uProjectionMat * position;  \r\n  \r\n    vTextureCoord = aTextureCoord;  \r\n    vAlpha = aAlpha;  \r\n    vWorldPos = worldPos.xyz;  \r\n  \r\n    vec3 c0 = normalize(M[0].xyz);  \r\n    vec3 c1 = normalize(M[1].xyz);  \r\n    vec3 c2 = normalize(M[2].xyz);  \r\n    mat3 rotMat = mat3(c0, c1, c2);  \r\n    vec3 normal = normalize(rotMat * aNormal);  \r\n  \r\n    float lightWeight = max(dot(normal, uLightDirection), 0.0);  \r\n    vLightWeighting = (1.0 - uLightOpacity) + lightWeight * uLightOpacity;  \r\n  \r\n    if (uFogUse) {  \r\n        float depth = length(position.xyz);  \r\n        vFogFactor = clamp((uFogFar - depth) / (uFogFar - uFogNear), 0.0, 1.0);  \r\n    } else {  \r\n        vFogFactor = 1.0;  \r\n    }  \r\n}";
+	AnimatedModels_default$2 = "#version 300 es  \r\nprecision highp float;  \r\n  \r\nin vec3 aPosition;  \r\nin vec3 aNormal;  \r\nin vec2 aTextureCoord;  \r\nin float aAlpha;  \r\nin float aMatrixIndex;  \r\n  \r\nout vec2 vTextureCoord;  \r\nout float vLightWeighting;  \r\nout float vAlpha;  \r\nout float vFogFactor;  \r\nout vec3 vWorldPos;  \r\n  \r\nuniform mat4 uModelViewMat;  \r\nuniform mat4 uProjectionMat;  \r\nuniform mat3 uNormalMat;  \r\n  \r\nuniform vec3 uLightDirection;  \r\nuniform float uLightOpacity;  \r\nuniform vec3 uLightAmbient;  \r\nuniform vec3 uLightDiffuse;  \r\n  \r\nuniform bool uFogUse;  \r\nuniform float uFogNear;  \r\nuniform float uFogFar;  \r\n  \r\nuniform highp sampler2D uMatrixTexture;  \r\n  \r\nmat4 fetchMatrix(int index) {  \r\n    int width = textureSize(uMatrixTexture, 0).x;  \r\n    int pixelIndex = index * 4;  \r\n    ivec2 base = ivec2(pixelIndex % width, pixelIndex / width);  \r\n    vec4 row0 = texelFetch(uMatrixTexture, base, 0);  \r\n    vec4 row1 = texelFetch(uMatrixTexture, base + ivec2(1, 0), 0);  \r\n    vec4 row2 = texelFetch(uMatrixTexture, base + ivec2(2, 0), 0);  \r\n    vec4 row3 = texelFetch(uMatrixTexture, base + ivec2(3, 0), 0);  \r\n    return mat4(row0, row1, row2, row3);  \r\n}  \r\n  \r\nvoid main(void) {  \r\n    mat4 M = fetchMatrix(int(aMatrixIndex));  \r\n    vec4 worldPos = M * vec4(aPosition, 1.0);  \r\n    vec4 position = uModelViewMat * worldPos;  \r\n    gl_Position = uProjectionMat * position;  \r\n  \r\n    vTextureCoord = aTextureCoord;  \r\n    vAlpha = aAlpha;  \r\n    vWorldPos = worldPos.xyz;  \r\n  \r\n    vec3 c0 = normalize(M[0].xyz);  \r\n    vec3 c1 = normalize(M[1].xyz);  \r\n    vec3 c2 = normalize(M[2].xyz);  \r\n    mat3 rotMat = mat3(c0, c1, c2);  \r\n    vec3 normal = normalize(rotMat * aNormal);  \r\n  \r\n    float lightWeight = max(dot(normal, uLightDirection), 0.0);  \r\n    vLightWeighting = (1.0 - uLightOpacity) + lightWeight * uLightOpacity;  \r\n  \r\n    if (uFogUse) {  \r\n        float depth = length(position.xyz);  \r\n        vFogFactor = clamp((uFogFar - depth) / (uFogFar - uFogNear), 0.0, 1.0);  \r\n    } else {  \r\n        vFogFactor = 1.0;  \r\n    }  \r\n}";
 }));
 // src/Renderer/Map/AnimatedModels.fs?raw
 var AnimatedModels_default$1;
@@ -211351,14 +211351,17 @@ function add$2(gl, modelData) {
 		}
 	}
 	const totalMatrices = nodes.length * numInstances;
-	const matrixData = new Float32Array(totalMatrices * 16);
+	const matricesPerRow = Math.min(totalMatrices, Math.floor(gl.getParameter(gl.MAX_TEXTURE_SIZE) / 4));
+	const matrixTexWidth = matricesPerRow * 4;
+	const matrixTexHeight = Math.ceil(totalMatrices / matricesPerRow);
+	const matrixData = new Float32Array(matrixTexWidth * matrixTexHeight * 4);
 	const matrixTexture = gl.createTexture();
 	gl.bindTexture(gl.TEXTURE_2D, matrixTexture);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, totalMatrices * 4, 1, 0, gl.RGBA, gl.FLOAT, matrixData);
+	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, matrixTexWidth, matrixTexHeight, 0, gl.RGBA, gl.FLOAT, matrixData);
 	gl.bindTexture(gl.TEXTURE_2D, null);
 	const animModel = {
 		filename: modelData.filename,
@@ -211380,7 +211383,8 @@ function add$2(gl, modelData) {
 		buffer: gl.createBuffer(),
 		matrixTexture,
 		matrixData,
-		totalMatrices,
+		matrixTexWidth,
+		matrixTexHeight,
 		meshInfos,
 		lastFrame: -1,
 		lastAnimFrame: -1,
@@ -211579,7 +211583,7 @@ function updateModelBuffer(gl, model, frame, force) {
 		}
 	}
 	gl.bindTexture(gl.TEXTURE_2D, model.matrixTexture);
-	gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, model.totalMatrices * 4, 1, gl.RGBA, gl.FLOAT, matrixData);
+	gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, model.matrixTexWidth, model.matrixTexHeight, gl.RGBA, gl.FLOAT, matrixData);
 	gl.bindTexture(gl.TEXTURE_2D, null);
 }
 /**
