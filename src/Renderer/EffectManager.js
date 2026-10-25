@@ -114,17 +114,48 @@ function spamSTR(Params) {
 		fallbacks.unshift({ filename: 'data/texture/effect/' + pick(Params.effect.file) + '.str', texturePath });
 	}
 
-	// Start effect
-	EffectManager.add(
-		new StrEffect(
-			'data/texture/effect/' + filename + '.str',
-			Params.Inst.position,
-			Params.Inst.startTick,
-			texturePath,
-			fallbacks
-		),
-		Params
+	const str = new StrEffect(
+		'data/texture/effect/' + filename + '.str',
+		Params.Inst.position,
+		Params.Inst.startTick,
+		texturePath,
+		fallbacks
 	);
+
+	// A row from the client's EZ2 table carries its PosX/PosY: placed as the
+	// client places those effects (StrEffect.layout).
+	if (Params.effect.xOffset !== undefined || Params.effect.yOffset !== undefined) {
+		str.ez2Offset = [Params.effect.xOffset || 0, Params.effect.yOffset || 0];
+	}
+
+	// A copy the client turns on screen (degrees clockwise, StrEffect.layout).
+	// A row's turnOffset adds to it: art drawn pointing the other way.
+	if (Params.Init.screenTurn !== undefined || Params.effect.turnOffset) {
+		const turn = (Params.Init.screenTurn || 0) + (Params.effect.turnOffset || 0);
+		if (turn % 360) {
+			str.screenTurn = turn;
+		}
+	}
+
+	// A copy the client mirrors (before the turn) or tilts back (after it)
+	if (Params.Init.flipX) {
+		str.flipX = true;
+	}
+	if (Params.Init.flipY) {
+		str.flipY = true;
+	}
+	if (Params.effect.tilt) {
+		str.tilt = Params.effect.tilt;
+	}
+
+	// A copy the client draws larger or smaller (StrEffect.layout)
+	const scale = Params.Init.scale || Params.effect.scale;
+	if (scale > 0 && scale !== 1) {
+		str.scale = scale;
+	}
+
+	// Start effect
+	EffectManager.add(str, Params);
 }
 
 /**
