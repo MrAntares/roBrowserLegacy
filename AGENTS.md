@@ -189,14 +189,22 @@ Example: `import Sprite from 'Loaders/Sprite.js';`
 - **Behavior mixins**: `EntityAction`, `EntityAnimations`, `EntityAttachments`, `EntityAura`, `EntityCast`, `EntityDialog`, `EntityDisplay`, `EntityDropEffect`, `EntityEmblem`, `EntityLife`, `EntityOverlay`, `EntityRender`, `EntityRoom`, `EntitySound`, `EntityState`, `EntityView`, `EntityWalk`.
 - **Sprite composition**: `EntityRender` delegates layered player-sprite capture and composition to `EntityComposer`; the composer caches the combined texture for `SpriteBatch` rendering. `EntityManager` releases cached composites when entities are removed and after batch rendering, while `Renderer` resets them after WebGL context loss.
 
-### Behavior Reference Notes (`docs/reference/`)
+### Behavior Reference Documentation
 
-- **README.md**: Index of focused notes explaining non-obvious behavior established by comparison with the original Windows client
-- **guild/**: Guild window tabs, dialogs, member data, emblems, and related packets
-- **chat/**: Parsing and display of received chat lines
-- **renderer/**: Entity rendering behavior, including mounted body palettes
-- **pet/**: Pet name display in chat
-- Read applicable notes before changing behavior they cover; they document observed behavior and intentional deviations, not a replacement for the code
+Read these documents on demand when a task touches the behavior or workflow they cover:
+
+- **Behavior references** (`docs/reference/`):
+    - **README.md**: Index of focused notes explaining non-obvious behavior established by comparison with the original Windows client
+    - **guild/**: Guild window tabs, dialogs, member data, emblems, and related packets
+    - **chat/**: Parsing and display of received chat lines
+    - **renderer/**: Entity rendering behavior, including mounted body palettes
+    - **pet/**: Pet name display in chat
+    - Read applicable notes before changing behavior they cover; they document observed behavior and intentional deviations, not a replacement for the code
+- **How-to guides** (`docs/how-to/`):
+    - [UI component development](docs/how-to/ui-component-development.md): creating components and deduplicating versioned components
+    - [Network packet development](docs/how-to/network-packet-development.md): implementing packet handlers and adding packet versions
+    - [Renderer effects](docs/how-to/renderer-effects.md): creating renderer effects
+    - [Troubleshooting and diagnostics](docs/how-to/troubleshooting-and-diagnostics.md): troubleshooting, runtime diagnostics, and common bug hotspots
 
 ### Tests (`tests/`)
 
@@ -226,146 +234,10 @@ Formatting is handled by **Prettier** (defaults). ESLint extends `eslint:recomme
 - **Classes/Constructors**: PascalCase (e.g., `EntityControl`, `BinaryReader`)
 - **Functions/Methods**: camelCase (e.g., `sendPacket()`, `parseEntity()`)
 
-### Modern Patterns (Preferred)
-
-When writing new code or modifying existing code, **use modern JavaScript features**: arrow functions, template literals, `async`/`await`, ES6 classes, destructuring, spread/rest, native `Promise`, `for...of`, default parameters.
-
-### Modernize on Touch
-
-When touching files with legacy patterns, convert them:
-
-| Legacy Pattern                                           | Modern Replacement                                    |
-| -------------------------------------------------------- | ----------------------------------------------------- |
-| `function(a, b) { ... }` callbacks                       | `(a, b) => { ... }`                                   |
-| `'string ' + variable + ' end'`                          | `` `string ${variable} end` ``                        |
-| `function Constructor() { this.x = 1; }`                 | `class Constructor { constructor() { this.x = 1; } }` |
-| `Constructor.prototype.method = function() {}`           | `class Constructor { method() {} }`                   |
-| `const Singleton = {}; Singleton.method = function() {}` | `class Singleton { static method() {} }`              |
-| `var x = obj.x \|\| defaultVal;`                         | `const { x = defaultVal } = obj;` or default params   |
-| Global assignments (`_global.CONST = val`)               | Explicit ES6 imports in all consumers                 |
-
-> **Arrow function `this` caveat:** Arrow functions capture `this` lexically. Verify `this` usage before converting jQuery event handlers or prototype methods. If a function relies on dynamic `this`, keep it as a regular function or convert the whole module to a class first.
-
-### Modernization Examples
-
-The two most common non-obvious legacy patterns in this codebase:
-
-**Object-literal singletons → static class:**
-
-```javascript
-// Before (found in FileManager, UIManager, NetworkManager, etc.)
-const FileManager = {};
-FileManager.remoteClient = '';
-FileManager.load = function load(path) { /* ... */ };
-export default FileManager;
-
-// After
-class FileManager {
-    static remoteClient = '';
-    static load(path) { /* ... */ }
-}
-export default FileManager;
-```
-
 ### Globals Still in Use
 
 - **ROConfig**: Runtime configuration object
 - **SEEK_CUR, SEEK_SET, SEEK_END**: BinaryReader constants (prefer importing from `Utils/BinaryReader.js`)
-
-## Config System
-
-- **Config.js**: Auto-generated default settings (servers, features, preferences)
-- **Config.local.js**: Optional local overrides (not committed)
-- **ROConfig**: Merged configuration object loaded at runtime
-
-Key options: `servers` (address/port/version), `packetDump` (packet logging), `skipIntro` (bypass intro), `remoteClient` (GRF asset server URL), `plugins`, `aura`, `autoLogin`.
-
-## Build & Development
-
-```bash
-npm run dev             # Vite dev server (demo.html)
-npm test                # Vitest test runner (tests/**/*.test.js)
-npm run build           # Build Web client via custom builder (builder-web.mjs)
-npm run build:online    # Build full online client (Online.js)
-npm run build:all       # Build all 7 apps (Online + 6 viewers)
-npm run build:pwa       # Build PWA (Online + Thread + manifest)
-npm run electron        # Run Electron desktop app
-npm run electron:dev    # Run Electron in dev mode (with DevTools)
-npm run electron:build  # Package Electron app (output: dist/Desktop/)
-npm run lint            # ESLint check
-npm run lint:fix        # ESLint auto-fix
-npm run lint:check      # ESLint check with zero-warning threshold
-npm run format          # Prettier format
-npm run format:check    # Prettier formatting check
-npm run ci              # lint + format:check (CI pipeline)
-```
-
-Node.js engine requirement: `>=22` (Node 22 is pinned in `.nvmrc`; GitHub Actions CI runs on Node 24). Full script list in `package.json`. `ThreadEventHandler.js` (Web Worker) is built separately via `npm run build:threadhandler`.
-
-### Infrastructure Requirements
-
-- **wsProxy**: WebSocket proxy (server-side) translating TCP ↔ WebSocket
-- **Remote Client (PHP/JS)**: HTTP server extracting/serving GRF assets
-- **Game Server**: rAthena or Hercules compatible
-- **kRO Client Files**: GRF assets + executable for PACKETVER detection
-
-## Common Development Tasks
-
-### Adding a New UI Component
-
-**All components use GUIComponent (Shadow DOM):**
-
-1. Create directory in `src/UI/Components/NewComponent/`
-2. Create `NewComponent.js`, `NewComponent.html`, `NewComponent.css`
-3. Instantiate `new GUIComponent('Name', cssText)` with `Component.render = () => htmlText`
-4. Use Custom Elements (`<ui-button>`, `<ui-text>`, `<ui-image>`) instead of `data-*` attributes
-5. CSS: dimensions/position on `:host`, inner layout on `#Name`
-6. Register with `UIManager.addComponent(Component)`
-7. Add keyboard shortcut in `src/Controls/ProcessCommand.js` if needed
-    > Consult **L1** [`docs/UIComponent_to_GUIComponent.md`](docs/UIComponent_to_GUIComponent.md) first; fall back to **L2** [`docs/UIComponent_to_GUIComponent_Firmware.md`](docs/UIComponent_to_GUIComponent_Firmware.md) for quick lookups and **L0** [`docs/UIComponent_to_GUIComponent_Scars.md`](docs/UIComponent_to_GUIComponent_Scars.md) for historical edge cases.  
-    > See [`docs/CustomElements.md`](docs/CustomElements.md) for element reference.
-
-### Implementing a New Packet Handler
-
-1. Define packet structure in `src/Network/PacketStructure.js`
-2. Map packet opcode ID to structure in `src/Network/PacketRegister.js`
-3. Define packet length in `src/Network/Packets/packetsYYYY_len_main.js` (and add date-specific tables in `src/Network/PacketVersions.js` if outbound CZ packet)
-4. Implement handler in appropriate engine (`MapEngine`, `LoginEngine`, `CharEngine`, etc.) and hook with `Network.hookPacket(PACKET.<FAMILY>.*, handler)` (e.g., `PACKET.ZC.*` for MapEngine, `PACKET.AC.*` / `PACKET.SC.*` for LoginEngine, `PACKET.HC.*` for CharEngine)
-5. Test with `packetDump: true` enabled in config
-
-### Adding a New Packet Version
-
-1. Create file in `src/Network/Packets/` (e.g., `packets2026_len_main.js`)
-2. Define packet lengths for all known packets in that version
-3. Update `PacketLength.js` (add module import and year range) and `PacketVerManager.js`
-4. Test against server with matching PACKETVER
-
-### Creating a New Renderer Effect
-
-1. Create effect module in `src/Renderer/Effects/`
-2. Implement with `update()` and `render()` methods
-3. Register with EffectManager
-4. Test performance impact and object pooling
-
-### (Factory/Deduplication Task) Deduplicating JS code in multiple versions to unified shared factory pattern
-
-**Before starting, you MUST read `docs/GUIComponent_Version_Dedup_Factory.md` — it contains invariants that cannot be violated.**
-
-All 13 existing versioned component families (`BasicInfo`, `CharCreate`, `CharSelect`, `Equipment`, `Inventory`, `MiniMap`, `PartyFriends`, `PlayerViewEquip`, `Quest`, `SkillList`, `Storage`, `WinLogin`, `WinStats`) have been unified into `*Common.js` factories. For any new multi-version components:
-
-1. Create a `ComponentNameCommon.js` in the component folder
-2. Export `createComponentName({ name, htmlText, cssText, ...flags })`
-3. Move shared JS into the factory, parametrizing version differences with flags
-4. Thin each version file to imports + `createComponentName(...)`
-
-## Troubleshooting
-
-- **Missing assets**: Verify GRF loading in Client.js, check Remote Client response
-- **Packet errors**: Check PACKETVER matches server, verify PacketVersions.js, enable packetDump
-- **Rendering issues**: Check WebGL capability (OpenGL ES 2.0 required), inspect Renderer.js context
-- **Build errors**: Clear `dist/`, verify entry point exists in `src/App/`
-- **Connection fails**: Check wsProxy configuration, firewall settings
-- **Module not found**: Check path aliases in vite.config.js and file extensions
 
 ## Important Gotchas
 
@@ -384,37 +256,3 @@ All 13 existing versioned component families (`BasicInfo`, `CharCreate`, `CharSe
 - **Entity**: Game object (player, NPC, monster) with rendering and state
 - **Effect**: Visual effect (weather, auras, particles) managed by EffectManager
 - **kRO**: Korean Ragnarok Online — reference client for packet versions
-
-## Debugging
-
-### Enabling Debug Output
-
-- Set `development: true` in ROConfig to enable console output
-- Set `enableConsole: true` for console without full dev mode
-- Set `perfProbe: true` to measure frame times, draw calls, map loads and startup (`src/Core/PerfProbe.js`); read it in game with `/perf`
-- ConsoleManager (`src/Utils/ConsoleManager.js`) silences ALL console  
-  output in production — if you see no logs, check these flags first
-
-### Network Debugging
-
-- Set `packetDump: true` in ROConfig to log all packets
-- Compare hex dumps against PacketStructure.js definitions
-- Check PACKETVER detection: PacketVerManager logs `[PACKETVER] Set packet version <date>` when PACKETVER is set
-
-### Common Bug Hotspots
-
-- **Entity state** (`src/Engine/MapEngine/Entity.js`): 5 TODOs — entity  
-  creation/removal edge cases, especially during map transitions
-- **Effect rendering** (`src/Renderer/Effects/`): 3 TODOs — damage display  
-  edge cases (Damage.js) and sky rendering (Sky.js)
-- **DB tables** (`src/DB/DBManager.js`): 11 TODOs — incomplete data mappings  
-  for newer kRO content
-- **Packet handling**: Version-specific edge cases where packet structure  
-  changed between kRO dates
-
-### Cross-Platform Gotchas
-
-- Browser: console may be silenced by ConsoleManager — check with F12 first
-- Electron: errors may appear in the Electron DevTools, not the terminal
-- GRF paths: case-sensitive on Linux, case-insensitive on Windows — bugs  
-  that only appear on Linux deployments
