@@ -168,6 +168,21 @@ describe('ChatBox - clicking a tab', () => {
 		expect(input.value).toBe(before);
 	});
 
+	it('leaves the filter window alone while the name is typed', () => {
+		const input = tabInput();
+		mouse('dblclick', input);
+		ChatBoxSettings.updateTab.mockClear();
+		for (const letter of 'Loot') {
+			const event = new KeyboardEvent('keydown', { key: letter, bubbles: true });
+			input.dispatchEvent(event);
+			ChatBox.onKeyDown(event);
+			input.dispatchEvent(new KeyboardEvent('keyup', { key: letter, bubbles: true }));
+		}
+
+		expect(ChatBoxSettings.updateTab).not.toHaveBeenCalled();
+		input.blur();
+	});
+
 	it('drops the new name when another tab is clicked', () => {
 		const input = tabInput();
 		const before = savedName();
