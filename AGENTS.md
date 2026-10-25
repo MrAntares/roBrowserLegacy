@@ -43,26 +43,6 @@ Never violate these rules unless the user explicitly directs a change to the con
 
 ---
 
-## 3. Operating Rules & Workflow
-
-1. **Before editing:** Read the relevant scoped `AGENTS.md` and linked reference docs from the routing table. Inspect the current source files, callers, and tests—do not assume documentation summaries or packet names alone reflect the implementation.
-2. **While editing:** Make the smallest focused change that solves the task. Follow established subsystem patterns, preserve public interfaces, and avoid unrelated formatting churn or sweeping refactors.
-3. **Before finishing:** Ask the user whether to run lint, format, and relevant tests before executing them. If confirmed, run the requested checks and report the exact commands executed along with any checks that could not be run. Never report a check as passing unless it actually ran and succeeded.
-
----
-
-## 4. Code Conventions
-
-- **Formatting & Lint:** Enforced by ESLint (`eslint.config.js`) and Prettier (`npm run ci`).
-- **Style:** Single quotes (`avoidEscape: true`), semicolons required, no trailing commas (`comma-dangle: 'never'`), braces required for all control-flow bodies (`curly: 'all'`).
-- **Variables & Safety:** Use `const` by default, `let` when reassigned, never `var`. Prefix intentionally unused variables/parameters with `_`. Never use `eval`, implied eval, `new Function`, or `with`.
-- **Naming:** `PascalCase` for classes/constructors, `camelCase` for functions/methods, `UPPER_SNAKE_CASE` for DB/protocol constants, `_prefix` for private/internal properties.
-- **Modernization on Touch:** When editing legacy code, modernize only the touched lines if safe (watch out for dynamic `this` in callbacks—keep `function()` where callers use `.call`/`.apply`; see [`docs/Architecture.md`](docs/Architecture.md)).
-
----
-
-## 5. Commands, Testing & Validation
-
 ## Key Architectural Decisions
 
 - **Entity system uses composition, not inheritance.** 17 mixin modules (16 in `src/Renderer/Entity/` + `Controls/EntityControl.js`) are composed into `Entity.js`. Do not refactor to class inheritance — the mixins are applied dynamically at runtime via `.call(this)`.
@@ -127,12 +107,8 @@ Never violate these rules unless the user explicitly directs a change to the con
 
 **UI Reference & Architecture Docs:**
 
-- **L1 — Primary** [`docs/UIComponent_to_GUIComponent.md`](docs/UIComponent_to_GUIComponent.md): consolidated operational memory (invariants, rules, failure matrix, custom elements). **Start here.**
-- **L2 — Reflex** [`docs/UIComponent_to_GUIComponent_Firmware.md`](docs/UIComponent_to_GUIComponent_Firmware.md): compressed decision matrix for rapid lookup.
-- **L0 — Archive** [`docs/UIComponent_to_GUIComponent_Scars.md`](docs/UIComponent_to_GUIComponent_Scars.md): full historical guide, postmortems, per-component migration reference.
 - **Factory Deduplication** [`docs/GUIComponent_Version_Dedup_Factory.md`](docs/GUIComponent_Version_Dedup_Factory.md): rules and patterns for unified `*Common.js` factories.
 - **Custom Elements**: [`docs/CustomElements.md`](docs/CustomElements.md) — reference for `<ui-button>`, `<ui-text>`, `<ui-image>`.
-- **Historical Issue:** [Issue #1140](https://github.com/MrAntares/roBrowserLegacy/issues/1140) tracked the completed UIComponent→GUIComponent migration.
 
 - **Intro.js**: File upload & server selection
 - **WinList.js**: Character selection
@@ -196,28 +172,6 @@ Read these documents on demand when a task touches the behavior or workflow they
 - Tests are grouped by subsystem: `controls/`, `db/`, `engine/`, `loaders/`, `network/`, `renderer/`, `ui/`, and `util/`
 - **setup.js**: Shared test environment setup
 - **fixtures/**: Shared test data and fixture documentation
-
-## Code Conventions
-
-### Style Rules
-
-Formatting is handled by **Prettier** (defaults). ESLint extends `eslint:recommended` and `prettier`.
-
-- **Quotes**: Single quotes (`avoidEscape: true`)
-- **Semicolons**: Required
-- **Trailing commas**: Forbidden (`comma-dangle: never`)
-- **Curly braces**: Always required (`curly: 'all'`)
-- **Variables**: `const` required where possible, `let` over `var`, `no-var: error`
-- **No eval/implied-eval/new-func/with**: Error
-- **Unused vars**: Warn (vars prefixed `_` ignored)
-- **Vendors excluded**: `src/Vendors/**` ignored by ESLint
-
-### Naming Conventions
-
-- **Private vars**: Prefix with `_` (e.g., `_sockets`, `_currentSocket`)
-- **Constants**: UPPER_SNAKE_CASE in db/const files
-- **Classes/Constructors**: PascalCase (e.g., `EntityControl`, `BinaryReader`)
-- **Functions/Methods**: camelCase (e.g., `sendPacket()`, `parseEntity()`)
 
 ### Globals Still in Use
 
