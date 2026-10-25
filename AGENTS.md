@@ -195,4 +195,3 @@ Read these documents on demand when a task touches the behavior or workflow they
 - **Entity**: Game object (player, NPC, monster) with rendering and state
 - **Effect**: Visual effect (weather, auras, particles) managed by EffectManager
 - **kRO**: Korean Ragnarok Online — reference client for packet versions
-
