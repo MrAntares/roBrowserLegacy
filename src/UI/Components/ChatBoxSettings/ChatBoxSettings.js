@@ -114,8 +114,8 @@ function updateAllOn() {
 	if (!box) {
 		return;
 	}
-	Client.loadFile(DB.INTERFACE_PATH + 'checkbox_' + (isAllOn() ? '1' : '0') + '.bmp', data => {
-		box.style.backgroundImage = 'url(' + data + ')';
+	Client.loadFile(`${DB.INTERFACE_PATH}checkbox_${isAllOn() ? 1 : 0}.bmp`, data => {
+		box.style.backgroundImage = `url(${data})`;
 	});
 }
 
