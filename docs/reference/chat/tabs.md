@@ -22,7 +22,9 @@ input for example, keeps it.
 
 A tab added with the `+` button starts with **every filter off**: it shows
 nothing until the player ticks message types in the filter window. It is not a
-copy of the current tab. The two tabs of a first run come from the client's Lua
+copy of the current tab. At the bottom of the filter window, an `all on` check
+box turns every filter of the tab on at once, or every one off when unticked;
+it shows ticked only while all of them are on. The two tabs of a first run come from the client's Lua
 data, not from the exe. At most 10 tabs exist, counting the ones torn off into
 their own window.
 
@@ -43,6 +45,8 @@ number of characters.
 - Escape, a click on a tab, or the focus leaving the name in any other way ends
   the rename and puts the saved name back.
 - A tab added with `+` starts with every filter off, as in the client.
+- The filter window's `All on` box (label included) does the same as the
+  client's.
 
 ## Deviations
 
@@ -73,7 +77,11 @@ it. The edit box's kill-focus path (`fcn.0052d860` -> `fcn.00531bd0`) never
 calls the tab control. New tab: chat-window case `0x16e` of `fcn.005d5e80`
 names it `NewTab_<n>` and zeroes its 22 filter bytes (`0x005d792d`-`0x005d793e`);
 the 10-tab cap is `this+0xf0 = 0xa` set in the ctor (`0x005b30a7`), refused with
-message `0x62a`. mars26: the same shape in `fcn.00774670`,
+message `0x62a`. `all on`: a check box built in the filter window's create
+(`fcn.005c0200`, label at `0x005c02d8`, `checkbox_0.bmp` / `checkbox_1.bmp`),
+control `0xcd` in its SendMsg (`fcn.005d3cc0`), which writes the one value to
+all 22 filters; on a tab change the same handler ticks it only when the 22 are
+set. mars26: the same shape in `fcn.00774670`,
 `fcn.007880c0`, `fcn.007879e0`, `fcn.00790e10`, `fcn.008f1fd0`, new tab at
 `0x00824a48` in `fcn.00822e10`. ver12: tab
 click `fcn.004a00f0`, two tabs, no edit box.
