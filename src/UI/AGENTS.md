@@ -1,6 +1,47 @@
 # AGENTS.md — UI Subsystem (`src/UI/`)
 
+The UI uses `GUIComponent`, Shadow DOM, native DOM APIs, and Custom Elements. 
+ 
+- All 100 UI components use `GUIComponent`. 
+- Versioned component siblings have been deduplicated into shared `*Common.js` factories across 13 multi-version component families. 
+- The `this.ui` proxy on `GUIComponent` provides a minimal jQuery-compatible API for legacy interoperability. Internal component code must use native DOM and Shadow DOM APIs directly, such as `this.getRoot().querySelector(...)`. 
+- UI appearance is primarily asset-driven. Window frames, buttons, and backgrounds use BMP assets from GRF files. CSS is structural and positional rather than the primary source of visual styling. 
+- Components use Custom Elements such as `<ui-button>`, `<ui-text>`, and `<ui-image>`, or legacy `data-*` attributes processed by `GUIComponent.processDataAttrs()`. 
+ 
+**Primary references:** 
+- `docs/how-to/ui-component-development.md` — adding new UI.
+- `docs/GUIComponent_Version_Dedup_Factory.md` — factory pattern rules. 
+- `docs/CustomElements.md` — Custom Elements reference. 
+
 Instructions for working on the UI subsystem, components (`src/UI/Components/`), custom elements (`src/UI/Elements/`), and UI managers.
+
+The UI component tree contains 100 component directories. 
+ 
+The following index groups component names by functional area; it is a navigation aid, not a substitute for inspecting the relevant component implementation. 
+ 
+| Functional area | Components | 
+|---|---| 
+| Login and entry | `Intro`, `WinList`, `WinLogin` | 
+| Inventory and items | `Inventory`, `Equipment`, `Storage`, `Bank`, `CashShop`, `CartItems` | 
+| Communication | `ChatBox`, `ChatRoom`, `ChatRoomCreate`, `WhisperBox`, `ChatBoxSettings` | 
+| NPC interactions | `NpcBox`, `NpcStore`, `NpcMenu` | 
+| Skills | `SkillList`, `SkillListMH`, `SkillDescription`, `SkillTargetSelection` | 
+| Game systems | `Quest`, `Mail`, `Rodex`, `Trade`, `Vending`, `VendingShop`, `VendingReport` | 
+| Crafting and upgrades | `Refine`, `RefineWeaponSelection`, `Enchant`, `EnchantGrade`, `ItemCompare`, `ItemReform`, `LaphineSys`, `LaphineUpg` | 
+| Social | `Clan`, `Guild`, `PartyFriends`, `EntityRoom` | 
+| Navigation | `MiniMap`, `WorldMap`, `Navigation`, `MapName` | 
+| Asset viewers | `GrfViewer`, `ModelViewer`, `StrViewer`, `EffectViewer`, `GrannyModelViewer` | 
+| Character information | `BasicInfo`, `WinStats`, `StatusIcons`, `Sense` | 
+| Hotkeys | `ShortCut`, `ShortCuts`, `ShortCutOption` | 
+| General interface | `Emoticons`, `Announce`, `FPS`, `Escape`, `Error`, `WinPopup`, `WinPrompt` | 
+| Character management | `CharCreate`, `CharSelect`, `PincodeWindow` | 
+| Companions | `HomunInformations`, `MercenaryInformations`, `PetInformations`, `PetEvolution` | 
+| Item display | `CardIllustration`, `ItemInfo`, `ItemObtain`, `ItemPreview`, `ItemSelection` | 
+| Crafting utilities | `MakeArrowSelection`, `MakeItemSelection`, `MakeReadBook` | 
+| Equipment management | `PlayerViewEquip`, `SwitchEquip`, `ChangeCart` | 
+| Settings | `GraphicsOption`, `SoundOption` | 
+| Miscellaneous systems | `Captcha`, `CheckAttendance`, `Reputation`, `SlotMachine`, `PvPCount`, `PvPTimer`, `PCGoldTimer` | 
+| Interface elements | `ContextMenu`, `EntitySignboard`, `JoystickUI`, `MobileUI` | 
 
 ## Mandatory Prerequisites
 
@@ -31,55 +72,6 @@ Before modifying or creating UI components, read the applicable reference guides
 9. **Input Protection:** Components containing `<input>`, `<select>`, or `<textarea>` must set `captureKeyEvents = true` and guard `onKeyDown` with `this.isEditableFocused()`.
 10. **Text Formatting:** Use `DB.formatMsgToHtml()` + `innerHTML` for RO text containing color codes (`^RRGGBB`) or markup; use `textContent` for plain text. Decode bytes using `Utils/CodepageManager.js` (see [`docs/Encoding.md`](../../docs/Encoding.md)).
 11. **Drag-and-Drop Global Exception:** `window._OBJ_DRAG_` is a shared cross-component drag-and-drop payload contract used across ~20 components because HTML5 `dataTransfer` cannot be read during `dragover`. Do not remove it piecemeal in single-component edits.
-
----
-
-## Playbooks
-
-### Add a UI Component
-
-UI uses `GUIComponent` (Shadow DOM) + Custom Elements. No legacy `data-*` UI patterns.
-
-#### DSL
-
-- `new GUIComponent('Name', cssText)` — constructor takes name + CSS only.
-- `Component.render = () => htmlText` — HTML returned as a string (required).
-- Markup: `<ui-button bg hover down>`, `<ui-text msg>`, `<ui-image src>` (import `UI/Elements/Elements.js`; see [`docs/CustomElements.md`](../../docs/CustomElements.md)).
-- CSS: dimensions/position on `:host`; inner layout on `#Name`. Do not set `position`/`z-index` on `:host` (JS sets `absolute`/`z-index: 50` in `prepare()`).
-- Query internals with `this.getRoot().querySelector(...)`; never query `document`. `this.ui` is jQuery-compat interop only — don't use for new code.
-- `Component.mouseMode = GUIComponent.MouseMode.{CROSS|STOP|FREEZE}`; `needFocus`.
-
-#### Auto-bound hooks (define only what you need)
-
-- `render()` — returns HTML string. Required.
-- `init()` — runs ONCE in `prepare()`; host briefly in DOM. One-time setup/binding.
-- `onAppend()` — runs EVERY `append()`; position restore, per-show work.
-- `onRemove()` — runs EVERY `remove()`; save prefs, cleanup.
-- `onKeyDown` — if present, auto-bound on `append` / unbound on `remove`.
-- `onResize()`, `onRestore()` — called when defined.
-
-#### Register, mount & test
-
-- `export default UIManager.addComponent(Component);`
-- Show: `Component.append(target?)` (default `document.body`; target = element or selector). Hide: `Component.remove()`.
-- Keyboard shortcut: add in `src/Controls/ProcessCommand.js` only if needed.
-- Files: `src/UI/Components/Name/Name.{js,html,css}` (additional reference: [`docs/Scrollbar.md`](../../docs/Scrollbar.md)).
-- Add or update tests in `tests/ui/` and verify the relevant UI/version lifecycle.
-
-### Deduplicate Versioned UI Components into a Shared Factory
-
-**Mandatory:** Read [`docs/GUIComponent_Version_Dedup_Factory.md`](../../docs/GUIComponent_Version_Dedup_Factory.md) before making changes.
-
-Existing unified families (13/13) include `BasicInfo`, `CharCreate`, `CharSelect`, `Equipment`, `Inventory`, `MiniMap`, `PartyFriends`, `PlayerViewEquip`, `Quest`, `SkillList`, `Storage`, `WinLogin`, and `WinStats`.
-
-For a new multi-version component family or version sibling:
-
-1. Create `ComponentNameCommon.js` in the component directory exporting `createComponentName({ name, htmlText, cssText, ...flags })`.
-2. Declare all per-instance state inside `createComponentName` (never at module scope shared across versions).
-3. Move shared logic into the factory and represent real, pre-existing version differences through explicit capability flags.
-4. Keep each version-specific module thin (imports + `createComponentName(...)` call).
-5. Preserve each version's exact component `name` string, `Preferences.get(...)` keys, and `versionInfo` PACKETVER mappings in `UIVersionManager`.
-6. Add or update tests in `tests/ui/`.
 
 ---
 

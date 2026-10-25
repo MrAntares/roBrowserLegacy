@@ -2,12 +2,16 @@
 
 ## Troubleshooting
 
-- **Missing assets**: Verify GRF loading in Client.js, check Remote Client response
-- **Packet errors**: Check PACKETVER matches server, verify PacketVersions.js, enable packetDump
-- **Rendering issues**: Check WebGL capability (OpenGL ES 2.0 required), inspect Renderer.js context
-- **Build errors**: Clear `dist/`, verify entry point exists in `src/App/`
-- **Connection fails**: Check wsProxy configuration, firewall settings
-- **Module not found**: Check path aliases in vite.config.js and file extensions
+| Symptom | First Checks |
+| --- | --- |
+| Missing assets / 404s | GRF loading in `Client.js`, Remote Client configuration/response, `windows-1252` path encoding (`docs/Encoding.md`), and filename case sensitivity on Linux/HTTP. |
+| Packet / protocol errors | `[PACKETVER] Set packet version <date>` log, `PacketVersions.js`, `PacketLength.js` (`packetsYYYY_len_main.js`), `packetDump: true`, and server `packet_obfuscation` (must be disabled). |
+| Broken / garbled text | Missing `userCharpage` or double decoding in `CodepageManager.js` (see `docs/Encoding.md`). |
+| Rendering / blank canvas | WebGL context creation in `Renderer.js` (OpenGL ES 2.0 required), shader compile errors, or oversized sprite sheet exceeding WebGL max texture size. |
+| UI element invisible / unclickable | Shadow DOM query scope (`this.getRoot()`), `:host` geometry vs inner root, `pointer-events: none` inheritance, or `WhenDrawn.js` deferred asset loading (see `src/UI/AGENTS.md`). |
+| Build or test import failure | Path alias synchronization between `vite.config.js` and `applications/tools/builder-web.mjs`, and explicit `.js` extensions on imports. |
+| Connection failure | `wsProxy` running and reachable for browser `socketProxy`, or `NodeSocket.js` / firewall for Electron; check `forceUseAddress: true` in container/NAT setups. |
+| No console output | Check `development`, `enableConsole`, and `ConsoleManager.js` in browser or Electron DevTools. |
 
 ## Enabling Debug Output
 
@@ -34,9 +38,3 @@
 - **Packet handling**: Version-specific edge cases where packet structure
   changed between kRO dates
 
-## Cross-Platform Gotchas
-
-- Browser: console may be silenced by ConsoleManager — check with F12 first
-- Electron: errors may appear in the Electron DevTools, not the terminal
-- GRF paths: case-sensitive on Linux, case-insensitive on Windows — bugs
-  that only appear on Linux deployments
