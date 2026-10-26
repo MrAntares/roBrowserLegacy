@@ -209619,7 +209619,7 @@ function pointInstances(first) {
 	gl.vertexAttribPointer(attribute.aAngleDepthShadowCap, 4, gl.FLOAT, false, STRIDE, base + 64);
 	gl.vertexAttribPointer(attribute.aSource, 3, gl.FLOAT, false, STRIDE, base + 80);
 }
-var mat4$22, FLOATS, STRIDE, SOURCE_OWN, SOURCE_INDEX, SOURCE_RGBA, PALETTE_NONE, PALETTE_OWN, QUEUE_SHADOW, QUEUE_MAIN, Queue$1, Run, _gl$4, _program$25, _vao, _quad, _instanceBuffer, _upload, _active$3, _queues, _modelView, _viewModel, _projection, _fogColor, _frame, _glState, SpriteBatch;
+var mat4$22, FLOATS, STRIDE, SOURCE_OWN, SOURCE_INDEX, SOURCE_RGBA, PALETTE_NONE, PALETTE_OWN, QUEUE_SHADOW, QUEUE_MAIN, Queue$1, Run, _gl$4, _program$25, _vao, _quad, _instanceBuffer, _upload, _active$3, _queues, _modelView$1, _viewModel, _projection, _fogColor, _frame, _glState, SpriteBatch;
 var init_SpriteBatch = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
@@ -209678,7 +209678,7 @@ var init_SpriteBatch = __esmMin((() => {
 	_upload = /* @__PURE__ */ new Float32Array(0);
 	_active$3 = false;
 	_queues = [new Queue$1(), new Queue$1()];
-	_modelView = /* @__PURE__ */ new Float32Array(16);
+	_modelView$1 = /* @__PURE__ */ new Float32Array(16);
 	_viewModel = /* @__PURE__ */ new Float32Array(16);
 	_projection = /* @__PURE__ */ new Float32Array(16);
 	_fogColor = /* @__PURE__ */ new Float32Array(3);
@@ -209722,9 +209722,9 @@ var init_SpriteBatch = __esmMin((() => {
 		* recorded after it.
 		*/
 		static setFrame(modelView, projection, fog, zoom) {
-			_modelView.set(modelView);
+			_modelView$1.set(modelView);
 			_projection.set(projection);
-			mat4$22.invert(_viewModel, _modelView);
+			mat4$22.invert(_viewModel, _modelView$1);
 			_frame.fogUse = !!(fog.use && fog.exist);
 			_frame.fogNear = fog.near;
 			_frame.fogFar = fog.far;
@@ -209864,7 +209864,7 @@ var init_SpriteBatch = __esmMin((() => {
 			gl.useProgram(_program$25);
 			gl.bindVertexArray(_vao);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, _projection);
-			gl.uniformMatrix4fv(uniform.uModelViewMat, false, _modelView);
+			gl.uniformMatrix4fv(uniform.uModelViewMat, false, _modelView$1);
 			gl.uniformMatrix4fv(uniform.uViewModelMat, false, _viewModel);
 			gl.uniform1f(uniform.uCameraZoom, _frame.zoom);
 			gl.uniform1i(uniform.uFogUse, _frame.fogUse);
@@ -241932,6 +241932,44 @@ var init_StrEffect$1 = __esmMin((() => {
 	StrEffect_default = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\nout vec4 fragColor;\r\n\r\nuniform vec4 uSpriteColor;\r\nuniform sampler2D uDiffuse;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\nvoid main(void) {\r\n	fragColor = texture( uDiffuse, vTextureCoord.st ) * uSpriteColor;\r\n	if ( fragColor.a == 0.0 || (fragColor.r == 0.0 && fragColor.g == 0.0 && fragColor.b == 0.0) ) {\r\n		discard;\r\n	}\r\n\r\n	if ( uFogUse ) {\r\n		float depth     = gl_FragCoord.z / gl_FragCoord.w;\r\n		float fogFactor = smoothstep( uFogNear, uFogFar, depth );\r\n		fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );\r\n	}\r\n}";
 }));
 // src/Renderer/Effects/StrEffect.js
+/**
+* Turn a frame's four corners as StrEffect.vs would (by the frame's own angle),
+* then mirror them, turn them by the aim and tilt them, in place. The shader
+* then draws them with no turn of its own.
+*
+* Corners are in STR pixels, y down the screen. Angles in degrees: `angle` is
+* the frame's, `aim` the effect's counter-clockwise turn, `tilt` a turn about
+* the screen's x axis (it shortens y by cos(tilt)).
+*
+* @param {number} angle
+* @param {number} aim
+* @param {boolean} flipX
+* @param {boolean} flipY
+* @param {number} tilt
+* @param {Float32Array|Array<number>} cornerX
+* @param {Float32Array|Array<number>} cornerY
+*/
+function transformCorners(angle, aim, flipX, flipY, tilt, cornerX, cornerY) {
+	const r1 = -angle / 180 * Math.PI;
+	const c1 = Math.cos(r1);
+	const s1 = Math.sin(r1);
+	const r2 = aim / 180 * Math.PI;
+	const c2 = Math.cos(r2);
+	const s2 = Math.sin(r2);
+	const squash = tilt ? Math.cos(tilt / 180 * Math.PI) : 1;
+	for (let i = 0; i < 4; i++) {
+		const px = cornerX[i];
+		const py = -cornerY[i];
+		let x = px * c1 - py * s1;
+		let y = px * s1 + py * c1;
+		if (flipX) x = -x;
+		if (flipY) y = -y;
+		const tx = x * c2 - y * s2;
+		const ty = (x * s2 + y * c2) * squash;
+		cornerX[i] = tx;
+		cornerY[i] = -ty;
+	}
+}
 function copyAnim(src) {
 	return {
 		type: src.type,
@@ -242024,7 +242062,7 @@ function calculateAnimation(layer, keyIndex, result) {
 	}
 	return true;
 }
-var D3DBLEND, _program$19, _buffer$15, _spriteOffset, _cornerX, _cornerY, PIXEL_TO_WORLD_Z, anim, StrEffect;
+var D3DBLEND, _program$19, _buffer$15, _spriteOffset, _cornerX, _cornerY, _modelView, AIM_PIVOT_X, AIM_PIVOT_Y, PIXEL_TO_WORLD_Z, anim, StrEffect;
 var init_StrEffect = __esmMin((() => {
 	init_StrEffect$2();
 	init_StrEffect$1();
@@ -242036,6 +242074,9 @@ var init_StrEffect = __esmMin((() => {
 	_spriteOffset = /* @__PURE__ */ new Float32Array(2);
 	_cornerX = /* @__PURE__ */ new Float32Array(4);
 	_cornerY = /* @__PURE__ */ new Float32Array(4);
+	_modelView = null;
+	AIM_PIVOT_X = 320;
+	AIM_PIVOT_Y = 240;
 	PIXEL_TO_WORLD_Z = 1 / 5;
 	anim = {
 		frame: 0,
@@ -242110,6 +242151,9 @@ var init_StrEffect = __esmMin((() => {
 			}
 			const strFile = Client.loadFile(this.filename, null, null, { texturePath: this.texturePath });
 			if (strFile === null) return;
+			const aim = this.getAimAngle();
+			this.aimed = !!aim || !!this.screenTurn;
+			this.aimAngle = aim - (this.screenTurn || 0);
 			keyIndex = (tick - this.startTick) / 1e3 * strFile.fps;
 			if (this.persistent && strFile && strFile.maxKey) keyIndex = keyIndex % strFile.maxKey;
 			if (!this._lastValidAnim) this._lastValidAnim = {};
@@ -242136,6 +242180,70 @@ var init_StrEffect = __esmMin((() => {
 			if (keyIndex >= strFile.maxKey) this.needCleanUp = true;
 		}
 		/**
+		* How far to turn an effect aimed between two entities, so it lines up
+		* with them on screen.
+		*
+		* `facing` is where the other entity sits in the file, in degrees (0 =
+		* right, 180 = left): the target for an effect on the caster, the caster
+		* for one on the target.
+		*
+		* @return {number} counter-clockwise turn in degrees, 0 when not aimed
+		*/
+		getAimAngle() {
+			const effect = this._Params?.effect;
+			const target = this._Params?.Inst?.otherPosition;
+			if (!effect?.rotateToTarget || !target || !this.position || !_modelView) return 0;
+			const x = target[0] - this.position[0];
+			const y = -(target[2] - this.position[2]);
+			const z = target[1] - this.position[1];
+			const m = _modelView;
+			const viewX = m[0] * x + m[4] * y + m[8] * z;
+			const viewY = m[1] * x + m[5] * y + m[9] * z;
+			if (!viewX && !viewY) return 0;
+			return Math.atan2(viewY, viewX) * 180 / Math.PI - (effect.facing || 0);
+		}
+		/**
+		* Where a frame's art sits about the effect's position.
+		*
+		* Classic effects put the art's (320,320) on the position, half a cell
+		* lower. An effect from the client's EZ2 table (one with xOffset/yOffset)
+		* puts the art's centre (320,240) on the position moved PosX/PosY client
+		* units along the screen, as CEZ2STREffectEx does: 5 client units to a
+		* cell, 35 STR pixels to a cell.
+		*
+		* @param {object} animat - frame
+		* @param {number} sizeScale - owner's size, for attachments
+		* @param {Float32Array|Array<number>} out - gets the offset in STR pixels
+		* @returns {number} vertical base, in cells
+		*/
+		layout(animat, sizeScale, out) {
+			const ez2 = !this.ownerEntity && this.ez2Offset;
+			const pivotY = ez2 ? AIM_PIVOT_Y : 320;
+			const shiftX = ez2 ? this.ez2Offset[0] * PIXEL_TO_WORLD_Z * 35 : 0;
+			const shiftY = ez2 ? this.ez2Offset[1] * PIXEL_TO_WORLD_Z * 35 : 0;
+			const verticalBase = ez2 ? 0 : .5;
+			const k = this.scale || 1;
+			if (this.ownerEntity) {
+				out[0] = (animat.pos[0] - 320) * k + (this.xOffset || 0) * PIXEL_TO_WORLD_Z * 35 * sizeScale;
+				out[1] = (animat.pos[1] - 320) * k - (this.yOffset || 0) * PIXEL_TO_WORLD_Z * 35 * sizeScale;
+				return 0;
+			}
+			if (this.aimAngle || this.flipX || this.flipY || this.tilt) {
+				const rad = (this.aimAngle || 0) / 180 * Math.PI;
+				const cos = Math.cos(rad);
+				const sin = Math.sin(rad);
+				const x = (animat.pos[0] - AIM_PIVOT_X) * k * (this.flipX ? -1 : 1);
+				const y = (pivotY - animat.pos[1]) * k * (this.flipY ? -1 : 1);
+				const squash = this.tilt ? Math.cos(this.tilt / 180 * Math.PI) : 1;
+				out[0] = x * cos - y * sin + shiftX;
+				out[1] = -(x * sin + y * cos) * squash - shiftY;
+				return verticalBase;
+			}
+			out[0] = (animat.pos[0] - 320) * k + shiftX;
+			out[1] = (animat.pos[1] - pivotY) * k - shiftY;
+			return verticalBase;
+		}
+		/**
 		* Setup geometries, send data to GPU
 		*
 		* @param {object} webgl context
@@ -242146,33 +242254,35 @@ var init_StrEffect = __esmMin((() => {
 			const uniform = _program$19.uniform;
 			let sizeScale = 1;
 			if (this.ownerEntity) sizeScale = (this.ownerEntity.xSize + this.ownerEntity.ySize) / 2 / 5;
-			_cornerX[0] = animat.xy[0] * sizeScale;
-			_cornerY[0] = animat.xy[4] * sizeScale;
-			_cornerX[1] = animat.xy[1] * sizeScale;
-			_cornerY[1] = animat.xy[5] * sizeScale;
-			_cornerX[2] = animat.xy[3] * sizeScale;
-			_cornerY[2] = animat.xy[7] * sizeScale;
-			_cornerX[3] = animat.xy[2] * sizeScale;
-			_cornerY[3] = animat.xy[6] * sizeScale;
+			const cornerScale = sizeScale * (this.scale || 1);
+			_cornerX[0] = animat.xy[0] * cornerScale;
+			_cornerY[0] = animat.xy[4] * cornerScale;
+			_cornerX[1] = animat.xy[1] * cornerScale;
+			_cornerY[1] = animat.xy[5] * cornerScale;
+			_cornerX[2] = animat.xy[3] * cornerScale;
+			_cornerY[2] = animat.xy[7] * cornerScale;
+			_cornerX[3] = animat.xy[2] * cornerScale;
+			_cornerY[3] = animat.xy[6] * cornerScale;
+			let spriteAngle = animat.angle - (this.aimAngle || 0);
+			if (this.flipX || this.flipY || this.tilt) {
+				transformCorners(animat.angle, this.aimAngle || 0, this.flipX, this.flipY, this.tilt, _cornerX, _cornerY);
+				spriteAngle = 0;
+			}
 			gl.uniform4fv(uniform.uCornerX, _cornerX);
 			gl.uniform4fv(uniform.uCornerY, _cornerY);
-			let verticalBase = .5;
-			if (this.ownerEntity) {
-				_spriteOffset[0] = animat.pos[0] - 320 + (this.xOffset || 0) * PIXEL_TO_WORLD_Z * 35 * sizeScale;
-				_spriteOffset[1] = animat.pos[1] - 320 - (this.yOffset || 0) * PIXEL_TO_WORLD_Z * 35 * sizeScale;
-				verticalBase = 0;
-			} else {
-				_spriteOffset[0] = animat.pos[0] - 320;
-				_spriteOffset[1] = animat.pos[1] - 320;
-			}
+			const verticalBase = this.layout(animat, sizeScale, _spriteOffset);
 			gl.uniform4fv(uniform.uSpriteColor, animat.color);
 			gl.uniform2fv(uniform.uSpriteOffset, _spriteOffset);
 			gl.uniform1f(uniform.uVerticalBase, verticalBase);
 			gl.uniform3fv(uniform.uSpritePosition, this.position);
-			gl.uniform1f(uniform.uSpriteAngle, animat.angle);
+			gl.uniform1f(uniform.uSpriteAngle, spriteAngle);
 			gl.blendFunc(D3DBLEND[animat.srcalpha], D3DBLEND[animat.destalpha]);
 			gl.bindTexture(gl.TEXTURE_2D, material);
-			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+			if (this.aimed) {
+				gl.disable(gl.DEPTH_TEST);
+				gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+				gl.enable(gl.DEPTH_TEST);
+			} else gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 		}
 		/**
 		* Initialize StrEffect
@@ -242238,6 +242348,7 @@ var init_StrEffect = __esmMin((() => {
 		static beforeRender(gl, modelView, projection, fog, tick) {
 			const uniform = _program$19.uniform;
 			const attribute = _program$19.attribute;
+			_modelView = modelView;
 			gl.depthMask(false);
 			gl.useProgram(_program$19);
 			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$15);
@@ -259316,7 +259427,18 @@ function spamSTR(Params) {
 		filename: "data/texture/effect/" + pick(Params.effect.file) + ".str",
 		texturePath
 	});
-	EffectManager.add(new StrEffect("data/texture/effect/" + filename + ".str", Params.Inst.position, Params.Inst.startTick, texturePath, fallbacks), Params);
+	const str = new StrEffect("data/texture/effect/" + filename + ".str", Params.Inst.position, Params.Inst.startTick, texturePath, fallbacks);
+	if (Params.effect.xOffset !== void 0 || Params.effect.yOffset !== void 0) str.ez2Offset = [Params.effect.xOffset || 0, Params.effect.yOffset || 0];
+	if (Params.Init.screenTurn !== void 0 || Params.effect.turnOffset) {
+		const turn = (Params.Init.screenTurn || 0) + (Params.effect.turnOffset || 0);
+		if (turn % 360) str.screenTurn = turn;
+	}
+	if (Params.Init.flipX) str.flipX = true;
+	if (Params.Init.flipY) str.flipY = true;
+	if (Params.effect.tilt) str.tilt = Params.effect.tilt;
+	const scale = Params.Init.scale || Params.effect.scale;
+	if (scale > 0 && scale !== 1) str.scale = scale;
+	EffectManager.add(str, Params);
 }
 /**
 * Spam an effect to the scene
@@ -305524,6 +305646,53 @@ function loadBSONFile(filename, targetTable, onEnd) {
 	}, onEnd);
 }
 /**
+* The last two parts of an STR path, lower case: its file and own folder.
+* A skill's top and floor layers can share a file name in different folders
+* (hasty_fire_in_the_hole/..._7x7 and hasty_fire_in_the_hole_bottom/..._7x7),
+* so the folder stays part of it.
+*
+* @param {string} file STR path without extension
+* @return {string}
+*/
+function strFileKey(file) {
+	return (file || "").toLowerCase().split("/").slice(-2).join("/");
+}
+/**
+* strFileKey with the variant words taken out, so the variants of one
+* effect (four_charm_earth, four_charm_fire, four_charm_ice) share a key.
+*
+* @param {string} file STR path without extension
+* @return {string}
+*/
+function strVariantKey(file) {
+	return strFileKey(file).split("/").map((part) => part.split("_").filter((word) => !EZ2_VARIANT_WORD.test(word)).map((word) => word.replace(/([a-z])\d+$/, "$1")).join("_")).join("/");
+}
+/**
+* Whether a skill's effects already draw this STR file.
+* Ignores the leading folders: older hand-written rows load the same STR
+* from its pre-4th-job folder (roseblossom/roseblossom_cast/... instead of
+* troubadour_trouvere/tr_roseblossom/roseblossom_cast/...), and the skill
+* would draw both.
+*
+* @param {object} skillEntry SkillEffect row, or undefined
+* @param {object} EffectTable
+* @param {string} file STR path without extension
+* @param {function} [keyOf] what counts as the same file, strFileKey by default
+* @return {boolean}
+*/
+function skillPlaysFile(skillEntry, EffectTable, file, keyOf = strFileKey) {
+	if (!skillEntry || !file) return false;
+	const wanted = keyOf(file);
+	for (const field in skillEntry) {
+		const names = [skillEntry[field]].flat(Infinity).flatMap((name) => name && typeof name === "object" ? Object.values(name) : [name]).flat(Infinity);
+		for (const name of names) {
+			const effects = typeof name === "string" || typeof name === "number" ? EffectTable[name] : null;
+			if (Array.isArray(effects) && effects.some((effect) => effect && effect.type === "STR" && keyOf(effect.file) === wanted)) return true;
+		}
+	}
+	return false;
+}
+/**
 * Merge Ez2STREffect from BSON into EffectTable and SkillEffect
 */
 function mergeEz2Effects(EffectTable, SkillEffect) {
@@ -305587,6 +305756,19 @@ function mergeEz2Effects(EffectTable, SkillEffect) {
 			}
 		}
 	}
+	const siblingIds = {};
+	const skidNames = Object.keys(SkillConst_default).sort();
+	for (let i = 0; i < skidNames.length; i++) {
+		const prefix = skidNames[i] + "_";
+		for (let j = i + 1; j < skidNames.length && skidNames[j].startsWith(skidNames[i]); j++) {
+			const other = SkillConst_default[skidNames[j]];
+			if (skidNames[j].startsWith(prefix) && other !== SkillConst_default[skidNames[i]]) (siblingIds[SkillConst_default[skidNames[i]]] || (siblingIds[SkillConst_default[skidNames[i]]] = [])).push(other);
+		}
+	}
+	function siblingPlaysFile(skillId, file) {
+		const siblings = siblingIds[skillId];
+		return !!siblings && siblings.some((id) => skillPlaysFile(SkillEffect[id], EffectTable, file));
+	}
 	for (const effectName in Ez2streffect) {
 		const entry = Ez2streffect[effectName];
 		const meta = effectMetadata[effectName];
@@ -305610,7 +305792,7 @@ function mergeEz2Effects(EffectTable, SkillEffect) {
 			type: "STR",
 			file: (entry.FilePath || "").replace(/\\/g, "/").replace(/\.str$/i, ""),
 			texturePath,
-			renderBeforeEntities: entry.IsFloor ? false : true,
+			renderBeforeEntities: !!entry.IsFloor,
 			xOffset: entry.PosX || 0,
 			yOffset: entry.PosY || 0,
 			wav: entry.SoundPath ? entry.SoundPath.replace(/\\/g, "/").replace(/\.wav$/i, "") : null,
@@ -305619,7 +305801,8 @@ function mergeEz2Effects(EffectTable, SkillEffect) {
 			attachedEntity: true
 		}];
 		count++;
-		if (skillId) {
+		const file = EffectTable[effectName][0].file;
+		if (skillId && !entry.IsInfinite && !skillPlaysFile(SkillEffect[skillId], EffectTable, file, strVariantKey) && !siblingPlaysFile(skillId, file)) {
 			const skillEntry = SkillEffect[skillId] || (SkillEffect[skillId] = {});
 			const field = meta.field;
 			if (skillEntry[field]) {
@@ -307896,7 +308079,7 @@ function updateMapTable() {
 		else MapTable[key] = { name: MapInfo[key].displayName };
 	}
 }
-var lua, HO_AI, MER_AI, default_HO_AI, default_MER_AI, mountPalettes, mountPalettesProbe, MsgStringTable, JokeTable, ScreamTable, MapTable, SkillDescription, SexTable, PetTalkTable, CheckAttendanceTable, buyingStoreItemList, LaphineSysTable, LaphineUpgTable, ItemDBNameTbl, ItemReformTable, EnchantListTable, SignBoardTranslatedTable, SignBoardTable, NaviMapTable, NaviMobTable, NaviNpcTable, NaviLinkTable, NaviLinkDistanceTable, NaviNpcDistanceTable, QuestInfo, TitleTable, PetDBTable, EggIDToJobID, ReputeGroup, ReputeInfo, AchievementTable, MsgEmotionCSV, HatEffectID, HatEffectInfo, FootPrintEffectInfo, CashShopBannerTable, Ez2streffect, unknownItem, servers, langType, userCharpage, userStringDecoder, DB, SUFFIX_TO_FIELD, HARDCODED_FIELD_MAPPING;
+var lua, HO_AI, MER_AI, default_HO_AI, default_MER_AI, mountPalettes, mountPalettesProbe, MsgStringTable, JokeTable, ScreamTable, MapTable, SkillDescription, SexTable, PetTalkTable, CheckAttendanceTable, buyingStoreItemList, LaphineSysTable, LaphineUpgTable, ItemDBNameTbl, ItemReformTable, EnchantListTable, SignBoardTranslatedTable, SignBoardTable, NaviMapTable, NaviMobTable, NaviNpcTable, NaviLinkTable, NaviLinkDistanceTable, NaviNpcDistanceTable, QuestInfo, TitleTable, PetDBTable, EggIDToJobID, ReputeGroup, ReputeInfo, AchievementTable, MsgEmotionCSV, HatEffectID, HatEffectInfo, FootPrintEffectInfo, CashShopBannerTable, Ez2streffect, unknownItem, servers, langType, userCharpage, userStringDecoder, DB, SUFFIX_TO_FIELD, HARDCODED_FIELD_MAPPING, EZ2_VARIANT_WORD;
 var init_DBManager = __esmMin((() => {
 	init_Client();
 	init_Configs();
@@ -310687,6 +310870,7 @@ var init_DBManager = __esmMin((() => {
 		broken_limit_buff: "effectId",
 		abyss_flame_target: "hitEffectId"
 	};
+	EZ2_VARIANT_WORD = /^(\d+|\d+x\d+|earth|fire|water|wind|ice|saint|holy|dark|darkness|poison|ghost|undead|neutral|reset|leftdown|rightdown|leftup|rightup)$/;
 }));
 // src/UI/Components/PetInformations/PetInformations.html?raw
 var PetInformations_default$2;
