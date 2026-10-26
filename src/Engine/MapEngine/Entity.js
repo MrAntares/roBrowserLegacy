@@ -16,6 +16,7 @@ import StatusConst from 'DB/Status/StatusConst.js';
 import StatusState from 'DB/Status/StatusState.js';
 import Emotions from 'DB/Emotions.js';
 import SkillEffect from 'DB/Skills/SkillEffect.js';
+import { hasElementCastAura } from 'DB/Skills/CastAuraRule.js';
 import SkillActionTable from 'DB/Skills/SkillAction.js';
 import EffectConst from 'DB/Effects/EffectConst.js';
 import PetMessageConst from 'DB/Pets/PetMessageConst.js';
@@ -1794,7 +1795,7 @@ function onEntityCastSkill(pkt) {
 	}
 
 	//Spells like Bash, Hide, Double Strafe etc. has special casting effect
-	EffectManager.spamSkillCast(pkt.SKID, pkt.AID, null, pkt.targetID);
+	EffectManager.spamSkillCast(pkt.SKID, pkt.AID, null, pkt.targetID, pkt.delayTime);
 
 	if (dstEntity && dstEntity !== srcEntity) {
 		srcEntity.lookTo(dstEntity.position[0], dstEntity.position[1]);
@@ -1823,8 +1824,12 @@ function onEntityCastSkill(pkt) {
 		}
 	}
 
-	// Check if cast aura needs to be hidden
-	hideCastAura = pkt.SKID in SkillEffect && SkillEffect[pkt.SKID].hideCastAura;
+	// Check if cast aura needs to be hidden. Skills the official client gives
+	// no element aura (DB/Skills/CastAuraRule.js) show only their own cast aura, if any.
+	const castSkill = pkt.SKID in SkillEffect ? SkillEffect[pkt.SKID] : null;
+	hideCastAura =
+		(castSkill && castSkill.hideCastAura) ||
+		(!hasElementCastAura(pkt.SKID) && !(castSkill && castSkill.castAuraEffectId));
 
 	// Cast aura
 	if (pkt.delayTime && !hideCastAura) {
@@ -1868,7 +1873,15 @@ function onEntityCastSkill(pkt) {
 				break;
 		}
 
-		EffectManager.spam(EF_Init_Par);
+		// Some skills always use the same cast aura, whatever the packet's element.
+		// A list plays each of its effects for the cast time.
+		if (castSkill && castSkill.castAuraEffectId) {
+			[castSkill.castAuraEffectId].flat().forEach(effectId => {
+				EffectManager.spam({ ...EF_Init_Par, effectId });
+			});
+		} else {
+			EffectManager.spam(EF_Init_Par);
+		}
 	}
 }
 
@@ -1883,7 +1896,12 @@ function onEntityCastCancel(pkt) {
 		entity.cast.clean();
 
 		// Cancel effects
-		EffectManager.remove(null, entity.GID, [12, 54, 55, 56, 57, 58, 59, 454, 60, 513]);
+		EffectManager.remove(
+			null,
+			entity.GID,
+			[12, 1709, 54, 55, 56, 57, 58, 59, 830, 2368, 454, 60, 513, 831, 840, 841, 842, 843, 845]
+		);
+		EffectManager.removeCastLoops(entity.GID);
 		EffectManager.remove(LockOnTarget, entity.GID);
 		EffectManager.remove(MagicTarget, entity.GID);
 		EffectManager.remove(MagicRing, entity.GID);

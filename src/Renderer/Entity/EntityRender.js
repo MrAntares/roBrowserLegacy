@@ -531,6 +531,75 @@ const renderEntity = (function renderEntityClosure() {
 })();
 
 /**
+ * Glow copy and split images, as the official client draws them for the marks
+ * of cast effects 934, 2373 and 502 (Renderer/Effects/CasterMarks.js).
+ *
+ *  - Glow copy (entity._castGlow): one more copy of each layer, in the
+ *    sprite's own colour, added, 1.5 sin(c) + 5 pixels larger on every side,
+ *    c counting the client's draws (60 a second) and wrapping after 180.
+ *  - Split images (entity._splitImageAge, the effect's age in ticks): four
+ *    white copies, shifted right, left, down and up by age x 5% of the body's
+ *    height, alpha (30 - age) x 5 out of 255.
+ *
+ * @param {Entity} entity
+ * @param {Array} layers
+ * @param {string} spr
+ * @param {string} pal
+ * @param {object} files
+ * @param {number[]} _position
+ */
+function renderCasterMarks(entity, layers, spr, pal, files, _position) {
+	const color = entity.effectColor;
+	const r = color[0];
+	const g = color[1];
+	const b = color[2];
+	const a = color[3];
+
+	if (entity._castGlow > 0) {
+		const pad = 1.5 * Math.sin((Math.floor(Date.now() / (1000 / 60)) % 181) * (Math.PI / 180)) + 5;
+		for (let i = 0; i < layers.length; ++i) {
+			const layer = layers[i];
+			const frame = layer.index >= 0 ? spr.frames[layer.index] : null;
+			if (!frame || !frame.width || !frame.height) {
+				continue;
+			}
+			const oldX = layer.scale[0];
+			const oldY = layer.scale[1];
+			layer.scale[0] = oldX * (1 + (2 * pad) / Math.abs(frame.width * oldX * files.size || 1));
+			layer.scale[1] = oldY * (1 + (2 * pad) / Math.abs(frame.height * oldY * files.size || 1));
+			entity.renderLayer(layer, spr, pal, files.size, _position, 'glow', true);
+			layer.scale[0] = oldX;
+			layer.scale[1] = oldY;
+		}
+	}
+
+	const age = entity._splitImageAge;
+	const alpha = age >= 0 ? Math.max(0, (30 - age) * 5) / 255 : 0;
+	if (alpha > 0) {
+		const shift = age * 0.05 * (entity.bodyHeight ? Math.abs(entity.bodyHeight) : 100);
+		const x = _position[0];
+		const y = _position[1];
+		color[0] = 1;
+		color[1] = 1;
+		color[2] = 1;
+		color[3] = alpha;
+		for (let k = 0; k < 4; k++) {
+			_position[0] = x + (k === 0 ? shift : k === 1 ? -shift : 0);
+			_position[1] = y + (k === 2 ? shift : k === 3 ? -shift : 0);
+			for (let i = 0; i < layers.length; ++i) {
+				entity.renderLayer(layers[i], spr, pal, files.size, _position, 'split', false);
+			}
+		}
+		_position[0] = x;
+		_position[1] = y;
+		color[0] = r;
+		color[1] = g;
+		color[2] = b;
+		color[3] = a;
+	}
+}
+
+/**
  * Render second body (BL_DOUBLE_BODY + EF_MAKEBLUR)
  * @param {Entity} entity
  * @param {Array} layers
@@ -849,6 +918,16 @@ const renderElement = (function renderElementClosure() {
 			EntityComposer.suspend(renderSecondary);
 		} else {
 			renderSecondary();
+		}
+
+		// Glow copy and split images some cast effects put on the caster (CasterMarks.js)
+		if (type !== 'shadow' && type !== 'cartshadow' && (entity._castGlow > 0 || entity._splitImageAge >= 0)) {
+			const renderMarks = () => renderCasterMarks(entity, layers, spr, pal, files, _position);
+			if (EntityComposer.active) {
+				EntityComposer.suspend(renderMarks);
+			} else {
+				renderMarks();
+			}
 		}
 
 		// Render all frames

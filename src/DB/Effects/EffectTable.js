@@ -34,6 +34,12 @@ import Blind from 'Renderer/Effects/Shaders/Blind.js';
 import SpiderWeb from 'Renderer/Effects/SpiderWeb.js';
 import SpiritSphere from 'Renderer/Effects/SpiritSphere.js';
 import { startCasterStrobe } from 'Renderer/Effects/CasterStrobe.js';
+import CastCone from 'Renderer/Effects/CastCone.js';
+import CastCircle from 'Renderer/Effects/CastCircle.js';
+import CastRing from 'Renderer/Effects/CastRing.js';
+import CastFunnel from 'Renderer/Effects/CastFunnel.js';
+import CasterMarks from 'Renderer/Effects/CasterMarks.js';
+import RotateLine from 'Renderer/Effects/RotateLine.js';
 import WarlockSphere from 'Renderer/Effects/WarlockSphere.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Renderer from 'Renderer/Renderer.js';
@@ -9446,7 +9452,28 @@ export default {
 		}
 	],
 
-	//441: [{}],	//EF_BLUECASTING	   Comfort Skills Cast Aura
+	441: [
+		{
+			//EF_BLUECASTING	   Blue cast aura (Comfort skills, Star Emperor skills)
+			// Same as the yellow (12) and white (58) cast auras in the official client, with ring_blue.
+			alphaMax: 0.8,
+			animation: 2,
+			attachedEntity: true,
+			blendMode: 2,
+			blue: 1,
+			bottomSize: 1,
+			fade: true,
+			green: 1,
+			height: 4,
+			red: 1,
+			rotate: true,
+			textureName: 'ring_blue',
+			topSize: 5,
+			type: 'CYLINDER',
+			wav: 'effect/ef_beginspell'
+		}
+	],
+
 	//442: [{}],	//EF_RUN	   Foot Prints caused by Sprint.
 	//443: [{}],	//EF_STOPRUN	   (Nothing)
 
@@ -10517,9 +10544,13 @@ export default {
 	ef_sh_chul_ho_battering_cast: [
 		{
 			type: 'STR',
+			castLoop: true,
+			attachedEntity: true,
 			file: 'spirit_handler/sh_chul_ho_battering/chul_ho_battering_cast/chul_ho_battering_cast',
 			texturePath: 'spirit_handler/sh_chul_ho_battering/chul_ho_battering_cast/',
-			min: 'spirit_handler/sh_chul_ho_battering/chul_ho_battering_cast/min_chul_ho_battering_cast'
+			min: 'spirit_handler/sh_chul_ho_battering/chul_ho_battering_cast/min_chul_ho_battering_cast',
+			wav: 'effect/ef_beginspell',
+			yOffset: 10
 		}
 	],
 
@@ -10555,16 +10586,23 @@ export default {
 	ef_sh_hyun_rok_spirit_power_cast: [
 		{
 			type: 'STR',
+			castLoop: true,
+			attachedEntity: true,
 			file: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast/hyun_rok_spirit_power_cast',
 			texturePath: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast/',
-			min: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast/min_hyun_rok_spirit_power_cast'
+			min: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast/min_hyun_rok_spirit_power_cast',
+			wav: 'effect/ef_beginspell',
+			yOffset: 10
 		},
 		{
 			type: 'STR',
+			castLoop: true,
+			attachedEntity: true,
 			file: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast_bottom/hyun_rok_spirit_power_cast_bottom',
 			texturePath: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast_bottom/',
 			min: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast_bottom/min_hyun_rok_spirit_power_cast_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 10
 		}
 	],
 
@@ -10636,7 +10674,25 @@ export default {
 		}
 	],
 
-	//502: [{}],	//EF_PIERCEBODY	   Player Become Yellow with Yellow Aura
+	502: [
+		{
+			//EF_PIERCEBODY	   Player Become Yellow with Yellow Aura
+			// Spiral Pierce Max cast (official client): for the cast time, at most 141
+			// ticks, the caster flickers yellow (drawn adding light) and white each
+			// tick, with a glow copy round it (CasterMarks.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, Params.Init.duration / 16, 502),
+					Params
+				);
+			}
+		}
+	],
+
 	//503: [{}],	//EF_SOULLINK	   Soul Link Word
 
 	504: [
@@ -11808,14 +11864,21 @@ export default {
 			type: 'STR',
 			file: 'sky_emperor/ske_sky_moon/sky_moon_cast/sky_moon_cast',
 			texturePath: 'sky_emperor/ske_sky_moon/sky_moon_cast/',
-			min: 'sky_emperor/ske_sky_moon/sky_moon_cast/min_sky_moon_cast'
+			min: 'sky_emperor/ske_sky_moon/sky_moon_cast/min_sky_moon_cast',
+			wav: 'effect/ef_beginspell',
+			castLoop: true,
+			yOffset: 10,
+			attachedEntity: true
 		},
 		{
 			type: 'STR',
 			file: 'sky_emperor/ske_sky_moon/sky_moon_cast_bottom/sky_moon_cast_bottom',
 			texturePath: 'sky_emperor/ske_sky_moon/sky_moon_cast_bottom/',
 			min: 'sky_emperor/ske_sky_moon/sky_moon_cast_bottom/min_sky_moon_cast_bottom',
-			renderBeforeEntities: true
+			castLoop: true,
+			yOffset: 10,
+			renderBeforeEntities: true,
+			attachedEntity: true
 		}
 	],
 
@@ -14601,8 +14664,42 @@ export default {
 		}
 	],
 
-	//830: [{}],	//EF_BEGINSPELL_N1	   Blue aura (Arch Bishop cast animation)
-	//831: [{}],	//EF_BEGINSPELL_N2	   Blue cone [S]
+	830: [
+		{
+			//EF_BEGINSPELL_N1	   Blue aura (Arch Bishop cast animation)
+			// The official client's two pulsing bubble crowns, light blue and white (CastConeSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, {
+						pulse: true
+					}),
+					Params
+				);
+			}
+		}
+	],
+
+	831: [
+		{
+			//EF_BEGINSPELL_N2	   Blue cone cast aura (Enchanting Sky)
+			// The official client's bubble cone in blue, over two blue squares on the ground (CastConeSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, {
+						variant: 0,
+						ground: true
+					}),
+					Params
+				);
+			}
+		}
+	],
 
 	832: [
 		{
@@ -14630,12 +14727,99 @@ export default {
 	//837: [{}],	//EF_ROLLINGCAST	   Casting [S]
 	//838: [{}],	//EF_WATER_BELOW	   Watery aura
 	//839: [{}],	//EF_WATER_FADE	   [Client Error]
-	//840: [{}],	//EF_BEGINSPELL_N3	   Red cone
-	//841: [{}],	//EF_BEGINSPELL_N4	   Green cone
-	//842: [{}],	//EF_BEGINSPELL_N5	   Yellow cone
-	//843: [{}],	//EF_BEGINSPELL_N6	   White cone
+
+	840: [
+		{
+			//EF_BEGINSPELL_N3	   Red cone cast aura
+			// The official client's bubble cone in red, with no squares on the ground (CastConeSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, {
+						variant: 3
+					}),
+					Params
+				);
+			}
+		}
+	],
+
+	841: [
+		{
+			//EF_BEGINSPELL_N4	   Green cone cast aura
+			// The official client's bubble cone in green, with no squares on the ground (CastConeSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, {
+						variant: 4
+					}),
+					Params
+				);
+			}
+		}
+	],
+
+	842: [
+		{
+			//EF_BEGINSPELL_N5	   Yellow cone cast aura
+			// The official client's bubble cone in yellow, with no squares on the ground (CastConeSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, {
+						variant: 5
+					}),
+					Params
+				);
+			}
+		}
+	],
+
+	843: [
+		{
+			//EF_BEGINSPELL_N6	   White cone cast aura
+			// The official client's bubble cone in white, with no squares on the ground (CastConeSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, {
+						variant: 6
+					}),
+					Params
+				);
+			}
+		}
+	],
+
 	//844: [{}],	//EF_BEGINSPELL_N7	   Purple cone
-	//845: [{}],	//EF_BEGINSPELL_N8	   light-bluish turquoise cone
+
+	845: [
+		{
+			//EF_BEGINSPELL_N8	   Turquoise cone cast aura (All in the Sky)
+			// The official client's bubble cone in turquoise, with no squares on the ground (CastConeSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, {
+						variant: 8
+					}),
+					Params
+				);
+			}
+		}
+	],
+
 	//846: [{}],	//EF_WATER_SMOKE	   (Nothing)
 
 	847: [
@@ -14915,9 +15099,13 @@ export default {
 	ef_ss_raidenpou_cast: [
 		{
 			type: 'STR',
+			castLoop: true,
+			attachedEntity: true,
 			file: 'shinkiro_shiranui/ss_raidenpou/new_raidenpou_cast/new_raidenpou_cast',
 			texturePath: 'shinkiro_shiranui/ss_raidenpou/new_raidenpou_cast/',
-			min: 'shinkiro_shiranui/ss_raidenpou/new_raidenpou_cast/min_new_raidenpou_cast'
+			min: 'shinkiro_shiranui/ss_raidenpou/new_raidenpou_cast/min_new_raidenpou_cast',
+			wav: 'effect/ef_beginspell',
+			yOffset: 8
 		}
 	],
 
@@ -15534,7 +15722,29 @@ export default {
 		}
 	],
 
-	//911: [{}],	//EF_GREENCASTING	   Green castish animation [S]
+	911: [
+		{
+			// EF_GREENCASTING (Totem of Tutelary cast): the cast-aura ring in ring_white.tga,
+			// argument 15 (green (100, 255, 100), additive), twice (CastRingSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastRing(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration,
+						'ring_white.tga',
+						[15, 15]
+					),
+					Params
+				);
+			}
+		}
+	],
+
 	//912: [{}],	//EF_WALLOFTHORN	   Wall of Thorns unit (green fog cloud)
 	//913: [{}],	//EF_FIREBALL5	   Magic projectiles
 	//914: [{}],	//EF_THROWITEM11	   (Nothing)
@@ -15637,7 +15847,32 @@ export default {
 	//931: [{}],	//EF_LINKPARTICLE2	   (Nothing)
 	//932: [{}],	//EF_SOULLIGHT3	   Firefly
 	//933: [{}],	//EF_CHAREFFECT	   [Client Crash]
-	//934: [{}],	//EF_GUMGANG6	   White, castishly expanding cone
+
+	934: [
+		{
+			//EF_GUMGANG6	   White, castishly expanding cone
+			// Nightmare Erasion cast (official client): four rings of ring_white.tga
+			// opening out round the caster for 50 ticks (CastFunnelSim.js). The effect
+			// lives 300 ticks whatever the cast time, and a cancelled cast keeps it.
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(
+					new CastFunnel(Params.Init.ownerEntity.position, Params.Inst.startTick, 300, 'ring_white.tga'),
+					Params
+				);
+			}
+		},
+		{
+			// ...and the caster drawn adding light, with a glow copy, two ticks out of four on ticks 12 to 33.
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, 300, 934), Params);
+			}
+		}
+	],
+
 	//935: [{}],	//EF_FIREBALL6	   Green magic projectile
 	//936: [{}],	//EF_GUMGANG7	   Red, castishly expanding cone
 	//937: [{}],	//EF_GUMGANG8	   Yellow, castishly expanding cone
@@ -15727,6 +15962,22 @@ export default {
 			type: 'STR',
 			file: 'vash00',
 			attachedEntity: true
+		}
+	],
+
+	986: [
+		{
+			//EF_ROTATE_LINE_GRAY	   Gray ribbons spiralling around the caster (Huuma / Kunai cast)
+			// The official client's CRotateLineEffect: four cloud11.tga ribbons for the cast time (RotateLineSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			func: function (Params) {
+				this.add(
+					new RotateLine(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, 986),
+					Params
+				);
+			}
 		}
 	],
 
@@ -17073,6 +17324,122 @@ export default {
 		}
 	],
 
+	// Jack Frost Nova cast, with 1449: the client plays new_jackfrost_cast.str for the cast time
+	1446: [
+		{
+			type: 'STR',
+			file: 'new_jackfrost/new_jackfrost_cast/new_jackfrost_cast',
+			texturePath: 'new_jackfrost/new_jackfrost_cast/',
+			min: 'new_jackfrost/new_jackfrost_cast/min_new_jackfrost_cast',
+			castLoop: true,
+			attachedEntity: true
+		}
+	],
+
+	1449: [
+		{
+			// Jack Frost Nova cast: the client's tinted cast circle in new_jackfrost/ring_ice.tga,
+			// mode 2 (bluish, normal blending), for the cast time (CastCircleSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCircle(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration,
+						'new_jackfrost/ring_ice.tga',
+						2
+					),
+					Params
+				);
+			}
+		}
+	],
+
+	1556: [
+		{
+			// Soul of Heaven and Earth cast: the cast-aura ring in ring_blue.tga, arguments
+			// 20 and 21 (two blues, additive) (CastRingSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastRing(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration,
+						'ring_blue.tga',
+						[20, 21]
+					),
+					Params
+				);
+			}
+		}
+	],
+
+	1565: [
+		{
+			// Circle of Directions and Elementals cast: the cast-aura ring in ring_yellow.tga,
+			// argument 23 (light blue, additive) (CastRingSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastRing(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration,
+						'ring_yellow.tga',
+						[23, 23]
+					),
+					Params
+				);
+			}
+		}
+	],
+
+	1709: [
+		{
+			// Hell's Drive cast aura: the client's untinted cast circle in
+			// new_earthdrive/ring_brown.tga, white, for the cast time (CastCircleSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCircle(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration,
+						'new_earthdrive/ring_brown.tga'
+					),
+					Params
+				);
+			}
+		}
+	],
+
+	// Shinkirou cast, with 2373: the client plays mystery_illusion_cast_bottom.str for the cast time
+	1774: [
+		{
+			type: 'STR',
+			file: 'mystery_illusion/mystery_illusion_cast_bottom/mystery_illusion_cast_bottom',
+			texturePath: 'mystery_illusion/mystery_illusion_cast_bottom/',
+			min: 'mystery_illusion/mystery_illusion_cast_bottom/min_mystery_illusion_cast_bottom',
+			wav: 'effect/ef_beginspell',
+			renderBeforeEntities: true,
+			castLoop: true,
+			attachedEntity: true
+		}
+	],
+
 	1869: [
 		{
 			type: 'STR',
@@ -17212,6 +17579,150 @@ export default {
 			type: 'STR',
 			file: 'ui_enchant/ui_fail/ui_reset_fail',
 			texturePath: 'ui_enchant/ui_fail/'
+		}
+	],
+
+	1938: [
+		{
+			// Spark Blaster / Triple Laser cast: the cast-aura ring in
+			// new_battle_w/abr_battle_warior.tga, argument 0 (white, additive) (CastRingSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastRing(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration,
+						'new_battle_w/abr_battle_warior.tga',
+						[0, 0]
+					),
+					Params
+				);
+			}
+		}
+	],
+
+	// Mayhemic Thorns cast: the client plays acidified_zone_ground_cast.str (2228) and its
+	// floor layer (2229) for the cast time
+	2228: [
+		{
+			type: 'STR',
+			file: 'acidified_zone_ground/acidified_zone_ground_cast/acidified_zone_ground_cast',
+			texturePath: 'acidified_zone_ground/acidified_zone_ground_cast/',
+			min: 'acidified_zone_ground/acidified_zone_ground_cast/min_acidified_zone_ground_cast',
+			wav: 'effect/ef_beginspell',
+			castLoop: true,
+			attachedEntity: true
+		}
+	],
+
+	2229: [
+		{
+			type: 'STR',
+			file: 'acidified_zone_ground/acidified_zone_ground_cast_bottom/acidified_zone_ground_cast_bottom',
+			texturePath: 'acidified_zone_ground/acidified_zone_ground_cast_bottom/',
+			min: 'acidified_zone_ground/acidified_zone_ground_cast_bottom/min_acidified_zone_ground_cast_bottom',
+			renderBeforeEntities: true,
+			castLoop: true,
+			attachedEntity: true
+		}
+	],
+
+	2367: [
+		{
+			// Night Watch, Soul Ascetic and Spirit Handler cast aura: the client's cast-aura ring in
+			// ring_yellow.tga, argument 0 (white, additive), twice (CastRingSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastRing(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration,
+						'ring_yellow.tga',
+						[0, 0]
+					),
+					Params
+				);
+			}
+		}
+	],
+
+	2368: [
+		{
+			// Talisman of Black Tortoise cast: the official client's bubble cone in black (variant 11, CastConeSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, {
+						variant: 11
+					}),
+					Params
+				);
+			}
+		}
+	],
+
+	2369: [
+		{
+			// Breaking Limit, Rule Break and Talisman of Four Bearing God cast: the colour-cycling
+			// ring (client primitive 139) in ring_white.tga, argument 0, twice: blue, red, green and
+			// pale yellow, 25 ticks each (CastRingSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastRing(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration,
+						'ring_white.tga',
+						[0, 0],
+						true
+					),
+					Params
+				);
+			}
+		}
+	],
+
+	2373: [
+		{
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			func: function (Params) {
+				this.add(
+					new CastFunnel(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration / 16,
+						'ring_black.tga'
+					),
+					Params
+				);
+			}
+		},
+		{
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			func: function (Params) {
+				this.add(
+					new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, Params.Init.duration / 16, 2373),
+					Params
+				);
+			}
 		}
 	],
 
@@ -22205,9 +22716,14 @@ export default {
 	ef_nw_wild_shot_cast: [
 		{
 			type: 'STR',
+			castLoop: true,
+			attachedEntity: true,
 			file: 'night_watch/nw_wild_shot/wild_shot_cast/wild_shot_cast',
 			texturePath: 'night_watch/nw_wild_shot/wild_shot_cast/',
-			min: 'night_watch/nw_wild_shot/wild_shot_cast/min_wild_shot_cast'
+			min: 'night_watch/nw_wild_shot/wild_shot_cast/min_wild_shot_cast',
+			wav: 'effect/ef_beginspell',
+			renderBeforeEntities: true,
+			yOffset: 11
 		}
 	],
 
@@ -22237,10 +22753,15 @@ export default {
 	ef_nw_midnight_fallen_cast: [
 		{
 			type: 'STR',
+			castLoop: true,
+			attachedEntity: true,
 			file: 'night_watch/nw_midnight_fallen/midnight_fallen_cast_bottom/midnight_fallen_cast_bottom',
 			texturePath: 'night_watch/nw_midnight_fallen/midnight_fallen_cast_bottom/',
 			min: 'night_watch/nw_midnight_fallen/midnight_fallen_cast_bottom/min_midnight_fallen_cast_bottom',
-			renderBeforeEntities: true
+			wav: 'effect/ef_beginspell',
+			renderBeforeEntities: true,
+			xOffset: 1,
+			yOffset: 11
 		}
 	],
 
@@ -23931,6 +24452,93 @@ export default {
 			file: 'help_angel/help_angel_bottom/help_angel_bottom',
 			texturePath: 'help_angel/help_angel_bottom/',
 			renderBeforeEntities: true
+		}
+	],
+
+	ef_cast_circle_red: [
+		{
+			// Effect 55: tinted circle, ring_yellow.tga, mode 1 (reddish, additive)
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCircle(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration,
+						'ring_yellow.tga',
+						1
+					),
+					Params
+				);
+			}
+		}
+	],
+
+	ef_cast_circle_violet: [
+		{
+			// Effect 59: untinted circle, magic_violet.tga
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCircle(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration,
+						'magic_violet.tga'
+					),
+					Params
+				);
+			}
+		}
+	],
+
+	ef_cast_circle_blue: [
+		{
+			// Effect 54: tinted circle, ring_blue.tga, mode 2 (bluish, normal blending)
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCircle(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration,
+						'ring_blue.tga',
+						2
+					),
+					Params
+				);
+			}
+		}
+	],
+
+	ef_cast_circle_yellow: [
+		{
+			// Effect 57: tinted circle, ring_yellow.tga, mode 0 (white, normal blending)
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCircle(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration,
+						'ring_yellow.tga',
+						0
+					),
+					Params
+				);
+			}
 		}
 	]
 };
