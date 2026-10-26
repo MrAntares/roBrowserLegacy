@@ -395,6 +395,8 @@ class SPR {
 									((pixel & 0xff000000) >>> 24); // B
 							}
 						}
+						// Export
+						ctx.putImageData(imageData, 0, 0);
 						return canvas; // Skip WASM processing and return canvas with JS fallback
 					}
 				}
