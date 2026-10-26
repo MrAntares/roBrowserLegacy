@@ -184,12 +184,12 @@ class SPR {
 	 *
 	 * The exact byte layout depends on the chosen packing below.
 	 */
-	convert32bPal(pal, flip = false) {
+	convert32bPal(flip = false) {
 		const pal32 = new Uint32Array(256);
 		for (let i = 0; i < 256; i++) {
-			const r = pal[i * 4 + 0];
-			const g = pal[i * 4 + 1];
-			const b = pal[i * 4 + 2];
+			const r = this.palette[i * 4 + 0];
+			const g = this.palette[i * 4 + 1];
+			const b = this.palette[i * 4 + 2];
 			const a = i === 0 ? 0 : 255; // A? A = 255
 
 			// If flip=true, we prepare the integer to be written as ABGR in memory
@@ -210,10 +210,9 @@ class SPR {
 	 * (why keep palette for hat/weapon/shield/monster ?)
 	 */
 	switchToRGBA() {
-		const frames = this.frames,
-			pal = this.palette;
+		const frames = this.frames;
 		// Create a lookup table of Uint32 colors to speed up conversion
-		const pal32 = this.convert32bPal(pal, false);
+		const pal32 = this.convert32bPal(false);
 		const wasmInstance = getPaletteConvertWasm();
 
 		if (wasmInstance) {
@@ -246,10 +245,36 @@ class SPR {
 
 				// Grow WASM linear memory if frame requires more than current buffer capacity
 				if (memory.buffer.byteLength < totalBytesNeeded) {
-					const additionalPages = Math.ceil((totalBytesNeeded - memory.buffer.byteLength) / 65536);
-					memory.grow(additionalPages);
-					// Re-copy palette if memory buffer detached on grow
-					new Uint32Array(memory.buffer, palPtr, 256).set(pal32);
+					try {
+						const additionalPages = Math.ceil((totalBytesNeeded - memory.buffer.byteLength) / 65536);
+						memory.grow(additionalPages);
+						// Re-copy palette if memory buffer detached on grow
+						new Uint32Array(memory.buffer, palPtr, 256).set(pal32);
+					} catch (_e) {
+						// Fallback to JS for this frame
+						const frameWidth = frame.width,
+							frameHeight = frame.height;
+						const data = frame.data; // Uint8 indexes
+						const out = new Uint8Array(frameWidth * frameHeight * 4);
+
+						// We map a Uint32View to the output buffer to write 4 bytes at once
+						const out32 = new Uint32Array(out.buffer);
+
+						for (let y = 0; y < frameHeight; ++y) {
+							// reverse height
+							const srcRowStart = y * frameWidth;
+							const dstRowStart = (frameHeight - y - 1) * frameWidth;
+
+							for (let x = 0; x < frameWidth; ++x) {
+								// Single 32-bit assignment from pre-calculated palette table
+								out32[dstRowStart + x] = pal32[data[srcRowStart + x]];
+							}
+						}
+
+						frame.data = out;
+						frame.type = SPR.TYPE_RGBA;
+						continue; // Skip to next frame
+					}
 				}
 
 				// Copy indexed pixel data to WASM linear memory
@@ -343,8 +368,37 @@ class SPR {
 				const totalBytesNeeded = dstPtr + dstBytes;
 
 				if (memory.buffer.byteLength < totalBytesNeeded) {
-					const additionalPages = Math.ceil((totalBytesNeeded - memory.buffer.byteLength) / 65536);
-					memory.grow(additionalPages);
+					try {
+						const additionalPages = Math.ceil((totalBytesNeeded - memory.buffer.byteLength) / 65536);
+						memory.grow(additionalPages);
+					} catch (_e) {
+						// Fallback to JS for this frame
+						const data32 = new Uint32Array(imageData.data.buffer);
+						let frameData32;
+						if ((frame.data.byteOffset & 3) === 0) {
+							frameData32 = new Uint32Array(frame.data.buffer, frame.data.byteOffset, pixelCount);
+						} else {
+							frameData32 = new Uint32Array(pixelCount);
+							new Uint8Array(frameData32.buffer).set(
+								new Uint8Array(frame.data.buffer, frame.data.byteOffset, pixelCount * 4)
+							);
+						}
+						for (let y = 0; y < height; ++y) {
+							const srcRow = y * width;
+							const dstRow = (height - y - 1) * width; // Flip Y
+							for (let x = 0; x < width; ++x) {
+								const pixel = frameData32[srcRow + x];
+								data32[dstRow + x] =
+									((pixel & 0x000000ff) << 24) | // A
+									((pixel & 0x0000ff00) << 8) | // R
+									((pixel & 0x00ff0000) >> 8) | // G
+									((pixel & 0xff000000) >>> 24); // B
+							}
+						}
+						// Export
+						ctx.putImageData(imageData, 0, 0);
+						return canvas; // Skip WASM processing and return canvas with JS fallback
+					}
 				}
 
 				const frameBytes = new Uint8Array(frame.data.buffer, frame.data.byteOffset, srcBytes);
@@ -384,9 +438,9 @@ class SPR {
 		else {
 			// Cache converted 32bit palette (flip=true for ABGR order / Little Endian -> RGBA)
 			if (!this._pal32Canvas && this.palette) {
-				this._pal32Canvas = this.convert32bPal(this.palette, true);
+				this._pal32Canvas = this.convert32bPal(true);
 			}
-			const pal32 = this._pal32Canvas || this.convert32bPal(this.palette, true);
+			const pal32 = this._pal32Canvas || this.convert32bPal(true);
 
 			const pixelCount = width * height;
 			const srcBytes = pixelCount;
@@ -400,8 +454,24 @@ class SPR {
 				const totalBytesNeeded = dstPtr + dstBytes;
 
 				if (memory.buffer.byteLength < totalBytesNeeded) {
-					const additionalPages = Math.ceil((totalBytesNeeded - memory.buffer.byteLength) / 65536);
-					memory.grow(additionalPages);
+					try {
+						const additionalPages = Math.ceil((totalBytesNeeded - memory.buffer.byteLength) / 65536);
+						memory.grow(additionalPages);
+					} catch (_e) {
+						// Fallback to JS for this frame
+						const data32 = new Uint32Array(imageData.data.buffer);
+						const frameIndices = new Uint8Array(frame.data.buffer, frame.data.byteOffset, pixelCount);
+						for (let y = 0; y < height; ++y) {
+							const rowStart = y * width;
+							for (let x = 0; x < width; ++x) {
+								const idx = frameIndices[rowStart + x];
+								data32[rowStart + x] = pal32[idx];
+							}
+						}
+						// Export
+						ctx.putImageData(imageData, 0, 0);
+						return canvas; // Skip WASM processing and return canvas with JS fallback
+					}
 				}
 
 				new Uint32Array(memory.buffer, palPtr, 256).set(pal32);
@@ -475,7 +545,7 @@ class SPR {
 			// If palette.
 			if (frame.type === SPR.TYPE_PAL) {
 				if (!pal32) {
-					pal32 = this.convert32bPal(this.palette, true);
+					pal32 = this.convert32bPal(true);
 				}
 
 				if (width <= 0 || height <= 0) {
@@ -487,8 +557,39 @@ class SPR {
 					const totalBytesNeeded = dstPtr + dstBytes;
 
 					if (wasmMem.buffer.byteLength < totalBytesNeeded) {
-						const additionalPages = Math.ceil((totalBytesNeeded - wasmMem.buffer.byteLength) / 65536);
-						wasmMem.grow(additionalPages);
+						try {
+							const additionalPages = Math.ceil((totalBytesNeeded - wasmMem.buffer.byteLength) / 65536);
+							wasmMem.grow(additionalPages);
+						} catch (_e) {
+							// Fallback to JS for this frame
+							out = new Uint8Array(gl_width * gl_height);
+							for (let y = 0; y < height; ++y) {
+								const srcRow = y * width;
+								const dstRow = (y + start_y) * gl_width + start_x; // precomputed destination row offset
+								for (let x = 0; x < width; ++x) {
+									const idx = data[srcRow + x];
+
+									// Fast transparency check using pre-calculated 32-bit palette
+									// OLD: O(pixels * 3)
+									// NEW: O(256) + O(pixels * 1)
+									// Set all colors to 0 if collor is Magenta (RO Magic Collor)
+									if (pal32[idx] === MAGENTA) {
+										out[dstRow + x] = 0; // Fully transparent pixel
+									} else {
+										out[dstRow + x] = idx;
+									}
+								}
+							}
+							output[i] = {
+								type: frame.type,
+								width: gl_width,
+								height: gl_height,
+								originalWidth: width,
+								originalHeight: height,
+								data: out
+							};
+							continue; // Skip to next frame
+						}
 					}
 
 					if (!wasmPalInitialized) {
@@ -547,8 +648,52 @@ class SPR {
 					const totalBytesNeeded = dstPtr + dstBytes;
 
 					if (wasmMem.buffer.byteLength < totalBytesNeeded) {
-						const additionalPages = Math.ceil((totalBytesNeeded - wasmMem.buffer.byteLength) / 65536);
-						wasmMem.grow(additionalPages);
+						try {
+							const additionalPages = Math.ceil((totalBytesNeeded - wasmMem.buffer.byteLength) / 65536);
+							wasmMem.grow(additionalPages);
+						} catch (_e) {
+							// Fallback to JS for this frame
+							out = new Uint8Array(gl_width * gl_height * 4);
+							// Use 32-bit views destination for maximum throughput
+							const out32 = new Uint32Array(out.buffer);
+
+							for (let y = 0; y < height; ++y) {
+								const srcRow = (height - y - 1) * width * 4;
+								const dstRow = (y + start_y) * gl_width + start_x;
+
+								for (let x = 0; x < width; ++x) {
+									const srcIdx = srcRow + x * 4;
+
+									/**
+									 * OLD LOGIC: Manual per-channel assignments (out[dst+0]=... out[dst+3]=...). 4 loads + 4 stores + branches.
+									 * NEW LOGIC: Reads RGBA bytes, remaps color channels using bitwise operations, and writes the result as a single 32-bit integer. 4 loads + 1 store.
+									 */
+
+									// Set all colors to 0 if alpha is also 0
+									// This fixes white outlines appearing on RGBA sprites
+									const a = data[srcIdx];
+									if (a === 0) {
+										out32[dstRow + x] = 0; // Fully transparent pixel
+									} else {
+										const r = data[srcIdx + 3];
+										const g = data[srcIdx + 2];
+										const b = data[srcIdx + 1];
+										// Writing (A<<24 | B<<16 | G<<8 | R) produces LE memory bytes [R, G, B, A], which matches Canvas ImageData (RGBA).
+										// Reconstruct as 32-bit integer (A B G R -> 0xAABBGGRR)
+										out32[dstRow + x] = (a << 24) | (b << 16) | (g << 8) | r;
+									}
+								}
+							}
+							output[i] = {
+								type: frame.type,
+								width: gl_width,
+								height: gl_height,
+								originalWidth: width,
+								originalHeight: height,
+								data: out
+							};
+							continue; // Skip to next frame
+						}
 					}
 
 					// Zero-initialize destination buffer in WASM memory

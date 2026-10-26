@@ -28,21 +28,21 @@ Instructions for working on binary game asset parsers, GRF container extraction,
 
 ## Asset Loader Reference (`src/Loaders/`)
 
-| File                 | Format / Responsibility                                                                                          |
-| -------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `GameFileDecrypt.js` | GRF encryption/decryption (DES / RC4).                                                                           |
-| `GameFile.js`        | `.grf` container header, file table decompression, and entry extraction.                                         |
-| `Action.js`          | `.act` sprite animation actions, frames, layers, and sound triggers.                                             |
-| `Sprite.js`          | `.spr` indexed-palette and RGBA sprite textures, RLE decompression, and palette conversion.                      |
-| `Ground.js`          | `.gnd` ground mesh, lightmaps, tile colors, and textures.                                                        |
-| `Altitude.js`        | `.gat` cell height and walkability/collision flags.                                                              |
-| `World.js`           | `.rsw` resource world (models, lights, sounds, water parameters).                                                |
-| `Str.js`             | `.str` multi-layer visual effect animations (including compiled `.ezv` assets).                                  |
-| `Model.js`           | `.rsm` / `.rsm2` 3D map prop models and keyframe animations.                                                     |
-| `GR2Loader.js`       | `.gr2` Granny3D skeletal models via `granny-ro-js` (replaces legacy `GrannyModel.js`).                           |
-| `MapLoader.js`       | Orchestrates map loading across `.rsw`, `.gnd`, `.gat`, models, and textures.                                    |
-| `Targa.js`           | `.tga` image parsing (uncompressed and RLE) into pixel buffers/canvases.                                         |
-| `wasm/`              | `paletteConvert.wat`/`.js`, `spriteCompile.wat`/`.js`, `targa.wat`/`.js` (regenerated via `npm run wasm:build`). |
+| File                 | Format / Responsibility                                                                                                                       |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GameFileDecrypt.js` | GRF encryption/decryption (DES / RC4).                                                                                                        |
+| `GameFile.js`        | `.grf` container header, file table decompression, and entry extraction.                                                                      |
+| `Action.js`          | `.act` sprite animation actions, frames, layers, and sound triggers.                                                                          |
+| `Sprite.js`          | `.spr` indexed-palette and RGBA sprite textures, RLE decompression, and palette conversion.                                                   |
+| `Ground.js`          | `.gnd` ground mesh, lightmaps, tile colors, and textures.                                                                                     |
+| `Altitude.js`        | `.gat` cell height and walkability/collision flags.                                                                                           |
+| `World.js`           | `.rsw` resource world (models, lights, sounds, water parameters).                                                                             |
+| `Str.js`             | `.str` multi-layer visual effect animations (including compiled `.ezv` assets).                                                               |
+| `Model.js`           | `.rsm` / `.rsm2` 3D map prop models and keyframe animations.                                                                                  |
+| `GR2Loader.js`       | `.gr2` Granny3D skeletal models via `granny-ro-js` (replaces legacy `GrannyModel.js`).                                                        |
+| `MapLoader.js`       | Orchestrates map loading across `.rsw`, `.gnd`, `.gat`, models, and textures.                                                                 |
+| `Targa.js`           | `.tga` image parsing (uncompressed and RLE) into pixel buffers/canvases.                                                                      |
+| `wasm/`              | `paletteConvert.wat`/`.js`, `spriteCompile.wat`/`.js`, `targa.wat`/`.js`, `gameFileDecrypt.wat`/`.js` (regenerated via `npm run wasm:build`). |
 
 ---
 
