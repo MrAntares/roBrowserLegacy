@@ -38,6 +38,7 @@ Instructions for working on the WebGL renderer, Entity composition system (`src/
 - **Ground:** `GroundEffect`, `FlatColorTile`, `PropertyGround`, `LPEffect`, `SpiderWeb`, `Tiles`.
 - **Combat:** `Damage`, `MagnumBreak`, `PoisonEffect`, `MagicTarget`, `MagicRing`, `LockOnTarget`.
 - **Visual & World:** `StrEffect`, `RsmEffect`, `ThreeDEffect`, `TwoDEffect`, `Cylinder`, `Songs`, `Trail`, `WaterfallEffect`.
+- **Spawners:** `AreaSpawner` (`AREA_SPAWN` rows: while it lives, spams another effect at random points of a square, for ground units such as Cross Rain).
 - **Screen & Post-Processing:** `PostProcess.js` and `Effects/Shaders/` (`Blind`, `Bloom`, `CAS`, `Cartoon`, `FXAA`, `GaussianBlur`, `Upsampling`, `VerticalFlip`, `Vibrance`).
 - _Known note:_ `Damage.js` and `Sky.js` contain legacy particle class management TODOs; inspect carefully when modifying.
 

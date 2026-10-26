@@ -62,7 +62,7 @@ The MapEngine contains 29 files covering game-loop management, state, gameplay, 
 | `OffhandWeapon.js`                                           | Offhand weapon handling                              |
 
 - **Core Loop & State:** `Main.js` (player stats, status properties, server tick, warp/restart), `MapState.js` (map flags/state), `UIOpen.js` (server-triggered UI window lifecycle).
-- **Entities & Combat:** `Entity.js` (unit spawn/move/action/vanish/status/effects), `Skill.js` (skill list, casting, ground skills, auto-spell), `OffhandWeapon.js` (dual-wield / offhand weapon vs shield resolution).
+- **Entities & Combat:** `Entity.js` (unit spawn/move/action/vanish/status/effects), `StatusEffects.js` (status start/loop effects from `DB/Status/StatusEffectTable.js`), `Skill.js` (skill list, casting, ground skills, auto-spell), `OffhandWeapon.js` (dual-wield / offhand weapon vs shield resolution).
 - **Items & Storage:** `Item.js` (pickup, drop, inventory, equipment, cards, refine, reform, enchant, Laphine), `Storage.js` (Kafra/guild storage).
 - **NPC & Commerce:** `NPC.js` (dialogs, menus, inputs, cutins, progress bars, navigation), `Store.js` (NPC buy/sell, vending, buying store), `Trade.js` (player-to-player trade), `CashShop.js`, `Bank.js`, `Roulette.js`.
 - **Social & Communication:** `Group.js` (party), `Guild.js` (guild info, members, grades, skills, emblems, alliances), `Clan.js`, `Friends.js`, `PrivateMessage.js` (whispers), `ChatRoom.js`.

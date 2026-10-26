@@ -189,9 +189,7 @@ SkillEffect[SK.HN_SHIELD_CHAIN_RUSH] = { effectId: 'ef_hn_shield_chain_rush' }; 
 SkillEffect[SK.HN_SPIRAL_PIERCE_MAX] = { effectId: 'ef_hn_spiral_pierce_max' }; //Spiral Pierce Max
 SkillEffect[SK.HN_METEOR_STORM_BUSTER] = { effectId: 'ef_hn_meteor_storm_buster' }; //Meteor Storm Buster
 SkillEffect[SK.HN_JUPITEL_THUNDER_STORM] = { effectId: 'ef_hn_jupitel_thunder_storm' }; //Jupitel Thunderstorm
-SkillEffect[SK.HN_JACK_FROST_NOVA] = { effectId: 'ef_hn_jack_frost_nova' }; //Jack Frost Nova
 SkillEffect[SK.HN_HELLS_DRIVE] = { effectId: 'ef_hn_hells_drive' }; //Hell's Drive
-SkillEffect[SK.HN_GROUND_GRAVITATION] = { effectId: 'ef_hn_ground_gravitation' }; //Ground Gravitation
 SkillEffect[SK.HN_NAPALM_VULCAN_STRIKE] = { effectId: 'ef_hn_napalm_vulcan_strike' }; //Napalm Vulcan Strike
 SkillEffect[SK.HN_BREAKINGLIMIT] = { effectId: 'ef_hn_breakinglimit' }; //Breaking Limit
 SkillEffect[SK.HN_RULEBREAK] = { effectId: 'ef_hn_rulebreak' }; //Rule Break
@@ -1041,7 +1039,7 @@ SkillEffect[SK.NW_BASIC_GRENADE] = { effectId: 'ef_nw_basic_grenade' }; //Basic 
 SkillEffect[SK.NW_GRENADES_DROPPING] = { effectId: 'ef_nw_grenades_dropping' }; //Grenades Dropping
 SkillEffect[SK.NW_AUTO_FIRING_LAUNCHER] = { effectId: 'ef_nw_auto_firing_launcher' }; //Auto Firing Launcher
 SkillEffect[SK.NW_HIDDEN_CARD] = { effectId: 'ef_nw_hidden_card' }; //Hidden Card
-SkillEffect[SK.NW_MISSION_BOMBARD] = { effectId: 'ef_nw_mission_bombard', hitEffectId: 'ef_nw_mission_bombard_hit' }; //Mission Bombard
+SkillEffect[SK.NW_MISSION_BOMBARD] = { hitEffectId: 'ef_nw_mission_bombard_hit' }; //Mission Bombard (the bomb and its fire come from its skill unit)
 SkillEffect[5500 /* NW_WILD_SHOT */] = {
 	effectId: 'ef_nw_wild_shot',
 	effectIdOnCaster: 'ef_nw_wild_shot_cast',
@@ -1103,7 +1101,6 @@ SkillEffect[SK.SOA_TALISMAN_OF_PROTECTION] = { effectId: 'ef_soa_talisman_of_pro
 SkillEffect[SK.SOA_TALISMAN_OF_WARRIOR] = { effectId: 'ef_soa_talisman_of_warrior' }; //Talisman Of Warrior
 SkillEffect[SK.SOA_TALISMAN_OF_MAGICIAN] = { effectId: 'ef_soa_talisman_of_magician' }; //Talisman Of Magician
 SkillEffect[SK.SOA_SOUL_GATHERING] = { effectId: 'ef_soa_soul_gathering' }; //Soul Gathering
-SkillEffect[SK.SOA_TOTEM_OF_TUTELARY] = { effectId: 'ef_soa_totem_of_tutelary' }; //Totem Of Tutelary
 SkillEffect[SK.SOA_TALISMAN_OF_FIVE_ELEMENTS] = { effectId: 'ef_soa_talisman_of_five_elements' }; //Talisman Of Five Elements
 SkillEffect[SK.SOA_TALISMAN_OF_SOUL_STEALING] = { effectId: 'ef_soa_talisman_of_soul_stealing' }; //Talisman Of Soul Stealing
 SkillEffect[SK.SOA_EXORCISM_OF_MALICIOUS_SOUL] = { effectId: 'ef_soa_exorcism_of_malicious_soul' }; //Exorcism Of Malicious Soul
@@ -1615,7 +1612,7 @@ SkillEffect[SK.IG_OVERSLASH] = {
 	effectIdOnCaster: 'ef_ig_overslash_cast',
 	hitEffectId: 'ef_ig_overslash_hit'
 }; //Overslash
-SkillEffect[SK.IG_CROSS_RAIN] = { effectId: 'ef_ig_cross_rain', effectIdOnCaster: 'ef_ig_cross_rain_cast' }; //Cross Rain
+SkillEffect[SK.IG_CROSS_RAIN] = { effectIdOnCaster: 'ef_ig_cross_rain_cast' }; //Cross Rain (the rain comes from its skill unit)
 SkillEffect[6503 /* IG_RADIANT_SPEAR */] = { effectIdOnCaster: 'ef_ig_radiant_spear_cast' }; //Radiant Spear
 SkillEffect[6504 /* IG_IMPERIAL_CROSS */] = { effectId: 'ef_ig_imperial_cross' }; //Imperial Cross
 SkillEffect[6505 /* IG_IMPERIAL_PRESSURE */] = {
@@ -1666,7 +1663,6 @@ SkillEffect[SK.SH_MARINE_FESTIVAL_OF_KI_SUL] = { effectId: 'ef_sh_marine_festiva
 SkillEffect[SK.SH_SANDY_FESTIVAL_OF_KI_SUL] = { effectId: 'ef_sh_sandy_festival_of_ki_sul' }; //Sandy Festival of Kisul
 SkillEffect[SK.SH_KI_SUL_RAMPAGE] = { effectId: 'ef_sh_ki_sul_rampage' }; //Kisul Rampage
 SkillEffect[SK.SH_COLORS_OF_HYUN_ROK] = { effectId: 'ef_sh_colors_of_hyun_rok' }; //Colors of Hyunrok
-SkillEffect[SK.SH_HYUN_ROKS_BREEZE] = { effectId: 'ef_sh_hyun_roks_breeze' }; //Hyunrok Breeze
 SkillEffect[SK.SH_HYUN_ROK_CANNON] = { effectId: 'ef_sh_hyun_rok_cannon' }; //Hyunrok Cannon
 SkillEffect[SK.SH_TEMPORARY_COMMUNION] = { effectId: 'ef_sh_temporary_communion' }; //Temporary Communion
 SkillEffect[SK.SH_BLESSING_OF_MYSTICAL_CREATURES] = { effectId: 'ef_sh_blessing_of_mystical_creatures' }; //Blessing of Mystical Creatures
