@@ -183,6 +183,26 @@ function onEntitySpam(pkt) {
 		EntityManager.add(entity.wug);
 	}
 
+	let cartNum = 0;
+	if (pkt.effectState & StatusState.EffectState.CART1) {
+		cartNum = 1;
+	} else if (pkt.effectState & StatusState.EffectState.CART2) {
+		cartNum = 2;
+	} else if (pkt.effectState & StatusState.EffectState.CART3) {
+		cartNum = 3;
+	} else if (pkt.effectState & StatusState.EffectState.CART4) {
+		cartNum = 4;
+	} else if (pkt.effectState & StatusState.EffectState.CART5) {
+		cartNum = 5;
+	}
+
+	if (cartNum > 0 || entity.hasCart || (Session.Entity && entity.GID === Session.Entity.GID && Session.hasCart)) {
+		const realCartNum = DB.isSuperNovice(entity._job)
+			? 0
+			: cartNum || entity.CartNum || (Session.CartNum || 1);
+		entity.setCart(true, realCartNum);
+	}
+
 	if (entity.objecttype === Entity.TYPE_PC) {
 		const resolved = resolveEntityWeapons(pkt.weapon, pkt.shield, entity, Session.Entity, Inventory, Equipment);
 		entity.weapon = resolved.weapon;
@@ -1957,6 +1977,11 @@ function onEntityStatusChange(pkt) {
 			if (pkt.val && (pkt.state || !pkt.hasOwnProperty('state'))) {
 				entity.CartNum = pkt.val[0];
 			}
+			if (Session.Entity && entity.GID === Session.Entity.GID) {
+				Session.hasCart = entity.hasCart;
+				Session.CartNum = entity.CartNum;
+			}
+			entity.setCart(entity.hasCart, entity.CartNum);
 			break;
 
 		case StatusConst.HIDING: {
@@ -2470,6 +2495,26 @@ function onEntityOptionChange(pkt) {
 	} else if (entity.wug && !(entity.effectState & StatusState.EffectState.WUG)) {
 		entity.wug.remove();
 		entity.wug = null;
+	}
+
+	let statusCartNum = 0;
+	if (entity.effectState & StatusState.EffectState.CART1) {
+		statusCartNum = 1;
+	} else if (entity.effectState & StatusState.EffectState.CART2) {
+		statusCartNum = 2;
+	} else if (entity.effectState & StatusState.EffectState.CART3) {
+		statusCartNum = 3;
+	} else if (entity.effectState & StatusState.EffectState.CART4) {
+		statusCartNum = 4;
+	} else if (entity.effectState & StatusState.EffectState.CART5) {
+		statusCartNum = 5;
+	}
+
+	if (statusCartNum > 0 || entity.hasCart) {
+		const realCartNum = DB.isSuperNovice(entity._job) ? 0 : statusCartNum || entity.CartNum || 1;
+		entity.setCart(true, realCartNum);
+	} else if (entity.cart) {
+		entity.setCart(false);
 	}
 }
 

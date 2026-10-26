@@ -408,7 +408,6 @@ const renderEntity = (function renderEntityClosure() {
 				SpriteRenderer.runWithDepth(true, true, false, function () {
 					SpriteRenderer.zIndex = 150;
 					EntityComposer.begin(self);
-					let cartidx;
 
 					// Shield is behind on some position, seems to be hardcoded by the client
 					if (self.shield && behind) {
@@ -417,18 +416,6 @@ const renderEntity = (function renderEntityClosure() {
 
 					if (!isLookingBack(direction)) {
 						// looking front
-						if (Session.Playing == true && self.hasCart == true) {
-							cartidx = DB.isSuperNovice(self._job) ? 0 : self.CartNum;
-
-							// Draw Cart
-							EntityComposer.suspend(() => {
-								SpriteRenderer.shadowQueue = true;
-								renderElement(self, self.files.cart_shadow, 'cartshadow', _position, false);
-								SpriteRenderer.shadowQueue = false;
-							});
-							renderElement(self, self.files.cart[cartidx], 'cart', _position, false);
-						}
-
 						// Draw Robe
 						renderElement(self, self.files.robe, 'robe', _position, true);
 					}
@@ -465,17 +452,6 @@ const renderEntity = (function renderEntityClosure() {
 						if (self.robe > 0) {
 							renderElement(self, self.files.robe, 'robe', _position, true);
 						}
-
-						// Draw Cart
-						if (Session.Playing == true && self.hasCart == true) {
-							cartidx = DB.isSuperNovice(self._job) ? 0 : self.CartNum;
-							EntityComposer.suspend(() => {
-								SpriteRenderer.shadowQueue = true;
-								renderElement(self, self.files.cart_shadow, 'cartshadow', _position, false);
-								SpriteRenderer.shadowQueue = false;
-							});
-							renderElement(self, self.files.cart[cartidx], 'cart', _position, false);
-						}
 					}
 
 					// Draw Weapon
@@ -504,6 +480,26 @@ const renderEntity = (function renderEntityClosure() {
 					renderElement(self, self.files.body, 'body', _position, true);
 				});
 				break;
+			case Entity.TYPE_CART: {
+				SpriteRenderer.position[2] = SpriteRenderer.position[2] + 0.2;
+				const owner = self.owner;
+				let inFront = false;
+				if (owner) {
+					if (Math.abs(self.depth - owner.depth) > 0.05) {
+						inFront = self.depth < owner.depth;
+					} else {
+						const ownerDir = (Camera.direction + owner.direction + 8) % 8;
+						inFront = isLookingBack(ownerDir);
+					}
+				} else {
+					inFront = isLookingBack(direction);
+				}
+				SpriteRenderer.zIndex = inFront ? 220 : 80;
+				SpriteRenderer.runWithDepth(true, true, false, function () {
+					renderElement(self, self.files.body, 'body', _position, true);
+				});
+				break;
+			}
 			case Entity.TYPE_MOB:
 			case Entity.TYPE_NPC:
 			case Entity.TYPE_NPC2:
@@ -553,7 +549,7 @@ function renderSecondBody(entity, layers, spr, pal, files, type, _position, opti
 		return;
 	}
 
-	if (type === 'shadow' || type === 'cartshadow') {
+	if (type === 'shadow') {
 		return;
 	}
 
@@ -769,48 +765,6 @@ const renderElement = (function renderElementClosure() {
 			_position[1] = position[1] - animation.pos[0].y;
 		}
 
-		if (type === 'cart' || type === 'cartshadow') {
-			const direction = (Camera.direction + entity.direction + 8) % 8;
-
-			switch (direction) {
-				case 0:
-					{
-						_position[0] = 0;
-						_position[1] = -30;
-					}
-					break;
-				case 1:
-					_position[0] = 30;
-					_position[1] = -10;
-					break;
-				case 2:
-					_position[0] = 40;
-					_position[1] = 0;
-					break;
-				case 3:
-					_position[0] = 30;
-					_position[1] = 10;
-					break;
-				case 4:
-					{
-						_position[0] = 0;
-						_position[1] = 20;
-					}
-					break;
-				case 5:
-					_position[0] = -30;
-					_position[1] = 10;
-					break;
-				case 6:
-					_position[0] = -40;
-					_position[1] = 0;
-					break;
-				case 7:
-					_position[0] = -30;
-					_position[1] = -10;
-					break;
-			}
-		}
 
 		// Check if special body effect and enable the correct blend mode
 		const hasBerserkOrMarionette =
@@ -904,7 +858,7 @@ function getAnimationDelay(type, entity, act) {
  */
 function calcAnimation(entity, act, type, tick) {
 	// Fix for shadow
-	if (type === 'shadow' || type === 'cartshadow') {
+	if (type === 'shadow') {
 		return 0;
 	}
 
@@ -926,10 +880,6 @@ function calcAnimation(entity, act, type, tick) {
 	}
 	if (animation.speed) {
 		delay = animation.speed;
-	}
-
-	if (type === 'cart' && isIdle) {
-		return 0;
 	}
 
 	// Get rid of doridori

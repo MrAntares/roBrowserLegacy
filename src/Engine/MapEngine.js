@@ -670,6 +670,12 @@ function onMapChange(pkt) {
 			});
 			EntityManager.add(Session.Entity.wug);
 		}
+		if (Session.hasCart || Session.Entity.hasCart) {
+			const realCartNum = DB.isSuperNovice(Session.Entity._job)
+				? 0
+				: Session.CartNum || Session.Entity.CartNum || 1;
+			Session.Entity.setCart(true, realCartNum);
+		}
 		// free and load aura so it loads in new map
 		Session.Entity.aura.free();
 		Session.Entity.aura.load(EffectManager);
@@ -1142,9 +1148,13 @@ function isFreeCell(x, y) {
 
 	EntityManager.forEach(function (entity) {
 		if (
-			entity.objecttype != entity.constructor.TYPE_EFFECT &&
-			entity.objecttype != entity.constructor.TYPE_UNIT &&
-			entity.objecttype != entity.constructor.TYPE_TRAP &&
+			entity !== Session.Entity &&
+			entity.objecttype !== entity.constructor.TYPE_EFFECT &&
+			entity.objecttype !== entity.constructor.TYPE_UNIT &&
+			entity.objecttype !== entity.constructor.TYPE_TRAP &&
+			entity.objecttype !== entity.constructor.TYPE_CART &&
+			entity.objecttype !== entity.constructor.TYPE_FALCON &&
+			entity.objecttype !== entity.constructor.TYPE_WUG &&
 			Math.round(entity.position[0]) === x &&
 			Math.round(entity.position[1]) === y
 		) {

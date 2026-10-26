@@ -72,26 +72,6 @@ function View() {
 	this.accessory3 = new ViewFiles();
 	this.robe = new ViewFiles();
 	this.shadow = new ViewFiles('data/sprite/shadow.spr', 'data/sprite/shadow.act');
-
-	this.cart = [];
-	//Super novice
-	this.cart[0] = new ViewFiles(DB.getCartPath(0) + '.spr', DB.getCartPath(0) + '.act');
-
-	this.cart[1] = new ViewFiles(DB.getCartPath(1) + '.spr', DB.getCartPath(1) + '.act');
-	this.cart[2] = new ViewFiles(DB.getCartPath(2) + '.spr', DB.getCartPath(2) + '.act');
-	this.cart[3] = new ViewFiles(DB.getCartPath(3) + '.spr', DB.getCartPath(3) + '.act');
-	this.cart[4] = new ViewFiles(DB.getCartPath(4) + '.spr', DB.getCartPath(4) + '.act');
-	this.cart[5] = new ViewFiles(DB.getCartPath(5) + '.spr', DB.getCartPath(5) + '.act');
-	this.cart[6] = new ViewFiles(DB.getCartPath(6) + '.spr', DB.getCartPath(6) + '.act');
-	this.cart[7] = new ViewFiles(DB.getCartPath(7) + '.spr', DB.getCartPath(7) + '.act');
-	this.cart[8] = new ViewFiles(DB.getCartPath(8) + '.spr', DB.getCartPath(8) + '.act');
-	this.cart[9] = new ViewFiles(DB.getCartPath(9) + '.spr', DB.getCartPath(9) + '.act');
-	this.cart[10] = new ViewFiles(DB.getCartPath(10) + '.spr', DB.getCartPath(10) + '.act');
-	this.cart[11] = new ViewFiles(DB.getCartPath(11) + '.spr', DB.getCartPath(11) + '.act');
-	this.cart[12] = new ViewFiles(DB.getCartPath(12) + '.spr', DB.getCartPath(12) + '.act');
-	this.cart[13] = new ViewFiles(DB.getCartPath(13) + '.spr', DB.getCartPath(13) + '.act');
-
-	this.cart_shadow = new ViewFiles('data/sprite/shadow.spr', 'data/sprite/shadow.act');
 }
 
 /**

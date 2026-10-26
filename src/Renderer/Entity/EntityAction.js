@@ -270,6 +270,7 @@ export default function Init() {
 			break;
 
 		case Entity.TYPE_FALCON:
+		case Entity.TYPE_CART:
 			this.ACTION.IDLE = 0;
 			this.ACTION.WALK = 1;
 			break;

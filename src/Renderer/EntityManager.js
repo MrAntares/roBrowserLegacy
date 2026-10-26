@@ -202,6 +202,18 @@ function removeEntity(gid) {
 	const entity = _gidMap.get(gid);
 
 	if (entity) {
+		if (entity.cart) {
+			removeEntity(entity.cart.GID);
+			entity.cart = null;
+		}
+		if (entity.falcon) {
+			removeEntity(entity.falcon.GID);
+			entity.falcon = null;
+		}
+		if (entity.wug) {
+			removeEntity(entity.wug.GID);
+			entity.wug = null;
+		}
 		releaseGr2(entity);
 		EntityComposer.remove(entity);
 		entity.clean();
@@ -520,6 +532,16 @@ function intersect() {
 			if (dx * dx + dy * dy > viewAreaSq) {
 				continue;
 			}
+		}
+
+		// Non-pickable entities
+		if (
+			entity.objecttype === Entity.TYPE_EFFECT ||
+			entity.objecttype === Entity.TYPE_FALCON ||
+			entity.objecttype === Entity.TYPE_WUG ||
+			entity.objecttype === Entity.TYPE_CART
+		) {
+			continue;
 		}
 
 		// No picking on dead entites
