@@ -24,6 +24,7 @@ Instructions for shared binary, encoding, rendering, and general-purpose utiliti
 | `Rijndael.js`        | Project wrapper for Rijndael encryption and decryption.                                        |
 | `Struct.js`          | Defines and reads structured binary layouts.                                                   |
 | `Texture.js`         | Image and GIF texture loading and pixel processing.                                            |
+| `wasmLoader.js`      | WASM module create helper.                                                                     |
 | `WebGL.js`           | WebGL context, shader/program, texture, and capability helpers.                                |
 
 ## Invariants

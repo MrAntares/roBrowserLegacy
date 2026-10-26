@@ -185,11 +185,6 @@ class SPR {
 	 * The exact byte layout depends on the chosen packing below.
 	 */
 	convert32bPal(flip = false) {
-		if (this._pal32flip !== undefined && flip === true) {
-			return this._pal32flip;
-		} else if (this._pal32 !== undefined && flip === false) {
-			return this._pal32;
-		}
 		const pal32 = new Uint32Array(256);
 		for (let i = 0; i < 256; i++) {
 			const r = this.palette[i * 4 + 0];
@@ -207,8 +202,6 @@ class SPR {
 				pal32[i] = (r << 24) | (g << 16) | (b << 8) | a;
 			}
 		}
-		if (flip) this._pal32flip = pal32;
-		if (!flip) this._pal32 = pal32;
 		return pal32;
 	}
 
@@ -473,6 +466,8 @@ class SPR {
 								data32[rowStart + x] = pal32[idx];
 							}
 						}
+						// Export
+						ctx.putImageData(imageData, 0, 0);
 						return canvas; // Skip WASM processing and return canvas with JS fallback
 					}
 				}

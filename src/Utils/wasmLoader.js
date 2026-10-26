@@ -8,10 +8,12 @@ const base64ToUint8Array = base64 => {
 	return bytes;
 };
 
-export const createWasmLoader = (base64, instance, name, imports = {}) => {
+export const createWasmLoader = (base64, instance, failed, name, imports = {}) => {
 	return () => {
 		if (instance) return instance;
+		if (failed) return null;
 		if (typeof WebAssembly !== 'object' || typeof WebAssembly.Module !== 'function') {
+			failed = true;
 			return null;
 		}
 		try {

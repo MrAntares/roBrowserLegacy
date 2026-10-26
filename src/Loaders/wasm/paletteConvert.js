@@ -21,10 +21,16 @@ export const PALETTE_CONVERT_WASM_BASE64 =
 	'AGFzbQEAAAABCQFgBX9/f39/AAMCAQAFAwEAAQcXAgZtZW1vcnkCAApjb252ZXJ0UGFsAAAKdwF1AQV/IANBAnQhCUEAIQUCQANAIAUgBE8NASABIAUgA2xqIQcgAiAEIAVrQQFrIAlsaiEIQQAhBgJAA0AgBiADTw0BIAggBkECdGogACAHIAZqLQAAQQJ0aigCADYCACAGQQFqIQYMAAsLIAVBAWohBQwACwsL';
 
 const _wasmInstance = null;
+const _wasmFailed = false;
 
 /**
  * Lazily loads and returns the compiled WASM converter instance.
  * Returns null if WebAssembly is not supported or instantiation fails.
  * @returns {object|null}
  */
-export const getPaletteConvertWasm = createWasmLoader(PALETTE_CONVERT_WASM_BASE64, _wasmInstance, 'paletteConvert');
+export const getPaletteConvertWasm = createWasmLoader(
+	PALETTE_CONVERT_WASM_BASE64,
+	_wasmInstance,
+	_wasmFailed,
+	'paletteConvert'
+);
