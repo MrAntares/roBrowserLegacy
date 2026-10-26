@@ -43,6 +43,62 @@ const _cornerX = new Float32Array(4);
  */
 const _cornerY = new Float32Array(4);
 
+/**
+ * @var {mat4} model view of the frame being drawn, to aim effects at a target
+ */
+let _modelView = null;
+
+/**
+ * Centre of the art in kRO's newer STR files, which are laid out on a
+ * 640x480 canvas. An aimed effect turns about this point.
+ */
+const AIM_PIVOT_X = 320;
+
+/**
+ * Turn a frame's four corners as StrEffect.vs would (by the frame's own angle),
+ * then mirror them, turn them by the aim and tilt them, in place. The shader
+ * then draws them with no turn of its own.
+ *
+ * Corners are in STR pixels, y down the screen. Angles in degrees: `angle` is
+ * the frame's, `aim` the effect's counter-clockwise turn, `tilt` a turn about
+ * the screen's x axis (it shortens y by cos(tilt)).
+ *
+ * @param {number} angle
+ * @param {number} aim
+ * @param {boolean} flipX
+ * @param {boolean} flipY
+ * @param {number} tilt
+ * @param {Float32Array|Array<number>} cornerX
+ * @param {Float32Array|Array<number>} cornerY
+ */
+function transformCorners(angle, aim, flipX, flipY, tilt, cornerX, cornerY) {
+	const r1 = (-angle / 180) * Math.PI;
+	const c1 = Math.cos(r1);
+	const s1 = Math.sin(r1);
+	const r2 = (aim / 180) * Math.PI;
+	const c2 = Math.cos(r2);
+	const s2 = Math.sin(r2);
+	const squash = tilt ? Math.cos((tilt / 180) * Math.PI) : 1;
+	for (let i = 0; i < 4; i++) {
+		// The shader's space: y up
+		const px = cornerX[i];
+		const py = -cornerY[i];
+		let x = px * c1 - py * s1;
+		let y = px * s1 + py * c1;
+		if (flipX) {
+			x = -x;
+		}
+		if (flipY) {
+			y = -y;
+		}
+		const tx = x * c2 - y * s2;
+		const ty = (x * s2 + y * c2) * squash;
+		cornerX[i] = tx;
+		cornerY[i] = -ty;
+	}
+}
+const AIM_PIVOT_Y = 240;
+
 // Pixel to world conversion for attachment offsets
 const PIXEL_TO_WORLD_Z = 1.0 / 5.0;
 
@@ -280,6 +336,13 @@ class StrEffect {
 			return;
 		}
 
+		// Aimed at the other entity, and/or turned a fixed amount (screenTurn,
+		// degrees clockwise on screen, as the client turns some EZ2 copies)
+		const aim = this.getAimAngle();
+		// Both reach below the feet on screen: drawn over the ground (renderAnimation)
+		this.aimed = !!aim || !!this.screenTurn;
+		this.aimAngle = aim - (this.screenTurn || 0);
+
 		keyIndex = ((tick - this.startTick) / 1000) * strFile.fps;
 
 		// Loop persistent effects
@@ -330,6 +393,90 @@ class StrEffect {
 	}
 
 	/**
+	 * How far to turn an effect aimed between two entities, so it lines up
+	 * with them on screen.
+	 *
+	 * `facing` is where the other entity sits in the file, in degrees (0 =
+	 * right, 180 = left): the target for an effect on the caster, the caster
+	 * for one on the target.
+	 *
+	 * @return {number} counter-clockwise turn in degrees, 0 when not aimed
+	 */
+	getAimAngle() {
+		const effect = this._Params?.effect;
+		const target = this._Params?.Inst?.otherPosition;
+		if (!effect?.rotateToTarget || !target || !this.position || !_modelView) {
+			return 0;
+		}
+
+		// World offset in the shader's axes (x, -z, y), then into view space
+		const x = target[0] - this.position[0];
+		const y = -(target[2] - this.position[2]);
+		const z = target[1] - this.position[1];
+		const m = _modelView;
+		const viewX = m[0] * x + m[4] * y + m[8] * z;
+		const viewY = m[1] * x + m[5] * y + m[9] * z;
+
+		if (!viewX && !viewY) {
+			return 0;
+		}
+
+		return (Math.atan2(viewY, viewX) * 180) / Math.PI - (effect.facing || 0);
+	}
+
+	/**
+	 * Where a frame's art sits about the effect's position.
+	 *
+	 * Classic effects put the art's (320,320) on the position, half a cell
+	 * lower. An effect from the client's EZ2 table (one with xOffset/yOffset)
+	 * puts the art's centre (320,240) on the position moved PosX/PosY client
+	 * units along the screen, as CEZ2STREffectEx does: 5 client units to a
+	 * cell, 35 STR pixels to a cell.
+	 *
+	 * @param {object} animat - frame
+	 * @param {number} sizeScale - owner's size, for attachments
+	 * @param {Float32Array|Array<number>} out - gets the offset in STR pixels
+	 * @returns {number} vertical base, in cells
+	 */
+	layout(animat, sizeScale, out) {
+		const ez2 = !this.ownerEntity && this.ez2Offset;
+		const pivotY = ez2 ? AIM_PIVOT_Y : 320;
+		const shiftX = ez2 ? this.ez2Offset[0] * PIXEL_TO_WORLD_Z * 35 : 0;
+		const shiftY = ez2 ? this.ez2Offset[1] * PIXEL_TO_WORLD_Z * 35 : 0;
+		const verticalBase = ez2 ? 0.0 : 0.5;
+		// Drawn larger or smaller about the art's anchor (the client's STR scale)
+		const k = this.scale || 1;
+
+		if (this.ownerEntity) {
+			// Attachment: center at (320,320), apply offsets, scale with entity
+			out[0] = (animat.pos[0] - 320) * k + (this.xOffset || 0) * PIXEL_TO_WORLD_Z * 35 * sizeScale;
+			// flip Y offset only
+			out[1] = (animat.pos[1] - 320) * k - (this.yOffset || 0) * PIXEL_TO_WORLD_Z * 35 * sizeScale;
+			return 0.0;
+		}
+
+		if (this.aimAngle || this.flipX || this.flipY || this.tilt) {
+			// Turn the layout about the art's anchor ((320,240) for EZ2 art, (320,320)
+			// for classic art, as above); STR y points down the screen.
+			// As the client does: mirrored first, then turned, then tilted (its
+			// tilt is a turn about the screen's x axis, which shortens y).
+			const rad = ((this.aimAngle || 0) / 180) * Math.PI;
+			const cos = Math.cos(rad);
+			const sin = Math.sin(rad);
+			const x = (animat.pos[0] - AIM_PIVOT_X) * k * (this.flipX ? -1 : 1);
+			const y = (pivotY - animat.pos[1]) * k * (this.flipY ? -1 : 1);
+			const squash = this.tilt ? Math.cos((this.tilt / 180) * Math.PI) : 1;
+			out[0] = x * cos - y * sin + shiftX;
+			out[1] = -(x * sin + y * cos) * squash - shiftY;
+			return verticalBase;
+		}
+
+		out[0] = (animat.pos[0] - 320) * k + shiftX;
+		out[1] = (animat.pos[1] - pivotY) * k - shiftY;
+		return verticalBase;
+	}
+
+	/**
 	 * Setup geometries, send data to GPU
 	 *
 	 * @param {object} webgl context
@@ -344,43 +491,50 @@ class StrEffect {
 		if (this.ownerEntity) {
 			sizeScale = (this.ownerEntity.xSize + this.ownerEntity.ySize) / 2 / 5;
 		}
+		const cornerScale = sizeScale * (this.scale || 1);
 
 		// TRIANGLE_STRIP: v0=(xy0,xy4) v1=(xy1,xy5) v2=(xy3,xy7) v3=(xy2,xy6)
-		_cornerX[0] = animat.xy[0] * sizeScale;
-		_cornerY[0] = animat.xy[4] * sizeScale;
-		_cornerX[1] = animat.xy[1] * sizeScale;
-		_cornerY[1] = animat.xy[5] * sizeScale;
-		_cornerX[2] = animat.xy[3] * sizeScale;
-		_cornerY[2] = animat.xy[7] * sizeScale;
-		_cornerX[3] = animat.xy[2] * sizeScale;
-		_cornerY[3] = animat.xy[6] * sizeScale;
+		_cornerX[0] = animat.xy[0] * cornerScale;
+		_cornerY[0] = animat.xy[4] * cornerScale;
+		_cornerX[1] = animat.xy[1] * cornerScale;
+		_cornerY[1] = animat.xy[5] * cornerScale;
+		_cornerX[2] = animat.xy[3] * cornerScale;
+		_cornerY[2] = animat.xy[7] * cornerScale;
+		_cornerX[3] = animat.xy[2] * cornerScale;
+		_cornerY[3] = animat.xy[6] * cornerScale;
+		// Mirrored or tilted: the corners are turned here, as the shader would,
+		// so the mirror and tilt can go between the frame's own turn and the aim.
+		let spriteAngle = animat.angle - (this.aimAngle || 0);
+		if (this.flipX || this.flipY || this.tilt) {
+			transformCorners(animat.angle, this.aimAngle || 0, this.flipX, this.flipY, this.tilt, _cornerX, _cornerY);
+			spriteAngle = 0;
+		}
 		gl.uniform4fv(uniform.uCornerX, _cornerX);
 		gl.uniform4fv(uniform.uCornerY, _cornerY);
 
-		let verticalBase = 0.5;
-
-		if (this.ownerEntity) {
-			// Attachment: center at (320,320), apply offsets, scale with entity
-			_spriteOffset[0] = animat.pos[0] - 320 + (this.xOffset || 0) * PIXEL_TO_WORLD_Z * 35 * sizeScale;
-			// flip Y offset only
-			_spriteOffset[1] = animat.pos[1] - 320 - (this.yOffset || 0) * PIXEL_TO_WORLD_Z * 35 * sizeScale;
-			verticalBase = 0.0;
-		} else {
-			_spriteOffset[0] = animat.pos[0] - 320;
-			_spriteOffset[1] = animat.pos[1] - 320;
-		}
+		const verticalBase = this.layout(animat, sizeScale, _spriteOffset);
 
 		// Send effect parameters
 		gl.uniform4fv(uniform.uSpriteColor, animat.color);
 		gl.uniform2fv(uniform.uSpriteOffset, _spriteOffset);
 		gl.uniform1f(uniform.uVerticalBase, verticalBase);
 		gl.uniform3fv(uniform.uSpritePosition, this.position);
-		gl.uniform1f(uniform.uSpriteAngle, animat.angle);
+		gl.uniform1f(uniform.uSpriteAngle, spriteAngle);
 
 		// Send texture and data
 		gl.blendFunc(D3DBLEND[animat.srcalpha], D3DBLEND[animat.destalpha]);
 		gl.bindTexture(gl.TEXTURE_2D, material);
-		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+		// An aimed effect stands at one entity and reaches the other. Turned
+		// towards the camera, it runs through the ground and the other entity
+		// in front of where it stands, which would hide part of it.
+		if (this.aimed) {
+			gl.disable(gl.DEPTH_TEST);
+			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+			gl.enable(gl.DEPTH_TEST);
+		} else {
+			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+		}
 	}
 
 	/**
@@ -447,6 +601,8 @@ class StrEffect {
 	static beforeRender(gl, modelView, projection, fog, tick) {
 		const uniform = _program.uniform;
 		const attribute = _program.attribute;
+
+		_modelView = modelView;
 
 		gl.depthMask(false);
 		gl.useProgram(_program);
