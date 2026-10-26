@@ -1463,7 +1463,7 @@ function onEntityUseSkill(pkt) {
 		EffectManager.spamSkill(pkt.SKID, pkt.targetAID, null, null, pkt.srcAID);
 
 		if (pkt.result == 1) {
-			EffectManager.spamSkillSuccess(pkt.SKID, pkt.targetAID, null, pkt.srcAID);
+			EffectManager.spamSkillSuccess(pkt.SKID, pkt.targetAID, null, pkt.srcAID, pkt.level);
 		}
 	}
 }
@@ -1675,6 +1675,9 @@ function onEntityUseSkillToAttack(pkt) {
 			}
 		}
 	}
+
+	// Effects the official client plays as each damage packet arrives
+	EffectManager.spamSkillDamage(pkt.SKID, pkt.targetID, Renderer.tick, pkt.AID);
 
 	if (srcEntity && dstEntity && pkt.action != SkillAction.SPLASH) {
 		// && pkt.action != SkillAction.MULTI_HIT
