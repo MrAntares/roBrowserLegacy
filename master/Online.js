@@ -78133,37 +78133,43 @@ var init_SessionStorage = __esmMin((() => {
 		}
 	};
 }));
-// src/Loaders/wasm/targa.js
-var TARGA_WASM_BASE64, base64ToUint8Array$2, _wasmInstance$2, _wasmFailed$2, getTargaWasm;
-var init_targa = __esmMin((() => {
-	TARGA_WASM_BASE64 = "AGFzbQEAAAABCgFgBX9/f39/AX8DAgEABQMBAAEHFgIGbWVtb3J5AgAJZGVjb2RlUkxFAAAKuwIBuAIBCn9BACEFQQAhDAJAA0AgDCADTw0BQQAhBiAFIAJJBEAgACAFai0AACEGCyAFQQFqIQUgBkH/AHEhByAHQQFqIQcgBkGAAXEEQCAFIQsgACALaiEKIAUgBGohBSAMIAcgBGxqIANLBEBBfw8LQQAhCQJAA0AgCSAHTw0BIAwgA08NAUEAIQgCQANAIAggBE8NASAMIANPDQFBACEOIAsgCGogAkkEQCAKIAhqLQAAIQ4LIAEgDGogDjoAACAMQQFqIQwgCEEBaiEIDAALCyAJQQFqIQkMAAsLBSAHIARsIQ1BACEIAkADQCAIIA1PDQEgDCADTw0BQQAhDiAFIAJJBEAgACAFai0AACEOCyABIAxqIA46AAAgBUEBaiEFIAxBAWohDCAIQQFqIQgMAAsLCwwACwsgDAs=";
-	base64ToUint8Array$2 = (base64) => {
+// src/Utils/wasmLoader.js
+var base64ToUint8Array, createWasmLoader;
+var init_wasmLoader = __esmMin((() => {
+	base64ToUint8Array = (base64) => {
 		const binaryString = atob(base64);
 		const len = binaryString.length;
 		const bytes = new Uint8Array(len);
 		for (let i = 0; i < len; ++i) bytes[i] = binaryString.charCodeAt(i);
 		return bytes;
 	};
-	_wasmInstance$2 = null;
-	_wasmFailed$2 = false;
-	getTargaWasm = () => {
-		if (_wasmInstance$2) return _wasmInstance$2;
-		if (_wasmFailed$2) return null;
-		if (typeof WebAssembly !== "object" || typeof WebAssembly.Module !== "function") {
-			_wasmFailed$2 = true;
-			return null;
-		}
-		try {
-			const wasmBytes = base64ToUint8Array$2(TARGA_WASM_BASE64);
-			const module = new WebAssembly.Module(wasmBytes);
-			_wasmInstance$2 = new WebAssembly.Instance(module);
-			return _wasmInstance$2;
-		} catch (e) {
-			_wasmFailed$2 = true;
-			console.warn("Loaders/wasm/targa - Failed to instantiate WASM module:", e);
-			return null;
-		}
+	createWasmLoader = (base64, name, imports = {}) => {
+		let instance = null;
+		let failed = false;
+		return () => {
+			if (instance) return instance;
+			if (failed) return null;
+			if (typeof WebAssembly !== "object" || typeof WebAssembly.Module !== "function") {
+				failed = true;
+				return null;
+			}
+			try {
+				instance = new WebAssembly.Instance(new WebAssembly.Module(base64ToUint8Array(base64)), imports);
+				return instance;
+			} catch (e) {
+				failed = true;
+				console.warn(`Loaderswasm${name} - Failed to instantiate WASM module`, e);
+				return null;
+			}
+		};
 	};
+}));
+// src/Loaders/wasm/targa.js
+var TARGA_WASM_BASE64, getTargaWasm;
+var init_targa = __esmMin((() => {
+	init_wasmLoader();
+	TARGA_WASM_BASE64 = "AGFzbQEAAAABCgFgBX9/f39/AX8DAgEABQMBAAEHFgIGbWVtb3J5AgAJZGVjb2RlUkxFAAAKuwIBuAIBCn9BACEFQQAhDAJAA0AgDCADTw0BQQAhBiAFIAJJBEAgACAFai0AACEGCyAFQQFqIQUgBkH/AHEhByAHQQFqIQcgBkGAAXEEQCAFIQsgACALaiEKIAUgBGohBSAMIAcgBGxqIANLBEBBfw8LQQAhCQJAA0AgCSAHTw0BIAwgA08NAUEAIQgCQANAIAggBE8NASAMIANPDQFBACEOIAsgCGogAkkEQCAKIAhqLQAAIQ4LIAEgDGogDjoAACAMQQFqIQwgCEEBaiEIDAALCyAJQQFqIQkMAAsLBSAHIARsIQ1BACEIAkADQCAIIA1PDQEgDCADTw0BQQAhDiAFIAJJBEAgACAFai0AACEOCyABIAxqIA46AAAgBUEBaiEFIAxBAWohDCAIQQFqIQgMAAsLCwwACwsgDAs=";
+	getTargaWasm = createWasmLoader(TARGA_WASM_BASE64, "targa");
 }));
 // src/Loaders/Targa.js
 /**
@@ -78628,68 +78634,18 @@ var init_Graphics = __esmMin((() => {
 	GraphicsSettings.defaults = cleanDefaults;
 }));
 // src/Loaders/wasm/paletteConvert.js
-var PALETTE_CONVERT_WASM_BASE64, base64ToUint8Array$1, _wasmInstance$1, _wasmFailed$1, getPaletteConvertWasm;
+var PALETTE_CONVERT_WASM_BASE64, getPaletteConvertWasm;
 var init_paletteConvert = __esmMin((() => {
+	init_wasmLoader();
 	PALETTE_CONVERT_WASM_BASE64 = "AGFzbQEAAAABCQFgBX9/f39/AAMCAQAFAwEAAQcXAgZtZW1vcnkCAApjb252ZXJ0UGFsAAAKdwF1AQV/IANBAnQhCUEAIQUCQANAIAUgBE8NASABIAUgA2xqIQcgAiAEIAVrQQFrIAlsaiEIQQAhBgJAA0AgBiADTw0BIAggBkECdGogACAHIAZqLQAAQQJ0aigCADYCACAGQQFqIQYMAAsLIAVBAWohBQwACwsL";
-	base64ToUint8Array$1 = (base64) => {
-		const binaryString = atob(base64);
-		const len = binaryString.length;
-		const bytes = new Uint8Array(len);
-		for (let i = 0; i < len; ++i) bytes[i] = binaryString.charCodeAt(i);
-		return bytes;
-	};
-	_wasmInstance$1 = null;
-	_wasmFailed$1 = false;
-	getPaletteConvertWasm = () => {
-		if (_wasmInstance$1) return _wasmInstance$1;
-		if (_wasmFailed$1) return null;
-		if (typeof WebAssembly !== "object" || typeof WebAssembly.Module !== "function") {
-			_wasmFailed$1 = true;
-			return null;
-		}
-		try {
-			const wasmBytes = base64ToUint8Array$1(PALETTE_CONVERT_WASM_BASE64);
-			const module = new WebAssembly.Module(wasmBytes);
-			_wasmInstance$1 = new WebAssembly.Instance(module);
-			return _wasmInstance$1;
-		} catch (e) {
-			_wasmFailed$1 = true;
-			console.warn("Loaders/wasm/paletteConvert - Failed to instantiate WASM module:", e);
-			return null;
-		}
-	};
+	getPaletteConvertWasm = createWasmLoader(PALETTE_CONVERT_WASM_BASE64, "paletteConvert");
 }));
 // src/Loaders/wasm/spriteCompile.js
-var SPRITE_COMPILE_WASM_BASE64, base64ToUint8Array, _wasmInstance, _wasmFailed, getSpriteCompileWasm;
+var SPRITE_COMPILE_WASM_BASE64, getSpriteCompileWasm;
 var init_spriteCompile = __esmMin((() => {
+	init_wasmLoader();
 	SPRITE_COMPILE_WASM_BASE64 = "AGFzbQEAAAABJgRgCX9/f39/f39/fwBgB39/f39/f38AYAR/f39/AGAFf39/f38AAwUEAAECAwUDAQABB0wFBm1lbW9yeQIACmNvbXBpbGVQYWwAAAtjb21waWxlUmdiYQABEWZyYW1lUmdiYVRvQ2FudmFzAAIQZnJhbWVQYWxUb0NhbnZhcwADCqcEBIQBAQV/QQAhCQJAA0AgCSAETw0BIAEgCSADbGohCyACIAkgCGogBWwgB2pqIQxBACEKAkADQCAKIANPDQEgCyAKai0AACENIAAgDUECdGooAgBB/4F8RgRAIAwgCmpBADoAAAUgDCAKaiANOgAACyAKQQFqIQoMAAsLIAlBAWohCQwACwsLsQEBCX8gAkECdCEJQQAhBwJAA0AgByADTw0BIAAgAyAHa0EBayAJbGohCiABIAcgBmogBGwgBWpBAnRqIQtBACEIAkADQCAIIAJPDQEgCiAIQQJ0aiEMIAsgCEECdGohDSAMLQAAIQ4gDkUEQCANQQA2AgAFIA5BGHQgDC0AAUEQdHIgDC0AAkEIdCAMLQADcnIhDyANIA82AgALIAhBAWohCAwACwsgB0EBaiEHDAALCwuhAQEHfyACQQJ0IQZBACEEAkADQCAEIANPDQEgACAEIAZsaiEHIAEgAyAEa0EBayAGbGohCEEAIQUCQANAIAUgAk8NASAHIAVBAnRqKAIAIQkgCUH/AXFBGHQgCUGA/gNxQQh0ciAJQYCA/AdxQQh2IAlBgICAeHFBGHZyciEKIAggBUECdGogCjYCACAFQQFqIQUMAAsLIARBAWohBAwACwsLSQEEfyADIARsIQZBACEFAkADQCAFIAZPDQEgASAFai0AACEHIAAgB0ECdGooAgAhCCACIAVBAnRqIAg2AgAgBUEBaiEFDAALCws=";
-	base64ToUint8Array = (base64) => {
-		const binaryString = atob(base64);
-		const len = binaryString.length;
-		const bytes = new Uint8Array(len);
-		for (let i = 0; i < len; ++i) bytes[i] = binaryString.charCodeAt(i);
-		return bytes;
-	};
-	_wasmInstance = null;
-	_wasmFailed = false;
-	getSpriteCompileWasm = () => {
-		if (_wasmInstance) return _wasmInstance;
-		if (_wasmFailed) return null;
-		if (typeof WebAssembly !== "object" || typeof WebAssembly.Module !== "function") {
-			_wasmFailed = true;
-			return null;
-		}
-		try {
-			const wasmBytes = base64ToUint8Array(SPRITE_COMPILE_WASM_BASE64);
-			const module = new WebAssembly.Module(wasmBytes);
-			_wasmInstance = new WebAssembly.Instance(module);
-			return _wasmInstance;
-		} catch (e) {
-			_wasmFailed = true;
-			console.warn("Loaders/wasm/spriteCompile - Failed to instantiate WASM module:", e);
-			return null;
-		}
-	};
+	getSpriteCompileWasm = createWasmLoader(SPRITE_COMPILE_WASM_BASE64, "spriteCompile");
 }));
 // src/Loaders/Sprite.js
 var SPR;
@@ -78824,12 +78780,12 @@ var init_Sprite = __esmMin((() => {
 		*
 		* The exact byte layout depends on the chosen packing below.
 		*/
-		convert32bPal(pal, flip = false) {
+		convert32bPal(flip = false) {
 			const pal32 = /* @__PURE__ */ new Uint32Array(256);
 			for (let i = 0; i < 256; i++) {
-				const r = pal[i * 4 + 0];
-				const g = pal[i * 4 + 1];
-				const b = pal[i * 4 + 2];
+				const r = this.palette[i * 4 + 0];
+				const g = this.palette[i * 4 + 1];
+				const b = this.palette[i * 4 + 2];
 				const a = i === 0 ? 0 : 255;
 				if (flip === true) pal32[i] = a << 24 | b << 16 | g << 8 | r;
 				else pal32[i] = r << 24 | g << 16 | b << 8 | a;
@@ -78841,8 +78797,8 @@ var init_Sprite = __esmMin((() => {
 		* (why keep palette for hat/weapon/shield/monster ?)
 		*/
 		switchToRGBA() {
-			const frames = this.frames, pal = this.palette;
-			const pal32 = this.convert32bPal(pal, false);
+			const frames = this.frames;
+			const pal32 = this.convert32bPal(false);
 			const wasmInstance = getPaletteConvertWasm();
 			if (wasmInstance) {
 				const memory = wasmInstance.exports.memory;
@@ -78862,10 +78818,23 @@ var init_Sprite = __esmMin((() => {
 					}
 					const dstPtr = srcPtr + pixelCount;
 					const totalBytesNeeded = dstPtr + pixelCount * 4;
-					if (memory.buffer.byteLength < totalBytesNeeded) {
+					if (memory.buffer.byteLength < totalBytesNeeded) try {
 						const additionalPages = Math.ceil((totalBytesNeeded - memory.buffer.byteLength) / 65536);
 						memory.grow(additionalPages);
 						new Uint32Array(memory.buffer, palPtr, 256).set(pal32);
+					} catch (_e) {
+						const frameWidth = frame.width, frameHeight = frame.height;
+						const data = frame.data;
+						const out = new Uint8Array(frameWidth * frameHeight * 4);
+						const out32 = new Uint32Array(out.buffer);
+						for (let y = 0; y < frameHeight; ++y) {
+							const srcRowStart = y * frameWidth;
+							const dstRowStart = (frameHeight - y - 1) * frameWidth;
+							for (let x = 0; x < frameWidth; ++x) out32[dstRowStart + x] = pal32[data[srcRowStart + x]];
+						}
+						frame.data = out;
+						frame.type = SPR.TYPE_RGBA;
+						continue;
 					}
 					new Uint8Array(memory.buffer, srcPtr, pixelCount).set(frame.data);
 					convertPal(palPtr, srcPtr, dstPtr, width, height);
@@ -78925,9 +78894,27 @@ var init_Sprite = __esmMin((() => {
 					const srcPtr = 1024;
 					const dstPtr = srcPtr + srcBytes;
 					const totalBytesNeeded = dstPtr + dstBytes;
-					if (memory.buffer.byteLength < totalBytesNeeded) {
+					if (memory.buffer.byteLength < totalBytesNeeded) try {
 						const additionalPages = Math.ceil((totalBytesNeeded - memory.buffer.byteLength) / 65536);
 						memory.grow(additionalPages);
+					} catch (_e) {
+						const data32 = new Uint32Array(imageData.data.buffer);
+						let frameData32;
+						if ((frame.data.byteOffset & 3) === 0) frameData32 = new Uint32Array(frame.data.buffer, frame.data.byteOffset, pixelCount);
+						else {
+							frameData32 = new Uint32Array(pixelCount);
+							new Uint8Array(frameData32.buffer).set(new Uint8Array(frame.data.buffer, frame.data.byteOffset, pixelCount * 4));
+						}
+						for (let y = 0; y < height; ++y) {
+							const srcRow = y * width;
+							const dstRow = (height - y - 1) * width;
+							for (let x = 0; x < width; ++x) {
+								const pixel = frameData32[srcRow + x];
+								data32[dstRow + x] = (pixel & 255) << 24 | (pixel & 65280) << 8 | (pixel & 16711680) >> 8 | (pixel & 4278190080) >>> 24;
+							}
+						}
+						ctx.putImageData(imageData, 0, 0);
+						return canvas;
 					}
 					const frameBytes = new Uint8Array(frame.data.buffer, frame.data.byteOffset, srcBytes);
 					new Uint8Array(memory.buffer, srcPtr, srcBytes).set(frameBytes);
@@ -78951,8 +78938,8 @@ var init_Sprite = __esmMin((() => {
 					}
 				}
 			} else {
-				if (!this._pal32Canvas && this.palette) this._pal32Canvas = this.convert32bPal(this.palette, true);
-				const pal32 = this._pal32Canvas || this.convert32bPal(this.palette, true);
+				if (!this._pal32Canvas && this.palette) this._pal32Canvas = this.convert32bPal(true);
+				const pal32 = this._pal32Canvas || this.convert32bPal(true);
 				const pixelCount = width * height;
 				const srcBytes = pixelCount;
 				const dstBytes = pixelCount * 4;
@@ -78962,9 +78949,21 @@ var init_Sprite = __esmMin((() => {
 					const srcPtr = 1024;
 					const dstPtr = srcPtr + srcBytes;
 					const totalBytesNeeded = dstPtr + dstBytes;
-					if (memory.buffer.byteLength < totalBytesNeeded) {
+					if (memory.buffer.byteLength < totalBytesNeeded) try {
 						const additionalPages = Math.ceil((totalBytesNeeded - memory.buffer.byteLength) / 65536);
 						memory.grow(additionalPages);
+					} catch (_e) {
+						const data32 = new Uint32Array(imageData.data.buffer);
+						const frameIndices = new Uint8Array(frame.data.buffer, frame.data.byteOffset, pixelCount);
+						for (let y = 0; y < height; ++y) {
+							const rowStart = y * width;
+							for (let x = 0; x < width; ++x) {
+								const idx = frameIndices[rowStart + x];
+								data32[rowStart + x] = pal32[idx];
+							}
+						}
+						ctx.putImageData(imageData, 0, 0);
+						return canvas;
 					}
 					new Uint32Array(memory.buffer, palPtr, 256).set(pal32);
 					const frameBytes = new Uint8Array(frame.data.buffer, frame.data.byteOffset, srcBytes);
@@ -79019,16 +79018,36 @@ var init_Sprite = __esmMin((() => {
 				start_x = Math.floor((gl_width - width) * .5);
 				start_y = Math.floor((gl_height - height) * .5);
 				if (frame.type === SPR.TYPE_PAL) {
-					if (!pal32) pal32 = this.convert32bPal(this.palette, true);
+					if (!pal32) pal32 = this.convert32bPal(true);
 					if (width <= 0 || height <= 0) out = new Uint8Array(gl_width * gl_height);
 					else if (wasmInstance) {
 						const srcBytes = width * height;
 						const dstBytes = gl_width * gl_height;
 						const dstPtr = wasmSrcPtr + srcBytes;
 						const totalBytesNeeded = dstPtr + dstBytes;
-						if (wasmMem.buffer.byteLength < totalBytesNeeded) {
+						if (wasmMem.buffer.byteLength < totalBytesNeeded) try {
 							const additionalPages = Math.ceil((totalBytesNeeded - wasmMem.buffer.byteLength) / 65536);
 							wasmMem.grow(additionalPages);
+						} catch (_e) {
+							out = new Uint8Array(gl_width * gl_height);
+							for (let y = 0; y < height; ++y) {
+								const srcRow = y * width;
+								const dstRow = (y + start_y) * gl_width + start_x;
+								for (let x = 0; x < width; ++x) {
+									const idx = data[srcRow + x];
+									if (pal32[idx] === MAGENTA) out[dstRow + x] = 0;
+									else out[dstRow + x] = idx;
+								}
+							}
+							output[i] = {
+								type: frame.type,
+								width: gl_width,
+								height: gl_height,
+								originalWidth: width,
+								originalHeight: height,
+								data: out
+							};
+							continue;
 						}
 						if (!wasmPalInitialized) {
 							new Uint32Array(wasmMem.buffer, wasmPalPtr, 256).set(pal32);
@@ -79056,9 +79075,40 @@ var init_Sprite = __esmMin((() => {
 					const dstBytes = gl_width * gl_height * 4;
 					const dstPtr = wasmSrcPtr + srcBytes;
 					const totalBytesNeeded = dstPtr + dstBytes;
-					if (wasmMem.buffer.byteLength < totalBytesNeeded) {
+					if (wasmMem.buffer.byteLength < totalBytesNeeded) try {
 						const additionalPages = Math.ceil((totalBytesNeeded - wasmMem.buffer.byteLength) / 65536);
 						wasmMem.grow(additionalPages);
+					} catch (_e) {
+						out = new Uint8Array(gl_width * gl_height * 4);
+						const out32 = new Uint32Array(out.buffer);
+						for (let y = 0; y < height; ++y) {
+							const srcRow = (height - y - 1) * width * 4;
+							const dstRow = (y + start_y) * gl_width + start_x;
+							for (let x = 0; x < width; ++x) {
+								const srcIdx = srcRow + x * 4;
+								/**
+								* OLD LOGIC: Manual per-channel assignments (out[dst+0]=... out[dst+3]=...). 4 loads + 4 stores + branches.
+								* NEW LOGIC: Reads RGBA bytes, remaps color channels using bitwise operations, and writes the result as a single 32-bit integer. 4 loads + 1 store.
+								*/
+								const a = data[srcIdx];
+								if (a === 0) out32[dstRow + x] = 0;
+								else {
+									const r = data[srcIdx + 3];
+									const g = data[srcIdx + 2];
+									const b = data[srcIdx + 1];
+									out32[dstRow + x] = a << 24 | b << 16 | g << 8 | r;
+								}
+							}
+						}
+						output[i] = {
+							type: frame.type,
+							width: gl_width,
+							height: gl_height,
+							originalWidth: width,
+							originalHeight: height,
+							data: out
+						};
+						continue;
 					}
 					new Uint8Array(wasmMem.buffer, dstPtr, dstBytes).fill(0);
 					new Uint8Array(wasmMem.buffer, wasmSrcPtr, srcBytes).set(data);
