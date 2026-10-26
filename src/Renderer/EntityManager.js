@@ -292,8 +292,10 @@ function setFocusEntity(entity) {
  * @param {Entity} b
  */
 function sort(a, b) {
-	const aDepth = a.depth + (a.GID % 100) / 1000;
-	const bDepth = b.depth + (b.GID % 100) / 1000;
+	const aGID = typeof a.GID === 'number' ? a.GID : parseInt(a.GID, 10) || 0;
+	const bGID = typeof b.GID === 'number' ? b.GID : parseInt(b.GID, 10) || 0;
+	const aDepth = a.depth + (aGID % 100) / 1000;
+	const bDepth = b.depth + (bGID % 100) / 1000;
 
 	return bDepth - aDepth;
 }

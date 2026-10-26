@@ -480,26 +480,13 @@ const renderEntity = (function renderEntityClosure() {
 					renderElement(self, self.files.body, 'body', _position, true);
 				});
 				break;
-			case Entity.TYPE_CART: {
+			case Entity.TYPE_CART:
 				SpriteRenderer.position[2] = SpriteRenderer.position[2] + 0.2;
-				const owner = self.owner;
-				let inFront = false;
-				if (owner) {
-					if (Math.abs(self.depth - owner.depth) > 0.05) {
-						inFront = self.depth < owner.depth;
-					} else {
-						const ownerDir = (Camera.direction + owner.direction + 8) % 8;
-						inFront = isLookingBack(ownerDir);
-					}
-				} else {
-					inFront = isLookingBack(direction);
-				}
-				SpriteRenderer.zIndex = inFront ? 220 : 80;
+				SpriteRenderer.zIndex = 150;
 				SpriteRenderer.runWithDepth(true, true, false, function () {
 					renderElement(self, self.files.body, 'body', _position, true);
 				});
 				break;
-			}
 			case Entity.TYPE_MOB:
 			case Entity.TYPE_NPC:
 			case Entity.TYPE_NPC2:
