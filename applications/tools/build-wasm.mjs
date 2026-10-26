@@ -19,6 +19,11 @@ const watFiles = [
 		wat: 'src/Loaders/wasm/targa.wat',
 		js: 'src/Loaders/wasm/targa.js',
 		exportConst: 'TARGA_WASM_BASE64'
+	},
+	{
+		wat: 'src/Loaders/wasm/gameFileDecrypt.wat',
+		js: 'src/Loaders/wasm/gameFileDecrypt.js',
+		exportConst: 'GAME_FILE_DECRYPT_WASM_BASE64'
 	}
 ];
 
