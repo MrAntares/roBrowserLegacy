@@ -1,4 +1,4 @@
-# AGENTS.md
+# Agent Instructions for roBrowser Legacy
 
 Global entry point for AI coding agents working on **roBrowserLegacy**, a browser-based Ragnarok Online client built with ES modules, Vite, a custom builder, and WebGL (OpenGL ES 2.0). The project runs in web browsers, as a PWA, and as an Electron desktop application.
 
@@ -36,39 +36,32 @@ Use this flow to locate the likely subsystem, not as a substitute for tracing th
 
 Use this table to find the relevant subsystem map and supporting documentation. Read the scoped `AGENTS.md` and follow its references before editing that subsystem.
 
-| Task / subsystem                                       | Entry point                                                              |
-| ------------------------------------------------------ | ------------------------------------------------------------------------ |
-| UI components, Shadow DOM, Custom Elements, scrollbars | `src/UI/AGENTS.md` → `docs/CustomElements.md`, `docs/Scrollbar.md`       |
-| Versioned UI and `*Common.js` factories                | `src/UI/AGENTS.md` → `docs/GUIComponent_Version_Dedup_Factory.md`        |
-| Packets, opcodes, lengths, `PACKETVER`, sockets        | `src/Network/AGENTS.md`                                                  |
-| WebGL, entities, effects, shaders, GR2                 | `src/Renderer/AGENTS.md` → `docs/reference/renderer/README.md`           |
-| Game, Login, Char, Map engines, gameplay handlers      | `src/Engine/AGENTS.md` → `docs/reference/README.md`                      |
-| Binary asset loading and encoding                      | `src/Loaders/AGENTS.md` → `docs/Encoding.md`                             |
-| Database tables, constants, item/skill/status lookups  | `src/DB/AGENTS.md` → `docs/Encoding.md`                                  |
-| VFS, `ROConfig`, Workers, Lua / AI                     | `src/Core/AGENTS.md` → `docs/LuaModuleResolution.md`, `docs/Encoding.md` |
-| Tests and test infrastructure                          | `tests/AGENTS.md`                                                        |
-| Original Windows client behavior                       | `docs/reference/README.md` → relevant behavior reference                 |
-| UI component development                               | `docs/how-to/ui-component-development.md`                                |
-| Packet development                                     | `docs/how-to/network-packet-development.md`                              |
-| Renderer effect development                            | `docs/how-to/renderer-effects.md`                                        |
-| Runtime diagnosis                                      | `docs/how-to/troubleshooting-and-diagnostics.md`                         |
+| Task / subsystem                                                                   | Entry point                                                              |
+| ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| UI components, Shadow DOM, Custom Elements, scrollbars                             | `src/UI/AGENTS.md` → `docs/CustomElements.md`, `docs/Scrollbar.md`       |
+| Versioned UI and `*Common.js` factories                                            | `src/UI/AGENTS.md` → `docs/GUIComponent_Version_Dedup_Factory.md`        |
+| Packets, opcodes, lengths, `PACKETVER`, sockets                                    | `src/Network/AGENTS.md`                                                  |
+| WebGL, entities, effects, shaders, GR2                                             | `src/Renderer/AGENTS.md` → `docs/reference/renderer/README.md`           |
+| Game, Login, Char, Map engines, gameplay handlers                                  | `src/Engine/AGENTS.md` → `docs/reference/README.md`                      |
+| Binary asset loading and encoding                                                  | `src/Loaders/AGENTS.md` → `docs/Encoding.md`                             |
+| Database tables, constants, item/skill/status lookups                              | `src/DB/AGENTS.md` → `docs/Encoding.md`                                  |
+| VFS, `ROConfig`, Workers, Lua / AI                                                 | `src/Core/AGENTS.md` → `docs/LuaModuleResolution.md`, `docs/Encoding.md` |
+| Input and gameplay actions; entity mixin, map controls, commands, and screenshots. | `src/Controls/AGENTS.md`                                                 |
+| Background music and Web Audio sound effects.                                      | `src/Audio/AGENTS.md`                                                    |
+| Persistent settings schemas consumed across client subsystems.                     | `src/Preferences/AGENTS.md`                                              |
+| Configuration-driven dynamic plugin loading and initialization.                    | `src/Plugins/AGENTS.md`                                                  |
+| Shared binary, encoding, rendering, and general-purpose helpers.                   | `src/Utils/AGENTS.md`                                                    |
+| Runtime diagnosis                                                                  | `docs/how-to/troubleshooting-and-diagnostics.md`                         |
+| Original Windows client behavior                                                   | `docs/reference/README.md` → relevant behavior reference                 |
+| UI component development                                                           | `docs/how-to/ui-component-development.md`                                |
+| Packet development                                                                 | `docs/how-to/network-packet-development.md`                              |
+| Renderer effect development                                                        | `docs/how-to/renderer-effects.md`                                        |
+| Tests and test infrastructure                                                      | `tests/AGENTS.md`                                                        |
+| Frozen third-party libraries; excluded from ESLint. **Never modify.**              | `src/Vendors/`                                                           |
 
 Behavior references and how-to guides are consulted on demand. Follow the route relevant to the task rather than reading unrelated documentation.
 
 If documentation and implementation disagree, inspect the affected code and report the discrepancy. Do not infer undocumented behavior from the intended architecture alone.
-
-## 2.1. Supporting Subsystems Without Dedicated `AGENTS.md`
-
-Subsystems with scoped instructions are routed through their own `AGENTS.md`. For directories without one, use this index to locate likely entry points; inspect neighboring code when ownership is unclear.
-
-| Directory          | Key entry points / responsibilities                                                                                                                                                                     |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/Controls/`    | `EntityControl.js` (mixed into `Entity`), `MapControl.js`, `KeyEventHandler.js`, `MouseEventHandler.js`, `ProcessCommand.js` (chat commands and shortcuts), `BattleMode.js`, `ScreenShot.js`            |
-| `src/Audio/`       | `BGM.js` (background music), `SoundManager.js` (spatial and UI `.wav` effects)                                                                                                                          |
-| `src/Preferences/` | Persistent preference schemas: `Audio.js`, `Camera.js`, `Controls.js`, `Graphics.js`, `Map.js`, `ShortCutControls.js`, `UI.js`                                                                          |
-| `src/Plugins/`     | `PluginManager.js`; loads and configures custom client plugins from `ROConfig.plugins`                                                                                                                  |
-| `src/Utils/`       | Binary I/O, structures, compression, pathfinding, WebGL and texture helpers, executable parsing, CRC32, codepages, console, HTML helpers, queues, encoding/crypto utilities, colors, and `gl-matrix.js` |
-| `src/Vendors/`     | Frozen third-party libraries; excluded from ESLint. **Never modify.**                                                                                                                                   |
 
 ## 3. Cross-Cutting Constraints
 
