@@ -27,4 +27,3 @@ export const GAME_FILE_DECRYPT_WASM_BASE64 =
  * @returns {object|null}
  */
 export const getGameFileDecryptWasm = createWasmLoader(GAME_FILE_DECRYPT_WASM_BASE64, 'gameFileDecrypt');
-
