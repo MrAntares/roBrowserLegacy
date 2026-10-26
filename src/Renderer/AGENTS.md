@@ -38,6 +38,7 @@ Instructions for working on the WebGL renderer, Entity composition system (`src/
 - **Ground:** `GroundEffect`, `FlatColorTile`, `PropertyGround`, `LPEffect`, `SpiderWeb`, `Tiles`.
 - **Combat:** `Damage`, `MagnumBreak`, `PoisonEffect`, `MagicTarget`, `MagicRing`, `LockOnTarget`.
 - **Visual & World:** `StrEffect`, `RsmEffect`, `ThreeDEffect`, `TwoDEffect`, `Cylinder`, `Songs`, `Trail`, `WaterfallEffect`.
+- **Official primitives:** `EffectPrim` (`PRIM` rows) with its pure simulation `EffectPrimSim` (the official client's ring, sphere and flat square primitives, advanced on its 60-tick clock), and `CasterStrobe` (the black and white caster strobe of effect 812).
 - **Spawners:** `AreaSpawner` (`AREA_SPAWN` rows: while it lives, spams another effect at random points of a square, for ground units such as Cross Rain).
 - **Placement helpers** (used by `SkillEffect` fields in `EffectManager.js`): `ScreenDirection` (where a target is on screen from the caster), `ShuffledGrid`, `SpinSets`, `GroundScatter`, `BezierArcThrow` + `BezierArcThrowSim` (a STR thrown on an arc, `arcThrow` rows).
 - **Screen & Post-Processing:** `PostProcess.js` and `Effects/Shaders/` (`Blind`, `Bloom`, `CAS`, `Cartoon`, `FXAA`, `GaussianBlur`, `Upsampling`, `VerticalFlip`, `Vibrance`).
