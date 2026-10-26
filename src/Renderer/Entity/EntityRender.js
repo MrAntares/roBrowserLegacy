@@ -481,12 +481,6 @@ const renderEntity = (function renderEntityClosure() {
 				});
 				break;
 			case Entity.TYPE_CART:
-				SpriteRenderer.position[2] = SpriteRenderer.position[2] + 0.2;
-				SpriteRenderer.zIndex = 150;
-				SpriteRenderer.runWithDepth(true, true, false, function () {
-					renderElement(self, self.files.body, 'body', _position, true);
-				});
-				break;
 			case Entity.TYPE_MOB:
 			case Entity.TYPE_NPC:
 			case Entity.TYPE_NPC2:
@@ -751,7 +745,6 @@ const renderElement = (function renderElementClosure() {
 			_position[0] = position[0] - animation.pos[0].x;
 			_position[1] = position[1] - animation.pos[0].y;
 		}
-
 
 		// Check if special body effect and enable the correct blend mode
 		const hasBerserkOrMarionette =
