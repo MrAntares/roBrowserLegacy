@@ -1,4 +1,4 @@
-# [AGENTS.md](http://AGENTS.md)
+# Agent Instructions for roBrowser Legacy
 
 Global entry point for AI coding agents working on **roBrowserLegacy**, a browser-based Ragnarok Online client built with ES modules, Vite, a custom builder, and WebGL (OpenGL ES 2.0). The project runs in web browsers, as a PWA, and as an Electron desktop application.
 
