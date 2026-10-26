@@ -12,7 +12,6 @@ for (let i = 0; i < BUF_SIZE; i++) {
 }
 
 const wasm = getGameFileDecryptWasm();
-const WASM_DATA_OFFSET = 704;
 
 function runJS() {
 	const buf = new Uint8Array(sourceData);
@@ -23,21 +22,9 @@ function runJS() {
 }
 
 function runWASM() {
-	if (!wasm) {
-		return runJS();
-	}
-	const { memory, decodeFull } = wasm.exports;
-	const needed = WASM_DATA_OFFSET + BUF_SIZE;
-	if (memory.buffer.byteLength < needed) {
-		memory.grow(Math.ceil((needed - memory.buffer.byteLength) / 65536));
-	}
-
-	const digits = ENTRY_LEN.toString().length;
-	const cycle = digits < 3 ? 3 : digits < 5 ? digits + 1 : digits < 7 ? digits + 9 : digits + 15;
-
-	new Uint8Array(memory.buffer, WASM_DATA_OFFSET, BUF_SIZE).set(sourceData);
-	decodeFull(WASM_DATA_OFFSET, BUF_SIZE, cycle);
-	return new Uint8Array(new Uint8Array(memory.buffer, WASM_DATA_OFFSET, BUF_SIZE));
+	const buf = new Uint8Array(sourceData);
+	GameFileDecrypt.decodeFull(buf, BUF_SIZE, ENTRY_LEN); // recebe entry_len, não cycle
+	return buf;
 }
 
 // Parity verification before running benchmarks

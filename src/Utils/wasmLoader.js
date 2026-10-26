@@ -8,7 +8,10 @@ const base64ToUint8Array = base64 => {
 	return bytes;
 };
 
-export const createWasmLoader = (base64, instance, failed, name, imports = {}) => {
+export const createWasmLoader = (base64, name, imports = {}) => {
+	let instance = null;
+	let failed = false;
+
 	return () => {
 		if (instance) return instance;
 		if (failed) return null;
@@ -20,6 +23,7 @@ export const createWasmLoader = (base64, instance, failed, name, imports = {}) =
 			instance = new WebAssembly.Instance(new WebAssembly.Module(base64ToUint8Array(base64)), imports);
 			return instance;
 		} catch (e) {
+			failed = true;
 			console.warn(`Loaderswasm${name} - Failed to instantiate WASM module`, e);
 			return null;
 		}
