@@ -217,7 +217,12 @@ class GameFileDecrypt {
 			const { memory, decodeFull } = wasm.exports;
 			const needed = WASM_DATA_OFFSET + len;
 			if (memory.buffer.byteLength < needed) {
-				memory.grow(Math.ceil((needed - memory.buffer.byteLength) / 65536));
+				try {
+					memory.grow(Math.ceil((needed - memory.buffer.byteLength) / 65536));
+				} catch (_e) {
+					GameFileDecrypt.decodeFullJS(buf, len, cycle);
+					return;
+				}
 			}
 			new Uint8Array(memory.buffer, WASM_DATA_OFFSET, len).set(buf.subarray(0, len));
 			decodeFull(WASM_DATA_OFFSET, len, cycle);
@@ -273,7 +278,12 @@ class GameFileDecrypt {
 			const { memory, decodeHeader } = wasm.exports;
 			const needed = WASM_DATA_OFFSET + len;
 			if (memory.buffer.byteLength < needed) {
-				memory.grow(Math.ceil((needed - memory.buffer.byteLength) / 65536));
+				try {
+					memory.grow(Math.ceil((needed - memory.buffer.byteLength) / 65536));
+				} catch (_e) {
+					GameFileDecrypt.decodeHeaderJS(buf, len);
+					return;
+				}
 			}
 			new Uint8Array(memory.buffer, WASM_DATA_OFFSET, len).set(buf.subarray(0, len));
 			decodeHeader(WASM_DATA_OFFSET, len);
