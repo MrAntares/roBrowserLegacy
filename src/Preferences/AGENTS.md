@@ -4,15 +4,15 @@ Instructions for persistent user settings consumed by controls, audio, rendering
 
 ## Preference Map (`src/Preferences/`)
 
-| File                  | Responsibility                                                                                 |
-| --------------------- | ---------------------------------------------------------------------------------------------- |
-| `Audio.js`            | Defaults and persistent settings for background music and sound effects.                       |
-| `Camera.js`           | Camera behavior and view-related settings.                                                      |
-| `Controls.js`         | Movement, targeting, and other gameplay control settings.                                       |
-| `Graphics.js`         | Display and renderer settings, including quality, frame rate, effects, and visual options.       |
-| `Map.js`               | Map display and gameplay map preferences.                                                       |
-| `ShortCutControls.js` | Persistent shortcut definitions, initialized with the key identifiers from `KeyEventHandler`.  |
-| `UI.js`                | Interface behavior and display preferences.                                                     |
+| File                  | Responsibility                                                                                |
+| --------------------- | --------------------------------------------------------------------------------------------- |
+| `Audio.js`            | Defaults and persistent settings for background music and sound effects.                      |
+| `Camera.js`           | Camera behavior and view-related settings.                                                    |
+| `Controls.js`         | Movement, targeting, and other gameplay control settings.                                     |
+| `Graphics.js`         | Display and renderer settings, including quality, frame rate, effects, and visual options.    |
+| `Map.js`              | Map display and gameplay map preferences.                                                     |
+| `ShortCutControls.js` | Persistent shortcut definitions, initialized with the key identifiers from `KeyEventHandler`. |
+| `UI.js`               | Interface behavior and display preferences.                                                   |
 
 ## Invariants
 

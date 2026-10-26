@@ -4,8 +4,8 @@ Instructions for the client plugin loader and its configuration-driven lifecycle
 
 ## Plugin Map (`src/Plugins/`)
 
-| File               | Responsibility                                                                                                |
-| ------------------ | ------------------------------------------------------------------------------------------------------------- |
+| File               | Responsibility                                                                                                 |
+| ------------------ | -------------------------------------------------------------------------------------------------------------- |
 | `PluginManager.js` | Reads `ROConfig.plugins`, resolves configured plugin paths, dynamically imports modules, and initializes them. |
 
 ## Invariants

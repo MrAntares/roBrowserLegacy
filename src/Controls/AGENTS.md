@@ -7,9 +7,9 @@ Instructions for keyboard, mouse, map, entity, chat-command, and screenshot cont
 | File                   | Responsibility                                                                                          |
 | ---------------------- | ------------------------------------------------------------------------------------------------------- |
 | `EntityControl.js`     | Entity interaction behavior mixed into `Entity`, including hover/click actions, targeting, and packets. |
-| `MapControl.js`         | Map canvas and window input; movement, camera, map interaction, and drag/drop handling.                 |
-| `KeyEventHandler.js`   | Keyboard event handling and normalized key identifiers used by controls and shortcuts.                 |
-| `MouseEventHandler.js` | Mouse/touch event state shared by map and entity controls.                                               |
+| `MapControl.js`        | Map canvas and window input; movement, camera, map interaction, and drag/drop handling.                 |
+| `KeyEventHandler.js`   | Keyboard event handling and normalized key identifiers used by controls and shortcuts.                  |
+| `MouseEventHandler.js` | Mouse/touch event state shared by map and entity controls.                                              |
 | `BattleMode.js`        | Battle-mode shortcut bindings and execution of configured commands.                                     |
 | `ProcessCommand.js`    | Chat command registry, alias handling, and command dispatch to gameplay, network, and UI modules.       |
 | `ScreenShot.js`        | Screenshot capture from the client view.                                                                |
