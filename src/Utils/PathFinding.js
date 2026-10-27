@@ -475,7 +475,7 @@ function searchLongIgnoreCellType(x0, y0, x1, y1, range, out) {
 	}
 
 	i = 1;
-	while (i <= MAX_WALKPATH) {
+	while (i < MAX_WALKPATH) {
 		x += dx;
 		y += dy;
 
