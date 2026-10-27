@@ -282,17 +282,16 @@ function walkToNonWalkableGround(
 					delay: estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed, this.position),
 					action: this.ACTION.ATTACK,
 					frame: 0,
-					repeat: false,
+					repeat: true,
 					play: true,
 					next: false
 				}
 			});
 		} else {
-			this.setAction({ action: this.ACTION.ATTACK, frame: 0, repeat: false, play: true, next: false });
+			this.setAction({ action: this.ACTION.ATTACK, frame: 0, repeat: true, play: true, next: false });
 		}
 		setTimeout(
 			() => {
-				this.isAttacking = false;
 				this.setAction({ action: this.ACTION.IDLE, frame: 0, repeat: true, play: true, next: false });
 				this.walkToNonWalkableGround(
 					this.position[0],
@@ -303,31 +302,19 @@ function walkToNonWalkableGround(
 					false,
 					false
 				);
+				this.isAttacking = false;
 			},
-			estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed, this.position) * 2
+			from_x !== to_x || from_y !== to_y
+				? estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed, this.position) * 2
+				: 200
 		);
 	} else if (this.objecttype == this.constructor.TYPE_FALCON && isAttacking) {
 		if (from_x !== to_x || from_y !== to_y) {
-			this.setAction({
-				action: this.ACTION.WALK,
-				frame: 0,
-				repeat: true,
-				play: true,
-				next: {
-					delay: estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed, this.position),
-					action: this.ACTION.IDLE,
-					frame: 0,
-					repeat: true,
-					play: true,
-					next: false
-				}
-			});
-		} else {
-			this.setAction({ action: this.ACTION.WALK, frame: 0, repeat: true, play: true, next: false });
+			this.setAction({ action: this.ACTION.WALK, frame: 0, repeat: true, play: true });
 		}
 		setTimeout(
 			() => {
-				this.isAttacking = false;
+				this.setAction({ action: this.ACTION.IDLE, frame: 0, repeat: true, play: true, next: false });
 				this.walkToNonWalkableGround(
 					this.position[0],
 					this.position[1],
@@ -337,8 +324,11 @@ function walkToNonWalkableGround(
 					false,
 					false
 				);
+				this.isAttacking = false;
 			},
-			estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed, this.position) * 2
+			from_x !== to_x || from_y !== to_y
+				? estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed, this.position) * 2
+				: 200
 		);
 	} else if (this.action !== action) {
 		this.setAction({ action: action, frame: 0, repeat: true, play: true });
