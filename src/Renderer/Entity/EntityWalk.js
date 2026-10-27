@@ -204,7 +204,7 @@ function walkToNonWalkableGround(
 		true
 	);
 
-	if (result.success) {
+	if (result.success && result.pathLength > 0) {
 		total = result.pathLength + 1;
 	}
 
