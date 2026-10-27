@@ -170,11 +170,21 @@ function addEntity(entity) {
  * Clean up entities from list
  */
 function free() {
-	_list.forEach(entity => {
+	// Iterate a snapshot: Entity.clean() may call removeEntity() on companions
+	// (cart/falcon/wug), which splices _list. Entities already released that way
+	// (no longer in _list) are skipped so each is released exactly once.
+	const snapshot = _list.slice();
+	const live = new Set(snapshot);
+	for (let i = 0; i < snapshot.length; ++i) {
+		const entity = snapshot[i];
+		if (!live.has(entity) || !_list.includes(entity)) {
+			continue;
+		}
 		releaseGr2(entity);
 		EntityComposer.remove(entity);
 		entity.clean();
-	});
+		live.delete(entity);
+	}
 
 	_list.length = 0;
 	_gidMap.clear();

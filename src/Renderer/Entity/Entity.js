@@ -469,7 +469,14 @@ class Entity {
 	 */
 	remove(type) {
 		if (this.cart) {
-			this.cart.remove(type);
+			if (type === Entity.VT.DEAD) {
+				// Cart ignores DEAD in its own remove(); unregister it so its GID is freed
+				const cart = this.cart;
+				cart.owner = null;
+				EntityManager.remove(cart.GID);
+			} else {
+				this.cart.remove(type);
+			}
 			this.cart = null;
 		}
 

@@ -50,6 +50,7 @@ import StatusIcons from 'UI/Components/StatusIcons/StatusIcons.js';
 import MiniMap from 'UI/Components/MiniMap/MiniMap.js';
 import PartyFriends from 'UI/Components/PartyFriends/PartyFriends.js';
 import Equipment from 'UI/Components/Equipment/Equipment.js';
+import CartItems from 'UI/Components/CartItems/CartItems.js';
 import ScreenEffectManager from 'Renderer/ScreenEffectManager.js';
 
 // Excludes for skill name display
@@ -1982,6 +1983,15 @@ function onEntityStatusChange(pkt) {
 				Session.CartNum = entity.CartNum;
 			}
 			entity.setCart(entity.hasCart, entity.CartNum);
+			// CARTOFF removes CartItems from the DOM; mount it again when a cart is re-acquired
+			if (
+				Session.Entity &&
+				entity.GID === Session.Entity.GID &&
+				entity.hasCart &&
+				!CartItems._host?.isConnected
+			) {
+				CartItems.append();
+			}
 			break;
 
 		case StatusConst.HIDING: {
@@ -2510,7 +2520,9 @@ function onEntityOptionChange(pkt) {
 		statusCartNum = 5;
 	}
 
-	if (statusCartNum > 0 || entity.hasCart) {
+	// Only the local player keeps the cart through the ON_PUSH_CART flag; remote actors rely on option bits
+	const keepViaFlag = entity === Session.Entity && entity.hasCart;
+	if (statusCartNum > 0 || keepViaFlag) {
 		const realCartNum = DB.isSuperNovice(entity._job) ? 0 : statusCartNum || entity.CartNum || 1;
 		entity.setCart(true, realCartNum);
 	} else if (entity.cart) {
