@@ -153,42 +153,6 @@ function quantizeDir(floatDir) {
 	return Math.round(floatDir) % 8;
 }
 
-function finishZeroStepAttackFalcon(entity) {
-	entity.setAction({
-		action: entity.ACTION.WALK,
-		frame: 0,
-		repeat: false,
-		play: true,
-		next: {
-			delay: Date.now() + 432,
-			action: entity.ACTION.IDLE,
-			frame: 0,
-			repeat: false,
-			play: true,
-			next: false
-		}
-	});
-	entity.isAttacking = false;
-}
-
-function finishZeroStepAttackWUG(entity) {
-	entity.setAction({
-		action: entity.ACTION.ATTACK,
-		frame: 0,
-		repeat: false,
-		play: true,
-		next: {
-			delay: Date.now() + 432,
-			action: entity.ACTION.IDLE,
-			frame: 0,
-			repeat: false,
-			play: true,
-			next: false
-		}
-	});
-	entity.isAttacking = false;
-}
-
 /**
  * Want to move non walkable cell
  *
@@ -240,17 +204,6 @@ function walkToNonWalkableGround(
 		true
 	);
 
-	// No Distance to walk attack WUG
-	if (result.success && result.pathLength === 0 && this.objecttype === this.constructor.TYPE_WUG && isAttacking) {
-		finishZeroStepAttackWUG(this);
-		return;
-	}
-	// No Distance to walk attack Falcon
-	if (result.success && result.pathLength === 0 && this.objecttype === this.constructor.TYPE_FALCON && isAttacking) {
-		finishZeroStepAttackFalcon(this);
-		return;
-	}
-
 	if (result.success && result.pathLength > 0) {
 		total = result.pathLength + 1;
 	}
@@ -295,80 +248,83 @@ function walkToNonWalkableGround(
 			const initDir0 = offsetToFloatDir(firstX0 - this.position[0], firstY0 - this.position[1]);
 			this.direction = quantizeDir(initDir0);
 		}
+	}
 
-		let action = this.ACTION.WALK;
-		if (this.objecttype === this.constructor.TYPE_FALCON && !isAttacking) {
-			// falcon: action.walk = gliding
-			action = this.ACTION.IDLE;
-		}
+	let action = this.ACTION.WALK;
+	if (this.objecttype === this.constructor.TYPE_FALCON && !isAttacking) {
+		// falcon: action.walk = gliding
+		action = this.ACTION.IDLE;
+	}
 
-		if (this.objecttype == this.constructor.TYPE_WUG && isAttacking) {
-			this.setAction({
-				action: this.ACTION.WALK,
+	if (this.objecttype == this.constructor.TYPE_WUG && isAttacking) {
+		this.setAction({
+			action: this.ACTION.WALK,
+			frame: 0,
+			repeat: true,
+			play: true,
+			next: {
+				delay: Date.now() + 200,
+				action: this.ACTION.ATTACK,
 				frame: 0,
-				repeat: true,
-				play: true,
-				next: {
-					delay: Date.now() + 200,
-					action: this.ACTION.ATTACK,
-					frame: 0,
-					repeat: false,
-					play: true,
-					next: {
-						delay: Date.now() + 432,
-						action: this.ACTION.IDLE,
-						frame: 0,
-						repeat: true,
-						play: true,
-						next: false
-					}
-				}
-			});
-			setTimeout(() => {
-				this.walkToNonWalkableGround(
-					this.position[0],
-					this.position[1],
-					this._followTargetX,
-					this._followTargetY,
-					4,
-					false,
-					false
-				);
-			}, 632);
-		} else if (this.objecttype == this.constructor.TYPE_FALCON && isAttacking) {
-			this.setAction({
-				action: this.ACTION.WALK,
-				frame: 0,
-				repeat: true,
+				repeat: false,
 				play: true,
 				next: {
 					delay: Date.now() + 432,
 					action: this.ACTION.IDLE,
 					frame: 0,
-					repeat: false,
+					repeat: true,
 					play: true,
 					next: false
 				}
-			});
-			setTimeout(() => {
-				this.walkToNonWalkableGround(
-					this.position[0],
-					this.position[1],
-					this._followTargetX,
-					this._followTargetY,
-					1,
-					false,
-					false
-				);
-			}, 432);
-		} else if (this.action !== action) {
-			this.setAction({
-				action: action,
+			}
+		});
+		setTimeout(() => {
+			this.isAttacking = false;
+			this.walkToNonWalkableGround(
+				this.position[0],
+				this.position[1],
+				this._followTargetX,
+				this._followTargetY,
+				4,
+				false,
+				false
+			);
+		}, 632);
+	} else if (this.objecttype == this.constructor.TYPE_FALCON && isAttacking) {
+		this.setAction({
+			action: this.ACTION.WALK,
+			frame: 0,
+			repeat: true,
+			play: true,
+			next: {
+				delay: Date.now() + 432,
+				action: this.ACTION.IDLE,
 				frame: 0,
-				repeat: true,
-				play: true
-			});
-		}
+				repeat: false,
+				play: true,
+				next: false
+			}
+		});
+		setTimeout(() => {
+			this.isAttacking = false;
+			this.walkToNonWalkableGround(
+				this.position[0],
+				this.position[1],
+				this._followTargetX,
+				this._followTargetY,
+				3,
+				false,
+				false
+			);
+		}, 432);
+	} else if (this.action !== action) {
+		this.setAction({
+			delay: Date.now(),
+			action: action,
+			frame: 0,
+			repeat: true,
+			play: true
+		});
 	}
 }
 
