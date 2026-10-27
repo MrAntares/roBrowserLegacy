@@ -893,7 +893,7 @@ function entitiesWalkProcess() {
 			cart.direction = quantizeDir(floatDir);
 		}
 
-	if (this.action === this.ACTION.WALK && dist > retDist) {
+		if (this.action === this.ACTION.WALK && dist > retDist) {
 			if (cart.action !== cart.ACTION.WALK) {
 				cart.setAction({
 					action: cart.ACTION.WALK,
