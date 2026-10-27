@@ -455,6 +455,7 @@ function onCartRemoveItem(pkt) {
 function onCartOff() {
 	Session.hasCart = false;
 	if (Session.Entity) {
+		Session.Entity._statusCart = false;
 		Session.Entity.setCart(false);
 	}
 	CartItems.remove();
