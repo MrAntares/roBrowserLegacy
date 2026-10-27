@@ -888,16 +888,7 @@ function entitiesWalkProcess() {
 			this.wug._followTargetX = ownerCellX;
 			this.wug._followTargetY = ownerCellY;
 			this.wug.walk.lastWalkTick = Date.now();
-			this.wug.walkToNonWalkableGround(
-				this.wug.position[0],
-				this.wug.position[1],
-				ownerCellX,
-				ownerCellY,
-				range - 1,
-				false,
-				false,
-				Date.now()
-			);
+			this.wug.walkTo(this.wug.position[0], this.wug.position[1], ownerCellX, ownerCellY, range - 1, Date.now());
 		}
 	}
 }
