@@ -200,9 +200,7 @@ function onEntitySpam(pkt) {
 	}
 
 	if (cartNum > 0 || entity.hasCart || (Session.Entity && entity.GID === Session.Entity.GID && Session.hasCart)) {
-		const realCartNum = DB.isSuperNovice(entity._job)
-			? 0
-			: cartNum || entity.CartNum || (Session.CartNum || 1);
+		const realCartNum = DB.isSuperNovice(entity._job) ? 0 : cartNum || entity.CartNum || Session.CartNum || 1;
 		entity.setCart(true, realCartNum);
 	}
 
