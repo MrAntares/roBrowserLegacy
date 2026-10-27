@@ -2476,7 +2476,7 @@ function onEntityOptionChange(pkt) {
 		});
 		EntityManager.add(entity.falcon);
 	} else if (entity.falcon && !(entity.effectState & StatusState.EffectState.FALCON)) {
-		entity.falcon.remove();
+		EntityManager.remove(entity.falcon.GID);
 		entity.falcon = null;
 	}
 
@@ -2494,7 +2494,7 @@ function onEntityOptionChange(pkt) {
 		});
 		EntityManager.add(entity.wug);
 	} else if (entity.wug && !(entity.effectState & StatusState.EffectState.WUG)) {
-		entity.wug.remove();
+		EntityManager.remove(entity.wug.GID);
 		entity.wug = null;
 	}
 }
