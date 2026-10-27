@@ -285,7 +285,7 @@ function walkToNonWalkableGround(
 				this.position[1],
 				this._followTargetX,
 				this._followTargetY,
-				4,
+				0,
 				false,
 				false
 			);
@@ -312,7 +312,7 @@ function walkToNonWalkableGround(
 				this.position[1],
 				this._followTargetX,
 				this._followTargetY,
-				3,
+				1,
 				false,
 				false
 			);
