@@ -290,9 +290,9 @@ function walkToNonWalkableGround(
 		} else {
 			this.setAction({ action: this.ACTION.ATTACK, frame: 0, repeat: false, play: true, next: false });
 		}
-		this.isAttacking = false;
 		setTimeout(
 			() => {
+				this.isAttacking = false;
 				this.setAction({ action: this.ACTION.IDLE, frame: 0, repeat: true, play: true, next: false });
 				this.walkToNonWalkableGround(
 					this.position[0],
@@ -325,9 +325,9 @@ function walkToNonWalkableGround(
 		} else {
 			this.setAction({ action: this.ACTION.WALK, frame: 0, repeat: true, play: true, next: false });
 		}
-		this.isAttacking = false;
 		setTimeout(
 			() => {
+				this.isAttacking = false;
 				this.walkToNonWalkableGround(
 					this.position[0],
 					this.position[1],
