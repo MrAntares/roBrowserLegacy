@@ -1302,6 +1302,9 @@ class DB {
 						return 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xb8\xc5';
 					} else if (id.includes('_WUG')) {
 						return 'data/sprite/\xb8\xf3\xbd\xba\xc5\xcd/\xbf\xf6\xb1\xd7';
+					} else if (id.startsWith('CART_')) {
+						const cartNum = parseInt(id.slice(5), 10) || 0;
+						return DB.getCartPath(cartNum);
 					}
 				}
 				break;

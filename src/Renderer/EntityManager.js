@@ -170,11 +170,21 @@ function addEntity(entity) {
  * Clean up entities from list
  */
 function free() {
-	_list.forEach(entity => {
+	// Iterate a snapshot: Entity.clean() may call removeEntity() on companions
+	// (cart/falcon/wug), which splices _list. Entities already released that way
+	// (no longer in _list) are skipped so each is released exactly once.
+	const snapshot = _list.slice();
+	const live = new Set(snapshot);
+	for (let i = 0; i < snapshot.length; ++i) {
+		const entity = snapshot[i];
+		if (!live.has(entity) || !_list.includes(entity)) {
+			continue;
+		}
 		releaseGr2(entity);
 		EntityComposer.remove(entity);
 		entity.clean();
-	});
+		live.delete(entity);
+	}
 
 	_list.length = 0;
 	_gidMap.clear();
@@ -202,6 +212,18 @@ function removeEntity(gid) {
 	const entity = _gidMap.get(gid);
 
 	if (entity) {
+		if (entity.cart) {
+			removeEntity(entity.cart.GID);
+			entity.cart = null;
+		}
+		if (entity.falcon) {
+			removeEntity(entity.falcon.GID);
+			entity.falcon = null;
+		}
+		if (entity.wug) {
+			removeEntity(entity.wug.GID);
+			entity.wug = null;
+		}
 		releaseGr2(entity);
 		EntityComposer.remove(entity);
 		entity.clean();
@@ -280,8 +302,10 @@ function setFocusEntity(entity) {
  * @param {Entity} b
  */
 function sort(a, b) {
-	const aDepth = a.depth + (a.GID % 100) / 1000;
-	const bDepth = b.depth + (b.GID % 100) / 1000;
+	const aGID = typeof a.GID === 'number' ? a.GID : parseInt(a.GID, 10) || 0;
+	const bGID = typeof b.GID === 'number' ? b.GID : parseInt(b.GID, 10) || 0;
+	const aDepth = a.depth + (aGID % 100) / 1000;
+	const bDepth = b.depth + (bGID % 100) / 1000;
 
 	return bDepth - aDepth;
 }
@@ -520,6 +544,16 @@ function intersect() {
 			if (dx * dx + dy * dy > viewAreaSq) {
 				continue;
 			}
+		}
+
+		// Non-pickable entities
+		if (
+			entity.objecttype === Entity.TYPE_EFFECT ||
+			entity.objecttype === Entity.TYPE_FALCON ||
+			entity.objecttype === Entity.TYPE_WUG ||
+			entity.objecttype === Entity.TYPE_CART
+		) {
+			continue;
 		}
 
 		// No picking on dead entites
