@@ -893,22 +893,7 @@ function entitiesWalkProcess() {
 			cart.direction = quantizeDir(floatDir);
 		}
 
-		const isSameCell =
-			dist < 0.5 ||
-			(Math.round(cart.position[0]) === Math.round(ownerCellX) &&
-				Math.round(cart.position[1]) === Math.round(ownerCellY));
-
-		if (isSameCell) {
-			cart.direction = 2;
-			if (cart.action !== cart.ACTION.IDLE) {
-				cart.setAction({
-					action: cart.ACTION.IDLE,
-					frame: 0,
-					play: false,
-					repeat: true
-				});
-			}
-		} else if (this.action === this.ACTION.WALK && dist > retDist) {
+	if (this.action === this.ACTION.WALK && dist > retDist) {
 			if (cart.action !== cart.ACTION.WALK) {
 				cart.setAction({
 					action: cart.ACTION.WALK,
