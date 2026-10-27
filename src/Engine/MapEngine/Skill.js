@@ -288,9 +288,7 @@ function onSkillResult(pkt) {
 		if (pkt.itemId > 0 && pkt.NUM > 0 && error === 1536) {
 			// USESKILL_FAIL_NEED_ITEM — pkt.itemId + pkt.NUM
 			const itemInfo = DB.getItemInfo(pkt.itemId);
-			const itemName = itemInfo
-				? itemInfo.identifiedDisplayName || itemInfo.unidentifiedDisplayName
-				: 'Item ' + pkt.itemId;
+			const itemName = itemInfo.identifiedDisplayName || itemInfo.unidentifiedDisplayName || `Item ${pkt.itemId}`;
 			const msg = DB.getMessage(error)
 				.replace('%s', itemName)
 				.replace('%d', pkt.NUM || 1);
