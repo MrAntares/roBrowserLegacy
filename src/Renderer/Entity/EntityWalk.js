@@ -888,7 +888,23 @@ function entitiesWalkProcess() {
 			this.wug._followTargetX = ownerCellX;
 			this.wug._followTargetY = ownerCellY;
 			this.wug.walk.lastWalkTick = Date.now();
+			// Try walkable path first
 			this.wug.walkTo(this.wug.position[0], this.wug.position[1], ownerCellX, ownerCellY, range - 1, Date.now());
+
+			// No walkable route (owner separated by impassable ground): fall back to
+			// straight-line follow so the Wug isn't stranded
+			if (!this.wug.walk.total) {
+				this.wug.walkToNonWalkableGround(
+					this.wug.position[0],
+					this.wug.position[1],
+					ownerCellX,
+					ownerCellY,
+					range - 1,
+					false,
+					false,
+					Date.now()
+				);
+			}
 		}
 	}
 }
