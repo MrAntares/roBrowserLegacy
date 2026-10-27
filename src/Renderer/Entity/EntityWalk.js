@@ -153,6 +153,42 @@ function quantizeDir(floatDir) {
 	return Math.round(floatDir) % 8;
 }
 
+function finishZeroStepAttackFalcon(entity) {
+	entity.setAction({
+		action: entity.ACTION.WALK,
+		frame: 0,
+		repeat: false,
+		play: true,
+		next: {
+			delay: Date.now() + 432,
+			action: entity.ACTION.IDLE,
+			frame: 0,
+			repeat: false,
+			play: true,
+			next: false
+		}
+	});
+	entity.isAttacking = false;
+}
+
+function finishZeroStepAttackWUG(entity) {
+	entity.setAction({
+		action: entity.ACTION.ATTACK,
+		frame: 0,
+		repeat: false,
+		play: true,
+		next: {
+			delay: Date.now() + 432,
+			action: entity.ACTION.IDLE,
+			frame: 0,
+			repeat: false,
+			play: true,
+			next: false
+		}
+	});
+	entity.isAttacking = false;
+}
+
 /**
  * Want to move non walkable cell
  *
@@ -203,6 +239,17 @@ function walkToNonWalkableGround(
 		path,
 		true
 	);
+
+	// No Distance to walk attack WUG
+	if (result.success && result.pathLength === 0 && this.objecttype === this.constructor.TYPE_WUG && isAttacking) {
+		finishZeroStepAttackWUG(this);
+		return;
+	}
+	// No Distance to walk attack Falcon
+	if (result.success && result.pathLength === 0 && this.objecttype === this.constructor.TYPE_FALCON && isAttacking) {
+		finishZeroStepAttackFalcon(this);
+		return;
+	}
 
 	if (result.success && result.pathLength > 0) {
 		total = result.pathLength + 1;
@@ -283,7 +330,7 @@ function walkToNonWalkableGround(
 					this.position[1],
 					this._followTargetX,
 					this._followTargetY,
-					0,
+					4,
 					false,
 					false
 				);
@@ -309,7 +356,7 @@ function walkToNonWalkableGround(
 					this.position[1],
 					this._followTargetX,
 					this._followTargetY,
-					0,
+					1,
 					false,
 					false
 				);
