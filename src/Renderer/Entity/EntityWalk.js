@@ -187,67 +187,82 @@ function walkToNonWalkableGround(
 		to_y = OverShootPosition[1];
 	}
 
-	// Same position
-	if (from_x === to_x && from_y === to_y) {
-		return;
+	// Different position
+	if (from_x !== to_x || from_y !== to_y) {
+		const path = this.walk.path;
+		let total = 0;
+		const result = PathFinding.searchLongIgnoreCellType(
+			from_x | 0,
+			from_y | 0,
+			to_x | 0,
+			to_y | 0,
+			range || 0,
+			path,
+			true
+		);
+
+		if (result.success) {
+			total = result.pathLength + 1;
+		}
+
+		this.walk.index = 1 * 2; // skip first index
+		this.walk.total = total * 2;
+		if (total > 0) {
+			this.walk.pos.set(this.position);
+			const numSegments = total - 1;
+			for (let i = 0; i < numSegments; i++) {
+				const pIdx = (i + 1) * 2;
+				const segDx = path[pIdx] - (i === 0 ? this.position[0] : path[pIdx - 2]);
+				const segDy = path[pIdx + 1] - (i === 0 ? this.position[1] : path[pIdx - 1]);
+				const segDist = Math.hypot(segDx, segDy);
+				this.walk.segmentDurations[i] = segDist * this.walk.speed;
+			}
+			const nowTick = Date.now();
+			const pathDuration = estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed, this.position);
+			const isPlayerLike =
+				this.objecttype === this.constructor.TYPE_PC ||
+				this.objecttype === this.constructor.TYPE_DISGUISED ||
+				this.objecttype === this.constructor.TYPE_PET ||
+				this.objecttype === this.constructor.TYPE_HOM ||
+				this.objecttype === this.constructor.TYPE_MERC;
+			// For non-player entities we only fast-forward up to one step worth of time.
+			// Their client-side path can diverge from the server due to dynamic obstacles,
+			// and over-fast-forwarding makes STOPMOVE snaps more visible.
+			const maxFastForward = isPlayerLike ? pathDuration : Math.min(pathDuration, this.walk.speed);
+			const startTick = computeWalkStartTick(nowTick, moveStartTime, pathDuration, maxFastForward);
+			this.walk.tick = this.walk.prevTick = startTick;
+
+			// Keep distance accumulation if we were already walking to avoid animation restarts.
+			if (!hadRoute) {
+				this.walk.dist = 0;
+			}
+			this.walk.lastPos.set(this.position);
+
+			// Initialize facing for the first segment (continuous heading handled in walkProcess).
+			if (this.walk.total >= 2) {
+				const firstX0 = this.walk.path[2];
+				const firstY0 = this.walk.path[3];
+				const initDir0 = offsetToFloatDir(firstX0 - this.position[0], firstY0 - this.position[1]);
+				this.direction = quantizeDir(initDir0);
+			}
+		}
 	}
 
-	const path = this.walk.path;
-	let total = 0;
-	const result = PathFinding.searchLongIgnoreCellType(
-		from_x | 0,
-		from_y | 0,
-		to_x | 0,
-		to_y | 0,
-		range || 0,
-		path,
-		true
-	);
-
-	if (result.success && result.pathLength > 0) {
-		total = result.pathLength + 1;
-	}
-
-	this.walk.index = 1 * 2; // skip first index
-	this.walk.total = total * 2;
-	if (total > 0) {
-		this.walk.pos.set(this.position);
-		const numSegments = total - 1;
-		for (let i = 0; i < numSegments; i++) {
-			const pIdx = (i + 1) * 2;
-			const segDx = path[pIdx] - (i === 0 ? this.position[0] : path[pIdx - 2]);
-			const segDy = path[pIdx + 1] - (i === 0 ? this.position[1] : path[pIdx - 1]);
-			const segDist = Math.hypot(segDx, segDy);
-			this.walk.segmentDurations[i] = segDist * this.walk.speed;
-		}
-		const nowTick = Date.now();
-		const pathDuration = estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed, this.position);
-		const isPlayerLike =
-			this.objecttype === this.constructor.TYPE_PC ||
-			this.objecttype === this.constructor.TYPE_DISGUISED ||
-			this.objecttype === this.constructor.TYPE_PET ||
-			this.objecttype === this.constructor.TYPE_HOM ||
-			this.objecttype === this.constructor.TYPE_MERC;
-		// For non-player entities we only fast-forward up to one step worth of time.
-		// Their client-side path can diverge from the server due to dynamic obstacles,
-		// and over-fast-forwarding makes STOPMOVE snaps more visible.
-		const maxFastForward = isPlayerLike ? pathDuration : Math.min(pathDuration, this.walk.speed);
-		const startTick = computeWalkStartTick(nowTick, moveStartTime, pathDuration, maxFastForward);
-		this.walk.tick = this.walk.prevTick = startTick;
-
-		// Keep distance accumulation if we were already walking to avoid animation restarts.
-		if (!hadRoute) {
-			this.walk.dist = 0;
-		}
-		this.walk.lastPos.set(this.position);
-
-		// Initialize facing for the first segment (continuous heading handled in walkProcess).
-		if (this.walk.total >= 2) {
-			const firstX0 = this.walk.path[2];
-			const firstY0 = this.walk.path[3];
-			const initDir0 = offsetToFloatDir(firstX0 - this.position[0], firstY0 - this.position[1]);
-			this.direction = quantizeDir(initDir0);
-		}
+	if (
+		from_x === to_x &&
+		from_y === to_y &&
+		(this.objecttype === this.constructor.TYPE_FALCON || this.objecttype === this.constructor.TYPE_WUG) &&
+		isAttacking
+	) {
+		this.walkToNonWalkableGround(
+			this.position[0],
+			this.position[1],
+			this._followTargetX + (Math.random() > 0.5 ? 2 : -2),
+			this._followTargetY + (Math.random() > 0.5 ? 2 : -2),
+			0,
+			false,
+			false
+		);
 	}
 
 	let action = this.ACTION.WALK;
@@ -278,14 +293,14 @@ function walkToNonWalkableGround(
 				}
 			}
 		});
+		this.isAttacking = false;
 		setTimeout(() => {
-			this.isAttacking = false;
 			this.walkToNonWalkableGround(
 				this.position[0],
 				this.position[1],
 				this._followTargetX,
 				this._followTargetY,
-				0,
+				5,
 				false,
 				false
 			);
@@ -305,8 +320,8 @@ function walkToNonWalkableGround(
 				next: false
 			}
 		});
+		this.isAttacking = false;
 		setTimeout(() => {
-			this.isAttacking = false;
 			this.walkToNonWalkableGround(
 				this.position[0],
 				this.position[1],
