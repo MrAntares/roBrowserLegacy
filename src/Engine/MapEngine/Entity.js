@@ -1982,7 +1982,23 @@ function onEntityStatusChange(pkt) {
 				Session.hasCart = entity.hasCart;
 				Session.CartNum = entity.CartNum;
 			}
-			entity.setCart(entity.hasCart, entity.CartNum);
+			entity._statusCart = !!entity.hasCart;
+			if (
+				entity._statusCart ||
+				!(
+					entity.effectState &
+					(StatusState.EffectState.CART1 |
+						StatusState.EffectState.CART2 |
+						StatusState.EffectState.CART3 |
+						StatusState.EffectState.CART4 |
+						StatusState.EffectState.CART5)
+				)
+			) {
+				entity.setCart(entity._statusCart, entity.CartNum);
+			} else {
+				// Option-derived cart still present; keep it
+				entity.hasCart = true;
+			}
 			// CARTOFF removes CartItems from the DOM; mount it again when a cart is re-acquired
 			if (
 				Session.Entity &&
@@ -2520,8 +2536,8 @@ function onEntityOptionChange(pkt) {
 		statusCartNum = 5;
 	}
 
-	// Only the local player keeps the cart through the ON_PUSH_CART flag; remote actors rely on option bits
-	const keepViaFlag = entity === Session.Entity && entity.hasCart;
+	// Keep the cart while the ON_PUSH_CART status is active (tracked separately from option bits)
+	const keepViaFlag = !!entity._statusCart || (entity === Session.Entity && entity.hasCart);
 	if (statusCartNum > 0 || keepViaFlag) {
 		const realCartNum = DB.isSuperNovice(entity._job) ? 0 : statusCartNum || entity.CartNum || 1;
 		entity.setCart(true, realCartNum);
