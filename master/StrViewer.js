@@ -312707,6 +312707,10 @@ var init_DBManager = __esmMin((() => {
 				default: if (typeof id === "string") {
 					if (id.includes("_FALCON")) return "data/sprite/ÀÌÆÑÆ®/¸Å";
 					else if (id.includes("_WUG")) return "data/sprite/¸ó½ºÅÍ/¿ö±×";
+					else if (id.startsWith("CART_")) {
+						const cartNum = parseInt(id.slice(5), 10) || 0;
+						return DB.getCartPath(cartNum);
+					}
 				}
 			}
 			return "data/sprite/¸ó½ºÅÍ/" + (MonsterTable_default[id] || MonsterTable_default[1001]).toLowerCase();
@@ -316078,6 +316082,7 @@ function Init$10() {
 			this.ACTION.ACTION = 7;
 			break;
 		case Entity.TYPE_FALCON:
+		case Entity.TYPE_CART:
 			this.ACTION.IDLE = 0;
 			this.ACTION.WALK = 1;
 	}
@@ -317372,22 +317377,6 @@ function View() {
 	this.accessory3 = new ViewFiles();
 	this.robe = new ViewFiles();
 	this.shadow = new ViewFiles("data/sprite/shadow.spr", "data/sprite/shadow.act");
-	this.cart = [];
-	this.cart[0] = new ViewFiles(DB.getCartPath(0) + ".spr", DB.getCartPath(0) + ".act");
-	this.cart[1] = new ViewFiles(DB.getCartPath(1) + ".spr", DB.getCartPath(1) + ".act");
-	this.cart[2] = new ViewFiles(DB.getCartPath(2) + ".spr", DB.getCartPath(2) + ".act");
-	this.cart[3] = new ViewFiles(DB.getCartPath(3) + ".spr", DB.getCartPath(3) + ".act");
-	this.cart[4] = new ViewFiles(DB.getCartPath(4) + ".spr", DB.getCartPath(4) + ".act");
-	this.cart[5] = new ViewFiles(DB.getCartPath(5) + ".spr", DB.getCartPath(5) + ".act");
-	this.cart[6] = new ViewFiles(DB.getCartPath(6) + ".spr", DB.getCartPath(6) + ".act");
-	this.cart[7] = new ViewFiles(DB.getCartPath(7) + ".spr", DB.getCartPath(7) + ".act");
-	this.cart[8] = new ViewFiles(DB.getCartPath(8) + ".spr", DB.getCartPath(8) + ".act");
-	this.cart[9] = new ViewFiles(DB.getCartPath(9) + ".spr", DB.getCartPath(9) + ".act");
-	this.cart[10] = new ViewFiles(DB.getCartPath(10) + ".spr", DB.getCartPath(10) + ".act");
-	this.cart[11] = new ViewFiles(DB.getCartPath(11) + ".spr", DB.getCartPath(11) + ".act");
-	this.cart[12] = new ViewFiles(DB.getCartPath(12) + ".spr", DB.getCartPath(12) + ".act");
-	this.cart[13] = new ViewFiles(DB.getCartPath(13) + ".spr", DB.getCartPath(13) + ".act");
-	this.cart_shadow = new ViewFiles("data/sprite/shadow.spr", "data/sprite/shadow.act");
 }
 /**
 * If changing sex, all files have to be reload
@@ -318497,6 +318486,60 @@ function walkProcess() {
 function entitiesWalkProcess() {
 	const ownerCellX = this.position[0];
 	const ownerCellY = this.position[1];
+	if (this.cart) {
+		const cart = this.cart;
+		const retDist = this.costume !== 0 || !!(this._allRidingState & RIDING_MASK) ? 1.6 : 1;
+		const dx = cart.position[0] - ownerCellX;
+		const dy = cart.position[1] - ownerCellY;
+		const dist = Math.hypot(dx, dy);
+		if (dist > 5) {
+			const angle = (6 - this.direction) * (Math.PI / 4);
+			const behindDx = -Math.cos(angle);
+			const behindDy = -Math.sin(angle);
+			cart.position[0] = ownerCellX + behindDx * retDist;
+			cart.position[1] = ownerCellY + behindDy * retDist;
+			cart.position[2] = Altitude.getCellHeight(cart.position[0], cart.position[1]);
+			cart.direction = this.direction;
+			cart.setAction({
+				action: cart.ACTION.IDLE,
+				frame: 0,
+				play: false,
+				repeat: true
+			});
+		} else if (dist > retDist) {
+			const factor = retDist / dist;
+			const newX = ownerCellX + dx * factor;
+			const newY = ownerCellY + dy * factor;
+			const deltaMove = Math.hypot(newX - cart.position[0], newY - cart.position[1]);
+			cart.position[0] = newX;
+			cart.position[1] = newY;
+			cart.position[2] = Altitude.getCellHeight(newX, newY);
+			if (cart.walk) cart.walk.dist += deltaMove;
+			cart.direction = quantizeDir(offsetToFloatDir(ownerCellX - newX, ownerCellY - newY));
+		}
+		if (dist < .5 || Math.round(cart.position[0]) === Math.round(ownerCellX) && Math.round(cart.position[1]) === Math.round(ownerCellY)) {
+			cart.direction = 2;
+			if (cart.action !== cart.ACTION.IDLE) cart.setAction({
+				action: cart.ACTION.IDLE,
+				frame: 0,
+				play: false,
+				repeat: true
+			});
+		} else if (this.action === this.ACTION.WALK && dist > retDist) {
+			if (cart.action !== cart.ACTION.WALK) cart.setAction({
+				action: cart.ACTION.WALK,
+				play: true,
+				repeat: true
+			});
+		} else if (cart.action !== cart.ACTION.IDLE) cart.setAction({
+			action: cart.ACTION.IDLE,
+			frame: 0,
+			play: false,
+			repeat: true
+		});
+		cart.effectColor.set(this.effectColor);
+		cart.hideEntity = this.hideEntity;
+	}
 	if (this.falcon && !this.falcon.isAttacking && (!this.falcon.walk.lastWalkTick || this.falcon.walk.lastWalkTick + 1e3 < Date.now())) {
 		if (Math.floor(this.distance(this, this.falcon)) < 2) return;
 		if (this.falcon._followTargetX !== ownerCellX || this.falcon._followTargetY !== ownerCellY) {
@@ -318596,11 +318639,12 @@ function Init$4() {
 	this.resetRoute = resetRoute;
 	this.distance = distance;
 }
-var DIRECTION$1, DIAGONAL_FACTOR;
+var DIRECTION$1, DIAGONAL_FACTOR, RIDING_MASK;
 var init_EntityWalk = __esmMin((() => {
 	init_PathFinding();
 	init_Altitude();
 	init_SessionStorage();
+	init_StatusState();
 	DIRECTION$1 = [
 		[
 			1,
@@ -318619,6 +318663,7 @@ var init_EntityWalk = __esmMin((() => {
 		]
 	];
 	DIAGONAL_FACTOR = 1.414;
+	RIDING_MASK = StatusState_default.EffectState.RIDING | StatusState_default.EffectState.DRAGON1 | StatusState_default.EffectState.DRAGON2 | StatusState_default.EffectState.DRAGON3 | StatusState_default.EffectState.DRAGON4 | StatusState_default.EffectState.DRAGON5 | StatusState_default.EffectState.WUGRIDER | StatusState_default.EffectState.MADOGEAR;
 }));
 // src/Renderer/Entity/EntityRender.js
 function acquireSnapshotBuffers() {
@@ -318748,7 +318793,7 @@ function renderCasterMarks(entity, layers, spr, pal, files, _position) {
 function renderSecondBody(entity, layers, spr, pal, files, type, _position, options = {}) {
 	const { enableHalo = false, enableTrail = false, trailLength = 5, blurType = 1 } = options;
 	if (!enableHalo && !enableTrail) return;
-	if (type === "shadow" || type === "cartshadow") return;
+	if (type === "shadow") return;
 	if (enableHalo) {
 		const originalR = entity.effectColor[0];
 		const originalG = entity.effectColor[1];
@@ -318867,7 +318912,7 @@ function getAnimationDelay(type, entity, act) {
 * Calculate animations
 */
 function calcAnimation(entity, act, type, tick) {
-	if (type === "shadow" || type === "cartshadow") return 0;
+	if (type === "shadow") return 0;
 	const ACTION = entity.ACTION;
 	const action = entity.action;
 	const animation = entity.animation;
@@ -318880,7 +318925,6 @@ function calcAnimation(entity, act, type, tick) {
 	let anim = 0;
 	if (animation.length) animCount = animation.length;
 	if (animation.speed) delay = animation.speed;
-	if (type === "cart" && isIdle) return 0;
 	if ((type === "body" || type === "robe") && (entity.objecttype === entity.constructor.TYPE_PC || entity.objecttype === entity.constructor.TYPE_MERC) && isIdle) {
 		if (entity.headDir <= animLastIndex) return entity.headDir;
 		return animLastIndex;
@@ -319020,7 +319064,6 @@ var init_EntityRender = __esmMin((() => {
 	init_SpriteRenderer();
 	init_Ground();
 	init_Altitude();
-	init_SessionStorage();
 	init_DBManager();
 	init_Graphics();
 	init_GR2ModelRenderer();
@@ -319186,20 +319229,8 @@ var init_EntityRender = __esmMin((() => {
 					SpriteRenderer.runWithDepth(true, true, false, function() {
 						SpriteRenderer.zIndex = 150;
 						EntityComposer.begin(self);
-						let cartidx;
 						if (self.shield && behind) renderElement(self, self.files.shield, "shield", _position, true);
-						if (!isLookingBack(direction)) {
-							if (SessionStorage_default.Playing == true && self.hasCart == true) {
-								cartidx = DB.isSuperNovice(self._job) ? 0 : self.CartNum;
-								EntityComposer.suspend(() => {
-									SpriteRenderer.shadowQueue = true;
-									renderElement(self, self.files.cart_shadow, "cartshadow", _position, false);
-									SpriteRenderer.shadowQueue = false;
-								});
-								renderElement(self, self.files.cart[cartidx], "cart", _position, false);
-							}
-							renderElement(self, self.files.robe, "robe", _position, true);
-						}
+						if (!isLookingBack(direction)) renderElement(self, self.files.robe, "robe", _position, true);
 						renderElement(self, self.files.body, "body", _position, true);
 						renderElement(self, self.files.head, "head", _position, false);
 						if (self.accessory3 > 0 && self.accessory3 !== self.accessory) renderElement(self, self.files.accessory3, "head", _position, false);
@@ -319207,15 +319238,6 @@ var init_EntityRender = __esmMin((() => {
 						if (self.accessory > 0) renderElement(self, self.files.accessory, "head", _position, false);
 						if (isLookingBack(direction)) {
 							if (self.robe > 0) renderElement(self, self.files.robe, "robe", _position, true);
-							if (SessionStorage_default.Playing == true && self.hasCart == true) {
-								cartidx = DB.isSuperNovice(self._job) ? 0 : self.CartNum;
-								EntityComposer.suspend(() => {
-									SpriteRenderer.shadowQueue = true;
-									renderElement(self, self.files.cart_shadow, "cartshadow", _position, false);
-									SpriteRenderer.shadowQueue = false;
-								});
-								renderElement(self, self.files.cart[cartidx], "cart", _position, false);
-							}
 						}
 						if (self.weapon > 0) {
 							renderElement(self, self.files.weapon, "weapon", _position, true);
@@ -319239,6 +319261,7 @@ var init_EntityRender = __esmMin((() => {
 						renderElement(self, self.files.body, "body", _position, true);
 					});
 					break;
+				case Entity.TYPE_CART:
 				case Entity.TYPE_MOB:
 				case Entity.TYPE_NPC:
 				case Entity.TYPE_NPC2:
@@ -319279,39 +319302,6 @@ var init_EntityRender = __esmMin((() => {
 			if (animation.pos.length && !is_main) {
 				_position[0] = position[0] - animation.pos[0].x;
 				_position[1] = position[1] - animation.pos[0].y;
-			}
-			if (type === "cart" || type === "cartshadow") switch ((Camera.direction + entity.direction + 8) % 8) {
-				case 0:
-					_position[0] = 0;
-					_position[1] = -30;
-					break;
-				case 1:
-					_position[0] = 30;
-					_position[1] = -10;
-					break;
-				case 2:
-					_position[0] = 40;
-					_position[1] = 0;
-					break;
-				case 3:
-					_position[0] = 30;
-					_position[1] = 10;
-					break;
-				case 4:
-					_position[0] = 0;
-					_position[1] = 20;
-					break;
-				case 5:
-					_position[0] = -30;
-					_position[1] = 10;
-					break;
-				case 6:
-					_position[0] = -40;
-					_position[1] = 0;
-					break;
-				case 7:
-					_position[0] = -30;
-					_position[1] = -10;
 			}
 			if (type !== "shadow" && entity.getOpt3(StatusState_default.Status.BERSERK) || entity.getOpt3(StatusState_default.Status.MARIONETTE)) isBlendModeOne = true;
 			const isBUNSIN = entity.getOpt3(StatusState_default.Status.NJ_BUNSINJYUTSU);
@@ -320454,6 +320444,8 @@ var init_Entity$1 = __esmMin((() => {
 	init_SessionStorage();
 	init_Client();
 	init_gl_matrix();
+	init_DBManager();
+	init_StatusState();
 	init_EntityControl();
 	init_EntityAction();
 	init_EntityCast();
@@ -320478,6 +320470,7 @@ var init_Entity$1 = __esmMin((() => {
 		/**
 		* Constantes
 		*/
+		static TYPE_CART = -8;
 		static TYPE_WUG = -7;
 		static TYPE_FALCON = -6;
 		static TYPE_EFFECT = -5;
@@ -320530,7 +320523,8 @@ var init_Entity$1 = __esmMin((() => {
 				[Entity.TYPE_TRAP]: 0,
 				[Entity.TYPE_EFFECT]: -1,
 				[Entity.TYPE_FALCON]: -1,
-				[Entity.TYPE_WUG]: -1
+				[Entity.TYPE_WUG]: -1,
+				[Entity.TYPE_CART]: -1
 			},
 			Support: {
 				[Entity.TYPE_PC]: 3,
@@ -320551,7 +320545,8 @@ var init_Entity$1 = __esmMin((() => {
 				[Entity.TYPE_TRAP]: 0,
 				[Entity.TYPE_EFFECT]: -1,
 				[Entity.TYPE_FALCON]: -1,
-				[Entity.TYPE_WUG]: -1
+				[Entity.TYPE_WUG]: -1,
+				[Entity.TYPE_CART]: -1
 			}
 		};
 		constructor(data) {
@@ -320736,6 +320731,12 @@ var init_Entity$1 = __esmMin((() => {
 			this.dropEffect.free();
 			this.remove_tick = 0;
 			this.remove_delay = 0;
+			if (this.cart) {
+				this.cart.owner = null;
+				EntityManager.remove(this.cart.GID);
+				this.cart = null;
+			}
+			this.owner = null;
 			this.falcon = null;
 			this.wug = null;
 			this.GID = -1;
@@ -320747,6 +320748,14 @@ var init_Entity$1 = __esmMin((() => {
 		* @return {boolean} removed immediatly ?
 		*/
 		remove(type) {
+			if (this.cart) {
+				if (type === Entity.VT.DEAD) {
+					const cart = this.cart;
+					cart.owner = null;
+					EntityManager.remove(cart.GID);
+				} else this.cart.remove(type);
+				this.cart = null;
+			}
 			switch (type) {
 				case Entity.VT.OUTOFSIGHT:
 					this.clean();
@@ -320757,7 +320766,8 @@ var init_Entity$1 = __esmMin((() => {
 					const is_pc = this.objecttype === Entity.TYPE_PC;
 					const is_falcon = this.objecttype === Entity.TYPE_FALCON;
 					const is_wug = this.objecttype === Entity.TYPE_WUG;
-					if (!is_falcon) {
+					const is_cart = this.objecttype === Entity.TYPE_CART;
+					if (!is_falcon && !is_cart) {
 						this.setAction({
 							action: this.ACTION.DIE,
 							repeat: is_pc,
@@ -320777,6 +320787,67 @@ var init_Entity$1 = __esmMin((() => {
 					this.clean();
 					this.remove_tick = Date.now();
 					this.remove_delay = 0;
+			}
+		}
+		/**
+		* Attach or remove pushcart companion entity
+		*
+		* @param {boolean} enabled
+		* @param {number} [cartNum]
+		*/
+		setCart(enabled, cartNum) {
+			this.hasCart = !!enabled;
+			if (typeof cartNum === "number") this.CartNum = cartNum;
+			if (this.hasCart) {
+				const cartJob = "CART_" + (DB.isSuperNovice(this._job) ? 0 : this.CartNum || 1);
+				if (!this.cart) {
+					const cart = new Entity();
+					cart.set({
+						objecttype: Entity.TYPE_CART,
+						GID: this.GID + "_CART",
+						job: cartJob,
+						speed: this.walk ? this.walk.speed : 150,
+						name: "",
+						hp: -1,
+						maxhp: -1
+					});
+					const RIDING_MASK = StatusState_default.EffectState.RIDING | StatusState_default.EffectState.DRAGON1 | StatusState_default.EffectState.DRAGON2 | StatusState_default.EffectState.DRAGON3 | StatusState_default.EffectState.DRAGON4 | StatusState_default.EffectState.DRAGON5 | StatusState_default.EffectState.WUGRIDER | StatusState_default.EffectState.MADOGEAR;
+					const retDist = this.costume !== 0 || !!(this._allRidingState & RIDING_MASK) ? 1.6 : 1;
+					const angle = (6 - this.direction) * (Math.PI / 4);
+					const behindDx = -Math.cos(angle);
+					const behindDy = -Math.sin(angle);
+					cart.position[0] = this.position[0] + behindDx * retDist;
+					cart.position[1] = this.position[1] + behindDy * retDist;
+					cart.position[2] = Altitude.getCellHeight(cart.position[0], cart.position[1]);
+					cart.direction = this.direction;
+					cart.depth = this.depth;
+					cart.setAction({
+						action: cart.ACTION.IDLE,
+						frame: 0,
+						play: false,
+						repeat: true
+					});
+					this.cart = cart;
+					cart.owner = this;
+					EntityManager.add(cart);
+				} else {
+					if (this.cart.job !== cartJob) this.cart.job = cartJob;
+					const RIDING_MASK = StatusState_default.EffectState.RIDING | StatusState_default.EffectState.DRAGON1 | StatusState_default.EffectState.DRAGON2 | StatusState_default.EffectState.DRAGON3 | StatusState_default.EffectState.DRAGON4 | StatusState_default.EffectState.DRAGON5 | StatusState_default.EffectState.WUGRIDER | StatusState_default.EffectState.MADOGEAR;
+					const retDist = this.costume !== 0 || !!(this._allRidingState & RIDING_MASK) ? 1.6 : 1;
+					if (Math.hypot(this.cart.position[0] - this.position[0], this.cart.position[1] - this.position[1]) > 5) {
+						const angle = (6 - this.direction) * (Math.PI / 4);
+						const behindDx = -Math.cos(angle);
+						const behindDy = -Math.sin(angle);
+						this.cart.position[0] = this.position[0] + behindDx * retDist;
+						this.cart.position[1] = this.position[1] + behindDy * retDist;
+						this.cart.position[2] = Altitude.getCellHeight(this.cart.position[0], this.cart.position[1]);
+						this.cart.direction = this.direction;
+					}
+				}
+			} else if (this.cart) {
+				this.cart.owner = null;
+				EntityManager.remove(this.cart.GID);
+				this.cart = null;
 			}
 		}
 		/**
@@ -320908,6 +320979,8 @@ var init_Entity$1 = __esmMin((() => {
 	Entity.prototype.isOverWeight = false;
 	Entity.prototype.falcon = null;
 	Entity.prototype.wug = null;
+	Entity.prototype.cart = null;
+	Entity.prototype.owner = null;
 	Entity.prototype.hideShadow = false;
 	Entity.prototype.call_flag = 0;
 	Object.defineProperty(Entity.prototype, "level", {
@@ -321044,11 +321117,16 @@ function addEntity(entity) {
 * Clean up entities from list
 */
 function free() {
-	_list.forEach((entity) => {
+	const snapshot = _list.slice();
+	const live = new Set(snapshot);
+	for (let i = 0; i < snapshot.length; ++i) {
+		const entity = snapshot[i];
+		if (!live.has(entity) || !_list.includes(entity)) continue;
 		releaseGr2(entity);
 		EntityComposer.remove(entity);
 		entity.clean();
-	});
+		live.delete(entity);
+	}
 	_list.length = 0;
 	_gidMap.clear();
 	_over = null;
@@ -321072,6 +321150,18 @@ function removeGID(gid) {
 function removeEntity(gid) {
 	const entity = _gidMap.get(gid);
 	if (entity) {
+		if (entity.cart) {
+			removeEntity(entity.cart.GID);
+			entity.cart = null;
+		}
+		if (entity.falcon) {
+			removeEntity(entity.falcon.GID);
+			entity.falcon = null;
+		}
+		if (entity.wug) {
+			removeEntity(entity.wug.GID);
+			entity.wug = null;
+		}
 		releaseGr2(entity);
 		EntityComposer.remove(entity);
 		entity.clean();
@@ -321118,8 +321208,10 @@ function setFocusEntity(entity) {
 * @param {Entity} b
 */
 function sort(a, b) {
-	const aDepth = a.depth + a.GID % 100 / 1e3;
-	return b.depth + b.GID % 100 / 1e3 - aDepth;
+	const aGID = typeof a.GID === "number" ? a.GID : parseInt(a.GID, 10) || 0;
+	const bGID = typeof b.GID === "number" ? b.GID : parseInt(b.GID, 10) || 0;
+	const aDepth = a.depth + aGID % 100 / 1e3;
+	return b.depth + bGID % 100 / 1e3 - aDepth;
 }
 /**
 * Set reverse priority for entity sorting (for supportive skills)
@@ -321287,6 +321379,7 @@ function intersect() {
 			const dy = entity.position[1] - playerY;
 			if (dx * dx + dy * dy > viewAreaSq) continue;
 		}
+		if (entity.objecttype === Entity.TYPE_EFFECT || entity.objecttype === Entity.TYPE_FALCON || entity.objecttype === Entity.TYPE_WUG || entity.objecttype === Entity.TYPE_CART) continue;
 		if ((entity.action !== entity.ACTION.DIE || entity.objecttype === Entity.TYPE_PC) && entity.remove_tick === 0) {
 			if (x > entity.boundingRect.x1 && x < entity.boundingRect.x2 && y > entity.boundingRect.y1 && y < entity.boundingRect.y2) return entity;
 		}
@@ -324386,7 +324479,7 @@ function isFreeCell$2(x, y) {
 	if (!(Altitude.getCellType(x, y) & Altitude.TYPE.WALKABLE)) return false;
 	let free = true;
 	EntityManager.forEach((entity) => {
-		if (entity.objecttype !== entity.constructor.TYPE_EFFECT && entity.objecttype !== entity.constructor.TYPE_UNIT && entity.objecttype !== entity.constructor.TYPE_TRAP && Math.round(entity.position[0]) === x && Math.round(entity.position[1]) === y) {
+		if (entity !== SessionStorage_default.Entity && entity.objecttype !== entity.constructor.TYPE_EFFECT && entity.objecttype !== entity.constructor.TYPE_UNIT && entity.objecttype !== entity.constructor.TYPE_TRAP && entity.objecttype !== entity.constructor.TYPE_CART && entity.objecttype !== entity.constructor.TYPE_FALCON && entity.objecttype !== entity.constructor.TYPE_WUG && Math.round(entity.position[0]) === x && Math.round(entity.position[1]) === y) {
 			free = false;
 			return false;
 		}
@@ -326904,7 +326997,7 @@ function isFreeCell$1(x, y) {
 	if (!(Altitude.getCellType(x, y) & Altitude.TYPE.WALKABLE)) return false;
 	let free = true;
 	EntityManager.forEach(function(entity) {
-		if (entity.objecttype != entity.constructor.TYPE_EFFECT && entity.objecttype != entity.constructor.TYPE_UNIT && entity.objecttype != entity.constructor.TYPE_TRAP && Math.round(entity.position[0]) === x && Math.round(entity.position[1]) === y) {
+		if (entity !== SessionStorage_default.Entity && entity.objecttype !== entity.constructor.TYPE_EFFECT && entity.objecttype !== entity.constructor.TYPE_UNIT && entity.objecttype !== entity.constructor.TYPE_TRAP && entity.objecttype !== entity.constructor.TYPE_CART && entity.objecttype !== entity.constructor.TYPE_FALCON && entity.objecttype !== entity.constructor.TYPE_WUG && Math.round(entity.position[0]) === x && Math.round(entity.position[1]) === y) {
 			free = false;
 			return false;
 		}
@@ -335621,6 +335714,16 @@ function onEntitySpam(pkt) {
 		});
 		EntityManager.add(entity.wug);
 	}
+	let cartNum = 0;
+	if (pkt.effectState & StatusState_default.EffectState.CART1) cartNum = 1;
+	else if (pkt.effectState & StatusState_default.EffectState.CART2) cartNum = 2;
+	else if (pkt.effectState & StatusState_default.EffectState.CART3) cartNum = 3;
+	else if (pkt.effectState & StatusState_default.EffectState.CART4) cartNum = 4;
+	else if (pkt.effectState & StatusState_default.EffectState.CART5) cartNum = 5;
+	if (cartNum > 0 || entity.hasCart || SessionStorage_default.Entity && entity.GID === SessionStorage_default.Entity.GID && SessionStorage_default.hasCart) {
+		const realCartNum = DB.isSuperNovice(entity._job) ? 0 : cartNum || entity.CartNum || SessionStorage_default.CartNum || 1;
+		entity.setCart(true, realCartNum);
+	}
 	if (entity.objecttype === Entity.TYPE_PC) {
 		const resolved = resolveEntityWeapons(pkt.weapon, pkt.shield, entity, SessionStorage_default.Entity, InventoryController, EquipmentController);
 		entity.weapon = resolved.weapon;
@@ -336724,6 +336827,14 @@ function onEntityStatusChange(pkt) {
 		case StatusConst_default.ON_PUSH_CART:
 			entity.hasCart = pkt.state || !pkt.hasOwnProperty("state");
 			if (pkt.val && (pkt.state || !pkt.hasOwnProperty("state"))) entity.CartNum = pkt.val[0];
+			if (SessionStorage_default.Entity && entity.GID === SessionStorage_default.Entity.GID) {
+				SessionStorage_default.hasCart = entity.hasCart;
+				SessionStorage_default.CartNum = entity.CartNum;
+			}
+			entity._statusCart = !!entity.hasCart;
+			if (entity._statusCart || !(entity.effectState & (StatusState_default.EffectState.CART1 | StatusState_default.EffectState.CART2 | StatusState_default.EffectState.CART3 | StatusState_default.EffectState.CART4 | StatusState_default.EffectState.CART5))) entity.setCart(entity._statusCart, entity.CartNum);
+			else entity.hasCart = true;
+			if (SessionStorage_default.Entity && entity.GID === SessionStorage_default.Entity.GID && entity.hasCart && !CartItems_default._host?.isConnected) CartItems_default.append();
 			break;
 		case StatusConst_default.HIDING: {
 			const EF_Init_Par = {
@@ -337096,6 +337207,17 @@ function onEntityOptionChange(pkt) {
 		entity.wug.remove();
 		entity.wug = null;
 	}
+	let statusCartNum = 0;
+	if (entity.effectState & StatusState_default.EffectState.CART1) statusCartNum = 1;
+	else if (entity.effectState & StatusState_default.EffectState.CART2) statusCartNum = 2;
+	else if (entity.effectState & StatusState_default.EffectState.CART3) statusCartNum = 3;
+	else if (entity.effectState & StatusState_default.EffectState.CART4) statusCartNum = 4;
+	else if (entity.effectState & StatusState_default.EffectState.CART5) statusCartNum = 5;
+	const keepViaFlag = !!entity._statusCart || entity === SessionStorage_default.Entity && entity.hasCart;
+	if (statusCartNum > 0 || keepViaFlag) {
+		const realCartNum = DB.isSuperNovice(entity._job) ? 0 : statusCartNum || entity.CartNum || 1;
+		entity.setCart(true, realCartNum);
+	} else if (entity.cart) entity.setCart(false);
 }
 /**
 * Display a shop above entity's head
@@ -337495,6 +337617,7 @@ var init_Entity = __esmMin((() => {
 	init_MiniMap();
 	init_PartyFriends();
 	init_Equipment();
+	init_CartItems();
 	init_ScreenEffectManager();
 	init_StatusEffects();
 	SkillNameDisplayExclude = [
@@ -339204,6 +339327,14 @@ function onCartSetInfo(pkt) {
 function onCartRemoveItem(pkt) {
 	CartItems_default.removeItem(pkt.index, pkt.count);
 }
+function onCartOff() {
+	SessionStorage_default.hasCart = false;
+	if (SessionStorage_default.Entity) {
+		SessionStorage_default.Entity._statusCart = false;
+		SessionStorage_default.Entity.setCart(false);
+	}
+	CartItems_default.remove();
+}
 function reqMoveItemToCart(index, count) {
 	if (count <= 0) return;
 	const pkt = new PACKET.CZ.MOVE_ITEM_FROM_BODY_TO_CART();
@@ -339428,6 +339559,7 @@ function ItemEngine() {
 	Network.hookPacket(PACKET.ZC.ACK_WEAR_EQUIP_V5, onItemEquip);
 	Network.hookPacket(PACKET.ZC.DELETE_ITEM_FROM_BODY, onIventoryRemoveItem);
 	Network.hookPacket(PACKET.ZC.DELETE_ITEM_FROM_CART, onCartRemoveItem);
+	Network.hookPacket(PACKET.ZC.CARTOFF, onCartOff);
 	Network.hookPacket(PACKET.ZC.USE_ITEM_ACK, onItemUseAnswer);
 	Network.hookPacket(PACKET.ZC.USE_ITEM_ACK2, onItemUseAnswer);
 	Network.hookPacket(PACKET.ZC.EQUIP_ARROW, onArrowEquipped);
@@ -345912,6 +346044,10 @@ function onMapChange(pkt) {
 			});
 			EntityManager.add(SessionStorage_default.Entity.wug);
 		}
+		if (SessionStorage_default.hasCart || SessionStorage_default.Entity.hasCart) {
+			const realCartNum = DB.isSuperNovice(SessionStorage_default.Entity._job) ? 0 : SessionStorage_default.CartNum || SessionStorage_default.Entity.CartNum || 1;
+			SessionStorage_default.Entity.setCart(true, realCartNum);
+		}
 		SessionStorage_default.Entity.aura.free();
 		SessionStorage_default.Entity.aura.load(EffectManager);
 		const mapName = MapRenderer.currentMap.replace(".gat", "").toLowerCase();
@@ -346220,7 +346356,7 @@ function isFreeCell(x, y) {
 	if (!(Altitude.getCellType(x, y) & Altitude.TYPE.WALKABLE)) return false;
 	let free = true;
 	EntityManager.forEach(function(entity) {
-		if (entity.objecttype != entity.constructor.TYPE_EFFECT && entity.objecttype != entity.constructor.TYPE_UNIT && entity.objecttype != entity.constructor.TYPE_TRAP && Math.round(entity.position[0]) === x && Math.round(entity.position[1]) === y) {
+		if (entity !== SessionStorage_default.Entity && entity.objecttype !== entity.constructor.TYPE_EFFECT && entity.objecttype !== entity.constructor.TYPE_UNIT && entity.objecttype !== entity.constructor.TYPE_TRAP && entity.objecttype !== entity.constructor.TYPE_CART && entity.objecttype !== entity.constructor.TYPE_FALCON && entity.objecttype !== entity.constructor.TYPE_WUG && Math.round(entity.position[0]) === x && Math.round(entity.position[1]) === y) {
 			free = false;
 			return false;
 		}
