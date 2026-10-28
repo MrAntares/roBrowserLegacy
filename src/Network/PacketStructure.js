@@ -13415,6 +13415,33 @@ PACKET.ZC.GROUP_LIST2 = function PACKET_ZC_GROUP_LIST2(fp, end) {
 };
 PACKET.ZC.GROUP_LIST2.size = -1;
 
+// 0xa49
+PACKET.CZ.PRIVATE_AIRSHIP_REQUEST = function PACKET_CZ_PRIVATE_AIRSHIP_REQUEST() {
+	this.mapName = '';
+	this.ItemID = 0;
+};
+PACKET.CZ.PRIVATE_AIRSHIP_REQUEST.prototype.build = function () {
+	const pkt_itemIdSize = PACKETVER.value >= 20181121 ? 4 : 2;
+	const pkt_len = 2 + 16 + pkt_itemIdSize;
+	const pkt_buf = new BinaryWriter(pkt_len);
+
+	pkt_buf.writeShort(0xa49);
+	pkt_buf.writeString(this.mapName, 16);
+	if (PACKETVER.value >= 20181121) {
+		pkt_buf.writeULong(this.ItemID);
+	} else {
+		pkt_buf.writeUShort(this.ItemID);
+	}
+
+	return pkt_buf;
+};
+
+// 0xa4a
+PACKET.ZC.PRIVATE_AIRSHIP_RESPONSE = function PACKET_ZC_PRIVATE_AIRSHIP_RESPONSE(fp, end) {
+	this.result = fp.readULong();
+};
+PACKET.ZC.PRIVATE_AIRSHIP_RESPONSE.size = 6;
+
 // 0xa4e
 PACKET.ZC.RANDOM_COMBINE_ITEM_UI_OPEN = function PACKET_ZC_RANDOM_COMBINE_ITEM_UI_OPEN(fp, end) {
 	this.itemId = PACKETVER.value >= 20181121 ? fp.readLong() : fp.readShort();

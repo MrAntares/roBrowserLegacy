@@ -32,7 +32,7 @@ Instructions for working on `DBManager.js` and game data tables (`Effects/`, `It
 - `Effects/` — `EffectConst.js`, `EffectTable.js`, `WeatherEffect.js`.
 - `Items/` — `EquipmentLocation.js`, `HatTable.js`, `ItemEffect.js`, `ItemRandomOptionTable.js`, `ItemTable.js`, `ItemType.js`, `RobeTable.js`, `ShieldTable.js`, `WeaponHitSoundTable.js`, `WeaponSoundTable.js`, `WeaponTable.js`, `WeaponTrailTable.js`, `WeaponType.js`, `WeaponTypeExpansion.js`.
 - `Jobs/` — `AllMountTable.js`, `BabyTable.js`, `HairIndexTable.js`, `JobConst.js`, `JobHitSoundTable.js`, `JobNameTable.js`, `JobPropertyTable.js`, `MountTable.js`, `PalNameTable.js`, `RankingTypes.js`, `WeaponAction.js`, `WeaponJobTable.js`.
-- `Map/` — `MapState.js`, `MapTable.js`, `WorldMap.js`.
+- `Map/` — `MapState.js`, `MapTable.js`, `PrivateAirship.js` (Private Airship start/end maps and payment items from `PrivateAirplane_True.lub`), `WorldMap.js`.
 - `Monsters/` — `AttackEffectTable.js`, `MonsterNameTable.js`, `MonsterTable.js`, `ShadowTable.js`.
 - `Pets/` — `PetAction.js`, `PetEmotionTable.js`, `PetFriendlyState.js`, `PetHungryState.js`, `PetIllustration.js`, `PetMessageConst.js`.
 - `Skills/` — `CastAuraRule.js` (which skills get the element cast aura; 4th-job skills play only their own `castAuraEffectId` / `beginCastEffectId`), `SkillAction.js`, `SkillConst.js`, `SkillEffect.js`, `SkillInfo.js`, `SkillTreeMerge.js`, `SkillTreeView.js`, `SkillUnit.js`, `SkillUnitConst.js`.
