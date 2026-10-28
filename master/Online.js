@@ -217854,7 +217854,7 @@ var init_SkillEffect = __esmMin((() => {
 		groundEffectId: 171
 	};
 	SkillEffect[SkillConst_default.AS_SPLASHER] = { effectId: 129 };
-	SkillEffect[SkillConst_default.NV_FIRSTAID] = { effectId: 309 };
+	SkillEffect[SkillConst_default.NV_FIRSTAID] = { successEffectIdOnCaster: 309 };
 	SkillEffect[SkillConst_default.NV_TRICKDEAD] = {};
 	SkillEffect[SkillConst_default.HN_DOUBLEBOWLINGBASH] = {
 		effectId: "ef_hn_doublebowlingbash",
@@ -220005,7 +220005,7 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.SP_SOULGOLEM] = { effectId: "ef_sp_soulgolem" };
 	SkillEffect[SkillConst_default.SP_SOULCURSE] = { effectId: "ef_sp_soulcurse" };
 	SkillEffect[SkillConst_default.SP_SOULREVOLVE] = { effectId: "ef_sp_soulrevolve" };
-	SkillEffect[SkillConst_default.NV_HELPANGEL] = { effectId: "ef_nv_helpangel" };
+	SkillEffect[SkillConst_default.NV_HELPANGEL] = { successEffectIdOnCaster: "ef_nv_helpangel" };
 }));
 // src/DB/Items/ItemEffect.js
 var ItemEffect;
@@ -258481,6 +258481,31 @@ function getRandomIntInclusive(min, max) {
 	max = Math.floor(max);
 	return Math.floor(Math.random() * (max - min + 1) + min);
 }
+/**
+* Alpha of a 2D effect at a time
+*
+* @param {object} fx alphaMax, fadeIn, fadeOut, fadeInMs, fadeOutStartMs
+* @param {number} start ms since the effect started
+* @param {number} duration ms
+* @return {number} alpha, 0..1
+*/
+function twoDAlpha(fx, start, duration) {
+	let alpha = fx.alphaMax;
+	if (fx.fadeInMs && start < fx.fadeInMs) alpha = start * fx.alphaMax / fx.fadeInMs;
+	else if (fx.fadeOutStartMs >= 0 && start > fx.fadeOutStartMs) alpha = (duration - start) * fx.alphaMax / Math.max(duration - fx.fadeOutStartMs, 1);
+	else if (fx.fadeIn && start < duration / 4) alpha = start * fx.alphaMax / (duration / 4);
+	else if (fx.fadeOut && start > duration / 2 + duration / 4) alpha = (duration - start) * fx.alphaMax / (duration / 4);
+	return Math.min(Math.max(alpha, 0), 1);
+}
+/**
+* Size factor of a pulsing 2D effect: 1 + amount * sin(phase), where the phase starts at
+* fx.pulsePhase (degrees) and advances fx.sizePulse.degPerTick each 60 Hz tick.
+*/
+function twoDPulse(fx, start) {
+	if (!fx.sizePulse) return 1;
+	const phase = fx.pulsePhase + start / (1e3 / 60) * fx.sizePulse.degPerTick;
+	return 1 + fx.sizePulse.amount * Math.sin(phase * Math.PI / 180);
+}
 var blendMode$2, shadow_index, TwoDEffect;
 var init_TwoDEffect = __esmMin((() => {
 	init_WebGL();
@@ -258502,6 +258527,8 @@ var init_TwoDEffect = __esmMin((() => {
 			this.zIndex = effect.zIndex ? effect.zIndex : 0;
 			this.fadeOut = effect.fadeOut ? true : false;
 			this.fadeIn = effect.fadeIn ? true : false;
+			this.fadeInMs = effect.fadeInMs > 0 ? effect.fadeInMs : 0;
+			this.fadeOutStartMs = effect.fadeOutStartMs >= 0 ? effect.fadeOutStartMs : -1;
 			this.overlay = effect.overlay ? true : false;
 			this.alphaMax = !isNaN(effect.alphaMax) ? Math.max(Math.min(effect.alphaMax, 1), 0) : 1;
 			this.shadowTexture = effect.shadowTexture ? true : false;
@@ -258705,6 +258732,8 @@ var init_TwoDEffect = __esmMin((() => {
 			if (effect.sizeRandStartY) this.sizeStartY = getRandomIntInclusive(effect.sizeRandStartY[0], effect.sizeRandStartY[1]);
 			if (effect.sizeRandEndY) this.sizeEndY = getRandomIntInclusive(effect.sizeRandEndY[0], effect.sizeRandEndY[1]);
 			if (effect.sizeRandEndX) this.sizeEndX = getRandomIntInclusive(effect.sizeRandEndX[0], effect.sizeRandEndX[1]);
+			this.sizePulse = effect.sizePulse || null;
+			this.pulsePhase = this.sizePulse ? getRandomIntInclusive(0, 359) : 0;
 			if (effect.durationRand) effect.duration = getRandomIntInclusive(effect.durationRand[0], effect.durationRand[1]);
 			if (this.ownerEntity && this.shadowTexture) this.ownerEntity.attachments.add({
 				completeFile: "data/sprite/shadow",
@@ -258815,11 +258844,7 @@ var init_TwoDEffect = __esmMin((() => {
 			} else currentOffsetY = this.offsetyStart;
 			SpriteRenderer.offset[0] = currentOffsetX;
 			SpriteRenderer.offset[1] = currentOffsetY;
-			let alpha = this.alphaMax;
-			if (this.fadeIn && start < duration / 4) alpha = start * this.alphaMax / (duration / 4);
-			else if (this.fadeOut && start > duration / 2 + duration / 4) alpha = (duration - start) * this.alphaMax / (duration / 4);
-			if (alpha < 0) alpha = 0;
-			else if (alpha > 1) alpha = 1;
+			const alpha = twoDAlpha(this, start, duration);
 			SpriteRenderer.color[3] = alpha;
 			SpriteRenderer.color[0] = this.red;
 			SpriteRenderer.color[1] = this.green;
@@ -258852,8 +258877,9 @@ var init_TwoDEffect = __esmMin((() => {
 					currentYSize = steps * step + _start;
 				} else currentYSize = this.sizeStartY;
 			}
-			SpriteRenderer.size[0] = currentXSize;
-			SpriteRenderer.size[1] = currentYSize;
+			const pulse = twoDPulse(this, start);
+			SpriteRenderer.size[0] = currentXSize * pulse;
+			SpriteRenderer.size[1] = currentYSize * pulse;
 			if (this.rotate) {
 				const step = (this.toAngle - this.angle) / 100;
 				const startAngle = this.angle;
@@ -276747,13 +276773,22 @@ var init_EffectTable = __esmMin((() => {
 		}],
 		309: [{
 			type: "2D",
-			alphaMax: .2,
+			alphaMax: 80 / 255,
 			blendMode: 2,
 			file: "effect/pikapika2.bmp",
-			fadeOut: true,
-			duration: 1e3,
-			size: 100,
-			posz: 2,
+			red: 150 / 255,
+			green: 150 / 255,
+			blue: 250 / 255,
+			angleRand: [0, 359],
+			fadeInMs: 20 * (1e3 / 60),
+			fadeOutStartMs: 100 * (1e3 / 60),
+			duration: 3e3,
+			size: 140,
+			sizePulse: {
+				amount: .05,
+				degPerTick: 3
+			},
+			posz: 2.4,
 			wav: "_heal_effect"
 		}],
 		ef_hn_doublebowlingbash: [{
@@ -289561,7 +289596,8 @@ var init_EffectTable = __esmMin((() => {
 		ef_nv_helpangel: [{
 			type: "STR",
 			file: "help_angel/help_angel/help_angel",
-			texturePath: "help_angel/help_angel/"
+			texturePath: "help_angel/help_angel/",
+			wav: "effect/priest_sanctuary"
 		}, {
 			type: "STR",
 			file: "help_angel/help_angel_bottom/help_angel_bottom",
