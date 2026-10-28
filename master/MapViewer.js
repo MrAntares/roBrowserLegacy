@@ -322414,7 +322414,7 @@ function _untrackNoCursorStyle(style) {
 	const index = _noCursorStyles.indexOf(style);
 	if (index !== -1) _noCursorStyles.splice(index, 1);
 }
-var _Cursor, _DB, _Client, _Renderer, _EntityManager, _ScrollBar, _depsPromise, _noCursorStyles, _noCursorMedia, _snapCache, MouseMode, DENIED_SELECTOR, CSS_NUMBER, GUIComponent;
+var _Cursor, _DB, _Client, _Renderer, _EntityManager, _ScrollBar, _depsPromise, _noCursorStyles, _noCursorMedia, _snapCache, _frozenBy, MouseMode, DENIED_SELECTOR, CSS_NUMBER, GUIComponent;
 var init_GUIComponent = __esmMin((() => {
 	init_Common$1();
 	init_MouseEventHandler();
@@ -322433,6 +322433,7 @@ var init_GUIComponent = __esmMin((() => {
 	_depsPromise = null;
 	_noCursorMedia = "not all";
 	_snapCache = [];
+	_frozenBy = [];
 	MouseMode = Object.freeze({
 		CROSS: 0,
 		STOP: 1,
@@ -322553,6 +322554,7 @@ var init_GUIComponent = __esmMin((() => {
 			if (this._noCursorStyle) _trackNoCursorStyle(this._noCursorStyle);
 			if (this.onKeyDown) this._bindKeyDown();
 			if (this.mouseMode === MouseMode.FREEZE) {
+				if (!_frozenBy.includes(this)) _frozenBy.push(this);
 				Mouse.intersect = false;
 				SessionStorage_default.FreezeUI = true;
 				_EntityManager?.setOverEntity(null);
@@ -322594,8 +322596,12 @@ var init_GUIComponent = __esmMin((() => {
 				whenDrawn.suspend(this._host);
 				if (this._noCursorStyle) _untrackNoCursorStyle(this._noCursorStyle);
 				if (this.mouseMode === MouseMode.FREEZE) {
-					Mouse.intersect = true;
-					SessionStorage_default.FreezeUI = false;
+					const index = _frozenBy.indexOf(this);
+					if (index !== -1) _frozenBy.splice(index, 1);
+					if (!_frozenBy.length) {
+						Mouse.intersect = true;
+						SessionStorage_default.FreezeUI = false;
+					}
 				}
 				if (this.__scrollbarObserver) {
 					this.__scrollbarObserver.disconnect();
