@@ -23,6 +23,7 @@ function primEffect(file, life, at) {
 	return {
 		type: '3D',
 		file,
+		sharedTexture: true,
 		alphaMax: 1,
 		attachedEntity: true,
 		duration: life * PRIM_TICK_MS,

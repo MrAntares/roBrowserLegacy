@@ -76,7 +76,12 @@ describe('Endure (effect 11)', () => {
 
 	it('draws a streak as a 3D row on the caster, in screen offsets', () => {
 		const row = endureStreakEffect({ spawn: 3, angle: 0, dist: 100, halfWidth: 1, halfLength: 30 });
-		expect(row).toMatchObject({ type: '3D', file: 'effect/alpha_down.tga', attachedEntity: true });
+		expect(row).toMatchObject({
+			type: '3D',
+			file: 'effect/alpha_down.tga',
+			sharedTexture: true,
+			attachedEntity: true
+		});
 		expect(row.duration).toBeCloseTo(ENDURE.streak.life * TICK, 6);
 		const p = row.track(20);
 		expect(p.offsetY).toBeCloseTo(-(100 - streakSlide(20)) - 20, 6);

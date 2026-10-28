@@ -12,6 +12,40 @@ function randBetween(minimum, maximum) {
 
 const blendMode = {};
 
+// Textures of rows with `sharedTexture` (effect/ files), one per file for every instance.
+const _sharedTextures = new Map();
+
+/**
+ * Load an effect/ texture once for every instance that asks for it.
+ *
+ * @param {WebGL2RenderingContext} gl
+ * @param {string} name file name under data/texture/effect/
+ * @param {function} onload receives the texture
+ */
+function sharedTexture(gl, name, onload) {
+	let entry = _sharedTextures.get(name);
+	if (!entry) {
+		entry = { texture: null, waiting: [] };
+		_sharedTextures.set(name, entry);
+		Client.loadFile(`data/texture/effect/${name}`, buffer => {
+			WebGL.texture(gl, buffer, texture => {
+				if (_sharedTextures.get(name) !== entry) {
+					// Freed while loading.
+					gl.deleteTexture(texture);
+					return;
+				}
+				entry.texture = texture;
+				entry.waiting.splice(0).forEach(fn => fn(texture));
+			});
+		});
+	}
+	if (entry.texture) {
+		onload(entry.texture);
+	} else {
+		entry.waiting.push(onload);
+	}
+}
+
 /**
  * Age handed to an effect's `track`: official client ticks (1/60 s) since the effect started.
  *
@@ -37,6 +71,9 @@ class ThreeDEffect {
 		this.otherEntity = EF_Init_Par.otherEntity;
 
 		this.textureName = effect.file;
+		// Many instances of one row (particles): load the effect/ texture once and share it. The class
+		// frees it when its last instance goes.
+		this.sharedTexture = !!effect.sharedTexture && /^effect\//.test(effect.file || '');
 
 		this.textureNameList = Array.isArray(effect.fileList) ? effect.fileList : [];
 		this.frameDelay = !isNaN(effect.frameDelay) ? effect.frameDelay : 10;
@@ -411,6 +448,11 @@ class ThreeDEffect {
 					});
 				});
 			}
+		} else if (this.sharedTexture) {
+			sharedTexture(gl, this.textureName.slice('effect/'.length), texture => {
+				this.texture = texture;
+				this.ready = true;
+			});
 		} else if (this.textureName) {
 			Client.loadFile(`data/texture/${this.textureName}`, buffer => {
 				WebGL.texture(gl, buffer, texture => {
@@ -841,6 +883,12 @@ class ThreeDEffect {
 
 	static free(gl) {
 		this.ready = false;
+		for (const entry of _sharedTextures.values()) {
+			if (entry.texture) {
+				gl.deleteTexture(entry.texture);
+			}
+		}
+		_sharedTextures.clear();
 	}
 
 	static beforeRender(gl, modelView, projection, fog, tick) {
