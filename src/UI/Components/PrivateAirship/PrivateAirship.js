@@ -103,19 +103,19 @@ PrivateAirship.needFocus = true;
 let _targetMap = '';
 
 /**
- * Requests sent and answers received since the current map loaded, and when
- * the last request went out. The answer carries no id, so it cannot be matched
- * to a request: counting them keeps a late answer to an earlier request from
- * freeing the window while a later one is still on its way. Kept while the
- * window is closed and reopened, so that cannot send a second paid request.
+ * The request on its way since the current map loaded, if any. Only one is on
+ * its way at a time, and it is kept while the window is closed and reopened,
+ * so that cannot send a second paid request.
  */
-const _requests = { loadId: null, sent: 0, answered: 0, lastSent: 0 };
+const _requests = { loadId: null, waiting: false, lastSent: 0 };
 
 /**
- * A request still waiting for its answer is given this long (ms). rAthena
- * answers a refused request at once and answers none at all in a few cases
- * (the feature switched off, a target map on another map server), so without
- * a limit the window could stay locked on that map.
+ * A request still waiting for its answer is given this long (ms), then counts
+ * as lost. rAthena handles the request as it arrives: it answers a refusal at
+ * once, moves you without an answer on success, and answers nothing at all in
+ * a few cases (the feature switched off, a target map on another map server).
+ * So an answer this late does not happen in practice, while a lost one does;
+ * without a limit the window would stay locked on that map.
  */
 const PENDING_TIMEOUT = 15000;
 
@@ -125,7 +125,7 @@ const PENDING_TIMEOUT = 15000;
  */
 function syncRequests() {
 	if (_requests.loadId !== MapRenderer._loadId) {
-		Object.assign(_requests, { loadId: MapRenderer._loadId, sent: 0, answered: 0, lastSent: 0 });
+		Object.assign(_requests, { loadId: MapRenderer._loadId, waiting: false, lastSent: 0 });
 	}
 }
 
@@ -134,7 +134,7 @@ function syncRequests() {
  */
 function isPending() {
 	syncRequests();
-	return _requests.answered < _requests.sent && Date.now() - _requests.lastSent < PENDING_TIMEOUT;
+	return _requests.waiting && Date.now() - _requests.lastSent < PENDING_TIMEOUT;
 }
 
 /**
@@ -332,7 +332,7 @@ PrivateAirship.sendRequest = function sendRequest(itemId) {
 		return;
 	}
 	syncRequests();
-	_requests.sent++;
+	_requests.waiting = true;
 	_requests.lastSent = Date.now();
 
 	const pkt = new PACKET.CZ.PRIVATE_AIRSHIP_REQUEST();
@@ -348,7 +348,7 @@ PrivateAirship.sendRequest = function sendRequest(itemId) {
  */
 PrivateAirship.onResponse = function onResponse(pkt) {
 	syncRequests();
-	_requests.answered = Math.min(_requests.sent, _requests.answered + 1);
+	_requests.waiting = false;
 
 	if (!PrivateAirship.__active) {
 		return;

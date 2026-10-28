@@ -195,7 +195,7 @@ describe('the Private Airship payment window', () => {
 		expect(sent).toHaveLength(3);
 	});
 
-	it('does not let a late answer to an earlier request free a later one', () => {
+	it('frees the window as soon as a retry after a lost answer is answered', () => {
 		vi.useFakeTimers();
 		PrivateAirship.open({ targetMap: 'geffen' });
 		buttons()[1].click();
@@ -203,11 +203,7 @@ describe('the Private Airship payment window', () => {
 		buttons()[1].click();
 		expect(sent).toHaveLength(2);
 
-		// The first request's answer arrives late: the second is still on its way
-		PrivateAirship.onResponse({ result: 1 });
-		buttons()[1].click();
-		expect(sent).toHaveLength(2);
-
+		// The first answer never comes; the retry's answer frees the window at once
 		PrivateAirship.onResponse({ result: 1 });
 		buttons()[1].click();
 		expect(sent).toHaveLength(3);
