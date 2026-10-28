@@ -213,7 +213,7 @@ SkillEffect[SK.AS_POISONREACT] = { effectId: 126, hitEffectId: 127 }; //Poison R
 SkillEffect[SK.AS_VENOMDUST] = { effectId: 124, groundEffectId: 171 }; //Venom Dust
 SkillEffect[SK.AS_SPLASHER] = { effectId: 129 }; //Venom Splasher
 // 1st Class Quest
-SkillEffect[SK.NV_FIRSTAID] = { effectId: 309 }; //First Aid
+SkillEffect[SK.NV_FIRSTAID] = { successEffectIdOnCaster: 309 }; //First Aid: only when the use packet succeeds, on its source
 SkillEffect[SK.NV_TRICKDEAD] = {}; //Play Dead
 SkillEffect[SK.HN_DOUBLEBOWLINGBASH] = { effectId: 'ef_hn_doublebowlingbash', castAuraEffectId: 12 }; //Double Bowling Bash
 SkillEffect[SK.HN_MEGA_SONIC_BLOW] = { effectId: 'ef_hn_mega_sonic_blow' }; //Mega Sonic Blow
@@ -1897,6 +1897,6 @@ SkillEffect[SK.SJ_PROMINENCEKICK] = { effectId: 'ef_sj_prominencekick' }; //Prom
 SkillEffect[SK.SP_SOULGOLEM] = { effectId: 'ef_sp_soulgolem' }; //Golem's Soul
 SkillEffect[SK.SP_SOULCURSE] = { effectId: 'ef_sp_soulcurse' }; //Soul Curse
 SkillEffect[SK.SP_SOULREVOLVE] = { effectId: 'ef_sp_soulrevolve' }; //Soul Revolution
-SkillEffect[SK.NV_HELPANGEL] = { effectId: 'ef_nv_helpangel' }; //Help Angel
+SkillEffect[SK.NV_HELPANGEL] = { successEffectIdOnCaster: 'ef_nv_helpangel' }; //Help Angel: only when the use packet succeeds, on its source
 
 export default SkillEffect;
