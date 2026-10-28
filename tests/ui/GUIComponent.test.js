@@ -133,6 +133,28 @@ describe('a window that freezes the map', () => {
 		expect(Mouse.intersect).toBe(true);
 		expect(Session.FreezeUI).toBe(false);
 	});
+
+	// Message boxes are clones sharing one name: closing one of two left the
+	// other open over a live map.
+	it('stays frozen while a window of the same name is still open', () => {
+		class Frozen extends GUIComponent {
+			mouseMode = GUIComponent.MouseMode.FREEZE;
+		}
+		const first = new Frozen('WinMSG', '');
+		const second = new Frozen('WinMSG', '');
+		for (const box of [first, second]) {
+			box.render = () => '<div></div>';
+			box.append();
+		}
+
+		first.remove();
+		expect(Mouse.intersect).toBe(false);
+		expect(Session.FreezeUI).toBe(true);
+
+		second.remove();
+		expect(Mouse.intersect).toBe(true);
+		expect(Session.FreezeUI).toBe(false);
+	});
 });
 
 /**
