@@ -35,6 +35,8 @@ vi.mock('Renderer/EntityManager.js', () => ({ default: mocks.entityManager }));
 vi.mock('UI/Scrollbar.js', () => ({ default: {} }));
 
 const GUIComponent = (await import('UI/GUIComponent.js')).default;
+const Mouse = (await import('Controls/MouseEventHandler.js')).default;
+const Session = (await import('Engine/SessionStorage.js')).default;
 
 let seq = 0;
 
@@ -106,10 +108,30 @@ describe('a window that freezes the map', () => {
 		class Frozen extends GUIComponent {
 			mouseMode = GUIComponent.MouseMode.FREEZE;
 		}
-		mount('<div></div>', Frozen);
+		const frozen = mount('<div></div>', Frozen);
 
 		expect(mocks.entityManager.setOverEntity).toHaveBeenCalledWith(null);
 		expect(mocks.cursor.setType).toHaveBeenLastCalledWith(mocks.cursor.ACTION.DEFAULT);
+		frozen.remove();
+	});
+
+	// The NPC store asks for a quantity in a second frozen window. Closing that
+	// one gave the map back while the store was still open: the cursor took the
+	// shape of whatever stood under the store, a warp portal or an NPC.
+	it('keeps the map frozen while another one is still open', () => {
+		class Frozen extends GUIComponent {
+			mouseMode = GUIComponent.MouseMode.FREEZE;
+		}
+		const store = mount('<div></div>', Frozen);
+		const quantity = mount('<div></div>', Frozen);
+
+		quantity.remove();
+		expect(Mouse.intersect).toBe(false);
+		expect(Session.FreezeUI).toBe(true);
+
+		store.remove();
+		expect(Mouse.intersect).toBe(true);
+		expect(Session.FreezeUI).toBe(false);
 	});
 });
 

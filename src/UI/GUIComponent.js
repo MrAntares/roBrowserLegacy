@@ -134,6 +134,12 @@ function _untrackNoCursorStyle(style) {
 let _snapCache = [];
 
 /**
+ * Names of the open windows that freeze the map. It thaws when the last one
+ * closes, not the first: the NPC store asks for a quantity in a second one.
+ */
+const _frozenBy = Object.create(null);
+
+/**
  * Mouse interaction modes
  */
 const MouseMode = Object.freeze({
@@ -323,6 +329,7 @@ class GUIComponent {
 
 		// Freeze mode
 		if (this.mouseMode === MouseMode.FREEZE) {
+			_frozenBy[this.name] = true;
 			Mouse.intersect = false;
 			Session.FreezeUI = true;
 			_EntityManager?.setOverEntity(null);
@@ -394,8 +401,16 @@ class GUIComponent {
 
 			// Freeze mode cleanup
 			if (this.mouseMode === MouseMode.FREEZE) {
-				Mouse.intersect = true;
-				Session.FreezeUI = false;
+				delete _frozenBy[this.name];
+				let stillFrozen = false;
+				for (const _name in _frozenBy) {
+					stillFrozen = true;
+					break;
+				}
+				if (!stillFrozen) {
+					Mouse.intersect = true;
+					Session.FreezeUI = false;
+				}
 			}
 
 			// Scrollbar observer cleanup
