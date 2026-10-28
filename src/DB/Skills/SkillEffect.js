@@ -94,13 +94,15 @@ const CHAMPION_JOBS = new Set([
 const SkillEffect = {};
 
 // Swordman
-// Official client: no effect of its own (16 EF_BASH is not played for Bash); each hit that lands plays
-// 0 (the standard hit flash) and 1 (EF_HIT2) on the target.
+// Official client: 16 (EF_BASH) on the caster as each damage packet arrives, the default caster motion
+// effect (DB/Skills/SkillMotionEffect.js); each hit that lands plays 0 (the standard hit flash) and 1
+// (EF_HIT2) on the target.
 SkillEffect[SK.SM_BASH] = { hitEffectId: [0, 1] }; //Bash
 SkillEffect[SK.SM_PROVOKE] = { successEffectId: 67 }; //Provoke
-// Official client: 17 on the caster from the use packet (result set); 16 on the caster as each damage packet
-// arrives; 49 (fire hit) and 17 on each target when the hit lands. No screen shake.
-SkillEffect[SK.SM_MAGNUM] = { successEffectIdOnCaster: 17, damageEffectIdOnCaster: 16, hitEffectId: [49, 17] }; //Magnum Break
+// Official client: 17 on the caster from the use packet (result set); 16 on the caster from each damage packet
+// that is not a splash packet that hit (the caster motion effect, DB/Skills/SkillMotionEffect.js); 49 (fire hit)
+// and 17 on each target when the hit lands. No screen shake.
+SkillEffect[SK.SM_MAGNUM] = { successEffectIdOnCaster: 17, hitEffectId: [49, 17] }; //Magnum Break
 SkillEffect[SK.SM_ENDURE] = { successEffectIdOnCaster: 11 }; //Endure
 // Mage
 SkillEffect[SK.MG_SIGHT] = {/* effectId: 22 not here*/}; //Sight
