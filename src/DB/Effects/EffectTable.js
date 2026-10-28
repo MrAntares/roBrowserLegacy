@@ -11045,7 +11045,8 @@ export default {
 						Params.Init.position[0],
 						Params.Init.position[1],
 						Params.Inst.endTick,
-						Params.Init.otherEntity
+						Params.Init.otherEntity,
+						Params.Inst.startTick
 					),
 					Params
 				);

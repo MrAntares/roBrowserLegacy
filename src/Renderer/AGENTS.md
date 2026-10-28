@@ -36,7 +36,7 @@ Instructions for working on the WebGL renderer, Entity composition system (`src/
 - **Weather:** `CloudWeatherEffect`, `PokJukWeatherEffect`, `RainWeather`, `SakuraWeatherEffect`, `SnowWeather`, `Sky`.
 - **Auras & Spheres:** `GroundAura`, `SwirlingAura`, `SpiritSphere`, `WarlockSphere`, `Level99Bubble`, `QuadHorn`.
 - **Ground:** `GroundEffect`, `FlatColorTile`, `PropertyGround`, `LPEffect`, `SpiderWeb`, `Tiles`.
-- **Combat:** `Damage`, `MagnumBreak`, `PoisonEffect`, `MagicTarget`, `MagicRing`, `LockOnTarget`.
+- **Combat:** `Damage`, `MagnumBreak`, `PoisonEffect`, `MagicTarget` (the ground cast circle, sized and spun by its pure simulation `MagicTargetSim`: the official client's per-skill N x N size), `MagicRing`, `LockOnTarget`.
 - **Visual & World:** `StrEffect`, `RsmEffect`, `ThreeDEffect`, `TwoDEffect`, `Cylinder`, `Songs`, `Trail`, `WaterfallEffect`.
 - **Official primitives:** `EffectPrim` (`PRIM` rows) with its pure simulation `EffectPrimSim` (the official client's ring, sphere and flat square primitives, advanced on its 60-tick clock), and `CasterStrobe` (the black and white caster strobe of effect 812).
 - **Cast shapes:** the official client's 4th-job cast auras, each drawing class with a pure simulation beside it (`*Sim.js`): `CastCircle` (tinted cast circle), `CastCone` (bubble cones and crowns), `CastRing` (cast-aura ring and its colour-cycling twin), `CastFunnel` (opening rings), `RotateLine` (ribbons spiralling round the caster) and `CasterMarks` (the caster's glow and split images, drawn by `EntityRender`). Rows marked `castLoop` replay until the cast ends (`EffectManager.spamSkillCast` gets the cast time) and `EffectManager.removeCastLoops` stops them on cancel.
