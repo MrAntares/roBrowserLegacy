@@ -84068,7 +84068,7 @@ var init_VerticalFlip = __esmMin((() => {
 	};
 }));
 // src/Renderer/Map/Altitude.js
-var _cells, _types$1, mat4$24, vec3$7, vec4$8, _from, _to, _unit, _matrix$8, buffer1x1, buffer5x5, buffer7x7, buffer13x13, tmp, Altitude, TYPE_TABLE;
+var _cells, _types$1, mat4$24, vec3$7, vec4$8, _from, _to, _unit, _matrix$7, buffer1x1, buffer5x5, buffer7x7, buffer13x13, tmp, Altitude, TYPE_TABLE;
 var init_Altitude = __esmMin((() => {
 	init_gl_matrix$1();
 	init_PathFinding();
@@ -84080,7 +84080,7 @@ var init_Altitude = __esmMin((() => {
 	_from = vec3$7.create();
 	_to = vec4$8.create();
 	_unit = vec3$7.create();
-	_matrix$8 = mat4$24.create();
+	_matrix$7 = mat4$24.create();
 	buffer1x1 = /* @__PURE__ */ new Float32Array(30);
 	buffer5x5 = /* @__PURE__ */ new Float32Array(750);
 	buffer7x7 = /* @__PURE__ */ new Float32Array(1470);
@@ -84177,18 +84177,18 @@ var init_Altitude = __esmMin((() => {
 		static intersect(modelView, projection, out) {
 			let i;
 			const count = Altitude.MAX_INTERSECT_COUNT;
-			mat4$24.invert(_matrix$8, modelView);
-			_from[0] = _matrix$8[12];
-			_from[1] = _matrix$8[13];
-			_from[2] = _matrix$8[14];
+			mat4$24.invert(_matrix$7, modelView);
+			_from[0] = _matrix$7[12];
+			_from[1] = _matrix$7[13];
+			_from[2] = _matrix$7[14];
 			_to[0] = Mouse.screen.x / Mouse.screen.width * 2 - 1;
 			_to[1] = -(Mouse.screen.y / Mouse.screen.height) * 2 + 1;
 			if (VerticalFlip.isActive()) _to[1] = -_to[1];
 			_to[2] = 1;
 			_to[3] = 1;
-			mat4$24.multiply(_matrix$8, projection, modelView);
-			mat4$24.invert(_matrix$8, _matrix$8);
-			vec4$8.transformMat4(_to, _to, _matrix$8);
+			mat4$24.multiply(_matrix$7, projection, modelView);
+			mat4$24.invert(_matrix$7, _matrix$7);
+			vec4$8.transformMat4(_to, _to, _matrix$7);
 			_to[0] /= _to[3];
 			_to[1] /= _to[3];
 			_to[2] /= _to[3];
@@ -84238,7 +84238,7 @@ var init_Altitude = __esmMin((() => {
 					break;
 				default: buffer = new Float32Array(size * size * 30);
 			}
-			for (x = -middle; x <= middle; ++x) for (y = -middle; y <= middle; ++y, i += 30) {
+			for (x = -middle; x < size - middle; ++x) for (y = -middle; y < size - middle; ++y, i += 30) {
 				const gx = pos_x + x;
 				const gy = pos_y + y;
 				const oob = gx < 0 || gy < 0 || gx >= Altitude.width || gy >= Altitude.height;
@@ -211560,9 +211560,9 @@ function RenderCanvas3D(isBlendModeOne) {
 	gl.uniform1f(uniform.uSpriteRendererZindex, this.zIndex++);
 	if (this.angle !== _angle) {
 		_angle = this.angle;
-		mat4$22.identity(_matrix$7);
-		if (_angle) mat4$22.rotateZ(_matrix$7, _matrix$7, -_angle / 180 * Math.PI);
-		gl.uniformMatrix4fv(uniform.uSpriteRendererAngle, false, _matrix$7);
+		mat4$22.identity(_matrix$6);
+		if (_angle) mat4$22.rotateZ(_matrix$6, _matrix$6, -_angle / 180 * Math.PI);
+		gl.uniformMatrix4fv(uniform.uSpriteRendererAngle, false, _matrix$6);
 	}
 	_offset[0] = this.offset[0] / 175 * this.xSize;
 	_offset[1] = this.offset[1] / 175 * this.ySize - .5;
@@ -211765,7 +211765,7 @@ function syncAfterBatch() {
 	_texture$5 = null;
 	_groupId++;
 }
-var mat4$22, MAX_COLORS_PER_PALETTE, RenderCanvas2D, _program$30, _buffer$18, _ctx$4, _gl$3, _groupId, _lastGroupId, _shadow, _angle, _depth, _disableDepthCorrection, _depthMask, _depthTest, _blendOne, _texture$5, _usepal, _pos$8, _matrix$7, _size$7, _offset, SpriteRenderer;
+var mat4$22, MAX_COLORS_PER_PALETTE, RenderCanvas2D, _program$30, _buffer$18, _ctx$4, _gl$3, _groupId, _lastGroupId, _shadow, _angle, _depth, _disableDepthCorrection, _depthMask, _depthTest, _blendOne, _texture$5, _usepal, _pos$8, _matrix$6, _size$7, _offset, SpriteRenderer;
 var init_SpriteRenderer = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
@@ -211823,7 +211823,7 @@ var init_SpriteRenderer = __esmMin((() => {
 	_texture$5 = null;
 	_usepal = null;
 	_pos$8 = /* @__PURE__ */ new Int16Array(2);
-	_matrix$7 = /* @__PURE__ */ new Float32Array(16);
+	_matrix$6 = /* @__PURE__ */ new Float32Array(16);
 	_size$7 = /* @__PURE__ */ new Float32Array(2);
 	_offset = /* @__PURE__ */ new Float32Array(2);
 	SpriteRenderer = class {
@@ -211967,7 +211967,7 @@ var init_SpriteRenderer = __esmMin((() => {
 			gl.useProgram(_program$30);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
-			gl.uniformMatrix4fv(uniform.uViewModelMat, false, mat4$22.invert(_matrix$7, modelView));
+			gl.uniformMatrix4fv(uniform.uViewModelMat, false, mat4$22.invert(_matrix$6, modelView));
 			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
 			gl.uniform1f(uniform.uFogNear, fog.near);
 			gl.uniform1f(uniform.uFogFar, fog.far);
@@ -255893,7 +255893,7 @@ function generateCylinder(totalCircleSides, circleSides, repeatTextureX) {
 	}
 	return new Float32Array(mesh);
 }
-var _program$24, blendMode$3, mat4$18, _matrix$6, Cylinder;
+var _program$24, blendMode$3, mat4$18, _matrix$5, Cylinder;
 var init_Cylinder = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
@@ -255904,7 +255904,7 @@ var init_Cylinder = __esmMin((() => {
 	init_Cylinder$1();
 	blendMode$3 = {};
 	mat4$18 = gl_matrix_default.mat4;
-	_matrix$6 = mat4$18.create();
+	_matrix$5 = mat4$18.create();
 	Cylinder = class {
 		constructor(effect, EF_Inst_Par, EF_Init_Par) {
 			const position = EF_Inst_Par.position;
@@ -256056,11 +256056,11 @@ var init_Cylinder = __esmMin((() => {
 				this.position[2]
 			];
 			if (this.rotate || this.angleX || this.angleY || this.angleZ || this.rotateWithCamera || this.fixedPerspective) {
-				mat4$18.identity(_matrix$6);
-				if (this.rotate) mat4$18.rotateY(_matrix$6, _matrix$6, tick / 4 / 180 * Math.PI);
-				if (this.angleX) mat4$18.rotateX(_matrix$6, _matrix$6, this.angleX / 180 * Math.PI);
-				if (this.angleY) mat4$18.rotateY(_matrix$6, _matrix$6, this.angleY / 180 * Math.PI);
-				if (this.angleZ) mat4$18.rotateZ(_matrix$6, _matrix$6, this.angleZ / 180 * Math.PI);
+				mat4$18.identity(_matrix$5);
+				if (this.rotate) mat4$18.rotateY(_matrix$5, _matrix$5, tick / 4 / 180 * Math.PI);
+				if (this.angleX) mat4$18.rotateX(_matrix$5, _matrix$5, this.angleX / 180 * Math.PI);
+				if (this.angleY) mat4$18.rotateY(_matrix$5, _matrix$5, this.angleY / 180 * Math.PI);
+				if (this.angleZ) mat4$18.rotateZ(_matrix$5, _matrix$5, this.angleZ / 180 * Math.PI);
 				if (this.rotateWithCamera || this.fixedPerspective) {
 					let magic = this.posY;
 					if (this.fixedPerspective) {
@@ -256069,21 +256069,21 @@ var init_Cylinder = __esmMin((() => {
 							currentPosition[2] += this.posZ * Math.cos(vcRad) - this.posY * Math.sin(vcRad);
 							magic = this.posY * Math.sin(vcRad) + this.posZ * Math.sin(vcRad);
 						}
-						mat4$18.rotateX(_matrix$6, _matrix$6, vcRad);
+						mat4$18.rotateX(_matrix$5, _matrix$5, vcRad);
 					}
 					const hcRad = Camera.angle[1] * Math.PI / 180;
 					if (this.posX || this.posY) {
 						currentPosition[0] += this.posX * Math.cos(hcRad) - magic * Math.sin(hcRad);
 						currentPosition[1] += magic * Math.cos(hcRad) + this.posX * Math.sin(hcRad);
 					}
-					mat4$18.rotateY(_matrix$6, _matrix$6, hcRad);
+					mat4$18.rotateY(_matrix$5, _matrix$5, hcRad);
 				} else {
 					currentPosition[0] += this.posX;
 					currentPosition[1] += this.posY;
 					currentPosition[2] += this.posZ;
 				}
 				gl.uniform1i(uniform.uRotate, true);
-				gl.uniformMatrix4fv(uniform.uRotationMat, false, _matrix$6);
+				gl.uniformMatrix4fv(uniform.uRotationMat, false, _matrix$5);
 			} else {
 				currentPosition[0] += this.posX;
 				currentPosition[1] += this.posY;
@@ -259674,7 +259674,7 @@ function toScreen(position, matrix, width, height) {
 * @return {number}
 */
 function screenAngle(from, to, matrix, width = Renderer.width, height = Renderer.height) {
-	if (!matrix) matrix = mat4$15.multiply(_matrix$5, Camera.projection, Camera.modelView);
+	if (!matrix) matrix = mat4$15.multiply(_matrix$4, Camera.projection, Camera.modelView);
 	const [x1, y1] = toScreen(from, matrix, width, height);
 	const [x2, y2] = toScreen(to, matrix, width, height);
 	const dx = x2 - x1;
@@ -259705,13 +259705,13 @@ function screenSector(angle) {
 function screenSide(angle) {
 	return angle <= 90 || angle >= 270 ? "right" : "left";
 }
-var mat4$15, vec4$7, _matrix$5, _point;
+var mat4$15, vec4$7, _matrix$4, _point;
 var init_ScreenDirection = __esmMin((() => {
 	init_gl_matrix();
 	init_Camera();
 	init_Renderer();
 	({mat4: mat4$15, vec4: vec4$7} = gl_matrix_default);
-	_matrix$5 = mat4$15.create();
+	_matrix$4 = mat4$15.create();
 	_point = vec4$7.create();
 }));
 // src/Renderer/Effects/ShuffledGrid.js
@@ -260265,7 +260265,7 @@ function setVertex(index, x, y, z, u, v) {
 	_vertices[offset + 3] = u;
 	_vertices[offset + 4] = v;
 }
-var mat4$13, _matrix$4, UNIT, LAYER_COUNT, SEGMENT_COUNT, TEXTURE_COUNT, SEGMENT_HEIGHT, EFFECT_TICK_MS, OPACITY, PARTICLE_TEXTURE, PARTICLE_CYCLE_MS, PARTICLE_SIZE, PARTICLE_COLOR, PARTICLE_FLOATS, PARTICLE_CORNERS, _program$20, _particleProgram, _textureCache, _vertices, WaterfallEffect;
+var mat4$13, _matrix$3, UNIT, LAYER_COUNT, SEGMENT_COUNT, TEXTURE_COUNT, SEGMENT_HEIGHT, EFFECT_TICK_MS, OPACITY, PARTICLE_TEXTURE, PARTICLE_CYCLE_MS, PARTICLE_SIZE, PARTICLE_COLOR, PARTICLE_FLOATS, PARTICLE_CORNERS, _program$20, _particleProgram, _textureCache, _vertices, WaterfallEffect;
 var init_WaterfallEffect = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
@@ -260275,7 +260275,7 @@ var init_WaterfallEffect = __esmMin((() => {
 	init_WaterfallParticle$1();
 	init_WaterfallParticle();
 	mat4$13 = gl_matrix_default.mat4;
-	_matrix$4 = mat4$13.create();
+	_matrix$3 = mat4$13.create();
 	UNIT = 1 / 5;
 	LAYER_COUNT = 4;
 	SEGMENT_COUNT = 5;
@@ -260340,14 +260340,14 @@ var init_WaterfallEffect = __esmMin((() => {
 		render(gl, tick) {
 			const uniform = _program$20.uniform;
 			const attribute = _program$20.attribute;
-			mat4$13.identity(_matrix$4);
-			mat4$13.translate(_matrix$4, _matrix$4, [
+			mat4$13.identity(_matrix$3);
+			mat4$13.translate(_matrix$3, _matrix$3, [
 				this.position[0] + .5,
 				1 - this.position[2],
 				this.position[1] + .5
 			]);
-			if (this.vertical) mat4$13.rotateY(_matrix$4, _matrix$4, Math.PI / 2);
-			gl.uniformMatrix4fv(uniform.uModelMat, false, _matrix$4);
+			if (this.vertical) mat4$13.rotateY(_matrix$3, _matrix$3, Math.PI / 2);
+			gl.uniformMatrix4fv(uniform.uModelMat, false, _matrix$3);
 			const elapsed = tick - this.startTick;
 			const process = Math.floor(elapsed / EFFECT_TICK_MS);
 			gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
@@ -260393,7 +260393,7 @@ var init_WaterfallEffect = __esmMin((() => {
 			const uniform = _particleProgram.uniform;
 			const attribute = _particleProgram.attribute;
 			gl.useProgram(_particleProgram);
-			gl.uniformMatrix4fv(uniform.uModelMat, false, _matrix$4);
+			gl.uniformMatrix4fv(uniform.uModelMat, false, _matrix$3);
 			gl.uniform1f(uniform.uTime, elapsed / PARTICLE_CYCLE_MS);
 			gl.uniform1f(uniform.uSize, PARTICLE_SIZE);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
@@ -268456,7 +268456,7 @@ var init_LockOnTarget$1 = __esmMin((() => {
 	LockOnTarget_default = "#version 300 es\r\n#pragma vscode_glsllint_stage : frag\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\n\r\nuniform sampler2D uDiffuse;\r\nuniform float uColor;\r\nout vec4 fragColor;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\nvoid main(void) {\r\n    vec4 textureSample = texture( uDiffuse,  vTextureCoord.st );\r\n\r\n    if (textureSample.a == 0.0) {\r\n        discard;\r\n    }\r\n\r\n    fragColor     = textureSample;\r\n    fragColor.gb *= uColor;\r\n\r\n    if (uFogUse) {\r\n        float depth     = gl_FragCoord.z / gl_FragCoord.w;\r\n        float fogFactor = smoothstep( uFogNear, uFogFar, depth );\r\n        fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );\r\n    }\r\n}";
 }));
 // src/Renderer/Effects/LockOnTarget.js
-var _texture$4, _program$10, _buffer$4, mat4$7, _matrix$3, LockOnTarget;
+var _texture$4, _program$10, _buffer$4, mat4$7, _matrix$2, LockOnTarget;
 var init_LockOnTarget = __esmMin((() => {
 	init_WebGL();
 	init_Texture();
@@ -268466,7 +268466,7 @@ var init_LockOnTarget = __esmMin((() => {
 	init_LockOnTarget$2();
 	init_LockOnTarget$1();
 	mat4$7 = gl_matrix_default.mat4;
-	_matrix$3 = mat4$7.create();
+	_matrix$2 = mat4$7.create();
 	LockOnTarget = class LockOnTarget {
 		constructor(target, startTick, endTick) {
 			this.target = target;
@@ -268587,12 +268587,12 @@ var init_LockOnTarget = __esmMin((() => {
 		static beforeRender(gl, modelView, projection, fog, tick) {
 			const uniform = _program$10.uniform;
 			const attribute = _program$10.attribute;
-			mat4$7.identity(_matrix$3);
-			mat4$7.rotateY(_matrix$3, _matrix$3, tick / 4 / 180 * Math.PI);
+			mat4$7.identity(_matrix$2);
+			mat4$7.rotateY(_matrix$2, _matrix$2, tick / 4 / 180 * Math.PI);
 			gl.useProgram(_program$10);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
-			gl.uniformMatrix4fv(uniform.uRotationMat, false, _matrix$3);
+			gl.uniformMatrix4fv(uniform.uRotationMat, false, _matrix$2);
 			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
 			gl.uniform1f(uniform.uFogNear, fog.near);
 			gl.uniform1f(uniform.uFogFar, fog.far);
@@ -268707,7 +268707,7 @@ function generateMagicRing() {
 	}
 	return new Float32Array(mesh);
 }
-var _program$9, _buffer$3, mat4$6, _matrix$2, _verticeCount$1, MagicRing;
+var _program$9, _buffer$3, mat4$6, _matrix$1, _verticeCount$1, MagicRing;
 var init_MagicRing = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
@@ -268715,7 +268715,7 @@ var init_MagicRing = __esmMin((() => {
 	init_MagicRing$2();
 	init_MagicRing$1();
 	mat4$6 = gl_matrix_default.mat4;
-	_matrix$2 = mat4$6.create();
+	_matrix$1 = mat4$6.create();
 	_verticeCount$1 = 0;
 	MagicRing = class {
 		constructor(target, topSize, bottomSize, height, textureName, endTick) {
@@ -268804,12 +268804,12 @@ var init_MagicRing = __esmMin((() => {
 		*/
 		static beforeRender(gl, modelView, projection, fog, tick) {
 			const uniform = _program$9.uniform;
-			mat4$6.identity(_matrix$2);
-			mat4$6.rotateY(_matrix$2, _matrix$2, tick / 4 / 180 * Math.PI);
+			mat4$6.identity(_matrix$1);
+			mat4$6.rotateY(_matrix$1, _matrix$1, tick / 4 / 180 * Math.PI);
 			gl.useProgram(_program$9);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
-			gl.uniformMatrix4fv(uniform.uRotationMat, false, _matrix$2);
+			gl.uniformMatrix4fv(uniform.uRotationMat, false, _matrix$1);
 			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
 			gl.uniform1f(uniform.uFogNear, fog.near);
 			gl.uniform1f(uniform.uFogFar, fog.far);
@@ -268828,6 +268828,131 @@ var init_MagicRing = __esmMin((() => {
 		}
 	};
 }));
+// src/Renderer/Effects/MagicTargetSim.js
+/**
+* Cells across the square for a skill; 0 means no circle.
+*
+* @param {number} skillId
+* @return {number}
+*/
+function castSize(skillId) {
+	const area = skillId in CAST_AREA ? CAST_AREA[skillId] : 0;
+	return Math.max(0, area + 2);
+}
+/**
+* Texture angle on tick `t` (0 on the first) of a square `size` cells across.
+*
+* @param {number} t
+* @param {number} size
+* @return {number} radians
+*/
+function spinAngle(t, size) {
+	return .5 / size * t;
+}
+/**
+* Alpha (0-255) at texture angle `angle`.
+*
+* @param {number} angle radians
+* @return {number}
+*/
+function targetAlpha(angle) {
+	return 128 + Math.trunc(40 * Math.sin(angle));
+}
+var CAST_AREA;
+var init_MagicTargetSim = __esmMin((() => {
+	init_SkillConst();
+	init_EffectPrimSim();
+	CAST_AREA = {};
+	for (const [area, names] of Object.entries({
+		3: [
+			"MG_NAPALMBEAT",
+			"AL_PNEUMA",
+			"AC_SHOWER",
+			"PR_BENEDICTIO",
+			"WZ_FIREPILLAR",
+			"WZ_WATERBALL",
+			"WZ_FROSTNOVA",
+			"BS_HAMMERFALL",
+			"HT_BLITZBEAT",
+			"HT_DETECTING",
+			"AS_GRIMTOOTH",
+			"AS_VENOMDUST",
+			"SN_FALCONASSAULT",
+			"HW_GANBANTEIN",
+			"NC_ARMSCANNON",
+			"NW_BASIC_GRENADE",
+			"NW_GRENADES_DROPPING"
+		],
+		5: [
+			"MG_FIREBALL",
+			"MG_THUNDERSTORM",
+			"PR_SANCTUARY",
+			"WZ_HEAVENDRIVE",
+			"WZ_QUAGMIRE",
+			"HW_GRAVITATION",
+			"NPC_GROUNDDRIVE",
+			"RK_WINDCUTTER",
+			"GC_POISONSMOKE",
+			"AB_EPICLESIS",
+			"NW_WILD_FIRE",
+			"NW_HASTY_FIRE_IN_THE_HOLE"
+		],
+		7: [
+			"PR_MAGNUS",
+			"CR_SLIMPITCHER",
+			"NPC_MAGMA_ERUPTION",
+			"NPC_CLOUD_KILL",
+			"RA_DETONATOR",
+			"SO_CLOUD_KILL",
+			"SO_WARMER",
+			"SO_VACUUM_EXTREME",
+			"SO_VARETYR_SPEAR",
+			"NC_MAGMA_ERUPTION",
+			"LG_KINGS_GRACE",
+			"SU_CN_METEOR",
+			"SU_CN_METEOR2",
+			"AG_TORNADO_STORM",
+			"AG_FLORAL_FLARE_ROAD",
+			"AG_ASTRAL_STRIKE",
+			"CD_PNEUMATICUS_PROCELLA",
+			"SOA_TOTEM_OF_TUTELARY",
+			"HN_METEOR_STORM_BUSTER",
+			"NW_MIDNIGHT_FALLEN"
+		],
+		9: [
+			"WZ_METEOR",
+			"WZ_STORMGUST",
+			"NPC_STORMGUST2",
+			"NPC_DRAGONBREATH",
+			"NPC_RAINOFMETEOR",
+			"RK_DRAGONBREATH",
+			"NC_COLDSLOWER",
+			"SO_EARTHGRAVE",
+			"RK_DRAGONBREATH_WATER",
+			"AG_VIOLENT_QUAKE",
+			"AG_ALL_BLOOM",
+			"IG_CROSS_RAIN",
+			"ABC_ABYSS_STRIKE",
+			"EM_DIAMOND_STORM",
+			"EM_LIGHTNING_LAND",
+			"EM_VENOM_SWAMP",
+			"EM_CONFLAGRATION",
+			"EM_TERRA_DRIVE",
+			"NW_MISSION_BOMBARD",
+			"SOA_TALISMAN_OF_BLACK_TORTOISE",
+			"SH_HYUN_ROKS_BREEZE"
+		],
+		11: ["WZ_VERMILION", "AG_MYSTERY_ILLUSION"],
+		18: ["NPC_COMET", "WL_COMET"],
+		19: ["CD_COMPETENTIA"],
+		"-2": [
+			"NPC_PSYCHIC_WAVE",
+			"SO_DIAMONDDUST",
+			"SO_PSYCHIC_WAVE",
+			"HN_JACK_FROST_NOVA"
+		]
+	})) for (const name of names) if (name in SkillConst_default) CAST_AREA[SkillConst_default[name]] = Number(area);
+}));
 // src/Renderer/Effects/MagicTarget.vs?raw
 var MagicTarget_default$1;
 var init_MagicTarget$2 = __esmMin((() => {
@@ -268836,244 +268961,28 @@ var init_MagicTarget$2 = __esmMin((() => {
 // src/Renderer/Effects/MagicTarget.fs?raw
 var MagicTarget_default;
 var init_MagicTarget$1 = __esmMin((() => {
-	MagicTarget_default = "#version 300 es\r\n#pragma vscode_glsllint_stage : frag\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\nout vec4 fragColor;\r\n\r\nuniform sampler2D uDiffuse;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\nvoid main(void) {\r\n    vec4 textureSample = texture( uDiffuse,  vTextureCoord.st );\r\n\r\n    if (textureSample.a == 0.0) {\r\n        discard;\r\n    }\r\n\r\n    if (textureSample.r < 0.1 || textureSample.g < 0.1 || textureSample.b < 0.1) {\r\n        discard;\r\n    }\r\n\r\n    fragColor = textureSample;\r\n\r\n    if (uFogUse) {\r\n        float depth     = gl_FragCoord.z / gl_FragCoord.w;\r\n        float fogFactor = smoothstep( uFogNear, uFogFar, depth );\r\n        fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );\r\n    }\r\n}";
+	MagicTarget_default = "#version 300 es\r\n#pragma vscode_glsllint_stage : frag\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\nout vec4 fragColor;\r\n\r\nuniform sampler2D uDiffuse;\r\nuniform float uAlpha;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\nvoid main(void) {\r\n    vec4 textureSample = texture( uDiffuse,  vTextureCoord.st );\r\n\r\n    if (textureSample.a == 0.0) {\r\n        discard;\r\n    }\r\n\r\n    if (textureSample.r < 0.1 || textureSample.g < 0.1 || textureSample.b < 0.1) {\r\n        discard;\r\n    }\r\n\r\n    fragColor = vec4(textureSample.rgb, textureSample.a * uAlpha);\r\n\r\n    if (uFogUse) {\r\n        float depth     = gl_FragCoord.z / gl_FragCoord.w;\r\n        float fogFactor = smoothstep( uFogNear, uFogFar, depth );\r\n        fragColor    = mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );\r\n    }\r\n}";
 }));
 // src/Renderer/Effects/MagicTarget.js
-var _texture$3, _program$8, mat4$5, _matrix$1, CastSize, MagicTarget;
+var _texture$3, _program$8, mat4$5, MagicTarget;
 var init_MagicTarget = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
-	init_SkillConst();
 	init_Client();
 	init_Altitude();
-	init_SessionStorage();
 	init_Camera();
+	init_MagicTargetSim();
 	init_MagicTarget$2();
 	init_MagicTarget$1();
 	mat4$5 = gl_matrix_default.mat4;
-	_matrix$1 = mat4$5.create();
-	CastSize = {};
-	CastSize[SkillConst_default.CR_SLIMPITCHER] = [7];
-	CastSize[SkillConst_default.SO_ARRULLO] = [
-		3,
-		3,
-		5,
-		5,
-		7
-	];
-	CastSize[SkillConst_default.AC_SHOWER] = [
-		3,
-		3,
-		3,
-		3,
-		3,
-		5,
-		5,
-		5,
-		5,
-		5
-	];
-	CastSize[SkillConst_default.NC_ARMSCANNON] = [
-		7,
-		5,
-		3
-	];
-	CastSize[SkillConst_default.AM_DEMONSTRATION] = [3];
-	CastSize[SkillConst_default.SC_BLOODYLUST] = [7];
-	CastSize[SkillConst_default.PF_FOGWALL] = [3];
-	CastSize[SkillConst_default.PR_BENEDICTIO] = [3];
-	CastSize[SkillConst_default.KO_ZENKAI] = [5];
-	CastSize[SkillConst_default.WL_CRIMSONROCK] = [7];
-	CastSize[SkillConst_default.GN_CRAZYWEED] = [9];
-	CastSize[SkillConst_default.NPC_COMET] = CastSize[SkillConst_default.WL_COMET] = [19];
-	CastSize[SkillConst_default.HT_CLAYMORETRAP] = [5];
-	CastSize[SkillConst_default.SC_CHAOSPANIC] = [5];
-	CastSize[SkillConst_default.RK_DRAGONBREATH_WATER] = [
-		3,
-		3,
-		3,
-		5,
-		5,
-		5,
-		7,
-		7,
-		9,
-		9
-	];
-	CastSize[SkillConst_default.RK_DRAGONBREATH] = [
-		3,
-		3,
-		3,
-		5,
-		5,
-		5,
-		7,
-		7,
-		9,
-		9
-	];
-	CastSize[SkillConst_default.SC_DIMENSIONDOOR] = [1];
-	CastSize[SkillConst_default.SO_DIAMONDDUST] = [
-		7,
-		7,
-		7,
-		9,
-		9
-	];
-	CastSize[SkillConst_default.HT_DETECTING] = [3];
-	CastSize[SkillConst_default.GN_DEMONIC_FIRE] = [5];
-	CastSize[SkillConst_default.SA_DELUGE] = [7];
-	CastSize[SkillConst_default.SO_VACUUM_EXTREME] = [
-		3,
-		3,
-		5,
-		5,
-		7
-	];
-	CastSize[SkillConst_default.NPC_EVILLAND] = [11];
-	CastSize[SkillConst_default.AB_EPICLESIS] = [5];
-	CastSize[SkillConst_default.SO_EARTH_INSIGNIA] = [3];
-	CastSize[SkillConst_default.SO_EARTHGRAVE] = [
-		7,
-		7,
-		7,
-		9,
-		9
-	];
-	CastSize[SkillConst_default.HT_FLASHER] = [3];
-	CastSize[SkillConst_default.MG_FIREWALL] = [1];
-	CastSize[SkillConst_default.RA_FIRINGTRAP] = [5];
-	CastSize[SkillConst_default.SO_FIRE_INSIGNIA] = [3];
-	CastSize[SkillConst_default.GN_FIRE_EXPANSION] = [5];
-	CastSize[SkillConst_default.GN_HELLS_PLANT] = [3];
-	CastSize[SkillConst_default.WZ_HEAVENDRIVE] = [5];
-	CastSize[SkillConst_default.HW_GRAVITATION] = [5];
-	CastSize[SkillConst_default.RL_HAMMER_OF_GOD] = [5];
-	CastSize[SkillConst_default.NPC_RAYOFGENESIS] = CastSize[SkillConst_default.LG_RAYOFGENESIS] = [11];
-	CastSize[SkillConst_default.HW_GANBANTEIN] = [3];
-	CastSize[SkillConst_default.NC_COLDSLOWER] = [
-		5,
-		7,
-		9
-	];
-	CastSize[SkillConst_default.WZ_VERMILION] = [11];
-	CastSize[SkillConst_default.SR_RIDEINLIGHTNING] = [
-		3,
-		3,
-		5,
-		5,
-		7
-	];
-	CastSize[SkillConst_default.NJ_RAIGEKISAI] = [
-		3,
-		3,
-		5,
-		5,
-		7
-	];
-	CastSize[SkillConst_default.MH_LAVA_SLIDE] = [
-		3,
-		3,
-		3,
-		5,
-		5,
-		5,
-		7,
-		7,
-		7,
-		9
-	];
-	CastSize[SkillConst_default.NPC_MAGMA_ERUPTION] = CastSize[SkillConst_default.NC_MAGMA_ERUPTION] = [7];
-	CastSize[SkillConst_default.KO_BAKURETSU] = [3];
-	CastSize[SkillConst_default.NPC_CLOUD_KILL] = CastSize[SkillConst_default.SO_CLOUD_KILL] = [7];
-	CastSize[SkillConst_default.WZ_METEOR] = [7];
-	CastSize[SkillConst_default.SC_MANHOLE] = [3];
-	CastSize[SkillConst_default.PR_MAGNUS] = [7];
-	CastSize[SkillConst_default.SA_LANDPROTECTOR] = [
-		7,
-		7,
-		9,
-		9,
-		11
-	];
-	CastSize[SkillConst_default.SC_MAELSTROM] = [5];
-	CastSize[SkillConst_default.KO_MUCHANAGE] = [
-		3,
-		3,
-		3,
-		3,
-		3,
-		3,
-		3,
-		3,
-		5
-	];
-	CastSize[SkillConst_default.WZ_QUAGMIRE] = [5];
-	CastSize[SkillConst_default.NPC_PSYCHIC_WAVE] = CastSize[SkillConst_default.SO_PSYCHIC_WAVE] = [
-		7,
-		7,
-		9,
-		9,
-		11
-	];
-	CastSize[SkillConst_default.GC_POISONSMOKE] = [5];
-	CastSize[SkillConst_default.MH_POISON_MIST] = [7];
-	CastSize[SkillConst_default.AL_PNEUMA] = [3];
-	CastSize[SkillConst_default.LG_OVERBRAND] = [3];
-	CastSize[SkillConst_default.WM_SEVERE_RAINSTORM] = [11];
-	CastSize[SkillConst_default.RG_GRAFFITI] = [5];
-	CastSize[SkillConst_default.PR_SANCTUARY] = [5];
-	CastSize[SkillConst_default.MG_THUNDERSTORM] = [5];
-	CastSize[SkillConst_default.WZ_STORMGUST] = [11];
-	CastSize[SkillConst_default.WM_SOUND_OF_DESTRUCTION] = [
-		9,
-		9,
-		11,
-		13,
-		15
-	];
-	CastSize[SkillConst_default.WM_POEMOFNETHERWORLD] = [3];
-	CastSize[SkillConst_default.MH_XENO_SLASHER] = [
-		3,
-		3,
-		3,
-		5,
-		5,
-		5,
-		7,
-		7,
-		7,
-		9
-	];
-	CastSize[SkillConst_default.SO_WIND_INSIGNIA] = [3];
-	CastSize[SkillConst_default.SA_VIOLENTGALE] = [7];
-	CastSize[SkillConst_default.NJ_SUITON] = [
-		3,
-		3,
-		3,
-		5,
-		5,
-		5,
-		7,
-		7,
-		7,
-		9
-	];
-	CastSize[SkillConst_default.SO_WATER_INSIGNIA] = [3];
-	CastSize[SkillConst_default.SO_WARMER] = [7];
-	CastSize[SkillConst_default.SA_VOLCANO] = [7];
-	CastSize[SkillConst_default.MH_VOLCANIC_ASH] = [3];
-	CastSize[SkillConst_default.AS_VENOMDUST] = [2];
-	CastSize[SkillConst_default.KO_HUUMARANKA] = [7];
 	MagicTarget = class {
-		constructor(id, x, y, endTick, srcEntity) {
+		constructor(id, x, y, endTick, srcEntity, startTick) {
 			this.x = x;
 			this.y = y;
-			if (CastSize[id]) {
-				if (SessionStorage_default.Entity == srcEntity && id == SessionStorage_default.Entity.lastSKID && SessionStorage_default.Entity.lastSkLvl && CastSize[id].length >= SessionStorage_default.Entity.lastSkLvl) this.size = CastSize[id][SessionStorage_default.Entity.lastSkLvl - 1] || 1;
-				else this.size = CastSize[id][0] || 1;
-			} else this.size = 1;
+			this.size = castSize(id);
+			this.startTick = startTick || 0;
 			this.endTick = endTick;
+			this.matrix = mat4$5.create();
 		}
 		/**
 		* Preparing for render
@@ -269081,6 +268990,11 @@ var init_MagicTarget = __esmMin((() => {
 		* @param {object} webgl context
 		*/
 		init(gl) {
+			if (!this.size) {
+				this.vertCount = 0;
+				this.ready = true;
+				return;
+			}
 			const data = Altitude.generatePlane(this.x, this.y, this.size);
 			this.buffer = gl.createBuffer();
 			this.vertCount = data.length / 5;
@@ -269094,7 +269008,7 @@ var init_MagicTarget = __esmMin((() => {
 		* @param {object} webgl context
 		*/
 		free(gl) {
-			gl.deleteBuffer(this.buffer);
+			if (this.buffer) gl.deleteBuffer(this.buffer);
 			this.ready = false;
 		}
 		/**
@@ -269103,13 +269017,19 @@ var init_MagicTarget = __esmMin((() => {
 		* @param {object} wegl context
 		*/
 		render(gl, tick) {
+			this.needCleanUp = this.endTick < tick;
+			if (!this.vertCount) return;
 			const attribute = _program$8.attribute;
+			const angle = spinAngle(Math.max(0, Math.floor((tick - this.startTick) / PRIM_TICK_MS)), this.size);
+			mat4$5.identity(this.matrix);
+			mat4$5.rotateZ(this.matrix, this.matrix, angle);
+			gl.uniformMatrix4fv(_program$8.uniform.uRotationMat, false, this.matrix);
+			gl.uniform1f(_program$8.uniform.uAlpha, targetAlpha(angle) / 255);
 			gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
 			gl.uniform1f(_program$8.uniform.uCameraLatitude, Camera.getLatitude());
 			gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
 			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
 			gl.drawArrays(gl.TRIANGLES, 0, this.vertCount);
-			this.needCleanUp = this.endTick < tick;
 		}
 		/**
 		* Initialize effect
@@ -269149,12 +269069,9 @@ var init_MagicTarget = __esmMin((() => {
 		static beforeRender(gl, modelView, projection, fog, tick) {
 			const uniform = _program$8.uniform;
 			const attribute = _program$8.attribute;
-			mat4$5.identity(_matrix$1);
-			mat4$5.rotateZ(_matrix$1, _matrix$1, tick / 1e3 * 40 / 180 * Math.PI);
 			gl.useProgram(_program$8);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
-			gl.uniformMatrix4fv(uniform.uRotationMat, false, _matrix$1);
 			gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
 			gl.uniform1f(uniform.uFogNear, fog.near);
 			gl.uniform1f(uniform.uFogFar, fog.far);
@@ -280745,7 +280662,7 @@ var init_EffectTable = __esmMin((() => {
 			type: "FUNC",
 			attachedEntity: false,
 			func: function(Params) {
-				this.add(new MagicTarget(Params.Init.skillId, Params.Init.position[0], Params.Init.position[1], Params.Inst.endTick, Params.Init.otherEntity), Params);
+				this.add(new MagicTarget(Params.Init.skillId, Params.Init.position[0], Params.Init.position[1], Params.Inst.endTick, Params.Init.otherEntity, Params.Inst.startTick), Params);
 			}
 		}],
 		515: [{
