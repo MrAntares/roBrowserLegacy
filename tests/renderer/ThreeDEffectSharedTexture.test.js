@@ -62,4 +62,21 @@ describe('ThreeDEffect shared textures', () => {
 		make({ file: 'effect/endure.tga' }).init(gl);
 		expect(loads).toHaveLength(2);
 	});
+
+	it('deletes a shared texture when its last instance is freed, also before the class goes', () => {
+		ThreeDEffect.free(gl);
+		deleted.length = 0;
+		loads.length = 0;
+		const a = make({ file: 'effect/alpha_down.tga', sharedTexture: true });
+		const b = make({ file: 'effect/alpha_down.tga', sharedTexture: true });
+		a.init(gl);
+		b.init(gl);
+		a.free(gl);
+		expect(deleted).toHaveLength(0);
+		b.free(gl);
+		b.free(gl);
+		expect(deleted).toHaveLength(1);
+		make({ file: 'effect/alpha_down.tga', sharedTexture: true }).init(gl);
+		expect(loads).toHaveLength(2);
+	});
 });

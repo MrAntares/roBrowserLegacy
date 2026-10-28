@@ -12,7 +12,8 @@ function randBetween(minimum, maximum) {
 
 const blendMode = {};
 
-// Textures of rows with `sharedTexture` (effect/ files), one per file for every instance.
+// Textures of rows with `sharedTexture` (effect/ files), one per file for every instance, with the
+// number of instances using each one.
 const _sharedTextures = new Map();
 
 /**
@@ -25,7 +26,7 @@ const _sharedTextures = new Map();
 function sharedTexture(gl, name, onload) {
 	let entry = _sharedTextures.get(name);
 	if (!entry) {
-		entry = { texture: null, waiting: [] };
+		entry = { texture: null, waiting: [], users: 0 };
 		_sharedTextures.set(name, entry);
 		Client.loadFile(`data/texture/effect/${name}`, buffer => {
 			WebGL.texture(gl, buffer, texture => {
@@ -39,11 +40,29 @@ function sharedTexture(gl, name, onload) {
 			});
 		});
 	}
+	entry.users++;
 	if (entry.texture) {
 		onload(entry.texture);
 	} else {
 		entry.waiting.push(onload);
 	}
+}
+
+/**
+ * One instance stops using a shared texture; the last one deletes it.
+ *
+ * @param {WebGL2RenderingContext} gl
+ * @param {string} name
+ */
+function releaseSharedTexture(gl, name) {
+	const entry = _sharedTextures.get(name);
+	if (!entry || --entry.users > 0) {
+		return;
+	}
+	if (entry.texture) {
+		gl.deleteTexture(entry.texture);
+	}
+	_sharedTextures.delete(name);
 }
 
 /**
@@ -449,7 +468,8 @@ class ThreeDEffect {
 				});
 			}
 		} else if (this.sharedTexture) {
-			sharedTexture(gl, this.textureName.slice('effect/'.length), texture => {
+			this.sharedTextureName = this.textureName.slice('effect/'.length);
+			sharedTexture(gl, this.sharedTextureName, texture => {
 				this.texture = texture;
 				this.ready = true;
 			});
@@ -467,6 +487,11 @@ class ThreeDEffect {
 
 	free(gl) {
 		this.ready = false;
+		// Also run when an owner's effects are removed (EffectManager.remove), not only on expiry.
+		if (this.sharedTextureName) {
+			releaseSharedTexture(gl, this.sharedTextureName);
+			this.sharedTextureName = null;
+		}
 	}
 
 	render(gl, tick) {
