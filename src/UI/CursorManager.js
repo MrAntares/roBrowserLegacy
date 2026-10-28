@@ -455,16 +455,16 @@ function bindMouseEvents() {
 		}
 	});
 
-	window.addEventListener(
-		'pointermove',
-		e => {
-			Cursor.x = e.pageX;
-			Cursor.y = e.pageY;
-			_selector.style.left = `${e.pageX}px`;
-			_selector.style.top = `${e.pageY}px`;
-		},
-		true
-	);
+	const followPointer = e => {
+		Cursor.x = e.pageX;
+		Cursor.y = e.pageY;
+		_selector.style.left = `${e.pageX}px`;
+		_selector.style.top = `${e.pageY}px`;
+	};
+
+	window.addEventListener('pointermove', followPointer, true);
+	// A native drag fires no pointermove. Captured, as drop targets stop it.
+	window.addEventListener('dragover', followPointer, true);
 }
 
 /**
