@@ -646,7 +646,8 @@ Navigation.onMapClick = function onMapClick(event) {
 		endMap: currentMap,
 		endX: mapCoords.x,
 		endY: mapCoords.y,
-		displayName: 'Map Click'
+		displayName: 'Map Click',
+		airshipMap: MapRenderer.currentMap
 	});
 };
 
@@ -1334,8 +1335,9 @@ Navigation.navigateTo = function navigateTo(options) {
 	}
 
 	// The airship flies to the map's real name (izlude_a, not izlude). Path
-	// refreshes pass the stored real name and NPC flag back in.
-	const airshipMap = String(options.endMap || '')
+	// refreshes pass the stored real name and NPC flag back in; a map click
+	// passes the loaded map's own name.
+	const airshipMap = String(options.airshipMap || options.endMap || '')
 		.replace(/\.gat$/, '')
 		.toLowerCase();
 

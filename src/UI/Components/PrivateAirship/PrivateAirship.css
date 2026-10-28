@@ -7,8 +7,8 @@
 
 .PrivateAirship {
 	position: relative;
-	width: 208px;
-	height: 110px;
+	width: 100%;
+	height: 100%;
 	background-color: #eef3fd;
 	background-repeat: no-repeat;
 	color: #000;
@@ -88,7 +88,7 @@
 
 .PrivateAirship .notice-icon {
 	position: absolute;
-	top: 86px;
+	top: calc(86px + var(--extra-rows-height, 0px));
 	left: 7px;
 	width: 14px;
 	height: 13px;
@@ -97,7 +97,7 @@
 
 .PrivateAirship .notice-text {
 	position: absolute;
-	top: 80px;
+	top: calc(80px + var(--extra-rows-height, 0px));
 	left: 26px;
 	width: 164px;
 	height: 26px;

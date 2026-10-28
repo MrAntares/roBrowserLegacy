@@ -102,4 +102,18 @@ describe('the Navigation Move button', () => {
 
 		expect(opened).toEqual([{ targetMap: 'geffen', toNpc: false }]);
 	});
+
+	it('keeps the loaded map name for a map click', async () => {
+		const MapRenderer = (await import('Renderer/MapRenderer.js')).default;
+		MapRenderer.currentMap = 'izlude_a.gat';
+		const coords = vi.spyOn(Navigation, 'screenToMapCoordinates').mockReturnValue({ x: 120, y: 80 });
+		try {
+			Navigation.onMapClick({ clientX: 10, clientY: 10 });
+			Navigation.onAirshipMove();
+			expect(opened).toEqual([{ targetMap: 'izlude_a', toNpc: false }]);
+		} finally {
+			coords.mockRestore();
+			MapRenderer.currentMap = 'prontera.gat';
+		}
+	});
 });

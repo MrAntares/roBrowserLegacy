@@ -9,7 +9,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 const sent = [];
 const prompts = [];
 const hooks = {};
-const items = { 6909: 'Nyangvine Fruit', 25464: 'World Tour Ticket' };
+const items = { 6909: 'Nyangvine Fruit', 25464: 'World Tour Ticket', 12345: 'Test Ticket' };
 const unknown = { identifiedDisplayName: 'Unknown Item' };
 
 vi.mock('UI/CursorManager.js', () => ({ default: { ACTION: { DEFAULT: 0 }, setType: vi.fn(), getActualType: vi.fn() } }));
@@ -65,6 +65,9 @@ beforeEach(() => {
 	Table.reset();
 	MapRenderer.currentMap = 'prontera.gat';
 	Session.Entity.action = 0;
+	// Answer any request a test left open
+	PrivateAirship.onResponse({ result: 1 });
+	vi.useRealTimers();
 });
 
 afterEach(() => {
@@ -157,5 +160,53 @@ describe('the Private Airship payment window', () => {
 
 		PrivateAirship.onResponse({ result: 0 });
 		expect(PrivateAirship.__active).toBe(false);
+	});
+
+	it('does not send a second request when closed and reopened before the answer', () => {
+		PrivateAirship.open({ targetMap: 'geffen' });
+		buttons()[1].click();
+		PrivateAirship.remove();
+
+		PrivateAirship.open({ targetMap: 'geffen' });
+		buttons()[1].click();
+		expect(sent).toHaveLength(1);
+
+		PrivateAirship.onResponse({ result: 1 });
+		buttons()[1].click();
+		expect(sent).toHaveLength(2);
+	});
+
+	it('lets a request with no answer go after a while', () => {
+		vi.useFakeTimers();
+		PrivateAirship.open({ targetMap: 'geffen' });
+		buttons()[1].click();
+
+		vi.advanceTimersByTime(9000);
+		buttons()[1].click();
+		expect(sent).toHaveLength(1);
+
+		vi.advanceTimersByTime(1000);
+		buttons()[1].click();
+		expect(sent).toHaveLength(2);
+	});
+
+	it('grows the window and moves the notice down for a third payment item', () => {
+		Table.addNeedItem(6909);
+		Table.addNeedItem(25464);
+		Table.addNeedItem(12345);
+		PrivateAirship.open({ targetMap: 'geffen' });
+
+		expect(buttons().map(b => b.style.top)).toEqual(['26px', '52px', '78px']);
+		expect(PrivateAirship._host.style.height).toBe('136px');
+		expect(PrivateAirship._host.style.getPropertyValue('--extra-rows-height')).toBe('26px');
+	});
+
+	it('closes on Escape and stops the key there', () => {
+		PrivateAirship.open({ targetMap: 'geffen' });
+		const event = new KeyboardEvent('keydown', { key: 'Escape', cancelable: true });
+		window.dispatchEvent(event);
+
+		expect(PrivateAirship.__active).toBe(false);
+		expect(event.defaultPrevented).toBe(true);
 	});
 });
