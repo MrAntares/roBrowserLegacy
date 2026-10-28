@@ -11,6 +11,17 @@ function randBetween(minimum, maximum) {
 }
 
 const blendMode = {};
+
+/**
+ * Age handed to an effect's `track`: official client ticks (1/60 s) since the effect started.
+ *
+ * @param {number} startTick
+ * @param {number} tick
+ * @return {number}
+ */
+export function trackAge(startTick, tick) {
+	return ((tick - startTick) * 60) / 1000;
+}
 let _soulStrikeFirstEffect = null;
 
 class ThreeDEffect {
@@ -318,6 +329,12 @@ class ThreeDEffect {
 			this.sizeEndY = this.sizeStartY;
 		}
 		this.sizeSmooth = effect.sizeSmooth ? true : false;
+		// track(age): optional per-frame path for effects ported from the official client. age is in
+		// client ticks (trackAge). Returns null to draw nothing this frame, or any of { x, y, z } (cells
+		// from the effect's position, z up), size, alpha (0..1), angle (degrees), each replacing the
+		// value the other options give. sizeX / sizeY set the two sides apart, and offsetX / offsetY
+		// move the sprite on the screen plane (sprite pixels, 35 to a cell, y down).
+		this.track = typeof effect.track === 'function' ? effect.track : null;
 		this.angle = effect.angle ? effect.angle : 0;
 		this.rotate = effect.rotate ? true : false;
 		this.toAngle = effect.toAngle ? effect.toAngle : 0;
@@ -655,6 +672,46 @@ class ThreeDEffect {
 			SpriteRenderer.angle = this.rotateWithCamera ? this.angle + Camera.angle[1] : this.angle;
 		}
 
+		if (this.track) {
+			const sample = this.track(trackAge(this.startTick, tick));
+			if (!sample) {
+				this.needCleanUp = this.endTick < tick;
+				return;
+			}
+			if (sample.x !== undefined) {
+				SpriteRenderer.position[0] = this.position[0] + sample.x;
+			}
+			if (sample.y !== undefined) {
+				SpriteRenderer.position[1] = this.position[1] + sample.y;
+			}
+			if (sample.z !== undefined) {
+				SpriteRenderer.position[2] = this.position[2] + sample.z;
+			}
+			if (sample.size !== undefined) {
+				sizeX = sample.size;
+				sizeY = sample.size;
+				SpriteRenderer.size[0] = sizeX;
+				SpriteRenderer.size[1] = sizeY;
+			}
+			if (sample.sizeX !== undefined) {
+				sizeX = sample.sizeX;
+				SpriteRenderer.size[0] = sizeX;
+			}
+			if (sample.sizeY !== undefined) {
+				sizeY = sample.sizeY;
+				SpriteRenderer.size[1] = sizeY;
+			}
+			SpriteRenderer.offset[0] = sample.offsetX || 0;
+			SpriteRenderer.offset[1] = sample.offsetY || 0;
+			if (sample.alpha !== undefined) {
+				alpha = Math.min(Math.max(sample.alpha, 0), 1);
+				SpriteRenderer.color[3] = alpha;
+			}
+			if (sample.angle !== undefined) {
+				SpriteRenderer.angle = this.rotateWithCamera ? sample.angle + Camera.angle[1] : sample.angle;
+			}
+		}
+
 		if (this.actRessource && this.spriteRessource) {
 			let entity = this.ownerEntity;
 			if (!entity) {
@@ -750,6 +807,12 @@ class ThreeDEffect {
 			SpriteRenderer.runWithDepth(this.overlay === false, false, this.overlay === true, () => {
 				SpriteRenderer.render();
 			});
+		}
+
+		// A track offset is for this sprite only.
+		if (this.track) {
+			SpriteRenderer.offset[0] = 0;
+			SpriteRenderer.offset[1] = 0;
 		}
 
 		this.needCleanUp = this.endTick < tick;

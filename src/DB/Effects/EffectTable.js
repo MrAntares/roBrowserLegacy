@@ -37,6 +37,7 @@ import { startCasterStrobe } from 'Renderer/Effects/CasterStrobe.js';
 import CastCone from 'Renderer/Effects/CastCone.js';
 import CastCircle from 'Renderer/Effects/CastCircle.js';
 import CastRing from 'Renderer/Effects/CastRing.js';
+import { endureEffect } from 'DB/Effects/EndureEffect.js';
 import CastFunnel from 'Renderer/Effects/CastFunnel.js';
 import CasterMarks from 'Renderer/Effects/CasterMarks.js';
 import RotateLine from 'Renderer/Effects/RotateLine.js';
@@ -967,22 +968,8 @@ export default {
 	],
 
 	11: [
-		{
-			//EF_ENDURE	Endure
-			type: '3D',
-			alphaMax: 1,
-			attachedEntity: true,
-			duration: 1000,
-			fadeIn: true,
-			fadeOut: true,
-			file: 'effect/endure.tga',
-			posz: 2,
-			sizeEnd: 70,
-			sizeSmooth: true,
-			sizeStart: 200,
-			wav: 'effect/ef_endure',
-			zIndex: 10
-		}
+		// EF_ENDURE, Endure: the client's shrinking endure.tga and alpha_down streaks (EndureEffect.js)
+		...endureEffect
 	],
 
 	12: [
@@ -2807,10 +2794,16 @@ export default {
 	67: [
 		{
 			//EF_PROVOKE	Provoke
+			// The official client plays the sound twice: on tick 5 (83 ms) and tick 30 (500 ms)
 			type: 'STR',
 			file: 'provoke',
 			wav: 'effect/swordman_provoke',
+			delayWav: 83,
 			attachedEntity: true
+		},
+		{
+			wav: 'effect/swordman_provoke',
+			delayWav: 500
 		}
 	],
 
