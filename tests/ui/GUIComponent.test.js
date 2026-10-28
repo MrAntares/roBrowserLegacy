@@ -139,6 +139,25 @@ describe('the cursor over a styled checkbox', () => {
 	});
 });
 
+/**
+ * A window closed from the keyboard, or by its own button, leaves without the
+ * pointer ever leaving the button: no mouseout came, and the click shape stayed
+ * over the map.
+ */
+describe('a window closed under the cursor', () => {
+	it('gives back the shape the cursor had before its button', async () => {
+		const component = mount('<button>Close</button>');
+		await new Promise(resolve => setTimeout(resolve, 0));
+
+		component._container.querySelector('button').dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+		expect(mocks.cursor.setType).toHaveBeenLastCalledWith(mocks.cursor.ACTION.CLICK);
+
+		component.remove();
+
+		expect(mocks.cursor.setType).toHaveBeenLastCalledWith(mocks.cursor.ACTION.DEFAULT);
+	});
+});
+
 // CSS cannot answer this one: the custom cursor forces `cursor: none` over the
 // whole window, so a `not-allowed` rule is invisible exactly when it is needed.
 describe('the cursor over a clickable a component has marked refused', () => {
