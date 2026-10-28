@@ -31,7 +31,7 @@ vi.mock('Core/Client.js', () => ({
 	}
 }));
 vi.mock('Renderer/Renderer.js', () => ({ default: { width: 1200, height: 800 } }));
-vi.mock('Renderer/MapRenderer.js', () => ({ default: { currentMap: 'prontera.gat' } }));
+vi.mock('Renderer/MapRenderer.js', () => ({ default: { currentMap: 'prontera.gat', _loadId: 0 } }));
 vi.mock('Renderer/EntityManager.js', () => ({ default: { setOverEntity: vi.fn() } }));
 vi.mock('Engine/SessionStorage.js', () => ({ default: { Entity: { ACTION: { DIE: 8 }, action: 0 } } }));
 vi.mock('UI/Scrollbar.js', () => ({ default: {} }));
@@ -176,16 +176,18 @@ describe('the Private Airship payment window', () => {
 		expect(sent).toHaveLength(2);
 	});
 
-	it('lets a request with no answer go after a while', () => {
+	it('keeps an unanswered request pending however long it takes, until a map loads', () => {
 		vi.useFakeTimers();
 		PrivateAirship.open({ targetMap: 'geffen' });
 		buttons()[1].click();
 
-		vi.advanceTimersByTime(9000);
+		vi.advanceTimersByTime(60000);
 		buttons()[1].click();
 		expect(sent).toHaveLength(1);
 
-		vi.advanceTimersByTime(1000);
+		// A map load (a lost connection means logging in again) drops it
+		MapRenderer._loadId++;
+		PrivateAirship.open({ targetMap: 'geffen' });
 		buttons()[1].click();
 		expect(sent).toHaveLength(2);
 	});

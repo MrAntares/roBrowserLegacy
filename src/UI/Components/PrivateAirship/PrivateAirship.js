@@ -89,12 +89,6 @@ const WINDOW_HEIGHT = 110;
 const BASE_ITEM_ROWS = 2;
 
 /**
- * A request with no answer stops blocking new ones after this long (ms), so a
- * lost answer cannot lock the window for the rest of the session.
- */
-const PENDING_TIMEOUT = 10000;
-
-/**
  * Create Component
  */
 const PrivateAirship = new GUIComponent('PrivateAirship', cssText);
@@ -109,17 +103,22 @@ PrivateAirship.needFocus = true;
 let _targetMap = '';
 
 /**
- * @var {number} when the request on its way was sent (0: none). Kept while the
- * window is closed and reopened, so a second paid request cannot go out before
- * the server answers the first.
+ * @var {number|null} map load the request on its way was sent on (null: none).
+ * Kept while the window is closed and reopened, so a second paid request
+ * cannot go out before the server answers the first. The answer has no id to
+ * match it to a request, so there is never more than one on its way.
  */
-let _pendingSince = 0;
+let _pendingLoadId = null;
 
 /**
- * @return {boolean} a request is on its way
+ * A request is on its way until the server answers it, or until a map loads:
+ * the server answers before it moves you, and a lost connection means a new
+ * map load, so a request from an earlier load will not be answered.
+ *
+ * @return {boolean}
  */
 function isPending() {
-	return _pendingSince !== 0 && Date.now() - _pendingSince < PENDING_TIMEOUT;
+	return _pendingLoadId !== null && _pendingLoadId === MapRenderer._loadId;
 }
 
 /**
@@ -316,7 +315,7 @@ PrivateAirship.sendRequest = function sendRequest(itemId) {
 	if (isPending() || !_targetMap) {
 		return;
 	}
-	_pendingSince = Date.now();
+	_pendingLoadId = MapRenderer._loadId;
 
 	const pkt = new PACKET.CZ.PRIVATE_AIRSHIP_REQUEST();
 	pkt.mapName = _targetMap + '.gat';
@@ -330,7 +329,7 @@ PrivateAirship.sendRequest = function sendRequest(itemId) {
  * @param {object} pkt
  */
 PrivateAirship.onResponse = function onResponse(pkt) {
-	_pendingSince = 0;
+	_pendingLoadId = null;
 
 	if (!PrivateAirship.__active) {
 		return;
