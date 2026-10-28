@@ -322905,6 +322905,12 @@ var init_GUIComponent = __esmMin((() => {
 				_hovering = false;
 				_Cursor?.setType(_savedType);
 			});
+			container.addEventListener("x_remove", () => {
+				if (_hovering) {
+					_hovering = false;
+					_Cursor?.setType(_savedType);
+				}
+			});
 			container.addEventListener("mousedown", (e) => {
 				const target = e.target;
 				if (target.closest && target.closest(CLICKABLE_SELECTOR)) {
