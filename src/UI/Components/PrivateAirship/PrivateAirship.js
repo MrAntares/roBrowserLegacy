@@ -103,22 +103,38 @@ PrivateAirship.needFocus = true;
 let _targetMap = '';
 
 /**
- * @var {number|null} map load the request on its way was sent on (null: none).
- * Kept while the window is closed and reopened, so a second paid request
- * cannot go out before the server answers the first. The answer has no id to
- * match it to a request, so there is never more than one on its way.
+ * Requests sent and answers received since the current map loaded, and when
+ * the last request went out. The answer carries no id, so it cannot be matched
+ * to a request: counting them keeps a late answer to an earlier request from
+ * freeing the window while a later one is still on its way. Kept while the
+ * window is closed and reopened, so that cannot send a second paid request.
  */
-let _pendingLoadId = null;
+const _requests = { loadId: null, sent: 0, answered: 0, lastSent: 0 };
 
 /**
- * A request is on its way until the server answers it, or until a map loads:
- * the server answers before it moves you, and a lost connection means a new
- * map load, so a request from an earlier load will not be answered.
- *
- * @return {boolean}
+ * A request still waiting for its answer is given this long (ms). rAthena
+ * answers a refused request at once and answers none at all in a few cases
+ * (the feature switched off, a target map on another map server), so without
+ * a limit the window could stay locked on that map.
+ */
+const PENDING_TIMEOUT = 15000;
+
+/**
+ * Forget the requests of an earlier map load: the server answers a refusal at
+ * once and moves you on success, and a lost connection means a new map load.
+ */
+function syncRequests() {
+	if (_requests.loadId !== MapRenderer._loadId) {
+		Object.assign(_requests, { loadId: MapRenderer._loadId, sent: 0, answered: 0, lastSent: 0 });
+	}
+}
+
+/**
+ * @return {boolean} a request is on its way
  */
 function isPending() {
-	return _pendingLoadId !== null && _pendingLoadId === MapRenderer._loadId;
+	syncRequests();
+	return _requests.answered < _requests.sent && Date.now() - _requests.lastSent < PENDING_TIMEOUT;
 }
 
 /**
@@ -315,7 +331,9 @@ PrivateAirship.sendRequest = function sendRequest(itemId) {
 	if (isPending() || !_targetMap) {
 		return;
 	}
-	_pendingLoadId = MapRenderer._loadId;
+	syncRequests();
+	_requests.sent++;
+	_requests.lastSent = Date.now();
 
 	const pkt = new PACKET.CZ.PRIVATE_AIRSHIP_REQUEST();
 	pkt.mapName = _targetMap + '.gat';
@@ -329,7 +347,8 @@ PrivateAirship.sendRequest = function sendRequest(itemId) {
  * @param {object} pkt
  */
 PrivateAirship.onResponse = function onResponse(pkt) {
-	_pendingLoadId = null;
+	syncRequests();
+	_requests.answered = Math.min(_requests.sent, _requests.answered + 1);
 
 	if (!PrivateAirship.__active) {
 		return;

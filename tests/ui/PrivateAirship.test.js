@@ -176,20 +176,41 @@ describe('the Private Airship payment window', () => {
 		expect(sent).toHaveLength(2);
 	});
 
-	it('keeps an unanswered request pending however long it takes, until a map loads', () => {
+	it('lets an unanswered request go after 15 s, or when a map loads', () => {
 		vi.useFakeTimers();
 		PrivateAirship.open({ targetMap: 'geffen' });
 		buttons()[1].click();
 
-		vi.advanceTimersByTime(60000);
+		vi.advanceTimersByTime(14000);
 		buttons()[1].click();
 		expect(sent).toHaveLength(1);
 
-		// A map load (a lost connection means logging in again) drops it
-		MapRenderer._loadId++;
-		PrivateAirship.open({ targetMap: 'geffen' });
+		vi.advanceTimersByTime(1000);
 		buttons()[1].click();
 		expect(sent).toHaveLength(2);
+
+		// A map load (a lost connection means logging in again) drops it at once
+		MapRenderer._loadId++;
+		buttons()[1].click();
+		expect(sent).toHaveLength(3);
+	});
+
+	it('does not let a late answer to an earlier request free a later one', () => {
+		vi.useFakeTimers();
+		PrivateAirship.open({ targetMap: 'geffen' });
+		buttons()[1].click();
+		vi.advanceTimersByTime(15000);
+		buttons()[1].click();
+		expect(sent).toHaveLength(2);
+
+		// The first request's answer arrives late: the second is still on its way
+		PrivateAirship.onResponse({ result: 1 });
+		buttons()[1].click();
+		expect(sent).toHaveLength(2);
+
+		PrivateAirship.onResponse({ result: 1 });
+		buttons()[1].click();
+		expect(sent).toHaveLength(3);
 	});
 
 	it('grows the window and moves the notice down for a third payment item', () => {
