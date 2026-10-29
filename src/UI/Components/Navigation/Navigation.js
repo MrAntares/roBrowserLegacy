@@ -21,6 +21,13 @@ import DB from 'DB/DBManager.js';
 import htmlText from './Navigation.html?raw';
 import cssText from './Navigation.css?raw';
 import MapPathFinder from './MapPathFinder.js';
+import PrivateAirship from 'UI/Components/PrivateAirship/PrivateAirship.js';
+import PACKETVER from 'Network/PacketVerManager.js';
+
+/**
+ * First client date with the Private Airship request (CZ_PRIVATE_AIRSHIP_REQUEST)
+ */
+const PRIVATE_AIRSHIP_PACKETVER = 20180321;
 
 /**
  * Create Navigation component
@@ -365,6 +372,7 @@ Navigation.init = function init() {
 	// Bind events
 	root.querySelector('.close').addEventListener('click', () => this.hide());
 	root.querySelector('.search-button').addEventListener('click', () => this.onSearch());
+	root.querySelector('.airship-move').addEventListener('click', () => this.onAirshipMove());
 
 	const searchInput = root.querySelector('.search-input');
 	searchInput.addEventListener('keypress', e => {
@@ -423,6 +431,7 @@ Navigation.onAppend = function onAppend() {
 	// Load the current map after initializing the worker
 	const mapName = getCurrentMap();
 	this.loadMap(mapName);
+	this.updateAirshipButton();
 
 	if (_finalTargetData) {
 		const currentPos = getPlayerPosition();
@@ -430,10 +439,11 @@ Navigation.onAppend = function onAppend() {
 			startMap: mapName,
 			startX: currentPos.x,
 			startY: currentPos.y,
-			endMap: _finalTargetData.map,
+			endMap: _finalTargetData.airshipMap || _finalTargetData.map,
 			endX: _finalTargetData.x,
 			endY: _finalTargetData.y,
-			displayName: _finalTargetData.displayName
+			displayName: _finalTargetData.displayName,
+			isNpc: _finalTargetData.isNpc
 		});
 	}
 };
@@ -547,7 +557,8 @@ Navigation.navigateToSearchResult = function navigateToSearchResult(result) {
 		endMap: result.mapName,
 		endX: result.x,
 		endY: result.y,
-		displayName: result.name
+		displayName: result.name,
+		isNpc: result.type === 'NPC'
 	});
 
 	// Hide the search results
@@ -635,7 +646,8 @@ Navigation.onMapClick = function onMapClick(event) {
 		endMap: currentMap,
 		endX: mapCoords.x,
 		endY: mapCoords.y,
-		displayName: 'Map Click'
+		displayName: 'Map Click',
+		airshipMap: MapRenderer.currentMap
 	});
 };
 
@@ -718,6 +730,37 @@ Navigation.clear = function clear() {
 	if (currentMap) {
 		this.setLocationTitle(currentMap, null);
 	}
+
+	this.updateAirshipButton();
+};
+
+/**
+ * Enable the Private Airship Move button while there is a target
+ */
+Navigation.updateAirshipButton = function updateAirshipButton() {
+	const root = Navigation.getRoot();
+	const bar = root && root.querySelector('.airship-bar');
+	const button = root && root.querySelector('.airship-move');
+	if (!bar || !button) {
+		return;
+	}
+	const supported = PACKETVER.value >= PRIVATE_AIRSHIP_PACKETVER;
+	bar.style.display = supported ? '' : 'none';
+	button.disabled = !supported || !_finalTargetData;
+};
+
+/**
+ * Move button: fly to the target's map with the Private Airship
+ */
+Navigation.onAirshipMove = function onAirshipMove() {
+	if (!_finalTargetData || PACKETVER.value < PRIVATE_AIRSHIP_PACKETVER) {
+		return;
+	}
+
+	PrivateAirship.open({
+		targetMap: _finalTargetData.airshipMap || _finalTargetData.map,
+		toNpc: !!_finalTargetData.isNpc
+	});
 };
 
 Navigation.clearPath = function clearPath() {
@@ -763,10 +806,11 @@ Navigation.renderCanvas = function renderCanvas(tick) {
 			startMap: currentMap,
 			startX: currentPos.x,
 			startY: currentPos.y,
-			endMap: _finalTargetData.map,
+			endMap: _finalTargetData.airshipMap || _finalTargetData.map,
 			endX: _finalTargetData.x,
 			endY: _finalTargetData.y,
-			displayName: _finalTargetData.displayName
+			displayName: _finalTargetData.displayName,
+			isNpc: _finalTargetData.isNpc
 		});
 		_lastPathUpdate = tick;
 	}
@@ -1156,10 +1200,11 @@ Navigation.show = function show() {
 			startMap: mapName,
 			startX: currentPos.x,
 			startY: currentPos.y,
-			endMap: _finalTargetData.map,
+			endMap: _finalTargetData.airshipMap || _finalTargetData.map,
 			endX: _finalTargetData.x,
 			endY: _finalTargetData.y,
-			displayName: _finalTargetData.displayName
+			displayName: _finalTargetData.displayName,
+			isNpc: _finalTargetData.isNpc
 		});
 	}
 
@@ -1289,12 +1334,22 @@ Navigation.navigateTo = function navigateTo(options) {
 		this.setTargetCoordinatesBlinking(true);
 	}
 
+	// The airship flies to the map's real name (izlude_a, not izlude). Path
+	// refreshes pass the stored real name and NPC flag back in; a map click
+	// passes the loaded map's own name.
+	const airshipMap = String(options.airshipMap || options.endMap || '')
+		.replace(/\.gat$/, '')
+		.toLowerCase();
+
 	_finalTargetData = {
 		map: endMap,
 		x: options.endX,
 		y: options.endY,
-		displayName: displayName
+		displayName: displayName,
+		airshipMap: airshipMap,
+		isNpc: !!options.isNpc
 	};
+	this.updateAirshipButton();
 
 	// Get warp types based on Services checkbox
 	let warpTypes = [200, 201];
