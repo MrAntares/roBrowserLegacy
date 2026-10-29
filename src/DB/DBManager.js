@@ -167,34 +167,34 @@ const SignBoardTranslatedTable = {};
 let SignBoardTable = {};
 
 /**
- * @const {Object} NaviMap Table
+ * @const {Array} NaviMap Table
  */
-const NaviMapTable = {};
+const NaviMapTable = [];
 
 /**
- * @const {Object} NaviMob Table
+ * @const {Array} NaviMob Table
  */
-const NaviMobTable = {};
+const NaviMobTable = [];
 
 /**
- * @const {Object} NaviNpc Table
+ * @const {Array} NaviNpc Table
  */
-const NaviNpcTable = {};
+const NaviNpcTable = [];
 
 /**
- * @const {Object} NaviLink Table
+ * @const {Array} NaviLink Table
  */
-const NaviLinkTable = {};
+const NaviLinkTable = [];
 
 /**
- * @const {Object} NaviLinkDistance Table
+ * @const {Array} NaviLinkDistance Table
  */
-const NaviLinkDistanceTable = {};
+const NaviLinkDistanceTable = [];
 
 /**
- * @const {Object} NaviNpcDistance Table
+ * @const {Array} NaviNpcDistance Table
  */
-const NaviNpcDistanceTable = {};
+const NaviNpcDistanceTable = [];
 
 /**
  * @const {Object} QuestInfo Table
@@ -7504,15 +7504,19 @@ function loadLuaValue(file_path, variable_name, callback, onEnd) {
 								elseif type(value) == "string" then
 									return "\"" .. escape_str(value) .. "\""
 								elseif type(value) == "table" then
+									-- pairs() visits keys in no set order, so count them rather than
+									-- expect 1, 2, 3...: an array is keys 1..n with none missing
 									local is_array = true
-									local index = 1
+									local count, highest = 0, 0
 									for k, _ in pairs(value) do
-										if type(k) ~= "number" or k ~= index then
+										if type(k) ~= "number" or k < 1 or k % 1 ~= 0 then
 											is_array = false
 											break
 										end
-										index = index + 1
+										count = count + 1
+										highest = math.max(highest, k)
 									end
+									is_array = is_array and count == highest
 
 									local result = {}
 									if is_array then
