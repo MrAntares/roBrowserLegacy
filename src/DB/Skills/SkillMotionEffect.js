@@ -355,6 +355,8 @@ export const MOTION_EFFECT_RANGES = {
 		[8406, 8406]
 	],
 	454: [[347, 347]],
+	// 548, 768 and 771 have no EffectTable row yet, so these skills show nothing until those
+	// effects are ported (with their jobs). The mapping stays as the client has it.
 	548: [
 		[2270, 2270],
 		[2520, 2520]
