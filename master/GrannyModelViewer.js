@@ -213481,7 +213481,7 @@ function f(a) {
 		byteReversed: !1,
 		pointerSize: 32
 	};
-	if (u(s, r)) return {
+	if (u(s, r$1)) return {
 		ok: !0,
 		byteReversed: !1,
 		pointerSize: 64
@@ -215907,7 +215907,7 @@ function _r(e, t, n) {
 	if (!r) throw Error(`poseAt: parsed.skeletons[0] is missing`);
 	return ir(r, (e.animations ?? [])[t] ?? null, n);
 }
-var e, t, n, r, i$1, s, c, _, v, y, b, E, D, k, A, te, N, F, ie, ae, oe, se, ge, et, tt, V, rt, it, gt, Tt, Et, Pt, Ft, It, Lt, Rt, zt, Zt, Qt, q, $t, cn, ln, Q, vn, yn, $, bn, Qn, $n, cr;
+var e, t, n, r$1, i$1, s, c, _, v, y, b, E, D, k, A, te, N, F, ie, ae, oe, se, ge, et, tt, V, rt, it, gt, Tt, Et, Pt, Ft, It, Lt, Rt, zt, Zt, Qt, q, $t, cn, ln, Q, vn, yn, $, bn, Qn, $n, cr;
 var init_granny_ro_wasm_esm = __esmMin((() => {
 	e = [
 		3400558520,
@@ -215927,7 +215927,7 @@ var init_granny_ro_wasm_esm = __esmMin((() => {
 		1344809195,
 		78870565
 	];
-	r = [
+	r$1 = [
 		1581882341,
 		337601391,
 		2850755358,
@@ -217891,16 +217891,14 @@ var init_SkillEffect = __esmMin((() => {
 		JobConst_default.INQUISITOR
 	]);
 	SkillEffect = {};
-	SkillEffect[SkillConst_default.SM_BASH] = {
-		beginCastEffectId: 16,
-		hitEffectId: 1
-	};
+	SkillEffect[SkillConst_default.SM_BASH] = { hitEffectId: [0, 1] };
 	SkillEffect[SkillConst_default.SM_PROVOKE] = { successEffectId: 67 };
 	SkillEffect[SkillConst_default.SM_MAGNUM] = {
-		effectIdOnCaster: 17,
-		effectId: "quake_magnum"
+		successEffectIdOnCaster: 17,
+		damageEffectIdOnCaster: 16,
+		hitEffectId: [49, 17]
 	};
-	SkillEffect[SkillConst_default.SM_ENDURE] = { effectId: 11 };
+	SkillEffect[SkillConst_default.SM_ENDURE] = { successEffectIdOnCaster: 11 };
 	SkillEffect[SkillConst_default.MG_SIGHT] = {};
 	SkillEffect[SkillConst_default.MG_NAPALMBEAT] = { hitEffectId: 1 };
 	SkillEffect[SkillConst_default.MG_SAFETYWALL] = {};
@@ -259503,7 +259501,60 @@ var init_TwoDEffect = __esmMin((() => {
 function randBetween(minimum, maximum) {
 	return parseFloat(Math.min(minimum + Math.random() * (maximum - minimum), maximum).toFixed(3));
 }
-var blendMode$1, _soulStrikeFirstEffect, ThreeDEffect;
+/**
+* Load an effect/ texture once for every instance that asks for it.
+*
+* @param {WebGL2RenderingContext} gl
+* @param {string} name file name under data/texture/effect/
+* @param {function} onload receives the texture
+*/
+function sharedTexture(gl, name, onload) {
+	let entry = _sharedTextures.get(name);
+	if (!entry) {
+		entry = {
+			texture: null,
+			waiting: [],
+			users: 0
+		};
+		_sharedTextures.set(name, entry);
+		Client.loadFile(`data/texture/effect/${name}`, (buffer) => {
+			WebGL_default.texture(gl, buffer, (texture) => {
+				if (_sharedTextures.get(name) !== entry) {
+					gl.deleteTexture(texture);
+					return;
+				}
+				entry.texture = texture;
+				entry.waiting.splice(0).forEach((fn) => fn(texture));
+			});
+		});
+	}
+	entry.users++;
+	if (entry.texture) onload(entry.texture);
+	else entry.waiting.push(onload);
+}
+/**
+* One instance stops using a shared texture; the last one deletes it.
+*
+* @param {WebGL2RenderingContext} gl
+* @param {string} name
+*/
+function releaseSharedTexture(gl, name) {
+	const entry = _sharedTextures.get(name);
+	if (!entry || --entry.users > 0) return;
+	if (entry.texture) gl.deleteTexture(entry.texture);
+	_sharedTextures.delete(name);
+}
+/**
+* Age handed to an effect's `track`: official client ticks (1/60 s) since the effect started.
+*
+* @param {number} startTick
+* @param {number} tick
+* @return {number}
+*/
+function trackAge(startTick, tick) {
+	return (tick - startTick) * 60 / 1e3;
+}
+var blendMode$1, _sharedTextures, _soulStrikeFirstEffect, ThreeDEffect;
 var init_ThreeDEffect = __esmMin((() => {
 	init_WebGL();
 	init_Client();
@@ -259513,6 +259564,7 @@ var init_ThreeDEffect = __esmMin((() => {
 	init_Camera();
 	init_Entity$1();
 	blendMode$1 = {};
+	_sharedTextures = /* @__PURE__ */ new Map();
 	_soulStrikeFirstEffect = null;
 	ThreeDEffect = class {
 		constructor(effect, EF_Inst_Par, EF_Init_Par) {
@@ -259525,6 +259577,7 @@ var init_ThreeDEffect = __esmMin((() => {
 			this.ownerEntity = EF_Init_Par.ownerEntity;
 			this.otherEntity = EF_Init_Par.otherEntity;
 			this.textureName = effect.file;
+			this.sharedTexture = !!effect.sharedTexture && /^effect\//.test(effect.file || "");
 			this.textureNameList = Array.isArray(effect.fileList) ? effect.fileList : [];
 			this.frameDelay = !isNaN(effect.frameDelay) ? effect.frameDelay : 10;
 			this.zIndex = effect.zIndex ? effect.zIndex : 0;
@@ -259733,6 +259786,7 @@ var init_ThreeDEffect = __esmMin((() => {
 				this.sizeEndY = this.sizeStartY;
 			}
 			this.sizeSmooth = effect.sizeSmooth ? true : false;
+			this.track = typeof effect.track === "function" ? effect.track : null;
 			this.angle = effect.angle ? effect.angle : 0;
 			this.rotate = effect.rotate ? true : false;
 			this.toAngle = effect.toAngle ? effect.toAngle : 0;
@@ -259789,6 +259843,12 @@ var init_ThreeDEffect = __esmMin((() => {
 						if (this.loadedTextures == textureCount) this.ready = true;
 					});
 				});
+			} else if (this.sharedTexture) {
+				this.sharedTextureName = this.textureName.slice(7);
+				sharedTexture(gl, this.sharedTextureName, (texture) => {
+					this.texture = texture;
+					this.ready = true;
+				});
 			} else if (this.textureName) Client.loadFile(`data/texture/${this.textureName}`, (buffer) => {
 				WebGL_default.texture(gl, buffer, (texture) => {
 					this.texture = texture;
@@ -259799,6 +259859,10 @@ var init_ThreeDEffect = __esmMin((() => {
 		}
 		free(gl) {
 			this.ready = false;
+			if (this.sharedTextureName) {
+				releaseSharedTexture(gl, this.sharedTextureName);
+				this.sharedTextureName = null;
+			}
 		}
 		render(gl, tick) {
 			if (this.startTick > tick) return;
@@ -259943,6 +260007,37 @@ var init_ThreeDEffect = __esmMin((() => {
 				const angle = steps * angleStep + startAngle;
 				SpriteRenderer.angle = this.rotateWithCamera ? angle + Camera.angle[1] : angle;
 			} else SpriteRenderer.angle = this.rotateWithCamera ? this.angle + Camera.angle[1] : this.angle;
+			if (this.track) {
+				const sample = this.track(trackAge(this.startTick, tick));
+				if (!sample) {
+					this.needCleanUp = this.endTick < tick;
+					return;
+				}
+				if (sample.x !== void 0) SpriteRenderer.position[0] = this.position[0] + sample.x;
+				if (sample.y !== void 0) SpriteRenderer.position[1] = this.position[1] + sample.y;
+				if (sample.z !== void 0) SpriteRenderer.position[2] = this.position[2] + sample.z;
+				if (sample.size !== void 0) {
+					sizeX = sample.size;
+					sizeY = sample.size;
+					SpriteRenderer.size[0] = sizeX;
+					SpriteRenderer.size[1] = sizeY;
+				}
+				if (sample.sizeX !== void 0) {
+					sizeX = sample.sizeX;
+					SpriteRenderer.size[0] = sizeX;
+				}
+				if (sample.sizeY !== void 0) {
+					sizeY = sample.sizeY;
+					SpriteRenderer.size[1] = sizeY;
+				}
+				SpriteRenderer.offset[0] = sample.offsetX || 0;
+				SpriteRenderer.offset[1] = sample.offsetY || 0;
+				if (sample.alpha !== void 0) {
+					alpha = Math.min(Math.max(sample.alpha, 0), 1);
+					SpriteRenderer.color[3] = alpha;
+				}
+				if (sample.angle !== void 0) SpriteRenderer.angle = this.rotateWithCamera ? sample.angle + Camera.angle[1] : sample.angle;
+			}
 			if (this.actRessource && this.spriteRessource) {
 				let entity = this.ownerEntity;
 				if (!entity) {
@@ -260011,6 +260106,10 @@ var init_ThreeDEffect = __esmMin((() => {
 			} else SpriteRenderer.runWithDepth(this.overlay === false, false, this.overlay === true, () => {
 				SpriteRenderer.render();
 			});
+			if (this.track) {
+				SpriteRenderer.offset[0] = 0;
+				SpriteRenderer.offset[1] = 0;
+			}
 			this.needCleanUp = this.endTick < tick;
 		}
 		static init(gl) {
@@ -260034,6 +260133,8 @@ var init_ThreeDEffect = __esmMin((() => {
 		}
 		static free(gl) {
 			this.ready = false;
+			for (const entry of _sharedTextures.values()) if (entry.texture) gl.deleteTexture(entry.texture);
+			_sharedTextures.clear();
 		}
 		static beforeRender(gl, modelView, projection, fog, tick) {
 			SpriteRenderer.bind3DContext(gl, modelView, projection, fog);
@@ -271405,6 +271506,193 @@ var init_CastRing = __esmMin((() => {
 		}
 	};
 }));
+// src/Renderer/Effects/EndureSim.js
+/**
+* Alpha (0-254) after k ticks of a prim's life.
+*
+* @param {number} k
+* @param {number} life
+* @return {number}
+*/
+function primAlpha(k, life) {
+	const fadeStart = life - Math.floor(life / 3);
+	const rise = (alpha) => Math.min(ENDURE.alphaMax / ENDURE.fadeIn * alpha, ENDURE.alphaMax);
+	if (k < fadeStart) return rise(k);
+	return Math.max(rise(fadeStart) * (life - k) / (life - fadeStart), 0);
+}
+/**
+* Half size of endure.tga after k ticks.
+*
+* @param {number} k
+* @return {number}
+*/
+function ringHalfSize(k) {
+	const { half, speed, shrinkTicks } = ENDURE.ring;
+	const n = Math.min(k, shrinkTicks);
+	const accel = -speed / shrinkTicks;
+	return half + speed * n + accel * n * (n + 1) / 2;
+}
+/**
+* endure.tga `age` ticks after the effect started, or null outside its life.
+*
+* @param {number} age
+* @return {?object} { offsetX, offsetY, sizeX, sizeY, alpha 0-254, angle }
+*/
+function ringAt(age) {
+	const k = Math.floor(age);
+	if (k < 0 || k >= ENDURE.life) return null;
+	const size = ringHalfSize(k) * 2;
+	return {
+		offsetX: 0,
+		offsetY: -ENDURE.lift,
+		sizeX: size,
+		sizeY: size,
+		alpha: primAlpha(k, ENDURE.life),
+		angle: 0
+	};
+}
+/**
+* The streaks that show (born on ticks 0-41).
+*
+* @param {function} [random] returns a number in [0, 1)
+* @return {Array<object>} { spawn, angle, dist, halfWidth, halfLength }
+*/
+function planStreaks(random = Math.random) {
+	const streaks = [];
+	for (let spawn = 0; spawn < ENDURE.streak.ticks; spawn++) {
+		const streak = {
+			spawn,
+			angle: r(random, 360),
+			dist: 100 + r(random, 40),
+			halfWidth: (60 + r(random, 100)) / 100,
+			halfLength: 30 + r(random, 20)
+		};
+		if (spawn + ENDURE.streak.life <= ENDURE.life + 1) streaks.push(streak);
+	}
+	return streaks;
+}
+/**
+* Distance a streak has slid back after k ticks.
+*
+* @param {number} k
+* @return {number}
+*/
+function streakSlide(k) {
+	const { speed, accel } = ENDURE.streak;
+	return -(speed * k + accel * k * (k + 1) / 2);
+}
+/**
+* A streak `age` ticks after its spawn, or null outside its life.
+*
+* @param {object} streak from planStreaks
+* @param {number} age
+* @return {?object} { offsetX, offsetY, sizeX, sizeY, alpha 0-254, angle }
+*/
+function streakAt(streak, age) {
+	const k = Math.floor(age);
+	if (k < 0 || k >= ENDURE.streak.life) return null;
+	const dist = streak.dist - streakSlide(k);
+	return {
+		offsetX: Math.sin(rad(streak.angle)) * dist,
+		offsetY: -Math.cos(rad(streak.angle)) * dist - ENDURE.lift,
+		sizeX: streak.halfWidth * 2,
+		sizeY: streak.halfLength * 2,
+		alpha: primAlpha(k, ENDURE.streak.life),
+		angle: streak.angle
+	};
+}
+var ENDURE, r, rad;
+var init_EndureSim = __esmMin((() => {
+	ENDURE = {
+		life: 80,
+		lift: 20,
+		alphaMax: 254,
+		fadeIn: 20,
+		ring: {
+			half: 150,
+			speed: -5,
+			shrinkTicks: 45
+		},
+		streak: {
+			ticks: 50,
+			life: 40,
+			speed: -4,
+			accel: .1
+		}
+	};
+	r = (random, k) => Math.floor(random() * k);
+	rad = (deg) => deg * Math.PI / 180;
+}));
+// src/DB/Effects/EndureEffect.js
+/**
+* A 3D row drawing one prim on the caster from a sampler.
+*
+* @param {string} file texture
+* @param {number} life ticks
+* @param {function} at age -> sample in client numbers, or null
+* @return {object}
+*/
+function primEffect(file, life, at) {
+	return {
+		type: "3D",
+		file,
+		sharedTexture: true,
+		alphaMax: 1,
+		attachedEntity: true,
+		duration: life * PRIM_TICK_MS,
+		zIndex: 10,
+		track(age) {
+			const p = at(age);
+			if (!p) return null;
+			return {
+				x: 0,
+				y: 0,
+				z: 0,
+				offsetX: p.offsetX,
+				offsetY: p.offsetY,
+				sizeX: p.sizeX,
+				sizeY: p.sizeY,
+				alpha: p.alpha / 255,
+				angle: p.angle
+			};
+		}
+	};
+}
+/**
+* The row of one streak. It starts on the streak's own tick.
+*
+* @param {object} streak from planStreaks
+* @return {object}
+*/
+function endureStreakEffect(streak) {
+	return primEffect("effect/alpha_down.tga", ENDURE.streak.life, (age) => streakAt(streak, age));
+}
+var endureRingEffect, endureEffect;
+var init_EndureEffect = __esmMin((() => {
+	init_EffectPrimSim();
+	init_EndureSim();
+	endureRingEffect = primEffect("effect/endure.tga", ENDURE.life, ringAt);
+	endureEffect = [{
+		...endureRingEffect,
+		wav: "effect/ef_endure"
+	}, {
+		type: "FUNC",
+		attachedEntity: true,
+		func: function(Params) {
+			planStreaks().forEach((streak, i) => {
+				this.spamEffect({
+					effect: endureStreakEffect(streak),
+					Inst: {
+						effectID: 11,
+						duplicateID: i + 1,
+						startTick: Params.Inst.startTick + streak.spawn * PRIM_TICK_MS
+					},
+					Init: Params.Init
+				});
+			});
+		}
+	}];
+}));
 // src/Renderer/Effects/CastFunnelSim.js
 /**
 * A band's alpha (out of 255) on tick `t` (1 on the first). Every band is the same.
@@ -272462,6 +272750,7 @@ var init_EffectTable = __esmMin((() => {
 	init_CastCone();
 	init_CastCircle();
 	init_CastRing();
+	init_EndureEffect();
 	init_CastFunnel();
 	init_CasterMarks();
 	init_RotateLine();
@@ -272976,21 +273265,7 @@ var init_EffectTable = __esmMin((() => {
 			wav: "effect/ef_coin2",
 			attachedEntity: true
 		}],
-		11: [{
-			type: "3D",
-			alphaMax: 1,
-			attachedEntity: true,
-			duration: 1e3,
-			fadeIn: true,
-			fadeOut: true,
-			file: "effect/endure.tga",
-			posz: 2,
-			sizeEnd: 70,
-			sizeSmooth: true,
-			sizeStart: 200,
-			wav: "effect/ef_endure",
-			zIndex: 10
-		}],
+		11: [...endureEffect],
 		12: [{
 			type: "CYLINDER",
 			alphaMax: .8,
@@ -274561,7 +274836,11 @@ var init_EffectTable = __esmMin((() => {
 			type: "STR",
 			file: "provoke",
 			wav: "effect/swordman_provoke",
+			delayWav: 83,
 			attachedEntity: true
+		}, {
+			wav: "effect/swordman_provoke",
+			delayWav: 500
 		}],
 		68: [{
 			type: "STR",
