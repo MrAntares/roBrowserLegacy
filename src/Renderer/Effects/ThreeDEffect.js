@@ -11,6 +11,70 @@ function randBetween(minimum, maximum) {
 }
 
 const blendMode = {};
+
+// Textures of rows with `sharedTexture` (effect/ files), one per file for every instance, with the
+// number of instances using each one.
+const _sharedTextures = new Map();
+
+/**
+ * Load an effect/ texture once for every instance that asks for it.
+ *
+ * @param {WebGL2RenderingContext} gl
+ * @param {string} name file name under data/texture/effect/
+ * @param {function} onload receives the texture
+ */
+function sharedTexture(gl, name, onload) {
+	let entry = _sharedTextures.get(name);
+	if (!entry) {
+		entry = { texture: null, waiting: [], users: 0 };
+		_sharedTextures.set(name, entry);
+		Client.loadFile(`data/texture/effect/${name}`, buffer => {
+			WebGL.texture(gl, buffer, texture => {
+				if (_sharedTextures.get(name) !== entry) {
+					// Freed while loading.
+					gl.deleteTexture(texture);
+					return;
+				}
+				entry.texture = texture;
+				entry.waiting.splice(0).forEach(fn => fn(texture));
+			});
+		});
+	}
+	entry.users++;
+	if (entry.texture) {
+		onload(entry.texture);
+	} else {
+		entry.waiting.push(onload);
+	}
+}
+
+/**
+ * One instance stops using a shared texture; the last one deletes it.
+ *
+ * @param {WebGL2RenderingContext} gl
+ * @param {string} name
+ */
+function releaseSharedTexture(gl, name) {
+	const entry = _sharedTextures.get(name);
+	if (!entry || --entry.users > 0) {
+		return;
+	}
+	if (entry.texture) {
+		gl.deleteTexture(entry.texture);
+	}
+	_sharedTextures.delete(name);
+}
+
+/**
+ * Age handed to an effect's `track`: official client ticks (1/60 s) since the effect started.
+ *
+ * @param {number} startTick
+ * @param {number} tick
+ * @return {number}
+ */
+export function trackAge(startTick, tick) {
+	return ((tick - startTick) * 60) / 1000;
+}
 let _soulStrikeFirstEffect = null;
 
 class ThreeDEffect {
@@ -26,6 +90,9 @@ class ThreeDEffect {
 		this.otherEntity = EF_Init_Par.otherEntity;
 
 		this.textureName = effect.file;
+		// Many instances of one row (particles): load the effect/ texture once and share it. The class
+		// frees it when its last instance goes.
+		this.sharedTexture = !!effect.sharedTexture && /^effect\//.test(effect.file || '');
 
 		this.textureNameList = Array.isArray(effect.fileList) ? effect.fileList : [];
 		this.frameDelay = !isNaN(effect.frameDelay) ? effect.frameDelay : 10;
@@ -318,6 +385,12 @@ class ThreeDEffect {
 			this.sizeEndY = this.sizeStartY;
 		}
 		this.sizeSmooth = effect.sizeSmooth ? true : false;
+		// track(age): optional per-frame path for effects ported from the official client. age is in
+		// client ticks (trackAge). Returns null to draw nothing this frame, or any of { x, y, z } (cells
+		// from the effect's position, z up), size, alpha (0..1), angle (degrees), each replacing the
+		// value the other options give. sizeX / sizeY set the two sides apart, and offsetX / offsetY
+		// move the sprite on the screen plane (sprite pixels, 35 to a cell, y down).
+		this.track = typeof effect.track === 'function' ? effect.track : null;
 		this.angle = effect.angle ? effect.angle : 0;
 		this.rotate = effect.rotate ? true : false;
 		this.toAngle = effect.toAngle ? effect.toAngle : 0;
@@ -394,6 +467,12 @@ class ThreeDEffect {
 					});
 				});
 			}
+		} else if (this.sharedTexture) {
+			this.sharedTextureName = this.textureName.slice('effect/'.length);
+			sharedTexture(gl, this.sharedTextureName, texture => {
+				this.texture = texture;
+				this.ready = true;
+			});
 		} else if (this.textureName) {
 			Client.loadFile(`data/texture/${this.textureName}`, buffer => {
 				WebGL.texture(gl, buffer, texture => {
@@ -408,6 +487,11 @@ class ThreeDEffect {
 
 	free(gl) {
 		this.ready = false;
+		// Also run when an owner's effects are removed (EffectManager.remove), not only on expiry.
+		if (this.sharedTextureName) {
+			releaseSharedTexture(gl, this.sharedTextureName);
+			this.sharedTextureName = null;
+		}
 	}
 
 	render(gl, tick) {
@@ -655,6 +739,46 @@ class ThreeDEffect {
 			SpriteRenderer.angle = this.rotateWithCamera ? this.angle + Camera.angle[1] : this.angle;
 		}
 
+		if (this.track) {
+			const sample = this.track(trackAge(this.startTick, tick));
+			if (!sample) {
+				this.needCleanUp = this.endTick < tick;
+				return;
+			}
+			if (sample.x !== undefined) {
+				SpriteRenderer.position[0] = this.position[0] + sample.x;
+			}
+			if (sample.y !== undefined) {
+				SpriteRenderer.position[1] = this.position[1] + sample.y;
+			}
+			if (sample.z !== undefined) {
+				SpriteRenderer.position[2] = this.position[2] + sample.z;
+			}
+			if (sample.size !== undefined) {
+				sizeX = sample.size;
+				sizeY = sample.size;
+				SpriteRenderer.size[0] = sizeX;
+				SpriteRenderer.size[1] = sizeY;
+			}
+			if (sample.sizeX !== undefined) {
+				sizeX = sample.sizeX;
+				SpriteRenderer.size[0] = sizeX;
+			}
+			if (sample.sizeY !== undefined) {
+				sizeY = sample.sizeY;
+				SpriteRenderer.size[1] = sizeY;
+			}
+			SpriteRenderer.offset[0] = sample.offsetX || 0;
+			SpriteRenderer.offset[1] = sample.offsetY || 0;
+			if (sample.alpha !== undefined) {
+				alpha = Math.min(Math.max(sample.alpha, 0), 1);
+				SpriteRenderer.color[3] = alpha;
+			}
+			if (sample.angle !== undefined) {
+				SpriteRenderer.angle = this.rotateWithCamera ? sample.angle + Camera.angle[1] : sample.angle;
+			}
+		}
+
 		if (this.actRessource && this.spriteRessource) {
 			let entity = this.ownerEntity;
 			if (!entity) {
@@ -752,6 +876,12 @@ class ThreeDEffect {
 			});
 		}
 
+		// A track offset is for this sprite only.
+		if (this.track) {
+			SpriteRenderer.offset[0] = 0;
+			SpriteRenderer.offset[1] = 0;
+		}
+
 		this.needCleanUp = this.endTick < tick;
 	}
 
@@ -778,6 +908,12 @@ class ThreeDEffect {
 
 	static free(gl) {
 		this.ready = false;
+		for (const entry of _sharedTextures.values()) {
+			if (entry.texture) {
+				gl.deleteTexture(entry.texture);
+			}
+		}
+		_sharedTextures.clear();
 	}
 
 	static beforeRender(gl, modelView, projection, fog, tick) {
