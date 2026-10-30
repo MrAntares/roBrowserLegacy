@@ -94,10 +94,16 @@ const CHAMPION_JOBS = new Set([
 const SkillEffect = {};
 
 // Swordman
-SkillEffect[SK.SM_BASH] = { beginCastEffectId: 16, hitEffectId: 1 }; //Bash
+// Official client: 16 (EF_BASH) on the caster as each damage packet arrives, the default caster motion
+// effect (DB/Skills/SkillMotionEffect.js); each hit that lands plays 0 (the standard hit flash) and 1
+// (EF_HIT2) on the target.
+SkillEffect[SK.SM_BASH] = { hitEffectId: [0, 1] }; //Bash
 SkillEffect[SK.SM_PROVOKE] = { successEffectId: 67 }; //Provoke
-SkillEffect[SK.SM_MAGNUM] = { effectIdOnCaster: 17, effectId: 'quake_magnum' }; //Magnum Break
-SkillEffect[SK.SM_ENDURE] = { effectId: 11 }; //Endure
+// Official client: 17 on the caster from the use packet (result set); 16 on the caster from each damage packet
+// that is not a splash packet that hit (the caster motion effect, DB/Skills/SkillMotionEffect.js); 49 (fire hit)
+// and 17 on each target when the hit lands. No screen shake.
+SkillEffect[SK.SM_MAGNUM] = { successEffectIdOnCaster: 17, hitEffectId: [49, 17] }; //Magnum Break
+SkillEffect[SK.SM_ENDURE] = { successEffectIdOnCaster: 11 }; //Endure
 // Mage
 SkillEffect[SK.MG_SIGHT] = {/* effectId: 22 not here*/}; //Sight
 SkillEffect[SK.MG_NAPALMBEAT] = { hitEffectId: 1 }; //Napalm Beat
@@ -213,7 +219,7 @@ SkillEffect[SK.AS_POISONREACT] = { effectId: 126, hitEffectId: 127 }; //Poison R
 SkillEffect[SK.AS_VENOMDUST] = { effectId: 124, groundEffectId: 171 }; //Venom Dust
 SkillEffect[SK.AS_SPLASHER] = { effectId: 129 }; //Venom Splasher
 // 1st Class Quest
-SkillEffect[SK.NV_FIRSTAID] = { effectId: 309 }; //First Aid
+SkillEffect[SK.NV_FIRSTAID] = { successEffectIdOnCaster: 309 }; //First Aid: only when the use packet succeeds, on its source
 SkillEffect[SK.NV_TRICKDEAD] = {}; //Play Dead
 SkillEffect[SK.HN_DOUBLEBOWLINGBASH] = { effectId: 'ef_hn_doublebowlingbash', castAuraEffectId: 12 }; //Double Bowling Bash
 SkillEffect[SK.HN_MEGA_SONIC_BLOW] = { effectId: 'ef_hn_mega_sonic_blow' }; //Mega Sonic Blow
@@ -1897,6 +1903,6 @@ SkillEffect[SK.SJ_PROMINENCEKICK] = { effectId: 'ef_sj_prominencekick' }; //Prom
 SkillEffect[SK.SP_SOULGOLEM] = { effectId: 'ef_sp_soulgolem' }; //Golem's Soul
 SkillEffect[SK.SP_SOULCURSE] = { effectId: 'ef_sp_soulcurse' }; //Soul Curse
 SkillEffect[SK.SP_SOULREVOLVE] = { effectId: 'ef_sp_soulrevolve' }; //Soul Revolution
-SkillEffect[SK.NV_HELPANGEL] = { effectId: 'ef_nv_helpangel' }; //Help Angel
+SkillEffect[SK.NV_HELPANGEL] = { successEffectIdOnCaster: 'ef_nv_helpangel' }; //Help Angel: only when the use packet succeeds, on its source
 
 export default SkillEffect;

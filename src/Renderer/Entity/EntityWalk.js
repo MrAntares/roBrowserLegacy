@@ -11,6 +11,7 @@
 import PathFinding from 'Utils/PathFinding.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Session from 'Engine/SessionStorage.js';
+import StatusState from 'DB/Status/StatusState.js';
 
 /**
  * Direction look up table
@@ -23,6 +24,16 @@ const DIRECTION = [
 
 // Server C++ uses a fixed 1.414 approximation for diagonals in path duration
 const DIAGONAL_FACTOR = 1.414;
+
+const RIDING_MASK =
+	StatusState.EffectState.RIDING |
+	StatusState.EffectState.DRAGON1 |
+	StatusState.EffectState.DRAGON2 |
+	StatusState.EffectState.DRAGON3 |
+	StatusState.EffectState.DRAGON4 |
+	StatusState.EffectState.DRAGON5 |
+	StatusState.EffectState.WUGRIDER |
+	StatusState.EffectState.MADOGEAR;
 
 // Facing behavior (official-like):
 // - First segment: continuous heading toward next tile center.
@@ -839,6 +850,68 @@ function entitiesWalkProcess() {
 	// Use owner's actual current position
 	const ownerCellX = this.position[0];
 	const ownerCellY = this.position[1];
+
+	if (this.cart) {
+		const cart = this.cart;
+		const isMounted = this.costume !== 0 || !!(this._allRidingState & RIDING_MASK);
+		const retDist = isMounted ? 1.6 : 1.0;
+
+		const dx = cart.position[0] - ownerCellX;
+		const dy = cart.position[1] - ownerCellY;
+		const dist = Math.hypot(dx, dy);
+
+		if (dist > 5.0) {
+			// Teleport / snap behind the player
+			const angle = (6 - this.direction) * (Math.PI / 4);
+			const behindDx = -Math.cos(angle);
+			const behindDy = -Math.sin(angle);
+			cart.position[0] = ownerCellX + behindDx * retDist;
+			cart.position[1] = ownerCellY + behindDy * retDist;
+			cart.position[2] = Altitude.getCellHeight(cart.position[0], cart.position[1]);
+			cart.direction = this.direction;
+			cart.setAction({
+				action: cart.ACTION.IDLE,
+				frame: 0,
+				play: false,
+				repeat: true
+			});
+		} else if (dist > retDist) {
+			const factor = retDist / dist;
+			const newX = ownerCellX + dx * factor;
+			const newY = ownerCellY + dy * factor;
+			const deltaMove = Math.hypot(newX - cart.position[0], newY - cart.position[1]);
+
+			cart.position[0] = newX;
+			cart.position[1] = newY;
+			cart.position[2] = Altitude.getCellHeight(newX, newY);
+			if (cart.walk) {
+				cart.walk.dist += deltaMove;
+			}
+
+			const floatDir = offsetToFloatDir(ownerCellX - newX, ownerCellY - newY);
+			cart.direction = quantizeDir(floatDir);
+		}
+
+		if (this.action === this.ACTION.WALK && dist > retDist) {
+			if (cart.action !== cart.ACTION.WALK) {
+				cart.setAction({
+					action: cart.ACTION.WALK,
+					play: true,
+					repeat: true
+				});
+			}
+		} else if (cart.action !== cart.ACTION.IDLE) {
+			cart.setAction({
+				action: cart.ACTION.IDLE,
+				frame: 0,
+				play: false,
+				repeat: true
+			});
+		}
+
+		cart.effectColor.set(this.effectColor);
+		cart.hideEntity = this.hideEntity;
+	}
 
 	if (
 		this.falcon &&

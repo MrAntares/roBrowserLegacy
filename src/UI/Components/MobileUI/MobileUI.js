@@ -1342,9 +1342,13 @@ function isFreeCell(x, y) {
 
 	EntityManager.forEach(entity => {
 		if (
+			entity !== Session.Entity &&
 			entity.objecttype !== entity.constructor.TYPE_EFFECT &&
 			entity.objecttype !== entity.constructor.TYPE_UNIT &&
 			entity.objecttype !== entity.constructor.TYPE_TRAP &&
+			entity.objecttype !== entity.constructor.TYPE_CART &&
+			entity.objecttype !== entity.constructor.TYPE_FALCON &&
+			entity.objecttype !== entity.constructor.TYPE_WUG &&
 			Math.round(entity.position[0]) === x &&
 			Math.round(entity.position[1]) === y
 		) {

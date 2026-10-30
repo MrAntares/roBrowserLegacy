@@ -51,6 +51,7 @@ import StatusIcons from 'UI/Components/StatusIcons/StatusIcons.js';
 import MiniMap from 'UI/Components/MiniMap/MiniMap.js';
 import PartyFriends from 'UI/Components/PartyFriends/PartyFriends.js';
 import Equipment from 'UI/Components/Equipment/Equipment.js';
+import CartItems from 'UI/Components/CartItems/CartItems.js';
 import ScreenEffectManager from 'Renderer/ScreenEffectManager.js';
 import { updateStatusEffects } from 'Engine/MapEngine/StatusEffects.js';
 
@@ -183,6 +184,24 @@ function onEntitySpam(pkt) {
 			maxhp: -1
 		});
 		EntityManager.add(entity.wug);
+	}
+
+	let cartNum = 0;
+	if (pkt.effectState & StatusState.EffectState.CART1) {
+		cartNum = 1;
+	} else if (pkt.effectState & StatusState.EffectState.CART2) {
+		cartNum = 2;
+	} else if (pkt.effectState & StatusState.EffectState.CART3) {
+		cartNum = 3;
+	} else if (pkt.effectState & StatusState.EffectState.CART4) {
+		cartNum = 4;
+	} else if (pkt.effectState & StatusState.EffectState.CART5) {
+		cartNum = 5;
+	}
+
+	if (cartNum > 0 || entity.hasCart || (Session.Entity && entity.GID === Session.Entity.GID && Session.hasCart)) {
+		const realCartNum = DB.isSuperNovice(entity._job) ? 0 : cartNum || entity.CartNum || Session.CartNum || 1;
+		entity.setCart(true, realCartNum);
 	}
 
 	if (entity.objecttype === Entity.TYPE_PC) {
@@ -1683,6 +1702,7 @@ function onEntityUseSkillToAttack(pkt) {
 
 	// Effects the official client plays as each damage packet arrives
 	EffectManager.spamSkillDamage(pkt.SKID, pkt.targetID, Renderer.tick, pkt.AID);
+	EffectManager.spamSkillMotion(pkt.SKID, pkt.AID, pkt.targetID, Renderer.tick, pkt.action, pkt.level, !!dstEntity);
 
 	if (srcEntity && dstEntity && pkt.action != SkillAction.SPLASH) {
 		// && pkt.action != SkillAction.MULTI_HIT
@@ -1983,6 +2003,36 @@ function onEntityStatusChange(pkt) {
 			entity.hasCart = pkt.state || !pkt.hasOwnProperty('state');
 			if (pkt.val && (pkt.state || !pkt.hasOwnProperty('state'))) {
 				entity.CartNum = pkt.val[0];
+			}
+			if (Session.Entity && entity.GID === Session.Entity.GID) {
+				Session.hasCart = entity.hasCart;
+				Session.CartNum = entity.CartNum;
+			}
+			entity._statusCart = !!entity.hasCart;
+			if (
+				entity._statusCart ||
+				!(
+					entity.effectState &
+					(StatusState.EffectState.CART1 |
+						StatusState.EffectState.CART2 |
+						StatusState.EffectState.CART3 |
+						StatusState.EffectState.CART4 |
+						StatusState.EffectState.CART5)
+				)
+			) {
+				entity.setCart(entity._statusCart, entity.CartNum);
+			} else {
+				// Option-derived cart still present; keep it
+				entity.hasCart = true;
+			}
+			// CARTOFF removes CartItems from the DOM; mount it again when a cart is re-acquired
+			if (
+				Session.Entity &&
+				entity.GID === Session.Entity.GID &&
+				entity.hasCart &&
+				!CartItems._host?.isConnected
+			) {
+				CartItems.append();
 			}
 			break;
 
@@ -2500,6 +2550,28 @@ function onEntityOptionChange(pkt) {
 	} else if (entity.wug && !(entity.effectState & StatusState.EffectState.WUG)) {
 		EntityManager.remove(entity.wug.GID);
 		entity.wug = null;
+	}
+
+	let statusCartNum = 0;
+	if (entity.effectState & StatusState.EffectState.CART1) {
+		statusCartNum = 1;
+	} else if (entity.effectState & StatusState.EffectState.CART2) {
+		statusCartNum = 2;
+	} else if (entity.effectState & StatusState.EffectState.CART3) {
+		statusCartNum = 3;
+	} else if (entity.effectState & StatusState.EffectState.CART4) {
+		statusCartNum = 4;
+	} else if (entity.effectState & StatusState.EffectState.CART5) {
+		statusCartNum = 5;
+	}
+
+	// Keep the cart while the ON_PUSH_CART status is active (tracked separately from option bits)
+	const keepViaFlag = !!entity._statusCart || (entity === Session.Entity && entity.hasCart);
+	if (statusCartNum > 0 || keepViaFlag) {
+		const realCartNum = DB.isSuperNovice(entity._job) ? 0 : statusCartNum || entity.CartNum || 1;
+		entity.setCart(true, realCartNum);
+	} else if (entity.cart) {
+		entity.setCart(false);
 	}
 }
 

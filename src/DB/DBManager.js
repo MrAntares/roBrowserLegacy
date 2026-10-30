@@ -41,6 +41,7 @@ import { resetSkillTree, keepBuiltInSkills } from './Skills/SkillTreeMerge.js';
 import JobHitSoundTable from './Jobs/JobHitSoundTable.js';
 import WeaponTrailTable from './Items/WeaponTrailTable.js';
 import TownInfo from './TownInfo.js';
+import PrivateAirship from './Map/PrivateAirship.js';
 import StatusInfo from './Status/StatusInfo.js';
 import SC from './Status/StatusConst.js';
 import StatusEffectTable from './Status/StatusEffectTable.js';
@@ -166,34 +167,49 @@ const SignBoardTranslatedTable = {};
 let SignBoardTable = {};
 
 /**
- * @const {Object} NaviMap Table
+ * @const {Array} NaviMap Table
  */
-const NaviMapTable = {};
+const NaviMapTable = [];
 
 /**
- * @const {Object} NaviMob Table
+ * @const {Array} NaviMob Table
  */
-const NaviMobTable = {};
+const NaviMobTable = [];
 
 /**
- * @const {Object} NaviNpc Table
+ * @const {Array} NaviNpc Table
  */
-const NaviNpcTable = {};
+const NaviNpcTable = [];
 
 /**
- * @const {Object} NaviLink Table
+ * @const {Array} NaviLink Table
  */
-const NaviLinkTable = {};
+const NaviLinkTable = [];
 
 /**
- * @const {Object} NaviLinkDistance Table
+ * @const {Array} NaviLinkDistance Table
  */
-const NaviLinkDistanceTable = {};
+const NaviLinkDistanceTable = [];
 
 /**
- * @const {Object} NaviNpcDistance Table
+ * @const {Array} NaviNpcDistance Table
  */
-const NaviNpcDistanceTable = {};
+const NaviNpcDistanceTable = [];
+
+/**
+ * Put a loaded navigation table in place of the last one. The arrays are
+ * kept, since callers hold them, and emptied first: a client loaded after a
+ * server switch may be another archive, with a shorter table or none.
+ *
+ * @param {Array} table
+ * @param {Array|Object|null} json
+ */
+function fillNaviTable(table, json) {
+	table.length = 0;
+	if (json) {
+		Object.assign(table, json);
+	}
+}
 
 /**
  * @const {Object} QuestInfo Table
@@ -316,6 +332,19 @@ class DB {
 			mountPalettesProbe.stale = true;
 		} else {
 			MemoryManager.remove(null, DB.getBodyPalPath(JobId.PIG_CREATOR, 1, 0));
+		}
+
+		// The navigation tables are only loaded for newer clients, so a client
+		// that skips them must not keep the previous one's.
+		for (const table of [
+			NaviMapTable,
+			NaviMobTable,
+			NaviNpcTable,
+			NaviLinkTable,
+			NaviLinkDistanceTable,
+			NaviNpcDistanceTable
+		]) {
+			table.length = 0;
 		}
 
 		// Callback
@@ -547,7 +576,7 @@ class DB {
 					DB.LUA_PATH + 'navigation/navi_map_krpri.lub',
 					'Navi_Map',
 					function (json) {
-						Object.assign(NaviMapTable, json);
+						fillNaviTable(NaviMapTable, json);
 					},
 					onLoad()
 				);
@@ -555,7 +584,7 @@ class DB {
 					DB.LUA_PATH + 'navigation/navi_mob_krpri.lub',
 					'Navi_Mob',
 					function (json) {
-						Object.assign(NaviMobTable, json);
+						fillNaviTable(NaviMobTable, json);
 					},
 					onLoad()
 				);
@@ -563,7 +592,7 @@ class DB {
 					DB.LUA_PATH + 'navigation/navi_npc_krpri.lub',
 					'Navi_Npc',
 					function (json) {
-						Object.assign(NaviNpcTable, json);
+						fillNaviTable(NaviNpcTable, json);
 					},
 					onLoad()
 				);
@@ -571,7 +600,7 @@ class DB {
 					DB.LUA_PATH + 'navigation/navi_link_krpri.lub',
 					'Navi_Link',
 					function (json) {
-						Object.assign(NaviLinkTable, json);
+						fillNaviTable(NaviLinkTable, json);
 					},
 					onLoad()
 				);
@@ -579,7 +608,7 @@ class DB {
 					DB.LUA_PATH + 'navigation/navi_linkdistance_krpri.lub',
 					'Navi_Distance',
 					function (json) {
-						Object.assign(NaviLinkDistanceTable, json);
+						fillNaviTable(NaviLinkDistanceTable, json);
 					},
 					onLoad()
 				);
@@ -587,7 +616,7 @@ class DB {
 					DB.LUA_PATH + 'navigation/navi_npcdistance_krpri.lub',
 					'Navi_NpcDistance',
 					function (json) {
-						Object.assign(NaviNpcDistanceTable, json);
+						fillNaviTable(NaviNpcDistanceTable, json);
 					},
 					onLoad()
 				);
@@ -771,6 +800,18 @@ class DB {
 
 		// WoldMap
 		loadWorldMapInfo(DB.LUA_PATH + 'worldviewdata/', onLoad());
+		// Private Airship: where a flight may start and land, and what pays for it.
+		// Cleared first, so a server without the file never keeps the last one's.
+		PrivateAirship.reset();
+		if (PACKETVER.value >= 20180321) {
+			tryLoadLuaAliases(
+				loadPrivateAirship,
+				['System/PrivateAirplane_True.lub', ...getSystemAliases('System/PrivateAirplane.lub')],
+				null,
+				onLoad()
+			);
+		}
+
 		// Town Info
 		const onTownInfoEnd = onLoad();
 		loadTownInfoFile('System/Towninfo.lub', null, () => {
@@ -1302,6 +1343,9 @@ class DB {
 						return 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/\xb8\xc5';
 					} else if (id.includes('_WUG')) {
 						return 'data/sprite/\xb8\xf3\xbd\xba\xc5\xcd/\xbf\xf6\xb1\xd7';
+					} else if (id.startsWith('CART_')) {
+						const cartNum = parseInt(id.slice(5), 10) || 0;
+						return DB.getCartPath(cartNum);
 					}
 				}
 				break;
@@ -5210,6 +5254,51 @@ function loadTownInfoFile(filename, callback, onEnd) {
 	);
 }
 
+/**
+ * Loads System/PrivateAirplane_True.lub into DB/Map/PrivateAirship.js
+ *
+ * @param {string} filename
+ * @param {function} callback - unused
+ * @param {function} onEnd - called with whether the file was read
+ */
+function loadPrivateAirship(filename, callback, onEnd) {
+	Client.loadFile(
+		filename,
+		async function (file) {
+			console.log('Loading file "' + filename + '"...');
+			let success = false;
+			try {
+				const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
+				const ctx = lua.ctx;
+				PrivateAirship.reset();
+				ctx.InsertStartableMap = mapName => {
+					PrivateAirship.addStartableMap(userStringDecoder.decode(mapName));
+					return 1;
+				};
+				ctx.InsertEndableMap = mapName => {
+					PrivateAirship.addEndableMap(userStringDecoder.decode(mapName));
+					return 1;
+				};
+				ctx.InsertNeedItem = itemId => {
+					PrivateAirship.addNeedItem(itemId);
+					return 1;
+				};
+				lua.mountFile(filename, buffer);
+				await lua.doFile(filename);
+				lua.doStringSync('main()');
+				success = PrivateAirship.isLoaded();
+			} catch (error) {
+				console.error('[loadPrivateAirship] Error: ', error);
+				PrivateAirship.reset();
+			} finally {
+				lua.unmountFile(filename);
+				onEnd(success);
+			}
+		},
+		() => onEnd(false)
+	);
+}
+
 function loadQuestInfo(filename, callback, onEnd) {
 	const loadPromise = new Promise((resolve, reject) => {
 		Client.loadFile(filename, resolve, reject);
@@ -7443,15 +7532,19 @@ function loadLuaValue(file_path, variable_name, callback, onEnd) {
 								elseif type(value) == "string" then
 									return "\"" .. escape_str(value) .. "\""
 								elseif type(value) == "table" then
+									-- pairs() visits keys in no set order, so count them rather than
+									-- expect 1, 2, 3...: an array is keys 1..n with none missing
 									local is_array = true
-									local index = 1
+									local count, highest = 0, 0
 									for k, _ in pairs(value) do
-										if type(k) ~= "number" or k ~= index then
+										if type(k) ~= "number" or k < 1 or k % 1 ~= 0 then
 											is_array = false
 											break
 										end
-										index = index + 1
+										count = count + 1
+										highest = math.max(highest, k)
 									end
+									is_array = is_array and count == highest
 
 									local result = {}
 									if is_array then

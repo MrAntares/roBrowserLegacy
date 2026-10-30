@@ -452,6 +452,15 @@ function onCartRemoveItem(pkt) {
 	CartItems.removeItem(pkt.index, pkt.count);
 }
 
+function onCartOff() {
+	Session.hasCart = false;
+	if (Session.Entity) {
+		Session.Entity._statusCart = false;
+		Session.Entity.setCart(false);
+	}
+	CartItems.remove();
+}
+
 CartItems.reqRemoveItem = function ReqRemoveItem(index, count) {
 	if (count <= 0) {
 		return;
@@ -768,6 +777,7 @@ export default function ItemEngine() {
 	Network.hookPacket(PACKET.ZC.ACK_WEAR_EQUIP_V5, onItemEquip);
 	Network.hookPacket(PACKET.ZC.DELETE_ITEM_FROM_BODY, onIventoryRemoveItem);
 	Network.hookPacket(PACKET.ZC.DELETE_ITEM_FROM_CART, onCartRemoveItem);
+	Network.hookPacket(PACKET.ZC.CARTOFF, onCartOff);
 	Network.hookPacket(PACKET.ZC.USE_ITEM_ACK, onItemUseAnswer);
 	Network.hookPacket(PACKET.ZC.USE_ITEM_ACK2, onItemUseAnswer);
 	Network.hookPacket(PACKET.ZC.EQUIP_ARROW, onArrowEquipped);

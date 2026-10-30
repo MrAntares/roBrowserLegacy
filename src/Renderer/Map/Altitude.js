@@ -266,8 +266,10 @@ class Altitude {
 				break;
 		}
 
-		for (x = -middle; x <= middle; ++x) {
-			for (y = -middle; y <= middle; ++y, i += 30) {
+		// An even size has no middle cell: the square is centred on the
+		// cell's lower-left corner, one more cell before it than after.
+		for (x = -middle; x < size - middle; ++x) {
+			for (y = -middle; y < size - middle; ++y, i += 30) {
 				const gx = pos_x + x;
 				const gy = pos_y + y;
 				const oob = gx < 0 || gy < 0 || gx >= Altitude.width || gy >= Altitude.height;

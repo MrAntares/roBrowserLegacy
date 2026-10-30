@@ -1,0 +1,109 @@
+:host {
+	width: 208px;
+	height: 110px;
+	top: 0px;
+	left: 0px;
+}
+
+.PrivateAirship {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	background-color: #eef3fd;
+	background-repeat: no-repeat;
+	color: #000;
+	font-size: 12px;
+}
+
+.PrivateAirship .titlebar {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 208px;
+	height: 17px;
+	cursor: move;
+}
+
+.PrivateAirship .title {
+	position: absolute;
+	top: 3px;
+	left: 18px;
+	color: #000;
+	text-shadow: 1px 1px 0 #fff;
+	white-space: nowrap;
+}
+
+.PrivateAirship .close {
+	position: absolute;
+	top: 3px;
+	right: 4px;
+	width: 11px;
+	height: 11px;
+	background-repeat: no-repeat;
+}
+
+.PrivateAirship .items {
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+.PrivateAirship .item {
+	position: absolute;
+	left: 8px;
+	width: 192px;
+	height: 20px;
+	padding: 0 4px;
+	box-sizing: border-box;
+	border: 1px solid #9eaecb;
+	border-radius: 3px;
+	background: linear-gradient(#ffffff, #dfe6f4);
+	color: #000;
+	font-size: 12px;
+	line-height: 18px;
+	text-align: center;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	cursor: pointer;
+}
+
+.PrivateAirship .item:hover {
+	background: linear-gradient(#ffffff, #c9d6ef);
+}
+
+.PrivateAirship .item.disabled {
+	opacity: 0.5;
+	cursor: default;
+	pointer-events: none;
+}
+
+.PrivateAirship .notice {
+	display: none;
+}
+
+.PrivateAirship .notice.visible {
+	display: block;
+}
+
+.PrivateAirship .notice-icon {
+	position: absolute;
+	top: calc(86px + var(--extra-rows-height, 0px));
+	left: 7px;
+	width: 14px;
+	height: 13px;
+	background-repeat: no-repeat;
+}
+
+.PrivateAirship .notice-text {
+	position: absolute;
+	top: calc(80px + var(--extra-rows-height, 0px));
+	left: 26px;
+	width: 164px;
+	height: 26px;
+	display: flex;
+	align-items: center;
+	color: #b51235;
+	line-height: 12px;
+	overflow: hidden;
+}

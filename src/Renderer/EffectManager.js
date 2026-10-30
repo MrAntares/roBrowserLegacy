@@ -11,6 +11,7 @@
  */
 import EffectDB from 'DB/Effects/EffectTable.js';
 import SkillEffect from 'DB/Skills/SkillEffect.js';
+import { motionEffectForPacket } from 'DB/Skills/SkillMotionEffect.js';
 import SkillUnit, { SkillUnitEnd, SkillUnitFallback } from 'DB/Skills/SkillUnit.js';
 import SU from 'DB/Skills/SkillUnitConst.js';
 import ItemEffect from 'DB/Items/ItemEffect.js';
@@ -1260,6 +1261,37 @@ class EffectManager {
 
 		play('damageEffectIdOnCaster', srcAID, destAID);
 		play('damageEffectIdOnTarget', destAID, srcAID);
+	}
+
+	/**
+	 * Spam the caster's motion effect as a skill damage packet arrives: 16
+	 * (EF_BASH) for most skills, from the official client's table
+	 * (DB/Skills/SkillMotionEffect.js). Not played again when the skill's own
+	 * damageEffectIdOnCaster already lists it.
+	 *
+	 * @param {number} skillId skill id
+	 * @param {number} srcAID caster aid
+	 * @param {number} destAID target aid
+	 * @param {number} tick
+	 * @param {number} damageType the packet's action field
+	 * @param {number} level the packet's level field
+	 * @param {boolean} targetFound is the packet's target a known actor
+	 */
+	static spamSkillMotion(skillId, srcAID, destAID, tick, damageType, level, targetFound) {
+		const effectId = motionEffectForPacket(skillId, damageType, level, targetFound);
+		if (effectId === null || !srcAID) {
+			return;
+		}
+		const own = SkillEffect[skillId] && SkillEffect[skillId].damageEffectIdOnCaster;
+		if (own != null && (Array.isArray(own) ? own : [own]).includes(effectId)) {
+			return;
+		}
+		EffectManager.spam({
+			effectId: effectId,
+			ownerAID: srcAID,
+			startTick: tick,
+			otherAID: destAID
+		});
 	}
 
 	/**

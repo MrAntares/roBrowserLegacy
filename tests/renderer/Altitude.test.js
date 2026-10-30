@@ -58,6 +58,23 @@ describe('Renderer/Map/Altitude bounds handling', () => {
 			expect(plane[1]).toBe(-11);
 			expect(plane[6]).toBe(-11);
 		});
+
+		it('centres an even plane on the cell\'s lower-left corner, filling it exactly', () => {
+			const plane = Altitude.generatePlane(2, 2, 2);
+			const xs = [];
+			const zs = [];
+			const uvs = [];
+			for (let i = 0; i < plane.length; i += 5) {
+				xs.push(plane[i]);
+				zs.push(plane[i + 2]);
+				uvs.push(plane[i + 3], plane[i + 4]);
+			}
+
+			expect(plane.length).toBe(2 * 2 * 30);
+			expect([Math.min(...xs), Math.max(...xs)]).toEqual([1, 3]);
+			expect([Math.min(...zs), Math.max(...zs)]).toEqual([1, 3]);
+			expect([Math.min(...uvs), Math.max(...uvs)]).toEqual([0, 1]);
+		});
 	});
 
 	describe('out-of-bounds lookups', () => {
