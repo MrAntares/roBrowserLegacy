@@ -2,14 +2,15 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-// Magnum Break (SM_MAGNUM, skill 7): which effects the official client plays, and when.
+// Magnum Break (SM_MAGNUM, skill 7): which effects the official client plays, and when. The 16 on the caster
+// per non-splash damage packet is the default caster motion effect (CasterMotionEffect.test.js).
 
 const source = readFileSync(join(process.cwd(), 'src/DB/Skills/SkillEffect.js'), 'utf8');
 
 describe('Magnum Break effect sequence', () => {
-	it('plays 17 on the caster from the use packet, 16 per damage packet, 49 and 17 on each target hit', () => {
+	it('plays 17 on the caster from the use packet, 49 and 17 on each target hit', () => {
 		expect(source).toMatch(
-			/SkillEffect\[SK\.SM_MAGNUM\] = \{ successEffectIdOnCaster: 17, damageEffectIdOnCaster: 16, hitEffectId: \[49, 17\] \};/
+			/SkillEffect\[SK\.SM_MAGNUM\] = \{ successEffectIdOnCaster: 17, hitEffectId: \[49, 17\] \};/
 		);
 	});
 
