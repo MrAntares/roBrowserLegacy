@@ -456,6 +456,9 @@ class Entity {
 	 * @return {boolean} removed immediatly ?
 	 */
 	remove(type) {
+		const is_pc = this.objecttype === Entity.TYPE_PC;
+		const is_falcon = this.objecttype === Entity.TYPE_FALCON;
+		const is_wug = this.objecttype === Entity.TYPE_WUG;
 		switch (type) {
 			case Entity.VT.OUTOFSIGHT:
 				this.clean();
@@ -464,9 +467,6 @@ class Entity {
 				break;
 
 			case Entity.VT.DEAD: {
-				const is_pc = this.objecttype === Entity.TYPE_PC;
-				const is_falcon = this.objecttype === Entity.TYPE_FALCON;
-				const is_wug = this.objecttype === Entity.TYPE_WUG;
 				if (!is_falcon) {
 					this.setAction({
 						action: this.ACTION.DIE,
@@ -482,6 +482,7 @@ class Entity {
 						this.remove_delay = 5000;
 					}
 				}
+				if (this._returnTimer) clearTimeout(this._returnTimer);
 				break;
 			}
 			// Effects are added in onEntityVanish
@@ -492,6 +493,7 @@ class Entity {
 				this.clean();
 				this.remove_tick = Date.now();
 				this.remove_delay = 0;
+				if (this._returnTimer) clearTimeout(this._returnTimer);
 				break;
 		}
 	}

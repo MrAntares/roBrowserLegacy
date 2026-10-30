@@ -283,20 +283,8 @@ function walkToNonWalkableGround(
 		} else {
 			this.setAction({ action: this.ACTION.ATTACK, frame: 0, repeat: true, play: true, next: false });
 		}
-		setTimeout(
-			() => {
-				this.setAction({ action: this.ACTION.IDLE, frame: 0, repeat: true, play: true, next: false });
-				this.walkToNonWalkableGround(
-					this.position[0],
-					this.position[1],
-					this._followTargetX,
-					this._followTargetY,
-					1,
-					false,
-					false
-				);
-				this.isAttacking = false;
-			},
+		scheduleCompanionReturn(
+			this,
 			from_x !== to_x || from_y !== to_y
 				? estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed, this.position) + 432
 				: 432
@@ -305,22 +293,10 @@ function walkToNonWalkableGround(
 		if (from_x !== to_x || from_y !== to_y) {
 			this.setAction({ action: this.ACTION.WALK, frame: 0, repeat: true, play: true });
 		}
-		setTimeout(
-			() => {
-				this.setAction({ action: this.ACTION.IDLE, frame: 0, repeat: true, play: true, next: false });
-				this.walkToNonWalkableGround(
-					this.position[0],
-					this.position[1],
-					this._followTargetX,
-					this._followTargetY,
-					1,
-					false,
-					false
-				);
-				this.isAttacking = false;
-			},
+		scheduleCompanionReturn(
+			this,
 			from_x !== to_x || from_y !== to_y
-				? estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed, this.position) * 2
+				? estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed, this.position) + 432
 				: 432
 		);
 	} else if (this.action !== action) {
@@ -838,6 +814,26 @@ function walkProcess() {
 	}
 }
 
+function scheduleCompanionReturn(entity, delay) {
+	if (entity._returnTimer) {
+		clearTimeout(entity._returnTimer);
+	}
+	entity._returnTimer = setTimeout(() => {
+		entity._returnTimer = null;
+		entity.setAction({ action: entity.ACTION.IDLE, frame: 0, repeat: true, play: true, next: false });
+		entity.walkToNonWalkableGround(
+			entity.position[0],
+			entity.position[1],
+			entity._followTargetX,
+			entity._followTargetY,
+			1,
+			false,
+			false
+		);
+		entity.isAttacking = false;
+	}, delay);
+}
+
 // Companions walk is passively, don't need complexity or lower walk delay
 function entitiesWalkProcess() {
 	// Use owner's actual current position
@@ -891,6 +887,13 @@ function entitiesWalkProcess() {
 			this.wug._followTargetX = ownerCellX;
 			this.wug._followTargetY = ownerCellY;
 			this.wug.walk.lastWalkTick = Date.now();
+
+			// The Wug companion does not fly when following;
+			// it uses A* pathfinding, just like the official version.
+			// `walkToNonWalkableGround` serves only as a fallback when following the player when A* fails;
+			// `walkToNonWalkableGround` it is the default behavior used when using companion skills
+			// or when the falcon is in follow mode.
+
 			// Try walkable path first
 			this.wug.walkTo(this.wug.position[0], this.wug.position[1], ownerCellX, ownerCellY, range - 1, Date.now());
 
