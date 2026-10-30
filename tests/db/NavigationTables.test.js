@@ -18,8 +18,12 @@ vi.hoisted(() => {
 	}
 });
 
+// DB.init() asks for every client file; none needs to arrive here.
+vi.mock('Core/Client.js', () => ({ default: { loadFile: () => {}, loadFiles: () => {}, getFile: () => {} } }));
+
 import DB from 'DB/DBManager.js';
 import MapPathFinder from 'UI/Components/Navigation/MapPathFinder.js';
+import PACKETVER from 'Network/PacketVerManager.js';
 
 // The navigation tables come from Lua arrays and are read with .length. They
 // were plain objects, so copying a loaded array into one dropped its length,
@@ -55,5 +59,18 @@ describe('navigation tables', () => {
 			{ map: 'prontera', x: 156, y: 22, warpId: 1 },
 			{ map: 'prt_fild08', x: 170, y: 300, warpId: null }
 		]);
+	});
+
+	it('are emptied when an older client, which loads none, is loaded after a server switch', () => {
+		Object.assign(DB.getNaviLinkTable(), [['prontera', 1, 200, 45, '', '', 156, 22, 'prt_fild08', 170, 375]]);
+		const packetver = PACKETVER.value;
+		PACKETVER.value = 20100101;
+		try {
+			DB.init();
+		} finally {
+			PACKETVER.value = packetver;
+		}
+
+		expect(DB.getNaviLinkTable().length).toBe(0);
 	});
 });
