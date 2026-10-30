@@ -248,12 +248,7 @@ function walkToNonWalkableGround(
 		}
 	}
 
-	if (
-		from_x === to_x &&
-		from_y === to_y &&
-		(this.objecttype === this.constructor.TYPE_FALCON || this.objecttype === this.constructor.TYPE_WUG) &&
-		isAttacking
-	) {
+	if (from_x === to_x && from_y === to_y && this.objecttype === this.constructor.TYPE_FALCON && isAttacking) {
 		this.walkToNonWalkableGround(
 			this.position[0],
 			this.position[1],
@@ -276,16 +271,9 @@ function walkToNonWalkableGround(
 			this.setAction({
 				action: this.ACTION.WALK,
 				frame: 0,
-				repeat: true,
+				repeat: false,
 				play: true,
-				next: {
-					delay: estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed, this.position),
-					action: this.ACTION.ATTACK,
-					frame: 0,
-					repeat: true,
-					play: true,
-					next: false
-				}
+				next: false
 			});
 		} else {
 			this.setAction({ action: this.ACTION.ATTACK, frame: 0, repeat: true, play: true, next: false });
@@ -305,8 +293,8 @@ function walkToNonWalkableGround(
 				this.isAttacking = false;
 			},
 			from_x !== to_x || from_y !== to_y
-				? estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed, this.position) * 2
-				: 200
+				? estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed, this.position) + 432
+				: 432
 		);
 	} else if (this.objecttype == this.constructor.TYPE_FALCON && isAttacking) {
 		if (from_x !== to_x || from_y !== to_y) {
@@ -328,7 +316,7 @@ function walkToNonWalkableGround(
 			},
 			from_x !== to_x || from_y !== to_y
 				? estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed, this.position) * 2
-				: 200
+				: 432
 		);
 	} else if (this.action !== action) {
 		this.setAction({ action: action, frame: 0, repeat: true, play: true });
