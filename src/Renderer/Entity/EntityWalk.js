@@ -187,6 +187,11 @@ function walkToNonWalkableGround(
 		to_y = OverShootPosition[1];
 	}
 
+	// Same position and not attacking
+	if (from_x === to_x && from_y === to_y && !isAttacking) {
+		return;
+	}
+
 	// Different position
 	if (from_x !== to_x || from_y !== to_y) {
 		const path = this.walk.path;
