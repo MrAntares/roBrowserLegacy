@@ -309766,6 +309766,18 @@ var init_wasmoon_lua5_1 = __esmMin((() => {
 }));
 // src/DB/DBManager.js
 var DBManager_exports = /* @__PURE__ */ __exportAll({ default: () => DB });
+/**
+* Put a loaded navigation table in place of the last one. The arrays are
+* kept, since callers hold them, and emptied first: a client loaded after a
+* server switch may be another archive, with a shorter table or none.
+*
+* @param {Array} table
+* @param {Array|Object|null} json
+*/
+function fillNaviTable(table, json) {
+	table.length = 0;
+	if (json) Object.assign(table, json);
+}
 async function startLua() {
 	LuaModuleLoader.clearCache();
 	const wasmUrl = (await __vitePreload(async () => {
@@ -312239,15 +312251,19 @@ function loadLuaValue(file_path, variable_name, callback, onEnd) {
 								elseif type(value) == "string" then
 									return "\"" .. escape_str(value) .. "\""
 								elseif type(value) == "table" then
+									-- pairs() visits keys in no set order, so count them rather than
+									-- expect 1, 2, 3...: an array is keys 1..n with none missing
 									local is_array = true
-									local index = 1
+									local count, highest = 0, 0
 									for k, _ in pairs(value) do
-										if type(k) ~= "number" or k ~= index then
+										if type(k) ~= "number" or k < 1 or k % 1 ~= 0 then
 											is_array = false
 											break
 										end
-										index = index + 1
+										count = count + 1
+										highest = math.max(highest, k)
 									end
+									is_array = is_array and count == highest
 
 									local result = {}
 									if is_array then
@@ -312645,12 +312661,12 @@ var init_DBManager = __esmMin((() => {
 	EnchantListTable = {};
 	SignBoardTranslatedTable = {};
 	SignBoardTable = {};
-	NaviMapTable = {};
-	NaviMobTable = {};
-	NaviNpcTable = {};
-	NaviLinkTable = {};
-	NaviLinkDistanceTable = {};
-	NaviNpcDistanceTable = {};
+	NaviMapTable = [];
+	NaviMobTable = [];
+	NaviNpcTable = [];
+	NaviLinkTable = [];
+	NaviLinkDistanceTable = [];
+	NaviNpcDistanceTable = [];
 	QuestInfo = {};
 	TitleTable = {};
 	PetDBTable = {};
@@ -312711,6 +312727,14 @@ var init_DBManager = __esmMin((() => {
 			mountPalettes = void 0;
 			if (mountPalettesProbe) mountPalettesProbe.stale = true;
 			else MemoryManager.remove(null, DB.getBodyPalPath(JobConst_default.PIG_CREATOR, 1, 0));
+			for (const table of [
+				NaviMapTable,
+				NaviMobTable,
+				NaviNpcTable,
+				NaviLinkTable,
+				NaviLinkDistanceTable,
+				NaviNpcDistanceTable
+			]) table.length = 0;
 			let index = 0, count = 0;
 			function onLoad() {
 				count++;
@@ -312817,22 +312841,22 @@ var init_DBManager = __esmMin((() => {
 				loadStateIconInfo(DB.LUA_PATH + "stateicon/", null, onLoad());
 				if (PacketVerManager_default.value >= 20111010) {
 					loadLuaValue(DB.LUA_PATH + "navigation/navi_map_krpri.lub", "Navi_Map", function(json) {
-						Object.assign(NaviMapTable, json);
+						fillNaviTable(NaviMapTable, json);
 					}, onLoad());
 					loadLuaValue(DB.LUA_PATH + "navigation/navi_mob_krpri.lub", "Navi_Mob", function(json) {
-						Object.assign(NaviMobTable, json);
+						fillNaviTable(NaviMobTable, json);
 					}, onLoad());
 					loadLuaValue(DB.LUA_PATH + "navigation/navi_npc_krpri.lub", "Navi_Npc", function(json) {
-						Object.assign(NaviNpcTable, json);
+						fillNaviTable(NaviNpcTable, json);
 					}, onLoad());
 					loadLuaValue(DB.LUA_PATH + "navigation/navi_link_krpri.lub", "Navi_Link", function(json) {
-						Object.assign(NaviLinkTable, json);
+						fillNaviTable(NaviLinkTable, json);
 					}, onLoad());
 					loadLuaValue(DB.LUA_PATH + "navigation/navi_linkdistance_krpri.lub", "Navi_Distance", function(json) {
-						Object.assign(NaviLinkDistanceTable, json);
+						fillNaviTable(NaviLinkDistanceTable, json);
 					}, onLoad());
 					loadLuaValue(DB.LUA_PATH + "navigation/navi_npcdistance_krpri.lub", "Navi_NpcDistance", function(json) {
-						Object.assign(NaviNpcDistanceTable, json);
+						fillNaviTable(NaviNpcDistanceTable, json);
 					}, onLoad());
 				}
 				if (PacketVerManager_default.value >= 20150507) loadHatEffectInfo(onLoad());
