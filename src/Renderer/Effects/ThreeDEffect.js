@@ -320,6 +320,12 @@ class ThreeDEffect {
 			this.poszStart = otherPosition[2] - position[2] + this.zOffset + this.zOffsetStart + randStart[2];
 			this.poszEnd = 0 + this.zOffset + this.zOffsetEnd + randEnd[2];
 		}
+		// Fixed [x, y] offset in cells added to the end point only (Arrow Shower's
+		// arrows to the cells around the target)
+		if (effect.endCellOffset) {
+			this.posxEnd += effect.endCellOffset[0];
+			this.posyEnd += effect.endCellOffset[1];
+		}
 
 		if (effect.size) {
 			this.sizeStartX = effect.size;

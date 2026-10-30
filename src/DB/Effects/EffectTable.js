@@ -38,6 +38,8 @@ import CastCone from 'Renderer/Effects/CastCone.js';
 import CastCircle from 'Renderer/Effects/CastCircle.js';
 import CastRing from 'Renderer/Effects/CastRing.js';
 import { endureEffect } from 'DB/Effects/EndureEffect.js';
+import { arrowShowerEffects } from 'DB/Effects/ArrowShowerEffects.js';
+import { arrowFlightBetween } from 'Renderer/Effects/ArrowFlight.js';
 import CastFunnel from 'Renderer/Effects/CastFunnel.js';
 import CasterMarks from 'Renderer/Effects/CasterMarks.js';
 import RotateLine from 'Renderer/Effects/RotateLine.js';
@@ -21515,11 +21517,12 @@ export default {
 	ef_arrow_projectile: [
 		{
 			// effect to show the arrow projectile (normal attack or skill with arrow projectile)
+			// Official flight: 8 frames of 24 ms, shorter under 8 cells (ArrowFlight.js)
 			type: '3D',
 			alphaMax: 1,
 			angle: 180,
 			attachedEntity: true,
-			duration: 140,
+			duration: Params => arrowFlightBetween(Params.Inst.otherPosition, Params.Inst.position),
 			fadeIn: true,
 			fadeOut: true,
 			absoluteSpriteName: 'data/sprite/npc/skel_archer_arrow',
@@ -21859,28 +21862,8 @@ export default {
 		}
 	],
 
-	ef_arrow_shower_projectile: [
-		{
-			type: '3D',
-			alphaMax: 1,
-			angle: 180,
-			attachedEntity: false,
-			duration: 140,
-			duplicate: 10,
-			timeBetweenDupli: 0,
-			fadeIn: true,
-			fadeOut: true,
-			absoluteSpriteName: 'data/sprite/npc/skel_archer_arrow',
-			toSrc: true,
-			rotateToTarget: true,
-			rotateWithCamera: true,
-			size: 100,
-			zOffset: 1,
-			zIndex: 1,
-			posxEndRand: 1.5,
-			posyEndRand: 1.5
-		}
-	],
+	// Arrow Shower (AC_SHOWER): the client's arrows to the cells around a point, ArrowShowerEffects.js.
+	...arrowShowerEffects(),
 
 	// Wind Sign (WH_WIND_SIGN), from the client's own effect folders.
 	ef_wh_wind_sign: [
