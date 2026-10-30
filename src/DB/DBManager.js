@@ -334,6 +334,19 @@ class DB {
 			MemoryManager.remove(null, DB.getBodyPalPath(JobId.PIG_CREATOR, 1, 0));
 		}
 
+		// The navigation tables are only loaded for newer clients, so a client
+		// that skips them must not keep the previous one's.
+		for (const table of [
+			NaviMapTable,
+			NaviMobTable,
+			NaviNpcTable,
+			NaviLinkTable,
+			NaviLinkDistanceTable,
+			NaviNpcDistanceTable
+		]) {
+			table.length = 0;
+		}
+
 		// Callback
 		let index = 0,
 			count = 0;
