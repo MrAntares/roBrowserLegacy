@@ -41,4 +41,17 @@ describe('firstHitEffectId', () => {
 			[0, 20, 1400]
 		]);
 	});
+
+	it("runs Double Strafe's real row: the hit flash on each hit, EF_HIT2 on the first", () => {
+		const source = read('DB/Skills/SkillEffect.js');
+		const literal = source.match(/SkillEffect\[SK\.AC_DOUBLE\] = (\{[\s\S]*?\});/)[1];
+		const row = vm.runInNewContext(`(${literal})`);
+		const { EffectManager, spammed } = loadEffectManager({ 46: row });
+		[0, 1].forEach(i => EffectManager.spamSkillHit(46, 20, 1000 + 200 * i, 10, i));
+		expect(spammed.map(p => [p.effectId, p.startTick])).toEqual([
+			[0, 1000],
+			[1, 1000],
+			[0, 1200]
+		]);
+	});
 });
