@@ -457,6 +457,8 @@ class Entity {
 		this.owner = null;
 		this.falcon = null;
 		this.wug = null;
+		// Clean return timer (Falcon/Wug)
+		if (this._returnTimer) clearTimeout(this._returnTimer);
 		// Avoid conflict if entity re-appears. Official sets it to -1
 		this.GID = -1;
 	}
@@ -506,7 +508,6 @@ class Entity {
 						this.remove_delay = 5000;
 					}
 				}
-				if (this._returnTimer) clearTimeout(this._returnTimer);
 				break;
 			}
 			// Effects are added in onEntityVanish
@@ -517,7 +518,6 @@ class Entity {
 				this.clean();
 				this.remove_tick = Date.now();
 				this.remove_delay = 0;
-				if (this._returnTimer) clearTimeout(this._returnTimer);
 				break;
 		}
 	}
