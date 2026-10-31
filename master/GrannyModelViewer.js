@@ -217952,15 +217952,17 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.MC_IDENTIFY] = {};
 	SkillEffect[SkillConst_default.MC_VENDING] = {};
 	SkillEffect[SkillConst_default.MC_MAMMONITE] = { effectId: 10 };
-	SkillEffect[SkillConst_default.AC_CONCENTRATION] = { effectId: 153 };
+	SkillEffect[SkillConst_default.AC_CONCENTRATION] = { successEffectIdOnCaster: 153 };
 	SkillEffect[SkillConst_default.AC_DOUBLE] = {
-		beginCastEffectId: 16,
-		beforeHitEffectId: "ef_arrow_projectile",
-		hitEffectId: 1
+		damageEffectIdOnCaster: 16,
+		damageEffectIdOnTarget: "ef_arrow_projectile",
+		hitEffectId: 0,
+		firstHitEffectId: 1
 	};
 	SkillEffect[SkillConst_default.AC_SHOWER] = {
-		effectId: "ef_arrow_shower_projectile",
-		hitEffectId: 1
+		damageEffectIdOnTarget: "ef_arrow_shower_target",
+		releaseEffectId: "ef_arrow_projectile",
+		hitEffectId: [0, 1]
 	};
 	SkillEffect[SkillConst_default.TF_STEAL] = { successEffectId: 18 };
 	SkillEffect[SkillConst_default.TF_HIDING] = {};
@@ -218154,7 +218156,8 @@ var init_SkillEffect = __esmMin((() => {
 	SkillEffect[SkillConst_default.AC_MAKINGARROW] = {};
 	SkillEffect[SkillConst_default.AC_CHARGEARROW] = {
 		hideCastAura: true,
-		beforeHitEffectId: "ef_arrow_projectile"
+		damageEffectIdOnCaster: 16,
+		hitEffectId: [0]
 	};
 	SkillEffect[SkillConst_default.TF_SPRINKLESAND] = { effectId: 310 };
 	SkillEffect[SkillConst_default.TF_BACKSLIDING] = {};
@@ -260133,6 +260136,10 @@ var init_ThreeDEffect = __esmMin((() => {
 				this.poszStart = otherPosition[2] - position[2] + this.zOffset + this.zOffsetStart + randStart[2];
 				this.poszEnd = 0 + this.zOffset + this.zOffsetEnd + randEnd[2];
 			}
+			if (effect.endCellOffset) {
+				this.posxEnd += effect.endCellOffset[0];
+				this.posyEnd += effect.endCellOffset[1];
+			}
 			if (effect.size) {
 				this.sizeStartX = effect.size;
 				this.sizeStartY = effect.size;
@@ -261883,7 +261890,7 @@ var init_EffectManager = __esmMin((() => {
 				}, Params.Inst.startTick + (!isNaN(Params.effect.delayWav) ? Params.effect.delayWav : 0) - Renderer.tick);
 			}
 			Params.Inst.direction = Params.effect.attachedEntity && Params.Init.ownerEntity ? Params.Init.ownerEntity.direction : 0;
-			Params.Inst.duration = !isNaN(Params.effect.duration) ? Params.effect.duration : Params.Init.duration;
+			Params.Inst.duration = typeof Params.effect.duration === "function" ? Params.effect.duration(Params) : !isNaN(Params.effect.duration) ? Params.effect.duration : Params.Init.duration;
 			Params.Inst.delayOffsetDelta = !isNaN(Params.effect.delayOffsetDelta) ? Params.effect.delayOffsetDelta * Params.Inst.duplicateID : 0;
 			Params.Inst.delayLateDelta = !isNaN(Params.effect.delayLateDelta) ? Params.effect.delayLateDelta * Params.Inst.duplicateID : 0;
 			Params.Inst.delayOffset = !isNaN(Params.effect.delayOffset) ? Params.effect.delayOffset + Params.Inst.delayOffsetDelta : 0;
@@ -262286,10 +262293,10 @@ var init_EffectManager = __esmMin((() => {
 		* @param {number} target aid
 		* @param {number} tick
 		*/
-		static spamSkillHit(skillId, destAID, tick, srcAID) {
+		static spamSkillHit(skillId, destAID, tick, srcAID, hitIndex = 0) {
 			let effects, EF_Init_Par;
 			if (!(skillId in SkillEffect)) return;
-			if (SkillEffect[skillId].hitEffectId) {
+			if (SkillEffect[skillId].hitEffectId != null) {
 				effects = Array.isArray(SkillEffect[skillId].hitEffectId) ? SkillEffect[skillId].hitEffectId : [SkillEffect[skillId].hitEffectId];
 				effects.forEach((effectId) => {
 					EF_Init_Par = {
@@ -262299,6 +262306,17 @@ var init_EffectManager = __esmMin((() => {
 						otherAID: srcAID
 					};
 					EffectManager.spam(EF_Init_Par);
+				});
+			}
+			if (hitIndex === 0 && SkillEffect[skillId].firstHitEffectId != null) {
+				effects = Array.isArray(SkillEffect[skillId].firstHitEffectId) ? SkillEffect[skillId].firstHitEffectId : [SkillEffect[skillId].firstHitEffectId];
+				effects.forEach((effectId) => {
+					EffectManager.spam({
+						effectId,
+						ownerAID: destAID,
+						startTick: tick,
+						otherAID: srcAID
+					});
 				});
 			}
 			if (SkillEffect[skillId].hitEffectIdOnCaster) {
@@ -272121,6 +272139,90 @@ var init_EndureEffect = __esmMin((() => {
 		}
 	}];
 }));
+// src/DB/Effects/ArrowShowerEffects.js
+/**
+* One arrow from the caster (the effect's other entity) to its owner's
+* position plus a cell offset.
+* @param {number[]} offset [x, y] in cells
+*/
+function arrow(offset) {
+	return {
+		type: "3D",
+		alphaMax: 1,
+		angle: 180,
+		attachedEntity: false,
+		delayStart: 432,
+		duration: 192,
+		absoluteSpriteName: "data/sprite/npc/skel_archer_arrow",
+		toSrc: true,
+		endCellOffset: offset,
+		rotateToTarget: true,
+		rotateWithCamera: true,
+		size: 100,
+		zOffset: 2,
+		zOffsetEnd: 2,
+		zIndex: 1
+	};
+}
+/** EffectTable rows. */
+function arrowShowerEffects() {
+	return { ef_arrow_shower_target: [arrow([0, 0]), ...NEIGHBOUR_CELLS.map(arrow)] };
+}
+var NEIGHBOUR_CELLS;
+var init_ArrowShowerEffects = __esmMin((() => {
+	NEIGHBOUR_CELLS = [
+		[1, 0],
+		[1, 1],
+		[1, -1],
+		[-1, 0],
+		[-1, 1],
+		[-1, -1],
+		[0, 1],
+		[0, -1]
+	];
+}));
+// src/Renderer/Effects/ArrowFlight.js
+/**
+* Flight time of an arrow.
+*
+* @param {number} cells distance from start to end, in cells
+* @return {number} ms
+*/
+function arrowFlightMs(cells) {
+	const units = Math.max(cells, 0) * UNITS_PER_CELL;
+	return 192 * Math.min(1, units / MIN_SPEED_DISTANCE);
+}
+/**
+* Flight time between two positions ([x, y, z] in cells). At least 1 ms: the client drops a
+* zero-length arrow at once, and a zero duration would mean an endless effect here.
+*
+* @param {number[]} from
+* @param {number[]} to
+* @return {number} ms
+*/
+function arrowFlightBetween(from, to) {
+	if (!from || !to) return 192;
+	return Math.max(arrowFlightMs(Math.hypot(to[0] - from[0], to[1] - from[1], (to[2] || 0) - (from[2] || 0))), 1);
+}
+/**
+* When a player's bow attack releases its arrow, and when the hit lands.
+*
+* @param {number} hitFrame the attack motion's hit frame
+* @param {number} motionSpeed the attack motion's speed factor
+* @return {{ releaseMs: number, hitMs: number }} ms after the attack starts
+*/
+function bowAttackTiming(hitFrame, motionSpeed) {
+	const releaseMs = hitFrame * motionSpeed * 24;
+	return {
+		releaseMs,
+		hitMs: releaseMs + 192
+	};
+}
+var MIN_SPEED_DISTANCE, UNITS_PER_CELL;
+var init_ArrowFlight = __esmMin((() => {
+	MIN_SPEED_DISTANCE = 40;
+	UNITS_PER_CELL = 5;
+}));
 // src/Renderer/Effects/CastFunnelSim.js
 /**
 * A band's alpha (out of 255) on tick `t` (1 on the first). Every band is the same.
@@ -273179,6 +273281,8 @@ var init_EffectTable = __esmMin((() => {
 	init_CastCircle();
 	init_CastRing();
 	init_EndureEffect();
+	init_ArrowShowerEffects();
+	init_ArrowFlight();
 	init_CastFunnel();
 	init_CasterMarks();
 	init_RotateLine();
@@ -288939,7 +289043,7 @@ var init_EffectTable = __esmMin((() => {
 			alphaMax: 1,
 			angle: 180,
 			attachedEntity: true,
-			duration: 140,
+			duration: (Params) => arrowFlightBetween(Params.Inst.otherPosition, Params.Inst.position),
 			fadeIn: true,
 			fadeOut: true,
 			absoluteSpriteName: "data/sprite/npc/skel_archer_arrow",
@@ -289162,26 +289266,7 @@ var init_EffectTable = __esmMin((() => {
 			texturePath: "abyss_chaser/abc_abyss_flame/abyss_flame_hit/",
 			min: "abyss_chaser/abc_abyss_flame/abyss_flame_hit/min_abyss_flame_hit"
 		}],
-		ef_arrow_shower_projectile: [{
-			type: "3D",
-			alphaMax: 1,
-			angle: 180,
-			attachedEntity: false,
-			duration: 140,
-			duplicate: 10,
-			timeBetweenDupli: 0,
-			fadeIn: true,
-			fadeOut: true,
-			absoluteSpriteName: "data/sprite/npc/skel_archer_arrow",
-			toSrc: true,
-			rotateToTarget: true,
-			rotateWithCamera: true,
-			size: 100,
-			zOffset: 1,
-			zIndex: 1,
-			posxEndRand: 1.5,
-			posyEndRand: 1.5
-		}],
+		...arrowShowerEffects(),
 		ef_wh_wind_sign: [{
 			type: "STR",
 			file: "windsign/windsign/windsign",
@@ -337151,13 +337236,14 @@ function onEntityAction(pkt) {
 				delayTime = m_attackMotion * m_motionSpeed * 24;
 				animSpeed = pkt.attackMT / m_attackMotion;
 				if (DB.isBow(DB.getWeaponType(srcEntity.weapon, true))) {
-					delayTime = (m_attackMotion + 8 / m_motionSpeed) * m_motionSpeed * 24;
-					pkt.attackMT += delayTime;
+					const bow = bowAttackTiming(m_attackMotion, m_motionSpeed);
+					delayTime = bow.hitMs;
+					pkt.attackMT = bow.hitMs;
 					const EF_Init_Par = {
 						effectId: "ef_arrow_projectile",
 						ownerAID: dstEntity.GID,
 						otherAID: srcEntity.GID,
-						startTick: Renderer.tick + pkt.attackMT,
+						startTick: Renderer.tick + bow.releaseMs,
 						otherPosition: srcEntity.position
 					};
 					EffectManager.spam(EF_Init_Par);
@@ -337741,7 +337827,7 @@ function onEntityUseSkillToAttack(pkt) {
 			const isCombo = target.objecttype !== Entity.TYPE_PC && pkt.count > 1;
 			const isBlueCombo = SkillBlueCombo.includes(pkt.SKID);
 			const addDamage = function(i, startTick) {
-				if (pkt.damage) EffectManager.spamSkillHit(pkt.SKID, pkt.targetID, startTick, pkt.AID);
+				if (pkt.damage) EffectManager.spamSkillHit(pkt.SKID, pkt.targetID, startTick, pkt.AID, i);
 				if (!isCombo && isBlueCombo) Damage.add(pkt.damage / pkt.count, target, startTick, srcWeapon, Damage.TYPE.COMBO_B | (i + 1 === pkt.count ? Damage.TYPE.COMBO_FINAL : 0));
 				else Damage.add(pkt.damage / pkt.count, target, startTick, srcWeapon);
 				if (isCombo) Damage.add(pkt.damage / pkt.count * (i + 1), target, startTick, srcWeapon, (isBlueCombo ? Damage.TYPE.COMBO_B : Damage.TYPE.COMBO) | (i + 1 === pkt.count ? Damage.TYPE.COMBO_FINAL : 0));
@@ -338766,6 +338852,7 @@ var init_Entity = __esmMin((() => {
 	init_CartItems();
 	init_ScreenEffectManager();
 	init_StatusEffects();
+	init_ArrowFlight();
 	SkillNameDisplayExclude = [
 		SkillConst_default.TF_HIDING,
 		SkillConst_default.AS_CLOAKING,
