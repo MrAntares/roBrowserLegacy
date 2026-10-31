@@ -45,7 +45,6 @@ window.ROConfigLocal = {
 	// a blob: URL, which resolves no path. Community = the public v3 plugin registry.
 	plugins: PAGES_PLUGIN_MANAGER
 		? {
-				ItemDb: `${PAGES_SITE}plugins/item-db/item-db.esm.js`,
 				LocalPluginManager: {
 					path: `${PAGES_SITE}plugins/local-plugin-manager/local-plugin-manager.esm.js`,
 					pars: { registries: { Community: 'https://cdn.jsdelivr.net/gh/meitogi/ro-plugins@main/index.json' } }
