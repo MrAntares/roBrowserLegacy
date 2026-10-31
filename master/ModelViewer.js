@@ -319238,8 +319238,8 @@ function WalkStructure() {
 	this.tick = 0;
 	this.prevTick = 0;
 	this.dist = 0;
-	this.path = new Int16Array(PathFinding_default.MAX_WALKPATH * 2);
-	this.segmentDurations = new Float32Array(PathFinding_default.MAX_WALKPATH);
+	this.path = new Int16Array((PathFinding_default.MAX_WALKPATH + 1) * 2);
+	this.segmentDurations = new Float32Array(PathFinding_default.MAX_WALKPATH + 1);
 	this.pos = /* @__PURE__ */ new Float32Array(3);
 	this.lastPos = /* @__PURE__ */ new Float32Array(3);
 	this.onEnd = null;
@@ -319282,87 +319282,71 @@ function walkToNonWalkableGround(from_x, from_y, to_x, to_y, range, isOverShoot 
 		to_x = OverShootPosition[0];
 		to_y = OverShootPosition[1];
 	}
-	if (from_x === to_x && from_y === to_y) return;
-	const path = this.walk.path;
-	let total = 0;
-	const result = PathFinding_default.searchLongIgnoreCellType(from_x | 0, from_y | 0, to_x | 0, to_y | 0, range || 0, path, true);
-	if (result.success) total = result.pathLength + 1;
-	this.walk.index = 2;
-	this.walk.total = total * 2;
-	if (total > 0) {
-		this.walk.pos.set(this.position);
-		const numSegments = total - 1;
-		for (let i = 0; i < numSegments; i++) {
-			const pIdx = (i + 1) * 2;
-			const segDx = path[pIdx] - (i === 0 ? this.position[0] : path[pIdx - 2]);
-			const segDy = path[pIdx + 1] - (i === 0 ? this.position[1] : path[pIdx - 1]);
-			const segDist = Math.hypot(segDx, segDy);
-			this.walk.segmentDurations[i] = segDist * this.walk.speed;
+	if (from_x === to_x && from_y === to_y && !isAttacking) return;
+	if (from_x !== to_x || from_y !== to_y) {
+		const path = this.walk.path;
+		let total = 0;
+		const result = PathFinding_default.searchLongIgnoreCellType(from_x | 0, from_y | 0, to_x | 0, to_y | 0, range || 0, path, true);
+		if (result.success) total = result.pathLength + 1;
+		this.walk.index = 2;
+		this.walk.total = total * 2;
+		if (total > 0) {
+			this.walk.pos.set(this.position);
+			const numSegments = total - 1;
+			for (let i = 0; i < numSegments; i++) {
+				const pIdx = (i + 1) * 2;
+				const segDx = path[pIdx] - (i === 0 ? this.position[0] : path[pIdx - 2]);
+				const segDy = path[pIdx + 1] - (i === 0 ? this.position[1] : path[pIdx - 1]);
+				const segDist = Math.hypot(segDx, segDy);
+				this.walk.segmentDurations[i] = segDist * this.walk.speed;
+			}
+			const nowTick = Date.now();
+			const pathDuration = estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed, this.position);
+			const startTick = computeWalkStartTick(nowTick, moveStartTime, pathDuration, this.objecttype === this.constructor.TYPE_PC || this.objecttype === this.constructor.TYPE_DISGUISED || this.objecttype === this.constructor.TYPE_PET || this.objecttype === this.constructor.TYPE_HOM || this.objecttype === this.constructor.TYPE_MERC ? pathDuration : Math.min(pathDuration, this.walk.speed));
+			this.walk.tick = this.walk.prevTick = startTick;
+			if (!hadRoute) this.walk.dist = 0;
+			this.walk.lastPos.set(this.position);
+			if (this.walk.total >= 2) {
+				const firstX0 = this.walk.path[2];
+				const firstY0 = this.walk.path[3];
+				const initDir0 = offsetToFloatDir(firstX0 - this.position[0], firstY0 - this.position[1]);
+				this.direction = quantizeDir(initDir0);
+			}
 		}
-		const nowTick = Date.now();
-		const pathDuration = estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed, this.position);
-		const startTick = computeWalkStartTick(nowTick, moveStartTime, pathDuration, this.objecttype === this.constructor.TYPE_PC || this.objecttype === this.constructor.TYPE_DISGUISED || this.objecttype === this.constructor.TYPE_PET || this.objecttype === this.constructor.TYPE_HOM || this.objecttype === this.constructor.TYPE_MERC ? pathDuration : Math.min(pathDuration, this.walk.speed));
-		this.walk.tick = this.walk.prevTick = startTick;
-		if (!hadRoute) this.walk.dist = 0;
-		this.walk.lastPos.set(this.position);
-		if (this.walk.total >= 2) {
-			const firstX0 = this.walk.path[2];
-			const firstY0 = this.walk.path[3];
-			const initDir0 = offsetToFloatDir(firstX0 - this.position[0], firstY0 - this.position[1]);
-			this.direction = quantizeDir(initDir0);
-		}
-		let action = this.ACTION.WALK;
-		if (this.objecttype === this.constructor.TYPE_FALCON && !isAttacking) action = this.ACTION.IDLE;
-		if (this.objecttype == this.constructor.TYPE_WUG && isAttacking) {
-			this.setAction({
-				action: this.ACTION.WALK,
-				frame: 0,
-				repeat: true,
-				play: true,
-				next: {
-					delay: Date.now() + 200,
-					action: this.ACTION.ATTACK,
-					frame: 0,
-					repeat: false,
-					play: true,
-					next: {
-						delay: Date.now() + 432,
-						action: this.ACTION.IDLE,
-						frame: 0,
-						repeat: true,
-						play: true,
-						next: false
-					}
-				}
-			});
-			setTimeout(() => {
-				this.walkToNonWalkableGround(this.position[0], this.position[1], this._followTargetX, this._followTargetY, 0, false, false);
-			}, 632);
-		} else if (this.objecttype == this.constructor.TYPE_FALCON && isAttacking) {
-			this.setAction({
-				action: this.ACTION.WALK,
-				frame: 0,
-				repeat: true,
-				play: true,
-				next: {
-					delay: Date.now() + 432,
-					action: this.ACTION.IDLE,
-					frame: 0,
-					repeat: false,
-					play: true,
-					next: false
-				}
-			});
-			setTimeout(() => {
-				this.walkToNonWalkableGround(this.position[0], this.position[1], this._followTargetX, this._followTargetY, 0, false, false);
-			}, 432);
-		} else if (this.action !== action) this.setAction({
-			action,
+	}
+	if (from_x === to_x && from_y === to_y && this.objecttype === this.constructor.TYPE_FALCON && isAttacking) this.walkToNonWalkableGround(this.position[0], this.position[1], this._followTargetX + (Math.random() > .5 ? 2 : -2), this._followTargetY + (Math.random() > .5 ? 2 : -2), 0, false, false);
+	let action = this.ACTION.WALK;
+	if (this.objecttype === this.constructor.TYPE_FALCON && !isAttacking) action = this.ACTION.IDLE;
+	if (this.objecttype == this.constructor.TYPE_WUG && isAttacking) {
+		if (from_x !== to_x || from_y !== to_y) this.setAction({
+			action: this.ACTION.WALK,
+			frame: 0,
+			repeat: false,
+			play: true,
+			next: false
+		});
+		else this.setAction({
+			action: this.ACTION.ATTACK,
+			frame: 0,
+			repeat: true,
+			play: true,
+			next: false
+		});
+		scheduleCompanionReturn(this, from_x !== to_x || from_y !== to_y ? estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed, this.position) + 432 : 432);
+	} else if (this.objecttype == this.constructor.TYPE_FALCON && isAttacking) {
+		if (from_x !== to_x || from_y !== to_y) this.setAction({
+			action: this.ACTION.WALK,
 			frame: 0,
 			repeat: true,
 			play: true
 		});
-	}
+		scheduleCompanionReturn(this, from_x !== to_x || from_y !== to_y ? estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed, this.position) + 432 : 432);
+	} else if (this.action !== action) this.setAction({
+		action,
+		frame: 0,
+		repeat: true,
+		play: true
+	});
 }
 /**
 * Want to move to a cell
@@ -319696,6 +319680,21 @@ function walkProcess() {
 		return;
 	}
 }
+function scheduleCompanionReturn(entity, delay) {
+	if (entity._returnTimer) clearTimeout(entity._returnTimer);
+	entity._returnTimer = setTimeout(() => {
+		entity._returnTimer = null;
+		entity.setAction({
+			action: entity.ACTION.IDLE,
+			frame: 0,
+			repeat: true,
+			play: true,
+			next: false
+		});
+		entity.walkToNonWalkableGround(entity.position[0], entity.position[1], entity._followTargetX, entity._followTargetY, 1, false, false);
+		entity.isAttacking = false;
+	}, delay);
+}
 function entitiesWalkProcess() {
 	const ownerCellX = this.position[0];
 	const ownerCellY = this.position[1];
@@ -319762,7 +319761,8 @@ function entitiesWalkProcess() {
 			this.wug._followTargetX = ownerCellX;
 			this.wug._followTargetY = ownerCellY;
 			this.wug.walk.lastWalkTick = Date.now();
-			this.wug.walkToNonWalkableGround(this.wug.position[0], this.wug.position[1], ownerCellX, ownerCellY, 3, false, false, Date.now());
+			this.wug.walkTo(this.wug.position[0], this.wug.position[1], ownerCellX, ownerCellY, 3, Date.now());
+			if (!this.wug.walk.total) this.wug.walkToNonWalkableGround(this.wug.position[0], this.wug.position[1], ownerCellX, ownerCellY, 3, false, false, Date.now());
 		}
 	}
 }
@@ -320452,6 +320452,7 @@ var init_EntityRender = __esmMin((() => {
 						EntityComposer.end();
 					});
 					break;
+				case Entity.TYPE_WUG:
 				case Entity.TYPE_HOM:
 					SpriteRenderer.position[2] = SpriteRenderer.position[2] + .2;
 					SpriteRenderer.zIndex = 150;
@@ -321913,6 +321914,12 @@ var init_Entity$1 = __esmMin((() => {
 				case "level":
 					this.clevel = unit.level;
 					break;
+				case "_followTargetX":
+					this._followTargetX = unit._followTargetX;
+					break;
+				case "_followTargetY":
+					this._followTargetY = unit._followTargetY;
+					break;
 				default: if (Entity.prototype.hasOwnProperty(keys[i]) || Entity.prototype.hasOwnProperty(`_${keys[i]}`)) this[keys[i]] = unit[keys[i]];
 			}
 			if (this.life.hp > -1 && this.life.hp_max > -1) {
@@ -321944,6 +321951,7 @@ var init_Entity$1 = __esmMin((() => {
 			this.owner = null;
 			this.falcon = null;
 			this.wug = null;
+			if (this._returnTimer) clearTimeout(this._returnTimer);
 			this.GID = -1;
 		}
 		/**
@@ -321953,6 +321961,10 @@ var init_Entity$1 = __esmMin((() => {
 		* @return {boolean} removed immediatly ?
 		*/
 		remove(type) {
+			const is_pc = this.objecttype === Entity.TYPE_PC;
+			const is_falcon = this.objecttype === Entity.TYPE_FALCON;
+			const is_wug = this.objecttype === Entity.TYPE_WUG;
+			const is_cart = this.objecttype === Entity.TYPE_CART;
 			if (this.cart) {
 				if (type === Entity.VT.DEAD) {
 					const cart = this.cart;
@@ -321967,11 +321979,7 @@ var init_Entity$1 = __esmMin((() => {
 					this.remove_tick = +Date.now();
 					this.remove_delay = 1e3;
 					break;
-				case Entity.VT.DEAD: {
-					const is_pc = this.objecttype === Entity.TYPE_PC;
-					const is_falcon = this.objecttype === Entity.TYPE_FALCON;
-					const is_wug = this.objecttype === Entity.TYPE_WUG;
-					const is_cart = this.objecttype === Entity.TYPE_CART;
+				case Entity.VT.DEAD:
 					if (!is_falcon && !is_cart) {
 						this.setAction({
 							action: this.ACTION.DIE,
@@ -321987,7 +321995,6 @@ var init_Entity$1 = __esmMin((() => {
 						}
 					}
 					break;
-				}
 				default:
 					this.clean();
 					this.remove_tick = Date.now();
@@ -336911,7 +336918,9 @@ function onEntitySpam(pkt) {
 			name: "",
 			hp: -1,
 			maxhp: -1,
-			hideShadow: true
+			hideShadow: true,
+			_followTargetX: entity.position[0],
+			_followTargetY: entity.position[1]
 		});
 		EntityManager.add(entity.falcon);
 	}
@@ -336929,7 +336938,9 @@ function onEntitySpam(pkt) {
 			speed: Math.max(entity.walk.speed - 50, 1),
 			name: "",
 			hp: -1,
-			maxhp: -1
+			maxhp: -1,
+			_followTargetX: entity.position[0],
+			_followTargetY: entity.position[1]
 		});
 		EntityManager.add(entity.wug);
 	}
@@ -337022,20 +337033,24 @@ function onEntityVanish(pkt) {
 					EffectManager.spam(EF_Init_Par);
 				}
 				if (entity.falcon) {
+					EntityManager.removeGID(entity.falcon.GID);
 					entity.falcon.remove(pkt.type);
 					entity.falcon = null;
 				}
 				if (entity.wug) {
+					EntityManager.removeGID(entity.wug.GID);
 					entity.wug.remove(pkt.type);
 					entity.wug = null;
 				}
 			case Entity.VT.OUTOFSIGHT:
 				EffectManager.remove(null, pkt.GID, null);
 				if (entity.falcon) {
+					EntityManager.removeGID(entity.falcon.GID);
 					entity.falcon.remove(pkt.type);
 					entity.falcon = null;
 				}
 				if (entity.wug) {
+					EntityManager.removeGID(entity.wug.GID);
 					entity.wug.remove(pkt.type);
 					entity.wug = null;
 				}
@@ -338082,7 +338097,9 @@ function onEntityStatusChange(pkt) {
 					name: "",
 					hp: -1,
 					maxhp: -1,
-					hideShadow: true
+					hideShadow: true,
+					_followTargetX: entity.position[0],
+					_followTargetY: entity.position[1]
 				});
 				EntityManager.add(entity.falcon);
 			}
@@ -338400,11 +338417,13 @@ function onEntityOptionChange(pkt) {
 			name: "",
 			hp: -1,
 			maxhp: -1,
-			hideShadow: true
+			hideShadow: true,
+			_followTargetX: entity.position[0],
+			_followTargetY: entity.position[1]
 		});
 		EntityManager.add(entity.falcon);
 	} else if (entity.falcon && !(entity.effectState & StatusState_default.EffectState.FALCON)) {
-		entity.falcon.remove();
+		EntityManager.remove(entity.falcon.GID);
 		entity.falcon = null;
 	}
 	if (!entity.wug && entity.effectState & StatusState_default.EffectState.WUG) {
@@ -338421,11 +338440,13 @@ function onEntityOptionChange(pkt) {
 			speed: Math.max(entity.walk.speed - 50, 1),
 			name: "",
 			hp: -1,
-			maxhp: -1
+			maxhp: -1,
+			_followTargetX: entity.position[0],
+			_followTargetY: entity.position[1]
 		});
 		EntityManager.add(entity.wug);
 	} else if (entity.wug && !(entity.effectState & StatusState_default.EffectState.WUG)) {
-		entity.wug.remove();
+		EntityManager.remove(entity.wug.GID);
 		entity.wug = null;
 	}
 	let statusCartNum = 0;
@@ -342318,9 +342339,19 @@ function onSkillResult(pkt) {
 		case 13:
 			error = 1398;
 			break;
+		case 71:
+			error = 1536;
+			break;
 		case 83: error = 661;
 	}
-	if (error) ChatBox_default.addText(DB.getMessage(error), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.SKILL_FAIL);
+	if (error) {
+		if (pkt.itemId > 0 && pkt.NUM > 0 && error === 1536) {
+			const itemInfo = DB.getItemInfo(pkt.itemId);
+			const itemName = itemInfo.identifiedDisplayName || itemInfo.unidentifiedDisplayName || `Item ${pkt.itemId}`;
+			const msg = DB.getMessage(error).replace("%s", itemName).replace("%d", pkt.NUM || 1);
+			ChatBox_default.addText(msg, ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.SKILL_FAIL);
+		} else ChatBox_default.addText(DB.getMessage(error), ChatBox_default.TYPE.ERROR, ChatBox_default.FILTER.SKILL_FAIL);
+	}
 }
 /**
 * List of skills
