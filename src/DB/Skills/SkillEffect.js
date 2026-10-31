@@ -135,9 +135,26 @@ SkillEffect[SK.MC_IDENTIFY] = {}; //Item Appraisal
 SkillEffect[SK.MC_VENDING] = {}; //Vending
 SkillEffect[SK.MC_MAMMONITE] = { effectId: 10 }; //Mammonite
 // Archer
-SkillEffect[SK.AC_CONCENTRATION] = { effectId: 153 }; //Improve Concentration
-SkillEffect[SK.AC_DOUBLE] = { beginCastEffectId: 16, beforeHitEffectId: 'ef_arrow_projectile', hitEffectId: 1 }; //Double Strafe
-SkillEffect[SK.AC_SHOWER] = { effectId: 'ef_arrow_shower_projectile', hitEffectId: 1 }; //Arrow Shower
+// Official client: 153 on the caster from the use packet, only when its result is set.
+SkillEffect[SK.AC_CONCENTRATION] = { successEffectIdOnCaster: 153 }; //Improve Concentration
+// Official client (kRO 2025-07-16): as each damage packet arrives, 16 (EF_BASH) on the caster and one
+// arrow from the bow attack motion; every hit that lands plays 0 (the standard hit flash), the first hit
+// of each packet also 1 (EF_HIT2, the hit map).
+SkillEffect[SK.AC_DOUBLE] = {
+	damageEffectIdOnCaster: 16,
+	damageEffectIdOnTarget: 'ef_arrow_projectile',
+	hitEffectId: 0,
+	firstHitEffectId: 1
+}; //Double Strafe
+// Official client (kRO 2025-07-16): nothing from the ground packet; arrows to the damaged actor and the
+// 8 cells around it from each damage packet; the bow arrow of the caster's attack motion from each
+// damage packet that is not splash; each hit that lands plays 0 (the standard hit flash) and 1 (EF_HIT2).
+//
+SkillEffect[SK.AC_SHOWER] = {
+	damageEffectIdOnTarget: 'ef_arrow_shower_target',
+	releaseEffectId: 'ef_arrow_projectile',
+	hitEffectId: [0, 1]
+}; //Arrow Shower
 // Thief
 SkillEffect[SK.TF_STEAL] = { successEffectId: 18 }; //Steal
 SkillEffect[SK.TF_HIDING] = {/*Handled by state*/}; //Hiding
@@ -242,7 +259,10 @@ SkillEffect[SK.HN_RULEBREAK] = { effectId: 'ef_hn_rulebreak', castAuraEffectId: 
 SkillEffect[5505 /* HN_OVERCOMING_CRISIS */] = { effectId: 'ef_hn_overcoming_crisis' }; //Overcoming Crisis
 SkillEffect[SK.SM_AUTOBERSERK] = {}; //Auto Berserk
 SkillEffect[SK.AC_MAKINGARROW] = {}; //Arrow Crafting
-SkillEffect[SK.AC_CHARGEARROW] = { hideCastAura: true, beforeHitEffectId: 'ef_arrow_projectile' }; //Arrow Repel
+// Official client (kRO 2025-07-16): 16 (EF_BASH) on the caster as each damage packet arrives; no arrow
+// (the skill uses action 7, not the bow attack); each hit that lands plays 0 (the standard hit flash) on
+// the target, nothing else (not in the hit map).
+SkillEffect[SK.AC_CHARGEARROW] = { hideCastAura: true, damageEffectIdOnCaster: 16, hitEffectId: [0] }; //Arrow Repel
 SkillEffect[SK.TF_SPRINKLESAND] = { effectId: 310 }; //Sand Attack
 SkillEffect[SK.TF_BACKSLIDING] = {}; //Back Slide
 SkillEffect[SK.TF_PICKSTONE] = { hideCastAura: true }; //Find Stone

@@ -745,7 +745,13 @@ class EffectManager {
 			Params.effect.attachedEntity && Params.Init.ownerEntity ? Params.Init.ownerEntity.direction : 0;
 
 		//Set delays
-		Params.Inst.duration = !isNaN(Params.effect.duration) ? Params.effect.duration : Params.Init.duration;
+		// duration may be worked out per instance (an arrow's flight from its distance, say)
+		Params.Inst.duration =
+			typeof Params.effect.duration === 'function'
+				? Params.effect.duration(Params)
+				: !isNaN(Params.effect.duration)
+					? Params.effect.duration
+					: Params.Init.duration;
 
 		Params.Inst.delayOffsetDelta = !isNaN(Params.effect.delayOffsetDelta)
 			? Params.effect.delayOffsetDelta * Params.Inst.duplicateID
@@ -1301,13 +1307,14 @@ class EffectManager {
 	 * @param {number} target aid
 	 * @param {number} tick
 	 */
-	static spamSkillHit(skillId, destAID, tick, srcAID) {
+	static spamSkillHit(skillId, destAID, tick, srcAID, hitIndex = 0) {
 		let effects, EF_Init_Par;
 		if (!(skillId in SkillEffect)) {
 			return;
 		}
 
-		if (SkillEffect[skillId].hitEffectId) {
+		// 0 is an effect too: the hit flash (EF_HIT1)
+		if (SkillEffect[skillId].hitEffectId != null) {
 			effects = Array.isArray(SkillEffect[skillId].hitEffectId)
 				? SkillEffect[skillId].hitEffectId
 				: [SkillEffect[skillId].hitEffectId];
@@ -1321,6 +1328,23 @@ class EffectManager {
 				};
 
 				EffectManager.spam(EF_Init_Par);
+			});
+		}
+
+		// Only on the first hit of a damage packet: the official client sends the
+		// hit-map effect with the first hit message of a multi-hit packet only
+		if (hitIndex === 0 && SkillEffect[skillId].firstHitEffectId != null) {
+			effects = Array.isArray(SkillEffect[skillId].firstHitEffectId)
+				? SkillEffect[skillId].firstHitEffectId
+				: [SkillEffect[skillId].firstHitEffectId];
+
+			effects.forEach(effectId => {
+				EffectManager.spam({
+					effectId: effectId,
+					ownerAID: destAID,
+					startTick: tick,
+					otherAID: srcAID
+				});
 			});
 		}
 
