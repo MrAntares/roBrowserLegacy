@@ -414,6 +414,14 @@ class Entity {
 					this.clevel = unit.level;
 					break;
 
+				case '_followTargetX':
+					this._followTargetX = unit._followTargetX;
+					break;
+
+				case '_followTargetY':
+					this._followTargetY = unit._followTargetY;
+					break;
+
 				default:
 					if (Entity.prototype.hasOwnProperty(keys[i]) || Entity.prototype.hasOwnProperty(`_${keys[i]}`)) {
 						this[keys[i]] = unit[keys[i]];
