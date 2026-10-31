@@ -275,6 +275,9 @@ function onSkillResult(pkt) {
 			case 13:
 				error = 1398;
 				break;
+			case 71:
+				error = 1536;
+				break;
 			case 83:
 				error = 661;
 				break;
@@ -282,7 +285,16 @@ function onSkillResult(pkt) {
 	}
 
 	if (error) {
-		ChatBox.addText(DB.getMessage(error), ChatBox.TYPE.ERROR, ChatBox.FILTER.SKILL_FAIL);
+		if (pkt.itemId > 0 && pkt.NUM > 0 && error === 1536) {
+			// USESKILL_FAIL_NEED_ITEM — pkt.itemId + pkt.NUM
+			const itemInfo = DB.getItemInfo(pkt.itemId);
+			const itemName = itemInfo.identifiedDisplayName || itemInfo.unidentifiedDisplayName || `Item ${pkt.itemId}`;
+			const msg = DB.getMessage(error)
+				.replace('%s', itemName)
+				.replace('%d', pkt.NUM || 1);
+			ChatBox.addText(msg, ChatBox.TYPE.ERROR, ChatBox.FILTER.SKILL_FAIL);
+		} else ChatBox.addText(DB.getMessage(error), ChatBox.TYPE.ERROR, ChatBox.FILTER.SKILL_FAIL);
+
 		// all skills fails that i tested not executed skill action
 		// maybe there is some edge case that i missed
 		// so i'm commenting out for now

@@ -129,8 +129,8 @@ function WalkStructure() {
 	this.tick = 0;
 	this.prevTick = 0;
 	this.dist = 0;
-	this.path = new Int16Array(PathFinding.MAX_WALKPATH * 2);
-	this.segmentDurations = new Float32Array(PathFinding.MAX_WALKPATH);
+	this.path = new Int16Array((PathFinding.MAX_WALKPATH + 1) * 2);
+	this.segmentDurations = new Float32Array(PathFinding.MAX_WALKPATH + 1);
 	this.pos = new Float32Array(3);
 	this.lastPos = new Float32Array(3);
 	this.onEnd = null;
@@ -198,141 +198,120 @@ function walkToNonWalkableGround(
 		to_y = OverShootPosition[1];
 	}
 
-	// Same position
-	if (from_x === to_x && from_y === to_y) {
+	// Same position and not attacking
+	if (from_x === to_x && from_y === to_y && !isAttacking) {
 		return;
 	}
 
-	const path = this.walk.path;
-	let total = 0;
-	const result = PathFinding.searchLongIgnoreCellType(
-		from_x | 0,
-		from_y | 0,
-		to_x | 0,
-		to_y | 0,
-		range || 0,
-		path,
-		true
-	);
+	// Different position
+	if (from_x !== to_x || from_y !== to_y) {
+		const path = this.walk.path;
+		let total = 0;
+		const result = PathFinding.searchLongIgnoreCellType(
+			from_x | 0,
+			from_y | 0,
+			to_x | 0,
+			to_y | 0,
+			range || 0,
+			path,
+			true
+		);
 
-	if (result.success) {
-		total = result.pathLength + 1;
+		if (result.success) {
+			total = result.pathLength + 1;
+		}
+
+		this.walk.index = 1 * 2; // skip first index
+		this.walk.total = total * 2;
+		if (total > 0) {
+			this.walk.pos.set(this.position);
+			const numSegments = total - 1;
+			for (let i = 0; i < numSegments; i++) {
+				const pIdx = (i + 1) * 2;
+				const segDx = path[pIdx] - (i === 0 ? this.position[0] : path[pIdx - 2]);
+				const segDy = path[pIdx + 1] - (i === 0 ? this.position[1] : path[pIdx - 1]);
+				const segDist = Math.hypot(segDx, segDy);
+				this.walk.segmentDurations[i] = segDist * this.walk.speed;
+			}
+			const nowTick = Date.now();
+			const pathDuration = estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed, this.position);
+			const isPlayerLike =
+				this.objecttype === this.constructor.TYPE_PC ||
+				this.objecttype === this.constructor.TYPE_DISGUISED ||
+				this.objecttype === this.constructor.TYPE_PET ||
+				this.objecttype === this.constructor.TYPE_HOM ||
+				this.objecttype === this.constructor.TYPE_MERC;
+			// For non-player entities we only fast-forward up to one step worth of time.
+			// Their client-side path can diverge from the server due to dynamic obstacles,
+			// and over-fast-forwarding makes STOPMOVE snaps more visible.
+			const maxFastForward = isPlayerLike ? pathDuration : Math.min(pathDuration, this.walk.speed);
+			const startTick = computeWalkStartTick(nowTick, moveStartTime, pathDuration, maxFastForward);
+			this.walk.tick = this.walk.prevTick = startTick;
+
+			// Keep distance accumulation if we were already walking to avoid animation restarts.
+			if (!hadRoute) {
+				this.walk.dist = 0;
+			}
+			this.walk.lastPos.set(this.position);
+
+			// Initialize facing for the first segment (continuous heading handled in walkProcess).
+			if (this.walk.total >= 2) {
+				const firstX0 = this.walk.path[2];
+				const firstY0 = this.walk.path[3];
+				const initDir0 = offsetToFloatDir(firstX0 - this.position[0], firstY0 - this.position[1]);
+				this.direction = quantizeDir(initDir0);
+			}
+		}
 	}
 
-	this.walk.index = 1 * 2; // skip first index
-	this.walk.total = total * 2;
-	if (total > 0) {
-		this.walk.pos.set(this.position);
-		const numSegments = total - 1;
-		for (let i = 0; i < numSegments; i++) {
-			const pIdx = (i + 1) * 2;
-			const segDx = path[pIdx] - (i === 0 ? this.position[0] : path[pIdx - 2]);
-			const segDy = path[pIdx + 1] - (i === 0 ? this.position[1] : path[pIdx - 1]);
-			const segDist = Math.hypot(segDx, segDy);
-			this.walk.segmentDurations[i] = segDist * this.walk.speed;
-		}
-		const nowTick = Date.now();
-		const pathDuration = estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed, this.position);
-		const isPlayerLike =
-			this.objecttype === this.constructor.TYPE_PC ||
-			this.objecttype === this.constructor.TYPE_DISGUISED ||
-			this.objecttype === this.constructor.TYPE_PET ||
-			this.objecttype === this.constructor.TYPE_HOM ||
-			this.objecttype === this.constructor.TYPE_MERC;
-		// For non-player entities we only fast-forward up to one step worth of time.
-		// Their client-side path can diverge from the server due to dynamic obstacles,
-		// and over-fast-forwarding makes STOPMOVE snaps more visible.
-		const maxFastForward = isPlayerLike ? pathDuration : Math.min(pathDuration, this.walk.speed);
-		const startTick = computeWalkStartTick(nowTick, moveStartTime, pathDuration, maxFastForward);
-		this.walk.tick = this.walk.prevTick = startTick;
+	if (from_x === to_x && from_y === to_y && this.objecttype === this.constructor.TYPE_FALCON && isAttacking) {
+		this.walkToNonWalkableGround(
+			this.position[0],
+			this.position[1],
+			this._followTargetX + (Math.random() > 0.5 ? 2 : -2),
+			this._followTargetY + (Math.random() > 0.5 ? 2 : -2),
+			0,
+			false,
+			false
+		);
+	}
 
-		// Keep distance accumulation if we were already walking to avoid animation restarts.
-		if (!hadRoute) {
-			this.walk.dist = 0;
-		}
-		this.walk.lastPos.set(this.position);
+	let action = this.ACTION.WALK;
+	if (this.objecttype === this.constructor.TYPE_FALCON && !isAttacking) {
+		// falcon: action.walk = gliding
+		action = this.ACTION.IDLE;
+	}
 
-		// Initialize facing for the first segment (continuous heading handled in walkProcess).
-		if (this.walk.total >= 2) {
-			const firstX0 = this.walk.path[2];
-			const firstY0 = this.walk.path[3];
-			const initDir0 = offsetToFloatDir(firstX0 - this.position[0], firstY0 - this.position[1]);
-			this.direction = quantizeDir(initDir0);
-		}
-
-		let action = this.ACTION.WALK;
-		if (this.objecttype === this.constructor.TYPE_FALCON && !isAttacking) {
-			// falcon: action.walk = gliding
-			action = this.ACTION.IDLE;
-		}
-
-		if (this.objecttype == this.constructor.TYPE_WUG && isAttacking) {
+	if (this.objecttype == this.constructor.TYPE_WUG && isAttacking) {
+		if (from_x !== to_x || from_y !== to_y) {
 			this.setAction({
 				action: this.ACTION.WALK,
 				frame: 0,
-				repeat: true,
+				repeat: false,
 				play: true,
-				next: {
-					delay: Date.now() + 200,
-					action: this.ACTION.ATTACK,
-					frame: 0,
-					repeat: false,
-					play: true,
-					next: {
-						delay: Date.now() + 432,
-						action: this.ACTION.IDLE,
-						frame: 0,
-						repeat: true,
-						play: true,
-						next: false
-					}
-				}
+				next: false
 			});
-			setTimeout(() => {
-				this.walkToNonWalkableGround(
-					this.position[0],
-					this.position[1],
-					this._followTargetX,
-					this._followTargetY,
-					0,
-					false,
-					false
-				);
-			}, 632);
-		} else if (this.objecttype == this.constructor.TYPE_FALCON && isAttacking) {
-			this.setAction({
-				action: this.ACTION.WALK,
-				frame: 0,
-				repeat: true,
-				play: true,
-				next: {
-					delay: Date.now() + 432,
-					action: this.ACTION.IDLE,
-					frame: 0,
-					repeat: false,
-					play: true,
-					next: false
-				}
-			});
-			setTimeout(() => {
-				this.walkToNonWalkableGround(
-					this.position[0],
-					this.position[1],
-					this._followTargetX,
-					this._followTargetY,
-					0,
-					false,
-					false
-				);
-			}, 432);
-		} else if (this.action !== action) {
-			this.setAction({
-				action: action,
-				frame: 0,
-				repeat: true,
-				play: true
-			});
+		} else {
+			this.setAction({ action: this.ACTION.ATTACK, frame: 0, repeat: true, play: true, next: false });
 		}
+		scheduleCompanionReturn(
+			this,
+			from_x !== to_x || from_y !== to_y
+				? estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed, this.position) + 432
+				: 432
+		);
+	} else if (this.objecttype == this.constructor.TYPE_FALCON && isAttacking) {
+		if (from_x !== to_x || from_y !== to_y) {
+			this.setAction({ action: this.ACTION.WALK, frame: 0, repeat: true, play: true });
+		}
+		scheduleCompanionReturn(
+			this,
+			from_x !== to_x || from_y !== to_y
+				? estimatePathDuration(this.walk.path, this.walk.total, this.walk.speed, this.position) + 432
+				: 432
+		);
+	} else if (this.action !== action) {
+		this.setAction({ action: action, frame: 0, repeat: true, play: true });
 	}
 }
 
@@ -846,6 +825,26 @@ function walkProcess() {
 	}
 }
 
+function scheduleCompanionReturn(entity, delay) {
+	if (entity._returnTimer) {
+		clearTimeout(entity._returnTimer);
+	}
+	entity._returnTimer = setTimeout(() => {
+		entity._returnTimer = null;
+		entity.setAction({ action: entity.ACTION.IDLE, frame: 0, repeat: true, play: true, next: false });
+		entity.walkToNonWalkableGround(
+			entity.position[0],
+			entity.position[1],
+			entity._followTargetX,
+			entity._followTargetY,
+			1,
+			false,
+			false
+		);
+		entity.isAttacking = false;
+	}, delay);
+}
+
 // Companions walk is passively, don't need complexity or lower walk delay
 function entitiesWalkProcess() {
 	// Use owner's actual current position
@@ -961,16 +960,30 @@ function entitiesWalkProcess() {
 			this.wug._followTargetX = ownerCellX;
 			this.wug._followTargetY = ownerCellY;
 			this.wug.walk.lastWalkTick = Date.now();
-			this.wug.walkToNonWalkableGround(
-				this.wug.position[0],
-				this.wug.position[1],
-				ownerCellX,
-				ownerCellY,
-				range - 1,
-				false,
-				false,
-				Date.now()
-			);
+
+			// The Wug companion does not fly when following;
+			// it uses A* pathfinding, just like the official version.
+			// `walkToNonWalkableGround` serves only as a fallback when following the player when A* fails;
+			// `walkToNonWalkableGround` it is the default behavior used when using companion skills
+			// or when the falcon is in follow mode.
+
+			// Try walkable path first
+			this.wug.walkTo(this.wug.position[0], this.wug.position[1], ownerCellX, ownerCellY, range - 1, Date.now());
+
+			// No walkable route (owner separated by impassable ground): fall back to
+			// straight-line follow so the Wug isn't stranded
+			if (!this.wug.walk.total) {
+				this.wug.walkToNonWalkableGround(
+					this.wug.position[0],
+					this.wug.position[1],
+					ownerCellX,
+					ownerCellY,
+					range - 1,
+					false,
+					false,
+					Date.now()
+				);
+			}
 		}
 	}
 }

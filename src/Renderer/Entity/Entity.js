@@ -414,6 +414,14 @@ class Entity {
 					this.clevel = unit.level;
 					break;
 
+				case '_followTargetX':
+					this._followTargetX = unit._followTargetX;
+					break;
+
+				case '_followTargetY':
+					this._followTargetY = unit._followTargetY;
+					break;
+
 				default:
 					if (Entity.prototype.hasOwnProperty(keys[i]) || Entity.prototype.hasOwnProperty(`_${keys[i]}`)) {
 						this[keys[i]] = unit[keys[i]];
@@ -457,6 +465,8 @@ class Entity {
 		this.owner = null;
 		this.falcon = null;
 		this.wug = null;
+		// Clean return timer (Falcon/Wug)
+		if (this._returnTimer) clearTimeout(this._returnTimer);
 		// Avoid conflict if entity re-appears. Official sets it to -1
 		this.GID = -1;
 	}
@@ -468,6 +478,10 @@ class Entity {
 	 * @return {boolean} removed immediatly ?
 	 */
 	remove(type) {
+		const is_pc = this.objecttype === Entity.TYPE_PC;
+		const is_falcon = this.objecttype === Entity.TYPE_FALCON;
+		const is_wug = this.objecttype === Entity.TYPE_WUG;
+		const is_cart = this.objecttype === Entity.TYPE_CART;
 		if (this.cart) {
 			if (type === Entity.VT.DEAD) {
 				// Cart ignores DEAD in its own remove(); unregister it so its GID is freed
@@ -479,7 +493,6 @@ class Entity {
 			}
 			this.cart = null;
 		}
-
 		switch (type) {
 			case Entity.VT.OUTOFSIGHT:
 				this.clean();
@@ -488,10 +501,6 @@ class Entity {
 				break;
 
 			case Entity.VT.DEAD: {
-				const is_pc = this.objecttype === Entity.TYPE_PC;
-				const is_falcon = this.objecttype === Entity.TYPE_FALCON;
-				const is_wug = this.objecttype === Entity.TYPE_WUG;
-				const is_cart = this.objecttype === Entity.TYPE_CART;
 				if (!is_falcon && !is_cart) {
 					this.setAction({
 						action: this.ACTION.DIE,

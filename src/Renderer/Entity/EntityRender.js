@@ -466,6 +466,7 @@ const renderEntity = (function renderEntityClosure() {
 					EntityComposer.end();
 				});
 				break;
+			case Entity.TYPE_WUG:
 			case Entity.TYPE_HOM:
 				SpriteRenderer.position[2] = SpriteRenderer.position[2] + 0.2;
 				SpriteRenderer.zIndex = 150;
