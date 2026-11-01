@@ -21,16 +21,20 @@ async function play(decrypt) {
 		}
 	};
 	const element = () => ({ style: {}, append() {} });
+	const document = {
+		readyState: 'complete',
+		documentElement: { dataset: { roRelay: 'ready' } },
+		createElement: element,
+		getElementById: () => ({ replaceChildren: el => shown.push(el.textContent), remove() {} }),
+		body: { replaceChildren() {} }
+	};
+	// A top page: gate.js reads the relay state on window.parent's document
+	window.document = document;
+	window.parent = window;
 	runInNewContext(readFileSync(new URL('shared/gate.js', import.meta.url), 'utf8'), {
 		window,
 		roAccessKey: window.roAccessKey,
-		document: {
-			readyState: 'complete',
-			documentElement: { dataset: { roRelay: 'ready' } },
-			createElement: element,
-			getElementById: () => ({ replaceChildren: el => shown.push(el.textContent), remove() {} }),
-			body: { replaceChildren() {} }
-		},
+		document,
 		navigator: { serviceWorker: { ready: Promise.resolve(), controller: {} } },
 		fetch: async (url, init) => {
 			fetches.push([url, init && init.cache]);
