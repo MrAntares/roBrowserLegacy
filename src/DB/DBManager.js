@@ -388,14 +388,24 @@ class DB {
 			true
 		);
 		const loadmsg = onLoad();
+		let hasMsgStringTable = false;
 		loadTable(
 			'data/msgstringtable.txt',
 			'#',
 			1,
 			(_index, val) => {
 				MsgStringTable[_index] = val;
+				hasMsgStringTable = true;
 			},
-			() => loadCSV('data/msgstringtable.csv', MsgStringTable, 0, 1, loadmsg),
+			() =>
+				loadCSV('data/msgstringtable.csv', MsgStringTable, 0, 1, loadmsg, () => {
+					// Clients like ROLatam ship only the multi-language table
+					if (hasMsgStringTable) {
+						loadmsg();
+						return;
+					}
+					loadMsgStringTableML('data/msgstringtable_ml.csv', loadmsg);
+				}),
 			true
 		);
 
@@ -4370,8 +4380,9 @@ function loadTable(filename, separator, size, callback, onEnd, useCharPage = fal
  * @param {number} keyIndex - 0-based index of column to use as key
  * @param {number} valueIndex - 0-based index of column to use as value
  * @param {function} onEnd - callback when done
+ * @param {function} [onError] - callback when the file is missing (defaults to onEnd)
  */
-function loadCSV(filename, targetTable, keyIndex, valueIndex, onEnd) {
+function loadCSV(filename, targetTable, keyIndex, valueIndex, onEnd, onError = onEnd) {
 	Client.loadFile(
 		filename,
 		function (data) {
@@ -4419,6 +4430,54 @@ function loadCSV(filename, targetTable, keyIndex, valueIndex, onEnd) {
 			if (typeof onEnd === 'function') {
 				onEnd();
 			}
+		},
+		onError
+	);
+}
+
+/**
+ * Columns of data/msgstringtable_ml.csv: the MSI_ key, then one Base64 text per language.
+ * Languages other than these fall back to English.
+ */
+const MSGSTRINGTABLE_ML_KOREAN = 1;
+const MSGSTRINGTABLE_ML_ENGLISH = 2;
+const MSGSTRINGTABLE_ML_COLUMNS = {
+	0x00: MSGSTRINGTABLE_ML_KOREAN, // SERVICETYPE_KOREA
+	0x0c: 7, // SERVICETYPE_BRAZIL (Portuguese)
+	0x11: 9 // SERVICETYPE_CHILE (Spanish)
+};
+
+/**
+ * Load the multi-language msgstringtable (one row per message id) in the langtype's language
+ *
+ * @param {string} filename
+ * @param {function} onEnd
+ */
+function loadMsgStringTableML(filename, onEnd) {
+	const column = MSGSTRINGTABLE_ML_COLUMNS[langType] ?? MSGSTRINGTABLE_ML_ENGLISH;
+
+	Client.loadFile(
+		filename,
+		function (data) {
+			console.log('Loading file "' + filename + '"...');
+
+			const bytes = data instanceof ArrayBuffer ? new Uint8Array(data) : data;
+			const lines = TextEncoding.decode(bytes, 'utf-8').split(/\r?\n/);
+			let index = 0;
+
+			for (let i = 0; i < lines.length; i++) {
+				const line = lines[i].trim();
+				if (!line || line.startsWith('//')) {
+					continue;
+				}
+
+				// Some rows miss the translation: use English, then Korean
+				const parts = line.split(',');
+				const text = parts[column] || parts[MSGSTRINGTABLE_ML_ENGLISH] || parts[MSGSTRINGTABLE_ML_KOREAN];
+				MsgStringTable[index++] = text ? base64DecodeUtf8(text.trim()) : '';
+			}
+
+			onEnd();
 		},
 		onEnd
 	);
