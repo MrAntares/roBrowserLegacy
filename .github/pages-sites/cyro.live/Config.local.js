@@ -48,7 +48,6 @@ window.ROConfigLocal = {
 	// such server the plugin manager logs one failed fetch and lists Community alone.
 	plugins: PAGES_PLUGIN_MANAGER
 		? {
-				ItemDb: `${PAGES_SITE}plugins/item-db/item-db.esm.js`,
 				LocalPluginManager: {
 					path: `${PAGES_SITE}plugins/local-plugin-manager/local-plugin-manager.esm.js`,
 					pars: {
