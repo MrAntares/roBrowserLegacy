@@ -1059,6 +1059,124 @@
 					]
 				}
 			]
+		},
+		{
+			"version": "0.10.0",
+			"date": "2026-11-01",
+			"title": "Falcons Back on Track",
+			"sha": "83fe201e8",
+			"notes": [
+				{
+					"type": "new",
+					"keyword": "Archer skills",
+					"text": "Your Double Strafe finally looks like one: the arrow leaves with the shot, flies at the client's speed and the hit lands with it. Arrow Shower rains on nine cells around the target.",
+					"details": "Double Strafe, Arrow Shower, Arrow Repel and Improve Concentration now draw like the official client. Double Strafe shows the bow arrow and a hit flash on each hit, without a flash on the archer at cast. Arrow Shower drops nine arrows on the target and the eight cells around it. Arrow Repel shows the hit flash on each hit. Improve Concentration plays only when it works. A bow arrow leaves on the attack's hit frame and flies at the client's speed, and the hit shows when the arrow lands.",
+					"commits": [
+						"c3f33f81e",
+						"68f7038dd"
+					]
+				},
+				{
+					"type": "new",
+					"keyword": "Swordman skills",
+					"text": "Magnum Break no longer shakes your screen: its fire shows on you and on every target it hits. Bash flashes when it lands, and Endure pulls its streaks in like the client.",
+					"details": "Bash, Provoke, Magnum Break and Endure now draw like the official client. Bash shows its hit flash when the hit lands instead of a flash at cast. Provoke plays its sound twice. Magnum Break shows its fire on the swordman and on each target it hits, without the screen shake. Endure plays only when it works, as a shrinking glow with streaks sliding toward the swordman.",
+					"commits": [
+						"cf71a86b4",
+						"110afeff9",
+						"61c7b53f7"
+					]
+				},
+				{
+					"type": "new",
+					"keyword": "First Aid",
+					"text": "First Aid now wraps your Novice in the client's blue glow for a few seconds, and only when it works.",
+					"details": "First Aid now shows the client's bluish glow around the Novice, pulsing for about three seconds, and only when the skill works. It used to be a faint round glow for a second.",
+					"commits": [
+						"86f25c924"
+					]
+				},
+				{
+					"type": "new",
+					"keyword": "Skill hits",
+					"text": "Every skill that hits now makes its caster flash, like in the official client: red for strikes, the spell glow for magic.",
+					"details": "As in the official client, the caster now flashes each time one of their skills hits: the red strike flash for most physical skills, the spell flash for most magic. Before, only a few skills had a flash, played once at cast.",
+					"commits": [
+						"8809d538f",
+						"6b51fb88f"
+					]
+				},
+				{
+					"type": "fixed",
+					"keyword": "Ground target",
+					"text": "You aim Meteor Storm and the square on the ground is finally its size: 11 cells, not one. Every ground skill now shows its real area.",
+					"details": "The square you aim a ground skill with now has the size of the skill's area, as in the official client: Meteor Storm 11 cells, Lord of Vermilion 13, Fire Ball and Sanctuary 7, Frost Nova and Napalm Beat 5. It used to be one cell for every skill missing from a short list, and the size only followed your own last cast level.",
+					"commits": [
+						"fb01d6cfc"
+					]
+				},
+				{
+					"type": "fixed",
+					"keyword": "Navigation",
+					"text": "You ask Navigation for the way to another town and it finally draws a route.",
+					"details": "The Navigation window found no route to another map: the client lost the length of the navigation tables when it read them, and the route search saw them empty. Routes between maps work again.",
+					"commits": [
+						"587f15d3d",
+						"7c3aefd9b",
+						"66e92f65f"
+					]
+				},
+				{
+					"type": "fixed",
+					"keyword": "Cursor and windows",
+					"text": "You drag a potion to your hotkeys and the cursor drags with it. Closing the quantity box at a shop no longer lights up the portal behind the store.",
+					"details": "Three cursor fixes. The game cursor follows the pointer while you drag an item or a skill, instead of staying put. It gets its normal shape back when a window closes under it. And the map stays frozen until the last window that froze it closes: closing the quantity box of an NPC shop no longer lets the cursor react to the portal or monster behind the still-open shop.",
+					"commits": [
+						"1378c68f5",
+						"2a7100bbb",
+						"ae1bb6e1f",
+						"c73e587df"
+					]
+				},
+				{
+					"type": "fixed",
+					"keyword": "Falcon and Warg",
+					"text": "Your warg stops walking through walls, and your falcon no longer stays stuck on a monster or gone for good after it vanishes.",
+					"details": "The falcon and the warg come back after they vanish, no longer get stuck on a monster's cell or on ground they cannot walk on, and the warg walks around walls instead of through them.",
+					"commits": [
+						"895d62dd2",
+						"9894b3fdc",
+						"b9b7b87ce",
+						"636fe7b5e",
+						"072f01525",
+						"072583cdc",
+						"8823e51d4",
+						"67f6742d9",
+						"0ad91cda0",
+						"fbb0d1a90",
+						"bb1717898",
+						"52f65c6b9",
+						"62848460b",
+						"6c9d18c9a",
+						"8fd65b0b5",
+						"812428d02",
+						"1eb575016",
+						"eeac64c1d",
+						"ededd2d69",
+						"c54619501",
+						"e0d8096bc"
+					]
+				},
+				{
+					"type": "fixed",
+					"keyword": "Skill needs an item",
+					"text": "Your skill fails because a gemstone is missing? The client now tells you which item, and how many.",
+					"details": "A skill that fails for a missing item now says so, with the item's name and how many it takes. It used to fail without a word.",
+					"commits": [
+						"895d62dd2"
+					]
+				}
+			]
 		}
 	]
 }
