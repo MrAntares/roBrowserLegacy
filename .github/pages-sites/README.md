@@ -28,6 +28,7 @@ workflow puts it back.
 | `assemble.sh` | one build × one site |
 | `encrypt.mjs` | locks a `key` build: `Online.js` → `Online.js.enc` (AES-GCM, a new content key per deploy) + `keyslots.json`, one slot per access key of the `NPM_ACCESS_KEYS` secret |
 | `access-key.test.mjs` | `node --test .github/pages-sites/access-key.test.mjs`, also run by the workflow before it deploys |
+| `relay-frame.test.mjs` | a same-origin frame (a camera tile) of a relay page: `gate.js` takes the top page's relay state, `pwa/relay-client.js` leaves the files to it; run by the workflow too |
 | `patchlogs/<safe-branch>.json` | the patch log of a branch whose tree has none (`upstream-relay`): copied to `<build>/<site>/patchlog.json`, which the Patch Notes window reads; `feat/native-plugin-manager` ships its own (`patch-notes/patchlog.json`, copied by its `pages.yml`) |
 | `<site>/Config.local.js` | the server block; `/grf/` and the API root-absolute; the native plugin managers under the copy's own folder, on every build but `upstream/` and `cyro/`; loads the shared scripts |
 | `shared/sw.js`, `shared/pwa/` | the page-shell service worker and the relay (`/grf/` from the extension's folder, the API from `https://cyro.live/api`) |

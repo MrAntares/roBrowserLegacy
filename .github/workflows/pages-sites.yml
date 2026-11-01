@@ -38,8 +38,8 @@ jobs:
           path: repo
           sparse-checkout: .github/pages-sites
 
-      - name: Test the access key
-        run: node --test repo/.github/pages-sites/access-key.test.mjs
+      - name: Test the page scripts
+        run: node --test repo/.github/pages-sites/access-key.test.mjs repo/.github/pages-sites/relay-frame.test.mjs
 
       - name: Plugins of every source branch
         run: |

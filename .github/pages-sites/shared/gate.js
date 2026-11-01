@@ -8,14 +8,24 @@
 	const RELAY_WAIT = 1500;
 	const WORKER_WAIT = 10000;
 
+	// The extension runs in the top page only: a same-origin frame (a camera tile) takes its parent's state.
+	function relayPage() {
+		try {
+			return window.parent !== window && window.parent.document ? window.parent : window;
+		} catch {
+			return window;
+		}
+	}
+
 	function relayState() {
-		const state = document.documentElement.dataset.roRelay;
+		const page = relayPage();
+		const state = page.document.documentElement.dataset.roRelay;
 		if (state) {
 			return Promise.resolve(state);
 		}
 		return new Promise((resolve) => {
 			const timer = setTimeout(() => resolve('missing'), RELAY_WAIT);
-			window.addEventListener(
+			page.addEventListener(
 				'ro-relay',
 				(e) => {
 					const detail = e.detail || {};

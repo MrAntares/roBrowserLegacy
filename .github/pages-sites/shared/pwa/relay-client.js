@@ -1,8 +1,14 @@
 // roBrowser relay, page side: hands the service worker (registered by pwa-client.js) the client folder
 // held by the roBrowser relay extension, or null when the relay is off or absent.
 (() => {
-	if (!('serviceWorker' in navigator)) {
-		return;
+	// The extension runs in the top page only, which hands the files: a same-origin frame (a camera tile)
+	// would hand the worker null and take them from every page.
+	try {
+		if (!('serviceWorker' in navigator) || (window.parent !== window && window.parent.document)) {
+			return;
+		}
+	} catch {
+		// A cross-origin parent: this page is its own top
 	}
 
 	// The extension's content script answers { roRelay: 'want-files' } with { roRelay: 'files', files };
