@@ -58,9 +58,23 @@ HTMLCanvasElement.prototype.getContext = function () {
 
 const Equipment = (await import('UI/Components/Equipment/EquipmentV3/EquipmentV3.js')).default;
 
-// prepare() schedules scrollbar checks up to 500 ms out; let the last ones
-// land before jsdom is torn down.
-afterAll(() => new Promise(resolve => setTimeout(resolve, 600)));
+// prepare() schedules scrollbar checks up to 500 ms out, from a timer of its
+// own. Waiting for them is a race on a slow runner, and one that lands after
+// jsdom is torn down throws "window is not defined". Cancel what is left.
+const pendingTimers = new Set();
+const realSetTimeout = globalThis.setTimeout;
+vi.spyOn(globalThis, 'setTimeout').mockImplementation((fn, ms, ...args) => {
+	const id = realSetTimeout(() => {
+		pendingTimers.delete(id);
+		fn(...args);
+	}, ms);
+	pendingTimers.add(id);
+	return id;
+});
+afterAll(() => {
+	pendingTimers.forEach(id => clearTimeout(id));
+	vi.restoreAllMocks();
+});
 
 function character(hasCart) {
 	return {

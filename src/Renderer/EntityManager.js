@@ -17,8 +17,8 @@ import KEYS from 'Controls/KeyEventHandler.js';
 import PathFinding from 'Utils/PathFinding.js';
 import GraphicsSettings from 'Preferences/Graphics.js';
 import Altitude from 'Renderer/Map/Altitude.js';
-import Water from 'Renderer/Map/Water.js';
 import GR2ModelRenderer from 'Renderer/GR2/GR2ModelRenderer.js';
+import EntityComposer from 'Renderer/Entity/EntityComposer.js';
 const _list = [];
 
 /**
@@ -170,10 +170,21 @@ function addEntity(entity) {
  * Clean up entities from list
  */
 function free() {
-	_list.forEach(entity => {
+	// Iterate a snapshot: Entity.clean() may call removeEntity() on companions
+	// (cart/falcon/wug), which splices _list. Entities already released that way
+	// (no longer in _list) are skipped so each is released exactly once.
+	const snapshot = _list.slice();
+	const live = new Set(snapshot);
+	for (let i = 0; i < snapshot.length; ++i) {
+		const entity = snapshot[i];
+		if (!live.has(entity) || !_list.includes(entity)) {
+			continue;
+		}
 		releaseGr2(entity);
+		EntityComposer.remove(entity);
 		entity.clean();
-	});
+		live.delete(entity);
+	}
 
 	_list.length = 0;
 	_gidMap.clear();
@@ -201,7 +212,20 @@ function removeEntity(gid) {
 	const entity = _gidMap.get(gid);
 
 	if (entity) {
+		if (entity.cart) {
+			removeEntity(entity.cart.GID);
+			entity.cart = null;
+		}
+		if (entity.falcon) {
+			removeEntity(entity.falcon.GID);
+			entity.falcon = null;
+		}
+		if (entity.wug) {
+			removeEntity(entity.wug.GID);
+			entity.wug = null;
+		}
 		releaseGr2(entity);
+		EntityComposer.remove(entity);
 		entity.clean();
 		_gidMap.delete(gid);
 		const index = _list.indexOf(entity);
@@ -278,8 +302,10 @@ function setFocusEntity(entity) {
  * @param {Entity} b
  */
 function sort(a, b) {
-	const aDepth = a.depth + (a.GID % 100) / 1000;
-	const bDepth = b.depth + (b.GID % 100) / 1000;
+	const aGID = typeof a.GID === 'number' ? a.GID : parseInt(a.GID, 10) || 0;
+	const bGID = typeof b.GID === 'number' ? b.GID : parseInt(b.GID, 10) || 0;
+	const aDepth = a.depth + (aGID % 100) / 1000;
+	const bDepth = b.depth + (bGID % 100) / 1000;
 
 	return bDepth - aDepth;
 }
@@ -402,6 +428,9 @@ function render(gl, modelView, projection, fog, renderEffects) {
 
 	// Stop rendering if no units to render (should never happened...)
 	if (!_list.length) {
+		// Nothing is drawn, but the composites of the entities that just left
+		// still have to be released.
+		EntityComposer.endFrame(gl);
 		return;
 	}
 
@@ -423,6 +452,10 @@ function render(gl, modelView, projection, fog, renderEffects) {
 		renderList(modelView, projection, renderEffects, tick);
 	} finally {
 		SpriteRenderer.endBatch();
+
+		// The batch has been drawn: the composite textures that are not used
+		// anymore can be released safely now.
+		EntityComposer.endFrame(gl);
 	}
 
 	// Clean program
@@ -451,6 +484,9 @@ function renderList(modelView, projection, renderEffects, tick) {
 
 				_gidMap.delete(_list[i].GID);
 				releaseGr2(_list[i]);
+				// The batch is still recording here: the composite texture is
+				// released after the flush, not now.
+				EntityComposer.remove(_list[i]);
 				_list[i].clean();
 				_list.splice(i, 1);
 				i--;
@@ -508,6 +544,16 @@ function intersect() {
 			if (dx * dx + dy * dy > viewAreaSq) {
 				continue;
 			}
+		}
+
+		// Non-pickable entities
+		if (
+			entity.objecttype === Entity.TYPE_EFFECT ||
+			entity.objecttype === Entity.TYPE_FALCON ||
+			entity.objecttype === Entity.TYPE_WUG ||
+			entity.objecttype === Entity.TYPE_CART
+		) {
+			continue;
 		}
 
 		// No picking on dead entites

@@ -8,6 +8,8 @@
  * Embedded as Base64 to avoid requiring a separate wasm toolchain/loader during Vite build.
  */
 
+import { createWasmLoader } from 'Utils/wasmLoader.js';
+
 // Pre-compiled spriteCompile WASM binary.
 // Exports: (memory), compilePal(...), compileRgba(...)
 //
@@ -17,47 +19,8 @@ export const SPRITE_COMPILE_WASM_BASE64 =
 	'AGFzbQEAAAABJgRgCX9/f39/f39/fwBgB39/f39/f38AYAR/f39/AGAFf39/f38AAwUEAAECAwUDAQABB0wFBm1lbW9yeQIACmNvbXBpbGVQYWwAAAtjb21waWxlUmdiYQABEWZyYW1lUmdiYVRvQ2FudmFzAAIQZnJhbWVQYWxUb0NhbnZhcwADCqcEBIQBAQV/QQAhCQJAA0AgCSAETw0BIAEgCSADbGohCyACIAkgCGogBWwgB2pqIQxBACEKAkADQCAKIANPDQEgCyAKai0AACENIAAgDUECdGooAgBB/4F8RgRAIAwgCmpBADoAAAUgDCAKaiANOgAACyAKQQFqIQoMAAsLIAlBAWohCQwACwsLsQEBCX8gAkECdCEJQQAhBwJAA0AgByADTw0BIAAgAyAHa0EBayAJbGohCiABIAcgBmogBGwgBWpBAnRqIQtBACEIAkADQCAIIAJPDQEgCiAIQQJ0aiEMIAsgCEECdGohDSAMLQAAIQ4gDkUEQCANQQA2AgAFIA5BGHQgDC0AAUEQdHIgDC0AAkEIdCAMLQADcnIhDyANIA82AgALIAhBAWohCAwACwsgB0EBaiEHDAALCwuhAQEHfyACQQJ0IQZBACEEAkADQCAEIANPDQEgACAEIAZsaiEHIAEgAyAEa0EBayAGbGohCEEAIQUCQANAIAUgAk8NASAHIAVBAnRqKAIAIQkgCUH/AXFBGHQgCUGA/gNxQQh0ciAJQYCA/AdxQQh2IAlBgICAeHFBGHZyciEKIAggBUECdGogCjYCACAFQQFqIQUMAAsLIARBAWohBAwACwsLSQEEfyADIARsIQZBACEFAkADQCAFIAZPDQEgASAFai0AACEHIAAgB0ECdGooAgAhCCACIAVBAnRqIAg2AgAgBUEBaiEFDAALCws=';
 
 /**
- * Decode base64 string to Uint8Array in browser / desktop environments
- */
-const base64ToUint8Array = base64 => {
-	const binaryString = atob(base64);
-	const len = binaryString.length;
-	const bytes = new Uint8Array(len);
-	for (let i = 0; i < len; ++i) {
-		bytes[i] = binaryString.charCodeAt(i);
-	}
-	return bytes;
-};
-
-let _wasmInstance = null;
-let _wasmFailed = false;
-
-/**
  * Lazily loads and returns the compiled WASM converter instance.
  * Returns null if WebAssembly is not supported or instantiation fails.
  * @returns {object|null}
  */
-export const getSpriteCompileWasm = () => {
-	if (_wasmInstance) {
-		return _wasmInstance;
-	}
-	if (_wasmFailed) {
-		return null;
-	}
-
-	if (typeof WebAssembly !== 'object' || typeof WebAssembly.Module !== 'function') {
-		_wasmFailed = true;
-		return null;
-	}
-
-	try {
-		const wasmBytes = base64ToUint8Array(SPRITE_COMPILE_WASM_BASE64);
-		const module = new WebAssembly.Module(wasmBytes);
-		_wasmInstance = new WebAssembly.Instance(module);
-		return _wasmInstance;
-	} catch (e) {
-		_wasmFailed = true;
-		console.warn('Loaders/wasm/spriteCompile - Failed to instantiate WASM module:', e);
-		return null;
-	}
-};
+export const getSpriteCompileWasm = createWasmLoader(SPRITE_COMPILE_WASM_BASE64, 'spriteCompile');

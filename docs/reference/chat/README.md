@@ -18,6 +18,7 @@ forms.
 | note | what it covers |
 |---|---|
 | [text-parsing.md](text-parsing.md) | What a received chat line keeps, drops and breaks on: newlines, `^RRGGBB`, `^nItemID^`, HTML-looking tags, item links |
+| [tabs.md](tabs.md) | What a click, a double-click, Enter and Escape do on a tab, how a rename ends, and the filters of a new tab |
 
 ## Reading the markers
 

@@ -51,14 +51,14 @@ class Mouse {
 /**
  * Track mouse move event (native, passive)
  */
-window.addEventListener(
-	'mousemove',
-	event => {
-		Mouse.screen.x = event.pageX;
-		Mouse.screen.y = event.pageY;
-	},
-	{ passive: true }
-);
+const trackPointer = event => {
+	Mouse.screen.x = event.pageX;
+	Mouse.screen.y = event.pageY;
+};
+
+window.addEventListener('mousemove', trackPointer, { passive: true });
+// A native drag fires no mousemove. Captured, as drop targets stop it.
+window.addEventListener('dragover', trackPointer, { passive: true, capture: true });
 
 /**
  * Export

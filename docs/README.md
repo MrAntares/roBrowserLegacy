@@ -72,6 +72,13 @@ Currently tested browsers:
 
 # 3. Setup Instructions
 
+### Infrastructure Requirements
+
+- **wsProxy**: WebSocket proxy (server-side) translating TCP ↔ WebSocket
+- **Remote Client (PHP/JS)**: HTTP server extracting/serving GRF assets
+- **Game Server**: rAthena or Hercules compatible
+- **kRO Client Files**: GRF assets + executable for PACKETVER detection
+
 ## 3.1 Setup: NodeJS and NVM
 
 > [!NOTE]

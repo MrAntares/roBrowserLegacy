@@ -3,9 +3,9 @@ import { getSpriteCompileWasm } from 'Loaders/wasm/spriteCompile.js';
 
 // Setup test dimensions: realistic PAL (256x256), realistic RGBA (512x512), small frame (32x32)
 const SIZES = {
-	small: { w: 32, h: 32 },
+	small: { w: 64, h: 64 },
 	pal256: { w: 256, h: 256 },
-	rgba512: { w: 512, h: 512 }
+	rgba256: { w: 256, h: 256 }
 };
 
 // Generate pal32 table (flip=true for ABGR little-endian -> Canvas RGBA)
@@ -30,12 +30,12 @@ for (let i = 0; i < SIZES.small.w * SIZES.small.h; i++) {
 	rgbaDataSmall[i * 4 + 3] = (i * 3) & 0xff;        // R
 }
 
-const rgbaData512 = new Uint8Array(SIZES.rgba512.w * SIZES.rgba512.h * 4);
-for (let i = 0; i < SIZES.rgba512.w * SIZES.rgba512.h; i++) {
-	rgbaData512[i * 4 + 0] = i % 5 === 0 ? 0 : 255;
-	rgbaData512[i * 4 + 1] = (i * 11) & 0xff;
-	rgbaData512[i * 4 + 2] = (i * 7) & 0xff;
-	rgbaData512[i * 4 + 3] = (i * 3) & 0xff;
+const rgbaData256 = new Uint8Array(SIZES.rgba256.w * SIZES.rgba256.h * 4);
+for (let i = 0; i < SIZES.rgba256.w * SIZES.rgba256.h; i++) {
+	rgbaData256[i * 4 + 0] = i % 5 === 0 ? 0 : 255;
+	rgbaData256[i * 4 + 1] = (i * 11) & 0xff;
+	rgbaData256[i * 4 + 2] = (i * 7) & 0xff;
+	rgbaData256[i * 4 + 3] = (i * 3) & 0xff;
 }
 
 // Pre-allocate output buffers outside bench
@@ -48,8 +48,8 @@ const outPal256WASM = new Uint8Array(SIZES.pal256.w * SIZES.pal256.h * 4);
 const outRgbaSmallJS = new Uint32Array(SIZES.small.w * SIZES.small.h);
 const outRgbaSmallWASM = new Uint8Array(SIZES.small.w * SIZES.small.h * 4);
 
-const outRgba512JS = new Uint32Array(SIZES.rgba512.w * SIZES.rgba512.h);
-const outRgba512WASM = new Uint8Array(SIZES.rgba512.w * SIZES.rgba512.h * 4);
+const outRgba256JS = new Uint32Array(SIZES.rgba256.w * SIZES.rgba256.h);
+const outRgba256WASM = new Uint8Array(SIZES.rgba256.w * SIZES.rgba256.h * 4);
 
 // WASM instance
 const wasm = getSpriteCompileWasm();
@@ -155,16 +155,16 @@ function runRgbaSmallWASM() {
 	outRgbaSmallWASM.set(new Uint8Array(memory.buffer, dstPtr, dstBytes));
 }
 
-function runRgba512JS() {
-	const w = SIZES.rgba512.w;
-	const h = SIZES.rgba512.h;
-	const src32 = new Uint32Array(rgbaData512.buffer);
+function runRgba256JS() {
+	const w = SIZES.rgba256.w;
+	const h = SIZES.rgba256.h;
+	const src32 = new Uint32Array(rgbaData256.buffer);
 	for (let y = 0; y < h; ++y) {
 		const srcRow = y * w;
 		const dstRow = (h - y - 1) * w;
 		for (let x = 0; x < w; ++x) {
 			const p = src32[srcRow + x];
-			outRgba512JS[dstRow + x] =
+			outRgba256JS[dstRow + x] =
 				((p & 0x000000ff) << 24) |
 				((p & 0x0000ff00) << 8) |
 				((p & 0x00ff0000) >> 8) |
@@ -173,18 +173,18 @@ function runRgba512JS() {
 	}
 }
 
-function runRgba512WASM() {
-	const w = SIZES.rgba512.w;
-	const h = SIZES.rgba512.h;
+function runRgba256WASM() {
+	const w = SIZES.rgba256.w;
+	const h = SIZES.rgba256.h;
 	const srcBytes = w * h * 4;
 	const dstBytes = srcBytes;
 	const srcPtr = 1024;
 	const dstPtr = srcPtr + srcBytes;
 	ensureMem(dstPtr + dstBytes);
 
-	new Uint8Array(memory.buffer, srcPtr, srcBytes).set(rgbaData512);
+	new Uint8Array(memory.buffer, srcPtr, srcBytes).set(rgbaData256);
 	frameRgbaToCanvas(srcPtr, dstPtr, w, h);
-	outRgba512WASM.set(new Uint8Array(memory.buffer, dstPtr, dstBytes));
+	outRgba256WASM.set(new Uint8Array(memory.buffer, dstPtr, dstBytes));
 }
 
 // ---------------- Verify parity before running bench ----------------
@@ -192,7 +192,7 @@ function runRgba512WASM() {
 runPalSmallJS();
 runPalSmallWASM();
 if (!Buffer.from(outPalSmallJS.buffer).equals(Buffer.from(outPalSmallWASM.buffer))) {
-	throw new Error('spriteFrame bench: PAL small (32x32) JS != WASM');
+	throw new Error('spriteFrame bench: PAL small (64x64) JS != WASM');
 }
 
 runPal256JS();
@@ -204,33 +204,33 @@ if (!Buffer.from(outPal256JS.buffer).equals(Buffer.from(outPal256WASM.buffer))) 
 runRgbaSmallJS();
 runRgbaSmallWASM();
 if (!Buffer.from(outRgbaSmallJS.buffer).equals(Buffer.from(outRgbaSmallWASM.buffer))) {
-	throw new Error('spriteFrame bench: RGBA small (32x32) JS != WASM');
+	throw new Error('spriteFrame bench: RGBA small (64x64) JS != WASM');
 }
 
-runRgba512JS();
-runRgba512WASM();
-if (!Buffer.from(outRgba512JS.buffer).equals(Buffer.from(outRgba512WASM.buffer))) {
-	throw new Error('spriteFrame bench: RGBA 512x512 JS != WASM');
+runRgba256JS();
+runRgba256WASM();
+if (!Buffer.from(outRgba256JS.buffer).equals(Buffer.from(outRgba256WASM.buffer))) {
+	throw new Error('spriteFrame bench: RGBA 256x256 JS != WASM');
 }
 
 // ---------------- Vitest benchmarks ----------------
 
-describe('spriteFrame PAL 32x32', () => {
+describe('spriteFrame PAL 64x64', () => {
 	bench('JS', runPalSmallJS, { time: 10000, warmupTime: 50 });
 	bench('WASM', runPalSmallWASM, { time: 10000, warmupTime: 50 });
 });
 
 describe('spriteFrame PAL 256x256', () => {
-	bench('JS', runPal256JS, { time: 5000, warmupTime: 500 });
-	bench('WASM', runPal256WASM, { time: 5000, warmupTime: 500 });
+	bench('JS', runPal256JS, { time: 10000, warmupTime: 50 });
+	bench('WASM', runPal256WASM, { time: 10000, warmupTime: 50 });
 });
 
-describe('spriteFrame RGBA 32x32', () => {
-	bench('JS', runRgbaSmallJS, { time: 5000, warmupTime: 500 });
-	bench('WASM', runRgbaSmallWASM, { time: 5000, warmupTime: 500 });
+describe('spriteFrame RGBA 64x64', () => {
+	bench('JS', runRgbaSmallJS, { time: 10000, warmupTime: 50 });
+	bench('WASM', runRgbaSmallWASM, { time: 10000, warmupTime: 50 });
 });
 
-describe('spriteFrame RGBA 512x512', () => {
-	bench('JS', runRgba512JS, { time: 5000, warmupTime: 500 });
-	bench('WASM', runRgba512WASM, { time: 5000, warmupTime: 500 });
+describe('spriteFrame RGBA 256x256', () => {
+	bench('JS', runRgba256JS, { time: 10000, warmupTime: 50 });
+	bench('WASM', runRgba256WASM, { time: 10000, warmupTime: 50 });
 });

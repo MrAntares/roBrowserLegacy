@@ -71,4 +71,18 @@ describe('Cursor', () => {
 
 		expect(document.querySelector('.cursor').style.transform).toBe('translate(-20px, -20px)');
 	});
+
+	// A native drag fires no pointermove: the cursor stayed where the drag
+	// began, and with the system cursor hidden nothing followed the pointer.
+	it('follows the pointer during a drag, over a drop target that stops it', () => {
+		const target = document.createElement('div');
+		target.addEventListener('dragover', event => event.stopImmediatePropagation());
+		document.body.appendChild(target);
+
+		target.dispatchEvent(new MouseEvent('dragover', { bubbles: true, clientX: 120, clientY: 130 }));
+
+		const cursor = document.querySelector('.cursor');
+		expect([cursor.style.left, cursor.style.top]).toEqual(['120px', '130px']);
+		target.remove();
+	});
 });

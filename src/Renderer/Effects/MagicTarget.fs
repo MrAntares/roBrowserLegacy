@@ -6,6 +6,7 @@ in vec2 vTextureCoord;
 out vec4 fragColor;
 
 uniform sampler2D uDiffuse;
+uniform float uAlpha;
 
 uniform bool  uFogUse;
 uniform float uFogNear;
@@ -23,7 +24,7 @@ void main(void) {
         discard;
     }
 
-    fragColor = textureSample;
+    fragColor = vec4(textureSample.rgb, textureSample.a * uAlpha);
 
     if (uFogUse) {
         float depth     = gl_FragCoord.z / gl_FragCoord.w;

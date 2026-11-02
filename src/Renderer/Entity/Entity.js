@@ -13,6 +13,9 @@ import Session from 'Engine/SessionStorage.js';
 import Client from 'Core/Client.js';
 import glMatrix from 'Utils/gl-matrix.js';
 
+import DB from 'DB/DBManager.js';
+import StatusState from 'DB/Status/StatusState.js';
+
 // Example mixins (these would be imported from other files)
 import entityControl from 'Controls/EntityControl.js';
 import entityAction from './EntityAction.js';
@@ -96,6 +99,7 @@ class Entity {
 	/**
 	 * Constantes
 	 */
+	static TYPE_CART = -8;
 	static TYPE_WUG = -7;
 	static TYPE_FALCON = -6;
 	static TYPE_EFFECT = -5;
@@ -150,7 +154,8 @@ class Entity {
 			[Entity.TYPE_TRAP]: 0,
 			[Entity.TYPE_EFFECT]: -1,
 			[Entity.TYPE_FALCON]: -1,
-			[Entity.TYPE_WUG]: -1
+			[Entity.TYPE_WUG]: -1,
+			[Entity.TYPE_CART]: -1
 		},
 		Support: {
 			[Entity.TYPE_PC]: 3,
@@ -171,7 +176,8 @@ class Entity {
 			[Entity.TYPE_TRAP]: 0,
 			[Entity.TYPE_EFFECT]: -1,
 			[Entity.TYPE_FALCON]: -1,
-			[Entity.TYPE_WUG]: -1
+			[Entity.TYPE_WUG]: -1,
+			[Entity.TYPE_CART]: -1
 		}
 	};
 
@@ -408,6 +414,14 @@ class Entity {
 					this.clevel = unit.level;
 					break;
 
+				case '_followTargetX':
+					this._followTargetX = unit._followTargetX;
+					break;
+
+				case '_followTargetY':
+					this._followTargetY = unit._followTargetY;
+					break;
+
 				default:
 					if (Entity.prototype.hasOwnProperty(keys[i]) || Entity.prototype.hasOwnProperty(`_${keys[i]}`)) {
 						this[keys[i]] = unit[keys[i]];
@@ -443,8 +457,16 @@ class Entity {
 		this.remove_tick = 0;
 		this.remove_delay = 0;
 
+		if (this.cart) {
+			this.cart.owner = null;
+			EntityManager.remove(this.cart.GID);
+			this.cart = null;
+		}
+		this.owner = null;
 		this.falcon = null;
 		this.wug = null;
+		// Clean return timer (Falcon/Wug)
+		if (this._returnTimer) clearTimeout(this._returnTimer);
 		// Avoid conflict if entity re-appears. Official sets it to -1
 		this.GID = -1;
 	}
@@ -456,6 +478,21 @@ class Entity {
 	 * @return {boolean} removed immediatly ?
 	 */
 	remove(type) {
+		const is_pc = this.objecttype === Entity.TYPE_PC;
+		const is_falcon = this.objecttype === Entity.TYPE_FALCON;
+		const is_wug = this.objecttype === Entity.TYPE_WUG;
+		const is_cart = this.objecttype === Entity.TYPE_CART;
+		if (this.cart) {
+			if (type === Entity.VT.DEAD) {
+				// Cart ignores DEAD in its own remove(); unregister it so its GID is freed
+				const cart = this.cart;
+				cart.owner = null;
+				EntityManager.remove(cart.GID);
+			} else {
+				this.cart.remove(type);
+			}
+			this.cart = null;
+		}
 		switch (type) {
 			case Entity.VT.OUTOFSIGHT:
 				this.clean();
@@ -464,10 +501,7 @@ class Entity {
 				break;
 
 			case Entity.VT.DEAD: {
-				const is_pc = this.objecttype === Entity.TYPE_PC;
-				const is_falcon = this.objecttype === Entity.TYPE_FALCON;
-				const is_wug = this.objecttype === Entity.TYPE_WUG;
-				if (!is_falcon) {
+				if (!is_falcon && !is_cart) {
 					this.setAction({
 						action: this.ACTION.DIE,
 						repeat: is_pc,
@@ -493,6 +527,101 @@ class Entity {
 				this.remove_tick = Date.now();
 				this.remove_delay = 0;
 				break;
+		}
+	}
+
+	/**
+	 * Attach or remove pushcart companion entity
+	 *
+	 * @param {boolean} enabled
+	 * @param {number} [cartNum]
+	 */
+	setCart(enabled, cartNum) {
+		this.hasCart = !!enabled;
+		if (typeof cartNum === 'number') {
+			this.CartNum = cartNum;
+		}
+
+		if (this.hasCart) {
+			const realCartNum = DB.isSuperNovice(this._job) ? 0 : this.CartNum || 1;
+			const cartJob = 'CART_' + realCartNum;
+
+			if (!this.cart) {
+				const cart = new Entity();
+				cart.set({
+					objecttype: Entity.TYPE_CART,
+					GID: this.GID + '_CART',
+					job: cartJob,
+					speed: this.walk ? this.walk.speed : 150,
+					name: '',
+					hp: -1,
+					maxhp: -1
+				});
+
+				const RIDING_MASK =
+					StatusState.EffectState.RIDING |
+					StatusState.EffectState.DRAGON1 |
+					StatusState.EffectState.DRAGON2 |
+					StatusState.EffectState.DRAGON3 |
+					StatusState.EffectState.DRAGON4 |
+					StatusState.EffectState.DRAGON5 |
+					StatusState.EffectState.WUGRIDER |
+					StatusState.EffectState.MADOGEAR;
+				const isMounted = this.costume !== 0 || !!(this._allRidingState & RIDING_MASK);
+				const retDist = isMounted ? 1.6 : 1.0;
+				const angle = (6 - this.direction) * (Math.PI / 4);
+				const behindDx = -Math.cos(angle);
+				const behindDy = -Math.sin(angle);
+
+				cart.position[0] = this.position[0] + behindDx * retDist;
+				cart.position[1] = this.position[1] + behindDy * retDist;
+				cart.position[2] = Altitude.getCellHeight(cart.position[0], cart.position[1]);
+				cart.direction = this.direction;
+				cart.depth = this.depth;
+
+				cart.setAction({
+					action: cart.ACTION.IDLE,
+					frame: 0,
+					play: false,
+					repeat: true
+				});
+
+				this.cart = cart;
+				cart.owner = this;
+				EntityManager.add(cart);
+			} else {
+				if (this.cart.job !== cartJob) {
+					this.cart.job = cartJob;
+				}
+				const RIDING_MASK =
+					StatusState.EffectState.RIDING |
+					StatusState.EffectState.DRAGON1 |
+					StatusState.EffectState.DRAGON2 |
+					StatusState.EffectState.DRAGON3 |
+					StatusState.EffectState.DRAGON4 |
+					StatusState.EffectState.DRAGON5 |
+					StatusState.EffectState.WUGRIDER |
+					StatusState.EffectState.MADOGEAR;
+				const isMounted = this.costume !== 0 || !!(this._allRidingState & RIDING_MASK);
+				const retDist = isMounted ? 1.6 : 1.0;
+				const cdist = Math.hypot(
+					this.cart.position[0] - this.position[0],
+					this.cart.position[1] - this.position[1]
+				);
+				if (cdist > 5.0) {
+					const angle = (6 - this.direction) * (Math.PI / 4);
+					const behindDx = -Math.cos(angle);
+					const behindDy = -Math.sin(angle);
+					this.cart.position[0] = this.position[0] + behindDx * retDist;
+					this.cart.position[1] = this.position[1] + behindDy * retDist;
+					this.cart.position[2] = Altitude.getCellHeight(this.cart.position[0], this.cart.position[1]);
+					this.cart.direction = this.direction;
+				}
+			}
+		} else if (this.cart) {
+			this.cart.owner = null;
+			EntityManager.remove(this.cart.GID);
+			this.cart = null;
 		}
 	}
 
@@ -651,6 +780,8 @@ Entity.prototype.targetGID = 0;
 Entity.prototype.isOverWeight = false;
 Entity.prototype.falcon = null;
 Entity.prototype.wug = null;
+Entity.prototype.cart = null;
+Entity.prototype.owner = null;
 Entity.prototype.hideShadow = false;
 Entity.prototype.call_flag = 0;
 Object.defineProperty(Entity.prototype, 'level', {

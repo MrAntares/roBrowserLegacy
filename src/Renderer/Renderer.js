@@ -25,6 +25,7 @@ import PostProcess from 'Renderer/Effects/PostProcess.js';
 import MemoryManager from 'Core/MemoryManager.js';
 import PerfProbe from 'Core/PerfProbe.js';
 import SpriteBatch from 'Renderer/SpriteBatch.js';
+import EntityComposer from 'Renderer/Entity/EntityComposer.js';
 import FramePacer from 'Renderer/FramePacer.js';
 
 const { mat4 } = glMatrix;
@@ -239,6 +240,10 @@ class Renderer {
 
 		// Sprite batch programs, buffers and atlas pages are rebuilt on next use
 		SpriteBatch.contextRestored();
+
+		// The composite textures died with the lost context: forget them
+		// without trying to delete them.
+		EntityComposer.reset();
 
 		// Trigger resize to reset viewport and framebuffers
 		this.resize();

@@ -81,6 +81,18 @@ const CAP = {
 
 const RACE_MARK = `${DB.INTERFACE_PATH}make_character/select_mark_cha_create.bmp`;
 
+/**
+ * The buttons for one hairstyle, one in each race/gender list. A list with
+ * fewer styles keeps empty .styleN cells to hold the grid; those get no frame.
+ *
+ * @param {HTMLElement} root
+ * @param {number} style
+ * @return {HTMLElement[]}
+ */
+function hairstyleButtons(root, style) {
+	return Array.from(root.querySelectorAll(`.style${style}`)).filter(el => el.querySelector('.hstyle_button'));
+}
+
 export function createCharCreate(config) {
 	const {
 		name,
@@ -612,16 +624,14 @@ export function createCharCreate(config) {
 			);
 
 			Client.loadFile(`${DB.INTERFACE_PATH}make_character_ver2/bt_hairstyle_normal.bmp`, dataURI => {
-				const el = root.querySelector(`.style${_prevhead}`);
-				if (el) {
+				hairstyleButtons(root, _prevhead).forEach(el => {
 					el.style.backgroundImage = `url(${dataURI})`;
-				}
+				});
 			});
 			Client.loadFile(`${DB.INTERFACE_PATH}make_character_ver2/bt_hairstyle_select.bmp`, dataURI => {
-				const el = root.querySelector(`.style${_curhead}`);
-				if (el) {
+				hairstyleButtons(root, _curhead).forEach(el => {
 					el.style.backgroundImage = `url(${dataURI})`;
-				}
+				});
 			});
 		}
 	}
@@ -813,10 +823,9 @@ export function createCharCreate(config) {
 
 		_prevhead = _model.entity.head;
 		Client.loadFile(`${DB.INTERFACE_PATH}make_character_ver2/bt_hairstyle_normal.bmp`, dataURI => {
-			const el = root.querySelector(`.style${_prevhead}`);
-			if (el) {
+			hairstyleButtons(root, _prevhead).forEach(el => {
 				el.style.backgroundImage = `url(${dataURI})`;
-			}
+			});
 		});
 
 		_curhead = value;
@@ -881,10 +890,10 @@ export function createCharCreate(config) {
 		// In between changes of race, it needs to clear everything
 		for (let i = 1; i <= 24; i++) {
 			Client.loadFile(`${DB.INTERFACE_PATH}make_character_ver2/bt_hairstyle_normal.bmp`, dataURI => {
-				const el = root.querySelector(`.style${i}`);
-				if (el) {
+				// Each race/gender list has its own button for each style, so paint them all
+				hairstyleButtons(root, i).forEach(el => {
 					el.style.backgroundImage = `url(${dataURI})`;
-				}
+				});
 			});
 		}
 

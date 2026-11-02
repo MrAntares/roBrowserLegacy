@@ -127,4 +127,53 @@ SkillUnit[SU.UNT_ICEMINE] = EC.EF_NONE; // Todo
 SkillUnit[SU.UNT_MAGMA_ERUPTION] = EC.EF_NONE; // Todo
 SkillUnit[SU.UNT_B_TRAP] = EC.EF_NONE; // Todo
 
+// 4th-job units, as the official client draws them: the unit's start rows once,
+// then its loop rows until the unit goes. Names are rows of ez2streffect.bson.
+SkillUnit[SU.UNT_JACK_FROST_NOVA] = [
+	'jack_frost_nova_start_bottom',
+	'jack_frost_nova_start',
+	'jack_frost_nova_loop_bottom',
+	'jack_frost_nova_loop'
+];
+SkillUnit[SU.UNT_GROUND_GRAVITATION] = [
+	'ground_gravitation_bottom_start',
+	'ground_gravitation_start',
+	'ground_gravitation_bottom_loop',
+	'ground_gravitation_loop'
+];
+SkillUnit[SU.UNT_TOTEM_OF_TUTELARY] = [
+	'totem_of_tutelary_bottom_start',
+	'totem_of_tutelary_start',
+	'totem_of_tutelary_bottom_loop',
+	'totem_of_tutelary_loop'
+];
+SkillUnit[SU.UNT_HYUN_ROKS_BREEZE] = ['hyun_roks_breeze_bottom', 'hyun_roks_breeze'];
+// Mission Bombard and Cross Rain also rain blasts and drops over their area
+// (official effects 2354 and 2462, launched by the unit with its level)
+SkillUnit[SU.UNT_MISSION_BOMBARD] = [
+	'mission_bombard',
+	'mission_bombard_fire',
+	'mission_bombard_fire_bottom',
+	'ef_nw_mission_bombard_field'
+];
+SkillUnit[SU.UNT_CROSS_RAIN] = ['new_cross_rain_bottom', 'ef_ig_cross_rain_field'];
+// Kunai - Distortion's trap and Mirage's shadow clone
+SkillUnit[SU.UNT_KUNAIWAIKYOKU] = ['kunaiarea_01_start', 'kunaiarea_01_loop'];
+SkillUnit[SU.UNT_SHINKIROU] = ['shinkirou_idle_start', 'shinkirou_idle_loop'];
+
+// Played once where a unit appears instead, when none of its rows above exist
+// (client data without ez2streffect.bson): the effect these skills had before.
+export const SkillUnitFallback = {};
+SkillUnitFallback[SU.UNT_JACK_FROST_NOVA] = ['ef_hn_jack_frost_nova'];
+SkillUnitFallback[SU.UNT_GROUND_GRAVITATION] = ['ef_hn_ground_gravitation'];
+SkillUnitFallback[SU.UNT_TOTEM_OF_TUTELARY] = ['ef_soa_totem_of_tutelary'];
+SkillUnitFallback[SU.UNT_HYUN_ROKS_BREEZE] = ['ef_sh_hyun_roks_breeze'];
+
+// Played once where a unit stood when it goes (official end rows).
+export const SkillUnitEnd = {};
+SkillUnitEnd[SU.UNT_JACK_FROST_NOVA] = ['jack_frost_nova_end'];
+SkillUnitEnd[SU.UNT_TOTEM_OF_TUTELARY] = ['totem_of_tutelary_bottom_end', 'totem_of_tutelary_end'];
+SkillUnitEnd[SU.UNT_KUNAIWAIKYOKU] = ['kunaiarea_01_end'];
+SkillUnitEnd[SU.UNT_SHINKIROU] = ['shinkirou_idle_end'];
+
 export default SkillUnit;

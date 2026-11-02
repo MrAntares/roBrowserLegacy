@@ -40,7 +40,7 @@ npm run ci            # Run both lint and format checks (used in CI)
 - Use ES6 `import`/`export` syntax (no AMD `define()`/`require()`)
 - Use `const` and `let` (no `var`)
 - Use single quotes, semicolons required
-- Use modern JavaScript features: arrow functions, template literals, async/await, ES6 classes (see AGENTS.md for detailed modernization patterns)
+- Use modern JavaScript features: arrow functions, template literals, async/await, ES6 classes (see [AGENTS.md](../AGENTS.md) and [docs/Architecture.md](./Architecture.md) for detailed modernization patterns)
 - Use path aliases for imports (e.g., `import X from 'Utils/X.js'`) instead of relative paths
 
 ### How to file a pull request

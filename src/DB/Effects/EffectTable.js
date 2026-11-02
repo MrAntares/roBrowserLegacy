@@ -33,6 +33,25 @@ import QuadHorn from 'Renderer/Effects/QuadHorn.js';
 import Blind from 'Renderer/Effects/Shaders/Blind.js';
 import SpiderWeb from 'Renderer/Effects/SpiderWeb.js';
 import SpiritSphere from 'Renderer/Effects/SpiritSphere.js';
+import { startCasterStrobe } from 'Renderer/Effects/CasterStrobe.js';
+import CastCone from 'Renderer/Effects/CastCone.js';
+import CastCircle from 'Renderer/Effects/CastCircle.js';
+import CastRing from 'Renderer/Effects/CastRing.js';
+import { endureEffect } from 'DB/Effects/EndureEffect.js';
+import { arrowShowerEffects } from 'DB/Effects/ArrowShowerEffects.js';
+import { arrowFlightBetween } from 'Renderer/Effects/ArrowFlight.js';
+import BoltRain from 'Renderer/Effects/BoltRain.js';
+import IceSpikes from 'Renderer/Effects/IceSpikes.js';
+import {
+	planPath as planIcePath,
+	planShards as planIceShards,
+	PATH as ICE_PATH,
+	SHARDS as ICE_SHARDS
+} from 'Renderer/Effects/IceSpikesSim.js';
+import { soulStrikeEffect } from 'DB/Effects/SoulStrikeEffect.js';
+import CastFunnel from 'Renderer/Effects/CastFunnel.js';
+import CasterMarks from 'Renderer/Effects/CasterMarks.js';
+import RotateLine from 'Renderer/Effects/RotateLine.js';
 import WarlockSphere from 'Renderer/Effects/WarlockSphere.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Renderer from 'Renderer/Renderer.js';
@@ -960,22 +979,8 @@ export default {
 	],
 
 	11: [
-		{
-			//EF_ENDURE	Endure
-			type: '3D',
-			alphaMax: 1,
-			attachedEntity: true,
-			duration: 1000,
-			fadeIn: true,
-			fadeOut: true,
-			file: 'effect/endure.tga',
-			posz: 2,
-			sizeEnd: 70,
-			sizeSmooth: true,
-			sizeStart: 200,
-			wav: 'effect/ef_endure',
-			zIndex: 10
-		}
+		// EF_ENDURE, Endure: the client's shrinking endure.tga and alpha_down streaks (EndureEffect.js)
+		...endureEffect
 	],
 
 	12: [
@@ -1081,48 +1086,7 @@ export default {
 		}
 	],
 
-	15: [
-		{
-			//soul strike caster	//EF_SOULSTRIKE	Soul Strike
-			alphaMax: 1,
-			attachedEntity: true,
-			blue: 1,
-			duration: 200,
-			delayLate: 250,
-			//duplicate: -1,
-			fadeIn: true,
-			fadeOut: true,
-			file: 'effect/pok3.tga',
-			toSrc: true,
-			green: 1,
-			poszEnd: 1,
-			poszSmooth: true,
-			poszStartRand: 5,
-			poszStartRandMiddle: 6,
-			red: 1,
-			size: 50,
-			timeBetweenDupli: 150,
-			type: '3D',
-			wav: 'effect/ef_soulstrike',
-			zIndex: 1
-		},
-		{
-			type: '3D',
-			duration: 250,
-			duplicate: 5,
-			timeBetweenDupli: 20,
-			absoluteSpriteName: 'data/sprite/\xc0\xcc\xc6\xd1\xc6\xae/particle1',
-			playSprite: true,
-			toSrc: true,
-			rotateToTarget: true,
-			sizeStart: 100.0,
-			sizeEnd: 500.0,
-			zOffsetStart: 3,
-			arc: 4.0,
-			retreat: 3.0,
-			soulStrikePattern: true
-		}
-	],
+	15: soulStrikeEffect,
 
 	16: [
 		{
@@ -1193,31 +1157,48 @@ export default {
 	17: [
 		{
 			//EF_MAGNUMBREAK	Magnum Break
-			type: 'CYLINDER',
-			alphaMax: 0.7,
-			animation: 4,
-			attachedEntity: true,
-			bottomSize: 4,
-			duration: 300,
-			fade: true,
-			height: 1,
-			rotate: true,
-			textureName: 'ring_yellow',
-			topSize: 6
+			// Official client parts: two flat yellow rings and a fire sphere, 30 ticks at 60 a second.
+			type: 'PRIM',
+			prim: 'ring',
+			texture: 'ring_yellow',
+			attachedEntity: false,
+			duration: 500,
+			frames: 30,
+			radiusSpeed: 1.75,
+			radiusAccel: -(1.75 / 30) * 0.5,
+			width: 12,
+			alpha: 0,
+			alphaSpeed: 254 / 15,
+			fadeOutFrame: 15,
+			wav: 'effect/ef_magnumbreak'
 		},
 		{
-			type: 'CYLINDER',
-			alphaMax: 0.6,
-			animation: 4,
-			attachedEntity: true,
-			bottomSize: 4,
-			duration: 300,
-			fade: true,
-			height: 4,
-			rotate: true,
-			textureName: '\xb4\xeb\xc6\xf8\xb9\xdf', //´ëÆø¹ß
-			topSize: 1,
-			wav: 'effect/ef_magnumbreak'
+			type: 'PRIM',
+			prim: 'sphere',
+			texture: '\xb4\xeb\xc6\xf8\xb9\xdf', //´ëÆø¹ß
+			attachedEntity: false,
+			duration: 500,
+			frames: 30,
+			radiusSpeed: 1.15,
+			radiusAccel: -(1.15 / 30) * 0.5,
+			spin: 3,
+			alpha: 0,
+			alphaSpeed: 254 / 15,
+			fadeOutFrame: 15
+		},
+		{
+			type: 'PRIM',
+			prim: 'ring',
+			texture: 'ring_yellow',
+			attachedEntity: false,
+			duration: 500,
+			frames: 30,
+			radiusSpeed: 1.75,
+			radiusAccel: -(1.75 / 30) * 0.5,
+			width: 12,
+			alpha: 0,
+			alphaSpeed: 254 / 15,
+			fadeOutFrame: 15
 		}
 	],
 
@@ -1365,29 +1346,102 @@ export default {
 		}
 	],
 
+	stonecurse_sound: [
+		{
+			// The sound the official client plays with Stone Curse's effect 23 (not part of 23 itself)
+			wav: '_stonecurse',
+			attachedEntity: true
+		}
+	],
+
 	24: [
 		{
-			//fireball caster effect (on target effect 49:)	//EF_FIREBALL	Fire Ball
+			//EF_FIREBALL	Fire Ball, played on the caster: the official client throws four fireball sprites at the
+			//target on ticks 20, 24, 28 and 32, each flying 20 ticks from 15 units up, each with its own sound.
+			//The first is plain, the next three tinted (246, 199, 76) and fainter (alpha 180, 130, 80).
 			type: '3D',
-			alphaMax: 0.2,
-			alphaMaxDelta: 0.2,
-			attachedEntity: true,
-			duration: 250,
-			delayOffset: 160,
-			delayOffsetDelta: -40,
 			spriteName: 'fireball',
 			playSprite: true,
-			duplicate: 5,
-			timeBetweenDupli: 0,
-			toSrc: true,
+			attachedEntity: false,
+			fromSrc: true,
 			rotateToTarget: true,
 			rotateWithCamera: true,
-			zOffset: 2,
-			size: 200,
+			zOffset: 3,
+			delayStart: 333,
+			duration: 333,
+			alphaMax: 1,
+			size: 130,
 			zIndex: 1
 		},
 		{
-			wav: 'effect/ef_fireball'
+			type: '3D',
+			spriteName: 'fireball',
+			playSprite: true,
+			attachedEntity: false,
+			fromSrc: true,
+			rotateToTarget: true,
+			rotateWithCamera: true,
+			zOffset: 3,
+			delayStart: 400,
+			duration: 333,
+			alphaMax: 180 / 255,
+			red: 246 / 255,
+			green: 199 / 255,
+			blue: 76 / 255,
+			size: 130,
+			zIndex: 1
+		},
+		{
+			type: '3D',
+			spriteName: 'fireball',
+			playSprite: true,
+			attachedEntity: false,
+			fromSrc: true,
+			rotateToTarget: true,
+			rotateWithCamera: true,
+			zOffset: 3,
+			delayStart: 467,
+			duration: 333,
+			alphaMax: 130 / 255,
+			red: 246 / 255,
+			green: 199 / 255,
+			blue: 76 / 255,
+			size: 130,
+			zIndex: 1
+		},
+		{
+			type: '3D',
+			spriteName: 'fireball',
+			playSprite: true,
+			attachedEntity: false,
+			fromSrc: true,
+			rotateToTarget: true,
+			rotateWithCamera: true,
+			zOffset: 3,
+			delayStart: 533,
+			duration: 333,
+			alphaMax: 80 / 255,
+			red: 246 / 255,
+			green: 199 / 255,
+			blue: 76 / 255,
+			size: 130,
+			zIndex: 1
+		},
+		{
+			wav: 'effect/ef_fireball',
+			delayWav: 333
+		},
+		{
+			wav: 'effect/ef_fireball',
+			delayWav: 400
+		},
+		{
+			wav: 'effect/ef_fireball',
+			delayWav: 467
+		},
+		{
+			wav: 'effect/ef_fireball',
+			delayWav: 533
 		}
 	],
 
@@ -1406,71 +1460,75 @@ export default {
 
 	26: [
 		{
-			//EF_ICEARROW	A sound (a swipe?)
-			//type: 'FUNC',
-			wav: 'effect/ef_icearrow%d', // Or ef_icearrow2 & ef_icearrow3 . Seems to be random
+			//EF_ICEARROW	Cold Bolt, on the target: one ice bolt per hit, 10 ticks apart from tick 12,
+			//each opening a ring_blue ring as it lands (BoltRainSim.js)
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(
+					new BoltRain(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.hitCount, 'cold'),
+					Params
+				);
+			}
+		},
+		{
+			// One sound per cast, on tick 12
+			wav: 'effect/ef_icearrow%d',
 			rand: [1, 3],
-			attachedEntity: false
+			delayWav: 200,
+			attachedEntity: true
 		}
 	],
 
 	27: [
 		{
-			//EF_FROSTDIVER	Frost Diver (ice spikes traveling from caster to target)
-			type: 'TRAIL',
-			attachedEntity: false,
-			duration: 2500,
-			speed: 24,
-			interval: 17,
-			stopAtTarget: true,
-			overshoot: 2,
-			spread: [0.1, 0.3],
-			spawn: [
-				{
-					type: 'QuadHorn',
-					textureFile: 'effect/ice.tga',
-					attachedEntity: false,
-					duration: 670,
-					height: [0.2, 1.8],
-					offsetX: 0,
-					offsetY: 0,
-					offsetZ: 0,
-					bottomSize: [0.06, 0.22],
-					blendMode: 8,
-					rotateX: [-15, 15],
-					rotateY: [0, 360],
-					color: [1.0, 1.0, 1.0, 1.0],
-					animation: 4,
-					animationSpeed: 330,
-					riseDistance: 2.0,
-					fadeOut: 170
+			//EF_FROSTDIVER	Frost Diver, on the caster: one thin ice spike a tick along the line to the
+			//target, pushing out of the ground (IceSpikesSim.js)
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				const caster = Params.Init.ownerEntity;
+				const target = Params.Init.otherEntity;
+				if (!target) {
+					return;
 				}
-			]
+				const at = [caster.position[0], caster.position[1], caster.position[2]];
+				const spikes = planIcePath((target.position[0] - at[0]) * 5, (target.position[1] - at[1]) * 5);
+				this.add(new IceSpikes(at, Params.Inst.startTick, spikes, ICE_PATH.life), Params);
+			}
 		}
 	],
 
 	28: [
 		{
-			//Frost Diver target hit	//EF_FROSTDIVER2	Frost Diver (Hitting)
+			//EF_FROSTDIVER2	Frost Diver hit, on the target: 8 wide ice spikes bursting from the feet
+			//(IceSpikesSim.js)
+			type: 'FUNC',
 			attachedEntity: true,
-			file: 'freeze', //effect/ice.tga
-			type: 'STR',
-			wav: 'effect/ef_frostdiver2'
+			func: function (Params) {
+				this.add(
+					new IceSpikes(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						planIceShards(),
+						ICE_SHARDS.life
+					),
+					Params
+				);
+			}
+		},
+		{
+			wav: 'effect/ef_frostdiver2',
+			attachedEntity: true
 		}
 	],
 
 	29: [
 		{
-			//EF_LIGHTBOLT	Lightning Bolt
+			//EF_LIGHTBOLT	Lightning Bolt (the official client plays Lightning.str only; the wind hit is 52)
 			attachedEntity: true,
 			duplicate: 1,
 			file: 'lightning',
-			type: 'STR'
-		},
-		{
-			attachedEntity: true,
-			file: 'windhit%d',
-			rand: [1, 3],
 			type: 'STR'
 		}
 	],
@@ -1487,9 +1545,57 @@ export default {
 
 	31: [
 		{
-			//EF_FIREARROW	Weird bubbles launching from feet
-			//type: 'FUNC',
-			wav: 'effect/ef_firearrow1',
+			//EF_FIREARROW	Fire Bolt, on the target: one fire bolt per hit, 10 ticks apart from tick 12,
+			//each opening a ring_yellow ring as it lands, and a spark every 4 ticks from the newest
+			//bolt (BoltRainSim.js)
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				const target = Params.Init.ownerEntity;
+				const spark = (s, startTick) => {
+					// A particle4 sprite flying from the bolt back up its line, shrinking away
+					const at = [target.position[0], target.position[1], target.position[2]];
+					this.spamEffect({
+						effect: {
+							type: '3D',
+							spriteName: 'particle4',
+							playSprite: true,
+							attachedEntity: false,
+							duration: (s.life * 1000) / 60,
+							posxStart: s.start.x / 5,
+							posyStart: s.start.y / 5,
+							poszStart: s.start.up / 5,
+							posxEnd: s.end.x / 5,
+							posyEnd: s.end.y / 5,
+							poszEnd: s.end.up / 5,
+							sizeStart: s.scale * 100,
+							sizeEnd: 1,
+							alphaMax: 1,
+							fadeOut: true,
+							zIndex: 1
+						},
+						Inst: { effectID: 31, duplicateID: 0, startTick },
+						Init: Object.assign({}, Params.Init, { position: at })
+					});
+				};
+				this.add(
+					new BoltRain(
+						target.position,
+						Params.Inst.startTick,
+						Params.Init.hitCount,
+						'fire',
+						Math.random,
+						spark
+					),
+					Params
+				);
+			}
+		},
+		{
+			// One sound per cast, on tick 12
+			wav: 'effect/ef_firearrow%d',
+			rand: [1, 3],
+			delayWav: 200,
 			attachedEntity: true
 		}
 	],
@@ -2783,10 +2889,16 @@ export default {
 	67: [
 		{
 			//EF_PROVOKE	Provoke
+			// The official client plays the sound twice: on tick 5 (83 ms) and tick 30 (500 ms)
 			type: 'STR',
 			file: 'provoke',
 			wav: 'effect/swordman_provoke',
+			delayWav: 83,
 			attachedEntity: true
+		},
+		{
+			wav: 'effect/swordman_provoke',
+			delayWav: 500
 		}
 	],
 
@@ -6511,15 +6623,24 @@ export default {
 
 	309: [
 		{
-			//EF_FIRSTAID	   First Aid
+			//EF_FIRSTAID	   First Aid: official effect 309
+			// One additive pikapika2 billboard, 4 cells across, 2.4 cells up, tinted (150, 150, 250),
+			// random roll; alpha 0 -> 80/255 over 20 ticks, held to tick 100, 0 at tick 180 (3 s).
+			// Size pulses +-5 % (one pulse every 2 s); it stays where the caster stood at launch.
 			type: '2D',
-			alphaMax: 0.2,
+			alphaMax: 80 / 255,
 			blendMode: 2,
 			file: 'effect/pikapika2.bmp',
-			fadeOut: true,
-			duration: 1000,
-			size: 100,
-			posz: 2,
+			red: 150 / 255,
+			green: 150 / 255,
+			blue: 250 / 255,
+			angleRand: [0, 359],
+			fadeInMs: 20 * (1000 / 60),
+			fadeOutStartMs: 100 * (1000 / 60),
+			duration: 180 * (1000 / 60),
+			size: 140,
+			sizePulse: { amount: 0.05, degPerTick: 3 },
+			posz: 2.4,
 			wav: '_heal_effect'
 		}
 	],
@@ -6588,8 +6709,8 @@ export default {
 			texturePath: 'hyper_novice/hn_jupitel_thunder_storm/jupitel_thunder_storm_ball/'
 		}
 	],
-
-	// Jack Frost Nova (HN_JACK_FROST_NOVA), from the client's own effect folders.
+	// Drawn once where the unit appears when the client has no ez2streffect.bson
+	// (SkillUnitFallback in SkillUnit.js)
 	ef_hn_jack_frost_nova: [
 		{
 			type: 'STR',
@@ -6608,8 +6729,8 @@ export default {
 			renderBeforeEntities: true
 		}
 	],
-
-	// Ground Gravitation (HN_GROUND_GRAVITATION), from the client's own effect folders.
+	// Drawn once where the unit appears when the client has no ez2streffect.bson
+	// (SkillUnitFallback in SkillUnit.js)
 	ef_hn_ground_gravitation: [
 		{
 			type: 'STR',
@@ -6636,11 +6757,6 @@ export default {
 			file: 'hyper_novice/hn_breakinglimit/breakinglimit/breakinglimit',
 			texturePath: 'hyper_novice/hn_breakinglimit/breakinglimit/',
 			wav: 'effect/hyper_novice/hn_breakinglimit'
-		},
-		{
-			type: 'STR',
-			file: 'hyper_novice/hn_breakinglimit/breakinglimit_buff/breakinglimit_buff',
-			texturePath: 'hyper_novice/hn_breakinglimit/breakinglimit_buff/'
 		}
 	],
 
@@ -6651,11 +6767,6 @@ export default {
 			file: 'hyper_novice/hn_rulebreak/rulebreak/rulebreak',
 			texturePath: 'hyper_novice/hn_rulebreak/rulebreak/',
 			wav: 'effect/hyper_novice/hn_rulebreak'
-		},
-		{
-			type: 'STR',
-			file: 'hyper_novice/hn_rulebreak/rulebreak_buff/rulebreak_buff',
-			texturePath: 'hyper_novice/hn_rulebreak/rulebreak_buff/'
 		}
 	],
 
@@ -9438,7 +9549,28 @@ export default {
 		}
 	],
 
-	//441: [{}],	//EF_BLUECASTING	   Comfort Skills Cast Aura
+	441: [
+		{
+			//EF_BLUECASTING	   Blue cast aura (Comfort skills, Star Emperor skills)
+			// Same as the yellow (12) and white (58) cast auras in the official client, with ring_blue.
+			alphaMax: 0.8,
+			animation: 2,
+			attachedEntity: true,
+			blendMode: 2,
+			blue: 1,
+			bottomSize: 1,
+			fade: true,
+			green: 1,
+			height: 4,
+			red: 1,
+			rotate: true,
+			textureName: 'ring_blue',
+			topSize: 5,
+			type: 'CYLINDER',
+			wav: 'effect/ef_beginspell'
+		}
+	],
+
 	//442: [{}],	//EF_RUN	   Foot Prints caused by Sprint.
 	//443: [{}],	//EF_STOPRUN	   (Nothing)
 
@@ -10435,8 +10567,8 @@ export default {
 			wav: 'effect/spirit_handler/sh_colors_of_hyun_rok'
 		}
 	],
-
-	// Hyunrok Breeze (SH_HYUN_ROKS_BREEZE), from the client's own effect folders.
+	// Drawn once where the unit appears when the client has no ez2streffect.bson
+	// (SkillUnitFallback in SkillUnit.js)
 	ef_sh_hyun_roks_breeze: [
 		{
 			type: 'STR',
@@ -10473,19 +10605,6 @@ export default {
 			texturePath: 'spirit_handler/sh_temporary_communion/temporary_communion/',
 			min: 'spirit_handler/sh_temporary_communion/temporary_communion/min_temporary_communion',
 			wav: 'effect/spirit_handler/sh_temporary_communion'
-		},
-		{
-			type: 'STR',
-			file: 'spirit_handler/sh_temporary_communion/temporary_communion_buff/temporary_communion_buff',
-			texturePath: 'spirit_handler/sh_temporary_communion/temporary_communion_buff/',
-			min: 'spirit_handler/sh_temporary_communion/temporary_communion_buff/min_temporary_communion_buff'
-		},
-		{
-			type: 'STR',
-			file: 'spirit_handler/sh_temporary_communion/temporary_communion_buff_bottom/temporary_communion_buff_bottom',
-			texturePath: 'spirit_handler/sh_temporary_communion/temporary_communion_buff_bottom/',
-			min: 'spirit_handler/sh_temporary_communion/temporary_communion_buff_bottom/min_temporary_communion_buff_bottom',
-			renderBeforeEntities: true
 		}
 	],
 
@@ -10522,9 +10641,13 @@ export default {
 	ef_sh_chul_ho_battering_cast: [
 		{
 			type: 'STR',
+			castLoop: true,
+			attachedEntity: true,
 			file: 'spirit_handler/sh_chul_ho_battering/chul_ho_battering_cast/chul_ho_battering_cast',
 			texturePath: 'spirit_handler/sh_chul_ho_battering/chul_ho_battering_cast/',
-			min: 'spirit_handler/sh_chul_ho_battering/chul_ho_battering_cast/min_chul_ho_battering_cast'
+			min: 'spirit_handler/sh_chul_ho_battering/chul_ho_battering_cast/min_chul_ho_battering_cast',
+			wav: 'effect/ef_beginspell',
+			yOffset: 10
 		}
 	],
 
@@ -10560,16 +10683,23 @@ export default {
 	ef_sh_hyun_rok_spirit_power_cast: [
 		{
 			type: 'STR',
+			castLoop: true,
+			attachedEntity: true,
 			file: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast/hyun_rok_spirit_power_cast',
 			texturePath: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast/',
-			min: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast/min_hyun_rok_spirit_power_cast'
+			min: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast/min_hyun_rok_spirit_power_cast',
+			wav: 'effect/ef_beginspell',
+			yOffset: 10
 		},
 		{
 			type: 'STR',
+			castLoop: true,
+			attachedEntity: true,
 			file: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast_bottom/hyun_rok_spirit_power_cast_bottom',
 			texturePath: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast_bottom/',
 			min: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_cast_bottom/min_hyun_rok_spirit_power_cast_bottom',
-			renderBeforeEntities: true
+			renderBeforeEntities: true,
+			yOffset: 10
 		}
 	],
 
@@ -10641,7 +10771,25 @@ export default {
 		}
 	],
 
-	//502: [{}],	//EF_PIERCEBODY	   Player Become Yellow with Yellow Aura
+	502: [
+		{
+			//EF_PIERCEBODY	   Player Become Yellow with Yellow Aura
+			// Spiral Pierce Max cast (official client): for the cast time, at most 141
+			// ticks, the caster flickers yellow (drawn adding light) and white each
+			// tick, with a glow copy round it (CasterMarks.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, Params.Init.duration / 16, 502),
+					Params
+				);
+			}
+		}
+	],
+
 	//503: [{}],	//EF_SOULLINK	   Soul Link Word
 
 	504: [
@@ -10994,7 +11142,8 @@ export default {
 						Params.Init.position[0],
 						Params.Init.position[1],
 						Params.Inst.endTick,
-						Params.Init.otherEntity
+						Params.Init.otherEntity,
+						Params.Inst.startTick
 					),
 					Params
 				);
@@ -11813,14 +11962,21 @@ export default {
 			type: 'STR',
 			file: 'sky_emperor/ske_sky_moon/sky_moon_cast/sky_moon_cast',
 			texturePath: 'sky_emperor/ske_sky_moon/sky_moon_cast/',
-			min: 'sky_emperor/ske_sky_moon/sky_moon_cast/min_sky_moon_cast'
+			min: 'sky_emperor/ske_sky_moon/sky_moon_cast/min_sky_moon_cast',
+			wav: 'effect/ef_beginspell',
+			castLoop: true,
+			yOffset: 10,
+			attachedEntity: true
 		},
 		{
 			type: 'STR',
 			file: 'sky_emperor/ske_sky_moon/sky_moon_cast_bottom/sky_moon_cast_bottom',
 			texturePath: 'sky_emperor/ske_sky_moon/sky_moon_cast_bottom/',
 			min: 'sky_emperor/ske_sky_moon/sky_moon_cast_bottom/min_sky_moon_cast_bottom',
-			renderBeforeEntities: true
+			castLoop: true,
+			yOffset: 10,
+			renderBeforeEntities: true,
+			attachedEntity: true
 		}
 	],
 
@@ -12715,8 +12871,8 @@ export default {
 			wav: 'effect/soul_ascetic/soa_soul_gathering'
 		}
 	],
-
-	// Totem Of Tutelary (SOA_TOTEM_OF_TUTELARY), from the client's own effect folders.
+	// Drawn once where the unit appears when the client has no ez2streffect.bson
+	// (SkillUnitFallback in SkillUnit.js)
 	ef_soa_totem_of_tutelary: [
 		{
 			type: 'STR',
@@ -12844,12 +13000,6 @@ export default {
 			texturePath: 'soul_ascetic/soa_soul_of_heaven_and_earth/soul_of_heaven_and_earth/',
 			min: 'soul_ascetic/soa_soul_of_heaven_and_earth/soul_of_heaven_and_earth/min_soul_of_heaven_and_earth',
 			wav: 'effect/soul_ascetic/soa_soul_of_heaven_and_earth'
-		},
-		{
-			type: 'STR',
-			file: 'soul_ascetic/soa_soul_of_heaven_and_earth/soul_of_heaven_and_earth_buff/soul_of_heaven_and_earth_buff',
-			texturePath: 'soul_ascetic/soa_soul_of_heaven_and_earth/soul_of_heaven_and_earth_buff/',
-			min: 'soul_ascetic/soa_soul_of_heaven_and_earth/soul_of_heaven_and_earth_buff/min_soul_of_heaven_and_earth_buff'
 		}
 	],
 
@@ -14479,7 +14629,37 @@ export default {
 		}
 	],
 
-	//812: [{}],	//EF_BLACKBODY	   Black expanding aura
+	812: [
+		{
+			//EF_BLACKBODY	   Black expanding aura
+			// Kunai - Nightmare's cast start (official client, 60 ticks a second): a level
+			// square of near-black fashasha.tga streaks one cell up, spreading fast for
+			// 10 ticks and then slowly, fading out from tick 30 to its end on tick 57.
+			type: 'PRIM',
+			prim: 'quad',
+			texture: 'fashasha',
+			attachedEntity: false,
+			duration: (57 * 1000) / 60,
+			frames: 57,
+			color: [10, 10, 10],
+			height: 5,
+			sizeSpeed: 1.5,
+			sizeAccel: 1.5 / 14,
+			sizeChangeFrame: 10,
+			sizeChangeSpeed: 0.1,
+			sizeChangeAccel: 0.1 / 30,
+			alpha: 254,
+			fadeOutFrame: 30
+		},
+		{
+			// The caster strobes black and white on ticks 6 to 60, then recovers (CasterStrobe.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				startCasterStrobe(Params.Init.ownerEntity);
+			}
+		}
+	],
 
 	813: [
 		{
@@ -14582,8 +14762,42 @@ export default {
 		}
 	],
 
-	//830: [{}],	//EF_BEGINSPELL_N1	   Blue aura (Arch Bishop cast animation)
-	//831: [{}],	//EF_BEGINSPELL_N2	   Blue cone [S]
+	830: [
+		{
+			//EF_BEGINSPELL_N1	   Blue aura (Arch Bishop cast animation)
+			// The official client's two pulsing bubble crowns, light blue and white (CastConeSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, {
+						pulse: true
+					}),
+					Params
+				);
+			}
+		}
+	],
+
+	831: [
+		{
+			//EF_BEGINSPELL_N2	   Blue cone cast aura (Enchanting Sky)
+			// The official client's bubble cone in blue, over two blue squares on the ground (CastConeSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, {
+						variant: 0,
+						ground: true
+					}),
+					Params
+				);
+			}
+		}
+	],
 
 	832: [
 		{
@@ -14611,12 +14825,99 @@ export default {
 	//837: [{}],	//EF_ROLLINGCAST	   Casting [S]
 	//838: [{}],	//EF_WATER_BELOW	   Watery aura
 	//839: [{}],	//EF_WATER_FADE	   [Client Error]
-	//840: [{}],	//EF_BEGINSPELL_N3	   Red cone
-	//841: [{}],	//EF_BEGINSPELL_N4	   Green cone
-	//842: [{}],	//EF_BEGINSPELL_N5	   Yellow cone
-	//843: [{}],	//EF_BEGINSPELL_N6	   White cone
+
+	840: [
+		{
+			//EF_BEGINSPELL_N3	   Red cone cast aura
+			// The official client's bubble cone in red, with no squares on the ground (CastConeSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, {
+						variant: 3
+					}),
+					Params
+				);
+			}
+		}
+	],
+
+	841: [
+		{
+			//EF_BEGINSPELL_N4	   Green cone cast aura
+			// The official client's bubble cone in green, with no squares on the ground (CastConeSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, {
+						variant: 4
+					}),
+					Params
+				);
+			}
+		}
+	],
+
+	842: [
+		{
+			//EF_BEGINSPELL_N5	   Yellow cone cast aura
+			// The official client's bubble cone in yellow, with no squares on the ground (CastConeSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, {
+						variant: 5
+					}),
+					Params
+				);
+			}
+		}
+	],
+
+	843: [
+		{
+			//EF_BEGINSPELL_N6	   White cone cast aura
+			// The official client's bubble cone in white, with no squares on the ground (CastConeSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, {
+						variant: 6
+					}),
+					Params
+				);
+			}
+		}
+	],
+
 	//844: [{}],	//EF_BEGINSPELL_N7	   Purple cone
-	//845: [{}],	//EF_BEGINSPELL_N8	   light-bluish turquoise cone
+
+	845: [
+		{
+			//EF_BEGINSPELL_N8	   Turquoise cone cast aura (All in the Sky)
+			// The official client's bubble cone in turquoise, with no squares on the ground (CastConeSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, {
+						variant: 8
+					}),
+					Params
+				);
+			}
+		}
+	],
+
 	//846: [{}],	//EF_WATER_SMOKE	   (Nothing)
 
 	847: [
@@ -14896,9 +15197,13 @@ export default {
 	ef_ss_raidenpou_cast: [
 		{
 			type: 'STR',
+			castLoop: true,
+			attachedEntity: true,
 			file: 'shinkiro_shiranui/ss_raidenpou/new_raidenpou_cast/new_raidenpou_cast',
 			texturePath: 'shinkiro_shiranui/ss_raidenpou/new_raidenpou_cast/',
-			min: 'shinkiro_shiranui/ss_raidenpou/new_raidenpou_cast/min_new_raidenpou_cast'
+			min: 'shinkiro_shiranui/ss_raidenpou/new_raidenpou_cast/min_new_raidenpou_cast',
+			wav: 'effect/ef_beginspell',
+			yOffset: 8
 		}
 	],
 
@@ -15515,7 +15820,29 @@ export default {
 		}
 	],
 
-	//911: [{}],	//EF_GREENCASTING	   Green castish animation [S]
+	911: [
+		{
+			// EF_GREENCASTING (Totem of Tutelary cast): the cast-aura ring in ring_white.tga,
+			// argument 15 (green (100, 255, 100), additive), twice (CastRingSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastRing(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration,
+						'ring_white.tga',
+						[15, 15]
+					),
+					Params
+				);
+			}
+		}
+	],
+
 	//912: [{}],	//EF_WALLOFTHORN	   Wall of Thorns unit (green fog cloud)
 	//913: [{}],	//EF_FIREBALL5	   Magic projectiles
 	//914: [{}],	//EF_THROWITEM11	   (Nothing)
@@ -15618,7 +15945,32 @@ export default {
 	//931: [{}],	//EF_LINKPARTICLE2	   (Nothing)
 	//932: [{}],	//EF_SOULLIGHT3	   Firefly
 	//933: [{}],	//EF_CHAREFFECT	   [Client Crash]
-	//934: [{}],	//EF_GUMGANG6	   White, castishly expanding cone
+
+	934: [
+		{
+			//EF_GUMGANG6	   White, castishly expanding cone
+			// Nightmare Erasion cast (official client): four rings of ring_white.tga
+			// opening out round the caster for 50 ticks (CastFunnelSim.js). The effect
+			// lives 300 ticks whatever the cast time, and a cancelled cast keeps it.
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(
+					new CastFunnel(Params.Init.ownerEntity.position, Params.Inst.startTick, 300, 'ring_white.tga'),
+					Params
+				);
+			}
+		},
+		{
+			// ...and the caster drawn adding light, with a glow copy, two ticks out of four on ticks 12 to 33.
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, 300, 934), Params);
+			}
+		}
+	],
+
 	//935: [{}],	//EF_FIREBALL6	   Green magic projectile
 	//936: [{}],	//EF_GUMGANG7	   Red, castishly expanding cone
 	//937: [{}],	//EF_GUMGANG8	   Yellow, castishly expanding cone
@@ -15708,6 +16060,22 @@ export default {
 			type: 'STR',
 			file: 'vash00',
 			attachedEntity: true
+		}
+	],
+
+	986: [
+		{
+			//EF_ROTATE_LINE_GRAY	   Gray ribbons spiralling around the caster (Huuma / Kunai cast)
+			// The official client's CRotateLineEffect: four cloud11.tga ribbons for the cast time (RotateLineSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			func: function (Params) {
+				this.add(
+					new RotateLine(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, 986),
+					Params
+				);
+			}
 		}
 	],
 
@@ -17054,6 +17422,122 @@ export default {
 		}
 	],
 
+	// Jack Frost Nova cast, with 1449: the client plays new_jackfrost_cast.str for the cast time
+	1446: [
+		{
+			type: 'STR',
+			file: 'new_jackfrost/new_jackfrost_cast/new_jackfrost_cast',
+			texturePath: 'new_jackfrost/new_jackfrost_cast/',
+			min: 'new_jackfrost/new_jackfrost_cast/min_new_jackfrost_cast',
+			castLoop: true,
+			attachedEntity: true
+		}
+	],
+
+	1449: [
+		{
+			// Jack Frost Nova cast: the client's tinted cast circle in new_jackfrost/ring_ice.tga,
+			// mode 2 (bluish, normal blending), for the cast time (CastCircleSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCircle(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration,
+						'new_jackfrost/ring_ice.tga',
+						2
+					),
+					Params
+				);
+			}
+		}
+	],
+
+	1556: [
+		{
+			// Soul of Heaven and Earth cast: the cast-aura ring in ring_blue.tga, arguments
+			// 20 and 21 (two blues, additive) (CastRingSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastRing(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration,
+						'ring_blue.tga',
+						[20, 21]
+					),
+					Params
+				);
+			}
+		}
+	],
+
+	1565: [
+		{
+			// Circle of Directions and Elementals cast: the cast-aura ring in ring_yellow.tga,
+			// argument 23 (light blue, additive) (CastRingSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastRing(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration,
+						'ring_yellow.tga',
+						[23, 23]
+					),
+					Params
+				);
+			}
+		}
+	],
+
+	1709: [
+		{
+			// Hell's Drive cast aura: the client's untinted cast circle in
+			// new_earthdrive/ring_brown.tga, white, for the cast time (CastCircleSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCircle(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration,
+						'new_earthdrive/ring_brown.tga'
+					),
+					Params
+				);
+			}
+		}
+	],
+
+	// Shinkirou cast, with 2373: the client plays mystery_illusion_cast_bottom.str for the cast time
+	1774: [
+		{
+			type: 'STR',
+			file: 'mystery_illusion/mystery_illusion_cast_bottom/mystery_illusion_cast_bottom',
+			texturePath: 'mystery_illusion/mystery_illusion_cast_bottom/',
+			min: 'mystery_illusion/mystery_illusion_cast_bottom/min_mystery_illusion_cast_bottom',
+			wav: 'effect/ef_beginspell',
+			renderBeforeEntities: true,
+			castLoop: true,
+			attachedEntity: true
+		}
+	],
+
 	1869: [
 		{
 			type: 'STR',
@@ -17193,6 +17677,150 @@ export default {
 			type: 'STR',
 			file: 'ui_enchant/ui_fail/ui_reset_fail',
 			texturePath: 'ui_enchant/ui_fail/'
+		}
+	],
+
+	1938: [
+		{
+			// Spark Blaster / Triple Laser cast: the cast-aura ring in
+			// new_battle_w/abr_battle_warior.tga, argument 0 (white, additive) (CastRingSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastRing(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration,
+						'new_battle_w/abr_battle_warior.tga',
+						[0, 0]
+					),
+					Params
+				);
+			}
+		}
+	],
+
+	// Mayhemic Thorns cast: the client plays acidified_zone_ground_cast.str (2228) and its
+	// floor layer (2229) for the cast time
+	2228: [
+		{
+			type: 'STR',
+			file: 'acidified_zone_ground/acidified_zone_ground_cast/acidified_zone_ground_cast',
+			texturePath: 'acidified_zone_ground/acidified_zone_ground_cast/',
+			min: 'acidified_zone_ground/acidified_zone_ground_cast/min_acidified_zone_ground_cast',
+			wav: 'effect/ef_beginspell',
+			castLoop: true,
+			attachedEntity: true
+		}
+	],
+
+	2229: [
+		{
+			type: 'STR',
+			file: 'acidified_zone_ground/acidified_zone_ground_cast_bottom/acidified_zone_ground_cast_bottom',
+			texturePath: 'acidified_zone_ground/acidified_zone_ground_cast_bottom/',
+			min: 'acidified_zone_ground/acidified_zone_ground_cast_bottom/min_acidified_zone_ground_cast_bottom',
+			renderBeforeEntities: true,
+			castLoop: true,
+			attachedEntity: true
+		}
+	],
+
+	2367: [
+		{
+			// Night Watch, Soul Ascetic and Spirit Handler cast aura: the client's cast-aura ring in
+			// ring_yellow.tga, argument 0 (white, additive), twice (CastRingSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastRing(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration,
+						'ring_yellow.tga',
+						[0, 0]
+					),
+					Params
+				);
+			}
+		}
+	],
+
+	2368: [
+		{
+			// Talisman of Black Tortoise cast: the official client's bubble cone in black (variant 11, CastConeSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, {
+						variant: 11
+					}),
+					Params
+				);
+			}
+		}
+	],
+
+	2369: [
+		{
+			// Breaking Limit, Rule Break and Talisman of Four Bearing God cast: the colour-cycling
+			// ring (client primitive 139) in ring_white.tga, argument 0, twice: blue, red, green and
+			// pale yellow, 25 ticks each (CastRingSim.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastRing(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration,
+						'ring_white.tga',
+						[0, 0],
+						true
+					),
+					Params
+				);
+			}
+		}
+	],
+
+	2373: [
+		{
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			func: function (Params) {
+				this.add(
+					new CastFunnel(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration / 16,
+						'ring_black.tga'
+					),
+					Params
+				);
+			}
+		},
+		{
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			func: function (Params) {
+				this.add(
+					new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, Params.Init.duration / 16, 2373),
+					Params
+				);
+			}
 		}
 	],
 
@@ -18308,23 +18936,27 @@ export default {
 		}
 	],
 
-	// Cross Rain (IG_CROSS_RAIN), from the client's own effect folders.
-	ef_ig_cross_rain: [
+	// Cross Rain's unit (official effect 2462): every 9 - level / 3 ticks a
+	// spear of rain lands at a random point of a square around the unit, 3 cells
+	// wide at levels 1-3, 5 at 4-6, 7 at 7-9, 9 at 10.
+	ef_ig_cross_rain_field: [
+		{
+			type: 'AREA_SPAWN',
+			spawnEffectId: 'ef_ig_cross_rain_drop',
+			interval: 150,
+			intervalByLevel: [150, 150, 400 / 3, 400 / 3, 400 / 3, 350 / 3, 350 / 3, 350 / 3, 100, 100],
+			areaByLevel: [3, 3, 3, 5, 5, 5, 7, 7, 7, 9]
+		}
+	],
+
+	// One drop of Cross Rain's unit (no sound)
+	ef_ig_cross_rain_drop: [
 		{
 			type: 'STR',
 			file: 'imperial_guard/ig_cross_rain/new_crossrain/new_cross_rain/new_cross_rain',
 			texturePath: 'imperial_guard/ig_cross_rain/new_crossrain/new_cross_rain/',
 			min: 'imperial_guard/ig_cross_rain/new_crossrain/new_cross_rain/min_new_cross_rain',
-			fallback: ['crossrain/cross_rain/cross_rain'],
-			wav: 'effect/ig_cross_rain'
-		},
-		{
-			type: 'STR',
-			file: 'imperial_guard/ig_cross_rain/new_crossrain/new_cross_rain_bottom/new_cross_rain_bottom',
-			texturePath: 'imperial_guard/ig_cross_rain/new_crossrain/new_cross_rain_bottom/',
-			min: 'imperial_guard/ig_cross_rain/new_crossrain/new_cross_rain_bottom/min_new_cross_rain_bottom',
-			fallback: ['crossrain/cross_rain_bottom/cross_rain_bottom'],
-			renderBeforeEntities: true
+			fallback: ['crossrain/cross_rain/cross_rain']
 		}
 	],
 
@@ -20106,20 +20738,9 @@ export default {
 	// Servant Weapon Sign (DK_SERVANT_W_SIGN), from the client's own effect folders.
 	ef_dk_servant_w_sign: [
 		{
-			type: 'STR',
-			file: 'dragon_knight/dk_servant_w_sign/servant_sign/servant_sign',
-			texturePath: 'dragon_knight/dk_servant_w_sign/servant_sign/',
-			min: 'dragon_knight/dk_servant_w_sign/servant_sign/min_servant_sign',
-			fallback: ['servant_sign/servant_sign/servant_sign'],
-			wav: 'effect/dk_servant_w_sign'
-		},
-		{
-			type: 'STR',
-			file: 'dragon_knight/dk_servant_w_sign/servant_sign_bottom/servant_sign_bottom',
-			texturePath: 'dragon_knight/dk_servant_w_sign/servant_sign_bottom/',
-			min: 'dragon_knight/dk_servant_w_sign/servant_sign_bottom/min_servant_sign_bottom',
-			fallback: ['servant_sign/servant_sign_bottom/servant_sign_bottom'],
-			renderBeforeEntities: true
+			// The sign itself loops with the Servant Sign status (StatusEffectTable.js)
+			wav: 'effect/dk_servant_w_sign',
+			attachedEntity: true
 		}
 	],
 
@@ -20256,12 +20877,9 @@ export default {
 	// Vigor (DK_VIGOR), from the client's own effect folders.
 	ef_dk_vigor: [
 		{
-			type: 'STR',
-			file: 'dragon_knight/dk_vigor/vigor_buff/vigor_buff',
-			texturePath: 'dragon_knight/dk_vigor/vigor_buff/',
-			min: 'dragon_knight/dk_vigor/vigor_buff/min_vigor_buff',
-			fallback: ['vigor/vigor_buff/vigor_buff'],
-			wav: 'effect/dk_vigor'
+			// The buff itself loops with the Vigor status (StatusEffectTable.js)
+			wav: 'effect/dk_vigor',
+			attachedEntity: true
 		}
 	],
 
@@ -20992,11 +21610,12 @@ export default {
 	ef_arrow_projectile: [
 		{
 			// effect to show the arrow projectile (normal attack or skill with arrow projectile)
+			// Official flight: 8 frames of 24 ms, shorter under 8 cells (ArrowFlight.js)
 			type: '3D',
 			alphaMax: 1,
 			angle: 180,
 			attachedEntity: true,
-			duration: 140,
+			duration: Params => arrowFlightBetween(Params.Inst.otherPosition, Params.Inst.position),
 			fadeIn: true,
 			fadeOut: true,
 			absoluteSpriteName: 'data/sprite/npc/skel_archer_arrow',
@@ -21336,28 +21955,8 @@ export default {
 		}
 	],
 
-	ef_arrow_shower_projectile: [
-		{
-			type: '3D',
-			alphaMax: 1,
-			angle: 180,
-			attachedEntity: false,
-			duration: 140,
-			duplicate: 10,
-			timeBetweenDupli: 0,
-			fadeIn: true,
-			fadeOut: true,
-			absoluteSpriteName: 'data/sprite/npc/skel_archer_arrow',
-			toSrc: true,
-			rotateToTarget: true,
-			rotateWithCamera: true,
-			size: 100,
-			zOffset: 1,
-			zIndex: 1,
-			posxEndRand: 1.5,
-			posyEndRand: 1.5
-		}
-	],
+	// Arrow Shower (AC_SHOWER): the client's arrows to the cells around a point, ArrowShowerEffects.js.
+	...arrowShowerEffects(),
 
 	// Wind Sign (WH_WIND_SIGN), from the client's own effect folders.
 	ef_wh_wind_sign: [
@@ -22148,18 +22747,32 @@ export default {
 	],
 
 	// Mission Bombard (NW_MISSION_BOMBARD), from the client's own effect folders.
-	ef_nw_mission_bombard: [
+	ef_nw_mission_bombard_hit: [
 		{
 			type: 'STR',
-			file: 'night_watch/nw_mission_bombard/mission_bombard/mission_bombard',
+			file: 'night_watch/nw_mission_bombard/mission_bombard/mission_bombard_hit',
 			texturePath: 'night_watch/nw_mission_bombard/mission_bombard/',
-			min: 'night_watch/nw_mission_bombard/mission_bombard/min_mission_bombard',
-			wav: 'effect/night_watch/nw_mission_bombard'
+			min: 'night_watch/nw_mission_bombard/mission_bombard/min_mission_bombard_hit'
 		}
 	],
 
-	// Mission Bombard (NW_MISSION_BOMBARD), from the client's own effect folders.
-	ef_nw_mission_bombard_hit: [
+	// Mission Bombard's unit (official effect 2354): while the unit stands,
+	// every 15 ticks (250 ms) three blasts land at random points of a 9x9
+	// square around it, each drawn at a random size from 0.5 to 1.
+	ef_nw_mission_bombard_field: [
+		{
+			type: 'AREA_SPAWN',
+			spawnEffectId: 'ef_nw_mission_bombard_drop',
+			interval: 250,
+			count: 3,
+			areaByLevel: [9],
+			area: 9,
+			scaleRange: [0.5, 1]
+		}
+	],
+
+	// One blast of Mission Bombard's unit (no sound)
+	ef_nw_mission_bombard_drop: [
 		{
 			type: 'STR',
 			file: 'night_watch/nw_mission_bombard/mission_bombard/mission_bombard_hit',
@@ -22182,9 +22795,14 @@ export default {
 	ef_nw_wild_shot_cast: [
 		{
 			type: 'STR',
+			castLoop: true,
+			attachedEntity: true,
 			file: 'night_watch/nw_wild_shot/wild_shot_cast/wild_shot_cast',
 			texturePath: 'night_watch/nw_wild_shot/wild_shot_cast/',
-			min: 'night_watch/nw_wild_shot/wild_shot_cast/min_wild_shot_cast'
+			min: 'night_watch/nw_wild_shot/wild_shot_cast/min_wild_shot_cast',
+			wav: 'effect/ef_beginspell',
+			renderBeforeEntities: true,
+			yOffset: 11
 		}
 	],
 
@@ -22214,10 +22832,15 @@ export default {
 	ef_nw_midnight_fallen_cast: [
 		{
 			type: 'STR',
+			castLoop: true,
+			attachedEntity: true,
 			file: 'night_watch/nw_midnight_fallen/midnight_fallen_cast_bottom/midnight_fallen_cast_bottom',
 			texturePath: 'night_watch/nw_midnight_fallen/midnight_fallen_cast_bottom/',
 			min: 'night_watch/nw_midnight_fallen/midnight_fallen_cast_bottom/min_midnight_fallen_cast_bottom',
-			renderBeforeEntities: true
+			wav: 'effect/ef_beginspell',
+			renderBeforeEntities: true,
+			xOffset: 1,
+			yOffset: 11
 		}
 	],
 
@@ -23897,17 +24520,106 @@ export default {
 	],
 
 	// Help Angel (NV_HELPANGEL), from the client's own effect folders.
+	// The client plays effect\priest_sanctuary.wav, then effects 1367 and 1368 (the floor ring).
 	ef_nv_helpangel: [
 		{
 			type: 'STR',
 			file: 'help_angel/help_angel/help_angel',
-			texturePath: 'help_angel/help_angel/'
+			texturePath: 'help_angel/help_angel/',
+			wav: 'effect/priest_sanctuary'
 		},
 		{
 			type: 'STR',
 			file: 'help_angel/help_angel_bottom/help_angel_bottom',
 			texturePath: 'help_angel/help_angel_bottom/',
 			renderBeforeEntities: true
+		}
+	],
+
+	ef_cast_circle_red: [
+		{
+			// Effect 55: tinted circle, ring_yellow.tga, mode 1 (reddish, additive)
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCircle(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration,
+						'ring_yellow.tga',
+						1
+					),
+					Params
+				);
+			}
+		}
+	],
+
+	ef_cast_circle_violet: [
+		{
+			// Effect 59: untinted circle, magic_violet.tga
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCircle(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration,
+						'magic_violet.tga'
+					),
+					Params
+				);
+			}
+		}
+	],
+
+	ef_cast_circle_blue: [
+		{
+			// Effect 54: tinted circle, ring_blue.tga, mode 2 (bluish, normal blending)
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCircle(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration,
+						'ring_blue.tga',
+						2
+					),
+					Params
+				);
+			}
+		}
+	],
+
+	ef_cast_circle_yellow: [
+		{
+			// Effect 57: tinted circle, ring_yellow.tga, mode 0 (white, normal blending)
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CastCircle(
+						Params.Init.ownerEntity.position,
+						Params.Inst.startTick,
+						Params.Init.duration,
+						'ring_yellow.tga',
+						0
+					),
+					Params
+				);
+			}
 		}
 	]
 };

@@ -11,6 +11,42 @@ function getRandomIntInclusive(min, max) {
 
 const blendMode = {};
 
+/**
+ * Alpha of a 2D effect at a time
+ *
+ * @param {object} fx alphaMax, fadeIn, fadeOut, fadeInMs, fadeOutStartMs
+ * @param {number} start ms since the effect started
+ * @param {number} duration ms
+ * @return {number} alpha, 0..1
+ */
+export function twoDAlpha(fx, start, duration) {
+	let alpha = fx.alphaMax;
+
+	if (fx.fadeInMs && start < fx.fadeInMs) {
+		alpha = (start * fx.alphaMax) / fx.fadeInMs;
+	} else if (fx.fadeOutStartMs >= 0 && start > fx.fadeOutStartMs) {
+		alpha = ((duration - start) * fx.alphaMax) / Math.max(duration - fx.fadeOutStartMs, 1);
+	} else if (fx.fadeIn && start < duration / 4) {
+		alpha = (start * fx.alphaMax) / (duration / 4);
+	} else if (fx.fadeOut && start > duration / 2 + duration / 4) {
+		alpha = ((duration - start) * fx.alphaMax) / (duration / 4);
+	}
+
+	return Math.min(Math.max(alpha, 0), 1);
+}
+
+/**
+ * Size factor of a pulsing 2D effect: 1 + amount * sin(phase), where the phase starts at
+ * fx.pulsePhase (degrees) and advances fx.sizePulse.degPerTick each 60 Hz tick.
+ */
+export function twoDPulse(fx, start) {
+	if (!fx.sizePulse) {
+		return 1;
+	}
+	const phase = fx.pulsePhase + (start / (1000 / 60)) * fx.sizePulse.degPerTick;
+	return 1 + fx.sizePulse.amount * Math.sin((phase * Math.PI) / 180);
+}
+
 let shadow_index = 0;
 
 class TwoDEffect {
@@ -28,6 +64,9 @@ class TwoDEffect {
 		this.zIndex = effect.zIndex ? effect.zIndex : 0;
 		this.fadeOut = effect.fadeOut ? true : false;
 		this.fadeIn = effect.fadeIn ? true : false;
+		// Optional fade timing in ms (fadeIn / fadeOut otherwise use the first and last quarter)
+		this.fadeInMs = effect.fadeInMs > 0 ? effect.fadeInMs : 0;
+		this.fadeOutStartMs = effect.fadeOutStartMs >= 0 ? effect.fadeOutStartMs : -1;
 		// When true, draw as an overlay: no depth test and no ray-plane correction.
 		this.overlay = effect.overlay ? true : false;
 
@@ -394,6 +433,10 @@ class TwoDEffect {
 		if (effect.sizeRandEndX) {
 			this.sizeEndX = getRandomIntInclusive(effect.sizeRandEndX[0], effect.sizeRandEndX[1]);
 		}
+		// Size pulse (e.g. { amount: 0.05, degPerTick: 3 }), from a random phase 0-359 deg.
+		this.sizePulse = effect.sizePulse || null;
+		this.pulsePhase = this.sizePulse ? getRandomIntInclusive(0, 359) : 0;
+
 		if (effect.durationRand) {
 			effect.duration = getRandomIntInclusive(effect.durationRand[0], effect.durationRand[1]);
 		}
@@ -579,19 +622,7 @@ class TwoDEffect {
 		SpriteRenderer.offset[1] = currentOffsetY;
 
 		// Color
-		let alpha = this.alphaMax;
-
-		if (this.fadeIn && start < duration / 4) {
-			alpha = (start * this.alphaMax) / (duration / 4);
-		} else if (this.fadeOut && start > duration / 2 + duration / 4) {
-			alpha = ((duration - start) * this.alphaMax) / (duration / 4);
-		}
-
-		if (alpha < 0) {
-			alpha = 0;
-		} else if (alpha > 1) {
-			alpha = 1;
-		}
+		const alpha = twoDAlpha(this, start, duration);
 
 		SpriteRenderer.color[3] = alpha;
 		SpriteRenderer.color[0] = this.red;
@@ -642,8 +673,9 @@ class TwoDEffect {
 			}
 		}
 
-		SpriteRenderer.size[0] = currentXSize;
-		SpriteRenderer.size[1] = currentYSize;
+		const pulse = twoDPulse(this, start);
+		SpriteRenderer.size[0] = currentXSize * pulse;
+		SpriteRenderer.size[1] = currentYSize * pulse;
 
 		// Angle
 		if (this.rotate) {

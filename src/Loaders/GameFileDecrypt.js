@@ -8,6 +8,9 @@
  *
  * @author Vincent Thibault
  */
+import { getGameFileDecryptWasm } from 'Loaders/wasm/gameFileDecrypt.js';
+
+const WASM_DATA_OFFSET = 704;
 
 const mask = new Uint8Array([0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01]);
 const tmp = new Uint8Array(8);
@@ -201,17 +204,45 @@ class GameFileDecrypt {
 	 * @param {number} entry_len
 	 */
 	static decodeFull(buf, len, entry_len) {
-		const nblocks = len >> 3;
-		let i, j;
-
 		// compute number of digits of the entry length
 		const digits = entry_len.toString().length;
-
 		// choose size of gap between two encrypted blocks
 		// Updated to match PHP reference (cycle is at least 3)
 		// digits:  1  2  3  4  5  6  7  8  9 ...
 		//  cycle:  3  3  4  5 14 15 22 23 24 ...
 		const cycle = digits < 3 ? 3 : digits < 5 ? digits + 1 : digits < 7 ? digits + 9 : digits + 15;
+
+		const wasm = getGameFileDecryptWasm();
+		if (wasm) {
+			const { memory, decodeFull } = wasm.exports;
+			const needed = WASM_DATA_OFFSET + len;
+			if (memory.buffer.byteLength < needed) {
+				try {
+					memory.grow(Math.ceil((needed - memory.buffer.byteLength) / 65536));
+				} catch (_e) {
+					GameFileDecrypt.decodeFullJS(buf, len, cycle);
+					return;
+				}
+			}
+			new Uint8Array(memory.buffer, WASM_DATA_OFFSET, len).set(buf.subarray(0, len));
+			decodeFull(WASM_DATA_OFFSET, len, cycle);
+			buf.set(new Uint8Array(memory.buffer, WASM_DATA_OFFSET, len));
+			return;
+		}
+
+		GameFileDecrypt.decodeFullJS(buf, len, cycle);
+	}
+
+	/**
+	 * Pure JS fallback for decodeFull
+	 *
+	 * @param {Uint8Array} buf
+	 * @param {number} len
+	 * @param {number} cycle
+	 */
+	static decodeFullJS(buf, len, cycle) {
+		const nblocks = len >> 3;
+		let i, j;
 
 		// first 20 blocks are all des-encrypted
 		for (i = 0; i < 20 && i < nblocks; ++i) {
@@ -242,6 +273,38 @@ class GameFileDecrypt {
 	 * @param {number} len
 	 */
 	static decodeHeader(buf, len) {
+		const wasm = getGameFileDecryptWasm();
+		if (wasm) {
+			const hlen = Math.min(len & ~7, 160);
+			if (hlen === 0) {
+				return;
+			}
+			const { memory, decodeHeader } = wasm.exports;
+			const needed = WASM_DATA_OFFSET + hlen;
+			if (memory.buffer.byteLength < needed) {
+				try {
+					memory.grow(Math.ceil((needed - memory.buffer.byteLength) / 65536));
+				} catch (_e) {
+					GameFileDecrypt.decodeHeaderJS(buf, len);
+					return;
+				}
+			}
+			new Uint8Array(memory.buffer, WASM_DATA_OFFSET, hlen).set(buf.subarray(0, hlen));
+			decodeHeader(WASM_DATA_OFFSET, hlen);
+			buf.set(new Uint8Array(memory.buffer, WASM_DATA_OFFSET, hlen), 0);
+			return;
+		}
+
+		GameFileDecrypt.decodeHeaderJS(buf, len);
+	}
+
+	/**
+	 * Pure JS fallback for decodeHeader
+	 *
+	 * @param {Uint8Array} buf
+	 * @param {number} len
+	 */
+	static decodeHeaderJS(buf, len) {
 		const nblocks = len >> 3;
 		let i;
 

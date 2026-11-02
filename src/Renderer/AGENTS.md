@@ -1,0 +1,119 @@
+# AGENTS.md — Renderer Subsystem (`src/Renderer/`)
+
+Instructions for working on the WebGL renderer, Entity composition system (`src/Renderer/Entity/`), visual effects (`src/Renderer/Effects/`), map rendering (`src/Renderer/Map/`), and Granny3D skeletal models (`src/Renderer/GR2/`).
+
+## Mandatory References
+
+- **Entity body palette & mount behavior:** Read [`docs/reference/renderer/README.md`](../../docs/reference/renderer/README.md) (`docs/reference/renderer/body-palette.md`) before changing entity palette or mount rendering in `src/Renderer/Entity/`.
+- **Guild nameplate emblem:** See [`docs/reference/guild/nameplate-emblem.md`](../../docs/reference/guild/nameplate-emblem.md).
+
+---
+
+## Subsystem Inventory (`src/Renderer/`)
+
+### Top-Level Orchestrators
+
+- `Renderer.js` — WebGL context management, resize handling, and main render loop callbacks.
+- `FramePacer.js` — Frame pacing and timing management.
+- `MapRenderer.js` — Coordinates map loading and world/ground/water/model/light/sound rendering.
+- `EntityManager.js` — Manages active entities, picking priority, culling, and pending transformations.
+- `EffectManager.js` — Spawns, updates, renders, and cleans up visual effects.
+- `ScreenEffectManager.js` — Full-screen status/blind/post-processing effects.
+- `SignboardManager.js` — World signboards.
+- `Camera.js` — Camera positioning, rotation, zoom, and projection matrices.
+- `SpriteRenderer.js` — 2D/3D billboarded sprite drawing and canvas fallback.
+- `SpriteBatch.js` & `SpriteAtlas.js` — Instanced entity sprite batching and shared sprite frame/palette texture atlases (with companion `.vs`/`.fs` shaders).
+- `ItemObject.js` — Ground item drop rendering.
+
+### Entity Modules (`src/Renderer/Entity/`, 20 files)
+
+- **Core:** `Entity.js` (base class + prototype property whitelist), `Player.js` (player entity), `EntityComposer.js` (single-sprite composite texture cache), `EntityOverlay.js` (overlay management).
+- **16 Mixins in `src/Renderer/Entity/` (plus `Controls/EntityControl.js` = 17 total):**
+  `EntityAction.js`, `EntityAnimations.js`, `EntityAttachments.js`, `EntityAura.js`, `EntityCast.js`, `EntityDialog.js`, `EntityDisplay.js`, `EntityDropEffect.js`, `EntityEmblem.js`, `EntityLife.js`, `EntityRender.js`, `EntityRoom.js`, `EntitySound.js`, `EntityState.js`, `EntityView.js`, `EntityWalk.js`.
+
+### Effects (`src/Renderer/Effects/`, 33 effect JS files + GLSL shaders + 9 post-processing shaders)
+
+- **Weather:** `CloudWeatherEffect`, `PokJukWeatherEffect`, `RainWeather`, `SakuraWeatherEffect`, `SnowWeather`, `Sky`.
+- **Auras & Spheres:** `GroundAura`, `SwirlingAura`, `SpiritSphere`, `WarlockSphere`, `Level99Bubble`, `QuadHorn`.
+- **Ground:** `GroundEffect`, `FlatColorTile`, `PropertyGround`, `LPEffect`, `SpiderWeb`, `Tiles`.
+- **Combat:** `Damage`, `MagnumBreak`, `PoisonEffect`, `MagicTarget` (the ground cast circle, sized and spun by its pure simulation `MagicTargetSim`: the official client's per-skill N x N size), `MagicRing`, `LockOnTarget`.
+- **Visual & World:** `StrEffect`, `RsmEffect`, `ThreeDEffect`, `TwoDEffect`, `Cylinder`, `Songs`, `Trail`, `WaterfallEffect`.
+- **Official primitives:** `EffectPrim` (`PRIM` rows) with its pure simulation `EffectPrimSim` (the official client's ring, sphere and flat square primitives, advanced on its 60-tick clock), and `CasterStrobe` (the black and white caster strobe of effect 812).
+- **Ported skill looks:** pure simulations of one official effect each, drawn by `ThreeDEffect` rows through `track` (and `sharedTexture` for many copies of one texture): `EndureSim` (Endure's shrinking endure.tga and sliding alpha_down streaks, effect 11). `BoltRain` + `BoltRainSim` (Cold Bolt and Fire Bolt's falling bolts, landing rings and Fire Bolt's sparks, effects 26 and 31), `IceSpikes` + `IceSpikesSim` (Frost Diver's ice spike path and hit burst, effects 27 and 28), `SoulStrikeSim` (Soul Strike's souls, effect 15). `ArrowFlight` gives the official flying arrow's timing (release at the bow attack's hit frame, 8 frames of 24 ms in flight, shorter under 8 cells), used by `ef_arrow_projectile` and `Entity.js`.
+- **Cast shapes:** the official client's 4th-job cast auras, each drawing class with a pure simulation beside it (`*Sim.js`): `CastCircle` (tinted cast circle), `CastCone` (bubble cones and crowns), `CastRing` (cast-aura ring and its colour-cycling twin), `CastFunnel` (opening rings), `RotateLine` (ribbons spiralling round the caster) and `CasterMarks` (the caster's glow and split images, drawn by `EntityRender`). Rows marked `castLoop` replay until the cast ends (`EffectManager.spamSkillCast` gets the cast time) and `EffectManager.removeCastLoops` stops them on cancel.
+- **Spawners:** `AreaSpawner` (`AREA_SPAWN` rows: while it lives, spams another effect at random points of a square, for ground units such as Cross Rain).
+- **Placement helpers** (used by `SkillEffect` fields in `EffectManager.js`): `ScreenDirection` (where a target is on screen from the caster), `ShuffledGrid`, `SpinSets`, `GroundScatter`, `BezierArcThrow` + `BezierArcThrowSim` (a STR thrown on an arc, `arcThrow` rows).
+- **Screen & Post-Processing:** `PostProcess.js` and `Effects/Shaders/` (`Blind`, `Bloom`, `CAS`, `Cartoon`, `FXAA`, `GaussianBlur`, `Upsampling`, `VerticalFlip`, `Vibrance`).
+- _Known note:_ `Damage.js` and `Sky.js` contain legacy particle class management TODOs; inspect carefully when modifying.
+
+### Map Rendering (`src/Renderer/Map/`)
+
+- `Altitude.js`, `AnimatedModels.js`, `Effects.js`, `GridSelector.js`, `Ground.js`, `Models.js`, `OccluderFade.js`, `Sounds.js`, `Water.js` (plus `.vs`/`.fs` shaders).
+
+### Granny3D Skeletal Models (`src/Renderer/GR2/`)
+
+- `GR2ModelRenderer.js`, `GR2ViewerRenderer.js`, `actorAction.js`, `gr2Banks.js`, `gr2Math.js`, `gr2Pack.js`, `gr2World.js` (plus `GR2Model.vs`/`GR2Model.fs`).
+
+---
+
+### Renderer entity modules — `src/Renderer/Entity/`
+
+**Composition:**
+
+- `Entity.js` composes `Controls/EntityControl.js` with 16 behavior mixins.
+- `Player.js` specializes the player entity.
+
+**Behavior mixins:**
+
+- `EntityAction`
+- `EntityAnimations`
+- `EntityAttachments`
+- `EntityAura`
+- `EntityCast`
+- `EntityDialog`
+- `EntityDisplay`
+- `EntityDropEffect`
+- `EntityEmblem`
+- `EntityLife`
+- `EntityRender`
+- `EntityRoom`
+- `EntitySound`
+- `EntityState`
+- `EntityView`
+- `EntityWalk`
+
+**Sprite composition and lifecycle:**
+
+`EntityRender` delegates layered player-sprite capture and composition to `EntityComposer`. The composer caches the combined texture for `SpriteBatch` rendering.
+
+- `EntityManager` releases cached composites when entities are removed and after batch rendering.
+- `Renderer` resets composites after WebGL context loss.
+
+Preserve these ownership and cleanup paths when changing entity rendering, caching, or WebGL resource lifecycle behavior.
+
+## Core Renderer & Entity Invariants
+
+1. **Do Not Convert the Entity Mixin/Composition System into Class Inheritance:**
+    - `Entity.js` is composition-based. 17 mixins (16 under `src/Renderer/Entity/` plus `Controls/EntityControl.js`) are applied dynamically in `Entity`'s constructor via `.call(this)`.
+    - Add or modify entity behavior through the appropriate mixin or composition path. Never replace mixins with subclasses or a new inheritance tree.
+    - Note that `EntityComposer.js` and `EntityOverlay.js` in `src/Renderer/Entity/` are helper/compositing modules, and `Player.js` extends `Entity` for the local player session (`Session.Entity`).
+2. **Keep `Entity.prototype` Data Whitelist Intact:**
+    - `Entity.prototype` explicitly declares data fields (`objecttype`, `GID`, `AID`, `_sex`, `_job`, `_head`, `clevel`, `joblevel`, `money`, etc.) on the prototype rather than as ES2022 class instance fields.
+    - `Entity.prototype.set(unit)` uses `Entity.prototype.hasOwnProperty(key)` (and `_${key}`) as a security/safety whitelist to decide which server packet properties can be auto-assigned. Moving these properties to class fields on `this` breaks `hasOwnProperty` checks on `Entity.prototype`.
+    - Before changing Entity state, inspect creation, transformation (`EntityManager.pendingTransformations`), removal (`clean` / `remove`), and map-transition flows.
+3. **Preserve Frame-Loop Performance & Scratchpad Buffers:**
+    - Module-scoped `const` scratchpads/caches (such as preallocated `Float32Array`, `mat4`, `vec3` buffers reused per frame to avoid GC allocations, and module-private WebGL handles like `_program` / `_buffer`) are an intentional performance pattern in `src/Renderer/`. Do not flag them as global state or move them into per-frame allocations.
+4. **WebGL & GPU Resource Lifecycle:**
+    - Requires OpenGL ES 2.0 / WebGL support. Watch for maximum texture dimensions when packing or uploading sprite sheets (`SpriteAtlas`, `EntityComposer`).
+    - When deleting WebGL textures or buffers in batched paths (`SpriteBatch`, `EntityComposer`), ensure queued draws are flushed first or defer deletion until `endFrame(gl)` to avoid blanking in-flight draws, and handle WebGL context loss gracefully.
+
+---
+
+## Playbook: Create or Modify a Renderer Effect
+
+1. Create or update the effect module under `src/Renderer/Effects/` (and companion `.vs`/`.fs` GLSL shaders if needed).
+2. Implement static lifecycle hooks (`init(gl)`, `free(gl)`, `beforeRender(gl, modelView, projection, fog, tick)`, `afterRender(gl)`) and instance methods (`init()`, `free()`, `render(gl, tick)`) consistently with neighboring effects.
+3. Register the effect with `EffectManager.js` (and map it in `src/DB/Effects/` if triggered by effect IDs or skills).
+4. Minimize per-frame allocations in `render()` — reuse module-scoped typed arrays/matrices and use object pooling for frequently spawned particles.
+5. Ensure `free(gl)` properly releases WebGL buffers/programs/textures.
+6. Add or update unit tests in `tests/renderer/` where applicable.

@@ -31,6 +31,7 @@ import Session from 'Engine/SessionStorage.js';
 import DB from 'DB/DBManager.js';
 import GraphicsSettings from 'Preferences/Graphics.js';
 import GR2ModelRenderer from 'Renderer/GR2/GR2ModelRenderer.js';
+import EntityComposer from './EntityComposer.js';
 
 /**
  * Load dependencies
@@ -405,114 +406,28 @@ const renderEntity = (function renderEntityClosure() {
 				// depthWrite = allow entity to occlude others
 				// depthCorrection ENABLED (required for isometric depth)
 				SpriteRenderer.runWithDepth(true, true, false, function () {
-					let cartidx;
-					// madogear don't appear costumes
-					const RIDING_STATUS =
-						self.effectState &
-							(StatusConst.EffectState.RIDING |
-								StatusConst.EffectState.DRAGON1 |
-								StatusConst.EffectState.DRAGON2 |
-								StatusConst.EffectState.DRAGON3 |
-								StatusConst.EffectState.DRAGON4 |
-								StatusConst.EffectState.DRAGON5 |
-								StatusConst.EffectState.WUGRIDER) || self.allRidingState;
-
-					function robeCorrection(lookingFront) {
-						if (self.robe > 0 && self.robeHeight && self.bodyHeight) {
-							const HEAD_SIZE = 64;
-							const COMPENSATION = 25;
-							if (
-								self.robeHeight +
-									(self.action === self.ACTION.SIT
-										? 0
-										: RIDING_STATUS && lookingFront
-											? COMPENSATION * 2
-											: COMPENSATION) >
-								self.bodyHeight + HEAD_SIZE
-							) {
-								if (
-									(self.action === self.ACTION.ATTACK ||
-										self.action === self.ACTION.ATTACK1 ||
-										self.action === self.ACTION.ATTACK2 ||
-										self.action === self.ACTION.ATTACK3) &&
-									!lookingFront
-								) {
-									return -450;
-								}
-								if (self.action === self.ACTION.SIT) {
-									return lookingFront ? -450 : RIDING_STATUS ? 1 : -100;
-								}
-								return lookingFront ? -300 : RIDING_STATUS ? 100 : 1;
-							}
-						}
-						if (self.action === self.ACTION.SIT) {
-							return lookingFront ? -100 : 550;
-						}
-						return lookingFront ? 1 : 400;
-					}
+					SpriteRenderer.zIndex = 150;
+					EntityComposer.begin(self);
 
 					// Shield is behind on some position, seems to be hardcoded by the client
 					if (self.shield && behind) {
-						SpriteRenderer.runWithDepth(true, false, false, function () {
-							SpriteRenderer.zIndex = -1;
-							renderElement(self, self.files.shield, 'shield', _position, true);
-						});
+						renderElement(self, self.files.shield, 'shield', _position, true);
 					}
 
 					if (!isLookingBack(direction)) {
 						// looking front
-						if (Session.Playing == true && self.hasCart == true) {
-							cartidx = DB.isSuperNovice(self._job) ? 0 : self.CartNum;
-
-							// Draw Cart
-							SpriteRenderer.runWithDepth(true, false, false, function () {
-								SpriteRenderer.zIndex = -1;
-								renderElement(self, self.files.cart_shadow, 'cartshadow', _position, false);
-								SpriteRenderer.zIndex = 1;
-								renderElement(self, self.files.cart[cartidx], 'cart', _position, false);
-							});
-						}
-
 						// Draw Robe
-						if (self.robe > 0) {
-							SpriteRenderer.zIndex = robeCorrection(true);
-							renderElement(self, self.files.robe, 'robe', _position, true);
-						}
-					}
-
-					SpriteRenderer.zIndex = 150;
-					if (
-						RIDING_STATUS &&
-						!isLookingBack(direction) &&
-						(self.action === self.ACTION.SIT || self.action === self.ACTION.WALK)
-					) {
-						SpriteRenderer.zIndex *= 2;
+						renderElement(self, self.files.robe, 'robe', _position, true);
 					}
 
 					// Draw Body
 					renderElement(self, self.files.body, 'body', _position, true);
 
-					// Isometric Projection Body Offset
-					let bodyZOffset = 250;
-					if (RIDING_STATUS) {
-						bodyZOffset *= 2;
-						if (self.action === self.ACTION.WALK && !(direction > 2 && direction < 6)) {
-							bodyZOffset += 250;
-						}
-					}
-
-					SpriteRenderer.zIndex = bodyZOffset + 50;
-
 					// Draw Head
 					renderElement(self, self.files.head, 'head', _position, false);
 
-					// TB_Layer_Priority = {Default_Mid = 100, Default_Top = 200, Default_Bottom = 300, Default_Robe = 400 }
-					// Values*10 reference https://github.com/zhad3/zrenderer/blob/c10b337dfb9d44e33b146551191b3398630823b5/source/sprite.d#L84
-
 					// Hat Middle
 					if (self.accessory3 > 0 && self.accessory3 !== self.accessory) {
-						// accessory already rendered, avoid render same item again
-						SpriteRenderer.zIndex = bodyZOffset + 100;
 						renderElement(self, self.files.accessory3, 'head', _position, false);
 					}
 
@@ -523,49 +438,35 @@ const renderEntity = (function renderEntityClosure() {
 						self.accessory2 !== self.accessory3
 					) {
 						// accessory and accessory3 already rendered, avoid render same item again
-						SpriteRenderer.zIndex = bodyZOffset + 200;
 						renderElement(self, self.files.accessory2, 'head', _position, false);
 					}
 
 					// Hat Bottom
 					if (self.accessory > 0) {
-						SpriteRenderer.zIndex = bodyZOffset + 300;
 						renderElement(self, self.files.accessory, 'head', _position, false);
 					}
 
 					if (isLookingBack(direction)) {
 						// looking back
-
 						// Draw Robe
 						if (self.robe > 0) {
-							SpriteRenderer.zIndex = bodyZOffset + robeCorrection(false);
 							renderElement(self, self.files.robe, 'robe', _position, true);
-						}
-
-						// Draw Cart
-						if (Session.Playing == true && self.hasCart == true) {
-							SpriteRenderer.zIndex = bodyZOffset + 500;
-							cartidx = DB.isSuperNovice(self._job) ? 0 : self.CartNum;
-							SpriteRenderer.runWithDepth(true, false, false, function () {
-								renderElement(self, self.files.cart_shadow, 'cartshadow', _position, false);
-								renderElement(self, self.files.cart[cartidx], 'cart', _position, false);
-							});
 						}
 					}
 
 					// Draw Weapon
 					if (self.weapon > 0) {
-						SpriteRenderer.zIndex = bodyZOffset + 250;
 						renderElement(self, self.files.weapon, 'weapon', _position, true);
 						renderElement(self, self.files.weapon_trail, 'weapon_trail', _position, true);
 					}
 
 					if (self.shield > 0 && !behind) {
-						SpriteRenderer.zIndex = bodyZOffset + 300;
 						renderElement(self, self.files.shield, 'shield', _position, true);
 					}
+					EntityComposer.end();
 				});
 				break;
+			case Entity.TYPE_WUG:
 			case Entity.TYPE_HOM:
 				SpriteRenderer.position[2] = SpriteRenderer.position[2] + 0.2;
 				SpriteRenderer.zIndex = 150;
@@ -580,6 +481,7 @@ const renderEntity = (function renderEntityClosure() {
 					renderElement(self, self.files.body, 'body', _position, true);
 				});
 				break;
+			case Entity.TYPE_CART:
 			case Entity.TYPE_MOB:
 			case Entity.TYPE_NPC:
 			case Entity.TYPE_NPC2:
@@ -607,6 +509,75 @@ const renderEntity = (function renderEntityClosure() {
 })();
 
 /**
+ * Glow copy and split images, as the official client draws them for the marks
+ * of cast effects 934, 2373 and 502 (Renderer/Effects/CasterMarks.js).
+ *
+ *  - Glow copy (entity._castGlow): one more copy of each layer, in the
+ *    sprite's own colour, added, 1.5 sin(c) + 5 pixels larger on every side,
+ *    c counting the client's draws (60 a second) and wrapping after 180.
+ *  - Split images (entity._splitImageAge, the effect's age in ticks): four
+ *    white copies, shifted right, left, down and up by age x 5% of the body's
+ *    height, alpha (30 - age) x 5 out of 255.
+ *
+ * @param {Entity} entity
+ * @param {Array} layers
+ * @param {string} spr
+ * @param {string} pal
+ * @param {object} files
+ * @param {number[]} _position
+ */
+function renderCasterMarks(entity, layers, spr, pal, files, _position) {
+	const color = entity.effectColor;
+	const r = color[0];
+	const g = color[1];
+	const b = color[2];
+	const a = color[3];
+
+	if (entity._castGlow > 0) {
+		const pad = 1.5 * Math.sin((Math.floor(Date.now() / (1000 / 60)) % 181) * (Math.PI / 180)) + 5;
+		for (let i = 0; i < layers.length; ++i) {
+			const layer = layers[i];
+			const frame = layer.index >= 0 ? spr.frames[layer.index] : null;
+			if (!frame || !frame.width || !frame.height) {
+				continue;
+			}
+			const oldX = layer.scale[0];
+			const oldY = layer.scale[1];
+			layer.scale[0] = oldX * (1 + (2 * pad) / Math.abs(frame.width * oldX * files.size || 1));
+			layer.scale[1] = oldY * (1 + (2 * pad) / Math.abs(frame.height * oldY * files.size || 1));
+			entity.renderLayer(layer, spr, pal, files.size, _position, 'glow', true);
+			layer.scale[0] = oldX;
+			layer.scale[1] = oldY;
+		}
+	}
+
+	const age = entity._splitImageAge;
+	const alpha = age >= 0 ? Math.max(0, (30 - age) * 5) / 255 : 0;
+	if (alpha > 0) {
+		const shift = age * 0.05 * (entity.bodyHeight ? Math.abs(entity.bodyHeight) : 100);
+		const x = _position[0];
+		const y = _position[1];
+		color[0] = 1;
+		color[1] = 1;
+		color[2] = 1;
+		color[3] = alpha;
+		for (let k = 0; k < 4; k++) {
+			_position[0] = x + (k === 0 ? shift : k === 1 ? -shift : 0);
+			_position[1] = y + (k === 2 ? shift : k === 3 ? -shift : 0);
+			for (let i = 0; i < layers.length; ++i) {
+				entity.renderLayer(layers[i], spr, pal, files.size, _position, 'split', false);
+			}
+		}
+		_position[0] = x;
+		_position[1] = y;
+		color[0] = r;
+		color[1] = g;
+		color[2] = b;
+		color[3] = a;
+	}
+}
+
+/**
  * Render second body (BL_DOUBLE_BODY + EF_MAKEBLUR)
  * @param {Entity} entity
  * @param {Array} layers
@@ -629,7 +600,7 @@ function renderSecondBody(entity, layers, spr, pal, files, type, _position, opti
 		return;
 	}
 
-	if (type === 'shadow' || type === 'cartshadow') {
+	if (type === 'shadow') {
 		return;
 	}
 
@@ -845,49 +816,6 @@ const renderElement = (function renderElementClosure() {
 			_position[1] = position[1] - animation.pos[0].y;
 		}
 
-		if (type === 'cart' || type === 'cartshadow') {
-			const direction = (Camera.direction + entity.direction + 8) % 8;
-
-			switch (direction) {
-				case 0:
-					{
-						_position[0] = 0;
-						_position[1] = -30;
-					}
-					break;
-				case 1:
-					_position[0] = 30;
-					_position[1] = -10;
-					break;
-				case 2:
-					_position[0] = 40;
-					_position[1] = 0;
-					break;
-				case 3:
-					_position[0] = 30;
-					_position[1] = 10;
-					break;
-				case 4:
-					{
-						_position[0] = 0;
-						_position[1] = 20;
-					}
-					break;
-				case 5:
-					_position[0] = -30;
-					_position[1] = 10;
-					break;
-				case 6:
-					_position[0] = -40;
-					_position[1] = 0;
-					break;
-				case 7:
-					_position[0] = -30;
-					_position[1] = -10;
-					break;
-			}
-		}
-
 		// Check if special body effect and enable the correct blend mode
 		const hasBerserkOrMarionette =
 			(type !== 'shadow' && entity.getOpt3(StatusConst.Status.BERSERK)) ||
@@ -906,20 +834,36 @@ const renderElement = (function renderElementClosure() {
 		const isEXPLOSIONSPIRITS = entity.getOpt3(StatusConst.Status.EXPLOSIONSPIRITS);
 		const isBERSERK = entity.getOpt3(StatusConst.Status.BERSERK);
 
-		renderSecondBody(entity, layers, spr, pal, files, type, _position, {
-			enableHalo: entity.getOpt3(StatusConst.Status.ASSUMPTIO) || !!entity._enableHalo,
-			enableTrail:
-				isENERGYCOAT ||
-				isBUNSIN ||
-				isHALLUCINATIONWALK ||
-				isQUICKEN ||
-				isOVERTHRUST ||
-				isEXPLOSIONSPIRITS ||
-				isBERSERK ||
-				!!entity._fastMoveTrail ||
-				!!entity._enableTrail,
-			blurType: isBUNSIN ? 5 : isHALLUCINATIONWALK ? 3 : entity._blurType || 1
-		});
+		const renderSecondary = () =>
+			renderSecondBody(entity, layers, spr, pal, files, type, _position, {
+				enableHalo: entity.getOpt3(StatusConst.Status.ASSUMPTIO) || !!entity._enableHalo,
+				enableTrail:
+					isENERGYCOAT ||
+					isBUNSIN ||
+					isHALLUCINATIONWALK ||
+					isQUICKEN ||
+					isOVERTHRUST ||
+					isEXPLOSIONSPIRITS ||
+					isBERSERK ||
+					!!entity._fastMoveTrail ||
+					!!entity._enableTrail,
+				blurType: isBUNSIN ? 5 : isHALLUCINATIONWALK ? 3 : entity._blurType || 1
+			});
+		if (EntityComposer.active) {
+			EntityComposer.suspend(renderSecondary);
+		} else {
+			renderSecondary();
+		}
+
+		// Glow copy and split images some cast effects put on the caster (CasterMarks.js)
+		if (type !== 'shadow' && type !== 'cartshadow' && (entity._castGlow > 0 || entity._splitImageAge >= 0)) {
+			const renderMarks = () => renderCasterMarks(entity, layers, spr, pal, files, _position);
+			if (EntityComposer.active) {
+				EntityComposer.suspend(renderMarks);
+			} else {
+				renderMarks();
+			}
+		}
 
 		// Render all frames
 		for (let i = 0, count = layers.length; i < count; ++i) {
@@ -974,7 +918,7 @@ function getAnimationDelay(type, entity, act) {
  */
 function calcAnimation(entity, act, type, tick) {
 	// Fix for shadow
-	if (type === 'shadow' || type === 'cartshadow') {
+	if (type === 'shadow') {
 		return 0;
 	}
 
@@ -996,10 +940,6 @@ function calcAnimation(entity, act, type, tick) {
 	}
 	if (animation.speed) {
 		delay = animation.speed;
-	}
-
-	if (type === 'cart' && isIdle) {
-		return 0;
 	}
 
 	// Get rid of doridori
@@ -1207,6 +1147,9 @@ function renderLayer(layer, spr, pal, size, pos, type, isBlendModeOne) {
 	SpriteRenderer.image.texture = frame.texture;
 	SpriteRenderer.image.spr = spr;
 	SpriteRenderer.image.frame = frame;
+
+	// Collect player layers so the composed character is submitted once.
+	if (EntityComposer.capture(this, frame, pal.palette, SpriteRenderer.offset)) return;
 
 	// Draw Sprite
 	SpriteRenderer.render(isBlendModeOne);

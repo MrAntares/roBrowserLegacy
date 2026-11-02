@@ -35,6 +35,8 @@ vi.mock('Renderer/EntityManager.js', () => ({ default: mocks.entityManager }));
 vi.mock('UI/Scrollbar.js', () => ({ default: {} }));
 
 const GUIComponent = (await import('UI/GUIComponent.js')).default;
+const Mouse = (await import('Controls/MouseEventHandler.js')).default;
+const Session = (await import('Engine/SessionStorage.js')).default;
 
 let seq = 0;
 
@@ -106,10 +108,52 @@ describe('a window that freezes the map', () => {
 		class Frozen extends GUIComponent {
 			mouseMode = GUIComponent.MouseMode.FREEZE;
 		}
-		mount('<div></div>', Frozen);
+		const frozen = mount('<div></div>', Frozen);
 
 		expect(mocks.entityManager.setOverEntity).toHaveBeenCalledWith(null);
 		expect(mocks.cursor.setType).toHaveBeenLastCalledWith(mocks.cursor.ACTION.DEFAULT);
+		frozen.remove();
+	});
+
+	// The NPC store asks for a quantity in a second frozen window. Closing that
+	// one gave the map back while the store was still open: the cursor took the
+	// shape of whatever stood under the store, a warp portal or an NPC.
+	it('keeps the map frozen while another one is still open', () => {
+		class Frozen extends GUIComponent {
+			mouseMode = GUIComponent.MouseMode.FREEZE;
+		}
+		const store = mount('<div></div>', Frozen);
+		const quantity = mount('<div></div>', Frozen);
+
+		quantity.remove();
+		expect(Mouse.intersect).toBe(false);
+		expect(Session.FreezeUI).toBe(true);
+
+		store.remove();
+		expect(Mouse.intersect).toBe(true);
+		expect(Session.FreezeUI).toBe(false);
+	});
+
+	// Message boxes are clones sharing one name: closing one of two left the
+	// other open over a live map.
+	it('stays frozen while a window of the same name is still open', () => {
+		class Frozen extends GUIComponent {
+			mouseMode = GUIComponent.MouseMode.FREEZE;
+		}
+		const first = new Frozen('WinMSG', '');
+		const second = new Frozen('WinMSG', '');
+		for (const box of [first, second]) {
+			box.render = () => '<div></div>';
+			box.append();
+		}
+
+		first.remove();
+		expect(Mouse.intersect).toBe(false);
+		expect(Session.FreezeUI).toBe(true);
+
+		second.remove();
+		expect(Mouse.intersect).toBe(true);
+		expect(Session.FreezeUI).toBe(false);
 	});
 });
 
@@ -136,6 +180,25 @@ describe('the cursor over a styled checkbox', () => {
 		component._container.querySelector('.plain').dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
 
 		expect(mocks.cursor.setType).not.toHaveBeenCalled();
+	});
+});
+
+/**
+ * A window closed from the keyboard, or by its own button, leaves without the
+ * pointer ever leaving the button: no mouseout came, and the click shape stayed
+ * over the map.
+ */
+describe('a window closed under the cursor', () => {
+	it('gives back the shape the cursor had before its button', async () => {
+		const component = mount('<button>Close</button>');
+		await new Promise(resolve => setTimeout(resolve, 0));
+
+		component._container.querySelector('button').dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+		expect(mocks.cursor.setType).toHaveBeenLastCalledWith(mocks.cursor.ACTION.CLICK);
+
+		component.remove();
+
+		expect(mocks.cursor.setType).toHaveBeenLastCalledWith(mocks.cursor.ACTION.DEFAULT);
 	});
 });
 

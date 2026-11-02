@@ -21,6 +21,8 @@ import _fragmentShader from './SpriteRenderer.fs?raw';
  */
 const mat4 = glMatrix.mat4;
 
+const MAX_COLORS_PER_PALETTE = 8;
+
 /**
  * Render in 3D mode
  */
@@ -297,6 +299,42 @@ function fillImageData(imageData, frame, pal, color) {
 	}
 }
 
+export function getFrameCanvas(_cache, frame, pal, color) {
+	let entry = _cache.get(frame);
+
+	if (!entry) {
+		entry = { rgba: new Map(), byPalette: new WeakMap() };
+		_cache.set(frame, entry);
+	}
+	let byColor;
+	if (frame.type === 1 || !pal) {
+		byColor = entry.rgba;
+	} else {
+		byColor = entry.byPalette.get(pal);
+		if (!byColor) {
+			byColor = new Map();
+			entry.byPalette.set(pal, byColor);
+		}
+	}
+	const colorKey = `${color[0]},${color[1]},${color[2]},${color[3]}`;
+	let canvas = byColor.get(colorKey);
+	if (!canvas) {
+		// Fading/tinted sprites produce many colors: keep only the most recent few
+		if (byColor.size >= MAX_COLORS_PER_PALETTE) {
+			byColor.delete(byColor.keys().next().value);
+		}
+		canvas = document.createElement('canvas');
+		canvas.width = frame.width;
+		canvas.height = frame.height;
+		const ctx = canvas.getContext('2d');
+		const imageData = ctx.createImageData(frame.width, frame.height);
+		fillImageData(imageData, frame, pal, color);
+		ctx.putImageData(imageData, 0, 0);
+		byColor.set(colorKey, canvas);
+	}
+	return canvas;
+}
+
 /**
  * Render in 2D
  */
@@ -307,42 +345,6 @@ const RenderCanvas2D = (function RenderCanvas2DClosure() {
 	// boxes in the character previews). Caching also avoids re-converting pixels every frame.
 	// frame -> { rgba: Map(colorKey -> canvas), byPalette: WeakMap(palette -> Map(colorKey -> canvas)) }
 	const _cache = new WeakMap();
-	const MAX_COLORS_PER_PALETTE = 8;
-
-	function getFrameCanvas(frame, pal, color) {
-		let entry = _cache.get(frame);
-		if (!entry) {
-			entry = { rgba: new Map(), byPalette: new WeakMap() };
-			_cache.set(frame, entry);
-		}
-		let byColor;
-		if (frame.type === 1 || !pal) {
-			byColor = entry.rgba;
-		} else {
-			byColor = entry.byPalette.get(pal);
-			if (!byColor) {
-				byColor = new Map();
-				entry.byPalette.set(pal, byColor);
-			}
-		}
-		const colorKey = `${color[0]},${color[1]},${color[2]},${color[3]}`;
-		let canvas = byColor.get(colorKey);
-		if (!canvas) {
-			// Fading/tinted sprites produce many colors: keep only the most recent few
-			if (byColor.size >= MAX_COLORS_PER_PALETTE) {
-				byColor.delete(byColor.keys().next().value);
-			}
-			canvas = document.createElement('canvas');
-			canvas.width = frame.width;
-			canvas.height = frame.height;
-			const ctx = canvas.getContext('2d');
-			const imageData = ctx.createImageData(frame.width, frame.height);
-			fillImageData(imageData, frame, pal, color);
-			ctx.putImageData(imageData, 0, 0);
-			byColor.set(colorKey, canvas);
-		}
-		return canvas;
-	}
 
 	return function () {
 		// Nothing to render
@@ -374,7 +376,7 @@ const RenderCanvas2D = (function RenderCanvas2DClosure() {
 			_size[1] *= -1;
 		}
 
-		const canvas = getFrameCanvas(frame, pal, this.color);
+		const canvas = getFrameCanvas(_cache, frame, pal, this.color);
 
 		// Render sprite in context
 		_ctx.save();
@@ -527,6 +529,34 @@ function syncAfterBatch() {
  * Sprite Renderer NameSpace
  */
 class SpriteRenderer {
+	static get gl() {
+		return _gl;
+	}
+
+	static get is2D() {
+		return this.render === RenderCanvas2D;
+	}
+
+	static renderCanvas(canvas) {
+		if (this.render !== RenderCanvas2D) {
+			return false;
+		}
+
+		_ctx.save();
+		_ctx.translate(_pos[0] + this.offset[0], _pos[1] + this.offset[1] - 17.5);
+		_ctx.rotate((this.angle / 180) * Math.PI);
+		_ctx.scale(Math.sign(this.size[0]) || 1, Math.sign(this.size[1]) || 1);
+		_ctx.drawImage(
+			canvas,
+			-Math.abs(this.size[0]) / 2,
+			-Math.abs(this.size[1]) / 2,
+			Math.abs(this.size[0]),
+			Math.abs(this.size[1])
+		);
+		_ctx.restore();
+		return true;
+	}
+
 	/**
 	 * @type {function} functions to use to render
 	 */

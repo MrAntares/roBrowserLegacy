@@ -4247,11 +4247,12 @@ PACKET.CZ.SE_PC_BUY_CASHITEM_LIST.prototype.build = function () {
 };
 
 //0x0849
+// <item id>.L <result>.W <cash points>.L <kafra points>.L
 PACKET.ZC.SE_PC_BUY_CASHITEM_RESULT = function PACKET_ZC_SE_PC_BUY_CASHITEM_RESULT(fp, end) {
-	this.kafraPoints = fp.readUShort();
-	this.itemId = fp.readShort();
-	this.result = fp.readShort();
-	this.cashPoints = fp.readUShort();
+	this.itemId = fp.readULong();
+	this.result = fp.readUShort();
+	this.cashPoints = fp.readULong();
+	this.kafraPoints = fp.readULong();
 };
 PACKET.ZC.SE_PC_BUY_CASHITEM_RESULT.size = 16;
 
@@ -7020,7 +7021,7 @@ PACKET.ZC.NOTIFY_MAPPROPERTY2.size = 4;
 PACKET.ZC.SPRITE_CHANGE2 = function PACKET_ZC_SPRITE_CHANGE2(fp, end) {
 	this.GID = fp.readULong();
 	this.type = fp.readUChar();
-	if (PACKETVER.value >= 20180704) {
+	if (PACKETVER.value >= 20181121) {
 		this.value = fp.readULong();
 		this.value2 = fp.readULong();
 	} else {
@@ -7028,7 +7029,7 @@ PACKET.ZC.SPRITE_CHANGE2 = function PACKET_ZC_SPRITE_CHANGE2(fp, end) {
 		this.value2 = fp.readShort();
 	}
 };
-PACKET.ZC.SPRITE_CHANGE2.size = PACKETVER.value >= 20180704 ? 15 : 11;
+PACKET.ZC.SPRITE_CHANGE2.size = PACKETVER.value >= 20181121 ? 15 : 11;
 
 // 0x1d8
 PACKET.ZC.NOTIFY_STANDENTRY2 = function PACKET_ZC_NOTIFY_STANDENTRY2(fp, end) {
@@ -10202,6 +10203,8 @@ PACKET.ZC.NOTIFY_MOVEENTRY6 = function PACKET_ZC_NOTIFY_MOVEENTRY6(fp, end) {
 	this.weapon = fp.readLong();
 	if (PACKETVER.value >= 20181121) {
 		this.shield = fp.readLong();
+	} else {
+		this.shield = 0;
 	}
 	this.accessory = fp.readShort();
 	this.moveStartTime = fp.readULong();
@@ -10239,6 +10242,8 @@ PACKET.ZC.NOTIFY_STANDENTRY6 = function PACKET_ZC_NOTIFY_STANDENTRY6(fp, end) {
 	this.weapon = fp.readLong();
 	if (PACKETVER.value >= 20181121) {
 		this.shield = fp.readLong();
+	} else {
+		this.shield = 0;
 	}
 	this.accessory = fp.readShort();
 	this.accessory2 = fp.readShort();
@@ -10275,6 +10280,8 @@ PACKET.ZC.NOTIFY_NEWENTRY6 = function PACKET_ZC_NOTIFY_NEWENTRY6(fp, end) {
 	this.weapon = fp.readLong();
 	if (PACKETVER.value >= 20181121) {
 		this.shield = fp.readLong();
+	} else {
+		this.shield = 0;
 	}
 	this.accessory = fp.readShort();
 	this.accessory2 = fp.readShort();
@@ -12752,6 +12759,8 @@ PACKET.ZC.NOTIFY_MOVEENTRY11 = function PACKET_ZC_NOTIFY_MOVEENTRY11(fp, end) {
 	this.weapon = fp.readULong();
 	if (PACKETVER.value >= 20181121) {
 		this.shield = fp.readULong();
+	} else {
+		this.shield = 0;
 	}
 	this.accessory = fp.readUShort();
 	this.moveStartTime = fp.readULong();
@@ -12794,6 +12803,8 @@ PACKET.ZC.NOTIFY_NEWENTRY11 = function PACKET_ZC_NOTIFY_NEWENTRY11(fp, end) {
 	this.weapon = fp.readLong();
 	if (PACKETVER.value >= 20181121) {
 		this.shield = fp.readLong();
+	} else {
+		this.shield = 0;
 	}
 	this.accessory = fp.readShort();
 	this.accessory2 = fp.readShort();
@@ -12835,6 +12846,8 @@ PACKET.ZC.NOTIFY_STANDENTRY11 = function PACKET_ZC_NOTIFY_STANDENTRY11(fp, end) 
 	this.weapon = fp.readLong();
 	if (PACKETVER.value >= 20181121) {
 		this.shield = fp.readLong();
+	} else {
+		this.shield = 0;
 	}
 	this.accessory = fp.readShort();
 	this.accessory2 = fp.readShort();
@@ -13401,6 +13414,33 @@ PACKET.ZC.GROUP_LIST2 = function PACKET_ZC_GROUP_LIST2(fp, end) {
 	})();
 };
 PACKET.ZC.GROUP_LIST2.size = -1;
+
+// 0xa49
+PACKET.CZ.PRIVATE_AIRSHIP_REQUEST = function PACKET_CZ_PRIVATE_AIRSHIP_REQUEST() {
+	this.mapName = '';
+	this.ItemID = 0;
+};
+PACKET.CZ.PRIVATE_AIRSHIP_REQUEST.prototype.build = function () {
+	const pkt_itemIdSize = PACKETVER.value >= 20181121 ? 4 : 2;
+	const pkt_len = 2 + 16 + pkt_itemIdSize;
+	const pkt_buf = new BinaryWriter(pkt_len);
+
+	pkt_buf.writeShort(0xa49);
+	pkt_buf.writeString(this.mapName, 16);
+	if (PACKETVER.value >= 20181121) {
+		pkt_buf.writeULong(this.ItemID);
+	} else {
+		pkt_buf.writeUShort(this.ItemID);
+	}
+
+	return pkt_buf;
+};
+
+// 0xa4a
+PACKET.ZC.PRIVATE_AIRSHIP_RESPONSE = function PACKET_ZC_PRIVATE_AIRSHIP_RESPONSE(fp, end) {
+	this.result = fp.readULong();
+};
+PACKET.ZC.PRIVATE_AIRSHIP_RESPONSE.size = 6;
 
 // 0xa4e
 PACKET.ZC.RANDOM_COMBINE_ITEM_UI_OPEN = function PACKET_ZC_RANDOM_COMBINE_ITEM_UI_OPEN(fp, end) {

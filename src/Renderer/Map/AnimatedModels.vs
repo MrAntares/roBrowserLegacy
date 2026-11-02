@@ -29,11 +29,13 @@ uniform float uFogFar;
 uniform highp sampler2D uMatrixTexture;  
   
 mat4 fetchMatrix(int index) {  
+    int width = textureSize(uMatrixTexture, 0).x;  
     int pixelIndex = index * 4;  
-    vec4 row0 = texelFetch(uMatrixTexture, ivec2(pixelIndex, 0), 0);  
-    vec4 row1 = texelFetch(uMatrixTexture, ivec2(pixelIndex + 1, 0), 0);  
-    vec4 row2 = texelFetch(uMatrixTexture, ivec2(pixelIndex + 2, 0), 0);  
-    vec4 row3 = texelFetch(uMatrixTexture, ivec2(pixelIndex + 3, 0), 0);  
+    ivec2 base = ivec2(pixelIndex % width, pixelIndex / width);  
+    vec4 row0 = texelFetch(uMatrixTexture, base, 0);  
+    vec4 row1 = texelFetch(uMatrixTexture, base + ivec2(1, 0), 0);  
+    vec4 row2 = texelFetch(uMatrixTexture, base + ivec2(2, 0), 0);  
+    vec4 row3 = texelFetch(uMatrixTexture, base + ivec2(3, 0), 0);  
     return mat4(row0, row1, row2, row3);  
 }  
   
