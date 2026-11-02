@@ -1,51 +1,12 @@
 /**
  * @module DB/Effects/Table/Jobs/Merchant/Mechanic
  *
- * The Merchant line's Mechanic effects: the numbered rows only its skills use, and its
- * named ef_<skill prefix>_* rows. DB/Effects/EffectTable.js joins the parts; its header lists the
- * parameters a row takes. Keep numbered rows in ID order and a skill's named rows together.
+ * The Merchant line's Mechanic effects: its named ef_<skill prefix>_* rows and the named
+ * rows only its skills use. DB/Effects/EffectTable.js joins the parts; its header lists the
+ * parameters a row takes. Keep a skill's rows together.
  */
 
 export default {
-	//776: [{}],	//EF_VULCANWAV	   Like Desperado sound effect
-	//777: [{}],	//EF_AGIUP2	   Faded light from the ground [S]
-	//778: [{}],	//EF_DETECT3	   Expanding white aura (like Clearance)
-	//779: [{}],	//EF_AGIUP3	   Faded light from the ground [S]
-	//780: [{}],	//EF_DETECT4	   Expanding red aura (from Infrared Scan)
-	//781: [{}],	//EF_ELECTRIC3	   Magnetic Field (purple chains)
-	//782: [{}],	//EF_GUARD4	   All-around shield [S]
-	//783: [{}],	//EF_BOTTOM_BARRIER	   Yellow shaft of light
-	//784: [{}],	//EF_BOTTOM_STEALTH	   White shaft of light
-	//785: [{}],	//EF_REPAIRTIME	   Upward flying wrenches
-	//786: [{}],	//EF_NC_ANAL	   Symbol with bleeping sound [S]
-	//787: [{}],	//EF_FIRETHROW	   Flare Launcher (line of fire)
-	//788: [{}],	//EF_VENOMIMPRESS	   Venom Impress (green skull)
-	//789: [{}],	//EF_FROSTMISTY	   Freezing Status Effect (two ancillas)
-	//790: [{}],	//EF_BURNING	   Burning Status Effect (flame symbol)
-	//791: [{}],	//EF_COLDTHROW	   Two ice shots
-	//792: [{}],	//EF_MAKEHALLU	   Upward streaming white particles
-	//793: [{}],	//EF_HALLUTIME	   Same, but more brief
-	//794: [{}],	//EF_INFRAREDSCAN	   Infrared Scan (red lasers)
-
-	795: [
-		{
-			//EF_CRASHAXE	Power Swing (axe crash)
-			type: 'STR',
-			file: 'powerswing',
-			attachedEntity: true
-		}
-	],
-
-	1050: [
-		{
-			//EF_NC_MAGMA_ERUPTION
-			type: 'STR',
-			file: 'nc_magma_eruption',
-			wav: 'effect/nc_magma_eruption',
-			attachedEntity: true
-		}
-	],
-
 	// Vulcan Arm (NC_VULCANARM), from the client's own effect folders.
 	ef_nc_vulcanarm: [
 		{

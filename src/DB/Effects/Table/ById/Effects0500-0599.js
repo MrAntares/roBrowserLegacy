@@ -1,20 +1,77 @@
 /**
- * @module DB/Effects/Table/Common/Effects0500
+ * @module DB/Effects/Table/ById/Effects0500-0599
  *
- * Effects 0500 to 599 of the effect table that no single class's skills
- * use: shared rows, monsters, items, statuses. DB/Effects/EffectTable.js joins the parts;
- * its header lists the parameters a row takes. Keep rows in effect ID order.
+ * Effects 500 to 599 of the effect table, in ID order (see EffectConst.js).
+ * DB/Effects/EffectTable.js joins the parts; its header lists the parameters a row takes.
  */
 
 import Camera from 'Renderer/Camera.js';
 import SongEffects from 'Renderer/Effects/Songs.js';
+import Events from 'Core/Events.js';
 import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect.js';
 import MagicTarget from 'Renderer/Effects/MagicTarget.js';
 import SpiritSphere from 'Renderer/Effects/SpiritSphere.js';
+import CasterMarks from 'Renderer/Effects/CasterMarks.js';
 
 const GravityEffects = SongEffects.GravityEffects;
 
 export default {
+	//497: [{}],	//EF_SLIM	   Twilight Alchemy 1
+	//498: [{}],	//EF_SLIM2	   Twilight Alchemy 2
+	//499: [{}],	//EF_SLIM3	   Twilight Alchemy 3
+	//500: [{}],	//EF_CHEMICALBODY	   Player Become Blue with Blue Aura
+
+	501: [
+		{
+			//EF_CASTSPIN	   Chase Walk Animation
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				const entity = Params.Init.ownerEntity;
+				const duration = 500;
+				const count = 50;
+				const delay = duration / count;
+
+				for (let i = 0; i < count; i++) {
+					let delta = 1;
+
+					if (i <= 15) {
+						delta = 12 * (8 / 360);
+					} else if (i <= 30) {
+						delta = 18 * (8 / 360);
+					} else if (i <= 40) {
+						delta = 24 * (8 / 360);
+					} else {
+						delta = 48 * (8 / 360);
+					}
+
+					Events.setTimeout(function () {
+						entity.direction = Math.floor(entity.direction + delta) % 8;
+					}, delay * i);
+				}
+			}
+		}
+	],
+
+	502: [
+		{
+			//EF_PIERCEBODY	   Player Become Yellow with Yellow Aura
+			// Spiral Pierce Max cast (official client): for the cast time, at most 141
+			// ticks, the caster flickers yellow (drawn adding light) and white each
+			// tick, with a glow copy round it (CasterMarks.js).
+			type: 'FUNC',
+			attachedEntity: true,
+			castLoop: true,
+			wav: 'effect/ef_beginspell',
+			func: function (Params) {
+				this.add(
+					new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, Params.Init.duration / 16, 502),
+					Params
+				);
+			}
+		}
+	],
+
 	//503: [{}],	//EF_SOULLINK	   Soul Link Word
 
 	504: [
@@ -341,6 +398,19 @@ export default {
 			delayStart: 1700
 		}
 	],
+	//511: [{}],	//EF_NIGHT	   (Nothing)
+
+	512: [
+		{
+			//EF_CHEMICAL2DASH	   Chain Crush Combo
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				const start = Params.Inst.startTick + 132;
+				Camera.setQuake(start);
+			}
+		}
+	],
 
 	513: [
 		{
@@ -384,6 +454,19 @@ export default {
 			func: function (Params) {
 				CloudWeatherEffect.startOrRestart(Params);
 			}
+		}
+	],
+
+	517: [
+		{
+			//EF_BOTTOM_HERMODE	   (Nothing)
+		}
+	],
+
+	'517_music': [
+		{
+			wav: 'effect/\xc7\xec\xb8\xa3\xb8\xf0\xb5\xe5\xc0\xc7\x20\xc1\xf6\xc6\xce\xc0\xcc',
+			attachedEntity: true
 		}
 	],
 
@@ -664,6 +747,66 @@ export default {
 		}
 	], //EF_TAROTCARD14	   Tarot Card of Fate (The Sun)
 
+	537: [
+		{
+			//EF_ACIDDEMON	   Acid Demonstration
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				const start = Params.Inst.startTick + 200;
+				Camera.setQuake(start);
+			}
+		}
+	],
+
+	//538: [{}],	//EF_GREENBODY	   Player Become Green with Green Aura
+	//539: [{}],	//EF_THROWITEM4	   Throw Random Bottle
+	//540: [{}],	//EF_BABYBODY_BACK	   Instant Small->Normal
+	//541: [{}],	//EF_THROWITEM5	   (Nothing)
+	//542: [{}],	//EF_BLUEBODY	   KA-Spell (1st Part)
+
+	543: [
+		{
+			//EF_HATED	   Kahii
+			wav: 'effect/t_\xba\xb8\xc1\xb6\xb8\xb6\xb9\xfd'
+		}
+	],
+
+	//544: [{}],	//EF_REDLIGHTBODY	   Warmth Red Sprite
+	//545: [{}],	//EF_RO2YEAR	   Sound And... PUFF Client Crash :P
+	//546: [{}],	//EF_SMA_READY	   Kaupe
+
+	547: [
+		{
+			//EF_STIN	   Estin
+			wav: 'effect/t_\xbf\xa1\xb3\xca\xc1\xf6\xb9\xe6\xc3\xe2'
+		}
+	],
+
+	//548: [{}],	//EF_RED_HIT	   Instant Red Sprite
+	//549: [{}],	//EF_BLUE_HIT	   Instant Blue Sprite
+	//550: [{}],	//EF_QUAKEBODY3	   Another Effect like Running Hit
+	//551: [{}],	//EF_SMA	   Effect Like Estun but with Circle
+	//552: [{}],	//EF_SMA2	   (Nothing)
+
+	553: [
+		{
+			//EF_STIN2	   Esma
+			duplicate: 5,
+			timeBetweenDupli: 200,
+			wav: 'effect/t_\xb3\xaf\xb6\xf3\xc2\xf7\xb1\xe2'
+		}
+	],
+
+	//554: [{}],	//EF_HITTEXTURE	   Large White Cloud
+
+	555: [
+		{
+			//EF_STIN3	   Estun
+			wav: 'effect/t_\xbf\xa1\xb3\xca\xc1\xf6\xb9\xe6\xc3\xe2'
+		}
+	],
+
 	//556: [{}],	//EF_SMA3	   (Nothing)
 	//557: [{}],	//EF_BLUEFALL	   Juperos Energy Waterfall (Horizontal)
 	//558: [{}],	//EF_BLUEFALL_90	   Juperos Energy Waterfall (Vertical)
@@ -816,6 +959,16 @@ export default {
 		}
 	],
 
+	584: [
+		{
+			//EF_M02	Full Buster
+			type: 'SPR',
+			file: 'm_ef02',
+			attachedEntity: true,
+			direction: true
+		}
+	],
+
 	585: [
 		{
 			//EF_M03	5 Medium Size Explosion
@@ -834,12 +987,39 @@ export default {
 		}
 	],
 
+	587: [
+		{
+			//EF_M05	Big Purple Flame
+			type: 'SPR',
+			file: 'm_ef05',
+			wav: 'dragon_breath',
+			attachedEntity: true
+		}
+	],
+
 	588: [
 		{
 			//EF_M06	Little Red Flame
 			type: 'SPR',
 			file: 'm_ef06',
 			attachedEntity: true
+		}
+	],
+
+	589: [
+		{
+			//EF_M07	Eswoo
+			type: 'SPR',
+			file: 'm_ef07',
+			wav: 'effect/t_\xba\xb8\xc1\xb6\xb8\xb6\xb9\xfd',
+			attachedEntity: true
+		}
+	],
+
+	590: [
+		{
+			//EF_KAIZEL	   Running Stop //Conflicting info, will use it as Kaizel
+			wav: 'effect/priest_resurrection'
 		}
 	],
 

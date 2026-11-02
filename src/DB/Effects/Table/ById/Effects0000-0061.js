@@ -1,14 +1,21 @@
 /**
- * @module DB/Effects/Table/Common/Effects0000
+ * @module DB/Effects/Table/ById/Effects0000-0061
  *
- * Effects 0000 to 99 of the effect table that no single class's skills
- * use: shared rows, monsters, items, statuses. DB/Effects/EffectTable.js joins the parts;
- * its header lists the parameters a row takes. Keep rows in effect ID order.
+ * Effects 0 to 61 of the effect table, in ID order (see EffectConst.js).
+ * DB/Effects/EffectTable.js joins the parts; its header lists the parameters a row takes.
  */
 
 import LockOnTarget from 'Renderer/Effects/LockOnTarget.js';
+import { endureEffect } from 'DB/Effects/EndureEffect.js';
+import BoltRain from 'Renderer/Effects/BoltRain.js';
 import IceSpikes from 'Renderer/Effects/IceSpikes.js';
-import { planShards as planIceShards, SHARDS as ICE_SHARDS } from 'Renderer/Effects/IceSpikesSim.js';
+import {
+	planPath as planIcePath,
+	planShards as planIceShards,
+	PATH as ICE_PATH,
+	SHARDS as ICE_SHARDS
+} from 'Renderer/Effects/IceSpikesSim.js';
+import { soulStrikeEffect } from 'DB/Effects/SoulStrikeEffect.js';
 
 export default {
 	0: [
@@ -467,6 +474,79 @@ export default {
 		}
 	],
 
+	9: [
+		{
+			//EF_ENHANCE	Different Type of Heal
+			alphaMax: 0.2,
+			animation: 1,
+			attachedEntity: true,
+			blendMode: 2,
+			bottomSize: 0.95,
+			duration: 2000,
+			fade: true,
+			height: 10,
+			textureName: 'alpha_down',
+			topSize: 0.95,
+			type: 'CYLINDER'
+		},
+		{
+			alphaMax: 0.8,
+			attachedEntity: true,
+			duration: 1000,
+			delayLate: 500,
+			duplicate: 7,
+			fadeOut: true,
+			file: 'effect/ac_center2.tga',
+			posxRand: 1.5,
+			posyRand: 1,
+			poszEndRand: 1,
+			poszEndRandMiddle: 6,
+			poszStartRand: 1,
+			poszStartRandMiddle: 1,
+			sizeRandY: 15,
+			sizeRandYMiddle: 45,
+			sizeX: 2.5,
+			type: '3D',
+			zIndex: 0
+		},
+		{
+			alphaMax: 0.8,
+			attachedEntity: true,
+			duration: 1000,
+			delayOffset: 400,
+			duplicate: 3,
+			fadeOut: true,
+			file: 'effect/ac_center2.tga',
+			posxRand: 1.5,
+			posyRand: 1,
+			poszEndRand: 1,
+			poszEndRandMiddle: 6,
+			poszStartRand: 1,
+			poszStartRandMiddle: 1,
+			sizeRandY: 15,
+			sizeRandYMiddle: 45,
+			sizeX: 2.5,
+			type: '3D',
+			zIndex: 0
+		}
+	],
+
+	10: [
+		{
+			//EF_COIN	Mammonite
+			type: 'STR',
+			file: 'maemor',
+			min: 'memor_min',
+			wav: 'effect/ef_coin2',
+			attachedEntity: true
+		}
+	],
+
+	11: [
+		// EF_ENDURE, Endure: the client's shrinking endure.tga and alpha_down streaks (EndureEffect.js)
+		...endureEffect
+	],
+
 	12: [
 		{
 			//EF_BEGINSPELL	Yellow cast aura
@@ -570,6 +650,8 @@ export default {
 		}
 	],
 
+	15: soulStrikeEffect,
+
 	16: [
 		{
 			//hide and monster body relocation sound	//EF_BASH	Hide
@@ -636,6 +718,81 @@ export default {
 		}
 	],
 
+	17: [
+		{
+			//EF_MAGNUMBREAK	Magnum Break
+			// Official client parts: two flat yellow rings and a fire sphere, 30 ticks at 60 a second.
+			type: 'PRIM',
+			prim: 'ring',
+			texture: 'ring_yellow',
+			attachedEntity: false,
+			duration: 500,
+			frames: 30,
+			radiusSpeed: 1.75,
+			radiusAccel: -(1.75 / 30) * 0.5,
+			width: 12,
+			alpha: 0,
+			alphaSpeed: 254 / 15,
+			fadeOutFrame: 15,
+			wav: 'effect/ef_magnumbreak'
+		},
+		{
+			type: 'PRIM',
+			prim: 'sphere',
+			texture: '\xb4\xeb\xc6\xf8\xb9\xdf', //´ëÆø¹ß
+			attachedEntity: false,
+			duration: 500,
+			frames: 30,
+			radiusSpeed: 1.15,
+			radiusAccel: -(1.15 / 30) * 0.5,
+			spin: 3,
+			alpha: 0,
+			alphaSpeed: 254 / 15,
+			fadeOutFrame: 15
+		},
+		{
+			type: 'PRIM',
+			prim: 'ring',
+			texture: 'ring_yellow',
+			attachedEntity: false,
+			duration: 500,
+			frames: 30,
+			radiusSpeed: 1.75,
+			radiusAccel: -(1.75 / 30) * 0.5,
+			width: 12,
+			alpha: 0,
+			alphaSpeed: 254 / 15,
+			fadeOutFrame: 15
+		}
+	],
+
+	18: [
+		{
+			//EF_STEAL	Steal
+			alphaMax: 1,
+			attachedEntity: false,
+			red: 1,
+			green: 1,
+			blue: 0.85,
+			duration: 500,
+			duplicate: 7,
+			timeBetweenDupli: 0,
+			fadeOut: true,
+			file: 'effect/pok1.tga',
+			posxEndRand: 3.5,
+			posyEndRand: 3.5,
+			poszEndRand: 1,
+			poszEndRandMiddle: 3,
+			sizeEnd: 10,
+			sizeStart: 200,
+			type: '3D',
+			zIndex: 10
+		},
+		{
+			wav: 'effect/ef_steal'
+		}
+	],
+
 	// 19: [{}],	//EF_HIDING	Invalid Effect ID Popup in client
 
 	20: [
@@ -655,6 +812,34 @@ export default {
 			poszEnd: 5,
 			poszStart: 0,
 			red: 1,
+			size: 100,
+			sizeRand: 20,
+			type: '3D',
+			zIndex: 1
+		},
+		{
+			attachedEntity: true,
+			wav: 'effect/ef_detoxication' //wav: 'effect/assasin_enchantpoison',
+		}
+	],
+
+	21: [
+		{
+			//EF_DETOXICATION	Detoxify
+			alphaMax: 1,
+			attachedEntity: true,
+			blue: 1,
+			duration: 1000,
+			duplicate: 10,
+			fadeIn: true,
+			fadeOut: true,
+			file: 'effect/pok1.tga',
+			green: 1,
+			posxRand: 1,
+			posyRand: 1,
+			poszEnd: 5,
+			poszStart: 0,
+			red: 0.7,
 			size: 100,
 			sizeRand: 20,
 			type: '3D',
@@ -716,6 +901,160 @@ export default {
 		}
 	],
 
+	23: [
+		{
+			//EF_STONECURSE	Stone Curse
+			type: 'STR',
+			file: 'stonecurse',
+			attachedEntity: true
+		}
+	],
+
+	24: [
+		{
+			//EF_FIREBALL	Fire Ball, played on the caster: the official client throws four fireball sprites at the
+			//target on ticks 20, 24, 28 and 32, each flying 20 ticks from 15 units up, each with its own sound.
+			//The first is plain, the next three tinted (246, 199, 76) and fainter (alpha 180, 130, 80).
+			type: '3D',
+			spriteName: 'fireball',
+			playSprite: true,
+			attachedEntity: false,
+			fromSrc: true,
+			rotateToTarget: true,
+			rotateWithCamera: true,
+			zOffset: 3,
+			delayStart: 333,
+			duration: 333,
+			alphaMax: 1,
+			size: 130,
+			zIndex: 1
+		},
+		{
+			type: '3D',
+			spriteName: 'fireball',
+			playSprite: true,
+			attachedEntity: false,
+			fromSrc: true,
+			rotateToTarget: true,
+			rotateWithCamera: true,
+			zOffset: 3,
+			delayStart: 400,
+			duration: 333,
+			alphaMax: 180 / 255,
+			red: 246 / 255,
+			green: 199 / 255,
+			blue: 76 / 255,
+			size: 130,
+			zIndex: 1
+		},
+		{
+			type: '3D',
+			spriteName: 'fireball',
+			playSprite: true,
+			attachedEntity: false,
+			fromSrc: true,
+			rotateToTarget: true,
+			rotateWithCamera: true,
+			zOffset: 3,
+			delayStart: 467,
+			duration: 333,
+			alphaMax: 130 / 255,
+			red: 246 / 255,
+			green: 199 / 255,
+			blue: 76 / 255,
+			size: 130,
+			zIndex: 1
+		},
+		{
+			type: '3D',
+			spriteName: 'fireball',
+			playSprite: true,
+			attachedEntity: false,
+			fromSrc: true,
+			rotateToTarget: true,
+			rotateWithCamera: true,
+			zOffset: 3,
+			delayStart: 533,
+			duration: 333,
+			alphaMax: 80 / 255,
+			red: 246 / 255,
+			green: 199 / 255,
+			blue: 76 / 255,
+			size: 130,
+			zIndex: 1
+		},
+		{
+			wav: 'effect/ef_fireball',
+			delayWav: 333
+		},
+		{
+			wav: 'effect/ef_fireball',
+			delayWav: 400
+		},
+		{
+			wav: 'effect/ef_fireball',
+			delayWav: 467
+		},
+		{
+			wav: 'effect/ef_fireball',
+			delayWav: 533
+		}
+	],
+
+	25: [
+		{
+			//EF_FIREWALL	Fire Wall
+			type: 'STR',
+			file: 'firewall%d',
+			rand: [1, 2],
+			attachedEntity: false
+		},
+		{
+			wav: 'effect/ef_firewall'
+		}
+	],
+
+	26: [
+		{
+			//EF_ICEARROW	Cold Bolt, on the target: one ice bolt per hit, 10 ticks apart from tick 12,
+			//each opening a ring_blue ring as it lands (BoltRainSim.js)
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				this.add(
+					new BoltRain(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.hitCount, 'cold'),
+					Params
+				);
+			}
+		},
+		{
+			// One sound per cast, on tick 12
+			wav: 'effect/ef_icearrow%d',
+			rand: [1, 3],
+			delayWav: 200,
+			attachedEntity: true
+		}
+	],
+
+	27: [
+		{
+			//EF_FROSTDIVER	Frost Diver, on the caster: one thin ice spike a tick along the line to the
+			//target, pushing out of the ground (IceSpikesSim.js)
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				const caster = Params.Init.ownerEntity;
+				const target = Params.Init.otherEntity;
+				if (!target) {
+					return;
+				}
+				const at = [caster.position[0], caster.position[1], caster.position[2]];
+				const spikes = planIcePath((target.position[0] - at[0]) * 5, (target.position[1] - at[1]) * 5);
+				this.add(new IceSpikes(at, Params.Inst.startTick, spikes, ICE_PATH.life), Params);
+			}
+		}
+	],
+
 	28: [
 		{
 			//EF_FROSTDIVER2	Frost Diver hit, on the target: 8 wide ice spikes bursting from the feet
@@ -736,6 +1075,83 @@ export default {
 		},
 		{
 			wav: 'effect/ef_frostdiver2',
+			attachedEntity: true
+		}
+	],
+
+	29: [
+		{
+			//EF_LIGHTBOLT	Lightning Bolt (the official client plays Lightning.str only; the wind hit is 52)
+			attachedEntity: true,
+			duplicate: 1,
+			file: 'lightning',
+			type: 'STR'
+		}
+	],
+
+	30: [
+		{
+			//EF_THUNDERSTORM	Thunder Storm
+			type: 'STR',
+			file: 'thunderstorm',
+			wav: 'effect/magician_thunderstorm',
+			attachedEntity: false
+		}
+	],
+
+	31: [
+		{
+			//EF_FIREARROW	Fire Bolt, on the target: one fire bolt per hit, 10 ticks apart from tick 12,
+			//each opening a ring_yellow ring as it lands, and a spark every 4 ticks from the newest
+			//bolt (BoltRainSim.js)
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				const target = Params.Init.ownerEntity;
+				const spark = (s, startTick) => {
+					// A particle4 sprite flying from the bolt back up its line, shrinking away
+					const at = [target.position[0], target.position[1], target.position[2]];
+					this.spamEffect({
+						effect: {
+							type: '3D',
+							spriteName: 'particle4',
+							playSprite: true,
+							attachedEntity: false,
+							duration: (s.life * 1000) / 60,
+							posxStart: s.start.x / 5,
+							posyStart: s.start.y / 5,
+							poszStart: s.start.up / 5,
+							posxEnd: s.end.x / 5,
+							posyEnd: s.end.y / 5,
+							poszEnd: s.end.up / 5,
+							sizeStart: s.scale * 100,
+							sizeEnd: 1,
+							alphaMax: 1,
+							fadeOut: true,
+							zIndex: 1
+						},
+						Inst: { effectID: 31, duplicateID: 0, startTick },
+						Init: Object.assign({}, Params.Init, { position: at })
+					});
+				};
+				this.add(
+					new BoltRain(
+						target.position,
+						Params.Inst.startTick,
+						Params.Init.hitCount,
+						'fire',
+						Math.random,
+						spark
+					),
+					Params
+				);
+			}
+		},
+		{
+			// One sound per cast, on tick 12
+			wav: 'effect/ef_firearrow%d',
+			rand: [1, 3],
+			delayWav: 200,
 			attachedEntity: true
 		}
 	],
@@ -840,6 +1256,239 @@ export default {
 			topSize: 0.6,
 			type: 'CYLINDER',
 			wav: 'effect/ef_readyportal'
+		}
+	],
+
+	//36: [{}],	//EF_PORTAL	//warp portal unit
+
+	37: [
+		{
+			//EF_INCAGILITY	AGI Up
+			alphaMax: 1,
+			attachedEntity: true,
+			duration: 1000,
+			delayLate: 500,
+			duplicate: 7,
+			fadeOut: true,
+			file: 'effect/ac_center2.tga',
+			posxRand: 1.5,
+			posyRand: 1,
+			poszEndRand: 1,
+			poszEndRandMiddle: 6,
+			poszStartRand: 1,
+			poszStartRandMiddle: 1,
+			sizeRandY: 15,
+			sizeRandYMiddle: 45,
+			sizeX: 2.5,
+			type: '3D',
+			zIndex: 0
+		},
+		{
+			alphaMax: 0.75,
+			attachedEntity: true,
+			duration: 1000,
+			delayOffset: 400,
+			duplicate: 3,
+			fadeOut: true,
+			file: 'effect/ac_center2.tga',
+			posxRand: 1.5,
+			posyRand: 1,
+			poszEndRand: 1,
+			poszEndRandMiddle: 6,
+			poszStartRand: 1,
+			poszStartRandMiddle: 1,
+			sizeRandY: 15,
+			sizeRandYMiddle: 45,
+			sizeX: 2.5,
+			type: '3D',
+			zIndex: 0
+		},
+		{
+			alphaMax: 1,
+			attachedEntity: true,
+			duration: 1000,
+			duplicate: 10,
+			fadeOut: true,
+			file: 'effect/ac_center2.tga',
+			posxRand: 1.5,
+			posyRand: 1,
+			poszEndRand: 1,
+			poszEndRandMiddle: 6,
+			poszStartRand: 1,
+			poszStartRandMiddle: 1,
+			sizeRandY: 15,
+			sizeRandYMiddle: 45,
+			sizeX: 2.5,
+			type: '3D',
+			zIndex: 0
+		},
+		{
+			alphaMax: 1,
+			attachedEntity: true,
+			duration: 1000,
+			fadeIn: true,
+			fadeOut: true,
+			file: 'effect/agi_up.bmp',
+			poszEnd: 3,
+			poszStart: 0.4,
+			sizeEnd: 100,
+			sizeSmooth: true,
+			sizeStart: 100,
+			sizeY: 45,
+			type: '3D',
+			wav: 'effect/ef_incagility',
+			overlay: true,
+			zIndex: 10
+		}
+	],
+
+	38: [
+		{
+			//EF_DECAGILITY	AGI Down
+			alphaMax: 1,
+			attachedEntity: true,
+			duration: 1000,
+			duplicate: 20,
+			fadeOut: true,
+			file: 'effect/ac_center2.tga',
+			posxRand: 1.5,
+			posyRand: 1,
+			poszEndRand: 1,
+			poszEndRandMiddle: 1,
+			poszStartRand: 1,
+			poszStartRandMiddle: 6,
+			sizeRandY: 15,
+			sizeRandYMiddle: 45,
+			sizeX: 2.5,
+			type: '3D',
+			zIndex: 0
+		},
+		{
+			alphaMax: 1,
+			attachedEntity: true,
+			duration: 1000,
+			fadeIn: true,
+			fadeOut: true,
+			file: 'effect/slow.bmp',
+			poszEnd: 0.4,
+			poszStart: 2.8,
+			sizeEnd: 100,
+			sizeSmooth: true,
+			sizeStart: 100,
+			sizeY: 45,
+			type: '3D',
+			wav: 'effect/ef_decagility',
+			zIndex: 10
+		}
+	],
+
+	39: [
+		{
+			//EF_AQUA	Aqua Benedicta
+			type: 'SPR',
+			file: '\xbc\xba\xbc\xf6\xb6\xdf\xb1\xe2',
+			wav: 'effect/ef_aqua',
+			head: true,
+			attachedEntity: true
+		}
+	],
+
+	40: [
+		{
+			//EF_SIGNUM	Signum Crucis
+			type: 'STR',
+			file: 'cross',
+			wav: 'effect/ef_signum',
+			attachedEntity: true
+		}
+	],
+
+	41: [
+		{
+			//EF_ANGELUS	Angelus
+			type: 'STR',
+			file: 'angelus',
+			wav: 'effect/ef_angelus',
+			min: 'jong_mini',
+			head: true,
+			attachedEntity: true
+		}
+	],
+
+	42: [
+		{
+			//EF_BLESSING	Blessing
+			type: 'SPR',
+			attachedEntity: true,
+			delayFrame: 30,
+			file: '\xc3\xe0\xba\xb9',
+			frame: 0,
+			repeat: true,
+			duration: 1500,
+			stackable: true,
+			head: true,
+			yOffset: -120
+		},
+		{
+			alphaMax: 1,
+			attachedEntity: true,
+			duration: 1200,
+			delayOffset: 300,
+			duplicate: 6,
+			fadeIn: true,
+			fadeOut: true,
+			posxRand: 1.2,
+			posyRand: 1,
+			poszEndRand: 0.5,
+			poszEndRandMiddle: 1,
+			poszStartRand: 2,
+			poszStartRandMiddle: 5.5,
+			size: 50,
+			sparkling: true,
+			sparkNumber: 2,
+			spriteName: 'particle6',
+			timeBetweenDupli: 0,
+			type: '3D',
+			zIndex: 1
+		},
+		{
+			alphaMax: 1,
+			attachedEntity: true,
+			duration: 1200,
+			delayOffset: 400,
+			duplicate: 6,
+			fadeIn: true,
+			fadeOut: true,
+			posxRand: 1.4,
+			posyRand: 1.1,
+			poszEndRand: 0.5,
+			poszEndRandMiddle: 1,
+			poszStartRand: 2,
+			poszStartRandMiddle: 5.5,
+			size: 50,
+			spriteName: 'particle6',
+			timeBetweenDupli: 0,
+			type: '3D',
+			zIndex: 1
+		},
+		{
+			alphaMax: 0.3,
+			attachedEntity: false,
+			blendMode: 2,
+			blue: 1,
+			duration: 2500,
+			fadeIn: true,
+			fadeOut: true,
+			file: 'effect/pok2.tga',
+			green: 0.75,
+			posx: 0,
+			posy: 0,
+			posz: 0,
+			red: 0.1,
+			size: 140,
+			type: '3D',
+			wav: 'effect/ef_blessing',
+			zIndex: 10
 		}
 	],
 
@@ -1385,63 +2034,6 @@ export default {
 			sizeRand: 17,
 			type: '3D',
 			zIndex: 1
-		}
-	],
-
-	64: [
-		{
-			//EF_ARROWSHOT	Something Like Puruple/Yellow Light Bullet
-			type: 'STR',
-			file: 'arrowshot',
-			attachedEntity: true
-		}
-	],
-
-	65: [
-		{
-			//EF_INVENOM	Something Like Absorb of Power
-			type: 'STR',
-			file: 'invenom',
-			wav: 'effect/thief_invenom',
-			attachedEntity: true
-		}
-	],
-
-	68: [
-		{
-			//EF_MVP	MVP Banner
-			type: 'STR',
-			file: 'mvp',
-			wav: 'effect/st_mvp',
-			attachedEntity: true
-		}
-	],
-
-	77: [
-		{
-			//EF_RESURRECTION	Resurrection
-			type: 'STR',
-			file: 'resurrection',
-			wav: 'effect/priest_resurrection',
-			min: 'resurrection_min',
-			attachedEntity: true
-		}
-	],
-
-	81: [
-		{
-			// default skill sound?	//EF_PIERCE	Skill hit
-			wav: 'effect/ef_bash',
-			attachedEntity: true
-		}
-	],
-
-	82: [
-		{
-			//turn undead caster	//EF_TURNUNDEAD	Turn Undead
-			//type: 'FUNC',
-			wav: 'effect/ef_bash',
-			attachedEntity: true
 		}
 	]
 };

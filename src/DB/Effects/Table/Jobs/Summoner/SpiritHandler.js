@@ -1,12 +1,10 @@
 /**
  * @module DB/Effects/Table/Jobs/Summoner/SpiritHandler
  *
- * The Summoner line's SpiritHandler effects: the numbered rows only its skills use, and its
- * named ef_<skill prefix>_* rows. DB/Effects/EffectTable.js joins the parts; its header lists the
- * parameters a row takes. Keep numbered rows in ID order and a skill's named rows together.
+ * The Summoner line's SpiritHandler effects: its named ef_<skill prefix>_* rows and the named
+ * rows only its skills use. DB/Effects/EffectTable.js joins the parts; its header lists the
+ * parameters a row takes. Keep a skill's rows together.
  */
-
-import CastCone from 'Renderer/Effects/CastCone.js';
 
 export default {
 	// Chulho Sonic Claw (SH_CHUL_HO_SONIC_CLAW), from the client's own effect folders.
@@ -260,42 +258,6 @@ export default {
 			file: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_hit/hyun_rok_spirit_power_hit',
 			texturePath: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_hit/',
 			min: 'spirit_handler/sh_hyun_rok_spirit_power/hyun_rok_spirit_power_hit/min_hyun_rok_spirit_power_hit'
-		}
-	],
-
-	841: [
-		{
-			//EF_BEGINSPELL_N4	   Green cone cast aura
-			// The official client's bubble cone in green, with no squares on the ground (CastConeSim.js).
-			type: 'FUNC',
-			attachedEntity: true,
-			wav: 'effect/ef_beginspell',
-			func: function (Params) {
-				this.add(
-					new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, {
-						variant: 4
-					}),
-					Params
-				);
-			}
-		}
-	],
-
-	842: [
-		{
-			//EF_BEGINSPELL_N5	   Yellow cone cast aura
-			// The official client's bubble cone in yellow, with no squares on the ground (CastConeSim.js).
-			type: 'FUNC',
-			attachedEntity: true,
-			wav: 'effect/ef_beginspell',
-			func: function (Params) {
-				this.add(
-					new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, {
-						variant: 5
-					}),
-					Params
-				);
-			}
 		}
 	]
 };

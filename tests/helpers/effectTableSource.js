@@ -14,7 +14,7 @@ const DIR = join(process.cwd(), 'src/DB/Effects');
 export function effectTableSource(encoding = 'utf8') {
 	const main = readFileSync(join(DIR, 'EffectTable.js'), encoding);
 	// Each part's last row gets back the comma it had in the one-file table.
-	const parts = [...main.matchAll(/^import \w+ from 'DB\/Effects\/(Table\/[\w/]+\.js)';/gm)].map(m =>
+	const parts = [...main.matchAll(/^import \w+ from 'DB\/Effects\/(Table\/[\w/-]+\.js)';/gm)].map(m =>
 		readFileSync(join(DIR, m[1]), encoding).replace(/([^\s,])([ \t]*(?:\/\/[^\r\n]*)?)(\r?\n\};\s*)$/, '$1,$2$3')
 	);
 	return [main, ...parts].join('\r\n');

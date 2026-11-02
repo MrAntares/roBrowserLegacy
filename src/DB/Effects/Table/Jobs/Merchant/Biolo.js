@@ -1,38 +1,12 @@
 /**
  * @module DB/Effects/Table/Jobs/Merchant/Biolo
  *
- * The Merchant line's Biolo effects: the numbered rows only its skills use, and its
- * named ef_<skill prefix>_* rows. DB/Effects/EffectTable.js joins the parts; its header lists the
- * parameters a row takes. Keep numbered rows in ID order and a skill's named rows together.
+ * The Merchant line's Biolo effects: its named ef_<skill prefix>_* rows and the named
+ * rows only its skills use. DB/Effects/EffectTable.js joins the parts; its header lists the
+ * parameters a row takes. Keep a skill's rows together.
  */
 
 export default {
-	// Mayhemic Thorns cast: the client plays acidified_zone_ground_cast.str (2228) and its
-	// floor layer (2229) for the cast time
-	2228: [
-		{
-			type: 'STR',
-			file: 'acidified_zone_ground/acidified_zone_ground_cast/acidified_zone_ground_cast',
-			texturePath: 'acidified_zone_ground/acidified_zone_ground_cast/',
-			min: 'acidified_zone_ground/acidified_zone_ground_cast/min_acidified_zone_ground_cast',
-			wav: 'effect/ef_beginspell',
-			castLoop: true,
-			attachedEntity: true
-		}
-	],
-
-	2229: [
-		{
-			type: 'STR',
-			file: 'acidified_zone_ground/acidified_zone_ground_cast_bottom/acidified_zone_ground_cast_bottom',
-			texturePath: 'acidified_zone_ground/acidified_zone_ground_cast_bottom/',
-			min: 'acidified_zone_ground/acidified_zone_ground_cast_bottom/min_acidified_zone_ground_cast_bottom',
-			renderBeforeEntities: true,
-			castLoop: true,
-			attachedEntity: true
-		}
-	],
-
 	// Actified Zone Water Attack (BO_ACIDIFIED_ZONE_WATER_ATK), from the client's own effect folders.
 	ef_bo_acidified_zone_water_atk: [
 		{

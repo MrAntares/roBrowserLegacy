@@ -1,22 +1,12 @@
 /**
  * @module DB/Effects/Table/Jobs/Merchant/Genetic
  *
- * The Merchant line's Genetic effects: the numbered rows only its skills use, and its
- * named ef_<skill prefix>_* rows. DB/Effects/EffectTable.js joins the parts; its header lists the
- * parameters a row takes. Keep numbered rows in ID order and a skill's named rows together.
+ * The Merchant line's Genetic effects: its named ef_<skill prefix>_* rows and the named
+ * rows only its skills use. DB/Effects/EffectTable.js joins the parts; its header lists the
+ * parameters a row takes. Keep a skill's rows together.
  */
 
 export default {
-	1049: [
-		{
-			//EF_GN_ILLUSIONDOPING
-			type: 'STR',
-			file: 'gn_illusiondoping',
-			wav: 'effect/gn_illusiondoping',
-			attachedEntity: true
-		}
-	],
-
 	ef_thorntrap: [
 		{
 			wav: 'effect/\xb0\xa1\xbd\xc3\xb3\xaa\xb9\xab\xb5\xa3',

@@ -1,50 +1,14 @@
 /**
  * @module DB/Effects/Table/Jobs/Ninja/ShinkiroShiranui
  *
- * The Ninja line's ShinkiroShiranui effects: the numbered rows only its skills use, and its
- * named ef_<skill prefix>_* rows. DB/Effects/EffectTable.js joins the parts; its header lists the
- * parameters a row takes. Keep numbered rows in ID order and a skill's named rows together.
+ * The Ninja line's ShinkiroShiranui effects: its named ef_<skill prefix>_* rows and the named
+ * rows only its skills use. DB/Effects/EffectTable.js joins the parts; its header lists the
+ * parameters a row takes. Keep a skill's rows together.
  */
 
-import { startCasterStrobe } from 'Renderer/Effects/CasterStrobe.js';
 import CastCircle from 'Renderer/Effects/CastCircle.js';
-import CastFunnel from 'Renderer/Effects/CastFunnel.js';
-import CasterMarks from 'Renderer/Effects/CasterMarks.js';
-import RotateLine from 'Renderer/Effects/RotateLine.js';
 
 export default {
-	812: [
-		{
-			//EF_BLACKBODY	   Black expanding aura
-			// Kunai - Nightmare's cast start (official client, 60 ticks a second): a level
-			// square of near-black fashasha.tga streaks one cell up, spreading fast for
-			// 10 ticks and then slowly, fading out from tick 30 to its end on tick 57.
-			type: 'PRIM',
-			prim: 'quad',
-			texture: 'fashasha',
-			attachedEntity: false,
-			duration: (57 * 1000) / 60,
-			frames: 57,
-			color: [10, 10, 10],
-			height: 5,
-			sizeSpeed: 1.5,
-			sizeAccel: 1.5 / 14,
-			sizeChangeFrame: 10,
-			sizeChangeSpeed: 0.1,
-			sizeChangeAccel: 0.1 / 30,
-			alpha: 254,
-			fadeOutFrame: 30
-		},
-		{
-			// The caster strobes black and white on ticks 6 to 60, then recovers (CasterStrobe.js).
-			type: 'FUNC',
-			attachedEntity: true,
-			func: function (Params) {
-				startCasterStrobe(Params.Init.ownerEntity);
-			}
-		}
-	],
-
 	// Melt Away (SS_TOKEDASU), from the client's own effect folders.
 	ef_ss_tokedasu: [
 		{
@@ -346,95 +310,6 @@ export default {
 			texturePath: 'shinkiro_shiranui/ss_four_charm/four_charm_ice_bottom/',
 			min: 'shinkiro_shiranui/ss_four_charm/four_charm_ice_bottom/min_four_charm_ice_bottom',
 			renderBeforeEntities: true
-		}
-	],
-
-	//931: [{}],	//EF_LINKPARTICLE2	   (Nothing)
-	//932: [{}],	//EF_SOULLIGHT3	   Firefly
-	//933: [{}],	//EF_CHAREFFECT	   [Client Crash]
-
-	934: [
-		{
-			//EF_GUMGANG6	   White, castishly expanding cone
-			// Nightmare Erasion cast (official client): four rings of ring_white.tga
-			// opening out round the caster for 50 ticks (CastFunnelSim.js). The effect
-			// lives 300 ticks whatever the cast time, and a cancelled cast keeps it.
-			type: 'FUNC',
-			attachedEntity: true,
-			func: function (Params) {
-				this.add(
-					new CastFunnel(Params.Init.ownerEntity.position, Params.Inst.startTick, 300, 'ring_white.tga'),
-					Params
-				);
-			}
-		},
-		{
-			// ...and the caster drawn adding light, with a glow copy, two ticks out of four on ticks 12 to 33.
-			type: 'FUNC',
-			attachedEntity: true,
-			func: function (Params) {
-				this.add(new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, 300, 934), Params);
-			}
-		}
-	],
-
-	986: [
-		{
-			//EF_ROTATE_LINE_GRAY	   Gray ribbons spiralling around the caster (Huuma / Kunai cast)
-			// The official client's CRotateLineEffect: four cloud11.tga ribbons for the cast time (RotateLineSim.js).
-			type: 'FUNC',
-			attachedEntity: true,
-			castLoop: true,
-			func: function (Params) {
-				this.add(
-					new RotateLine(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, 986),
-					Params
-				);
-			}
-		}
-	],
-
-	// Shinkirou cast, with 2373: the client plays mystery_illusion_cast_bottom.str for the cast time
-	1774: [
-		{
-			type: 'STR',
-			file: 'mystery_illusion/mystery_illusion_cast_bottom/mystery_illusion_cast_bottom',
-			texturePath: 'mystery_illusion/mystery_illusion_cast_bottom/',
-			min: 'mystery_illusion/mystery_illusion_cast_bottom/min_mystery_illusion_cast_bottom',
-			wav: 'effect/ef_beginspell',
-			renderBeforeEntities: true,
-			castLoop: true,
-			attachedEntity: true
-		}
-	],
-
-	2373: [
-		{
-			type: 'FUNC',
-			attachedEntity: true,
-			castLoop: true,
-			func: function (Params) {
-				this.add(
-					new CastFunnel(
-						Params.Init.ownerEntity.position,
-						Params.Inst.startTick,
-						Params.Init.duration / 16,
-						'ring_black.tga'
-					),
-					Params
-				);
-			}
-		},
-		{
-			type: 'FUNC',
-			attachedEntity: true,
-			castLoop: true,
-			func: function (Params) {
-				this.add(
-					new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, Params.Init.duration / 16, 2373),
-					Params
-				);
-			}
 		}
 	],
 

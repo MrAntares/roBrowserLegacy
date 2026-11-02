@@ -1,72 +1,14 @@
 /**
  * @module DB/Effects/Table/Jobs/Novice/HyperNovice
  *
- * The Novice line's HyperNovice effects: the numbered rows only its skills use, and its
- * named ef_<skill prefix>_* rows. DB/Effects/EffectTable.js joins the parts; its header lists the
- * parameters a row takes. Keep numbered rows in ID order and a skill's named rows together.
+ * The Novice line's HyperNovice effects: its named ef_<skill prefix>_* rows and the named
+ * rows only its skills use. DB/Effects/EffectTable.js joins the parts; its header lists the
+ * parameters a row takes. Keep a skill's rows together.
  */
 
 import CastCircle from 'Renderer/Effects/CastCircle.js';
-import CasterMarks from 'Renderer/Effects/CasterMarks.js';
 
 export default {
-	9: [
-		{
-			//EF_ENHANCE	Different Type of Heal
-			alphaMax: 0.2,
-			animation: 1,
-			attachedEntity: true,
-			blendMode: 2,
-			bottomSize: 0.95,
-			duration: 2000,
-			fade: true,
-			height: 10,
-			textureName: 'alpha_down',
-			topSize: 0.95,
-			type: 'CYLINDER'
-		},
-		{
-			alphaMax: 0.8,
-			attachedEntity: true,
-			duration: 1000,
-			delayLate: 500,
-			duplicate: 7,
-			fadeOut: true,
-			file: 'effect/ac_center2.tga',
-			posxRand: 1.5,
-			posyRand: 1,
-			poszEndRand: 1,
-			poszEndRandMiddle: 6,
-			poszStartRand: 1,
-			poszStartRandMiddle: 1,
-			sizeRandY: 15,
-			sizeRandYMiddle: 45,
-			sizeX: 2.5,
-			type: '3D',
-			zIndex: 0
-		},
-		{
-			alphaMax: 0.8,
-			attachedEntity: true,
-			duration: 1000,
-			delayOffset: 400,
-			duplicate: 3,
-			fadeOut: true,
-			file: 'effect/ac_center2.tga',
-			posxRand: 1.5,
-			posyRand: 1,
-			poszEndRand: 1,
-			poszEndRandMiddle: 6,
-			poszStartRand: 1,
-			poszStartRandMiddle: 1,
-			sizeRandY: 15,
-			sizeRandYMiddle: 45,
-			sizeX: 2.5,
-			type: '3D',
-			zIndex: 0
-		}
-	],
-
 	// Double Bowling Bash (HN_DOUBLEBOWLINGBASH), from the client's own effect folders.
 	ef_hn_doublebowlingbash: [
 		{
@@ -207,81 +149,6 @@ export default {
 			texturePath: 'hyper_novice/hn_overcoming_crisis/overcoming_crisis_bottom/',
 			min: 'hyper_novice/hn_overcoming_crisis/overcoming_crisis_bottom/min_overcoming_crisis_bottom',
 			renderBeforeEntities: true
-		}
-	],
-
-	502: [
-		{
-			//EF_PIERCEBODY	   Player Become Yellow with Yellow Aura
-			// Spiral Pierce Max cast (official client): for the cast time, at most 141
-			// ticks, the caster flickers yellow (drawn adding light) and white each
-			// tick, with a glow copy round it (CasterMarks.js).
-			type: 'FUNC',
-			attachedEntity: true,
-			castLoop: true,
-			wav: 'effect/ef_beginspell',
-			func: function (Params) {
-				this.add(
-					new CasterMarks(Params.Init.ownerEntity, Params.Inst.startTick, Params.Init.duration / 16, 502),
-					Params
-				);
-			}
-		}
-	],
-
-	// Jack Frost Nova cast, with 1449: the client plays new_jackfrost_cast.str for the cast time
-	1446: [
-		{
-			type: 'STR',
-			file: 'new_jackfrost/new_jackfrost_cast/new_jackfrost_cast',
-			texturePath: 'new_jackfrost/new_jackfrost_cast/',
-			min: 'new_jackfrost/new_jackfrost_cast/min_new_jackfrost_cast',
-			castLoop: true,
-			attachedEntity: true
-		}
-	],
-
-	1449: [
-		{
-			// Jack Frost Nova cast: the client's tinted cast circle in new_jackfrost/ring_ice.tga,
-			// mode 2 (bluish, normal blending), for the cast time (CastCircleSim.js).
-			type: 'FUNC',
-			attachedEntity: true,
-			castLoop: true,
-			wav: 'effect/ef_beginspell',
-			func: function (Params) {
-				this.add(
-					new CastCircle(
-						Params.Init.ownerEntity.position,
-						Params.Inst.startTick,
-						Params.Init.duration,
-						'new_jackfrost/ring_ice.tga',
-						2
-					),
-					Params
-				);
-			}
-		}
-	],
-
-	1709: [
-		{
-			// Hell's Drive cast aura: the client's untinted cast circle in
-			// new_earthdrive/ring_brown.tga, white, for the cast time (CastCircleSim.js).
-			type: 'FUNC',
-			attachedEntity: true,
-			wav: 'effect/ef_beginspell',
-			func: function (Params) {
-				this.add(
-					new CastCircle(
-						Params.Init.ownerEntity.position,
-						Params.Inst.startTick,
-						Params.Init.duration,
-						'new_earthdrive/ring_brown.tga'
-					),
-					Params
-				);
-			}
 		}
 	],
 

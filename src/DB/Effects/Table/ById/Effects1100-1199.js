@@ -1,9 +1,8 @@
 /**
- * @module DB/Effects/Table/Common/Effects1100
+ * @module DB/Effects/Table/ById/Effects1100-1199
  *
- * Effects 1100 to 1199 of the effect table that no single class's skills
- * use: shared rows, monsters, items, statuses. DB/Effects/EffectTable.js joins the parts;
- * its header lists the parameters a row takes. Keep rows in effect ID order.
+ * Effects 1100 to 1199 of the effect table, in ID order (see EffectConst.js).
+ * DB/Effects/EffectTable.js joins the parts; its header lists the parameters a row takes.
  */
 
 export default {

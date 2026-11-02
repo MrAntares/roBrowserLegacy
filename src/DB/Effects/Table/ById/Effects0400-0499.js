@@ -1,16 +1,172 @@
 /**
- * @module DB/Effects/Table/Common/Effects0400
+ * @module DB/Effects/Table/ById/Effects0400-0499
  *
- * Effects 0400 to 499 of the effect table that no single class's skills
- * use: shared rows, monsters, items, statuses. DB/Effects/EffectTable.js joins the parts;
- * its header lists the parameters a row takes. Keep rows in effect ID order.
+ * Effects 400 to 499 of the effect table, in ID order (see EffectConst.js).
+ * DB/Effects/EffectTable.js joins the parts; its header lists the parameters a row takes.
  */
 
 import SongEffects from 'Renderer/Effects/Songs.js';
+import MagicRing from 'Renderer/Effects/MagicRing.js';
+import SpiderWeb from 'Renderer/Effects/SpiderWeb.js';
 
 const FogEffects = SongEffects.FogEffects;
 
 export default {
+	400: [
+		{
+			//joint beat caster	//EF_BASH3D4	Joint Beat
+			wav: 'effect/\xba\xf1\xc6\xae\x20\xc1\xb6\xc0\xce\xc6\xae', // ºñÆ® Á¶ÀÎÆ®
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				const entity = Params.Init.ownerEntity;
+				entity.animations.add(function (tick) {
+					// Official: Halo (Double Body) is active between state 20 and 50.
+					// Scaling to ms (approx 200ms to 500ms).
+					if (tick >= 150 && tick <= 500) {
+						entity._enableHalo = true;
+					} else {
+						entity._enableHalo = false;
+					}
+					return tick > 600;
+				});
+			}
+		},
+		{
+			type: 'CYLINDER',
+			textureName: 'alpha_center',
+			alphaMax: 0.6,
+			duration: 175,
+			delayStart: 500,
+			duplicate: 6,
+			timeBetweenDupli: 0,
+			totalCircleSides: 30,
+			circleSides: 1,
+			fade: true,
+			angleX: -90,
+			angleZRandom: 360,
+			fixedPerspective: true,
+			posZ: 1.5,
+			height: 0,
+			bottomSize: 0.01,
+			topSize: 4.5,
+			animation: 2,
+			zIndex: 1.1,
+			attachedEntity: true
+		},
+		{
+			type: 'CYLINDER',
+			textureName: 'alpha_center',
+			alphaMax: 0.6,
+			duration: 175,
+			duplicate: 6,
+			delayStart: 500,
+			timeBetweenDupli: 0,
+			totalCircleSides: 30,
+			circleSides: 1,
+			fade: true,
+			angleX: -90,
+			angleZRandom: 360,
+			fixedPerspective: true,
+			posZ: 1.5,
+			height: 0,
+			bottomSize: 0.01,
+			topSize: 7.2,
+			animation: 2,
+			zIndex: 1.2,
+			attachedEntity: true
+		}
+	],
+
+	charge_attack: [
+		{
+			//charge attack (quest-skill)
+			//same effect on target like 'Bash'
+			attachedEntity: true
+		}
+	],
+
+	//401: [{}],	//EF_NAPALMVALCAN	   Napalm Vulcan Sound
+	402: [
+		//EF_PORTAL5	   Dangerous Soul Collect
+		{
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function EffectBodyColor(Params) {
+				const entity = Params.Init.ownerEntity;
+				entity.animations.add(function (tick) {
+					const time = tick;
+
+					if (time < 200) {
+						entity._flashColor[0] = 1.0; // Red
+						entity._flashColor[1] = 1.0; // Green
+						entity._flashColor[2] = 0.0; // Blue
+						entity._flashColor[3] = 0.1; // Alpha (10%)
+						entity.recalculateBlendingColor();
+						return false;
+					}
+
+					// Part 2: Smooth fade back to normal
+					if (time < 800) {
+						const progress = (time - 200) / 600;
+						entity._flashColor[0] = 1.0;
+						entity._flashColor[1] = 1.0;
+						entity._flashColor[2] = 0.0 + 1.0 * progress;
+						entity._flashColor[3] = 0.1 + 0.9 * progress;
+						entity.recalculateBlendingColor();
+						return false;
+					}
+
+					// Final reset
+					entity._flashColor[0] = 1.0;
+					entity._flashColor[1] = 1.0;
+					entity._flashColor[2] = 1.0;
+					entity._flashColor[3] = 1.0;
+					entity.recalculateBlendingColor();
+					return true;
+				});
+			}
+		}
+	],
+
+	403: [
+		{
+			//EF_MAGICCRASHER2	   Mind Breaker
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function EffectBodyColor(Params) {
+				const entity = Params.Init.ownerEntity;
+				entity.animations.add(function (tick) {
+					if (tick < 1000) {
+						entity._flashColor[0] = Math.random();
+						entity._flashColor[1] = Math.random();
+						entity._flashColor[2] = Math.random();
+						entity.recalculateBlendingColor();
+					} else {
+						entity._flashColor[0] = 1;
+						entity._flashColor[1] = 1;
+						entity._flashColor[2] = 1;
+						entity._flashColor[3] = 1;
+						entity.recalculateBlendingColor();
+						return true;
+					}
+				});
+			},
+			wav: 'effect/swordman_provoke'
+		}
+	],
+
+	404: [
+		{
+			//EF_BOTTOM_SPIDER	Fiber Lock
+			type: 'FUNC',
+			attachedEntity: false,
+			func: function (Params) {
+				this.add(new SpiderWeb(Params.Inst.position, Params.Inst.startTick), Params);
+			}
+		}
+	],
+
 	'405_ground': [
 		{
 			//wall of fog
@@ -25,12 +181,189 @@ export default {
 		}
 	],
 
+	406: [
+		{
+			//EF_SOULBURN	Soul Burn
+			type: 'STR',
+			file: '\xbc\xd2\xbf\xef\xb9\xf8',
+			attachedEntity: true
+		}
+	],
+
 	407: [
 		{
 			//EF_SOULCHANGE	Soul Change
 			type: 'STR',
 			file: '\xbb\xe7\xb6\xf7\xc8\xbf\xb0\xfa',
 			attachedEntity: true
+		}
+	],
+
+	//408: [{}],	//EF_BABY	   Mom, Dad, I love you! (Baby Skill)
+
+	409: [
+		{
+			//EF_SOULBREAKER2	   Meteor Assault
+			wav: 'effect/\xb8\xde\xc5\xd7\xbf\xc0\x20\xbe\xee\xbd\xe4\xc6\xae'
+		},
+		{
+			type: '3D',
+			file: 'effect/purpleslash.tga',
+			alphaMax: 0.6,
+			duration: 500,
+			fadeOut: true,
+			zIndex: 10,
+			sizeStart: 100,
+			sizeEnd: 200,
+			posxStart: -1,
+			posxEnd: -5,
+			posyStart: 0,
+			posyEnd: 0,
+			rotateWithCamera: true,
+			angle: 0
+		},
+		{
+			type: '3D',
+			file: 'effect/purpleslash.tga',
+			alphaMax: 0.6,
+			duration: 500,
+			fadeOut: true,
+			zIndex: 10,
+			sizeStart: 100,
+			sizeEnd: 200,
+			posxStart: -0.7,
+			posxEnd: -3.53,
+			posyStart: -0.7,
+			posyEnd: -3.53,
+			rotateWithCamera: true,
+			angle: -45
+		},
+		{
+			type: '3D',
+			file: 'effect/purpleslash.tga',
+			alphaMax: 0.6,
+			duration: 500,
+			fadeOut: true,
+			zIndex: 10,
+			sizeStart: 100,
+			sizeEnd: 200,
+			posxStart: 0,
+			posxEnd: 0,
+			posyStart: -1,
+			posyEnd: -5,
+			rotateWithCamera: true,
+			angle: -90
+		},
+		{
+			type: '3D',
+			file: 'effect/purpleslash.tga',
+			alphaMax: 0.6,
+			duration: 500,
+			fadeOut: true,
+			zIndex: 10,
+			sizeStart: 100,
+			sizeEnd: 200,
+			posxStart: 0.7,
+			posxEnd: 3.53,
+			posyStart: -0.7,
+			posyEnd: -3.53,
+			rotateWithCamera: true,
+			angle: -135
+		},
+		{
+			type: '3D',
+			file: 'effect/purpleslash.tga',
+			alphaMax: 0.6,
+			duration: 500,
+			fadeOut: true,
+			zIndex: 10,
+			sizeStart: 100,
+			sizeEnd: 200,
+			posxStart: 1,
+			posxEnd: 5,
+			posyStart: 0,
+			posyEnd: 0,
+			rotateWithCamera: true,
+			angle: -180
+		},
+		{
+			type: '3D',
+			file: 'effect/purpleslash.tga',
+			alphaMax: 0.6,
+			duration: 500,
+			fadeOut: true,
+			zIndex: 10,
+			sizeStart: 100,
+			sizeEnd: 200,
+			posxStart: 0.7,
+			posxEnd: 3.53,
+			posyStart: 0.7,
+			posyEnd: 3.53,
+			rotateWithCamera: true,
+			angle: -225
+		},
+		{
+			type: '3D',
+			file: 'effect/purpleslash.tga',
+			alphaMax: 0.6,
+			duration: 500,
+			fadeOut: true,
+			zIndex: 10,
+			sizeStart: 100,
+			sizeEnd: 200,
+			posxStart: 0,
+			posxEnd: 0,
+			posyStart: 1,
+			posyEnd: 5,
+			rotateWithCamera: true,
+			angle: -270
+		},
+		{
+			type: '3D',
+			file: 'effect/purpleslash.tga',
+			alphaMax: 0.6,
+			duration: 500,
+			fadeOut: true,
+			zIndex: 10,
+			sizeStart: 100,
+			sizeEnd: 200,
+			posxStart: -0.7,
+			posxEnd: -3.53,
+			posyStart: 0.7,
+			posyEnd: 3.53,
+			rotateWithCamera: true,
+			angle: -315
+		}
+	],
+
+	//410: [{}],	//EF_RAINBOW	   Rainbow
+	//411: [{}],	//EF_PEONG	   Leap
+	//412: [{}],	//EF_TANJI2	   Like Throw Spirit Sphere
+	//413: [{}],	//EF_PRESSEDBODY	   Axe Kick
+	//414: [{}],	//EF_SPINEDBODY	   Round Kick
+	//415: [{}],	//EF_KICKEDBODY	   Counter Kick
+	//416: [{}],	//EF_AIRTEXTURE	   (Nothing)
+	//417: [{}],	//EF_HITBODY	   Flash
+	//418: [{}],	//EF_DOUBLEGUMGANG	   Warmth Lightning
+	//419: [{}],	//EF_REFLECTBODY	   Kaite (Visual Effect)
+
+	420: [
+		{
+			//EF_BABYBODY	Eswoo (Small) (Visual Effect)
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function EffectSmallTransition(Params) {
+				const entity = Params.Init.ownerEntity;
+				const xSize = entity.xSize;
+				const ySize = entity.ySize;
+
+				entity.animations.add(function (tick) {
+					entity.xSize = xSize + (2.5 - xSize) * (Math.min(tick, 300) / 300);
+					entity.ySize = ySize + (2.5 - ySize) * (Math.min(tick, 300) / 300);
+
+					return tick > 300;
+				});
+			}
 		}
 	],
 
@@ -91,6 +424,30 @@ export default {
 		}
 	],
 
+	//427: [{}],	//EF_ASURABODY_MONSTER	   (Nothing)
+	//428: [{}],	//EF_HITLINE3	   (Nothing)
+	//429: [{}],	//EF_HITLINE4	   Taekwon Kick Hit 1
+	//430: [{}],	//EF_HITLINE5	   Taekwon Kick Hit 2
+	//431: [{}],	//EF_HITLINE6	   Taekwon Kick Hit 3
+	//432: [{}],	//EF_ELECTRIC	   Solar, Lunar and Stellar Perception (Visual Effect)
+	//433: [{}],	//EF_ELECTRIC2	   Solar, Lunar and Stellar Opposition (Visual Effect)
+	//434: [{}],	//EF_HITLINE7	   Taekwon Kick Hit 4
+	//435: [{}],	//EF_STORMKICK	   Whirlwind Kick
+	//436: [{}],	//EF_HALFSPHERE	   White Barrier (Unused)
+	//437: [{}],	//EF_ATTACKENERGY	   White barrier 2 (Unused)
+	//438: [{}],	//EF_ATTACKENERGY2	   Kaite Reflect Animation
+	//439: [{}],	//EF_CHEMICAL3	   Flying Side Kick
+
+	440: [
+		{
+			//EF_ASSUMPTIO2	Assumptio (Animation)
+			type: 'STR',
+			file: 'asum',
+			wav: 'effect/\xbe\xc6\xbc\xfb\xc7\xc1\xc6\xbc\xbf\xc0',
+			attachedEntity: true
+		}
+	],
+
 	441: [
 		{
 			//EF_BLUECASTING	   Blue cast aura (Comfort skills, Star Emperor skills)
@@ -120,6 +477,14 @@ export default {
 		{
 			//EF_STOPEFFECT	   Sprint Stop Animation
 			wav: 'effect/t_\xc8\xbf\xb0\xfa\xc0\xbd1',
+			attachedEntity: true
+		}
+	],
+
+	445: [
+		{
+			//high jump caster	//EF_JUMPBODY	High Jump (Jump)
+			wav: 'effect/t_\xc8\xb8\xc7\xc72',
 			attachedEntity: true
 		}
 	],
@@ -238,6 +603,24 @@ export default {
 			topSize: 5,
 			type: 'CYLINDER',
 			wav: 'effect/ef_beginspell'
+		}
+	],
+
+	//455: [{}],	//EF_GUMGANGNPC	   Another Warmth Lightning
+
+	456: [
+		{
+			//EF_AGIUP	   Power Up
+			wav: 'effect/\x6d\x6f\x6e\x5f\xc6\xf8\xb1\xe2',
+			attachedEntity: true
+		}
+	],
+
+	457: [
+		{
+			//flying kick on target	//EF_JUMPKICK	Flying Side Kick (2nd Part)
+			wav: 'effect/\x74\x5f\xb3\xaf\xb6\xf3\xc2\xf7\xb1\xe2', //t_łŻ¶óÂ÷±â
+			attachedEntity: true
 		}
 	],
 
@@ -963,6 +1346,36 @@ export default {
 			type: 'STR',
 			file: 'ramadan',
 			attachedEntity: true
+		}
+	],
+
+	493: [
+		{
+			// edp	//EF_EDP	Enchant Deadly Poison
+			wav: 'effect/assasin_cloaking',
+			//blinking
+			attachedEntity: true
+		}
+	],
+
+	//494: [{}],	//EF_SHIELDBOOMERANG2	   Throwing Tomahawk
+	//495: [{}],	//EF_RG_COIN2	   Full Strip Sound
+
+	'496_beforecast': [
+		{
+			type: 'FUNC',
+			attachedEntity: true,
+			func: function (Params) {
+				const entity = Params.Init.ownerEntity;
+				this.add(new MagicRing(entity, 2.45, 0.8, 2.8, 'ring_jadu', Params.Inst.startTick + 10000), Params);
+			}
+		}
+	],
+
+	496: [
+		{
+			//EF_GUARD2	  Preserve
+			wav: 'effect/black_maximize_power_sword_bic'
 		}
 	]
 };

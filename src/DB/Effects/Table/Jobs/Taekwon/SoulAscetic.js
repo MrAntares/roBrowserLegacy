@@ -1,13 +1,10 @@
 /**
  * @module DB/Effects/Table/Jobs/Taekwon/SoulAscetic
  *
- * The Taekwon line's SoulAscetic effects: the numbered rows only its skills use, and its
- * named ef_<skill prefix>_* rows. DB/Effects/EffectTable.js joins the parts; its header lists the
- * parameters a row takes. Keep numbered rows in ID order and a skill's named rows together.
+ * The Taekwon line's SoulAscetic effects: its named ef_<skill prefix>_* rows and the named
+ * rows only its skills use. DB/Effects/EffectTable.js joins the parts; its header lists the
+ * parameters a row takes. Keep a skill's rows together.
  */
-
-import CastCone from 'Renderer/Effects/CastCone.js';
-import CastRing from 'Renderer/Effects/CastRing.js';
 
 export default {
 	// Talisman Of Protection (SOA_TALISMAN_OF_PROTECTION), from the client's own effect folders.
@@ -188,110 +185,6 @@ export default {
 			texturePath: 'soul_ascetic/soa_soul_of_heaven_and_earth/soul_of_heaven_and_earth/',
 			min: 'soul_ascetic/soa_soul_of_heaven_and_earth/soul_of_heaven_and_earth/min_soul_of_heaven_and_earth',
 			wav: 'effect/soul_ascetic/soa_soul_of_heaven_and_earth'
-		}
-	],
-
-	843: [
-		{
-			//EF_BEGINSPELL_N6	   White cone cast aura
-			// The official client's bubble cone in white, with no squares on the ground (CastConeSim.js).
-			type: 'FUNC',
-			attachedEntity: true,
-			wav: 'effect/ef_beginspell',
-			func: function (Params) {
-				this.add(
-					new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, {
-						variant: 6
-					}),
-					Params
-				);
-			}
-		}
-	],
-
-	911: [
-		{
-			// EF_GREENCASTING (Totem of Tutelary cast): the cast-aura ring in ring_white.tga,
-			// argument 15 (green (100, 255, 100), additive), twice (CastRingSim.js).
-			type: 'FUNC',
-			attachedEntity: true,
-			castLoop: true,
-			wav: 'effect/ef_beginspell',
-			func: function (Params) {
-				this.add(
-					new CastRing(
-						Params.Init.ownerEntity.position,
-						Params.Inst.startTick,
-						Params.Init.duration,
-						'ring_white.tga',
-						[15, 15]
-					),
-					Params
-				);
-			}
-		}
-	],
-
-	1556: [
-		{
-			// Soul of Heaven and Earth cast: the cast-aura ring in ring_blue.tga, arguments
-			// 20 and 21 (two blues, additive) (CastRingSim.js).
-			type: 'FUNC',
-			attachedEntity: true,
-			castLoop: true,
-			wav: 'effect/ef_beginspell',
-			func: function (Params) {
-				this.add(
-					new CastRing(
-						Params.Init.ownerEntity.position,
-						Params.Inst.startTick,
-						Params.Init.duration,
-						'ring_blue.tga',
-						[20, 21]
-					),
-					Params
-				);
-			}
-		}
-	],
-
-	1565: [
-		{
-			// Circle of Directions and Elementals cast: the cast-aura ring in ring_yellow.tga,
-			// argument 23 (light blue, additive) (CastRingSim.js).
-			type: 'FUNC',
-			attachedEntity: true,
-			castLoop: true,
-			wav: 'effect/ef_beginspell',
-			func: function (Params) {
-				this.add(
-					new CastRing(
-						Params.Init.ownerEntity.position,
-						Params.Inst.startTick,
-						Params.Init.duration,
-						'ring_yellow.tga',
-						[23, 23]
-					),
-					Params
-				);
-			}
-		}
-	],
-
-	2368: [
-		{
-			// Talisman of Black Tortoise cast: the official client's bubble cone in black (variant 11, CastConeSim.js).
-			type: 'FUNC',
-			attachedEntity: true,
-			wav: 'effect/ef_beginspell',
-			func: function (Params) {
-				this.add(
-					new CastCone(Params.Init.ownerEntity.position, Params.Inst.startTick, Params.Init.duration, {
-						variant: 11
-					}),
-					Params
-				);
-			}
 		}
 	]
 };

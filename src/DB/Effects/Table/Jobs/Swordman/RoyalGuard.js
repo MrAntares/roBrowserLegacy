@@ -1,90 +1,14 @@
 /**
  * @module DB/Effects/Table/Jobs/Swordman/RoyalGuard
  *
- * The Swordman line's RoyalGuard effects: the numbered rows only its skills use, and its
- * named ef_<skill prefix>_* rows. DB/Effects/EffectTable.js joins the parts; its header lists the
- * parameters a row takes. Keep numbered rows in ID order and a skill's named rows together.
+ * The Swordman line's RoyalGuard effects: its named ef_<skill prefix>_* rows and the named
+ * rows only its skills use. DB/Effects/EffectTable.js joins the parts; its header lists the
+ * parameters a row takes. Keep a skill's rows together.
  */
 
 import Events from 'Core/Events.js';
 
 export default {
-	//890: [{}],	//EF_SPINMOVE	   Rotation
-	//891: [{}],	//EF_FIREBALL4	   Magic shots [S]
-	//892: [{}],	//EF_TRIPLEATTACK4	   Fastness with hitting sound[S]
-	//893: [{}],	//EF_CHEMICAL3S	   Blue-white light passing by
-	//894: [{}],	//EF_GROUNDSHAKE	   (Nothing)
-	//895: [{}],	//EF_DQ9_CHARGE	   Big wheel of flat light beams
-	//896: [{}],	//EF_DQ9_CHARGE2	   Still sun shaped lightning aura
-	//897: [{}],	//EF_DQ9_CHARGE3	   Animated sun shaped lightning aura
-	//898: [{}],	//EF_DQ9_CHARGE4	   Animated, curvy sun shaped lightning aura
-	//899: [{}],	//EF_BLUELINE	   White/red light shots from below
-	//900: [{}],	//EF_SELFSCROLL	   Animated, slow curvy sun shaped lightning aura
-	//901: [{}],	//EF_SPR_LIGHTPRINT	   Explosion
-	//902: [{}],	//EF_PNG_TEST	   Floating bedtable texture
-	//903: [{}],	//EF_BEGINSPELL_YB	   Castish flamey cone
-	//904: [{}],	//EF_CHEMICAL2DASH4	   Yellow/pink lights passing by
-	//905: [{}],	//EF_GROUNDSHAKE2	   Expanding circle
-
-	906: [
-		{
-			//EF_PRESSURE2	   Shield Press (falling shield)
-			type: '3D',
-			alphaMax: 0.6,
-			attachedEntity: true,
-			blendMode: 2,
-			duration: 500,
-			rotate: true,
-			angle: 0,
-			toAngle: -611,
-			poszStart: 20,
-			poszEnd: 5,
-			size: 100,
-			zIndex: 1,
-			file: 'effect/shield.bmp',
-			wav: 'effect/\xc7\xc1\xb7\xb9\xbc\xc5'
-		},
-		{
-			type: '3D',
-			alphaMax: 0.6,
-			attachedEntity: true,
-			blendMode: 2,
-			duration: 500,
-			delayOffset: 501,
-			fadeOut: true,
-			angle: -611,
-			posz: 5,
-			size: 100,
-			zIndex: 1,
-			file: 'effect/shield.bmp',
-			delayWav: 500,
-			wav: 'effect/lg_shieldpress'
-		}
-	],
-
-	//907: [{}],	//EF_RG_COIN7	   Chainy, metalish sound [S]
-
-	908: [
-		{
-			//EF_PRIMECHARGE2	   Prestige (sphere of yellow particles)
-			wav: 'effect/lg_prestige'
-		}
-	],
-
-	909: [
-		{
-			//EF_PRIMECHARGE3	   Banding (sphere of red particles)
-			wav: 'effect/lg_banding'
-		}
-	],
-
-	910: [
-		{
-			//EF_PRIMECHARGE4	   Inspiration (sphere of blue particles)
-			wav: 'effect/lg_inspiration'
-		}
-	],
-
 	ef_banishingpoint: [
 		{
 			wav: 'effect/lg_banishingpoint',

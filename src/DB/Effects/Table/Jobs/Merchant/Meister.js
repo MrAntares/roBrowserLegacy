@@ -1,12 +1,10 @@
 /**
  * @module DB/Effects/Table/Jobs/Merchant/Meister
  *
- * The Merchant line's Meister effects: the numbered rows only its skills use, and its
- * named ef_<skill prefix>_* rows. DB/Effects/EffectTable.js joins the parts; its header lists the
- * parameters a row takes. Keep numbered rows in ID order and a skill's named rows together.
+ * The Merchant line's Meister effects: its named ef_<skill prefix>_* rows and the named
+ * rows only its skills use. DB/Effects/EffectTable.js joins the parts; its header lists the
+ * parameters a row takes. Keep a skill's rows together.
  */
-
-import CastRing from 'Renderer/Effects/CastRing.js';
 
 export default {
 	// Axe Stomp (MT_AXE_STOMP), from the client's own effect folders.
@@ -299,29 +297,6 @@ export default {
 			file: 'meister/mt_energy_cannonade/energy_cannonade_hit/energy_cannonade_hit',
 			texturePath: 'meister/mt_energy_cannonade/energy_cannonade_hit/',
 			min: 'meister/mt_energy_cannonade/energy_cannonade_hit/min_energy_cannonade_hit'
-		}
-	],
-
-	1938: [
-		{
-			// Spark Blaster / Triple Laser cast: the cast-aura ring in
-			// new_battle_w/abr_battle_warior.tga, argument 0 (white, additive) (CastRingSim.js).
-			type: 'FUNC',
-			attachedEntity: true,
-			castLoop: true,
-			wav: 'effect/ef_beginspell',
-			func: function (Params) {
-				this.add(
-					new CastRing(
-						Params.Init.ownerEntity.position,
-						Params.Inst.startTick,
-						Params.Init.duration,
-						'new_battle_w/abr_battle_warior.tga',
-						[0, 0]
-					),
-					Params
-				);
-			}
 		}
 	]
 };

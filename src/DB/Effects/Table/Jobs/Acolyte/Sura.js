@@ -1,34 +1,14 @@
 /**
  * @module DB/Effects/Table/Jobs/Acolyte/Sura
  *
- * The Acolyte line's Sura effects: the numbered rows only its skills use, and its
- * named ef_<skill prefix>_* rows. DB/Effects/EffectTable.js joins the parts; its header lists the
- * parameters a row takes. Keep numbered rows in ID order and a skill's named rows together.
+ * The Acolyte line's Sura effects: its named ef_<skill prefix>_* rows and the named
+ * rows only its skills use. DB/Effects/EffectTable.js joins the parts; its header lists the
+ * parameters a row takes. Keep a skill's rows together.
  */
 
 import Events from 'Core/Events.js';
 
 export default {
-	//886: [{}],	//EF_GUMGANG5	   Blue castish cone
-	//887: [{}],	//EF_HITLINE8	   Wavy sparks
-
-	888: [
-		{
-			//EF_ELECTRIC4	   Earth Shaker (same as 432)
-			wav: 'effect/sr_earthshaker'
-		}
-	],
-
-	1043: [
-		{
-			//EF_SR_FLASHCOMBO
-			type: 'STR',
-			file: 'sr_flashcombo',
-			wav: 'effect/sr_flashcombo',
-			attachedEntity: true
-		}
-	],
-
 	ef_crescentelbow: [
 		{
 			wav: 'effect/sr_crescentelbow',

@@ -1,9 +1,8 @@
 /**
- * @module DB/Effects/Table/Common/Effects1000
+ * @module DB/Effects/Table/ById/Effects1000-1099
  *
- * Effects 1000 to 1099 of the effect table that no single class's skills
- * use: shared rows, monsters, items, statuses. DB/Effects/EffectTable.js joins the parts;
- * its header lists the parameters a row takes. Keep rows in effect ID order.
+ * Effects 1000 to 1099 of the effect table, in ID order (see EffectConst.js).
+ * DB/Effects/EffectTable.js joins the parts; its header lists the parameters a row takes.
  */
 
 export default {
@@ -98,12 +97,91 @@ export default {
 		}
 	],
 
+	1040: [
+		{
+			//EF_GC_DARKCROW
+			type: 'STR',
+			file: 'gc_darkcrow',
+			//wav: 'effect/gc_darkcrow',
+			attachedEntity: true
+		}
+	],
+
 	1042: [
 		{
 			//EF_ALL_FULL_THROTTLE
 			type: 'STR',
 			file: 'all_full_throttle',
 			wav: 'effect/all_full_throttle',
+			attachedEntity: true
+		}
+	],
+
+	1043: [
+		{
+			//EF_SR_FLASHCOMBO
+			type: 'STR',
+			file: 'sr_flashcombo',
+			wav: 'effect/sr_flashcombo',
+			attachedEntity: true
+		}
+	],
+
+	1044: [
+		{
+			//EF_RK_LUXANIMA
+			type: 'STR',
+			file: 'rk_luxanima',
+			attachedEntity: true
+		}
+	],
+
+	1046: [
+		{
+			//EF_SO_ELEMENTAL_SHIELD
+			type: 'STR',
+			file: 'so_elemental_shield',
+			wav: 'effect/so_elemental_shield',
+			attachedEntity: true
+		}
+	],
+
+	1047: [
+		{
+			//EF_AB_OFFERTORIUM
+			type: 'STR',
+			file: 'ab_offertorium',
+			wav: 'effect/ab_offertorium',
+			attachedEntity: true
+		}
+	],
+
+	1048: [
+		{
+			//EF_WL_TELEKINESIS_INTENSE
+			type: 'STR',
+			file: 'wl_telekinesis_intense',
+			wav: 'effect/wl_telekinesis_intense',
+			attachedEntity: true
+		}
+	],
+
+	1049: [
+		{
+			//EF_GN_ILLUSIONDOPING
+			type: 'STR',
+			file: 'gn_illusiondoping',
+			wav: 'effect/gn_illusiondoping',
+			attachedEntity: true
+		}
+	],
+
+	1050: [
+		{
+			//EF_NC_MAGMA_ERUPTION
+			type: 'STR',
+			file: 'nc_magma_eruption',
+			wav: 'effect/nc_magma_eruption',
 			attachedEntity: true
 		}
 	],
