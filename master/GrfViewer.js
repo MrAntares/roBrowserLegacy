@@ -208005,14 +208005,23 @@ function receive(buf) {
 function onClose$9() {
 	const idx = _sockets.indexOf(this);
 	if (this === _socket) {
-		console.warn("[Network] Disconnect from server");
 		if (_socket.ping) clearInterval(_socket.ping);
-		if (_onDisconnect) _onDisconnect();
-		else __vitePreload(() => Promise.resolve().then(() => (init_UIManager(), UIManager_exports)).then((UIManager) => {
-			UIManager.default.showErrorBox("Disconnected from Server.");
-		}), void 0, import.meta.url);
+		if (!this.closeExpected) {
+			console.warn("[Network] Disconnect from server");
+			if (_onDisconnect) _onDisconnect();
+			else __vitePreload(() => Promise.resolve().then(() => (init_UIManager(), UIManager_exports)).then((UIManager) => {
+				UIManager.default.showErrorBox("Disconnected from Server.");
+			}), void 0, import.meta.url);
+		}
 	}
 	if (idx !== -1) _sockets.splice(idx, 1);
+}
+/**
+* The current server has sent us to another one: its socket closing from
+* now on is expected, not a disconnection.
+*/
+function expectClose() {
+	if (_socket) _socket.closeExpected = true;
 }
 /**
 * Close connection with server
@@ -208152,6 +208161,7 @@ var init_NetworkManager = __esmMin((() => {
 			connect,
 			hookPacket,
 			close,
+			expectClose,
 			read: read$1,
 			set onDisconnect(callback) {
 				_onDisconnect = callback;
@@ -348359,6 +348369,7 @@ function onMapChange(pkt) {
 * @param {object} pkt - PACKET.ZC.NPCACK_SERVERMOVE
 */
 function onServerChange(pkt) {
+	Network.expectClose();
 	MapEngine.init(pkt.addr.ip, pkt.addr.port, pkt.mapName);
 }
 /**
@@ -352058,6 +352069,7 @@ function onCharListNotify(charListInfo) {
 	}
 }
 function onReceiveMapInfo(pkt) {
+	if (retryCount === 0) Network.expectClose();
 	if (!DB.isLoaded) {
 		if (!DB.startedLazyInit) {
 			DB.lazyInit();
