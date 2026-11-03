@@ -21,8 +21,6 @@ import Session from 'Engine/SessionStorage.js';
 import Client from 'Core/Client.js';
 import FileManager from 'Core/FileManager.js';
 import DB from 'DB/DBManager.js';
-import Sprite from 'Loaders/Sprite.js';
-import Action from 'Loaders/Action.js';
 import Entity from 'Renderer/Entity/Entity.js';
 import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import htmlText from './Navigation.html?raw';
@@ -517,24 +515,36 @@ function loadPreviewShadowBuffers(callback) {
 	}
 
 	_previewShadowBuffersLoading = true;
-	FileManager.get('data/sprite/shadow.spr', sprBuffer => {
-		FileManager.get('data/sprite/shadow.act', actBuffer => {
-			_previewShadowSprBuffer = sprBuffer instanceof ArrayBuffer ? sprBuffer : null;
-			_previewShadowActBuffer = actBuffer instanceof ArrayBuffer ? actBuffer : null;
-			_previewShadowBuffersLoaded = true;
-			_previewShadowBuffersLoading = false;
+	const finishShadowLoad = (sprData, actData) => {
+		_previewShadowSprBuffer = sprData && sprData.frames ? sprData : null;
+		_previewShadowActBuffer = actData && actData.actions ? actData : null;
+		_previewShadowBuffersLoaded = true;
+		_previewShadowBuffersLoading = false;
 
-			const callbacks = _previewShadowCallbacks.splice(0);
-			for (let i = 0; i < callbacks.length; i++) {
-				callbacks[i](_previewShadowSprBuffer, _previewShadowActBuffer);
-			}
-		});
-	});
+		const callbacks = _previewShadowCallbacks.splice(0);
+		for (let i = 0; i < callbacks.length; i++) {
+			callbacks[i](_previewShadowSprBuffer, _previewShadowActBuffer);
+		}
+	};
+
+	Client.loadFile(
+		'data/sprite/shadow.spr',
+		sprData => {
+			Client.loadFile(
+				'data/sprite/shadow.act',
+				actData => finishShadowLoad(sprData, actData),
+				() => finishShadowLoad(null, null)
+			);
+		},
+		() => finishShadowLoad(null, null)
+	);
 }
 
-function buildMonsterPreviewRuntime(sprBuffer, actBuffer, shadowSprBuffer, shadowActBuffer) {
-	const sprite = new Sprite(sprBuffer);
-	const action = new Action(actBuffer);
+function buildMonsterPreviewRuntime(sprData, actData, shadowSprData, shadowActData) {
+	if (!sprData || !sprData.frames || !actData || !actData.actions) {
+		throw new Error('Invalid sprite or action data');
+	}
+
 	const entity = new Entity();
 	entity.effectColor[0] = 1.0;
 	entity.effectColor[1] = 1.0;
@@ -542,8 +552,8 @@ function buildMonsterPreviewRuntime(sprBuffer, actBuffer, shadowSprBuffer, shado
 	entity.effectColor[3] = 1.0;
 
 	let idleActionIndex = 0;
-	for (let i = 0; i < Math.min(action.actions.length, 8); i++) {
-		const candidate = action.actions[i];
+	for (let i = 0; i < Math.min(actData.actions.length, 8); i++) {
+		const candidate = actData.actions[i];
 		if (candidate && candidate.animations && candidate.animations.length) {
 			idleActionIndex = i;
 			break;
@@ -551,8 +561,8 @@ function buildMonsterPreviewRuntime(sprBuffer, actBuffer, shadowSprBuffer, shado
 	}
 
 	const runtime = {
-		sprite: sprite,
-		action: action,
+		sprite: sprData,
+		action: actData,
 		entity: entity,
 		idleActionIndex: idleActionIndex,
 		position: new Uint16Array([0, 0]),
@@ -561,20 +571,14 @@ function buildMonsterPreviewRuntime(sprBuffer, actBuffer, shadowSprBuffer, shado
 		shadowEntity: null
 	};
 
-	if (shadowSprBuffer instanceof ArrayBuffer && shadowActBuffer instanceof ArrayBuffer) {
-		try {
-			runtime.shadowSprite = new Sprite(shadowSprBuffer);
-			runtime.shadowAction = new Action(shadowActBuffer);
-			runtime.shadowEntity = new Entity();
-			runtime.shadowEntity.effectColor[0] = 1.0;
-			runtime.shadowEntity.effectColor[1] = 1.0;
-			runtime.shadowEntity.effectColor[2] = 1.0;
-			runtime.shadowEntity.effectColor[3] = 1.0;
-		} catch (_e) {
-			runtime.shadowSprite = null;
-			runtime.shadowAction = null;
-			runtime.shadowEntity = null;
-		}
+	if (shadowSprData && shadowSprData.frames && shadowActData && shadowActData.actions) {
+		runtime.shadowSprite = shadowSprData;
+		runtime.shadowAction = shadowActData;
+		runtime.shadowEntity = new Entity();
+		runtime.shadowEntity.effectColor[0] = 1.0;
+		runtime.shadowEntity.effectColor[1] = 1.0;
+		runtime.shadowEntity.effectColor[2] = 1.0;
+		runtime.shadowEntity.effectColor[3] = 1.0;
 	}
 
 	return runtime;
@@ -840,7 +844,7 @@ function loadMonsterSpritePreview(root, result) {
 			return;
 		}
 
-		let basePath = candidates[index++];
+		const basePath = candidates[index++];
 		let sprPath = basePath;
 		let actPath = basePath;
 		if (!/\.spr$/i.test(sprPath) && !/\.act$/i.test(sprPath)) {
@@ -851,29 +855,38 @@ function loadMonsterSpritePreview(root, result) {
 			actPath = actPath.replace(/\.spr$/i, '.act');
 		}
 
-		FileManager.get(sprPath, sprBuffer => {
-			if (!sprBuffer || !(sprBuffer instanceof ArrayBuffer)) {
-				tryNextSprite();
-				return;
-			}
-
-			FileManager.get(actPath, actBuffer => {
-				if (!actBuffer || !(actBuffer instanceof ArrayBuffer)) {
+		Client.loadFile(
+			sprPath,
+			sprData => {
+				if (!sprData || !sprData.frames) {
 					tryNextSprite();
 					return;
 				}
 
-				loadPreviewShadowBuffers((shadowSprBuffer, shadowActBuffer) => {
-					try {
-						const runtime = buildMonsterPreviewRuntime(sprBuffer, actBuffer, shadowSprBuffer, shadowActBuffer);
-						_monsterPreviewRuntimeCache[cacheKey] = runtime;
-						startAnimatedMonsterPreview(root, runtime);
-					} catch (_e) {
-						tryNextSprite();
-					}
-				});
-			});
-		});
+				Client.loadFile(
+					actPath,
+					actData => {
+						if (!actData || !actData.actions) {
+							tryNextSprite();
+							return;
+						}
+
+						loadPreviewShadowBuffers((shadowSprData, shadowActData) => {
+							try {
+								const runtime = buildMonsterPreviewRuntime(sprData, actData, shadowSprData, shadowActData);
+								_monsterPreviewRuntimeCache[cacheKey] = runtime;
+								startAnimatedMonsterPreview(root, runtime);
+							} catch (_e) {
+								tryNextSprite();
+							}
+						});
+					},
+					tryNextSprite
+				);
+			},
+			tryNextSprite,
+			{ to_rgba: true }
+		);
 	};
 
 	tryNextSprite();
