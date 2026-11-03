@@ -5,32 +5,49 @@
 		<div class="right" data-background="basic_interface/titlebar_right.bmp"></div>
 		<div class="title">Navigation</div>
 		<ui-button
+			class="restore"
+			bg="basic_interface/sys_mini_off.bmp"
+			hover="basic_interface/sys_mini_on.bmp"
+		></ui-button>
+		<ui-button
 			class="close"
 			bg="basic_interface/sys_close_off.bmp"
 			hover="basic_interface/sys_close_on.bmp"
 		></ui-button>
 	</div>
+	<div class="mini-content">
+		<div class="mini-current"></div>
+		<div class="mini-target"></div>
+	</div>
 	<div class="content">
 		<div class="search-container">
 			<select class="search-type">
-				<option value="ALL">ALL</option>
-				<option value="NPC">NPC</option>
-				<option value="MOB">MOB</option>
+				<option value="ALL">all</option>
+				<option value="NPC">npc</option>
+				<option value="MOB">mob</option>
+				<option value="MAP">map</option>
 			</select>
 			<div class="search-left" data-background="basic_interface/txtbox_l.bmp"></div>
 			<div class="search-middle" data-background="basic_interface/txtbox_m.bmp"></div>
 			<div class="search-right" data-background="basic_interface/txtbox_r.bmp"></div>
-			<input type="text" class="search-input" placeholder="Search..." />
+			<input type="text" class="search-input" />
 			<ui-button
 				class="search-button"
-				bg="navigation_interface/navisearch_a.bmp"
-				hover="navigation_interface/navisearch_b.bmp"
-				down="navigation_interface/navisearch_c.bmp"
+				bg="navigation_interface3/btn_searchbar_normal.bmp"
+				hover="navigation_interface3/btn_searchbar_over.bmp"
+				down="navigation_interface3/btn_searchbar_press.bmp"
+			></ui-button>
+			<ui-button
+				class="folder-button"
+				bg="navigation_interface3/btn_navidata_open_normal.bmp"
+				hover="navigation_interface3/btn_navidata_open_over.bmp"
+				down="navigation_interface3/btn_navidata_open_press.bmp"
 			></ui-button>
 		</div>
+
 		<div class="map-container">
 			<div class="services-toggle-container">
-				<label class="services-checkbox"> <input type="checkbox" class="services-toggle" /> Services </label>
+				<label class="services-checkbox" title="Allow transport/service routes such as airship, boat, Kafra, town guide, and similar NPC services."> <input type="checkbox" class="services-toggle" /> Services </label>
 			</div>
 			<div class="location-title"></div>
 			<div class="map-display">
@@ -46,8 +63,76 @@
 				disabled
 			></ui-button>
 		</div>
+
+		<div class="result-view">
+			<div class="result-header">
+				<span class="search-icon official-search-result-icon"></span>
+				<span class="result-count">Search result[0]</span>
+				<span class="selected-result-link"></span>
+			</div>
+			<div class="result-body">
+				<div class="result-left-panel">
+					<ul class="results-list"></ul>
+				</div>
+				<div class="result-right-panel">
+					<div class="result-detail-panel">
+						<div class="detail-empty">Search for a monster, NPC, or map.</div>
+						<div class="detail-content">
+							<div class="detail-title-row">
+								<span class="detail-type-badge"></span>
+								<span class="detail-name"></span>
+							</div>
+							<div class="detail-main">
+								<div class="detail-text"></div>
+								<div class="detail-preview">
+									<div class="detail-sprite-wrap">
+										<canvas class="detail-sprite-canvas" width="58" height="58"></canvas>
+										<div class="detail-sprite-fallback"></div>
+									</div>
+									<div class="detail-map-preview"><img class="detail-map-preview-img" alt="" /></div>
+								</div>
+							</div>
+							<div class="detail-map-list"></div>
+						</div>
+					</div>
+					<div class="result-action-row">
+						<label class="result-services-checkbox" title="Allow transport/service routes such as airship, boat, Kafra, town guide, and similar NPC services."> <input type="checkbox" class="services-toggle" /> service </label>
+						<ui-button
+							class="nav-action share-action"
+							bg="navigation_interface3/btn_share_normal.bmp"
+							hover="navigation_interface3/btn_share_over.bmp"
+							down="navigation_interface3/btn_share_press.bmp"
+						></ui-button>
+						<ui-button
+							class="nav-action find-action"
+							bg="navigation_interface3/btn_find_normal.bmp"
+							hover="navigation_interface3/btn_find_over.bmp"
+							down="navigation_interface3/btn_find_press.bmp"
+						></ui-button>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 	<div class="footer">
+		<label class="minimize-toggle-label">
+			<input type="checkbox" class="minimize-toggle" />
+			<span>Minimize</span>
+		</label>
+		<div class="footer-actions">
+			<ui-button
+				class="footer-detaillist-button"
+				bg="navigation_interface3/btn_detaillist_normal.bmp"
+				hover="navigation_interface3/btn_detaillist_over.bmp"
+				down="navigation_interface3/btn_detaillist_press.bmp"
+			></ui-button>
+			<ui-button
+				class="footer-roadicon-button"
+				bg="navigation_interface3/btn_roadiocn_select1_normal.bmp"
+				hover="navigation_interface3/btn_roadiocn_select1_over.bmp"
+				down="navigation_interface3/btn_roadiocn_select1_press.bmp"
+			></ui-button>
+		</div>
 		<div class="coordinates-bar">
 			<div class="map-name"></div>
 			<div class="mouse-info">
@@ -59,5 +144,63 @@
 				<span class="target-coordinates"></span>
 			</div>
 		</div>
+	</div>
+	<div class="roadicon-selector">
+		<ui-button
+			class="roadicon-choice roadicon-choice-1 selected"
+			data-roadicon-index="1"
+			bg="navigation_interface3/btn_roadiocn_select1_normal.bmp"
+			hover="navigation_interface3/btn_roadiocn_select1_over.bmp"
+			down="navigation_interface3/btn_roadiocn_select1_press.bmp"
+		></ui-button>
+		<ui-button
+			class="roadicon-choice roadicon-choice-2"
+			data-roadicon-index="2"
+			bg="navigation_interface3/btn_roadiocn_select2_normal.bmp"
+			hover="navigation_interface3/btn_roadiocn_select2_over.bmp"
+			down="navigation_interface3/btn_roadiocn_select2_press.bmp"
+		></ui-button>
+		<ui-button
+			class="roadicon-choice roadicon-choice-3"
+			data-roadicon-index="3"
+			bg="navigation_interface3/btn_roadiocn_select3_normal.bmp"
+			hover="navigation_interface3/btn_roadiocn_select3_over.bmp"
+			down="navigation_interface3/btn_roadiocn_select3_press.bmp"
+		></ui-button>
+		<ui-button
+			class="roadicon-choice roadicon-choice-4"
+			data-roadicon-index="4"
+			bg="navigation_interface3/btn_roadiocn_select4_normal.bmp"
+			hover="navigation_interface3/btn_roadiocn_select4_over.bmp"
+			down="navigation_interface3/btn_roadiocn_select4_press.bmp"
+		></ui-button>
+		<ui-button
+			class="roadicon-choice roadicon-choice-5"
+			data-roadicon-index="5"
+			bg="navigation_interface3/btn_roadiocn_select5_normal.bmp"
+			hover="navigation_interface3/btn_roadiocn_select5_over.bmp"
+			down="navigation_interface3/btn_roadiocn_select5_press.bmp"
+		></ui-button>
+		<ui-button
+			class="roadicon-choice roadicon-choice-6"
+			data-roadicon-index="6"
+			bg="navigation_interface3/btn_roadiocn_select6_normal.bmp"
+			hover="navigation_interface3/btn_roadiocn_select6_over.bmp"
+			down="navigation_interface3/btn_roadiocn_select6_press.bmp"
+		></ui-button>
+		<ui-button
+			class="roadicon-choice roadicon-choice-7"
+			data-roadicon-index="7"
+			bg="navigation_interface3/btn_roadiocn_select7_normal.bmp"
+			hover="navigation_interface3/btn_roadiocn_select7_over.bmp"
+			down="navigation_interface3/btn_roadiocn_select7_press.bmp"
+		></ui-button>
+		<ui-button
+			class="roadicon-choice roadicon-choice-8"
+			data-roadicon-index="8"
+			bg="navigation_interface3/btn_roadiocn_select8_normal.bmp"
+			hover="navigation_interface3/btn_roadiocn_select8_over.bmp"
+			down="navigation_interface3/btn_roadiocn_select8_press.bmp"
+		></ui-button>
 	</div>
 </div>

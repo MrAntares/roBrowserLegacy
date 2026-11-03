@@ -4,8 +4,15 @@
 }
 
 .Navigation {
+	position: relative;
+	--nav-scroll-up: none;
+	--nav-scroll-mid: none;
+	--nav-scroll-down: none;
+	--nav-bar-up: none;
+	--nav-bar-mid: none;
+	--nav-bar-down: none;
 	width: 300px;
-	height: 324px;
+	height: 320px;
 	z-index: 50;
 	background-repeat: repeat-y;
 	background-color: transparent;
@@ -73,7 +80,7 @@
 
 .Navigation .content {
 	width: 100%;
-	height: calc(100% - 17px);
+	height: calc(100% - 37px);
 	position: relative;
 	display: flex;
 	flex-direction: column;
@@ -216,22 +223,6 @@
 	box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
 }
 
-.Navigation .airship-bar {
-	width: 100%;
-	height: 24px;
-	display: flex;
-	justify-content: center;
-	align-items: flex-start;
-	background-color: #f7f7f7;
-}
-
-.Navigation .airship-move {
-	width: 120px;
-	height: 20px;
-	background-repeat: no-repeat;
-	cursor: pointer;
-}
-
 .Navigation .footer {
 	width: 100%;
 	position: relative;
@@ -304,13 +295,14 @@
 	top: 30px;
 	left: 10px;
 	right: 10px;
-	max-height: 200px;
+	max-height: 205px;
 	background-color: #fff;
-	border: 1px solid #ccc;
-	z-index: 100;
+	border: 1px solid #8d8d8d;
+	z-index: 1000;
 	overflow-y: auto;
 	display: none;
-	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+	box-sizing: border-box;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.35);
 }
 
 .Navigation .no-results {
@@ -356,6 +348,10 @@
 	color: #cc0000;
 }
 
+.Navigation .map_icon {
+	color: #008800;
+}
+
 .Navigation .result-name {
 	flex: 1;
 	white-space: nowrap;
@@ -366,4 +362,2935 @@
 .Navigation .result-map {
 	color: #666;
 	margin-left: 5px;
+}
+
+/* Minimized official-style navigation panel */
+.Navigation .titlebar .minimize {
+	position: absolute;
+	top: 2px;
+	right: 17px;
+	width: 13px;
+	height: 13px;
+	background-repeat: no-repeat;
+	background-color: transparent;
+	border: none;
+	cursor: pointer;
+}
+
+.Navigation .mini-content {
+	display: none;
+}
+
+.Navigation.minimized {
+	width: 155px;
+	height: auto;
+	background: rgba(245, 245, 245, 0.72);
+	border: 1px solid rgba(80, 80, 80, 0.35);
+	box-sizing: border-box;
+}
+
+.Navigation.minimized .titlebar {
+	height: 17px;
+}
+
+.Navigation.minimized .titlebar .left,
+.Navigation.minimized .titlebar .center,
+.Navigation.minimized .titlebar .right {
+	opacity: 0.65;
+}
+
+.Navigation.minimized .titlebar .title {
+	left: 5px;
+	right: 32px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.Navigation.minimized .content,
+.Navigation.minimized .footer {
+	display: none;
+}
+
+.Navigation.minimized .mini-content {
+	display: block;
+	min-height: 32px;
+	padding: 1px 4px 3px 10px;
+	background: rgba(245, 245, 245, 0.72);
+	box-sizing: border-box;
+	font-size: 11px;
+	line-height: 14px;
+	color: #000;
+	text-shadow: 1px 1px rgba(255, 255, 255, 0.85);
+}
+
+.Navigation.minimized .mini-current,
+.Navigation.minimized .mini-target {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.Navigation.minimized .mini-current::before {
+	content: '';
+	position: absolute;
+	width: 7px;
+	height: 7px;
+	margin-left: -9px;
+	margin-top: 3px;
+	border: 1px solid #2f80ff;
+	border-radius: 50%;
+	background: rgba(115, 185, 255, 0.6);
+}
+
+.Navigation.minimized .mini-target {
+	font-weight: bold;
+}
+
+.Navigation.minimized .mini-current {
+	position: relative;
+}
+
+/* Official-style full-window Minimize checkbox. The checkbox reduces the
+ * window to the small status panel, but keeps the active route and footsteps. */
+.Navigation .titlebar .restore {
+	position: absolute;
+	top: 2px;
+	right: 17px;
+	width: 13px;
+	height: 13px;
+	background-repeat: no-repeat;
+	background-color: transparent;
+	border: none;
+	cursor: pointer;
+	display: none;
+}
+
+.Navigation .footer {
+	height: 20px;
+}
+
+.Navigation .minimize-toggle-label {
+	position: absolute;
+	left: 4px;
+	top: 1px;
+	height: 18px;
+	line-height: 18px;
+	display: flex;
+	align-items: center;
+	gap: 2px;
+	font-size: 11px;
+	color: #000;
+	white-space: nowrap;
+	z-index: 2;
+}
+
+.Navigation .minimize-toggle-label input {
+	margin: 0 2px 0 0;
+	width: 12px;
+	height: 12px;
+}
+
+.Navigation .coordinates-bar {
+	position: absolute;
+	left: 82px;
+	right: 4px;
+	width: auto;
+	padding: 1px 2px;
+}
+
+.Navigation.minimized .titlebar .restore {
+	display: block;
+}
+
+.Navigation.minimized .titlebar .close {
+	display: block;
+}
+
+.Navigation.minimized .titlebar .title {
+	right: 32px;
+}
+
+.Navigation.minimized .mini-content {
+	border-left: 1px solid rgba(80, 80, 80, 0.35);
+	border-right: 1px solid rgba(80, 80, 80, 0.35);
+	border-bottom: 1px solid rgba(80, 80, 80, 0.35);
+}
+
+.Navigation.minimized .mini-current::before {
+	content: '◆';
+	position: absolute;
+	margin-left: -10px;
+	margin-top: 0px;
+	width: auto;
+	height: auto;
+	border: none;
+	border-radius: 0;
+	background: transparent;
+	color: #2f80ff;
+	font-size: 9px;
+	line-height: 14px;
+}
+
+.Navigation.minimized .mini-target::before {
+	content: '>';
+	margin-right: 1px;
+	font-weight: bold;
+}
+
+/* Official-style result/detail Navigation view */
+.Navigation.has-results {
+	width: 300px;
+	height: 365px;
+}
+
+.Navigation.has-results .content {
+	height: calc(100% - 37px);
+}
+
+.Navigation .folder-button {
+	position: absolute;
+	top: 6px;
+	right: 4px;
+	width: 25px;
+	height: 20px;
+	background-repeat: no-repeat;
+	background-color: transparent;
+	border: none;
+	cursor: pointer;
+}
+
+.Navigation .folder-button + * {
+	display: none;
+}
+
+.Navigation .search-button {
+	right: 32px;
+}
+
+.Navigation .search-middle {
+	right: 65px;
+}
+
+.Navigation .search-right {
+	right: 62px;
+}
+
+.Navigation .search-input {
+	right: 65px;
+	font-size: 12px;
+}
+
+.Navigation .result-view {
+	display: none;
+	flex: 1;
+	min-height: 0;
+	background: #f7f7f7;
+	border-top: 1px solid #b9b9b9;
+	box-sizing: border-box;
+	flex-direction: column;
+	font-size: 11px;
+	color: #000;
+}
+
+.Navigation.has-results .map-container {
+	display: none;
+}
+
+.Navigation.has-results .result-view {
+	display: flex;
+}
+
+.Navigation .result-header {
+	height: 18px;
+	line-height: 18px;
+	padding: 0 3px;
+	box-sizing: border-box;
+	white-space: nowrap;
+	border-bottom: 1px solid #d0d0d0;
+}
+
+.Navigation .search-icon {
+	font-size: 13px;
+	margin-right: 2px;
+}
+
+.Navigation .result-body {
+	flex: 1;
+	min-height: 0;
+	display: flex;
+	border-bottom: 1px solid #d0d0d0;
+}
+
+.Navigation .result-left-panel {
+	width: 132px;
+	border-right: 1px solid #c6c6c6;
+	background: #fff;
+	overflow-y: auto;
+	overflow-x: hidden;
+}
+
+.Navigation .result-view .results-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.Navigation .result-view .result-item {
+	display: flex;
+	align-items: center;
+	height: 17px;
+	line-height: 17px;
+	padding: 0 2px;
+	border: none;
+	cursor: pointer;
+	white-space: nowrap;
+	overflow: hidden;
+	font-size: 11px;
+}
+
+.Navigation .result-view .result-item:hover,
+.Navigation .result-view .result-item.selected {
+	background: #dfe8ff;
+}
+
+.Navigation .result-view .result-type {
+	width: auto;
+	min-width: 17px;
+	margin-right: 1px;
+	font-weight: bold;
+	font-size: 11px;
+}
+
+.Navigation .result-view .mob_icon,
+.Navigation .detail-type-badge.mob_icon,
+.Navigation .spawn-type.mob_icon {
+	color: #e00000;
+}
+
+.Navigation .result-view .npc_icon,
+.Navigation .detail-type-badge.npc_icon,
+.Navigation .spawn-type.npc_icon {
+	color: #1155dd;
+}
+
+.Navigation .result-view .map_icon,
+.Navigation .detail-type-badge.map_icon,
+.Navigation .spawn-type.map_icon {
+	color: #008000;
+}
+
+.Navigation .result-view .result-name {
+	flex: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.Navigation .result-view .result-map {
+	display: none;
+}
+
+.Navigation .result-detail-panel {
+	flex: 1;
+	position: relative;
+	background: #f7f7f7;
+	min-width: 0;
+	overflow: hidden;
+}
+
+.Navigation .detail-empty {
+	padding: 8px;
+	color: #777;
+	line-height: 15px;
+}
+
+.Navigation .detail-content {
+	display: none;
+	height: 100%;
+	box-sizing: border-box;
+	padding: 2px 3px;
+}
+
+.Navigation .result-detail-panel.has-selection .detail-empty {
+	display: none;
+}
+
+.Navigation .result-detail-panel.has-selection .detail-content {
+	display: block;
+}
+
+.Navigation .detail-title-row {
+	height: 17px;
+	line-height: 17px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	color: #0033cc;
+}
+
+.Navigation .detail-type-badge {
+	font-weight: bold;
+	margin-right: 2px;
+}
+
+.Navigation .detail-name {
+	font-weight: bold;
+}
+
+.Navigation .detail-main {
+	display: flex;
+	min-height: 62px;
+}
+
+.Navigation .detail-text {
+	flex: 1;
+	line-height: 14px;
+	color: #3333cc;
+	white-space: pre-line;
+	min-width: 0;
+}
+
+.Navigation .detail-preview {
+	width: 58px;
+	min-width: 58px;
+	text-align: center;
+	padding-top: 1px;
+	box-sizing: border-box;
+}
+
+.Navigation .detail-sprite-label {
+	height: 19px;
+	line-height: 19px;
+	font-size: 10px;
+	color: #555;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.Navigation .detail-map-preview {
+	width: 46px;
+	height: 46px;
+	margin: 0 auto;
+	border: 1px solid #666;
+	background: #000;
+	overflow: hidden;
+}
+
+.Navigation .detail-map-preview-img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.Navigation .detail-map-list {
+	position: absolute;
+	left: 3px;
+	right: 3px;
+	bottom: 3px;
+	top: 88px;
+	background: #fff;
+	border: 1px solid #c7c7c7;
+	overflow-y: auto;
+	overflow-x: hidden;
+}
+
+.Navigation .spawn-row {
+	height: 17px;
+	line-height: 17px;
+	padding: 0 2px;
+	box-sizing: border-box;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	cursor: pointer;
+}
+
+.Navigation .spawn-row:hover,
+.Navigation .spawn-row.selected {
+	background: #e4ecff;
+}
+
+.Navigation .spawn-type {
+	font-weight: bold;
+	margin-right: 1px;
+}
+
+.Navigation .spawn-rate {
+	color: #333;
+}
+
+.Navigation .result-action-row {
+	height: 52px;
+	padding: 2px 4px;
+	box-sizing: border-box;
+	position: relative;
+}
+
+.Navigation .result-services-checkbox {
+	position: absolute;
+	left: 5px;
+	top: 4px;
+	height: 16px;
+	line-height: 16px;
+	font-size: 11px;
+	color: #000;
+}
+
+.Navigation .result-services-checkbox input {
+	vertical-align: middle;
+	margin: 0 2px 0 0;
+}
+
+.Navigation .nav-action,
+.Navigation .move-action {
+	position: absolute;
+	height: 20px;
+	font-size: 11px;
+	line-height: 16px;
+	padding: 0 5px;
+	border: 1px solid #9e9e9e;
+	background: linear-gradient(#fff, #dedede);
+	border-radius: 2px;
+	color: #254fa4;
+	cursor: pointer;
+}
+
+.Navigation .share-action {
+	left: 74px;
+	top: 4px;
+	width: 58px;
+}
+
+.Navigation .find-action {
+	right: 4px;
+	top: 4px;
+	width: 58px;
+}
+
+.Navigation .move-action {
+	left: 145px;
+	right: 4px;
+	bottom: 4px;
+	width: auto;
+	font-weight: bold;
+	font-size: 12px;
+	color: #3333cc;
+}
+
+.Navigation .no-results {
+	padding: 6px;
+	text-align: left;
+	color: #666;
+	font-size: 11px;
+}
+
+/* -------------------------------------------------------------------------
+ * Official Ragnarok/rAthena-style Navigation search result panel polish.
+ * The layout intentionally follows the old client: result list on the left,
+ * detail pane on the right, small [M]/[N]/[MAP] badges, compact action row.
+ * GRF icons are applied at runtime when available; CSS badges remain fallback.
+ * ------------------------------------------------------------------------- */
+.Navigation.has-results {
+	width: 300px;
+	height: 360px;
+}
+
+.Navigation.has-results .content {
+	height: calc(100% - 37px);
+	background: #f4f4f4;
+}
+
+.Navigation.has-results .search-container {
+	height: 27px;
+	padding: 3px 5px;
+}
+
+.Navigation.has-results .search-type {
+	left: 0;
+	top: 0;
+	width: 49px;
+	height: 20px;
+	font-size: 12px;
+}
+
+.Navigation.has-results .search-left {
+	left: 57px;
+	top: 4px;
+}
+
+.Navigation.has-results .search-middle {
+	left: 60px;
+	right: 37px;
+	top: 4px;
+}
+
+.Navigation.has-results .search-right {
+	right: 34px;
+	top: 4px;
+}
+
+.Navigation.has-results .search-input {
+	left: 60px;
+	right: 37px;
+	top: 4px;
+	height: 19px;
+	font-size: 12px;
+}
+
+.Navigation.has-results .search-button {
+	right: 4px;
+	top: 4px;
+	width: 33px;
+	height: 20px;
+}
+
+.Navigation.has-results .folder-button {
+	display: none;
+}
+
+.Navigation .result-view {
+	border-top: none;
+	background: #f4f4f4;
+	font-size: 11px;
+}
+
+.Navigation .result-header {
+	height: 18px;
+	line-height: 18px;
+	padding: 0 4px;
+	border-top: 1px solid #d7d7d7;
+	border-bottom: none;
+	background: #f4f4f4;
+	color: #000;
+}
+
+.Navigation .official-search-result-icon {
+	display: inline-block;
+	width: 12px;
+	height: 12px;
+	margin: 2px 3px 0 0;
+	vertical-align: top;
+	position: relative;
+}
+
+.Navigation .official-search-result-icon::before {
+	content: '';
+	position: absolute;
+	left: 1px;
+	top: 1px;
+	width: 7px;
+	height: 7px;
+	border: 1px solid #444;
+	border-radius: 50%;
+	background: transparent;
+}
+
+.Navigation .official-search-result-icon::after {
+	content: '';
+	position: absolute;
+	left: 8px;
+	top: 9px;
+	width: 6px;
+	height: 1px;
+	background: #444;
+	transform: rotate(45deg);
+	transform-origin: left center;
+}
+
+.Navigation .official-search-result-icon.grf-loaded::before,
+.Navigation .official-search-result-icon.grf-loaded::after,
+.Navigation .button-icon.grf-loaded::before,
+.Navigation .official-type-badge.grf-loaded .official-type-text {
+	display: none;
+}
+
+.Navigation .result-body {
+	border-top: none;
+	border-bottom: 1px solid #c5c5c5;
+}
+
+.Navigation .result-left-panel {
+	width: 136px;
+	background: #ffffff;
+	border-right: 1px solid #b9b9b9;
+}
+
+.Navigation .result-view .result-item {
+	height: 16px;
+	line-height: 16px;
+	padding: 0 2px 0 1px;
+	font-size: 11px;
+}
+
+.Navigation .result-view .result-item:hover,
+.Navigation .result-view .result-item.selected {
+	background: #dbe8ff;
+}
+
+.Navigation .official-type-badge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 13px;
+	height: 13px;
+	min-width: 13px;
+	margin-right: 1px;
+	box-sizing: border-box;
+	font-family: Arial, sans-serif;
+	font-size: 10px;
+	font-weight: bold;
+	line-height: 12px;
+	background-repeat: no-repeat;
+	background-position: center center;
+}
+
+.Navigation .official-type-badge.mob_icon {
+	border: 1px solid #b50000;
+	background-color: #ffdddd;
+	color: #e00000;
+}
+
+.Navigation .official-type-badge.npc_icon {
+	border: 1px solid #1e5bc9;
+	background-color: #e5efff;
+	color: #1155dd;
+}
+
+.Navigation .official-type-badge.map_icon {
+	border: 1px solid #007f20;
+	background-color: #e2ffe8;
+	color: #008000;
+}
+
+.Navigation .result-view .result-name {
+	font-size: 11px;
+	color: #000;
+}
+
+.Navigation .result-detail-panel {
+	background: #f4f4f4;
+}
+
+.Navigation .detail-content {
+	padding: 1px 3px 2px 4px;
+}
+
+.Navigation .detail-title-row {
+	height: 17px;
+	line-height: 17px;
+	color: #0033cc;
+	font-size: 11px;
+}
+
+.Navigation .detail-title-row .official-type-badge {
+	position: relative;
+	top: 2px;
+}
+
+.Navigation .detail-main {
+	min-height: 74px;
+	height: 74px;
+	display: flex;
+}
+
+.Navigation .detail-text {
+	font-size: 11px;
+	line-height: 14px;
+	color: #3333cc;
+	white-space: pre-line;
+	padding-left: 2px;
+}
+
+.Navigation .detail-preview {
+	width: 58px;
+	min-width: 58px;
+	padding-top: 0;
+}
+
+.Navigation .detail-sprite-wrap {
+	width: 58px;
+	height: 58px;
+	position: relative;
+	margin: 0 auto 2px auto;
+	overflow: visible;
+}
+
+.Navigation .detail-sprite-canvas {
+	width: 58px;
+	height: 58px;
+	display: block;
+}
+
+.Navigation .detail-sprite-fallback {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 58px;
+	height: 58px;
+	display: none;
+	align-items: center;
+	justify-content: center;
+	font-size: 10px;
+	color: #777;
+	text-align: center;
+}
+
+.Navigation .detail-sprite-wrap.no-sprite .detail-sprite-fallback {
+	display: flex;
+}
+
+.Navigation .detail-sprite-wrap.no-sprite .detail-sprite-canvas {
+	display: none;
+}
+
+.Navigation .detail-map-preview {
+	width: 44px;
+	height: 44px;
+	margin: 0 auto;
+	border: 1px solid #666;
+}
+
+.Navigation .detail-map-list {
+	top: 94px;
+	left: 2px;
+	right: 2px;
+	bottom: 2px;
+	border: 1px solid #c4c4c4;
+	background: #fff;
+}
+
+.Navigation .spawn-row {
+	height: 16px;
+	line-height: 16px;
+	font-size: 11px;
+	padding: 0 2px;
+}
+
+.Navigation .spawn-row .official-type-badge {
+	position: relative;
+	top: 2px;
+}
+
+.Navigation .result-action-row {
+	height: 53px;
+	background: #f4f4f4;
+	padding: 0;
+}
+
+.Navigation .result-services-checkbox {
+	left: 5px;
+	top: 2px;
+}
+
+.Navigation .nav-action,
+.Navigation .move-action {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 2px;
+	height: 18px;
+	font-size: 11px;
+	line-height: 16px;
+	padding: 0 3px;
+	border: 1px solid #9b9b9b;
+	border-radius: 2px;
+	background: linear-gradient(#ffffff, #e0e0e0);
+	box-shadow: inset 1px 1px 0 rgba(255,255,255,.8);
+	color: #244a9a;
+}
+
+.Navigation .share-action {
+	left: 70px;
+	top: 2px;
+	width: 60px;
+}
+
+.Navigation .find-action {
+	right: 4px;
+	top: 2px;
+	width: 60px;
+}
+
+.Navigation .move-action {
+	left: 142px;
+	right: 4px;
+	bottom: 3px;
+	height: 20px;
+	font-weight: normal;
+	font-size: 12px;
+	color: #3333cc;
+}
+
+.Navigation .button-icon {
+	display: inline-block;
+	width: 14px;
+	height: 14px;
+	position: relative;
+	background-repeat: no-repeat;
+	background-position: center center;
+}
+
+.Navigation .share-icon::before {
+	content: '↗';
+	position: absolute;
+	left: 1px;
+	top: -2px;
+	font-size: 14px;
+	color: #2e60cc;
+}
+
+.Navigation .find-icon::before {
+	content: '';
+	position: absolute;
+	left: 2px;
+	top: 1px;
+	width: 7px;
+	height: 7px;
+	border: 1px solid #2e60cc;
+	border-radius: 50%;
+}
+
+.Navigation .find-icon::after {
+	content: '';
+	position: absolute;
+	left: 9px;
+	top: 9px;
+	width: 5px;
+	height: 1px;
+	background: #2e60cc;
+	transform: rotate(45deg);
+}
+
+.Navigation .move-icon::before {
+	content: '✥';
+	position: absolute;
+	left: 0;
+	top: -2px;
+	font-size: 14px;
+	color: #2e60cc;
+}
+
+.Navigation.has-results .footer {
+	height: 20px;
+}
+
+.Navigation.has-results .coordinates-bar {
+	display: none;
+}
+
+/* -------------------------------------------------------------------------
+ * Final official result-panel alignment.
+ * This overrides the earlier broad styles so the window matches the classic
+ * Ragnarok Navigation pane: left result list, right detail/action column,
+ * selected name in the header, and actions only under the right pane.
+ * ------------------------------------------------------------------------- */
+.Navigation.has-results {
+	width: 300px;
+	height: 360px;
+}
+
+.Navigation.has-results .content {
+	height: calc(100% - 37px);
+	background: #f4f4f4;
+}
+
+.Navigation.has-results .search-container {
+	height: 27px;
+	padding: 3px 5px;
+}
+
+.Navigation.has-results .search-type {
+	width: 49px;
+	height: 20px;
+	font-size: 12px;
+	line-height: 16px;
+	margin-right: 4px;
+}
+
+.Navigation.has-results .search-left {
+	left: 57px;
+	top: 4px;
+}
+
+.Navigation.has-results .search-middle {
+	left: 60px;
+	right: 64px;
+	top: 4px;
+}
+
+.Navigation.has-results .search-right {
+	right: 61px;
+	top: 4px;
+}
+
+.Navigation.has-results .search-input {
+	left: 60px;
+	right: 64px;
+	top: 4px;
+	height: 19px;
+	font-size: 12px;
+	padding: 0 4px;
+}
+
+.Navigation.has-results .search-button {
+	right: 31px;
+	top: 4px;
+	width: 33px;
+	height: 20px;
+}
+
+.Navigation.has-results .folder-button {
+	display: block;
+	right: 4px;
+	top: 4px;
+	width: 25px;
+	height: 20px;
+}
+
+.Navigation .result-view {
+	position: relative;
+	flex: 1;
+	min-height: 0;
+	background: #f4f4f4;
+	border-top: none;
+	font-size: 11px;
+	line-height: 14px;
+}
+
+.Navigation .result-header {
+	position: relative;
+	flex: 0 0 18px;
+	height: 18px;
+	line-height: 18px;
+	padding: 0 4px;
+	box-sizing: border-box;
+	border-top: 1px solid #d7d7d7;
+	border-bottom: none;
+	background: #f4f4f4;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+.Navigation .selected-result-link {
+	position: absolute;
+	left: 142px;
+	top: 0;
+	right: 3px;
+	height: 18px;
+	line-height: 18px;
+	color: #0033cc;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.Navigation .result-body {
+	flex: 1;
+	min-height: 0;
+	display: flex;
+	border-top: none;
+	border-bottom: none;
+	background: #ffffff;
+}
+
+.Navigation .result-left-panel {
+	width: 139px;
+	flex: 0 0 139px;
+	height: 100%;
+	background: #ffffff;
+	border-right: 1px solid #b9b9b9;
+	overflow-y: auto;
+	overflow-x: hidden;
+	box-sizing: border-box;
+}
+
+.Navigation .result-right-panel {
+	flex: 1;
+	min-width: 0;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	background: #f4f4f4;
+	box-sizing: border-box;
+}
+
+.Navigation .result-detail-panel {
+	flex: 1;
+	min-height: 0;
+	position: relative;
+	background: #f4f4f4;
+	overflow: hidden;
+}
+
+.Navigation .detail-content {
+	position: relative;
+	display: none;
+	height: 100%;
+	box-sizing: border-box;
+	padding: 3px 3px 2px 3px;
+}
+
+.Navigation .result-detail-panel.has-selection .detail-content {
+	display: block;
+}
+
+.Navigation .detail-title-row {
+	display: none;
+}
+
+.Navigation .detail-main {
+	height: 84px;
+	min-height: 84px;
+	display: flex;
+}
+
+.Navigation .detail-text {
+	flex: 1;
+	min-width: 0;
+	padding-left: 2px;
+	padding-top: 0;
+	font-size: 11px;
+	line-height: 14px;
+	color: #3333cc;
+	white-space: pre-line;
+	overflow: hidden;
+}
+
+.Navigation .detail-preview {
+	width: 60px;
+	min-width: 60px;
+	padding-top: 0;
+	text-align: center;
+	box-sizing: border-box;
+}
+
+.Navigation .detail-sprite-wrap {
+	width: 58px;
+	height: 58px;
+	position: relative;
+	margin: 0 auto 2px auto;
+	overflow: visible;
+}
+
+.Navigation .detail-sprite-fallback {
+	font-size: 0;
+	line-height: 0;
+	color: transparent;
+}
+
+.Navigation .detail-map-preview {
+	width: 44px;
+	height: 44px;
+	margin: 0 auto;
+	border: 1px solid #666;
+	background: #000;
+	overflow: hidden;
+}
+
+.Navigation .detail-map-list {
+	position: absolute;
+	left: 3px;
+	right: 3px;
+	top: 88px;
+	bottom: 3px;
+	background: #ffffff;
+	border: 1px solid #c4c4c4;
+	overflow-y: auto;
+	overflow-x: hidden;
+	box-sizing: border-box;
+}
+
+.Navigation .spawn-row {
+	height: 16px;
+	line-height: 16px;
+	font-size: 11px;
+	padding: 0 2px;
+	box-sizing: border-box;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.Navigation .result-action-row {
+	position: relative;
+	flex: 0 0 61px;
+	height: 61px;
+	padding: 0;
+	box-sizing: border-box;
+	background: #f4f4f4;
+	border-top: 1px solid #c9c9c9;
+}
+
+.Navigation .result-services-checkbox {
+	position: absolute;
+	left: 4px;
+	top: 3px;
+	height: 16px;
+	line-height: 16px;
+	font-size: 11px;
+	color: #000;
+}
+
+.Navigation .result-services-checkbox input {
+	vertical-align: middle;
+	margin: 0 2px 0 0;
+}
+
+.Navigation .nav-action,
+.Navigation .move-action {
+	position: absolute;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 2px;
+	height: 18px;
+	font-size: 11px;
+	line-height: 16px;
+	padding: 0 3px;
+	border: 1px solid #9b9b9b;
+	border-radius: 2px;
+	background: linear-gradient(#ffffff, #e0e0e0);
+	box-shadow: inset 1px 1px 0 rgba(255,255,255,.8);
+	color: #244a9a;
+	cursor: pointer;
+	box-sizing: border-box;
+}
+
+.Navigation .share-action {
+	left: 4px;
+	top: 22px;
+	width: 59px;
+}
+
+.Navigation .find-action {
+	right: 4px;
+	top: 22px;
+	width: 59px;
+}
+
+.Navigation .move-action {
+	left: 3px;
+	right: 3px;
+	top: auto;
+	bottom: 3px;
+	width: auto;
+	height: 20px;
+	font-weight: normal;
+	font-size: 12px;
+	color: #3333cc;
+}
+
+.Navigation.has-results .footer {
+	height: 20px;
+}
+
+.Navigation.has-results .coordinates-bar {
+	display: none;
+}
+
+
+/* -------------------------------------------------------------------------
+ * Result-panel final fix: keep the small map preview above the spawn list
+ * and keep enough room for the monster sprite + map thumbnail. This prevents
+ * the map thumbnail from underlapping/being covered by the spawn list.
+ * ------------------------------------------------------------------------- */
+.Navigation.has-results {
+	width: 300px;
+	height: 360px;
+}
+
+.Navigation .detail-main {
+	height: 112px;
+	min-height: 112px;
+	display: flex;
+}
+
+.Navigation .detail-preview {
+	width: 62px;
+	min-width: 62px;
+	padding-top: 0;
+	text-align: center;
+	box-sizing: border-box;
+}
+
+.Navigation .detail-sprite-wrap {
+	width: 58px;
+	height: 58px;
+	position: relative;
+	margin: 0 auto 3px auto;
+	overflow: visible;
+}
+
+.Navigation .detail-sprite-canvas {
+	width: 58px;
+	height: 58px;
+	display: block;
+}
+
+.Navigation .detail-map-preview {
+	width: 44px;
+	height: 44px;
+	margin: 0 auto;
+	border: 1px solid #666;
+	background: #000;
+	overflow: hidden;
+	box-sizing: border-box;
+}
+
+.Navigation .detail-map-list {
+	top: 116px;
+	left: 3px;
+	right: 3px;
+	bottom: 3px;
+	z-index: 1;
+}
+
+.Navigation .detail-map-preview {
+	position: relative;
+	z-index: 2;
+}
+
+.Navigation .detail-text {
+	padding-top: 1px;
+}
+
+
+/* --- official minimize + badge cleanup overrides --- */
+.Navigation {
+	overflow: hidden;
+}
+
+.Navigation.minimized {
+	width: 158px !important;
+	height: auto !important;
+	background: rgba(246, 246, 246, 0.82) !important;
+	border: 1px solid rgba(85, 85, 85, 0.45) !important;
+	box-sizing: border-box !important;
+}
+
+.Navigation.minimized .titlebar {
+	width: 100% !important;
+}
+
+.Navigation.minimized .mini-content {
+	display: block !important;
+	min-height: 32px !important;
+	padding: 2px 4px 4px 10px !important;
+	background: rgba(246, 246, 246, 0.82) !important;
+	border-top: none !important;
+	box-sizing: border-box !important;
+}
+
+.Navigation.minimized .mini-current,
+.Navigation.minimized .mini-target {
+	font-size: 11px;
+	line-height: 14px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.Navigation.minimized .mini-current::before {
+	content: '◆' !important;
+	position: absolute;
+	margin-left: -10px;
+	margin-top: 0;
+	width: auto;
+	height: auto;
+	border: none;
+	background: transparent;
+	color: #2b73d6;
+	font-size: 9px;
+	line-height: 14px;
+}
+
+.Navigation.minimized .mini-target::before {
+	content: '>' !important;
+	margin-right: 1px;
+	font-weight: bold;
+}
+
+.Navigation .official-type-badge {
+	width: 13px;
+	height: 13px;
+	min-width: 13px;
+	font-size: 10px;
+	line-height: 11px;
+}
+
+.Navigation .official-type-badge.mob_icon {
+	border-color: #b70000 !important;
+	background-color: #ffdede !important;
+	color: #d60000 !important;
+}
+
+.Navigation .official-type-badge.npc_icon {
+	border-color: #69a6ff !important;
+	background-color: #e9f3ff !important;
+	color: #5fa6ff !important;
+}
+
+.Navigation .official-type-badge.map_icon {
+	border-color: #0f8d25 !important;
+	background-color: #e5ffe8 !important;
+	color: #1a9c35 !important;
+}
+
+.Navigation .result-view .npc_icon,
+.Navigation .detail-type-badge.npc_icon,
+.Navigation .spawn-type.npc_icon {
+	color: #5fa6ff !important;
+}
+
+.Navigation .result-view .map_icon,
+.Navigation .detail-type-badge.map_icon,
+.Navigation .spawn-type.map_icon {
+	color: #1a9c35 !important;
+}
+
+.Navigation .result-action-row .nav-action,
+.Navigation .result-action-row .move-action {
+	border: none !important;
+	box-shadow: none !important;
+	background-color: transparent !important;
+}
+
+
+/* --- Navigation final runtime fixes --- */
+.Navigation {
+	width: 300px !important;
+	height: 320px !important;
+	overflow: hidden;
+}
+
+.Navigation.has-results {
+	width: 300px !important;
+	height: 360px !important;
+}
+
+.Navigation .content,
+.Navigation.has-results .content {
+	height: calc(100% - 37px) !important;
+}
+
+.Navigation.minimized {
+	width: 158px !important;
+	height: auto !important;
+}
+
+.Navigation .official-type-badge.grf-loaded .official-type-text {
+	display: none !important;
+}
+
+.Navigation .official-type-badge.mob_icon,
+.Navigation .official-type-badge.mob_icon .official-type-text {
+	border-color: #b70000 !important;
+	background-color: #ffdede !important;
+	color: #d60000 !important;
+}
+
+.Navigation .official-type-badge.npc_icon,
+.Navigation .official-type-badge.npc_icon .official-type-text {
+	border-color: #69a6ff !important;
+	background-color: #e9f3ff !important;
+	color: #5fa6ff !important;
+}
+
+.Navigation .official-type-badge.map_icon,
+.Navigation .official-type-badge.map_icon .official-type-text {
+	border-color: #0f8d25 !important;
+	background-color: #e5ffe8 !important;
+	color: #1a9c35 !important;
+}
+
+.Navigation .detail-main {
+	height: 112px !important;
+	min-height: 112px !important;
+}
+
+.Navigation .detail-map-list {
+	top: 116px !important;
+}
+
+/* --- Official compact Navigation result window override --- */
+.Navigation.has-results {
+	width: 270px !important;
+	height: 336px !important;
+	background: #f4f4f4 !important;
+}
+
+.Navigation.has-results .content {
+	height: calc(100% - 37px) !important;
+	background: #f4f4f4 !important;
+	border-left: 1px solid #b8b8b8 !important;
+	border-right: 1px solid #b8b8b8 !important;
+	border-bottom: none !important;
+}
+
+.Navigation.has-results .search-container {
+	height: 27px !important;
+	padding: 3px 4px !important;
+	background: #f4f4f4 !important;
+	box-sizing: border-box !important;
+}
+
+.Navigation.has-results .search-type {
+	position: relative !important;
+	left: 0 !important;
+	top: 0 !important;
+	width: 54px !important;
+	height: 20px !important;
+	margin: 0 3px 0 0 !important;
+	font-size: 11px !important;
+	line-height: 18px !important;
+	padding: 0 0 0 4px !important;
+	border: 1px solid #b8b8b8 !important;
+	background: #ffffff !important;
+	color: #000 !important;
+	text-transform: lowercase !important;
+	box-sizing: border-box !important;
+}
+
+.Navigation.has-results .search-left {
+	left: 58px !important;
+	top: 4px !important;
+	height: 20px !important;
+}
+
+.Navigation.has-results .search-middle {
+	left: 61px !important;
+	right: 62px !important;
+	top: 4px !important;
+	height: 20px !important;
+}
+
+.Navigation.has-results .search-right {
+	right: 59px !important;
+	top: 4px !important;
+	height: 20px !important;
+}
+
+.Navigation.has-results .search-input {
+	left: 61px !important;
+	right: 62px !important;
+	top: 4px !important;
+	height: 19px !important;
+	padding: 0 4px !important;
+	font-size: 11px !important;
+	line-height: 19px !important;
+	box-sizing: border-box !important;
+}
+
+.Navigation.has-results .search-button {
+	right: 30px !important;
+	top: 4px !important;
+	width: 28px !important;
+	height: 20px !important;
+}
+
+.Navigation.has-results .folder-button {
+	display: block !important;
+	right: 3px !important;
+	top: 4px !important;
+	width: 26px !important;
+	height: 20px !important;
+}
+
+.Navigation.has-results .result-view {
+	position: relative !important;
+	flex: 1 1 auto !important;
+	min-height: 0 !important;
+	background: #f4f4f4 !important;
+	border: none !important;
+	font-size: 11px !important;
+	line-height: 14px !important;
+}
+
+.Navigation.has-results .result-header {
+	position: relative !important;
+	flex: 0 0 18px !important;
+	height: 18px !important;
+	line-height: 18px !important;
+	padding: 0 3px !important;
+	background: #f4f4f4 !important;
+	border-top: none !important;
+	border-bottom: none !important;
+	box-sizing: border-box !important;
+}
+
+.Navigation.has-results .official-search-result-icon {
+	width: 12px !important;
+	height: 12px !important;
+	margin: 2px 2px 0 0 !important;
+}
+
+.Navigation.has-results .selected-result-link {
+	left: 139px !important;
+	right: 2px !important;
+	font-size: 11px !important;
+	color: #0033cc !important;
+}
+
+.Navigation.has-results .result-body {
+	flex: 1 1 auto !important;
+	min-height: 0 !important;
+	display: flex !important;
+	background: #ffffff !important;
+	border-top: none !important;
+	border-bottom: 1px solid #c7c7c7 !important;
+}
+
+.Navigation.has-results .result-left-panel {
+	width: 138px !important;
+	flex: 0 0 138px !important;
+	height: 100% !important;
+	background: #ffffff !important;
+	border-right: 1px solid #b6b6b6 !important;
+	box-sizing: border-box !important;
+	overflow-y: auto !important;
+	overflow-x: hidden !important;
+}
+
+.Navigation.has-results .result-right-panel {
+	flex: 1 1 auto !important;
+	min-width: 0 !important;
+	height: 100% !important;
+	display: flex !important;
+	flex-direction: column !important;
+	background: #f4f4f4 !important;
+	box-sizing: border-box !important;
+}
+
+.Navigation.has-results .result-view .result-item {
+	height: 16px !important;
+	line-height: 16px !important;
+	padding: 0 1px !important;
+	font-size: 11px !important;
+	white-space: nowrap !important;
+	box-sizing: border-box !important;
+}
+
+.Navigation.has-results .result-view .result-name,
+.Navigation.has-results .result-amount {
+	font-size: 11px !important;
+	line-height: 16px !important;
+	color: #000 !important;
+}
+
+.Navigation.has-results .result-amount {
+	flex: 0 0 auto !important;
+	margin-right: 0 !important;
+}
+
+.Navigation.has-results .official-type-badge {
+	width: 12px !important;
+	height: 12px !important;
+	min-width: 12px !important;
+	margin-right: 0 !important;
+	font-size: 10px !important;
+	line-height: 10px !important;
+	position: relative !important;
+	top: 1px !important;
+}
+
+.Navigation.has-results .result-detail-panel {
+	flex: 1 1 auto !important;
+	min-height: 0 !important;
+	position: relative !important;
+	background: #f4f4f4 !important;
+	overflow: hidden !important;
+}
+
+.Navigation.has-results .detail-content {
+	position: relative !important;
+	display: none !important;
+	height: 100% !important;
+	padding: 1px 3px 2px 3px !important;
+	box-sizing: border-box !important;
+}
+
+.Navigation.has-results .result-detail-panel.has-selection .detail-content {
+	display: block !important;
+}
+
+.Navigation.has-results .detail-title-row {
+	display: none !important;
+}
+
+.Navigation.has-results .detail-main {
+	height: 99px !important;
+	min-height: 99px !important;
+	display: flex !important;
+}
+
+.Navigation.has-results .detail-text {
+	flex: 1 1 auto !important;
+	min-width: 0 !important;
+	padding: 0 0 0 1px !important;
+	font-size: 11px !important;
+	line-height: 14px !important;
+	color: #3333cc !important;
+	white-space: pre-line !important;
+	overflow: hidden !important;
+}
+
+.Navigation.has-results .detail-preview {
+	width: 58px !important;
+	min-width: 58px !important;
+	padding-top: 0 !important;
+	text-align: center !important;
+	box-sizing: border-box !important;
+}
+
+.Navigation.has-results .detail-sprite-wrap {
+	width: 58px !important;
+	height: 52px !important;
+	position: relative !important;
+	margin: 0 auto 1px auto !important;
+	overflow: visible !important;
+}
+
+.Navigation.has-results .detail-sprite-canvas {
+	width: 58px !important;
+	height: 58px !important;
+	display: block !important;
+}
+
+.Navigation.has-results .detail-map-preview {
+	width: 44px !important;
+	height: 44px !important;
+	margin: 0 auto !important;
+	border: 1px solid #555 !important;
+	background: #000 !important;
+	box-sizing: border-box !important;
+	overflow: hidden !important;
+}
+
+.Navigation.has-results .detail-map-list {
+	position: absolute !important;
+	left: 3px !important;
+	right: 3px !important;
+	top: 102px !important;
+	bottom: 3px !important;
+	background: #ffffff !important;
+	border: 1px solid #c4c4c4 !important;
+	overflow-y: auto !important;
+	overflow-x: hidden !important;
+	box-sizing: border-box !important;
+	z-index: 1 !important;
+}
+
+.Navigation.has-results .spawn-row {
+	height: 16px !important;
+	line-height: 16px !important;
+	font-size: 11px !important;
+	padding: 0 1px !important;
+	box-sizing: border-box !important;
+	white-space: nowrap !important;
+	overflow: hidden !important;
+	text-overflow: ellipsis !important;
+}
+
+.Navigation.has-results .spawn-row .official-type-badge {
+	top: 1px !important;
+}
+
+.Navigation.has-results .result-action-row {
+	position: relative !important;
+	flex: 0 0 55px !important;
+	height: 55px !important;
+	padding: 0 !important;
+	background: #f4f4f4 !important;
+	border-top: none !important;
+	box-sizing: border-box !important;
+}
+
+.Navigation.has-results .result-services-checkbox {
+	left: 5px !important;
+	top: 1px !important;
+	height: 16px !important;
+	line-height: 16px !important;
+	font-size: 11px !important;
+}
+
+.Navigation.has-results .nav-action,
+.Navigation.has-results .move-action {
+	height: 19px !important;
+	font-size: 11px !important;
+	line-height: 17px !important;
+	padding: 0 3px !important;
+	border: none !important;
+	border-radius: 0 !important;
+	background-color: transparent !important;
+	box-shadow: none !important;
+	color: #244a9a !important;
+	box-sizing: border-box !important;
+}
+
+.Navigation.has-results .share-action {
+	left: 3px !important;
+	top: 20px !important;
+	width: 58px !important;
+}
+
+.Navigation.has-results .find-action {
+	right: 3px !important;
+	top: 20px !important;
+	width: 58px !important;
+}
+
+.Navigation.has-results .move-action {
+	left: 3px !important;
+	right: 3px !important;
+	top: auto !important;
+	bottom: 2px !important;
+	height: 20px !important;
+	width: auto !important;
+	font-size: 12px !important;
+	font-weight: normal !important;
+	color: #3333cc !important;
+}
+
+.Navigation.has-results .footer {
+	height: 20px !important;
+	background: #f4f4f4 !important;
+	border-top: 1px solid #d7d7d7 !important;
+	box-sizing: border-box !important;
+}
+
+.Navigation.has-results .coordinates-bar {
+	display: none !important;
+}
+
+.Navigation .footer-actions {
+	display: none;
+}
+
+.Navigation.has-results .footer-actions {
+	display: flex !important;
+	position: absolute !important;
+	right: 4px !important;
+	top: 1px !important;
+	height: 18px !important;
+	gap: 3px !important;
+	align-items: center !important;
+	z-index: 3 !important;
+}
+
+.Navigation.has-results .footer-worldmap-button,
+.Navigation.has-results .footer-navi-button {
+	width: 28px !important;
+	height: 18px !important;
+	padding: 0 !important;
+	border: 1px solid #9b9b9b !important;
+	border-radius: 2px !important;
+	background-repeat: no-repeat !important;
+	background-position: center center !important;
+	background-color: #ededed !important;
+	box-sizing: border-box !important;
+	cursor: pointer !important;
+}
+
+.Navigation.has-results .footer-navi-button {
+	position: relative !important;
+	background: linear-gradient(#ffffff, #e0e0e0) !important;
+}
+
+.Navigation.has-results .footer-navi-button::before {
+	content: '' !important;
+	position: absolute !important;
+	left: 8px !important;
+	top: 3px !important;
+	width: 0 !important;
+	height: 0 !important;
+	border-left: 6px solid transparent !important;
+	border-right: 6px solid transparent !important;
+	border-bottom: 10px solid #f0c845 !important;
+}
+
+.Navigation.has-results .footer-navi-button::after {
+	content: '' !important;
+	position: absolute !important;
+	left: 9px !important;
+	top: 4px !important;
+	width: 10px !important;
+	height: 10px !important;
+	border-left: 1px solid rgba(255,255,255,.8) !important;
+	transform: rotate(0deg) !important;
+}
+
+
+/* -------------------------------------------------------------------------
+ * Final official-navigation fixes (pass 2)
+ * ---------------------------------------------------------------------- */
+.Navigation.has-results .result-body,
+.Navigation.has-results .result-right-panel,
+.Navigation.has-results .result-detail-panel,
+.Navigation.has-results .detail-content {
+	overflow: hidden !important;
+}
+
+.Navigation.has-results .result-left-panel {
+	scrollbar-gutter: stable;
+}
+
+.Navigation.has-results .result-view .results-list {
+	display: block !important;
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
+.Navigation.has-results .detail-map-list {
+	scrollbar-gutter: stable;
+}
+
+.Navigation .nav-action,
+.Navigation .move-action,
+.Navigation .footer-detaillist-button,
+.Navigation .footer-roadicon-button {
+	display: block;
+	background-repeat: no-repeat;
+	background-position: center center;
+	background-color: transparent;
+	border: none;
+	padding: 0;
+}
+
+.Navigation .nav-action::before,
+.Navigation .nav-action::after,
+.Navigation .move-action::before,
+.Navigation .move-action::after,
+.Navigation .footer-roadicon-button::before,
+.Navigation .footer-roadicon-button::after {
+	content: none !important;
+	display: none !important;
+}
+
+.Navigation .nav-action .button-icon,
+.Navigation .move-action .button-icon {
+	display: none !important;
+}
+
+.Navigation.has-results .nav-action,
+.Navigation.has-results .move-action {
+	border: none !important;
+	border-radius: 0 !important;
+	background-color: transparent !important;
+	box-shadow: none !important;
+	padding: 0 !important;
+}
+
+.Navigation.has-results .share-action {
+	left: 3px !important;
+	top: 20px !important;
+	width: 58px !important;
+	height: 19px !important;
+}
+
+.Navigation.has-results .find-action {
+	right: 3px !important;
+	top: 20px !important;
+	width: 58px !important;
+	height: 19px !important;
+}
+
+.Navigation.has-results .move-action {
+	left: 3px !important;
+	right: 3px !important;
+	bottom: 2px !important;
+	width: auto !important;
+	height: 20px !important;
+}
+
+.Navigation .footer-actions {
+	display: none;
+}
+
+.Navigation.has-results .footer-actions {
+	display: flex !important;
+	position: absolute !important;
+	right: 4px !important;
+	top: 1px !important;
+	height: 18px !important;
+	gap: 3px !important;
+	align-items: center !important;
+	z-index: 3 !important;
+}
+
+.Navigation.has-results .footer-detaillist-button,
+.Navigation.has-results .footer-roadicon-button {
+	width: 28px !important;
+	height: 18px !important;
+	box-sizing: border-box !important;
+	cursor: pointer !important;
+}
+
+.Navigation .official-type-badge.grf-loaded {
+	border: none !important;
+	background-color: transparent !important;
+}
+
+
+/* official navigation_interface3 scrollbars */
+.Navigation .results-list::-webkit-scrollbar,
+.Navigation .detail-map-list::-webkit-scrollbar {
+	width: 14px;
+	height: 14px;
+}
+
+.Navigation .results-list::-webkit-scrollbar-corner,
+.Navigation .detail-map-list::-webkit-scrollbar-corner {
+	display: none;
+}
+
+.Navigation .results-list::-webkit-scrollbar-button:vertical:decrement,
+.Navigation .detail-map-list::-webkit-scrollbar-button:vertical:decrement {
+	background: var(--nav-scroll-up) center center no-repeat;
+	height: 14px;
+	width: 14px;
+	background-color: transparent;
+}
+
+.Navigation .results-list::-webkit-scrollbar-button:vertical:increment,
+.Navigation .detail-map-list::-webkit-scrollbar-button:vertical:increment {
+	background: var(--nav-scroll-down) center center no-repeat;
+	height: 14px;
+	width: 14px;
+	background-color: transparent;
+}
+
+.Navigation .results-list::-webkit-scrollbar-track,
+.Navigation .detail-map-list::-webkit-scrollbar-track,
+.Navigation .results-list::-webkit-scrollbar-track-piece,
+.Navigation .detail-map-list::-webkit-scrollbar-track-piece {
+	background: var(--nav-bar-mid) center repeat-y;
+	background-color: transparent;
+}
+
+.Navigation .results-list::-webkit-scrollbar-thumb:vertical,
+.Navigation .detail-map-list::-webkit-scrollbar-thumb:vertical {
+	background: var(--nav-scroll-mid) center repeat-y;
+	background-color: transparent;
+	min-height: 18px;
+	border: none;
+}
+
+.Navigation .results-list,
+.Navigation .detail-map-list {
+	scrollbar-color: #8ba9d6 transparent;
+	scrollbar-width: thin;
+}
+
+
+/* official map-click / route view */
+.Navigation:not(.has-results) .content {
+	background: #f4f4f4 !important;
+}
+
+.Navigation:not(.has-results) .map-container {
+	flex: 1 1 auto !important;
+	min-height: 0 !important;
+	display: flex !important;
+	align-items: stretch !important;
+	padding: 0 4px 0 4px !important;
+	background: #f4f4f4 !important;
+	box-sizing: border-box !important;
+}
+
+.Navigation:not(.has-results) .map-container .services-toggle-container,
+.Navigation:not(.has-results) .location-title {
+	display: none !important;
+}
+
+.Navigation:not(.has-results) .map-display {
+	width: calc(100% - 8px) !important;
+	height: calc(100% - 2px) !important;
+	margin: 0 4px 0 4px !important;
+	position: relative !important;
+	background: #000000 !important;
+	border: 1px solid #1d1d1d !important;
+	box-shadow: none !important;
+	overflow: hidden !important;
+	box-sizing: border-box !important;
+}
+
+.Navigation:not(.has-results) .map-display canvas {
+	width: 100% !important;
+	height: 100% !important;
+	display: block !important;
+}
+
+.Navigation:not(.has-results) .coordinates-bar {
+	display: none !important;
+}
+
+.Navigation:not(.has-results) .footer {
+	height: 20px !important;
+	background: #f4f4f4 !important;
+	border-top: 1px solid #d7d7d7 !important;
+	box-sizing: border-box !important;
+}
+
+.Navigation:not(.has-results) .footer-actions {
+	display: flex !important;
+	position: absolute !important;
+	right: 4px !important;
+	top: 1px !important;
+	height: 18px !important;
+	gap: 3px !important;
+	align-items: center !important;
+	z-index: 3 !important;
+}
+
+.Navigation:not(.has-results) .footer-detaillist-button,
+.Navigation:not(.has-results) .footer-roadicon-button {
+	display: block !important;
+	width: 28px !important;
+	height: 18px !important;
+	border: none !important;
+	background-repeat: no-repeat !important;
+	background-position: center center !important;
+	background-color: transparent !important;
+	box-sizing: border-box !important;
+	cursor: pointer !important;
+}
+
+
+/* v11: official action buttons + no left result scrollbar */
+.Navigation.has-results .result-action-row {
+	flex: 0 0 55px !important;
+	height: 55px !important;
+	overflow: visible !important;
+	z-index: 5 !important;
+}
+
+.Navigation.has-results .result-action-row .nav-action,
+.Navigation.has-results .result-action-row .move-action {
+	position: absolute !important;	display: block !important;
+	background-repeat: no-repeat !important;
+	background-position: center center !important;
+	background-color: transparent !important;
+	border: none !important;
+	box-shadow: none !important;
+	padding: 0 !important;
+	box-sizing: border-box !important;
+	cursor: pointer !important;
+	z-index: 6 !important;
+}
+
+.Navigation.has-results .result-action-row .share-action {
+	left: 3px !important;
+	top: 20px !important;
+	width: 58px !important;
+	height: 19px !important;
+}
+
+.Navigation.has-results .result-action-row .find-action {
+	right: 3px !important;
+	top: 20px !important;
+	width: 58px !important;
+	height: 19px !important;
+}
+
+.Navigation.has-results .result-action-row .move-action {
+	left: 3px !important;
+	right: 3px !important;
+	bottom: 2px !important;
+	width: auto !important;
+	height: 20px !important;
+}
+
+.Navigation.has-results .result-left-panel {
+	overflow: hidden !important;
+	scrollbar-gutter: auto !important;
+}
+
+.Navigation.has-results .result-view .results-list {
+	height: 100% !important;
+	overflow: hidden !important;
+	scrollbar-width: none !important;
+}
+
+.Navigation.has-results .result-view .results-list::-webkit-scrollbar {
+	width: 0 !important;
+	height: 0 !important;
+	display: none !important;
+}
+
+
+/* v12: remove MOVE button, keep only Share + Find, hide all left scrollbars */
+.Navigation .move-action,
+.Navigation.has-results .move-action {
+	display: none !important;
+}
+
+.Navigation.has-results .result-action-row {
+	flex: 0 0 42px !important;
+	height: 42px !important;
+	overflow: visible !important;
+	z-index: 5 !important;
+}
+
+.Navigation.has-results .result-action-row .share-action {
+	left: 3px !important;
+	top: 20px !important;
+	width: 58px !important;
+	height: 19px !important;
+	display: block !important;
+}
+
+.Navigation.has-results .result-action-row .find-action {
+	right: 3px !important;
+	top: 20px !important;
+	width: 58px !important;
+	height: 19px !important;
+	display: block !important;
+}
+
+.Navigation.has-results .result-left-panel,
+.Navigation.has-results .result-left-panel *,
+.Navigation.has-results .result-view .results-list {
+	overflow: hidden !important;
+	scrollbar-width: none !important;
+	-ms-overflow-style: none !important;
+}
+
+.Navigation.has-results .result-left-panel::-webkit-scrollbar,
+.Navigation.has-results .result-left-panel *::-webkit-scrollbar,
+.Navigation.has-results .result-view .results-list::-webkit-scrollbar {
+	width: 0 !important;
+	height: 0 !important;
+	display: none !important;
+}
+
+/* Only the right spawn/detail list keeps the official scrollbar. */
+.Navigation.has-results .detail-map-list {
+	overflow-y: auto !important;
+	overflow-x: hidden !important;
+}
+
+/* v12: official road/footprint icon selector */
+.Navigation .roadicon-selector {
+	display: none;
+	position: absolute;
+	right: 3px;
+	bottom: 20px;
+	width: 132px;
+	height: 67px;
+	background-repeat: no-repeat;
+	background-position: center center;
+	background-color: transparent;
+	z-index: 100;
+}
+
+.Navigation .roadicon-selector.open {
+	display: block !important;
+}
+
+.Navigation .roadicon-choice {
+	position: absolute;
+	width: 28px;
+	height: 28px;
+	background-repeat: no-repeat;
+	background-position: center center;
+	background-color: transparent;
+	border: none;
+	padding: 0;
+	cursor: pointer;
+}
+
+.Navigation .roadicon-choice.selected {
+	filter: brightness(1.08);
+}
+
+.Navigation .roadicon-choice-1 { left: 8px; top: 6px; }
+.Navigation .roadicon-choice-2 { left: 37px; top: 6px; }
+.Navigation .roadicon-choice-3 { left: 66px; top: 6px; }
+.Navigation .roadicon-choice-4 { left: 95px; top: 6px; }
+.Navigation .roadicon-choice-5 { left: 8px; top: 35px; }
+.Navigation .roadicon-choice-6 { left: 37px; top: 35px; }
+.Navigation .roadicon-choice-7 { left: 66px; top: 35px; }
+.Navigation .roadicon-choice-8 { left: 95px; top: 35px; }
+
+
+/* v15: final search-panel fixes: one scrollbar, non-overlapping actions, map preview mode */
+.Navigation.has-results .result-left-panel,
+.Navigation.has-results .result-view .results-list {
+	overflow: hidden !important;
+	scrollbar-width: none !important;
+	-ms-overflow-style: none !important;
+	scrollbar-gutter: auto !important;
+}
+
+.Navigation.has-results .result-left-panel::-webkit-scrollbar,
+.Navigation.has-results .result-view .results-list::-webkit-scrollbar {
+	width: 0 !important;
+	height: 0 !important;
+	display: none !important;
+}
+
+.Navigation.has-results .result-detail-panel,
+.Navigation.has-results .detail-content,
+.Navigation.has-results .result-right-panel {
+	overflow: hidden !important;
+}
+
+.Navigation.has-results .detail-map-list {
+	overflow-y: auto !important;
+	overflow-x: hidden !important;
+	scrollbar-gutter: auto !important;
+}
+
+.Navigation.has-results .result-action-row {
+	flex: 0 0 42px !important;
+	height: 42px !important;
+	position: relative !important;
+	overflow: hidden !important;
+}
+
+.Navigation.has-results .result-action-row .share-action,
+.Navigation.has-results .result-action-row .find-action {
+	position: absolute !important;
+	display: block !important;
+	top: 20px !important;
+	width: 56px !important;
+	height: 19px !important;
+	min-width: 56px !important;
+	max-width: 56px !important;
+	border: none !important;
+	padding: 0 !important;
+	margin: 0 !important;
+	background-color: transparent !important;
+	background-repeat: no-repeat !important;
+	background-position: center center !important;
+	box-shadow: none !important;
+	z-index: 10 !important;
+}
+
+.Navigation.has-results .result-action-row .share-action {
+	left: 4px !important;
+	right: auto !important;
+}
+
+.Navigation.has-results .result-action-row .find-action {
+	left: auto !important;
+	right: 4px !important;
+}
+
+.Navigation.has-results .result-detail-panel.map-selection .detail-main {
+	display: block !important;
+	height: 100px !important;
+	min-height: 100px !important;
+	position: relative !important;
+}
+
+.Navigation.has-results .result-detail-panel.map-selection .detail-text,
+.Navigation.has-results .result-detail-panel.map-selection .detail-sprite-wrap {
+	display: none !important;
+}
+
+.Navigation.has-results .result-detail-panel.map-selection .detail-preview {
+	display: block !important;
+	width: 100% !important;
+	min-width: 0 !important;
+	padding-top: 2px !important;
+	text-align: center !important;
+}
+
+.Navigation.has-results .result-detail-panel.map-selection .detail-map-preview {
+	width: 88px !important;
+	height: 72px !important;
+	margin: 4px auto 0 auto !important;
+	border: 1px solid #555 !important;
+	background: #000 !important;
+}
+
+.Navigation.has-results .result-detail-panel.map-selection .detail-map-preview-img {
+	width: 100% !important;
+	height: 100% !important;
+	object-fit: contain !important;
+}
+
+.Navigation.has-results .result-detail-panel.map-selection .detail-map-list {
+	top: 104px !important;
+}
+
+.Navigation .airship-bar {
+	width: 100%;
+	height: 24px;
+	display: flex;
+	justify-content: center;
+	align-items: flex-start;
+	background-color: #f7f7f7;
+}
+
+.Navigation.has-results .airship-bar {
+	display: none !important;
+}
+
+.Navigation .airship-move {
+	width: 120px;
+	height: 20px;
+	background-repeat: no-repeat;
+	cursor: pointer;
+}
+
+
+/* v16: final official detail layout and single-left-hidden scrollbar */
+.Navigation.has-results .result-left-panel {
+	overflow: hidden !important;
+}
+
+.Navigation.has-results .result-view {
+	overflow: hidden !important;
+}
+
+.Navigation.has-results .result-view .results-list {
+	height: 100% !important;
+	overflow-y: scroll !important;
+	overflow-x: hidden !important;
+	scrollbar-width: none !important;
+	-ms-overflow-style: none !important;
+}
+
+.Navigation.has-results .result-view .results-list::-webkit-scrollbar {
+	width: 0 !important;
+	height: 0 !important;
+	display: none !important;
+}
+
+.Navigation.has-results .detail-main {
+	height: 102px !important;
+	min-height: 102px !important;
+	display: flex !important;
+	align-items: flex-start !important;
+}
+
+.Navigation.has-results .detail-text {
+	flex: 1 1 auto !important;
+	padding: 1px 0 0 1px !important;
+	line-height: 14px !important;
+}
+
+.Navigation.has-results .detail-preview {
+	width: 60px !important;
+	min-width: 60px !important;
+	display: flex !important;
+	flex-direction: column !important;
+	align-items: center !important;
+	justify-content: flex-start !important;
+	padding-top: 1px !important;
+	gap: 1px !important;
+}
+
+.Navigation.has-results .detail-sprite-wrap {
+	width: 58px !important;
+	height: 56px !important;
+	margin: 0 auto !important;
+	overflow: hidden !important;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+}
+
+.Navigation.has-results .detail-sprite-canvas {
+	width: 58px !important;
+	height: 58px !important;
+	display: block !important;
+	margin: 0 auto !important;
+}
+
+.Navigation.has-results .detail-map-preview {
+	width: 44px !important;
+	height: 44px !important;
+	margin: 0 auto !important;
+	flex: 0 0 auto !important;
+}
+
+.Navigation.has-results .detail-map-list {
+	top: 104px !important;
+}
+
+.Navigation.has-results .result-action-row {
+	position: relative !important;
+	height: 42px !important;
+	flex: 0 0 42px !important;
+}
+
+.Navigation.has-results .result-action-row .share-action,
+.Navigation.has-results .result-action-row .find-action {
+	position: absolute !important;
+	top: 20px !important;
+	width: 57px !important;
+	height: 19px !important;
+	display: block !important;
+}
+
+.Navigation.has-results .result-action-row .share-action {
+	left: 3px !important;
+	right: auto !important;
+}
+
+.Navigation.has-results .result-action-row .find-action {
+	right: 3px !important;
+	left: auto !important;
+}
+
+
+/* v17: final cleanup for sprite centering, action buttons, and no visible right scrollbar */
+.Navigation.has-results .detail-preview {
+	width: 58px !important;
+	min-width: 58px !important;
+	margin-right: 0 !important;
+	padding-top: 0 !important;
+	gap: 0 !important;
+}
+
+.Navigation.has-results .detail-sprite-wrap {
+	width: 58px !important;
+	height: 58px !important;
+	margin: 0 auto 1px auto !important;
+	overflow: hidden !important;
+}
+
+.Navigation.has-results .detail-map-preview {
+	width: 44px !important;
+	height: 44px !important;
+	margin: 0 auto !important;
+}
+
+.Navigation.has-results .result-action-row {
+	position: relative !important;
+	height: 44px !important;
+	flex: 0 0 44px !important;
+	overflow: hidden !important;
+	padding: 0 !important;
+}
+
+.Navigation.has-results .result-services-checkbox {
+	left: 4px !important;
+	top: 1px !important;
+	z-index: 2 !important;
+}
+
+.Navigation.has-results .nav-action,
+.Navigation.has-results .result-action-row .share-action,
+.Navigation.has-results .result-action-row .find-action {
+	position: absolute !important;
+	top: 20px !important;
+	height: 19px !important;
+	width: 58px !important;
+	display: block !important;
+	background-repeat: no-repeat !important;
+	background-position: center center !important;
+	background-size: 100% 100% !important;
+	overflow: hidden !important;
+	z-index: 3 !important;
+}
+
+.Navigation.has-results .result-action-row .share-action {
+	left: 3px !important;
+	right: auto !important;
+}
+
+.Navigation.has-results .result-action-row .find-action {
+	right: 3px !important;
+	left: auto !important;
+}
+
+.Navigation.has-results .detail-map-list {
+	overflow-y: auto !important;
+	overflow-x: hidden !important;
+	scrollbar-width: none !important;
+	-ms-overflow-style: none !important;
+}
+
+.Navigation.has-results .detail-map-list::-webkit-scrollbar {
+	width: 0 !important;
+	height: 0 !important;
+	display: none !important;
+}
+
+/* v18: keep minimized Navigation as one compact window even after search results. */
+.Navigation.minimized,
+.Navigation.minimized.has-results {
+	width: 158px !important;
+	height: 54px !important;
+	min-height: 54px !important;
+	max-height: 54px !important;
+	overflow: hidden !important;
+	background: rgba(246, 246, 246, 0.82) !important;
+	border: 1px solid rgba(85, 85, 85, 0.45) !important;
+	box-sizing: border-box !important;
+}
+
+.Navigation.minimized .titlebar,
+.Navigation.minimized.has-results .titlebar {
+	width: 158px !important;
+	height: 17px !important;
+}
+
+.Navigation.minimized .content,
+.Navigation.minimized.has-results .content,
+.Navigation.minimized .footer,
+.Navigation.minimized.has-results .footer,
+.Navigation.minimized .result-view,
+.Navigation.minimized.has-results .result-view {
+	display: none !important;
+}
+
+.Navigation.minimized .mini-content,
+.Navigation.minimized.has-results .mini-content {
+	display: block !important;
+	height: 35px !important;
+	min-height: 0 !important;
+	max-height: 35px !important;
+	padding: 2px 4px 3px 10px !important;
+	border: none !important;
+	overflow: hidden !important;
+	box-sizing: border-box !important;
+}
+
+.Navigation.minimized .mini-current,
+.Navigation.minimized .mini-target,
+.Navigation.minimized.has-results .mini-current,
+.Navigation.minimized.has-results .mini-target {
+	max-width: 142px !important;
+	height: 14px !important;
+	line-height: 14px !important;
+}
+
+
+/* v18: large sprite overlay in search detail panel */
+.Navigation.has-results .detail-main {
+	position: relative !important;
+	overflow: visible !important;
+}
+
+.Navigation.has-results .detail-text {
+	position: relative !important;
+	z-index: 2 !important;
+	padding-right: 0 !important;
+}
+
+.Navigation.has-results .detail-preview {
+	position: absolute !important;
+	top: 0 !important;
+	right: 0 !important;
+	width: 96px !important;
+	min-width: 96px !important;
+	height: 100% !important;
+	display: block !important;
+	text-align: initial !important;
+	pointer-events: none !important;
+	z-index: 1 !important;
+}
+
+.Navigation.has-results .detail-sprite-wrap {
+	position: absolute !important;
+	top: 0 !important;
+	right: -8px !important;
+	width: 96px !important;
+	height: 96px !important;
+	margin: 0 !important;
+	overflow: visible !important;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	z-index: 1 !important;
+}
+
+.Navigation.has-results .detail-sprite-canvas {
+	width: 96px !important;
+	height: 96px !important;
+	display: block !important;
+	margin: 0 !important;
+}
+
+.Navigation.has-results .detail-sprite-fallback {
+	width: 96px !important;
+	height: 96px !important;
+	left: 0 !important;
+	top: 0 !important;
+}
+
+.Navigation.has-results .detail-map-preview {
+	position: absolute !important;
+	right: 4px !important;
+	bottom: 0 !important;
+	margin: 0 !important;
+	z-index: 2 !important;
+}
+
+
+/* v19: keep Navigation as one window shell; only switch the inner view. */
+.Navigation:not(.minimized),
+.Navigation.has-results:not(.minimized) {
+	width: 300px !important;
+	height: 320px !important;
+	max-width: 300px !important;
+	max-height: 320px !important;
+}
+
+.Navigation.has-results:not(.minimized) .content {
+	height: calc(100% - 37px) !important;
+}
+
+/* v19: center the larger actor sprite inside the detail panel. */
+.Navigation.has-results:not(.minimized) .detail-sprite-wrap {
+	right: 30px !important;
+}
+
+.Navigation.has-results:not(.minimized) .detail-sprite-canvas {
+	width: 96px !important;
+	height: 96px !important;
+}
+
+.Navigation.has-results:not(.minimized) .detail-map-preview {
+	right: 4px !important;
+	z-index: 2 !important;
+}
+
+
+/* v19: keep one default search field, stable one-window shell, map-fit preview, and clean action buttons */
+.Navigation.has-results {
+	width: 300px !important;
+	height: 320px !important;
+}
+
+.Navigation.has-results .search-container {
+	height: 25px !important;
+	padding: 5px 10px !important;
+	background-color: #f7f7f7 !important;
+}
+
+.Navigation.has-results .search-type {
+	position: relative !important;
+	top: 3px !important;
+	width: 50px !important;
+	height: 20px !important;
+	margin-right: 5px !important;
+	padding: 0 2px !important;
+	z-index: 2 !important;
+}
+
+.Navigation.has-results .search-left {
+	top: 5px !important;
+	left: 65px !important;
+	width: 3px !important;
+	height: 20px !important;
+}
+
+.Navigation.has-results .search-middle {
+	top: 5px !important;
+	left: 68px !important;
+	right: 65px !important;
+	height: 20px !important;
+}
+
+.Navigation.has-results .search-right {
+	top: 5px !important;
+	right: 62px !important;
+	width: 3px !important;
+	height: 20px !important;
+}
+
+.Navigation.has-results .search-input {
+	top: 5px !important;
+	left: 68px !important;
+	right: 65px !important;
+	height: 20px !important;
+	padding: 0 5px !important;
+	font-size: 12px !important;
+	border: none !important;
+	background: transparent !important;
+}
+
+.Navigation.has-results .search-button {
+	top: 7px !important;
+	right: 32px !important;
+	width: 33px !important;
+	height: 20px !important;
+}
+
+.Navigation.has-results .folder-button {
+	top: 6px !important;
+	right: 4px !important;
+	width: 25px !important;
+	height: 20px !important;
+	display: block !important;
+}
+
+.Navigation.has-results .result-body {
+	height: calc(100% - 18px) !important;
+}
+
+.Navigation.has-results .result-left-panel {
+	width: 138px !important;
+	flex: 0 0 138px !important;
+}
+
+.Navigation.has-results .result-right-panel {
+	position: relative !important;
+}
+
+.Navigation.has-results .result-detail-panel.map-selection .detail-main {
+	display: block !important;
+	height: 112px !important;
+	min-height: 112px !important;
+	position: relative !important;
+	overflow: hidden !important;
+}
+
+.Navigation.has-results .result-detail-panel.map-selection .detail-preview {
+	position: relative !important;
+	display: block !important;
+	width: 100% !important;
+	height: 100% !important;
+	min-width: 0 !important;
+	padding-top: 0 !important;
+	text-align: center !important;
+}
+
+.Navigation.has-results .result-detail-panel.map-selection .detail-map-preview {
+	position: absolute !important;
+	left: 50% !important;
+	top: 4px !important;
+	transform: translateX(-50%) !important;
+	width: 98px !important;
+	height: 98px !important;
+	margin: 0 !important;
+	border: 1px solid #555 !important;
+	background: #000 !important;
+	box-sizing: border-box !important;
+	overflow: hidden !important;
+}
+
+.Navigation.has-results .result-detail-panel.map-selection .detail-map-preview-img {
+	width: 100% !important;
+	height: 100% !important;
+	object-fit: contain !important;
+	display: block !important;
+}
+
+.Navigation.has-results .result-detail-panel.map-selection .detail-map-list {
+	top: 116px !important;
+}
+
+.Navigation.has-results .result-action-row {
+	position: relative !important;
+	height: 44px !important;
+	flex: 0 0 44px !important;
+	overflow: hidden !important;
+	padding: 0 !important;
+	border-top: 1px solid #c9c9c9 !important;
+	background: #f4f4f4 !important;
+}
+
+.Navigation.has-results .result-services-checkbox {
+	left: 4px !important;
+	top: 2px !important;
+	z-index: 2 !important;
+}
+
+.Navigation.has-results .result-action-row .share-action,
+.Navigation.has-results .result-action-row .find-action {
+	position: absolute !important;
+	top: 21px !important;
+	width: 57px !important;
+	height: 19px !important;
+	display: block !important;
+	background-repeat: no-repeat !important;
+	background-position: center center !important;
+	background-size: 100% 100% !important;
+	border: none !important;
+	box-shadow: none !important;
+	padding: 0 !important;
+	z-index: 3 !important;
+}
+
+.Navigation.has-results .result-action-row .share-action {
+	left: 4px !important;
+	right: auto !important;
+}
+
+.Navigation.has-results .result-action-row .find-action {
+	right: 4px !important;
+	left: auto !important;
+}
+
+
+/* v20: closer to official result layout: smaller map preview and uncropped top-right folder icon */
+.Navigation .folder-button,
+.Navigation.has-results .folder-button {
+	right: 2px !important;
+	top: 5px !important;
+	width: 28px !important;
+	height: 22px !important;
+	background-repeat: no-repeat !important;
+	background-position: center center !important;
+	background-size: contain !important;
+	overflow: visible !important;
+}
+
+.Navigation .search-button,
+.Navigation.has-results .search-button {
+	right: 30px !important;
+	top: 6px !important;
+	width: 24px !important;
+	height: 22px !important;
+	background-repeat: no-repeat !important;
+	background-position: center center !important;
+	background-size: contain !important;
+}
+
+.Navigation .search-middle,
+.Navigation.has-results .search-middle {
+	right: 60px !important;
+}
+
+.Navigation .search-right,
+.Navigation.has-results .search-right {
+	right: 57px !important;
+}
+
+.Navigation .search-input,
+.Navigation.has-results .search-input {
+	right: 60px !important;
+}
+
+.Navigation.has-results .result-detail-panel.map-selection .detail-main {
+	height: 100px !important;
+	min-height: 100px !important;
+}
+
+.Navigation.has-results .result-detail-panel.map-selection .detail-map-preview {
+	width: 78px !important;
+	height: 78px !important;
+	top: 7px !important;
+}
+
+.Navigation.has-results .result-detail-panel.map-selection .detail-map-list {
+	top: 104px !important;
+}
+
+.Navigation .airship-bar {
+	width: 100%;
+	height: 24px;
+	display: flex;
+	justify-content: center;
+	align-items: flex-start;
+	background-color: #f7f7f7;
+}
+
+.Navigation.has-results .airship-bar {
+	display: none !important;
+}
+
+.Navigation .airship-move {
+	width: 120px;
+	height: 20px;
+	background-repeat: no-repeat;
+	cursor: pointer;
 }

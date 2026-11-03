@@ -327,3 +327,924 @@
 		-1px 1px 0 #000,
 		1px 1px 0 #000;
 }
+
+/* Official-style blue navigation route overlay on the large world map */
+#WorldMap .worldmap .navigation-route-overlay {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
+	z-index: 20;
+}
+
+#WorldMap .worldmap .navigation-route-svg {
+	width: 100%;
+	height: 100%;
+	overflow: visible;
+}
+
+#WorldMap .worldmap .navigation-route-section {
+	fill: rgba(64, 120, 255, 0.22);
+	stroke: rgba(170, 235, 255, 0.90);
+	stroke-width: 2;
+}
+
+#WorldMap .worldmap .navigation-route-start {
+	fill: rgba(255, 220, 60, 0.24);
+	stroke: rgba(255, 255, 160, 0.95);
+}
+
+#WorldMap .worldmap .navigation-route-destination {
+	fill: rgba(48, 170, 255, 0.33);
+	stroke: rgba(230, 255, 255, 0.98);
+	stroke-width: 3;
+}
+
+#WorldMap .worldmap .navigation-route-line-shadow,
+#WorldMap .worldmap .navigation-route-line {
+	fill: none;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+#WorldMap .worldmap .navigation-route-line-shadow {
+	stroke: rgba(0, 60, 130, 0.55);
+	stroke-width: 22;
+}
+
+#WorldMap .worldmap .navigation-route-line {
+	stroke: rgba(130, 230, 255, 0.55);
+	stroke-width: 13;
+}
+
+#WorldMap .worldmap .navigation-route-node {
+	fill: rgba(220, 255, 255, 0.95);
+	stroke: rgba(0, 90, 200, 0.95);
+	stroke-width: 3;
+}
+
+#WorldMap .worldmap .navigation-route-node-destination {
+	fill: rgba(255, 255, 255, 0.98);
+	stroke: rgba(0, 150, 255, 1);
+	stroke-width: 4;
+}
+
+
+/* Official-like full-screen world map: no black margins on widescreen. */
+#WorldMap .border {
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+}
+
+#WorldMap .map {
+	width: 100%;
+	height: calc(100% - 17px) !important;
+	overflow: hidden;
+}
+
+#WorldMap .content,
+#WorldMap .worldmap {
+	width: 100%;
+	height: 100% !important;
+	overflow: hidden;
+}
+
+#WorldMap .worldmap {
+	display: block;
+	justify-content: initial;
+}
+
+#WorldMap .worldmap .map-view {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	background-size: 100% 100%;
+	background-position: left top;
+	background-repeat: no-repeat;
+}
+
+/* v21: official-style world map navigation route.
+ * The official client shows translucent route grid tiles plus an End/check
+ * marker, not the previous custom blue nodes/circles.
+ */
+#WorldMap .worldmap .navigation-route-overlay.official-route-style {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
+	z-index: 20;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-cell-layer,
+#WorldMap .worldmap .official-route-style .navigation-route-marker-layer {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-cell-layer {
+	z-index: 1;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-svg {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	overflow: visible;
+	z-index: 2;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-marker-layer {
+	z-index: 3;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-cell {
+	position: absolute;
+	background: rgba(74, 48, 180, 0.42);
+	border: 1px solid rgba(178, 152, 255, 0.78);
+	box-shadow:
+		inset 0 0 0 1px rgba(255, 255, 255, 0.15),
+		0 0 8px rgba(88, 62, 210, 0.35);
+	box-sizing: border-box;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-cell.route-start {
+	background: rgba(74, 48, 180, 0.38);
+	border-color: rgba(154, 235, 255, 0.85);
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-cell.route-end {
+	background: rgba(78, 52, 190, 0.48);
+	border-color: rgba(205, 180, 255, 0.95);
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-line-shadow,
+#WorldMap .worldmap .official-route-style .navigation-route-line {
+	fill: none;
+	stroke-linecap: square;
+	stroke-linejoin: round;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-line-shadow {
+	stroke: rgba(42, 26, 110, 0.42);
+	stroke-width: 19;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-line {
+	stroke: rgba(143, 224, 255, 0.68);
+	stroke-width: 11;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-node,
+#WorldMap .worldmap .official-route-style .navigation-route-node-destination {
+	display: none !important;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-start-marker,
+#WorldMap .worldmap .official-route-style .navigation-route-end-marker {
+	position: absolute;
+	box-sizing: border-box;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-start-icon {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	width: 14px;
+	height: 14px;
+	margin-left: -7px;
+	margin-top: -7px;
+	border-radius: 50%;
+	background: rgba(255, 255, 180, 0.92);
+	border: 2px solid rgba(75, 210, 255, 0.95);
+	box-shadow: 0 0 4px rgba(0, 120, 255, 0.8);
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-end-label {
+	position: absolute;
+	left: 4px;
+	top: 4px;
+	font-size: 12px;
+	line-height: 13px;
+	font-weight: bold;
+	font-family: Arial, sans-serif;
+	color: #8edcff;
+	text-shadow:
+		-1px -1px 0 rgba(0, 0, 0, 0.95),
+		 1px -1px 0 rgba(0, 0, 0, 0.95),
+		-1px  1px 0 rgba(0, 0, 0, 0.95),
+		 1px  1px 0 rgba(0, 0, 0, 0.95);
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-end-check {
+	position: absolute;
+	left: 9px;
+	top: 21px;
+	width: 28px;
+	height: 15px;
+	border-left: 4px solid rgba(210, 30, 42, 0.95);
+	border-bottom: 4px solid rgba(210, 30, 42, 0.95);
+	transform: rotate(-45deg);
+	box-shadow: -1px 1px 0 rgba(255,255,255,0.35);
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-start-icon {
+	background-image: var(--world-route-start-icon, none);
+	background-repeat: no-repeat;
+	background-position: center center;
+	background-size: contain;
+}
+
+#WorldMap .worldmap .official-route-style.has-start-icon .navigation-route-start-icon {
+	width: 22px;
+	height: 22px;
+	margin-left: -11px;
+	margin-top: -11px;
+	border: none;
+	border-radius: 0;
+	background-color: transparent;
+	box-shadow: none;
+}
+
+#WorldMap .worldmap .official-route-style.has-end-icon .navigation-route-end-check {
+	left: 8px;
+	top: 20px;
+	width: 22px;
+	height: 22px;
+	border: none;
+	background-image: var(--world-route-end-icon, none);
+	background-repeat: no-repeat;
+	background-position: center center;
+	background-size: contain;
+	transform: none;
+	box-shadow: none;
+}
+
+
+/* v22: use official worldview_interface BMPs for the world-map navigation route. */
+#WorldMap .worldmap .official-route-style .navigation-route-runline-layer {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 2;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-runline-segment {
+	position: absolute;
+	height: 16px;
+	margin-top: 0;
+	transform-origin: left center;
+	background-image: var(--world-route-runline-icon, none);
+	background-repeat: repeat-x;
+	background-position: left center;
+	background-size: auto 16px;
+	filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.45));
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-cell {
+	background-color: transparent !important;
+	background-image: var(--world-route-cell-icon, none) !important;
+	background-repeat: no-repeat !important;
+	background-position: center center !important;
+	background-size: 100% 100% !important;
+	border: none !important;
+	box-shadow: none !important;
+	z-index: 4;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-cell.route-map {
+	background-image: var(--world-route-map-cell-icon, var(--world-route-cell-icon, none)) !important;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-cell.route-mobnpc {
+	background-image: var(--world-route-mobnpc-cell-icon, var(--world-route-cell-icon, none)) !important;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-cell.route-end {
+	background-image: var(--world-route-cell-icon, none) !important;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-svg {
+	z-index: 3;
+	opacity: 0.42;
+}
+
+#WorldMap .worldmap .official-route-style.has-runline-icon .navigation-route-svg {
+	opacity: 0;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-line-shadow {
+	stroke: rgba(40, 25, 120, 0.40);
+	stroke-width: 15;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-line {
+	stroke: rgba(145, 224, 255, 0.55);
+	stroke-width: 8;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-marker-layer {
+	z-index: 6;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-start-marker,
+#WorldMap .worldmap .official-route-style .navigation-route-end-marker {
+	position: absolute;
+	pointer-events: none;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-start-icon {
+	left: 50%;
+	top: 50%;
+	width: 26px;
+	height: 26px;
+	margin-left: -13px;
+	margin-top: -13px;
+	background-image: var(--world-route-start-icon, none);
+	background-repeat: no-repeat;
+	background-position: center center;
+	background-size: contain;
+	background-color: transparent;
+	border: none;
+	border-radius: 0;
+	box-shadow: none;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-end-label {
+	left: 4px;
+	top: 5px;
+	font-size: 12px;
+	line-height: 13px;
+	font-weight: bold;
+	color: #99e5ff;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-end-check {
+	left: 2px;
+	top: 12px;
+	width: 48px;
+	height: 48px;
+	border: none;
+	background-image: var(--world-route-end-icon, none);
+	background-repeat: no-repeat;
+	background-position: center center;
+	background-size: contain;
+	transform: none;
+	box-shadow: none;
+}
+
+#WorldMap .worldmap .official-route-style.has-end-icon .navigation-route-end-check {
+	left: 2px;
+	top: 12px;
+	width: 48px;
+	height: 48px;
+}
+
+
+/* v23: official route correction.
+ * Use route grid tiles + blue road line only. Do not repeat the MOB/NPC
+ * search BMPs or wv_runline chevrons along every world-map segment. */
+#WorldMap .worldmap .official-route-style .navigation-route-runline-layer,
+#WorldMap .worldmap .official-route-style .navigation-route-runline-segment {
+	display: none !important;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-cell,
+#WorldMap .worldmap .official-route-style .navigation-route-cell.route-map,
+#WorldMap .worldmap .official-route-style .navigation-route-cell.route-mobnpc,
+#WorldMap .worldmap .official-route-style .navigation-route-cell.route-end,
+#WorldMap .worldmap .official-route-style .navigation-route-cell.route-start {
+	background-color: transparent !important;
+	background-image: var(--world-route-cell-icon, none) !important;
+	background-repeat: no-repeat !important;
+	background-position: center center !important;
+	background-size: 100% 100% !important;
+	border: none !important;
+	box-shadow: none !important;
+	opacity: 0.88 !important;
+	z-index: 2 !important;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-cell.route-dungeon {
+	background-image: var(--world-route-dungeon-cell-icon, var(--world-route-cell-icon, none)) !important;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-svg,
+#WorldMap .worldmap .official-route-style.has-runline-icon .navigation-route-svg {
+	display: block !important;
+	opacity: 1 !important;
+	z-index: 3 !important;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-line-shadow {
+	stroke: rgba(40, 55, 150, 0.38) !important;
+	stroke-width: 20 !important;
+	stroke-linecap: round !important;
+	stroke-linejoin: round !important;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-line {
+	stroke: rgba(126, 224, 255, 0.68) !important;
+	stroke-width: 11 !important;
+	stroke-linecap: round !important;
+	stroke-linejoin: round !important;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-start-marker,
+#WorldMap .worldmap .official-route-style .navigation-route-start-icon {
+	display: none !important;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-marker-layer {
+	z-index: 5 !important;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-end-marker {
+	position: absolute !important;
+	pointer-events: none !important;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-end-label {
+	left: 5px !important;
+	top: 5px !important;
+	font-size: 13px !important;
+	line-height: 13px !important;
+	font-weight: bold !important;
+	color: #92e6ff !important;
+	text-shadow:
+		-1px -1px 0 rgba(0, 0, 0, 0.95),
+		 1px -1px 0 rgba(0, 0, 0, 0.95),
+		-1px  1px 0 rgba(0, 0, 0, 0.95),
+		 1px  1px 0 rgba(0, 0, 0, 0.95) !important;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-end-check,
+#WorldMap .worldmap .official-route-style.has-end-icon .navigation-route-end-check {
+	left: 4px !important;
+	top: 15px !important;
+	width: 46px !important;
+	height: 46px !important;
+	border: none !important;
+	background-image: var(--world-route-end-icon, none) !important;
+	background-repeat: no-repeat !important;
+	background-position: center center !important;
+	background-size: contain !important;
+	transform: none !important;
+	box-shadow: none !important;
+}
+
+/* v24: restore official aspect ratio, destination-only check, and monster-density icons */
+#WorldMap .map {
+	width: 100% !important;
+	height: calc(100% - 17px) !important;
+	overflow: hidden !important;
+}
+
+#WorldMap .content,
+#WorldMap .worldmap {
+	width: 100% !important;
+	height: 100% !important;
+	overflow: auto !important;
+}
+
+#WorldMap .worldmap {
+	display: grid !important;
+	justify-content: center !important;
+	align-content: start !important;
+}
+
+#WorldMap .worldmap .map-view {
+	position: relative !important;
+	background-size: contain !important;
+	background-position: left top !important;
+	background-repeat: no-repeat !important;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-cell,
+#WorldMap .worldmap .official-route-style .navigation-route-cell.route-map,
+#WorldMap .worldmap .official-route-style .navigation-route-cell.route-mobnpc,
+#WorldMap .worldmap .official-route-style .navigation-route-cell.route-dungeon,
+#WorldMap .worldmap .official-route-style .navigation-route-cell.route-start,
+#WorldMap .worldmap .official-route-style .navigation-route-cell.route-end {
+	background-image: none !important;
+	background-color: rgba(72, 52, 180, 0.34) !important;
+	border: 1px solid rgba(185, 170, 255, 0.75) !important;
+	box-shadow:
+		inset 0 0 0 1px rgba(255, 255, 255, 0.16),
+		0 0 6px rgba(50, 38, 160, 0.35) !important;
+	opacity: 1 !important;
+	box-sizing: border-box !important;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-cell.route-end {
+	border-color: rgba(130, 230, 255, 0.9) !important;
+	background-color: rgba(70, 95, 210, 0.35) !important;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-cell::before,
+#WorldMap .worldmap .official-route-style .navigation-route-cell::after {
+	content: none !important;
+	display: none !important;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-marker-layer {
+	z-index: 7 !important;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-end-check,
+#WorldMap .worldmap .official-route-style.has-end-icon .navigation-route-end-check {
+	background-image: var(--world-route-end-icon, none) !important;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-monster-density-layer {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
+	z-index: 6;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-monster-density-marker {
+	position: absolute;
+	background-repeat: no-repeat;
+	background-position: center center;
+	background-size: contain;
+	filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.55));
+}
+
+#WorldMap .worldmap .official-route-style .navigation-monster-density-marker.density-1 {
+	background-image: var(--world-monster-density-1-icon, none);
+}
+
+#WorldMap .worldmap .official-route-style .navigation-monster-density-marker.density-2 {
+	background-image: var(--world-monster-density-2-icon, none);
+}
+
+#WorldMap .worldmap .official-route-style .navigation-monster-density-marker.density-3 {
+	background-image: var(--world-monster-density-3-icon, none);
+}
+
+#WorldMap .worldmap .official-route-style .navigation-monster-density-marker.density-4 {
+	background-image: var(--world-monster-density-4-icon, none);
+}
+
+#WorldMap .worldmap .official-route-style .navigation-monster-density-marker.density-5 {
+	background-image: var(--world-monster-density-5-icon, none);
+}
+
+
+/* v25: official search MOB markers and smaller destination end icon */
+#WorldMap .worldmap .official-route-style .navigation-monster-density-marker {
+	background-repeat: no-repeat !important;
+	background-position: center center !important;
+	background-size: contain !important;
+	filter: none !important;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-end-marker {
+	position: absolute !important;
+	pointer-events: none !important;
+	overflow: visible !important;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-end-label {
+	left: 1px !important;
+	top: 0 !important;
+	font-size: 11px !important;
+	line-height: 12px !important;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-end-check,
+#WorldMap .worldmap .official-route-style.has-end-icon .navigation-route-end-check {
+	left: 7px !important;
+	top: 12px !important;
+	width: 28px !important;
+	height: 28px !important;
+	background-image: var(--world-route-end-icon, none) !important;
+	background-repeat: no-repeat !important;
+	background-position: center center !important;
+	background-size: contain !important;
+	border: none !important;
+	box-shadow: none !important;
+	transform: none !important;
+}
+
+
+/* v26: correct official World View markers and clear MOB-search overlays cleanly.
+ * The start/current tile shows the face/check/sword marker.  The destination
+ * tile shows only the small wv_end.bmp icon in the upper-left corner. */
+#WorldMap .worldmap .official-route-style .navigation-route-marker-layer {
+	z-index: 8 !important;
+	pointer-events: none !important;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-start-marker,
+#WorldMap .worldmap .official-route-style .navigation-route-end-marker {
+	position: absolute !important;
+	pointer-events: none !important;
+	overflow: visible !important;
+	z-index: 8 !important;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-start-icon {
+	position: absolute !important;
+	left: 4px !important;
+	top: 4px !important;
+	width: 28px !important;
+	height: 28px !important;
+	background-image: var(--world-route-start-icon, none) !important;
+	background-repeat: no-repeat !important;
+	background-position: center center !important;
+	background-size: contain !important;
+	border: none !important;
+	box-shadow: none !important;
+	transform: none !important;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-end-label,
+#WorldMap .worldmap .official-route-style .navigation-route-end-check {
+	display: none !important;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-end-icon,
+#WorldMap .worldmap .official-route-style.has-end-icon .navigation-route-end-icon {
+	position: absolute !important;
+	left: 4px !important;
+	top: 4px !important;
+	width: 28px !important;
+	height: 28px !important;
+	background-image: var(--world-route-end-icon, none) !important;
+	background-repeat: no-repeat !important;
+	background-position: center center !important;
+	background-size: contain !important;
+	border: none !important;
+	box-shadow: none !important;
+	transform: none !important;
+}
+
+
+/* v27: use official worldview tile/icon BMPs.
+ * The road-icon selector background is no longer requested in Navigation.
+ * Route tiles use wv_select.bmp, the current tile uses wv_face1.bmp, and the
+ * destination tile uses only the small wv_end.bmp icon. */
+#WorldMap .worldmap .official-route-style .navigation-route-cell,
+#WorldMap .worldmap .official-route-style .navigation-route-cell.route-map,
+#WorldMap .worldmap .official-route-style .navigation-route-cell.route-mobnpc,
+#WorldMap .worldmap .official-route-style .navigation-route-cell.route-dungeon,
+#WorldMap .worldmap .official-route-style .navigation-route-cell.route-start,
+#WorldMap .worldmap .official-route-style .navigation-route-cell.route-end {
+	background-color: transparent !important;
+	background-image: var(--world-route-cell-icon, none) !important;
+	background-repeat: no-repeat !important;
+	background-position: center center !important;
+	background-size: 100% 100% !important;
+	border: none !important;
+	box-shadow: none !important;
+	opacity: 1 !important;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-start-marker,
+#WorldMap .worldmap .official-route-style .navigation-route-start-icon {
+	display: block !important;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-start-icon {
+	position: absolute !important;
+	left: 4px !important;
+	top: 4px !important;
+	width: 28px !important;
+	height: 28px !important;
+	margin: 0 !important;
+	background-image: var(--world-route-start-icon, none) !important;
+	background-repeat: no-repeat !important;
+	background-position: center center !important;
+	background-size: contain !important;
+	background-color: transparent !important;
+	border: none !important;
+	border-radius: 0 !important;
+	box-shadow: none !important;
+	transform: none !important;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-end-icon,
+#WorldMap .worldmap .official-route-style.has-end-icon .navigation-route-end-icon {
+	display: block !important;
+	position: absolute !important;
+	left: 4px !important;
+	top: 4px !important;
+	width: 28px !important;
+	height: 28px !important;
+	margin: 0 !important;
+	background-image: var(--world-route-end-icon, none) !important;
+	background-repeat: no-repeat !important;
+	background-position: center center !important;
+	background-size: contain !important;
+	background-color: transparent !important;
+	border: none !important;
+	border-radius: 0 !important;
+	box-shadow: none !important;
+	transform: none !important;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-end-label,
+#WorldMap .worldmap .official-route-style .navigation-route-end-check {
+	display: none !important;
+}
+
+
+/* v28: show official NPC world-map search marker */
+#WorldMap .worldmap .official-route-style .navigation-npc-search-layer {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
+	z-index: 6;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-npc-search-marker {
+	position: absolute;
+	background-image: var(--world-route-npc-search-icon, none);
+	background-repeat: no-repeat;
+	background-position: center center;
+	background-size: contain;
+	filter: none;
+}
+
+
+/* v29: final official marker placement.
+ * Regular route cells must not show the red check; only the current tile shows
+ * the centered wv_face1.bmp sword/check marker.  Destination shows only the
+ * small wv_end.bmp icon in the upper-left. */
+#WorldMap .worldmap .official-route-style .navigation-route-cell,
+#WorldMap .worldmap .official-route-style .navigation-route-cell.route-map,
+#WorldMap .worldmap .official-route-style .navigation-route-cell.route-mobnpc,
+#WorldMap .worldmap .official-route-style .navigation-route-cell.route-dungeon,
+#WorldMap .worldmap .official-route-style .navigation-route-cell.route-end {
+	background-color: transparent !important;
+	background-image: var(--world-route-cell-icon, none) !important;
+	background-repeat: no-repeat !important;
+	background-position: center center !important;
+	background-size: 100% 100% !important;
+	border: none !important;
+	box-shadow: none !important;
+	opacity: 1 !important;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-cell.route-start {
+	background-color: transparent !important;
+	background-image: var(--world-route-selected-cell-icon, var(--world-route-cell-icon, none)) !important;
+	background-repeat: no-repeat !important;
+	background-position: center center !important;
+	background-size: 100% 100% !important;
+	border: none !important;
+	box-shadow: none !important;
+	opacity: 1 !important;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-cell::before,
+#WorldMap .worldmap .official-route-style .navigation-route-cell::after,
+#WorldMap .worldmap .official-route-style .navigation-route-end-check,
+#WorldMap .worldmap .official-route-style .navigation-route-end-label {
+	content: none !important;
+	display: none !important;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-start-marker {
+	display: block !important;
+	position: absolute !important;
+	pointer-events: none !important;
+	overflow: visible !important;
+	z-index: 9 !important;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-start-icon,
+#WorldMap .worldmap .official-route-style.has-start-icon .navigation-route-start-icon {
+	display: block !important;
+	position: absolute !important;
+	left: 50% !important;
+	top: 50% !important;
+	width: 32px !important;
+	height: 32px !important;
+	margin: 0 !important;
+	transform: translate(-50%, -50%) !important;
+	background-image: var(--world-route-start-icon, none) !important;
+	background-repeat: no-repeat !important;
+	background-position: center center !important;
+	background-size: contain !important;
+	background-color: transparent !important;
+	border: none !important;
+	border-radius: 0 !important;
+	box-shadow: none !important;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-end-marker {
+	display: block !important;
+	position: absolute !important;
+	pointer-events: none !important;
+	overflow: visible !important;
+	z-index: 9 !important;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-end-icon,
+#WorldMap .worldmap .official-route-style.has-end-icon .navigation-route-end-icon {
+	display: block !important;
+	position: absolute !important;
+	left: 4px !important;
+	top: 4px !important;
+	width: 28px !important;
+	height: 28px !important;
+	margin: 0 !important;
+	transform: none !important;
+	background-image: var(--world-route-end-icon, none) !important;
+	background-repeat: no-repeat !important;
+	background-position: center center !important;
+	background-size: contain !important;
+	background-color: transparent !important;
+	border: none !important;
+	border-radius: 0 !important;
+	box-shadow: none !important;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-npc-search-layer {
+	position: absolute !important;
+	inset: 0 !important;
+	width: 100% !important;
+	height: 100% !important;
+	pointer-events: none !important;
+	z-index: 6 !important;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-npc-search-marker {
+	position: absolute !important;
+	background-image: var(--world-route-npc-search-icon, none) !important;
+	background-repeat: no-repeat !important;
+	background-position: center center !important;
+	background-size: contain !important;
+	filter: none !important;
+}
+
+
+/* v29: official-looking translucent blue route tiles.
+ * Do not use wv_dunselect.bmp as the background for every route cell.
+ * The path tiles should be simple semi-transparent blue blocks like the
+ * official screenshot, while the current/start and destination markers stay
+ * as separate icons on top. */
+#WorldMap .worldmap .official-route-style .navigation-route-cell,
+#WorldMap .worldmap .official-route-style .navigation-route-cell.route-map,
+#WorldMap .worldmap .official-route-style .navigation-route-cell.route-mobnpc,
+#WorldMap .worldmap .official-route-style .navigation-route-cell.route-dungeon,
+#WorldMap .worldmap .official-route-style .navigation-route-cell.route-start,
+#WorldMap .worldmap .official-route-style .navigation-route-cell.route-end {
+	background-image: none !important;
+	background-color: rgba(112, 124, 255, 0.28) !important;
+	border: 1px solid rgba(196, 214, 255, 0.42) !important;
+	box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06) !important;
+	border-radius: 0 !important;
+	opacity: 1 !important;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-start-icon,
+#WorldMap .worldmap .official-route-style.has-start-icon .navigation-route-start-icon {
+	z-index: 9 !important;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-end-icon,
+#WorldMap .worldmap .official-route-style.has-end-icon .navigation-route-end-icon {
+	z-index: 9 !important;
+}
+
+
+/* v30: destination-only selected-tile check marker.
+ * Use wv_select.bmp as the destination check marker and place it in the
+ * lower-left of the destination tile. Do not show checks on route path tiles. */
+#WorldMap .worldmap .official-route-style .navigation-route-end-check,
+#WorldMap .worldmap .official-route-style.has-end-icon .navigation-route-end-check {
+	display: block !important;
+	position: absolute !important;
+	left: 3px !important;
+	top: 35px !important;
+	width: 24px !important;
+	height: 24px !important;
+	background-image: var(--world-route-selected-cell-icon, none) !important;
+	background-repeat: no-repeat !important;
+	background-position: center center !important;
+	background-size: contain !important;
+	background-color: transparent !important;
+	border: none !important;
+	box-shadow: none !important;
+	border-radius: 0 !important;
+	transform: none !important;
+	z-index: 10 !important;
+}
+
+#WorldMap .worldmap .official-route-style .navigation-route-marker-layer .navigation-route-cell .navigation-route-end-check {
+	display: none !important;
+}

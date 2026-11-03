@@ -48,6 +48,10 @@ let _partyMembersByMap = {};
 
 let _hoveredSection = null;
 
+let _activeWorldMapData = null;
+let _navigationRoute = null;
+const _worldRouteIconURI = {};
+
 // Sizing params
 const C_TITLEBARHEIGHT = 17;
 const C_BASEWIDTH = 1280;
@@ -84,6 +88,7 @@ WorldMap.init = function init() {
 	}
 
 	WorldMap.showLVLMode = false;
+	document.addEventListener('roBrowserNavigationRouteChanged', onNavigationRouteChanged);
 };
 
 /**
@@ -146,6 +151,9 @@ function resizeMap() {
 	const currentheight =
 		((typeof Renderer !== 'undefined' && Renderer.height) || window.innerHeight) - C_TITLEBARHEIGHT;
 
+	// Keep the official 5:4 world-map aspect.  Do not stretch the background to
+	// widescreen, otherwise all official route/search tiles look distorted and
+	// positions no longer match kRO's World View UI.
 	const xmult = currentwidth / C_BASEWIDTH;
 	const ymult = currentheight / C_BASEHEIGHT;
 
@@ -172,8 +180,514 @@ function onWorldMapSectionClick(e) {
 	Navigation.show();
 	const input = Navigation.getRoot().querySelector('.search-input');
 	if (input) input.value = displayName || mapId;
-	Navigation.onSearch();
+
+	// Do not rely on NPC/MOB text search here. The large world map gives us
+	// the actual map id, so navigate to that map directly. This also fixes
+	// custom display names that do not exist in the navigation NPC/MOB tables.
+	if (Navigation.navigateToMap) {
+		Navigation.navigateToMap(mapId, displayName || mapId);
+	} else {
+		Navigation.onSearch(true);
+	}
+
 	Navigation.focus();
+}
+
+function normalizeWorldMapName(mapName) {
+	return String(mapName || '').replace(/\.gat$/i, '').toLowerCase();
+}
+
+function onNavigationRouteChanged(event) {
+	const detail = event.detail || {};
+	_navigationRoute = detail.active ? detail : null;
+	renderNavigationRouteOverlay();
+}
+
+function getWorldMapSectionById(worldMapData, mapId) {
+	mapId = normalizeWorldMapName(mapId);
+	if (!worldMapData || !worldMapData.maps || !mapId) {
+		return null;
+	}
+
+	for (let i = 0; i < worldMapData.maps.length; i++) {
+		const section = worldMapData.maps[i];
+		if (section && normalizeWorldMapName(section.id) === mapId) {
+			return section;
+		}
+	}
+
+	return null;
+}
+
+function getSectionCenter(section) {
+	return {
+		x: section.left + section.width / 2,
+		y: section.top + section.height / 2
+	};
+}
+
+function createRouteSvgElement(name) {
+	return document.createElementNS('http://www.w3.org/2000/svg', name);
+}
+
+function setRouteOverlayBaseRect(element, section) {
+	element.style.left = (section.left / C_BASEWIDTH) * 100 + '%';
+	element.style.top = (section.top / C_BASEHEIGHT) * 100 + '%';
+	element.style.width = (section.width / C_BASEWIDTH) * 100 + '%';
+	element.style.height = (section.height / C_BASEHEIGHT) * 100 + '%';
+}
+
+function getRouteCellCenterPercent(section) {
+	return {
+		x: ((section.left + section.width / 2) / C_BASEWIDTH) * 100,
+		y: ((section.top + section.height / 2) / C_BASEHEIGHT) * 100
+	};
+}
+
+function setRouteTileRectByCenter(element, center, size) {
+	size = size || 64;
+	element.style.left = ((center.x - size / 2) / C_BASEWIDTH) * 100 + '%';
+	element.style.top = ((center.y - size / 2) / C_BASEHEIGHT) * 100 + '%';
+	element.style.width = (size / C_BASEWIDTH) * 100 + '%';
+	element.style.height = (size / C_BASEHEIGHT) * 100 + '%';
+}
+
+function getRouteTargetType() {
+	return String((_navigationRoute && _navigationRoute.targetType) || '').toUpperCase();
+}
+
+function getRouteCellClassName(index, total, item) {
+	// The route cell itself should always be the official selected-grid tile.
+	// Do not use the search-result MOB/NPC BMP as every route cell; that makes
+	// the world map repeat pink monster/NPC icons along the path.
+	let className = 'navigation-route-cell';
+	if (index === 0) {
+		className += ' route-start';
+	}
+	if (index === total - 1) {
+		className += ' route-end';
+	}
+	if (item && item.section && Number(item.section.type) === 1) {
+		className += ' route-dungeon';
+	}
+	return className;
+}
+
+function createRouteRunLineLayer(visibleRoute) {
+	const layer = document.createElement('div');
+	layer.className = 'navigation-route-runline-layer';
+
+	for (let i = 1; i < visibleRoute.length; i++) {
+		const from = visibleRoute[i - 1].center;
+		const to = visibleRoute[i].center;
+		const dx = to.x - from.x;
+		const dy = to.y - from.y;
+		const length = Math.sqrt(dx * dx + dy * dy);
+		if (!length) {
+			continue;
+		}
+
+		const segment = document.createElement('div');
+		segment.className = 'navigation-route-runline-segment';
+		segment.style.left = (from.x / C_BASEWIDTH) * 100 + '%';
+		segment.style.top = (from.y / C_BASEHEIGHT) * 100 + '%';
+		segment.style.width = (length / C_BASEWIDTH) * 100 + '%';
+		segment.style.transform = 'rotate(' + (Math.atan2(dy, dx) * 180 / Math.PI) + 'deg) translateY(-50%)';
+		layer.appendChild(segment);
+	}
+
+	return layer;
+}
+
+function applyWorldRouteIconVariables(overlay) {
+	if (!overlay || !overlay.style) {
+		return;
+	}
+
+	if (_worldRouteIconURI.cell) {
+		overlay.style.setProperty('--world-route-cell-icon', 'url(' + _worldRouteIconURI.cell + ')');
+		overlay.classList.add('has-cell-icon');
+	}
+	if (_worldRouteIconURI.selectedCell) {
+		overlay.style.setProperty('--world-route-selected-cell-icon', 'url(' + _worldRouteIconURI.selectedCell + ')');
+		overlay.classList.add('has-selected-cell-icon');
+	}
+	if (_worldRouteIconURI.mapCell) {
+		overlay.style.setProperty('--world-route-map-cell-icon', 'url(' + _worldRouteIconURI.mapCell + ')');
+		overlay.classList.add('has-map-cell-icon');
+	}
+	if (_worldRouteIconURI.mobNpcCell) {
+		overlay.style.setProperty('--world-route-mobnpc-cell-icon', 'url(' + _worldRouteIconURI.mobNpcCell + ')');
+		overlay.classList.add('has-mobnpc-cell-icon');
+	}
+	if (_worldRouteIconURI.dungeonCell) {
+		overlay.style.setProperty('--world-route-dungeon-cell-icon', 'url(' + _worldRouteIconURI.dungeonCell + ')');
+		overlay.classList.add('has-dungeon-cell-icon');
+	}
+	if (_worldRouteIconURI.runLine) {
+		overlay.style.setProperty('--world-route-runline-icon', 'url(' + _worldRouteIconURI.runLine + ')');
+		overlay.classList.add('has-runline-icon');
+	}
+	if (_worldRouteIconURI.start) {
+		overlay.style.setProperty('--world-route-start-icon', 'url(' + _worldRouteIconURI.start + ')');
+		overlay.classList.add('has-start-icon');
+	}
+	if (_worldRouteIconURI.end) {
+		overlay.style.setProperty('--world-route-end-icon', 'url(' + _worldRouteIconURI.end + ')');
+		overlay.classList.add('has-end-icon');
+	}
+	if (_worldRouteIconURI.npcSearch) {
+		overlay.style.setProperty('--world-route-npc-search-icon', 'url(' + _worldRouteIconURI.npcSearch + ')');
+		overlay.classList.add('has-npc-search-icon');
+	}
+	for (let i = 1; i <= 5; i++) {
+		const key = 'mob' + i;
+		if (_worldRouteIconURI[key]) {
+			overlay.style.setProperty('--world-monster-density-' + i + '-icon', 'url(' + _worldRouteIconURI[key] + ')');
+			overlay.classList.add('has-monster-density-icons');
+		}
+	}
+}
+
+function makeMagentaTransparent(dataURI, callback) {
+	if (!dataURI || dataURI instanceof ArrayBuffer) {
+		callback(dataURI);
+		return;
+	}
+
+	const img = new Image();
+	img.onload = () => {
+		try {
+			const width = img.naturalWidth || img.width;
+			const height = img.naturalHeight || img.height;
+			if (!width || !height) {
+				callback(dataURI);
+				return;
+			}
+
+			const canvas = document.createElement('canvas');
+			canvas.width = width;
+			canvas.height = height;
+			const ctx = canvas.getContext('2d');
+			ctx.drawImage(img, 0, 0);
+
+			const imageData = ctx.getImageData(0, 0, width, height);
+			const pixels = imageData.data;
+			for (let i = 0; i < pixels.length; i += 4) {
+				// kRO interface BMPs use pure magenta as transparent color.
+				if (pixels[i] >= 245 && pixels[i + 1] <= 10 && pixels[i + 2] >= 245) {
+					pixels[i + 3] = 0;
+				}
+			}
+			ctx.putImageData(imageData, 0, 0);
+			callback(canvas.toDataURL('image/png'));
+		} catch (_e) {
+			callback(dataURI);
+		}
+	};
+	img.onerror = () => callback(dataURI);
+	img.decoding = 'async';
+	img.src = dataURI;
+}
+
+function requestWorldRouteIcon(key, relativePath, overlay, makeTransparent) {
+	if (_worldRouteIconURI[key]) {
+		applyWorldRouteIconVariables(overlay);
+		return;
+	}
+
+	Client.loadFile(
+		DB.INTERFACE_PATH + relativePath,
+		dataURI => {
+			if (!dataURI || dataURI instanceof ArrayBuffer) {
+				return;
+			}
+
+			const finish = convertedURI => {
+				_worldRouteIconURI[key] = convertedURI || dataURI;
+				applyWorldRouteIconVariables(overlay);
+			};
+
+			if (makeTransparent !== false) {
+				makeMagentaTransparent(dataURI, finish);
+			} else {
+				finish(dataURI);
+			}
+		},
+		() => {}
+	);
+}
+
+function requestWorldRouteIcons(overlay) {
+	// Official world-view assets live in data/texture/.../worldview_interface/.
+	// wv_select.bmp is the selected route tile. wv_face1.bmp is the
+	// current/check/sword marker, and only the destination uses wv_end.bmp.
+	requestWorldRouteIcon('cell', 'worldview_interface/wv_dunselect.bmp', overlay);
+	requestWorldRouteIcon('selectedCell', 'worldview_interface/wv_select.bmp', overlay);
+	requestWorldRouteIcon('start', 'worldview_interface/wv_face1.bmp', overlay);
+	requestWorldRouteIcon('end', 'worldview_interface/wv_end.bmp', overlay);
+	requestWorldRouteIcon('npcSearch', 'worldview_interface/wv_sreachnpc.bmp', overlay);
+}
+
+function requestWorldMonsterDensityIcons(overlay) {
+	// These are the official World View monster-search density icons.  The number
+	// corresponds to the spawn amount bucket: 1 very-low ... 5 very-high.
+	for (let i = 1; i <= 5; i++) {
+		requestWorldRouteIcon('mob' + i, 'worldview_interface/wv_sreachmob' + i + '.bmp', overlay);
+	}
+}
+
+function getMonsterDensityIndex(amount, rateLabel) {
+	const label = String(rateLabel || '').toLowerCase();
+	amount = Number(amount) || 0;
+
+	if (label.indexOf('very high') !== -1 || amount >= 60) {
+		return 5;
+	}
+	if (label === 'high' || amount >= 25) {
+		return 4;
+	}
+	if (label === 'average' || amount >= 10) {
+		return 3;
+	}
+	if (label === 'low' || amount >= 3) {
+		return 2;
+	}
+	return 1;
+}
+
+function createMonsterDensityMarkerLayer(worldMapData) {
+	const markerLayer = document.createElement('div');
+	markerLayer.className = 'navigation-monster-density-layer';
+
+	if (getRouteTargetType() !== 'MOB' || !_navigationRoute || !_navigationRoute.targetSpawns) {
+		return markerLayer;
+	}
+
+	const bestByMap = {};
+	for (let i = 0; i < _navigationRoute.targetSpawns.length; i++) {
+		const spawn = _navigationRoute.targetSpawns[i];
+		const mapId = normalizeWorldMapName(spawn && spawn.mapName);
+		if (!mapId) {
+			continue;
+		}
+
+		const amount = Number(spawn.amount) || 0;
+		if (!bestByMap[mapId] || amount > bestByMap[mapId].amount) {
+			bestByMap[mapId] = {
+				mapName: mapId,
+				amount: amount,
+				rateLabel: spawn.rateLabel || ''
+			};
+		}
+	}
+
+	const mapIds = Object.keys(bestByMap);
+	for (let i = 0; i < mapIds.length; i++) {
+		const spawn = bestByMap[mapIds[i]];
+		const section = getWorldMapSectionById(worldMapData, spawn.mapName);
+		if (!section) {
+			continue;
+		}
+
+		const marker = document.createElement('div');
+		const density = getMonsterDensityIndex(spawn.amount, spawn.rateLabel);
+		marker.className = 'navigation-monster-density-marker density-' + density;
+		marker.title = (spawn.rateLabel || '') + (spawn.amount ? ' [' + spawn.amount + ']' : '');
+		setRouteTileRectByCenter(marker, getSectionCenter(section), 64);
+		markerLayer.appendChild(marker);
+	}
+
+	return markerLayer;
+}
+
+function createNpcSearchMarkerLayer(worldMapData) {
+	const markerLayer = document.createElement('div');
+	markerLayer.className = 'navigation-npc-search-layer';
+
+	if (getRouteTargetType() !== 'NPC' || !_navigationRoute || !Array.isArray(_navigationRoute.targetEntries) || !_navigationRoute.targetEntries.length) {
+		return markerLayer;
+	}
+
+	const seen = {};
+	for (let i = 0; i < _navigationRoute.targetEntries.length; i++) {
+		const entry = _navigationRoute.targetEntries[i];
+		const mapId = normalizeWorldMapName(entry && entry.mapName);
+		if (!mapId || seen[mapId]) {
+			continue;
+		}
+		seen[mapId] = true;
+		const section = getWorldMapSectionById(worldMapData, mapId);
+		if (!section) {
+			continue;
+		}
+		const marker = document.createElement('div');
+		marker.className = 'navigation-npc-search-marker';
+		marker.title = _navigationRoute.targetName || mapId;
+		setRouteTileRectByCenter(marker, getSectionCenter(section), 64);
+		markerLayer.appendChild(marker);
+	}
+
+	return markerLayer;
+}
+
+function createRouteMarkerLayer(visibleRoute) {
+	const markerLayer = document.createElement('div');
+	markerLayer.className = 'navigation-route-marker-layer';
+
+	if (!visibleRoute.length) {
+		return markerLayer;
+	}
+
+	const startItem = visibleRoute[0];
+	const endItem = visibleRoute[visibleRoute.length - 1];
+
+	// Official World View puts the current/check/sword marker on the current
+	// route tile, not on every tile and not on the destination.
+	if (startItem && startItem.section) {
+		const startMarker = document.createElement('div');
+		startMarker.className = 'navigation-route-start-marker';
+		setRouteTileRectByCenter(startMarker, startItem.center, 64);
+
+		const startIcon = document.createElement('span');
+		startIcon.className = 'navigation-route-start-icon';
+		startMarker.appendChild(startIcon);
+		markerLayer.appendChild(startMarker);
+	}
+
+	if (endItem && endItem.section) {
+		const endMarker = document.createElement('div');
+		endMarker.className = 'navigation-route-end-marker';
+		setRouteTileRectByCenter(endMarker, endItem.center, 64);
+
+		// wv_end.bmp already contains the End text/icon, so do not add an HTML
+		// "End" label. Place the icon in the upper-left of the destination tile.
+		const endIcon = document.createElement('span');
+		endIcon.className = 'navigation-route-end-icon';
+		endMarker.appendChild(endIcon);
+
+		const endCheck = document.createElement('span');
+		endCheck.className = 'navigation-route-end-check';
+		endMarker.appendChild(endCheck);
+
+		markerLayer.appendChild(endMarker);
+	}
+
+	return markerLayer;
+}
+
+/**
+ * Draw the official-style route overlay on the large world map.
+ */
+function renderNavigationRouteOverlay(mapView, worldMapData) {
+	const root = WorldMap.getRoot();
+	mapView = mapView || root.querySelector('.worldmap .map-view');
+	worldMapData = worldMapData || _activeWorldMapData;
+
+	if (!_navigationRoute && typeof window !== 'undefined' && window.__RO_BROWSER_NAVIGATION_ROUTE__) {
+		const savedRoute = window.__RO_BROWSER_NAVIGATION_ROUTE__;
+		_navigationRoute = savedRoute.active ? savedRoute : null;
+	}
+
+	if (!mapView) {
+		return;
+	}
+
+	const oldOverlay = mapView.querySelector('.navigation-route-overlay');
+	if (oldOverlay) {
+		oldOverlay.remove();
+	}
+
+	const hasMonsterMarkers = !!(
+		_navigationRoute &&
+		getRouteTargetType() === 'MOB' &&
+		Array.isArray(_navigationRoute.targetSpawns) &&
+		_navigationRoute.targetSpawns.length
+	);
+	const hasNpcMarkers = !!(
+		_navigationRoute &&
+		getRouteTargetType() === 'NPC' &&
+		Array.isArray(_navigationRoute.targetEntries) &&
+		_navigationRoute.targetEntries.length
+	);
+	const hasRouteMaps = !!(_navigationRoute && Array.isArray(_navigationRoute.routeMaps) && _navigationRoute.routeMaps.length);
+
+	if (!_navigationRoute || !worldMapData || (!hasRouteMaps && !hasMonsterMarkers && !hasNpcMarkers)) {
+		return;
+	}
+
+	const visibleRoute = [];
+	const seen = {};
+	for (let i = 0; i < _navigationRoute.routeMaps.length; i++) {
+		const mapId = normalizeWorldMapName(_navigationRoute.routeMaps[i]);
+		if (seen[mapId]) {
+			continue;
+		}
+		seen[mapId] = true;
+
+		const section = getWorldMapSectionById(worldMapData, mapId);
+		if (!section) {
+			continue;
+		}
+
+		visibleRoute.push({
+			mapId: mapId,
+			section: section,
+			center: getSectionCenter(section)
+		});
+	}
+
+	if (!visibleRoute.length && !hasMonsterMarkers && !hasNpcMarkers) {
+		return;
+	}
+
+	const overlay = document.createElement('div');
+	overlay.className = 'navigation-route-overlay official-route-style';
+	applyWorldRouteIconVariables(overlay);
+	requestWorldRouteIcons(overlay);
+	requestWorldMonsterDensityIcons(overlay);
+
+	const cellLayer = document.createElement('div');
+	cellLayer.className = 'navigation-route-cell-layer';
+	overlay.appendChild(cellLayer);
+
+	// Official client marks each world-map grid cell in the route.  Do not draw
+	// the previous custom circular nodes; use translucent route tiles instead.
+	for (let i = 0; i < visibleRoute.length; i++) {
+		const item = visibleRoute[i];
+		const cell = document.createElement('div');
+		cell.className = getRouteCellClassName(i, visibleRoute.length, item);
+		setRouteTileRectByCenter(cell, item.center, 64);
+		cellLayer.appendChild(cell);
+	}
+
+	if (visibleRoute.length >= 2) {
+		const svg = createRouteSvgElement('svg');
+		svg.setAttribute('viewBox', `0 0 ${C_BASEWIDTH} ${C_BASEHEIGHT}`);
+		svg.setAttribute('preserveAspectRatio', 'none');
+		svg.classList.add('navigation-route-svg');
+
+		const points = visibleRoute.map(item => `${item.center.x},${item.center.y}`).join(' ');
+
+		const pathShadow = createRouteSvgElement('polyline');
+		pathShadow.setAttribute('points', points);
+		pathShadow.classList.add('navigation-route-line-shadow');
+		svg.appendChild(pathShadow);
+
+		const pathLine = createRouteSvgElement('polyline');
+		pathLine.setAttribute('points', points);
+		pathLine.classList.add('navigation-route-line');
+		svg.appendChild(pathLine);
+
+		overlay.appendChild(svg);
+	}
+
+	overlay.appendChild(createMonsterDensityMarkerLayer(worldMapData));
+	overlay.appendChild(createNpcSearchMarkerLayer(worldMapData));
+	if (visibleRoute.length) {
+		overlay.appendChild(createRouteMarkerLayer(visibleRoute));
+	}
+	mapView.appendChild(overlay);
 }
 
 /**
@@ -256,6 +770,7 @@ function hideTooltip() {
  * @param {string} imgData world map image data as a base64
  */
 function createWorldMapView(map, imgData) {
+	_activeWorldMapData = map;
 	const root = WorldMap.getRoot();
 	const container = root.querySelector('.map .content');
 	const worldmap = document.createElement('div');
@@ -417,6 +932,7 @@ function createWorldMapView(map, imgData) {
 		loadAirplane(mapView);
 	}
 	worldmap.appendChild(mapView);
+	renderNavigationRouteOverlay(mapView, map);
 	container.innerHTML = '';
 	container.appendChild(worldmap);
 }
