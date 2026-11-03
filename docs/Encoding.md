@@ -147,6 +147,8 @@ Rules:
 - If Base64 → decode → UTF-8
 - Else → treat as plain text (tab-separated)
 
+Clients without `data/msgstringtable.txt` or `.csv` (e.g. ROLatam) ship `data/msgstringtable_ml.csv`: one Base64 column per language, picked by the server `langtype` (Korean, Brazil → Portuguese, Chile → Spanish, others → English).
+
 ---
 
 ## Common Pitfalls
