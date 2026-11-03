@@ -462,7 +462,9 @@ class DB {
 				function (json) {
 					Object.assign(HatTable, json);
 				},
-				onLoad()
+				onLoad(),
+				null,
+				false
 			);
 			loadLuaTable(
 				[DB.LUA_PATH + 'datainfo/spriterobeid.lub', DB.LUA_PATH + 'datainfo/spriterobename.lub'],
@@ -470,7 +472,9 @@ class DB {
 				function (json) {
 					Object.assign(RobeTable, json);
 				},
-				onLoad()
+				onLoad(),
+				null,
+				false
 			);
 
 			if (PACKETVER.value >= 20141008) {
@@ -490,7 +494,8 @@ class DB {
 								onLoad()
 							);
 						});
-					}
+					},
+					false
 				);
 			} else {
 				loadLuaTable(
@@ -499,7 +504,9 @@ class DB {
 					function (json) {
 						Object.assign(MonsterTable, json);
 					},
-					onLoad()
+					onLoad(),
+					null,
+					false
 				);
 			}
 
@@ -7382,10 +7389,13 @@ function loadStateIconInfo(basePath, callback, onEnd) {
  * @param {function} callback to run once the file is loaded
  * @param {function} onEnd to run once the file is loaded
  * @param {function?} contextFunc - Function to execute after parsing but before unmounting
+ * @param {boolean} [useCharPage=true] - The values are user-facing text, decoded with the langtype charset.
+ *   Pass false for tables of resource names (sprite file names): GRF lookup always uses the filesystem
+ *   charset (docs/Encoding.md).
  *
  * @author alisonrag
  */
-function loadLuaTable(file_list, table_name, callback, onEnd, contextFunc) {
+function loadLuaTable(file_list, table_name, callback, onEnd, contextFunc, useCharPage = true) {
 	const id_filename = file_list[0];
 	const value_table_filename = file_list[1];
 
@@ -7431,7 +7441,7 @@ function loadLuaTable(file_list, table_name, callback, onEnd, contextFunc) {
 
 			// create context function
 			ctx.addKeyAndValueToTable = (key, value) => {
-				table[key] = userStringDecoder.decode(value, userCharpage);
+				table[key] = userStringDecoder.decode(value, useCharPage ? userCharpage : grfCharpage);
 				return 1;
 			};
 
@@ -7440,7 +7450,7 @@ function loadLuaTable(file_list, table_name, callback, onEnd, contextFunc) {
 				if (!table[key]) {
 					table[key] = '';
 				}
-				table[key] += userStringDecoder.decode(value, userCharpage) + '\n';
+				table[key] += userStringDecoder.decode(value, useCharPage ? userCharpage : grfCharpage) + '\n';
 				return 1;
 			};
 
