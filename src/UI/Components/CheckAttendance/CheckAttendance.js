@@ -185,7 +185,7 @@ CheckAttendance.updateUI = function updateUI() {
 			const slot_complete_string = day > slot_off ? 'bt_slot_complete' : 'bt_slot_off';
 			const item_slot =
 				`<li id="attendance_day_${i}" class="attendance-item" ${background}>` +
-				`<div class="item" data-background="${DB.INTERFACE_PATH}item/${item.identifiedResourceName}.bmp">` +
+				`<div class="item" data-background="item/${item.identifiedResourceName}.bmp">` +
 				`<span class="item-quantity">${_CheckAttendanceInfo.Rewards[i].quantity}</span>` +
 				`<span class="name">${item.identifiedDisplayName}</span>` +
 				`<div class="${checked}" data-background="check_attendance/${slot_complete_string}.tga"></div>` +
