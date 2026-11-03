@@ -783,6 +783,7 @@ function onMapChange(pkt) {
  * @param {object} pkt - PACKET.ZC.NPCACK_SERVERMOVE
  */
 function onServerChange(pkt) {
+	Network.expectClose();
 	MapEngine.init(pkt.addr.ip, pkt.addr.port, pkt.mapName);
 }
 

@@ -581,23 +581,35 @@ function onClose() {
 	const idx = _sockets.indexOf(this);
 
 	if (this === _socket) {
-		console.warn('[Network] Disconnect from server');
-
 		if (_socket.ping) {
 			clearInterval(_socket.ping);
 		}
 
-		if (_onDisconnect) {
-			_onDisconnect();
-		} else {
-			import('UI/UIManager.js').then(UIManager => {
-				UIManager.default.showErrorBox('Disconnected from Server.');
-			});
+		if (!this.closeExpected) {
+			console.warn('[Network] Disconnect from server');
+
+			if (_onDisconnect) {
+				_onDisconnect();
+			} else {
+				import('UI/UIManager.js').then(UIManager => {
+					UIManager.default.showErrorBox('Disconnected from Server.');
+				});
+			}
 		}
 	}
 
 	if (idx !== -1) {
 		_sockets.splice(idx, 1);
+	}
+}
+
+/**
+ * The current server has sent us to another one: its socket closing from
+ * now on is expected, not a disconnection.
+ */
+function expectClose() {
+	if (_socket) {
+		_socket.closeExpected = true;
 	}
 }
 
@@ -717,6 +729,7 @@ const Network = (function network() {
 		connect: connect,
 		hookPacket: hookPacket,
 		close: close,
+		expectClose: expectClose,
 		read: read,
 		set onDisconnect(callback) {
 			_onDisconnect = callback;
