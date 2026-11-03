@@ -237391,7 +237391,7 @@ var init_CheckAttendance = __esmMin((() => {
 				const background = !already_requested && day == current_day ? `data-background="check_attendance/bt_slot_a.bmp" data-down="check_attendance/bt_slot_press.bmp"` : "";
 				const checked = day <= attendance_count ? "checked" : "checked-hidden";
 				const slot_complete_string = day > (already_requested ? attendance_count - 1 : attendance_count) ? "bt_slot_complete" : "bt_slot_off";
-				const item_slot = `<li id="attendance_day_${i}" class="attendance-item" ${background}><div class="item" data-background="${DB.INTERFACE_PATH}item/${item.identifiedResourceName}.bmp"><span class="item-quantity">${_CheckAttendanceInfo.Rewards[i].quantity}</span><span class="name">${item.identifiedDisplayName}</span><div class="${checked}" data-background="check_attendance/${slot_complete_string}.tga"></div></div><div class="day">${day} Day</div></li>`;
+				const item_slot = `<li id="attendance_day_${i}" class="attendance-item" ${background}><div class="item" data-background="item/${item.identifiedResourceName}.bmp"><span class="item-quantity">${_CheckAttendanceInfo.Rewards[i].quantity}</span><span class="name">${item.identifiedDisplayName}</span><div class="${checked}" data-background="check_attendance/${slot_complete_string}.tga"></div></div><div class="day">${day} Day</div></li>`;
 				if (daysList) daysList.insertAdjacentHTML("beforeend", item_slot);
 				if (!already_requested && day == current_day) {
 					const dayEl = root.querySelector(`#attendance_day_${i}`);
