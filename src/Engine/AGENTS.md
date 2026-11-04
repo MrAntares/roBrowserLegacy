@@ -1,9 +1,5 @@
 # AGENTS.md — Engine Subsystem (`src/Engine/`)
 
-PROHIBITED — Scope Discipline (read before anything else)
-
-Read this file before changing `GameEngine`, `LoginEngine`, `CharEngine`, `MapEngine` or any gameplay subsystem. This folder is the game-state orchestration layer: packet routing, session state, map lifecycle and gameplay handlers. Do not patch a handler by reading it in isolation before checking the engine route and relevant docs.
-
 ## Topological snapshot
 
 - `GameEngine.js`, `LoginEngine.js`, `CharEngine.js`, `MapEngine.js` — top-level orchestration.

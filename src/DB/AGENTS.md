@@ -1,9 +1,5 @@
 # AGENTS.md — Database Subsystem (`src/DB/`)
 
-PROHIBITED — Scope Discipline (read before anything else)
-
-Read this file before editing a table, constant, skill map or status mapping. This folder is the data contract for the client: IDs, item metadata, skill rules, texture and map lookups, plus Lua-backed tables. Changes here affect engine, renderer and UI behavior across the project.
-
 ## Topological snapshot
 
 - `DBManager.js` — central lookup and loading layer.

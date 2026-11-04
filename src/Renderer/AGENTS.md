@@ -1,9 +1,5 @@
 # AGENTS.md — Renderer Subsystem (`src/Renderer/`)
 
-PROHIBITED — Scope Discipline (read before anything else)
-
-Read this file before touching the renderer, entity visuals, map draw code or effect logic. This folder is the visual execution path of the client: WebGL state, entity composition, batched sprites, map rendering and the effect system. Start here, then read the specific effect/entity file involved.
-
 ## Topological snapshot
 
 - `Renderer.js` / `MapRenderer.js` / `EntityManager.js` — render loop, world and entity coordination.

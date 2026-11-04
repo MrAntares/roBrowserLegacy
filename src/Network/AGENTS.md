@@ -1,9 +1,5 @@
 # AGENTS.md — Network Subsystem (`src/Network/`)
 
-PROHIBITED — Scope Discipline (read before anything else)
-
-Read this file before touching any packet, socket, opcode or `PACKETVER` logic. This folder is the protocol boundary between client and server; it defines packet layouts, version branching, and transport contracts. Do not start from a random packet handler or a search hit—read the local topology and version rules first.
-
 ## Topological snapshot
 
 - `PacketStructure.js` and `PacketRegister.js` — packet class definitions and opcode registration.

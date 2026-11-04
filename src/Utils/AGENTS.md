@@ -1,9 +1,5 @@
 # AGENTS.md — Shared Utilities (`src/Utils/`)
 
-PROHIBITED — Scope Discipline (read before anything else)
-
-Read this file before changing a shared utility or binary primitive. This folder is the lowest-level support layer for encoding, binary IO, rendering helpers and shared math; bugs here frequently break loaders, network code, renderer code and file parsing everywhere else.
-
 ## Topological snapshot
 
 - `BinaryReader.js`, `BinaryWriter.js`, `Struct.js` — binary protocols and structured reads.

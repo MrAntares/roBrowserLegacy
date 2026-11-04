@@ -1,9 +1,5 @@
 # AGENTS.md — Audio (`src/Audio/`)
 
-PROHIBITED — Scope Discipline (read before anything else)
-
-Read this file before modifying BGM or sound effects. This folder is the playback layer for music and effect audio; it bridges asset loading and browser audio APIs, and changes here must preserve preference-driven behavior across browser and Electron runtimes.
-
 ## Topological snapshot
 
 - `BGM.js` — background music playback and volume state.

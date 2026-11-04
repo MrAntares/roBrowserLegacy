@@ -1,9 +1,5 @@
 # AGENTS.md — Client Plugins (`src/Plugins/`)
 
-PROHIBITED — Scope Discipline (read before anything else)
-
-Read this file before modifying plugin loading or lifecycle behavior. This folder is the dynamic extension layer of the client: config-driven module loading and initialization. It can touch global state and runtime startup, so its contract should be understood before patching the loader.
-
 ## Topological snapshot
 
 - `PluginManager.js` — config-based plugin resolution and initialization.

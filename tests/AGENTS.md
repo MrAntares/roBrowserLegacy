@@ -1,9 +1,5 @@
 # AGENTS.md — Tests (`tests/`)
 
-PROHIBITED — Scope Discipline (read before anything else)
-
-Read this file before changing or adding tests. This folder is the regression map for the whole client: UI, engine, network, loaders, renderer and database behavior. Use it to choose the closest subsystem suite before modifying code or introducing fixture changes.
-
 ## Topological snapshot
 
 - `ui/` — component and interaction behavior.

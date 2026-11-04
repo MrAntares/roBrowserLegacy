@@ -6,22 +6,22 @@ Before searching broad filenames or reading `.js` files line by line, read the r
 
 ## Topological map of the repository
 
-| Folder | What lives there | Read first |
-| --- | --- | --- |
-| `src/Core/` | runtime config, VFS, workers, memory cache, Lua loader, AI | `src/Core/AGENTS.md` + `docs/LuaModuleResolution.md` |
-| `src/Network/` | packets, opcodes, PACKETVER, sockets | `src/Network/AGENTS.md` + `docs/Encoding.md` |
-| `src/Engine/` | login/char/map engines, gameplay systems and map subsystems | `src/Engine/AGENTS.md` + `docs/reference/README.md` |
-| `src/Renderer/` | WebGL, entities, effects, map rendering, GR2 | `src/Renderer/AGENTS.md` + `docs/reference/renderer/README.md` |
-| `src/UI/` | GUIComponent-based UI, custom elements, components and managers | `src/UI/AGENTS.md` + `docs/UIComponent_to_GUIComponent.md` |
-| `src/Loaders/` | binary asset loaders, GRF, SPR, STR, TGA, WASM | `src/Loaders/AGENTS.md` + `docs/Encoding.md` |
-| `src/DB/` | item/skill/status tables and constants | `src/DB/AGENTS.md` + `docs/Encoding.md` |
-| `src/Controls/` | keyboard/mouse/map/input and command processing | `src/Controls/AGENTS.md` |
-| `src/Audio/` | BGM and Web Audio effects | `src/Audio/AGENTS.md` |
-| `src/Preferences/` | persistent settings schemas | `src/Preferences/AGENTS.md` |
-| `src/Plugins/` | plugin loader and config-driven init | `src/Plugins/AGENTS.md` |
-| `src/Utils/` | shared binary, encoding, rendering and helper code | `src/Utils/AGENTS.md` |
-| `tests/` | subsystem tests and fixture coverage | `tests/AGENTS.md` |
-| `docs/` | behavioral references, migration notes and subsystem docs | relevant `docs/*.md` before touching a component |
+| Folder             | What lives there                                                | Read first                                                     | Why |
+| ------------------ | --------------------------------------------------------------- | -------------------------------------------------------------- | --- |
+| `src/Core/`        | runtime config, VFS, workers, memory cache, Lua loader, AI      | `src/Core/AGENTS.md` + `docs/LuaModuleResolution.md`           |
+| `src/Network/`     | packets, opcodes, PACKETVER, sockets                            | `src/Network/AGENTS.md` + `docs/Encoding.md`                   |
+| `src/Engine/`      | login/char/map engines, gameplay systems and map subsystems     | `src/Engine/AGENTS.md` + `docs/reference/README.md`            |
+| `src/Renderer/`    | WebGL, entities, effects, map rendering, GR2                    | `src/Renderer/AGENTS.md` + `docs/reference/renderer/README.md` |
+| `src/UI/`          | GUIComponent-based UI, custom elements, components and managers | `src/UI/AGENTS.md` + `docs/UIComponent_to_GUIComponent.md`     |
+| `src/Loaders/`     | binary asset loaders, GRF, SPR, STR, TGA, WASM                  | `src/Loaders/AGENTS.md` + `docs/Encoding.md`                   |
+| `src/DB/`          | item/skill/status tables and constants                          | `src/DB/AGENTS.md` + `docs/Encoding.md`                        |
+| `src/Controls/`    | keyboard/mouse/map/input and command processing                 | `src/Controls/AGENTS.md`                                       |
+| `src/Audio/`       | BGM and Web Audio effects                                       | `src/Audio/AGENTS.md`                                          |
+| `src/Preferences/` | persistent settings schemas                                     | `src/Preferences/AGENTS.md`                                    |
+| `src/Plugins/`     | plugin loader and config-driven init                            | `src/Plugins/AGENTS.md`                                        |
+| `src/Utils/`       | shared binary, encoding, rendering and helper code              | `src/Utils/AGENTS.md`                                          |
+| `tests/`           | subsystem tests and fixture coverage                            | `tests/AGENTS.md`                                              |
+| `docs/`            | behavioral references, migration notes and subsystem docs       | relevant `docs/*.md` before touching a component               |
 
 Global entry point for AI coding agents working on **roBrowserLegacy**, a browser-based Ragnarok Online client built with ES modules, Vite, a custom builder, and WebGL (OpenGL ES 2.0). The project runs in web browsers, as a PWA, and as an Electron desktop application.
 
