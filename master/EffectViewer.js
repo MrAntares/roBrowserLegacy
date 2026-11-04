@@ -313785,7 +313785,7 @@ function loadStateIconInfo(basePath, callback, onEnd) {
 	}
 	loadNext(0);
 }
-function loadLuaTable(file_list, table_name, callback, onEnd, contextFunc) {
+function loadLuaTable(file_list, table_name, callback, onEnd, contextFunc, useCharPage = true) {
 	const id_filename = file_list[0];
 	const value_table_filename = file_list[1];
 	try {
@@ -313817,12 +313817,12 @@ function loadLuaTable(file_list, table_name, callback, onEnd, contextFunc) {
 			const table = {};
 			const ctx = lua.ctx;
 			ctx.addKeyAndValueToTable = (key, value) => {
-				table[key] = userStringDecoder.decode(value, userCharpage);
+				table[key] = userStringDecoder.decode(value, useCharPage ? userCharpage : grfCharpage);
 				return 1;
 			};
 			ctx.addKeyAndMoreValuesToTable = (key, value) => {
 				if (!table[key]) table[key] = "";
-				table[key] += userStringDecoder.decode(value, userCharpage) + "\n";
+				table[key] += userStringDecoder.decode(value, useCharPage ? userCharpage : grfCharpage) + "\n";
 				return 1;
 			};
 			lua.doStringSync(`
@@ -314223,7 +314223,7 @@ function updateMapTable() {
 		else MapTable[key] = { name: MapInfo[key].displayName };
 	}
 }
-var lua, HO_AI, MER_AI, default_HO_AI, default_MER_AI, mountPalettes, mountPalettesProbe, MsgStringTable, JokeTable, ScreamTable, MapTable, SkillDescription, SexTable, PetTalkTable, CheckAttendanceTable, buyingStoreItemList, LaphineSysTable, LaphineUpgTable, ItemDBNameTbl, ItemReformTable, EnchantListTable, SignBoardTranslatedTable, SignBoardTable, NaviMapTable, NaviMobTable, NaviNpcTable, NaviLinkTable, NaviLinkDistanceTable, NaviNpcDistanceTable, QuestInfo, TitleTable, PetDBTable, EggIDToJobID, ReputeGroup, ReputeInfo, AchievementTable, MsgEmotionCSV, HatEffectID, HatEffectInfo, FootPrintEffectInfo, CashShopBannerTable, Ez2streffect, unknownItem, servers, langType, userCharpage, userStringDecoder, DB, SUFFIX_TO_FIELD, HARDCODED_FIELD_MAPPING, EZ2_VARIANT_WORD;
+var lua, HO_AI, MER_AI, default_HO_AI, default_MER_AI, mountPalettes, mountPalettesProbe, MsgStringTable, JokeTable, ScreamTable, MapTable, SkillDescription, SexTable, PetTalkTable, CheckAttendanceTable, buyingStoreItemList, LaphineSysTable, LaphineUpgTable, ItemDBNameTbl, ItemReformTable, EnchantListTable, SignBoardTranslatedTable, SignBoardTable, NaviMapTable, NaviMobTable, NaviNpcTable, NaviLinkTable, NaviLinkDistanceTable, NaviNpcDistanceTable, QuestInfo, TitleTable, PetDBTable, EggIDToJobID, ReputeGroup, ReputeInfo, AchievementTable, MsgEmotionCSV, HatEffectID, HatEffectInfo, FootPrintEffectInfo, CashShopBannerTable, Ez2streffect, unknownItem, servers, langType, userCharpage, grfCharpage, userStringDecoder, DB, SUFFIX_TO_FIELD, HARDCODED_FIELD_MAPPING, EZ2_VARIANT_WORD;
 var init_DBManager = __esmMin((() => {
 	init_Client();
 	init_Configs();
@@ -314331,7 +314331,8 @@ var init_DBManager = __esmMin((() => {
 	servers = Configs.get("servers", []);
 	langType = servers[0] && servers[0].langtype ? parseInt(servers[0].langtype, 0) : 0;
 	userCharpage = CodepageManager.detectEncodingByLangtype(langType, Configs.get("disableKorean"));
-	CodepageManager.setCharset("windows-1252");
+	grfCharpage = "windows-1252";
+	CodepageManager.setCharset(grfCharpage);
 	userStringDecoder = CodepageManager;
 	DB = class DB {
 		/**
@@ -314429,20 +314430,20 @@ var init_DBManager = __esmMin((() => {
 				}
 				loadLuaTable([DB.LUA_PATH + "datainfo/accessoryid.lub", DB.LUA_PATH + "datainfo/accname.lub"], "AccNameTable", function(json) {
 					Object.assign(HatTable_default, json);
-				}, onLoad());
+				}, onLoad(), null, false);
 				loadLuaTable([DB.LUA_PATH + "datainfo/spriterobeid.lub", DB.LUA_PATH + "datainfo/spriterobename.lub"], "RobeNameTable", function(json) {
 					Object.assign(RobeTable_default, json);
-				}, onLoad());
+				}, onLoad(), null, false);
 				if (PacketVerManager_default.value >= 20141008) loadLuaTable([DB.LUA_PATH + "datainfo/npcidentity.lub", DB.LUA_PATH + "datainfo/jobname.lub"], "JobNameTable", function(json) {
 					Object.assign(MonsterTable_default, json);
 				}, onLoad(), function() {
 					loadPetInfo(DB.LUA_PATH + "datainfo/petinfo.lub", null, function() {
 						tryLoadLuaAliases(loadPetEvolution, getSystemAliases("System/PetEvolutionCln.lub"), null, onLoad());
 					});
-				});
+				}, false);
 				else loadLuaTable([DB.LUA_PATH + "datainfo/npcidentity.lub", DB.LUA_PATH + "datainfo/jobname.lub"], "JobNameTable", function(json) {
 					Object.assign(MonsterTable_default, json);
-				}, onLoad());
+				}, onLoad(), null, false);
 				loadLuaTable([DB.LUA_PATH + "datainfo/enumvar.lub", DB.LUA_PATH + "datainfo/addrandomoptionnametable.lub"], "NameTable_VAR", function(json) {
 					Object.assign(ItemRandomOptionTable_default, json);
 				}, onLoad());
