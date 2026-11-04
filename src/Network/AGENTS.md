@@ -1,5 +1,13 @@
 # AGENTS.md — Network Subsystem (`src/Network/`)
 
+## Topological snapshot
+
+- `PacketStructure.js` and `PacketRegister.js` — packet class definitions and opcode registration.
+- `PacketVersions.js` and `PacketVerManager.js` — version-specific packet support and packet-version routing.
+- `PacketLength.js` and `src/Network/Packets/` — per-version length tables and packet metadata.
+- `SocketHelpers/` — browser and Electron socket transports (`WebSocket.js`, `NodeSocket.js`).
+- `docs/Encoding.md` and `docs/reference/README.md` — text decoding rules and packet behavior references.
+
 Instructions for working on packet structures, opcode registration, packet lengths, PACKETVER version management, network connections, and socket helpers.
 
 ## Mandatory Prerequisites & References

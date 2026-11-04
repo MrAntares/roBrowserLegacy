@@ -1,5 +1,13 @@
 # AGENTS.md — Asset Loaders (`src/Loaders/`)
 
+## Topological snapshot
+
+- `GameFile.js` / `GameFileDecrypt.js` — GRF container access and decryption.
+- `Sprite.js`, `Action.js`, `Ground.js`, `Altitude.js`, `World.js`, `Str.js`, `Model.js`, `MapLoader.js`, `Targa.js` — asset-specific parsers.
+- `wasm/` — WASM and JS parity hot paths used by sprite and palette decoders.
+- `docs/Encoding.md` — raw-byte and codepage rules for GRF/text decoding.
+- `tests/loaders/` — synthetic binary fixtures and parity tests.
+
 Instructions for working on binary game asset parsers, GRF container extraction, and WebAssembly (`.wat` / `.js`) hot-path decoders.
 
 ## Mandatory Prerequisites

@@ -1,5 +1,12 @@
 # AGENTS.md — Input Controls (`src/Controls/`)
 
+## Topological snapshot
+
+- `MapControl.js`, `EntityControl.js`, `KeyEventHandler.js`, `MouseEventHandler.js` — low-level input handling.
+- `ProcessCommand.js`, `BattleMode.js` — chat commands and shortcut execution.
+- `ScreenShot.js` — screenshot capture and export flow.
+- `src/Engine/AGENTS.md` and `src/Network/AGENTS.md` — consumer routes for commands and packets.
+
 Instructions for keyboard, mouse, map, entity, chat-command, and screenshot controls.
 
 ## Control Map (`src/Controls/`)

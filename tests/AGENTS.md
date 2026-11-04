@@ -1,3 +1,17 @@
+# AGENTS.md — Tests (`tests/`)
+
+## Topological snapshot
+
+- `ui/` — component and interaction behavior.
+- `renderer/` — rendering and effect regressions.
+- `engine/` — gameplay engine behavior.
+- `network/` — packet handler and protocol tests.
+- `db/` — constants and metadata lookups.
+- `loaders/` — binary asset parser tests and parity fixtures.
+- `core/` — file system, caching and Lua loading.
+- `controls/` — inputs and command processing.
+- `util/` — shared utility contracts.
+
 ## Test Topology (`tests/`)
 
 | Directory / file | Coverage / responsibility |

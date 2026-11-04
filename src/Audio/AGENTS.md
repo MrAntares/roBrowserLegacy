@@ -1,5 +1,12 @@
 # AGENTS.md — Audio (`src/Audio/`)
 
+## Topological snapshot
+
+- `BGM.js` — background music playback and volume state.
+- `SoundManager.js` — Web Audio sound effects and cache lifecycle.
+- `src/Preferences/AGENTS.md` — audio settings contract.
+- `src/Core/AGENTS.md` — asset loading and VFS integration.
+
 Instructions for background music and in-game sound effects.
 
 ## Audio Map (`src/Audio/`)

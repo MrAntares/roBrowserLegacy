@@ -1,5 +1,13 @@
 # AGENTS.md — Core Subsystem (`src/Core/`)
 
+## Topological snapshot
+
+- `Client.js`, `FileManager.js`, `MemoryManager.js`, `FileSystem.js` — VFS and file/caching plumbing.
+- `Thread.js`, `ThreadEventHandler.js` — worker bridge and background execution.
+- `Configs.js`, `Preferences.js`, `Context.js`, `Events.js` — config, runtime state and scheduling.
+- `LuaModuleLoader.js`, `AIDriver.js` — Lua and AI execution paths.
+- `docs/LuaModuleResolution.md` and `docs/Encoding.md` — Lua and raw-byte contracts.
+
 Instructions for working on client file access, runtime configuration, Web Worker threading, memory caching, homunculus/mercenary AI, Lua module loading, and performance probing.
 
 ## Mandatory Prerequisites

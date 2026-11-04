@@ -1,5 +1,11 @@
 # AGENTS.md — Client Plugins (`src/Plugins/`)
 
+## Topological snapshot
+
+- `PluginManager.js` — config-based plugin resolution and initialization.
+- `src/Core/Configs.js` and `ROConfig.plugins` — configuration source.
+- Browser/PWA/Electron compatibility — plugin imports must remain valid across runtime targets.
+
 Instructions for the client plugin loader and its configuration-driven lifecycle.
 
 ## Plugin Map (`src/Plugins/`)

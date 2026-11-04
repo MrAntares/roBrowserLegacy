@@ -1,5 +1,13 @@
 # AGENTS.md — Engine Subsystem (`src/Engine/`)
 
+## Topological snapshot
+
+- `GameEngine.js`, `LoginEngine.js`, `CharEngine.js`, `MapEngine.js` — top-level orchestration.
+- `MapEngine/` — gameplay submodules for quests, guilds, pets, NPCs, items, trade, skills and social systems.
+- `SessionStorage.js` and `State/` — runtime session and persistence state.
+- `Replay/` — packet replay support.
+- `src/Network/AGENTS.md` and `src/UI/AGENTS.md` — packet and UI integration contracts.
+
 Instructions for working on `GameEngine.js`, `LoginEngine.js`, `CharEngine.js`, `MapEngine.js`, the 29 `src/Engine/MapEngine/` subsystems, `SessionStorage.js`, `Replay/`, and `State/`.
 
 ## Mandatory References

@@ -1,5 +1,13 @@
 # AGENTS.md — Database Subsystem (`src/DB/`)
 
+## Topological snapshot
+
+- `DBManager.js` — central lookup and loading layer.
+- `Items/`, `Skills/`, `Status/`, `Jobs/`, `Map/`, `Monsters/`, `Pets/`, `Effects/` — game metadata and behavior tables.
+- `*Const.js` files — stable numeric IDs and constants used across the client.
+- `docs/Encoding.md` and `docs/LuaModuleResolution.md` — text decoding and Lua-backed table rules.
+- `tests/db/` — regression tests for constants and mappings.
+
 Instructions for working on `DBManager.js` and game data tables (`Effects/`, `Items/`, `Jobs/`, `Map/`, `Monsters/`, `Pets/`, `Skills/`, `Status/`, `Emotions.js`, `TownInfo.js`).
 
 ## Mandatory Prerequisites
