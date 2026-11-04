@@ -267396,6 +267396,50 @@ function ensurePuddleFrame(gl) {
 		type: 1
 	};
 }
+/**
+* Procedurally generates a realistic branched lightning bolt on an offscreen canvas
+*/
+function ensureLightningTexture(gl) {
+	if (_lightningFrame && _lightningFrame.texture && gl.isTexture(_lightningFrame.texture)) return _lightningFrame;
+	const canvas = document.createElement("canvas");
+	canvas.width = 256;
+	canvas.height = 512;
+	const ctx = canvas.getContext("2d");
+	ctx.clearRect(0, 256, 256, 512);
+	function drawBolt(x1, y1, x2, y2, displacement) {
+		if (displacement < 4) {
+			ctx.strokeStyle = "#ffffff";
+			ctx.lineWidth = 3.5;
+			ctx.shadowColor = "#80bfff";
+			ctx.shadowBlur = 18;
+			ctx.beginPath();
+			ctx.moveTo(x1, y1);
+			ctx.lineTo(x2, y2);
+			ctx.stroke();
+			return;
+		}
+		const midX = (x1 + x2) / 2 + (Math.random() - .5) * displacement;
+		const midY = (y1 + y2) / 2 + (Math.random() - .5) * displacement;
+		drawBolt(x1, y1, midX, midY, displacement / 2);
+		drawBolt(midX, midY, x2, y2, displacement / 2);
+		if (Math.random() < .25 && displacement > 15) drawBolt(midX, midY, midX + (Math.random() - .5) * 60, midY + Math.random() * 80, displacement / 2.2);
+	}
+	drawBolt(128, 10, 128 + (Math.random() - .5) * 40, 500, 70);
+	const tex = gl.createTexture();
+	gl.bindTexture(gl.TEXTURE_2D, tex);
+	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+	_lightningFrame = {
+		texture: tex,
+		width: 256,
+		height: 512,
+		type: 1
+	};
+	return _lightningFrame;
+}
 function initPuddleShader(gl) {
 	if (_puddleProgram) return;
 	_puddleProgram = WebGL_default.createShaderProgram(gl, RainWeather_default$1, RainWeather_default);
@@ -267444,11 +267488,12 @@ function pickLayerIndex() {
 	return _layerCDF.length - 1;
 }
 function computeGlobalWind(tick) {
-	const t = tick * 12e-5;
-	const strengthTick = WIND_STRENGTH_BASE + WIND_STRENGTH_VAR * Math.sin(t * 2.3);
-	const angleCam = Math.sin(t * 1.1) * WIND_ANGLE_MAX_RAD;
-	const camXTick = Math.cos(angleCam) * strengthTick;
-	const camYTick = Math.sin(angleCam) * strengthTick * .35;
+	const t = tick * 1e-4;
+	const gustChaos = Math.sin(t * 1.4) * Math.cos(t * .7) + Math.sin(t * 2.8) * .3;
+	const strengthTick = WIND_STRENGTH_BASE + WIND_STRENGTH_VAR * (Math.sin(t * .4) * .5 + gustChaos * .7);
+	const angleCam = (Math.sin(t * .25) * .6 + Math.sin(t * .9) * .4) * WIND_ANGLE_MAX_RAD;
+	const camXTick = Math.cos(angleCam) * Math.max(.01, strengthTick);
+	const camYTick = Math.sin(angleCam) * Math.max(.01, strengthTick) * .35;
 	const yawRad = (Camera.angle && Camera.angle[1] || 0) * Math.PI / 180;
 	const cosYaw = Math.cos(yawRad);
 	const sinYaw = Math.sin(yawRad);
@@ -267463,15 +267508,6 @@ function computeGlobalWind(tick) {
 		yMs: yTick / RAG_TICK_MS
 	};
 }
-/**
-* Compute the on‑screen tilt for a raindrop so the streak aligns with its
-* projected movement direction under the current camera pitch/yaw.
-*
-* We transform the drop velocity into the same "map coords" used by the
-* SpriteRenderer Project() helper (x, -z, y), then into view space via
-* Camera.modelView. The streak axis is SpriteRenderer +Y, so the angle is
-* atan2(vx_view, vy_view).
-*/
 function computeDropTilt(vx, vy, speedMs) {
 	const vz = -speedMs;
 	const mx = vx;
@@ -267484,7 +267520,7 @@ function computeDropTilt(vx, vy, speedMs) {
 	if (Math.abs(vxView) < 1e-6 && Math.abs(vyView) < 1e-6) return 0;
 	return Math.atan2(vxView, vyView) * 180 / Math.PI;
 }
-var RAG_TICK_MS, FADEOUT_TAIL_MS, EMIT_PER_TICK, EMIT_STOP_BEFORE_END_MS, MAX_DROPS, SCATTER_RADIUS_CELLS, SPAWN_HEIGHT_MIN_CELLS, SPAWN_HEIGHT_MAX_CELLS, WIND_STRENGTH_BASE, WIND_STRENGTH_VAR, WIND_ANGLE_MAX_RAD, THUNDER_MIN_INTERVAL, THUNDER_MAX_INTERVAL, FLASH_FADE_IN, FLASH_FADE_OUT, RAIN_VOLUME, LAYERS, _layerCDF, MAX_PUDDLES, PUDDLE_INITIAL_SIZE, PUDDLE_MAX_SIZE, PUDDLE_GROWTH_PER_DROP, PUDDLE_ALPHA_MAX, PUDDLE_FADE_SPEED, PUDDLE_SEED_CHANCE, _dropFrame, _filterFrame, _splashFrame, SPLASH_LIFE_MS, SPLASH_SIZE_PX, SPLASH_ALPHA, _puddleFrame, _puddleProgram, _puddleBuffer, _instance, _mapName$1, _isStopping, RainWeatherEffect;
+var RAG_TICK_MS, FADEOUT_TAIL_MS, EMIT_PER_TICK, EMIT_STOP_BEFORE_END_MS, MAX_DROPS, SCATTER_RADIUS_CELLS, SPAWN_HEIGHT_MIN_CELLS, SPAWN_HEIGHT_MAX_CELLS, WIND_STRENGTH_BASE, WIND_STRENGTH_VAR, WIND_ANGLE_MAX_RAD, THUNDER_MIN_INTERVAL, THUNDER_MAX_INTERVAL, FLASH_FADE_IN, FLASH_FADE_OUT, RAIN_VOLUME, LAYERS, _layerCDF, MAX_PUDDLES, PUDDLE_INITIAL_SIZE, PUDDLE_MAX_SIZE, PUDDLE_GROWTH_PER_DROP, PUDDLE_ALPHA_MAX, PUDDLE_FADE_SPEED, PUDDLE_SEED_CHANCE, _dropFrame, _filterFrame, _splashFrame, SPLASH_LIFE_MS, SPLASH_SIZE_PX, SPLASH_ALPHA, _puddleFrame, _lightningFrame, _puddleProgram, _puddleBuffer, _instance, _mapName$1, _isStopping, RainWeatherEffect;
 var init_RainWeather = __esmMin((() => {
 	init_Renderer();
 	init_MapRenderer();
@@ -267493,6 +267529,7 @@ var init_RainWeather = __esmMin((() => {
 	init_Camera();
 	init_Audio();
 	init_SessionStorage();
+	init_EffectManager();
 	init_RainWeather$2();
 	init_RainWeather$1();
 	init_WebGL();
@@ -267507,10 +267544,10 @@ var init_RainWeather = __esmMin((() => {
 	WIND_STRENGTH_BASE = .14;
 	WIND_STRENGTH_VAR = .06;
 	WIND_ANGLE_MAX_RAD = .55;
-	THUNDER_MIN_INTERVAL = 5e3;
-	THUNDER_MAX_INTERVAL = 6e4;
-	FLASH_FADE_IN = 50;
-	FLASH_FADE_OUT = 300;
+	THUNDER_MIN_INTERVAL = 6e3;
+	THUNDER_MAX_INTERVAL = 25e3;
+	FLASH_FADE_IN = 40;
+	FLASH_FADE_OUT = 350;
 	RAIN_VOLUME = .03;
 	LAYERS = [
 		{
@@ -267559,8 +267596,9 @@ var init_RainWeather = __esmMin((() => {
 	_splashFrame = null;
 	SPLASH_LIFE_MS = 220;
 	SPLASH_SIZE_PX = [10, 18];
-	SPLASH_ALPHA = .45;
+	SPLASH_ALPHA = .8;
 	_puddleFrame = null;
+	_lightningFrame = null;
 	_puddleProgram = null;
 	_puddleBuffer = null;
 	_instance = null;
@@ -267586,9 +267624,14 @@ var init_RainWeather = __esmMin((() => {
 			this.isFlashing = false;
 			this.flashStartTime = 0;
 			this.flashMultiCount = 1;
+			this.lightningX = 0;
+			this.lightningY = 0;
+			this.lightningZ = 0;
 			this.audioCtx = null;
 			this.rainNode = null;
-			this.audioResumed = false;
+			this.rainFilterNode = null;
+			this.rainGainNode = null;
+			this.windLfoNode = null;
 			try {
 				const AudioContext = window.AudioContext || window.webkitAudioContext;
 				if (AudioContext) {
@@ -267672,74 +267715,123 @@ var init_RainWeather = __esmMin((() => {
 			}
 		}
 		initRainSound() {
-			if (!this.audioCtx) return;
-			if (!Audio_default.Sound.play) return;
+			if (!this.audioCtx || !Audio_default.Sound.play) return;
 			const ctx = this.audioCtx;
-			const bufferSize = 2 * ctx.sampleRate;
+			if (ctx.state === "suspended") ctx.resume().catch(() => {});
+			const bufferSize = 4 * ctx.sampleRate;
 			const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
 			const output = buffer.getChannelData(0);
-			for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
-			const whiteNoise = ctx.createBufferSource();
-			whiteNoise.buffer = buffer;
-			whiteNoise.loop = true;
+			let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+			for (let i = 0; i < bufferSize; i++) {
+				const white = Math.random() * 2 - 1;
+				b0 = .99886 * b0 + white * .0555179;
+				b1 = .99332 * b1 + white * .0750759;
+				b2 = .969 * b2 + white * .153852;
+				b3 = .8665 * b3 + white * .3104856;
+				b4 = .55 * b4 + white * .5329522;
+				b5 = -.7616 * b5 - white * .016898;
+				output[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * .5362;
+				output[i] *= .11;
+				b6 = white * .115926;
+			}
+			const fadeSamples = Math.floor(ctx.sampleRate * .1);
+			for (let i = 0; i < fadeSamples; i++) {
+				const ratio = i / fadeSamples;
+				output[i] = output[i] * ratio + output[bufferSize - fadeSamples + i] * (1 - ratio);
+			}
+			const rainSource = ctx.createBufferSource();
+			rainSource.buffer = buffer;
+			rainSource.loop = true;
+			const metalFilter = ctx.createBiquadFilter();
+			metalFilter.type = "peaking";
+			metalFilter.frequency.value = 2800;
+			metalFilter.Q.value = 1.2;
+			metalFilter.gain.value = 6;
 			const rainFilter = ctx.createBiquadFilter();
 			rainFilter.type = "lowpass";
-			rainFilter.frequency.value = 400;
+			rainFilter.frequency.value = 2200;
+			rainFilter.Q.value = 1;
 			const gainNode = ctx.createGain();
-			gainNode.gain.value = RAIN_VOLUME * Audio_default.Sound.volume;
-			whiteNoise.connect(rainFilter);
+			const targetVolume = RAIN_VOLUME * Audio_default.Sound.volume;
+			const lfo = ctx.createOscillator();
+			const lfoGain = ctx.createGain();
+			lfo.frequency.value = .18;
+			lfoGain.gain.value = 350;
+			lfo.connect(lfoGain);
+			lfoGain.connect(rainFilter.frequency);
+			const now = ctx.currentTime;
+			gainNode.gain.setValueAtTime(0, now);
+			gainNode.gain.linearRampToValueAtTime(targetVolume, now + .5);
+			rainSource.connect(metalFilter);
+			metalFilter.connect(rainFilter);
 			rainFilter.connect(gainNode);
 			gainNode.connect(ctx.destination);
-			whiteNoise.start(0);
-			this.rainNode = whiteNoise;
+			rainSource.start(0);
+			lfo.start(0);
+			this.rainNode = rainSource;
+			this.rainFilterNode = rainFilter;
+			this.rainGainNode = gainNode;
+			this.windLfoNode = lfo;
 		}
 		triggerRainDropSound() {
-			if (!this.audioCtx) return;
-			if (!Audio_default.Sound.play) return;
+			if (!this.audioCtx || !Audio_default.Sound.play) return;
 			const ctx = this.audioCtx;
-			if (ctx.state === "suspended") ctx.resume();
-			const osc = ctx.createOscillator();
-			const gain = ctx.createGain();
+			if (ctx.state === "suspended") ctx.resume().catch(() => {});
 			const now = ctx.currentTime;
-			osc.frequency.value = randRange$1(1e3, 1200);
-			osc.type = "sine";
-			osc.connect(gain);
-			gain.connect(ctx.destination);
-			const duration = .01;
-			const peakVolume = randRange$1(.1, RAIN_VOLUME) * Audio_default.Sound.volume;
-			gain.gain.setValueAtTime(0, now);
-			gain.gain.linearRampToValueAtTime(peakVolume, now + .001);
-			gain.gain.exponentialRampToValueAtTime(.001, now + duration);
-			osc.start(now);
-			osc.stop(now + duration + .01);
-			setTimeout(() => {
-				try {
-					osc.disconnect();
-					gain.disconnect();
-				} catch (e) {}
-			}, 60);
-		}
-		triggerThunderSound() {
-			if (!this.audioCtx) return;
-			if (!Audio_default.Sound.play) return;
-			if (this.audioCtx.state === "suspended") this.audioCtx.resume();
-			const ctx = this.audioCtx;
-			const bufferSize = ctx.sampleRate * 2;
+			const bufferSize = ctx.sampleRate * .02;
 			const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
 			const data = buffer.getChannelData(0);
-			for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * Math.exp(-i / bufferSize);
-			const source = ctx.createBufferSource();
-			source.buffer = buffer;
+			for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+			const noise = ctx.createBufferSource();
+			noise.buffer = buffer;
 			const filter = ctx.createBiquadFilter();
-			filter.type = "lowpass";
-			filter.frequency.value = 300;
-			const thunderGain = ctx.createGain();
-			thunderGain.gain.setValueAtTime(.8 * Audio_default.Sound.volume, ctx.currentTime);
-			thunderGain.gain.exponentialRampToValueAtTime(.01 * Audio_default.Sound.volume, ctx.currentTime + 1.5);
-			source.connect(filter);
-			filter.connect(thunderGain);
-			thunderGain.connect(ctx.destination);
-			source.start();
+			filter.type = "bandpass";
+			filter.frequency.value = randRange$1(1200, 1800);
+			filter.Q.value = 6;
+			const gain = ctx.createGain();
+			const peakVolume = Math.min(.15, RAIN_VOLUME * 2.5) * Audio_default.Sound.volume;
+			gain.gain.setValueAtTime(peakVolume, now);
+			gain.gain.exponentialRampToValueAtTime(1e-4, now + .018);
+			noise.connect(filter);
+			filter.connect(gain);
+			gain.connect(ctx.destination);
+			noise.start(now);
+			setTimeout(() => {
+				try {
+					noise.disconnect();
+					filter.disconnect();
+					gain.disconnect();
+				} catch (e) {}
+			}, 50);
+		}
+		/**
+		* Thunder (sound) delayed relative to the lightning flash, proportional to strike distance.
+		*/
+		triggerThunderSound(distanceCells) {
+			if (!this.audioCtx || !Audio_default.Sound.play) return;
+			const ctx = this.audioCtx;
+			if (ctx.state === "suspended") ctx.resume().catch(() => {});
+			const soundDelayMs = Math.min(4e3, Math.max(50, distanceCells * 35));
+			setTimeout(() => {
+				if (!this.audioCtx) return;
+				const bufferSize = ctx.sampleRate * 3;
+				const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+				const data = buffer.getChannelData(0);
+				for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * .8));
+				const source = ctx.createBufferSource();
+				source.buffer = buffer;
+				const filter = ctx.createBiquadFilter();
+				filter.type = "lowpass";
+				filter.frequency.value = Math.max(80, 350 - distanceCells * 3);
+				const thunderGain = ctx.createGain();
+				const finalVol = .9 * Math.max(.15, 1 - distanceCells / 70) * Audio_default.Sound.volume;
+				thunderGain.gain.setValueAtTime(finalVol, ctx.currentTime);
+				thunderGain.gain.exponentialRampToValueAtTime(.005 * Audio_default.Sound.volume, ctx.currentTime + 2.5);
+				source.connect(filter);
+				filter.connect(thunderGain);
+				thunderGain.connect(ctx.destination);
+				source.start();
+			}, soundDelayMs);
 		}
 		spawnDrop(spawnTick) {
 			if (!SessionStorage_default.Entity) return;
@@ -267752,7 +267844,6 @@ var init_RainWeather = __esmMin((() => {
 			const ox = Math.cos(theta) * radius;
 			const oy = Math.sin(theta) * radius;
 			const speedTick = randRange$1(layer.speedTick[0], layer.speedTick[1]);
-			const speedMs = speedTick / RAG_TICK_MS;
 			const widthPx = randRange$1(layer.widthPx[0], layer.widthPx[1]);
 			const lengthPx = randRange$1(layer.lengthPx[0], layer.lengthPx[1]);
 			const spawnHeight = randRange$1(SPAWN_HEIGHT_MIN_CELLS, SPAWN_HEIGHT_MAX_CELLS);
@@ -267763,9 +267854,6 @@ var init_RainWeather = __esmMin((() => {
 			const y = py + oy + upwindY;
 			const groundZ = Altitude.getCellHeight(x, y);
 			const z = groundZ + spawnHeight;
-			const windJitterXMs = (Math.random() - .5) * .002;
-			const windJitterYMs = (Math.random() - .5) * .002;
-			const tiltJitter = randRange$1(-4, 4);
 			this.drops.push({
 				spawnTick,
 				x,
@@ -267773,15 +267861,13 @@ var init_RainWeather = __esmMin((() => {
 				z,
 				spawnZ: z,
 				groundZ,
-				speedMs,
-				windJitterXMs,
-				windJitterYMs,
-				tiltJitter,
+				speedMs: speedTick / RAG_TICK_MS,
+				tiltJitter: randRange$1(-2, 2),
 				widthPx,
 				lengthPx,
 				alphaScale: layer.alphaScale,
 				brightness: randRange$1(layer.brightness[0], layer.brightness[1]),
-				flicker: Math.random() * 1e3
+				flicker: Math.random() * 100
 			});
 			if (this.drops.length > MAX_DROPS) this.drops.splice(0, this.drops.length - MAX_DROPS);
 		}
@@ -267805,8 +267891,7 @@ var init_RainWeather = __esmMin((() => {
 				bestPuddle.size = Math.min(PUDDLE_MAX_SIZE, bestPuddle.size + PUDDLE_GROWTH_PER_DROP);
 				bestPuddle.alpha = Math.min(PUDDLE_ALPHA_MAX, bestPuddle.alpha + .02);
 				const currentLife = Math.max(0, (bestPuddle.nextDryTick || tick) - tick);
-				const newLife = Math.min(1e4, currentLife + 1500);
-				bestPuddle.nextDryTick = tick + newLife;
+				bestPuddle.nextDryTick = tick + Math.min(1e4, currentLife + 1500);
 				bestPuddle.lastUpdate = tick;
 			} else if (Math.random() < PUDDLE_SEED_CHANCE) {
 				let tooClose = false;
@@ -267852,6 +267937,7 @@ var init_RainWeather = __esmMin((() => {
 			ensureFilterFrame(gl);
 			ensureSplashFrame(gl);
 			ensurePuddleFrame(gl);
+			ensureLightningTexture(gl);
 			initPuddleShader(gl);
 			if (puddlesOnly) {
 				this.renderPuddles(gl, tick);
@@ -267861,7 +267947,14 @@ var init_RainWeather = __esmMin((() => {
 			this._wind = computeGlobalWind(tick);
 			const now = Date.now();
 			if (!this.isFlashing && now >= this.nextLightningTime) {
-				this.triggerThunderSound();
+				const angle = Math.random() * Math.PI * 2;
+				const dist = randRange$1(15, 55);
+				const px = SessionStorage_default.Entity.position[0];
+				const py = SessionStorage_default.Entity.position[1];
+				this.lightningX = px + Math.cos(angle) * dist;
+				this.lightningY = py + Math.sin(angle) * dist;
+				this.lightningZ = Altitude.getCellHeight(this.lightningX, this.lightningY);
+				this.triggerThunderSound(dist);
 				this.isFlashing = true;
 				this.flashStartTime = now;
 				this.flashMultiCount = Math.random() > .6 ? 2 : 1;
@@ -267870,25 +267963,47 @@ var init_RainWeather = __esmMin((() => {
 			let overlayR = .65;
 			let overlayG = .67;
 			let overlayB = .7;
-			let overlayA = .14;
+			let overlayA = .12;
 			if (this.isFlashing) {
 				const elapsed = now - this.flashStartTime;
 				let flashAlpha = 0;
 				if (this.flashMultiCount === 2) {
-					if (elapsed < 80) flashAlpha = .6 * (1 - elapsed / 80);
-					else if (elapsed < 160) flashAlpha = 0;
+					if (elapsed < 80) {
+						flashAlpha = .45 * (1 - elapsed / 80);
+						if (elapsed < 5) EffectManager.spam({
+							effectId: 30,
+							position: [
+								this.lightningX,
+								this.lightningY,
+								this.lightningZ
+							],
+							startTick: tick,
+							duration: now - this.flashStartTime + 60
+						});
+					} else if (elapsed < 160) flashAlpha = 0;
 					else {
 						const elapsed2 = elapsed - 160;
-						if (elapsed2 < FLASH_FADE_IN) flashAlpha = elapsed2 / FLASH_FADE_IN * .8;
-						else if (elapsed2 < 350) flashAlpha = .8 * (1 - (elapsed2 - FLASH_FADE_IN) / FLASH_FADE_OUT);
+						if (elapsed2 < FLASH_FADE_IN) flashAlpha = elapsed2 / FLASH_FADE_IN * .6;
+						else if (elapsed2 < 390) flashAlpha = .6 * (1 - (elapsed2 - FLASH_FADE_IN) / FLASH_FADE_OUT);
 						else this.isFlashing = false;
 					}
-				} else if (elapsed < FLASH_FADE_IN) flashAlpha = elapsed / FLASH_FADE_IN * .8;
-				else if (elapsed < 350) flashAlpha = .8 * (1 - (elapsed - FLASH_FADE_IN) / FLASH_FADE_OUT);
+				} else if (elapsed < FLASH_FADE_IN) {
+					if (elapsed < 5) EffectManager.spam({
+						effectId: 30,
+						position: [
+							this.lightningX,
+							this.lightningY,
+							this.lightningZ
+						],
+						startTick: tick,
+						duration: now - this.flashStartTime + 60
+					});
+					flashAlpha = elapsed / FLASH_FADE_IN * .6;
+				} else if (elapsed < 390) flashAlpha = .6 * (1 - (elapsed - FLASH_FADE_IN) / FLASH_FADE_OUT);
 				else this.isFlashing = false;
 				if (this.isFlashing) {
-					overlayR = .9;
-					overlayG = .95;
+					overlayR = .85;
+					overlayG = .92;
 					overlayB = 1;
 					overlayA = flashAlpha;
 				}
@@ -267915,6 +268030,29 @@ var init_RainWeather = __esmMin((() => {
 				SpriteRenderer.offset[0] = 0;
 				SpriteRenderer.offset[1] = 0;
 				SpriteRenderer.render(false);
+			}
+			if (this.isFlashing && _lightningFrame) {
+				const elapsed = now - this.flashStartTime;
+				if (elapsed < 140) {
+					const boltAlpha = Math.min(1, (140 - elapsed) / 80);
+					SpriteRenderer.image.palette = null;
+					SpriteRenderer.sprite = _lightningFrame;
+					SpriteRenderer.image.texture = _lightningFrame.texture;
+					SpriteRenderer.position[0] = this.lightningX;
+					SpriteRenderer.position[1] = this.lightningY;
+					SpriteRenderer.position[2] = this.lightningZ + 8;
+					SpriteRenderer.zIndex = 500;
+					SpriteRenderer.color[0] = .9;
+					SpriteRenderer.color[1] = .95;
+					SpriteRenderer.color[2] = 1;
+					SpriteRenderer.color[3] = boltAlpha;
+					SpriteRenderer.angle = 0;
+					SpriteRenderer.size[0] = 18;
+					SpriteRenderer.size[1] = 36;
+					SpriteRenderer.offset[0] = 0;
+					SpriteRenderer.offset[1] = 0;
+					SpriteRenderer.render(false);
+				}
 			}
 			let remaining = Infinity;
 			if (this.endTick > 0) {
@@ -267949,7 +268087,7 @@ var init_RainWeather = __esmMin((() => {
 							angle: drop.angle * .2
 						});
 						if (this.splashes.length > 300) this.splashes.splice(0, this.splashes.length - 300);
-						this.triggerRainDropSound();
+						if (Math.random() < .25) this.triggerRainDropSound();
 					}
 					this.updatePuddle(drop.x, drop.y, drop.groundZ, tick);
 					this.drops.splice(d, 1);
@@ -267957,15 +268095,14 @@ var init_RainWeather = __esmMin((() => {
 				}
 				const dt = tick - (drop._lastTick || drop.spawnTick);
 				drop._lastTick = tick;
-				const windXMs = this._wind.xMs + (drop.windJitterXMs || 0);
-				const windYMs = this._wind.yMs + (drop.windJitterYMs || 0);
+				const windXMs = this._wind.xMs;
+				const windYMs = this._wind.yMs;
 				drop.z -= drop.speedMs * dt;
 				drop.x += windXMs * dt;
 				drop.y += windYMs * dt;
 				const denom = drop.spawnZ - drop.groundZ;
 				let progress = denom > 1e-4 ? (drop.spawnZ - drop.z) / denom : 0;
-				if (progress < 0) progress = 0;
-				if (progress > 1) progress = 1;
+				progress = Math.max(0, Math.min(1, progress));
 				let alpha = drop.alphaScale;
 				if (progress < .08) alpha *= progress / .08;
 				else if (progress > .85) alpha *= (1 - progress) / .15;
@@ -268070,15 +268207,19 @@ var init_RainWeather = __esmMin((() => {
 		}
 		free() {
 			if (this.audioCtx) try {
+				if (this.windLfoNode) {
+					this.windLfoNode.stop();
+					this.windLfoNode.disconnect();
+					this.windLfoNode = null;
+				}
 				if (this.rainNode) {
 					this.rainNode.stop();
+					this.rainNode.disconnect();
 					this.rainNode = null;
 				}
 				this.audioCtx.close();
 				this.audioCtx = null;
-			} catch (e) {
-				console.log(e);
-			}
+			} catch (e) {}
 			this.drops = [];
 			this.splashes = [];
 			this.puddles = [];
