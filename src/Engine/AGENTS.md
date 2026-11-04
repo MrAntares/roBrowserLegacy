@@ -1,5 +1,17 @@
 # AGENTS.md — Engine Subsystem (`src/Engine/`)
 
+PROHIBITED — Scope Discipline (read before anything else)
+
+Read this file before changing `GameEngine`, `LoginEngine`, `CharEngine`, `MapEngine` or any gameplay subsystem. This folder is the game-state orchestration layer: packet routing, session state, map lifecycle and gameplay handlers. Do not patch a handler by reading it in isolation before checking the engine route and relevant docs.
+
+## Topological snapshot
+
+- `GameEngine.js`, `LoginEngine.js`, `CharEngine.js`, `MapEngine.js` — top-level orchestration.
+- `MapEngine/` — gameplay submodules for quests, guilds, pets, NPCs, items, trade, skills and social systems.
+- `SessionStorage.js` and `State/` — runtime session and persistence state.
+- `Replay/` — packet replay support.
+- `src/Network/AGENTS.md` and `src/UI/AGENTS.md` — packet and UI integration contracts.
+
 Instructions for working on `GameEngine.js`, `LoginEngine.js`, `CharEngine.js`, `MapEngine.js`, the 29 `src/Engine/MapEngine/` subsystems, `SessionStorage.js`, `Replay/`, and `State/`.
 
 ## Mandatory References

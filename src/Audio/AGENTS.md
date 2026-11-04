@@ -1,5 +1,16 @@
 # AGENTS.md — Audio (`src/Audio/`)
 
+PROHIBITED — Scope Discipline (read before anything else)
+
+Read this file before modifying BGM or sound effects. This folder is the playback layer for music and effect audio; it bridges asset loading and browser audio APIs, and changes here must preserve preference-driven behavior across browser and Electron runtimes.
+
+## Topological snapshot
+
+- `BGM.js` — background music playback and volume state.
+- `SoundManager.js` — Web Audio sound effects and cache lifecycle.
+- `src/Preferences/AGENTS.md` — audio settings contract.
+- `src/Core/AGENTS.md` — asset loading and VFS integration.
+
 Instructions for background music and in-game sound effects.
 
 ## Audio Map (`src/Audio/`)

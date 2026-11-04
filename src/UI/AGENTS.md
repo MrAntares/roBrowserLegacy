@@ -1,5 +1,18 @@
 # AGENTS.md — UI Subsystem (`src/UI/`)
 
+PROHIBITED — Scope Discipline (read before anything else)
+
+Read this file before touching `src/UI/` or a UI component. This folder is the architectural map for the entire client UI: `GUIComponent`, Shadow DOM, Custom Elements, managed versioned families, and the 100+ component tree. If a task touches a UI screen, window, widget or manager, read the relevant component docs here first and only then inspect the concrete `.js` implementation.
+
+## Topological snapshot
+
+- `src/UI/Components/` — actual UI components such as `ChatBox`, `Inventory`, `Guild`, `SkillList`, `Storage`, `Rodex`, etc.
+- `src/UI/Elements/` — custom element wrappers used by the component tree (`<ui-button>`, `<ui-text>`, `<ui-image>`).
+- `src/UI/Managers/` — global UI orchestration and lifecycle management.
+- `docs/UIComponent_to_GUIComponent.md` — primary source for invariants and lifecycle rules.
+- `docs/GUIComponent_Version_Dedup_Factory.md` — versioned component factory rules.
+- `docs/CustomElements.md` and `docs/Scrollbar.md` — specialized UI behavior docs.
+
 The UI uses `GUIComponent`, Shadow DOM, native DOM APIs, and Custom Elements.
 
 - All 100 UI components use `GUIComponent`.

@@ -1,5 +1,18 @@
 # AGENTS.md — Renderer Subsystem (`src/Renderer/`)
 
+PROHIBITED — Scope Discipline (read before anything else)
+
+Read this file before touching the renderer, entity visuals, map draw code or effect logic. This folder is the visual execution path of the client: WebGL state, entity composition, batched sprites, map rendering and the effect system. Start here, then read the specific effect/entity file involved.
+
+## Topological snapshot
+
+- `Renderer.js` / `MapRenderer.js` / `EntityManager.js` — render loop, world and entity coordination.
+- `Entity/` — composed entity system, palette and lifecycle rules.
+- `Effects/` — combat, aura, ground and screen effects.
+- `Map/` — terrain, occlusion, water, sounds and world layers.
+- `GR2/` — Granny3D model rendering and actor behavior.
+- `docs/reference/renderer/README.md` — rendering behavior and palette references.
+
 Instructions for working on the WebGL renderer, Entity composition system (`src/Renderer/Entity/`), visual effects (`src/Renderer/Effects/`), map rendering (`src/Renderer/Map/`), and Granny3D skeletal models (`src/Renderer/GR2/`).
 
 ## Mandatory References

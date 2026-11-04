@@ -1,5 +1,17 @@
 # AGENTS.md — Core Subsystem (`src/Core/`)
 
+PROHIBITED — Scope Discipline (read before anything else)
+
+Read this file before modifying config, VFS, worker message flow, memory cache or Lua loading. This folder is the runtime backbone of the client: it owns file access, ROConfig, worker execution, AI hooks and startup wiring. Any change here can affect browser, PWA, Electron and asset loading in multiple subsystems at once.
+
+## Topological snapshot
+
+- `Client.js`, `FileManager.js`, `MemoryManager.js`, `FileSystem.js` — VFS and file/caching plumbing.
+- `Thread.js`, `ThreadEventHandler.js` — worker bridge and background execution.
+- `Configs.js`, `Preferences.js`, `Context.js`, `Events.js` — config, runtime state and scheduling.
+- `LuaModuleLoader.js`, `AIDriver.js` — Lua and AI execution paths.
+- `docs/LuaModuleResolution.md` and `docs/Encoding.md` — Lua and raw-byte contracts.
+
 Instructions for working on client file access, runtime configuration, Web Worker threading, memory caching, homunculus/mercenary AI, Lua module loading, and performance probing.
 
 ## Mandatory Prerequisites

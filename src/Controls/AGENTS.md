@@ -1,5 +1,16 @@
 # AGENTS.md — Input Controls (`src/Controls/`)
 
+PROHIBITED — Scope Discipline (read before anything else)
+
+Read this file before changing keyboard, mouse, entity or command input behavior. This folder is the interaction surface between the user and the gameplay loop: input normalization, command dispatch and map/entity actions. A patch here often sends packets or changes renderer state indirectly, so read the folder map first.
+
+## Topological snapshot
+
+- `MapControl.js`, `EntityControl.js`, `KeyEventHandler.js`, `MouseEventHandler.js` — low-level input handling.
+- `ProcessCommand.js`, `BattleMode.js` — chat commands and shortcut execution.
+- `ScreenShot.js` — screenshot capture and export flow.
+- `src/Engine/AGENTS.md` and `src/Network/AGENTS.md` — consumer routes for commands and packets.
+
 Instructions for keyboard, mouse, map, entity, chat-command, and screenshot controls.
 
 ## Control Map (`src/Controls/`)

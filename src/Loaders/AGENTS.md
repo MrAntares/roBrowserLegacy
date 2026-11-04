@@ -1,5 +1,17 @@
 # AGENTS.md — Asset Loaders (`src/Loaders/`)
 
+PROHIBITED — Scope Discipline (read before anything else)
+
+Read this file before changing any asset loader or binary parser. This folder sits between the client VFS and the renderer/UI; it defines how GRF, SPR, ACT, STR, GND, GAT, RSW and TGA data are decoded. Avoid a direct patch in a format parser without checking the loader contract and the encoding rules first.
+
+## Topological snapshot
+
+- `GameFile.js` / `GameFileDecrypt.js` — GRF container access and decryption.
+- `Sprite.js`, `Action.js`, `Ground.js`, `Altitude.js`, `World.js`, `Str.js`, `Model.js`, `MapLoader.js`, `Targa.js` — asset-specific parsers.
+- `wasm/` — WASM and JS parity hot paths used by sprite and palette decoders.
+- `docs/Encoding.md` — raw-byte and codepage rules for GRF/text decoding.
+- `tests/loaders/` — synthetic binary fixtures and parity tests.
+
 Instructions for working on binary game asset parsers, GRF container extraction, and WebAssembly (`.wat` / `.js`) hot-path decoders.
 
 ## Mandatory Prerequisites

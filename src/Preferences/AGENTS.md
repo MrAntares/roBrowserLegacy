@@ -1,5 +1,16 @@
 # AGENTS.md — User Preferences (`src/Preferences/`)
 
+PROHIBITED — Scope Discipline (read before anything else)
+
+Read this file before changing a persisted setting or schema. This folder defines the long-lived user configuration that feeds controls, audio, rendering, map display and UI flows, so a small schema change can ripple across many subsystems.
+
+## Topological snapshot
+
+- `Audio.js`, `Camera.js`, `Controls.js`, `Graphics.js`, `Map.js`, `UI.js` — settings surfaces.
+- `ShortCutControls.js` — persistent shortcut definitions.
+- `src/Core/Preferences.js` — storage and versioning contract.
+- `src/Controls/AGENTS.md`, `src/Audio/AGENTS.md`, `src/UI/AGENTS.md` — main consumers.
+
 Instructions for persistent user settings consumed by controls, audio, rendering, maps, and UI.
 
 ## Preference Map (`src/Preferences/`)

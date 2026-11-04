@@ -27,29 +27,28 @@ const RAG_TICK_MS = 25;
 const FADEOUT_TAIL_MS = 1000 * RAG_TICK_MS;
 
 // Emission control.
-const EMIT_PER_TICK = 30;
+const EMIT_PER_TICK = 10;
 const EMIT_STOP_BEFORE_END_MS = 160 * RAG_TICK_MS;
-const MAX_DROPS = 1024;
+const MAX_DROPS = 1100;
 
 // Spawn volume around player (in map cells). Large enough to cover the view.
-const SCATTER_RADIUS_CELLS = 42;
-const SPAWN_HEIGHT_MIN_CELLS = 12;
-const SPAWN_HEIGHT_MAX_CELLS = 32;
+const SCATTER_RADIUS_CELLS = 70;
+const SPAWN_HEIGHT_MIN_CELLS = 22;
+const SPAWN_HEIGHT_MAX_CELLS = 42;
 
 // Base wind, slowly varying over time (cells per rag tick).
 const WIND_STRENGTH_BASE = 0.14;
 const WIND_STRENGTH_VAR = 0.06;
-let WIND_ANGLE_MAX_RAD = 0.55; // ~31deg sideways
+const WIND_ANGLE_MAX_RAD = 0.55; // ~31deg sideways
 
 // Thunderstorm
 const THUNDER_MIN_INTERVAL = 6000;
-const THUNDER_MAX_INTERVAL = 60000;
-const FLASH_FADE_IN = 50;
-const FLASH_FADE_OUT = 300;
+const THUNDER_MAX_INTERVAL = 25000;
+const FLASH_FADE_IN = 40;
+const FLASH_FADE_OUT = 350;
 const RAIN_VOLUME = 0.03;
 
 // Depth layers: far/mid/near.
-// Each layer defines relative look and speed.
 const LAYERS = [
 	{
 		weight: 0.55,
@@ -88,34 +87,28 @@ const _layerCDF = (function () {
 	return out;
 })();
 
-// Puddle settings (Water accumulation system)
-const MAX_PUDDLES = 30; // Increased limit to prevent popping
+// Puddle settings
+const MAX_PUDDLES = 600;
 const PUDDLE_INITIAL_SIZE = 20.0;
-const PUDDLE_MAX_SIZE = 666.0;
+const PUDDLE_MAX_SIZE = 230.0;
 const PUDDLE_GROWTH_PER_DROP = 4.5;
-const PUDDLE_ALPHA_MAX = 0.35;
-const PUDDLE_FADE_SPEED = 0.00004; // Alpha per ms (faster drying)
-const PUDDLE_SEED_CHANCE = 0.002; // Lowered to favor accumulation over spam
+const PUDDLE_ALPHA_MAX = 0.45;
+const PUDDLE_FADE_SPEED = 0.00004;
+const PUDDLE_SEED_CHANCE = 0.06;
 
-// Procedural raindrop sprite (1x16 alpha‑gradient texture stretched into streaks).
 let _dropFrame = null;
-// Full-screen grey filter (1x1 texture).
 let _filterFrame = null;
-// Ground splash texture (16x16 soft disc).
 let _splashFrame = null;
 const SPLASH_LIFE_MS = 220;
-const SPLASH_SIZE_PX = [20, 28];
-const SPLASH_ALPHA = 0.75;
+const SPLASH_SIZE_PX = [10, 18];
+const SPLASH_ALPHA = 0.8;
 
-// Puddle texture (64x64 deformed disc).
 let _puddleFrame = null;
 let _lightningFrame = null; // Texture generated in code for the lightning
 
-// Shader resources
 let _puddleProgram = null;
 let _puddleBuffer = null;
 
-// SINGLETON STATE
 let _instance = null;
 let _mapName = '';
 let _isStopping = false;
@@ -127,12 +120,11 @@ function ensureDropFrame(gl) {
 	_dropFrame = null;
 	const tex = gl.createTexture();
 	gl.bindTexture(gl.TEXTURE_2D, tex);
-	// Build a 1x16 vertical gradient (top transparent → bright core → soft tail).
+
 	const h = 16;
 	const data = new Uint8Array(h * 4);
 	for (let i = 0; i < h; i++) {
 		const t = i / (h - 1);
-		// Ramp up to full alpha, then taper slightly.
 		let a = Math.min(1, t / 0.7);
 		if (t > 0.7) {
 			a *= 1 - ((t - 0.7) / 0.3) * 0.35;
@@ -188,7 +180,6 @@ function ensureSplashFrame(gl) {
 			const r = Math.sqrt(dx * dx + dy * dy) / maxR;
 			let a = 0;
 			if (r <= 1) {
-				// Soft disc with slight ring emphasis.
 				a = Math.exp(-r * r * 2.8);
 				const ring = Math.exp(-Math.pow((r - 0.65) / 0.12, 2));
 				a = Math.max(a, ring * 0.9);
@@ -231,18 +222,15 @@ function ensurePuddleFrame(gl) {
 			const dy = y - cy;
 			const dist = Math.sqrt(dx * dx + dy * dy);
 			const angle = Math.atan2(dy, dx);
-			// Procedural deformation for "organic" look
 			const deform =
 				1.0 + 0.15 * Math.sin(angle * 5) + 0.08 * Math.sin(angle * 3 + 1.5) + 0.05 * Math.cos(angle * 11);
 			const r = dist / (maxR * deform);
 			let a = 0;
 			if (r <= 1.0) {
-				// Soft concave falloff for pool look
 				a = Math.pow(1.0 - r, 0.7);
 			}
 			const alphaByte = Math.max(0, Math.min(255, Math.floor(a * 255)));
 			const idx = (y * w + x) * 4;
-			// Deep wet-blue/dark tone
 			data[idx + 0] = 18;
 			data[idx + 1] = 32;
 			data[idx + 2] = 55;
@@ -324,11 +312,8 @@ function initPuddleShader(gl) {
 	}
 	_puddleProgram = WebGL.createShaderProgram(gl, _puddleVs, _puddleFs);
 
-	// Generate horizontal quad buffer (XZ plane)
 	const vertices = new Float32Array([
-		// Triangle 1 (pos: x, y, z, tex: u, v)
 		-0.5, 0.0, -0.5, 0.0, 0.0, 0.5, 0.0, -0.5, 1.0, 0.0, -0.5, 0.0, 0.5, 0.0, 1.0, 0.5, 0.0, -0.5, 1.0, 0.0, 0.5,
-		// Triangle 2
 		0.0, 0.5, 1.0, 1.0, -0.5, 0.0, 0.5, 0.0, 1.0
 	]);
 	_puddleBuffer = gl.createBuffer();
@@ -351,11 +336,10 @@ function pickLayerIndex() {
 }
 
 function computeGlobalWind(tick) {
-	const t = tick * 0.0000001;
+	const t = tick * 0.0001;
 	const gustChaos = Math.sin(t * 1.4) * Math.cos(t * 0.7) + Math.sin(t * 2.8) * 0.3;
 	const strengthTick = WIND_STRENGTH_BASE + WIND_STRENGTH_VAR * (Math.sin(t * 0.4) * 0.5 + gustChaos * 0.7);
-
-	const angleCam = Math.random() > 5 ? -WIND_ANGLE_MAX_RAD : WIND_ANGLE_MAX_RAD; //(Math.sin(t * 0.25) * 0.6 + Math.sin(t * 0.9) * 0.4) * WIND_ANGLE_MAX_RAD;
+	const angleCam = (Math.sin(t * 0.25) * 0.6 + Math.sin(t * 0.9) * 0.4) * WIND_ANGLE_MAX_RAD;
 
 	const camXTick = Math.cos(angleCam) * Math.max(0.01, strengthTick);
 	const camYTick = Math.sin(angleCam) * Math.max(0.01, strengthTick) * 0.35;
@@ -375,29 +359,16 @@ function computeGlobalWind(tick) {
 		yMs: yTick / RAG_TICK_MS
 	};
 }
-/**
- * Compute the on‑screen tilt for a raindrop so the streak aligns with its
- * projected movement direction under the current camera pitch/yaw.
- *
- * We transform the drop velocity into the same "map coords" used by the
- * SpriteRenderer Project() helper (x, -z, y), then into view space via
- * Camera.modelView. The streak axis is SpriteRenderer +Y, so the angle is
- * atan2(vx_view, vy_view).
- */
-function computeDropTilt(vx, vy, speedMs) {
-	// Velocity in world coords (cells/ms). Falling decreases world Z.
-	const vz = -speedMs;
-	// Convert to map-space vector (matches SpriteRenderer.Project)
-	const mx = vx;
-	const my = -vz; // = speedMs, positive when falling down.
-	const mz = vy;
 
+function computeDropTilt(vx, vy, speedMs) {
+	const vz = -speedMs;
+	const mx = vx;
+	const my = -vz;
+	const mz = vy;
 	const m = Camera.modelView;
 	if (!m) {
 		return 0;
 	}
-
-	// View‑space velocity (w=0 ignores translation).
 	const vxView = m[0] * mx + m[4] * my + m[8] * mz;
 	const vyView = m[1] * mx + m[5] * my + m[9] * mz;
 	if (Math.abs(vxView) < 0.000001 && Math.abs(vyView) < 0.000001) {
@@ -424,7 +395,7 @@ class RainWeatherEffect {
 		this.nextLightningTime = Date.now() + randRange(THUNDER_MIN_INTERVAL, THUNDER_MAX_INTERVAL);
 		this.isFlashing = false;
 		this.flashStartTime = 0;
-		this.flashMultiCount = Math.random() > 0.5 ? 2 : 1; // Double thunders
+		this.flashMultiCount = 1;
 		this.lightningX = 0;
 		this.lightningY = 0;
 		this.lightningZ = 0;
@@ -435,7 +406,6 @@ class RainWeatherEffect {
 		this.rainGainNode = null;
 		this.windLfoNode = null;
 
-		// Try start audio feature
 		try {
 			const AudioContext = window.AudioContext || window.webkitAudioContext;
 			if (AudioContext) {
@@ -495,7 +465,6 @@ class RainWeatherEffect {
 		if (!_instance) {
 			return;
 		}
-		// Clean up if map changed
 		if (_mapName !== MapRenderer.currentMap) {
 			_instance = null;
 			return;
@@ -549,7 +518,6 @@ class RainWeatherEffect {
 		const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
 		const output = buffer.getChannelData(0);
 
-		// Generate white noise
 		let b0 = 0,
 			b1 = 0,
 			b2 = 0,
@@ -586,7 +554,6 @@ class RainWeatherEffect {
 		metalFilter.Q.value = 1.2;
 		metalFilter.gain.value = 6;
 
-		// Low pass filter
 		const rainFilter = ctx.createBiquadFilter();
 		rainFilter.type = 'lowpass';
 		rainFilter.frequency.value = 2200;
@@ -657,7 +624,6 @@ class RainWeatherEffect {
 		gain.connect(ctx.destination);
 
 		noise.start(now);
-		//clean afteruse
 		setTimeout(() => {
 			try {
 				noise.disconnect();
@@ -670,7 +636,7 @@ class RainWeatherEffect {
 	}
 
 	/**
-	 * Thunder with delay proportional to the physical distance of the lightning
+	 * Trovão com delay proporcional à distância física do raio
 	 */
 	triggerThunderSound(distanceCells) {
 		if (!this.audioCtx || !Preferences.Sound.play) {
@@ -682,70 +648,38 @@ class RainWeatherEffect {
 			ctx.resume().catch(() => {});
 		}
 
-		// Correção do delay: 1 célula ≈ 1 metro. Velocidade do som proporcional à distância real.
-		const soundDelayMs = Math.max(3000, distanceCells);
+		// Sound speed converted to proportional delay in milliseconds
+		// 1 cell ≈ 1 meter. Sound speed ≈ 343 m/s.
+		const soundDelayMs = Math.min(4000, Math.max(50, distanceCells * 35));
 
 		setTimeout(() => {
 			if (!this.audioCtx) return;
 
-			// Aumentado para 4 segundos para comportar o eco e a cauda longa
-			const bufferSize = ctx.sampleRate * 4 * (6 * this.flashMultiCount);
+			const bufferSize = ctx.sampleRate * 3;
 			const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
 			const data = buffer.getChannelData(0);
 
-			// Gerador de ondas com múltiplos picos (simula o estrondo + rolagem orgânica)
 			for (let i = 0; i < bufferSize; i++) {
-				const t = i / ctx.sampleRate;
-
-				// Envelope principal + ondas secundárias de impacto rebatido
-				let envelope = Math.exp(-t * 1.1);
-				envelope += 0.45 * Math.exp(-Math.abs(t - 0.35) * 2.2); // Rebate inicial forte
-				envelope += 0.25 * Math.sin(t * 5.5) * Math.exp(-t * 0.7); // Ondulação estilo "chapa de metal"
-
-				data[i] = (Math.random() * 2 - 1) * Math.max(0, envelope);
+				data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.8));
 			}
 
 			const source = ctx.createBufferSource();
 			source.buffer = buffer;
 
-			// Filtro Lowpass Dinâmico (Varia o tom ao longo do tempo simulando a chapa vibrando)
 			const filter = ctx.createBiquadFilter();
 			filter.type = 'lowpass';
-			const baseFreq = Math.max(70, 320 - distanceCells * 2.5);
-
-			const now = ctx.currentTime;
-			// Automática variação de tom (frequência sobe e desce dando o efeito dramático)
-			filter.frequency.setValueAtTime(baseFreq * 1.3, now);
-			filter.frequency.linearRampToValueAtTime(baseFreq * 0.6, now + 0.4);
-			filter.frequency.linearRampToValueAtTime(baseFreq * 1.4, now + 1.2);
-			filter.frequency.linearRampToValueAtTime(baseFreq * 0.45, now + 2.8);
-
-			// Nó de Eco / Delay para dar persistência e efeito de cânion/estúdio
-			const delayNode = ctx.createDelay();
-			delayNode.delayTime.value = 0.28; // Tempo de eco entre as reflexões
-
-			const feedbackNode = ctx.createGain();
-			feedbackNode.gain.value = 0.4; // Intensidade do eco reverberante recirculando
+			filter.frequency.value = Math.max(80, 350 - distanceCells * 3); // Distant lightning are more muffled/bassier
 
 			const thunderGain = ctx.createGain();
+			// Volume attenuates with distance
 			const distanceFactor = Math.max(0.15, 1.0 - distanceCells / 70.0);
-			const finalVol = 0.85 * distanceFactor * Preferences.Sound.volume;
+			const finalVol = 0.9 * distanceFactor * Preferences.Sound.volume;
 
-			thunderGain.gain.setValueAtTime(finalVol, now);
-			thunderGain.gain.exponentialRampToValueAtTime(0.001 * Preferences.Sound.volume, now + 3.8);
+			thunderGain.gain.setValueAtTime(finalVol, ctx.currentTime);
+			thunderGain.gain.exponentialRampToValueAtTime(0.005 * Preferences.Sound.volume, ctx.currentTime + 2.5);
 
-			// --- Roteamento de Áudio com Malha de Eco (Feedback Loop) ---
 			source.connect(filter);
-
-			// Caminho Direto
 			filter.connect(thunderGain);
-
-			// Caminho do Eco (Cria o rastro persistente)
-			filter.connect(delayNode);
-			delayNode.connect(feedbackNode);
-			feedbackNode.connect(delayNode); // Mantém o loop do eco
-			delayNode.connect(thunderGain); // Joga o eco processado para o ganho final
-
 			thunderGain.connect(ctx.destination);
 
 			source.start();
@@ -795,7 +729,7 @@ class RainWeatherEffect {
 			lengthPx: lengthPx,
 			alphaScale: layer.alphaScale,
 			brightness: randRange(layer.brightness[0], layer.brightness[1]),
-			flicker: Math.random() * 1000
+			flicker: Math.random() * 100
 		});
 
 		if (this.drops.length > MAX_DROPS) {
@@ -894,8 +828,9 @@ class RainWeatherEffect {
 
 		// --- Thunderstorm / Lightning strike ---
 		if (!this.isFlashing && now >= this.nextLightningTime) {
+			// Randomly selects lightning position around the player
 			const angle = Math.random() * Math.PI * 2;
-			const dist = randRange(Session.Entity.position[0] + (Math.random() >= 0.5 ? randRange(1,18) : -randRange(1,18)), Session.Entity.position[1] + (Math.random() >= 0.5 ? randRange(1,18) : -randRange(1,18))); // Distance in cells
+			const dist = randRange(15, 55); // Distance in cells
 			const px = Session.Entity.position[0];
 			const py = Session.Entity.position[1];
 
@@ -916,7 +851,7 @@ class RainWeatherEffect {
 		let overlayR = 0.65;
 		let overlayG = 0.67;
 		let overlayB = 0.7;
-		let overlayA = 0.14;
+		let overlayA = 0.12;
 
 		if (this.isFlashing) {
 			const elapsed = now - this.flashStartTime;
@@ -925,12 +860,20 @@ class RainWeatherEffect {
 			if (this.flashMultiCount === 2) {
 				if (elapsed < 80) {
 					flashAlpha = 0.45 * (1 - elapsed / 80);
+					if (elapsed < 5) {
+						EffectManager.spam({
+							effectId: 30,
+							position: [this.lightningX, this.lightningY, this.lightningZ],
+							startTick: tick,
+							duration: now - this.flashStartTime + 60
+						});
+					}
 				} else if (elapsed < 160) {
 					flashAlpha = 0;
 				} else {
 					const elapsed2 = elapsed - 160;
 					if (elapsed2 < FLASH_FADE_IN) {
-						flashAlpha = (elapsed2 / FLASH_FADE_IN) * 0.8;
+						flashAlpha = (elapsed2 / FLASH_FADE_IN) * 0.6;
 					} else if (elapsed2 < FLASH_FADE_IN + FLASH_FADE_OUT) {
 						const p = (elapsed2 - FLASH_FADE_IN) / FLASH_FADE_OUT;
 						flashAlpha = 0.6 * (1 - p);
@@ -940,30 +883,26 @@ class RainWeatherEffect {
 				}
 			} else {
 				if (elapsed < FLASH_FADE_IN) {
-						// Trigger EF_THUNDERSTORM (effect 30) once when lightning strike occurs
+					if (elapsed < 5) {
 						EffectManager.spam({
 							effectId: 30,
-							position: [
-								this.lightningX + (Math.random() >= 0.5 ? -10 : +10),
-								this.lightningY + (Math.random() >= 0.5 ? -10 : +10),
-								this.lightningZ
-							],
+							position: [this.lightningX, this.lightningY, this.lightningZ],
 							startTick: tick,
-							duration: now - this.flashStartTime
+							duration: now - this.flashStartTime + 60
 						});
-					
+					}
 					flashAlpha = (elapsed / FLASH_FADE_IN) * 0.6;
 				} else if (elapsed < FLASH_FADE_IN + FLASH_FADE_OUT) {
 					const p = (elapsed - FLASH_FADE_IN) / FLASH_FADE_OUT;
-					flashAlpha = 0.8 * (1 - p);
+					flashAlpha = 0.6 * (1 - p);
 				} else {
 					this.isFlashing = false;
 				}
 			}
 
 			if (this.isFlashing) {
-				overlayR = 0.9;
-				overlayG = 0.95;
+				overlayR = 0.85;
+				overlayG = 0.92;
 				overlayB = 1.0;
 				overlayA = flashAlpha; // Balanced alpha for the environment
 			}

@@ -1,5 +1,17 @@
 # AGENTS.md — Network Subsystem (`src/Network/`)
 
+PROHIBITED — Scope Discipline (read before anything else)
+
+Read this file before touching any packet, socket, opcode or `PACKETVER` logic. This folder is the protocol boundary between client and server; it defines packet layouts, version branching, and transport contracts. Do not start from a random packet handler or a search hit—read the local topology and version rules first.
+
+## Topological snapshot
+
+- `PacketStructure.js` and `PacketRegister.js` — packet class definitions and opcode registration.
+- `PacketVersions.js` and `PacketVerManager.js` — version-specific packet support and packet-version routing.
+- `PacketLength.js` and `src/Network/Packets/` — per-version length tables and packet metadata.
+- `SocketHelpers/` — browser and Electron socket transports (`WebSocket.js`, `NodeSocket.js`).
+- `docs/Encoding.md` and `docs/reference/README.md` — text decoding rules and packet behavior references.
+
 Instructions for working on packet structures, opcode registration, packet lengths, PACKETVER version management, network connections, and socket helpers.
 
 ## Mandatory Prerequisites & References

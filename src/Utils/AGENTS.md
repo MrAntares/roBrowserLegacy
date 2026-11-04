@@ -1,5 +1,16 @@
 # AGENTS.md — Shared Utilities (`src/Utils/`)
 
+PROHIBITED — Scope Discipline (read before anything else)
+
+Read this file before changing a shared utility or binary primitive. This folder is the lowest-level support layer for encoding, binary IO, rendering helpers and shared math; bugs here frequently break loaders, network code, renderer code and file parsing everywhere else.
+
+## Topological snapshot
+
+- `BinaryReader.js`, `BinaryWriter.js`, `Struct.js` — binary protocols and structured reads.
+- `CodepageManager.js`, `HTMLEntity.js`, `HtmlHelper.js` — text and encoding helpers.
+- `WebGL.js`, `Texture.js`, `PathFinding.js` — rendering and map helpers.
+- `docs/Encoding.md` — byte/string contract for text decoding and GRF file processing.
+
 Instructions for shared binary, encoding, rendering, and general-purpose utilities.
 
 ## Utility Map (`src/Utils/`)
