@@ -20,7 +20,7 @@
 | `bench/`| `paletteConvert.bench.js`, `spriteCompile.bench.js`, `spriteFrame.bench.js`, `targa.bench.js`, `gameFileDecrypt.bench.js`|
 | `controls/`| `ProcessCommand.perf.test.js`, `ProcessCommand.test.js` |
 | `core/`| `FileManager.cacheReject.test.js`, `FileSystem.storedNames.test.js`, `LuaModuleLoader.test.js`, `PerfProbe.test.js` |
-| `db/`| `BodyPalPath.test.js`, `Emotions.test.js`, `EmotionsConst.test.js`, `EquipmentLocation.test.js`, `IsShield.test.js`, `ItemType.test.js`, `JobConst.test.js`, `SkillAction.test.js`, `SkillConst.test.js`, `SkillTreeMerge.test.js`, `StatusConst.test.js`, `TownInfo.test.js`, `WeaponType.test.js` |
+| `db/`| `BodyPalPath.test.js`, `Emotions.test.js`, `EmotionsConst.test.js`, `EquipmentLocation.test.js`, `IsShield.test.js`, `ItemType.test.js`, `JobConst.test.js`, `LuaTableCharset.test.js`, `SkillAction.test.js`, `SkillConst.test.js`, `SkillTreeMerge.test.js`, `StatusConst.test.js`, `TownInfo.test.js`, `WeaponType.test.js` |
 | `engine/`| `CharEngine.reload.test.js`, `LoginEngine.ban.test.js`, `MapEngine.Guild.test.js`, `MapEngine.Item.Equip.test.js`, `MapEngine.Item.inventory.test.js`, `MapEngine.Pet.test.js`, `MapEngine.PrivateMessage.test.js`, `OffhandWeapon.test.js` |
 | `fixtures/`| `defaultAIfs.js`, `guildMembers.js`, `README.md` |
 | `loaders/`| `Action.test.js`, `Altitude.test.js`, `GameFile.test.js`, `GameFileDecrypt.test.js`, `gameFileDecrypt.parity.test.js`, `GR2Loader.test.js`, `Ground.test.js`, `MapLoader.test.js`, `Model.test.js`, `paletteConvert.parity.test.js`, `Sprite.test.js`, `spriteCompile.parity.test.js`, `spriteFrame.parity.test.js`, `Str.test.js`, `Targa.parity.test.js`, `Targa.test.js`, `World.test.js` |
