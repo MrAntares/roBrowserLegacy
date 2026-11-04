@@ -614,7 +614,7 @@ class RainWeatherEffect {
 		filter.Q.value = 6.0;
 
 		const gain = ctx.createGain();
-		const peakVolume = Math.min(0.15, RAIN_VOLUME * 2.5) * (Preferences.Sound.volume || 1.0);
+		const peakVolume = Math.min(0.15, RAIN_VOLUME * 2.5) * Preferences.Sound.volume;
 
 		gain.gain.setValueAtTime(peakVolume, now);
 		gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.018);
@@ -636,7 +636,7 @@ class RainWeatherEffect {
 	}
 
 	/**
-	 * Trovão com delay proporcional à distância física do raio
+	 * Thunder (sound) delayed relative to the lightning flash, proportional to strike distance.
 	 */
 	triggerThunderSound(distanceCells) {
 		if (!this.audioCtx || !Preferences.Sound.play) {
@@ -648,8 +648,10 @@ class RainWeatherEffect {
 			ctx.resume().catch(() => {});
 		}
 
-		// Sound speed converted to proportional delay in milliseconds
-		// 1 cell ≈ 1 meter. Sound speed ≈ 343 m/s.
+		// Actual sequence: lightning bolt (discharge, not always visible) → flash (bright light,
+		// nearly instantaneous) → thunder (rumble, arriving later as it travels at ~343 m/s).
+		// The delay here is artistic, not physical: ~35 ms per cell exaggerates the interval
+		// so the player perceives that the lightning struck far away. Limited to 50–4000 ms.
 		const soundDelayMs = Math.min(4000, Math.max(50, distanceCells * 35));
 
 		setTimeout(() => {
