@@ -52,7 +52,7 @@ Instructions for working on the WebGL renderer, Entity composition system (`src/
 - **Cast shapes:** the official client's 4th-job cast auras, each drawing class with a pure simulation beside it (`*Sim.js`): `CastCircle` (tinted cast circle), `CastCone` (bubble cones and crowns), `CastRing` (cast-aura ring and its colour-cycling twin), `CastFunnel` (opening rings), `RotateLine` (ribbons spiralling round the caster) and `CasterMarks` (the caster's glow and split images, drawn by `EntityRender`). Rows marked `castLoop` replay until the cast ends (`EffectManager.spamSkillCast` gets the cast time) and `EffectManager.removeCastLoops` stops them on cancel.
 - **Spawners:** `AreaSpawner` (`AREA_SPAWN` rows: while it lives, spams another effect at random points of a square, for ground units such as Cross Rain).
 - **Placement helpers** (used by `SkillEffect` fields in `EffectManager.js`): `ScreenDirection` (where a target is on screen from the caster), `ShuffledGrid`, `SpinSets`, `GroundScatter`, `BezierArcThrow` + `BezierArcThrowSim` (a STR thrown on an arc, `arcThrow` rows).
-- **Screen & Post-Processing:** `PostProcess.js` and `Effects/Shaders/` (`Blind`, `Bloom`, `CAS`, `Cartoon`, `FXAA`, `GaussianBlur`, `Upsampling`, `VerticalFlip`, `Vibrance`).
+- **Screen & Post-Processing:** `PostProcess.js` and `Effects/Shaders/` (`Blind`, `Bloom`, `CAS`, `Cartoon`, `FXAA`, `GaussianBlur`, `Upsampling`, `VerticalFlip`, `Vibrance`, `RainOverlay.js`, `RainLightning.js`).
 - _Known note:_ `Damage.js` and `Sky.js` contain legacy particle class management TODOs; inspect carefully when modifying.
 
 ### Map Rendering (`src/Renderer/Map/`)
