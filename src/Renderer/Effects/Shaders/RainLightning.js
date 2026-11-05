@@ -123,4 +123,3 @@ class RainLightning {
 }
 
 export default RainLightning;
-

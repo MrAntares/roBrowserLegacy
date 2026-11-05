@@ -48,7 +48,7 @@ class RainOverlay {
 		gl.activeTexture(gl.TEXTURE0);
 		gl.bindTexture(gl.TEXTURE_2D, inputTexture);
 		gl.uniform1i(_program.uniform.uTexture, 0);
-		
+
 		// Upload overlay colour uniforms
 		gl.uniform3f(_program.uniform.uOverlayColor, _overlayR, _overlayG, _overlayB);
 		gl.uniform1f(_program.uniform.uOverlayAlpha, alpha);
@@ -108,4 +108,3 @@ class RainOverlay {
 }
 
 export default RainOverlay;
-

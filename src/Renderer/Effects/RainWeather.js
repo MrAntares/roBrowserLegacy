@@ -1156,4 +1156,3 @@ class RainWeatherEffect {
 RainWeatherEffect.renderBeforeEntities = false;
 
 export default RainWeatherEffect;
-
