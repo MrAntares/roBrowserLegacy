@@ -79314,7 +79314,7 @@ var init_Controls = __esmMin((() => {
 	}, 1);
 }));
 // src/Vendors/gl-matrix.js
-var exports$3, GLMAT_EPSILON, GLMAT_ARRAY_TYPE, GLMAT_RANDOM, glMatrix, vec2$4, vec3$8, vec4$9, mat2$1, mat2d, mat3$5, mat4$25, quat$2;
+var exports$3, GLMAT_EPSILON, GLMAT_ARRAY_TYPE, GLMAT_RANDOM, glMatrix, vec2$4, vec3$9, vec4$10, mat2$1, mat2d, mat3$5, mat4$25, quat$2;
 var init_gl_matrix$1 = __esmMin((() => {
 	exports$3 = {};
 	if (!GLMAT_EPSILON) GLMAT_EPSILON = 1e-6;
@@ -79756,13 +79756,13 @@ var init_gl_matrix$1 = __esmMin((() => {
 		return "vec2(" + a[0] + ", " + a[1] + ")";
 	};
 	if (typeof exports$3 !== "undefined") exports$3.vec2 = vec2$4;
-	vec3$8 = {};
+	vec3$9 = {};
 	/**
 	* Creates a new, empty vec3
 	*
 	* @returns {vec3} a new 3D vector
 	*/
-	vec3$8.create = function() {
+	vec3$9.create = function() {
 		var out = new GLMAT_ARRAY_TYPE(3);
 		out[0] = 0;
 		out[1] = 0;
@@ -79775,7 +79775,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} a vector to clone
 	* @returns {vec3} a new 3D vector
 	*/
-	vec3$8.clone = function(a) {
+	vec3$9.clone = function(a) {
 		var out = new GLMAT_ARRAY_TYPE(3);
 		out[0] = a[0];
 		out[1] = a[1];
@@ -79790,7 +79790,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} z Z component
 	* @returns {vec3} a new 3D vector
 	*/
-	vec3$8.fromValues = function(x, y, z) {
+	vec3$9.fromValues = function(x, y, z) {
 		var out = new GLMAT_ARRAY_TYPE(3);
 		out[0] = x;
 		out[1] = y;
@@ -79804,7 +79804,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} a the source vector
 	* @returns {vec3} out
 	*/
-	vec3$8.copy = function(out, a) {
+	vec3$9.copy = function(out, a) {
 		out[0] = a[0];
 		out[1] = a[1];
 		out[2] = a[2];
@@ -79819,7 +79819,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} z Z component
 	* @returns {vec3} out
 	*/
-	vec3$8.set = function(out, x, y, z) {
+	vec3$9.set = function(out, x, y, z) {
 		out[0] = x;
 		out[1] = y;
 		out[2] = z;
@@ -79833,7 +79833,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} b the second operand
 	* @returns {vec3} out
 	*/
-	vec3$8.add = function(out, a, b) {
+	vec3$9.add = function(out, a, b) {
 		out[0] = a[0] + b[0];
 		out[1] = a[1] + b[1];
 		out[2] = a[2] + b[2];
@@ -79847,7 +79847,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} b the second operand
 	* @returns {vec3} out
 	*/
-	vec3$8.subtract = function(out, a, b) {
+	vec3$9.subtract = function(out, a, b) {
 		out[0] = a[0] - b[0];
 		out[1] = a[1] - b[1];
 		out[2] = a[2] - b[2];
@@ -79857,7 +79857,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* Alias for {@link vec3.subtract}
 	* @function
 	*/
-	vec3$8.sub = vec3$8.subtract;
+	vec3$9.sub = vec3$9.subtract;
 	/**
 	* Multiplies two vec3's
 	*
@@ -79866,7 +79866,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} b the second operand
 	* @returns {vec3} out
 	*/
-	vec3$8.multiply = function(out, a, b) {
+	vec3$9.multiply = function(out, a, b) {
 		out[0] = a[0] * b[0];
 		out[1] = a[1] * b[1];
 		out[2] = a[2] * b[2];
@@ -79876,7 +79876,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* Alias for {@link vec3.multiply}
 	* @function
 	*/
-	vec3$8.mul = vec3$8.multiply;
+	vec3$9.mul = vec3$9.multiply;
 	/**
 	* Divides two vec3's
 	*
@@ -79885,7 +79885,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} b the second operand
 	* @returns {vec3} out
 	*/
-	vec3$8.divide = function(out, a, b) {
+	vec3$9.divide = function(out, a, b) {
 		out[0] = a[0] / b[0];
 		out[1] = a[1] / b[1];
 		out[2] = a[2] / b[2];
@@ -79895,7 +79895,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* Alias for {@link vec3.divide}
 	* @function
 	*/
-	vec3$8.div = vec3$8.divide;
+	vec3$9.div = vec3$9.divide;
 	/**
 	* Returns the minimum of two vec3's
 	*
@@ -79904,7 +79904,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} b the second operand
 	* @returns {vec3} out
 	*/
-	vec3$8.min = function(out, a, b) {
+	vec3$9.min = function(out, a, b) {
 		out[0] = Math.min(a[0], b[0]);
 		out[1] = Math.min(a[1], b[1]);
 		out[2] = Math.min(a[2], b[2]);
@@ -79918,7 +79918,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} b the second operand
 	* @returns {vec3} out
 	*/
-	vec3$8.max = function(out, a, b) {
+	vec3$9.max = function(out, a, b) {
 		out[0] = Math.max(a[0], b[0]);
 		out[1] = Math.max(a[1], b[1]);
 		out[2] = Math.max(a[2], b[2]);
@@ -79932,7 +79932,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} b amount to scale the vector by
 	* @returns {vec3} out
 	*/
-	vec3$8.scale = function(out, a, b) {
+	vec3$9.scale = function(out, a, b) {
 		out[0] = a[0] * b;
 		out[1] = a[1] * b;
 		out[2] = a[2] * b;
@@ -79947,7 +79947,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} scale the amount to scale b by before adding
 	* @returns {vec3} out
 	*/
-	vec3$8.scaleAndAdd = function(out, a, b, scale) {
+	vec3$9.scaleAndAdd = function(out, a, b, scale) {
 		out[0] = a[0] + b[0] * scale;
 		out[1] = a[1] + b[1] * scale;
 		out[2] = a[2] + b[2] * scale;
@@ -79960,7 +79960,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} b the second operand
 	* @returns {Number} distance between a and b
 	*/
-	vec3$8.distance = function(a, b) {
+	vec3$9.distance = function(a, b) {
 		var x = b[0] - a[0], y = b[1] - a[1], z = b[2] - a[2];
 		return Math.sqrt(x * x + y * y + z * z);
 	};
@@ -79968,7 +79968,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* Alias for {@link vec3.distance}
 	* @function
 	*/
-	vec3$8.dist = vec3$8.distance;
+	vec3$9.dist = vec3$9.distance;
 	/**
 	* Calculates the squared euclidian distance between two vec3's
 	*
@@ -79976,7 +79976,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} b the second operand
 	* @returns {Number} squared distance between a and b
 	*/
-	vec3$8.squaredDistance = function(a, b) {
+	vec3$9.squaredDistance = function(a, b) {
 		var x = b[0] - a[0], y = b[1] - a[1], z = b[2] - a[2];
 		return x * x + y * y + z * z;
 	};
@@ -79984,14 +79984,14 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* Alias for {@link vec3.squaredDistance}
 	* @function
 	*/
-	vec3$8.sqrDist = vec3$8.squaredDistance;
+	vec3$9.sqrDist = vec3$9.squaredDistance;
 	/**
 	* Calculates the length of a vec3
 	*
 	* @param {vec3} a vector to calculate length of
 	* @returns {Number} length of a
 	*/
-	vec3$8.length = function(a) {
+	vec3$9.length = function(a) {
 		var x = a[0], y = a[1], z = a[2];
 		return Math.sqrt(x * x + y * y + z * z);
 	};
@@ -79999,14 +79999,14 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* Alias for {@link vec3.length}
 	* @function
 	*/
-	vec3$8.len = vec3$8.length;
+	vec3$9.len = vec3$9.length;
 	/**
 	* Calculates the squared length of a vec3
 	*
 	* @param {vec3} a vector to calculate squared length of
 	* @returns {Number} squared length of a
 	*/
-	vec3$8.squaredLength = function(a) {
+	vec3$9.squaredLength = function(a) {
 		var x = a[0], y = a[1], z = a[2];
 		return x * x + y * y + z * z;
 	};
@@ -80014,7 +80014,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* Alias for {@link vec3.squaredLength}
 	* @function
 	*/
-	vec3$8.sqrLen = vec3$8.squaredLength;
+	vec3$9.sqrLen = vec3$9.squaredLength;
 	/**
 	* Negates the components of a vec3
 	*
@@ -80022,7 +80022,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} a vector to negate
 	* @returns {vec3} out
 	*/
-	vec3$8.negate = function(out, a) {
+	vec3$9.negate = function(out, a) {
 		out[0] = -a[0];
 		out[1] = -a[1];
 		out[2] = -a[2];
@@ -80035,7 +80035,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} a vector to normalize
 	* @returns {vec3} out
 	*/
-	vec3$8.normalize = function(out, a) {
+	vec3$9.normalize = function(out, a) {
 		var x = a[0], y = a[1], z = a[2];
 		var len = x * x + y * y + z * z;
 		if (len > 0) {
@@ -80053,7 +80053,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} b the second operand
 	* @returns {Number} dot product of a and b
 	*/
-	vec3$8.dot = function(a, b) {
+	vec3$9.dot = function(a, b) {
 		return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 	};
 	/**
@@ -80064,7 +80064,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} b the second operand
 	* @returns {vec3} out
 	*/
-	vec3$8.cross = function(out, a, b) {
+	vec3$9.cross = function(out, a, b) {
 		var ax = a[0], ay = a[1], az = a[2], bx = b[0], by = b[1], bz = b[2];
 		out[0] = ay * bz - az * by;
 		out[1] = az * bx - ax * bz;
@@ -80080,7 +80080,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} t interpolation amount between the two inputs
 	* @returns {vec3} out
 	*/
-	vec3$8.lerp = function(out, a, b, t) {
+	vec3$9.lerp = function(out, a, b, t) {
 		var ax = a[0], ay = a[1], az = a[2];
 		out[0] = ax + t * (b[0] - ax);
 		out[1] = ay + t * (b[1] - ay);
@@ -80094,7 +80094,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} [scale] Length of the resulting vector. If ommitted, a unit vector will be returned
 	* @returns {vec3} out
 	*/
-	vec3$8.random = function(out, scale) {
+	vec3$9.random = function(out, scale) {
 		scale = scale || 1;
 		var r = GLMAT_RANDOM() * 2 * Math.PI;
 		var z = GLMAT_RANDOM() * 2 - 1;
@@ -80113,7 +80113,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} m matrix to transform with
 	* @returns {vec3} out
 	*/
-	vec3$8.transformMat4 = function(out, a, m) {
+	vec3$9.transformMat4 = function(out, a, m) {
 		var x = a[0], y = a[1], z = a[2];
 		out[0] = m[0] * x + m[4] * y + m[8] * z + m[12];
 		out[1] = m[1] * x + m[5] * y + m[9] * z + m[13];
@@ -80128,7 +80128,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} m the 3x3 matrix to transform with
 	* @returns {vec3} out
 	*/
-	vec3$8.transformMat3 = function(out, a, m) {
+	vec3$9.transformMat3 = function(out, a, m) {
 		var x = a[0], y = a[1], z = a[2];
 		out[0] = x * m[0] + y * m[3] + z * m[6];
 		out[1] = x * m[1] + y * m[4] + z * m[7];
@@ -80143,7 +80143,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {quat} q quaternion to transform with
 	* @returns {vec3} out
 	*/
-	vec3$8.transformQuat = function(out, a, q) {
+	vec3$9.transformQuat = function(out, a, q) {
 		var x = a[0], y = a[1], z = a[2], qx = q[0], qy = q[1], qz = q[2], qw = q[3], ix = qw * x + qy * z - qz * y, iy = qw * y + qz * x - qx * z, iz = qw * z + qx * y - qy * x, iw = -qx * x - qy * y - qz * z;
 		out[0] = ix * qw + iw * -qx + iy * -qz - iz * -qy;
 		out[1] = iy * qw + iw * -qy + iz * -qx - ix * -qz;
@@ -80162,8 +80162,8 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @returns {Array} a
 	* @function
 	*/
-	vec3$8.forEach = (function() {
-		var vec = vec3$8.create();
+	vec3$9.forEach = (function() {
+		var vec = vec3$9.create();
 		return function(a, stride, offset, count, fn, arg) {
 			var i, l;
 			if (!stride) stride = 3;
@@ -80188,17 +80188,17 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec3} vec vector to represent as a string
 	* @returns {String} string representation of the vector
 	*/
-	vec3$8.str = function(a) {
+	vec3$9.str = function(a) {
 		return "vec3(" + a[0] + ", " + a[1] + ", " + a[2] + ")";
 	};
-	if (typeof exports$3 !== "undefined") exports$3.vec3 = vec3$8;
-	vec4$9 = {};
+	if (typeof exports$3 !== "undefined") exports$3.vec3 = vec3$9;
+	vec4$10 = {};
 	/**
 	* Creates a new, empty vec4
 	*
 	* @returns {vec4} a new 4D vector
 	*/
-	vec4$9.create = function() {
+	vec4$10.create = function() {
 		var out = new GLMAT_ARRAY_TYPE(4);
 		out[0] = 0;
 		out[1] = 0;
@@ -80212,7 +80212,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec4} a vector to clone
 	* @returns {vec4} a new 4D vector
 	*/
-	vec4$9.clone = function(a) {
+	vec4$10.clone = function(a) {
 		var out = new GLMAT_ARRAY_TYPE(4);
 		out[0] = a[0];
 		out[1] = a[1];
@@ -80229,7 +80229,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} w W component
 	* @returns {vec4} a new 4D vector
 	*/
-	vec4$9.fromValues = function(x, y, z, w) {
+	vec4$10.fromValues = function(x, y, z, w) {
 		var out = new GLMAT_ARRAY_TYPE(4);
 		out[0] = x;
 		out[1] = y;
@@ -80244,7 +80244,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec4} a the source vector
 	* @returns {vec4} out
 	*/
-	vec4$9.copy = function(out, a) {
+	vec4$10.copy = function(out, a) {
 		out[0] = a[0];
 		out[1] = a[1];
 		out[2] = a[2];
@@ -80261,7 +80261,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} w W component
 	* @returns {vec4} out
 	*/
-	vec4$9.set = function(out, x, y, z, w) {
+	vec4$10.set = function(out, x, y, z, w) {
 		out[0] = x;
 		out[1] = y;
 		out[2] = z;
@@ -80276,7 +80276,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec4} b the second operand
 	* @returns {vec4} out
 	*/
-	vec4$9.add = function(out, a, b) {
+	vec4$10.add = function(out, a, b) {
 		out[0] = a[0] + b[0];
 		out[1] = a[1] + b[1];
 		out[2] = a[2] + b[2];
@@ -80291,7 +80291,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec4} b the second operand
 	* @returns {vec4} out
 	*/
-	vec4$9.subtract = function(out, a, b) {
+	vec4$10.subtract = function(out, a, b) {
 		out[0] = a[0] - b[0];
 		out[1] = a[1] - b[1];
 		out[2] = a[2] - b[2];
@@ -80302,7 +80302,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* Alias for {@link vec4.subtract}
 	* @function
 	*/
-	vec4$9.sub = vec4$9.subtract;
+	vec4$10.sub = vec4$10.subtract;
 	/**
 	* Multiplies two vec4's
 	*
@@ -80311,7 +80311,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec4} b the second operand
 	* @returns {vec4} out
 	*/
-	vec4$9.multiply = function(out, a, b) {
+	vec4$10.multiply = function(out, a, b) {
 		out[0] = a[0] * b[0];
 		out[1] = a[1] * b[1];
 		out[2] = a[2] * b[2];
@@ -80322,7 +80322,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* Alias for {@link vec4.multiply}
 	* @function
 	*/
-	vec4$9.mul = vec4$9.multiply;
+	vec4$10.mul = vec4$10.multiply;
 	/**
 	* Divides two vec4's
 	*
@@ -80331,7 +80331,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec4} b the second operand
 	* @returns {vec4} out
 	*/
-	vec4$9.divide = function(out, a, b) {
+	vec4$10.divide = function(out, a, b) {
 		out[0] = a[0] / b[0];
 		out[1] = a[1] / b[1];
 		out[2] = a[2] / b[2];
@@ -80342,7 +80342,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* Alias for {@link vec4.divide}
 	* @function
 	*/
-	vec4$9.div = vec4$9.divide;
+	vec4$10.div = vec4$10.divide;
 	/**
 	* Returns the minimum of two vec4's
 	*
@@ -80351,7 +80351,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec4} b the second operand
 	* @returns {vec4} out
 	*/
-	vec4$9.min = function(out, a, b) {
+	vec4$10.min = function(out, a, b) {
 		out[0] = Math.min(a[0], b[0]);
 		out[1] = Math.min(a[1], b[1]);
 		out[2] = Math.min(a[2], b[2]);
@@ -80366,7 +80366,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec4} b the second operand
 	* @returns {vec4} out
 	*/
-	vec4$9.max = function(out, a, b) {
+	vec4$10.max = function(out, a, b) {
 		out[0] = Math.max(a[0], b[0]);
 		out[1] = Math.max(a[1], b[1]);
 		out[2] = Math.max(a[2], b[2]);
@@ -80381,7 +80381,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} b amount to scale the vector by
 	* @returns {vec4} out
 	*/
-	vec4$9.scale = function(out, a, b) {
+	vec4$10.scale = function(out, a, b) {
 		out[0] = a[0] * b;
 		out[1] = a[1] * b;
 		out[2] = a[2] * b;
@@ -80397,7 +80397,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} scale the amount to scale b by before adding
 	* @returns {vec4} out
 	*/
-	vec4$9.scaleAndAdd = function(out, a, b, scale) {
+	vec4$10.scaleAndAdd = function(out, a, b, scale) {
 		out[0] = a[0] + b[0] * scale;
 		out[1] = a[1] + b[1] * scale;
 		out[2] = a[2] + b[2] * scale;
@@ -80411,7 +80411,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec4} b the second operand
 	* @returns {Number} distance between a and b
 	*/
-	vec4$9.distance = function(a, b) {
+	vec4$10.distance = function(a, b) {
 		var x = b[0] - a[0], y = b[1] - a[1], z = b[2] - a[2], w = b[3] - a[3];
 		return Math.sqrt(x * x + y * y + z * z + w * w);
 	};
@@ -80419,7 +80419,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* Alias for {@link vec4.distance}
 	* @function
 	*/
-	vec4$9.dist = vec4$9.distance;
+	vec4$10.dist = vec4$10.distance;
 	/**
 	* Calculates the squared euclidian distance between two vec4's
 	*
@@ -80427,7 +80427,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec4} b the second operand
 	* @returns {Number} squared distance between a and b
 	*/
-	vec4$9.squaredDistance = function(a, b) {
+	vec4$10.squaredDistance = function(a, b) {
 		var x = b[0] - a[0], y = b[1] - a[1], z = b[2] - a[2], w = b[3] - a[3];
 		return x * x + y * y + z * z + w * w;
 	};
@@ -80435,14 +80435,14 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* Alias for {@link vec4.squaredDistance}
 	* @function
 	*/
-	vec4$9.sqrDist = vec4$9.squaredDistance;
+	vec4$10.sqrDist = vec4$10.squaredDistance;
 	/**
 	* Calculates the length of a vec4
 	*
 	* @param {vec4} a vector to calculate length of
 	* @returns {Number} length of a
 	*/
-	vec4$9.length = function(a) {
+	vec4$10.length = function(a) {
 		var x = a[0], y = a[1], z = a[2], w = a[3];
 		return Math.sqrt(x * x + y * y + z * z + w * w);
 	};
@@ -80450,14 +80450,14 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* Alias for {@link vec4.length}
 	* @function
 	*/
-	vec4$9.len = vec4$9.length;
+	vec4$10.len = vec4$10.length;
 	/**
 	* Calculates the squared length of a vec4
 	*
 	* @param {vec4} a vector to calculate squared length of
 	* @returns {Number} squared length of a
 	*/
-	vec4$9.squaredLength = function(a) {
+	vec4$10.squaredLength = function(a) {
 		var x = a[0], y = a[1], z = a[2], w = a[3];
 		return x * x + y * y + z * z + w * w;
 	};
@@ -80465,7 +80465,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* Alias for {@link vec4.squaredLength}
 	* @function
 	*/
-	vec4$9.sqrLen = vec4$9.squaredLength;
+	vec4$10.sqrLen = vec4$10.squaredLength;
 	/**
 	* Negates the components of a vec4
 	*
@@ -80473,7 +80473,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec4} a vector to negate
 	* @returns {vec4} out
 	*/
-	vec4$9.negate = function(out, a) {
+	vec4$10.negate = function(out, a) {
 		out[0] = -a[0];
 		out[1] = -a[1];
 		out[2] = -a[2];
@@ -80487,7 +80487,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec4} a vector to normalize
 	* @returns {vec4} out
 	*/
-	vec4$9.normalize = function(out, a) {
+	vec4$10.normalize = function(out, a) {
 		var x = a[0], y = a[1], z = a[2], w = a[3];
 		var len = x * x + y * y + z * z + w * w;
 		if (len > 0) {
@@ -80506,7 +80506,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec4} b the second operand
 	* @returns {Number} dot product of a and b
 	*/
-	vec4$9.dot = function(a, b) {
+	vec4$10.dot = function(a, b) {
 		return a[0] * b[0] + a[1] * b[1] + a[2] * b[2] + a[3] * b[3];
 	};
 	/**
@@ -80518,7 +80518,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} t interpolation amount between the two inputs
 	* @returns {vec4} out
 	*/
-	vec4$9.lerp = function(out, a, b, t) {
+	vec4$10.lerp = function(out, a, b, t) {
 		var ax = a[0], ay = a[1], az = a[2], aw = a[3];
 		out[0] = ax + t * (b[0] - ax);
 		out[1] = ay + t * (b[1] - ay);
@@ -80533,14 +80533,14 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {Number} [scale] Length of the resulting vector. If ommitted, a unit vector will be returned
 	* @returns {vec4} out
 	*/
-	vec4$9.random = function(out, scale) {
+	vec4$10.random = function(out, scale) {
 		scale = scale || 1;
 		out[0] = GLMAT_RANDOM();
 		out[1] = GLMAT_RANDOM();
 		out[2] = GLMAT_RANDOM();
 		out[3] = GLMAT_RANDOM();
-		vec4$9.normalize(out, out);
-		vec4$9.scale(out, out, scale);
+		vec4$10.normalize(out, out);
+		vec4$10.scale(out, out, scale);
 		return out;
 	};
 	/**
@@ -80551,7 +80551,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {mat4} m matrix to transform with
 	* @returns {vec4} out
 	*/
-	vec4$9.transformMat4 = function(out, a, m) {
+	vec4$10.transformMat4 = function(out, a, m) {
 		var x = a[0], y = a[1], z = a[2], w = a[3];
 		out[0] = m[0] * x + m[4] * y + m[8] * z + m[12] * w;
 		out[1] = m[1] * x + m[5] * y + m[9] * z + m[13] * w;
@@ -80567,7 +80567,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {quat} q quaternion to transform with
 	* @returns {vec4} out
 	*/
-	vec4$9.transformQuat = function(out, a, q) {
+	vec4$10.transformQuat = function(out, a, q) {
 		var x = a[0], y = a[1], z = a[2], qx = q[0], qy = q[1], qz = q[2], qw = q[3], ix = qw * x + qy * z - qz * y, iy = qw * y + qz * x - qx * z, iz = qw * z + qx * y - qy * x, iw = -qx * x - qy * y - qz * z;
 		out[0] = ix * qw + iw * -qx + iy * -qz - iz * -qy;
 		out[1] = iy * qw + iw * -qy + iz * -qx - ix * -qz;
@@ -80586,8 +80586,8 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @returns {Array} a
 	* @function
 	*/
-	vec4$9.forEach = (function() {
-		var vec = vec4$9.create();
+	vec4$10.forEach = (function() {
+		var vec = vec4$10.create();
 		return function(a, stride, offset, count, fn, arg) {
 			var i, l;
 			if (!stride) stride = 4;
@@ -80614,10 +80614,10 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @param {vec4} vec vector to represent as a string
 	* @returns {String} string representation of the vector
 	*/
-	vec4$9.str = function(a) {
+	vec4$10.str = function(a) {
 		return "vec4(" + a[0] + ", " + a[1] + ", " + a[2] + ", " + a[3] + ")";
 	};
-	if (typeof exports$3 !== "undefined") exports$3.vec4 = vec4$9;
+	if (typeof exports$3 !== "undefined") exports$3.vec4 = vec4$10;
 	mat2$1 = {};
 	/**
 	* Creates a new identity mat2
@@ -82053,15 +82053,15 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @returns {quat} out
 	*/
 	quat$2.rotationTo = (function() {
-		var tmpvec3 = vec3$8.create();
-		var xUnitVec3 = vec3$8.fromValues(1, 0, 0);
-		var yUnitVec3 = vec3$8.fromValues(0, 1, 0);
+		var tmpvec3 = vec3$9.create();
+		var xUnitVec3 = vec3$9.fromValues(1, 0, 0);
+		var yUnitVec3 = vec3$9.fromValues(0, 1, 0);
 		return function(out, a, b) {
-			var dot = vec3$8.dot(a, b);
+			var dot = vec3$9.dot(a, b);
 			if (dot < -.999999) {
-				vec3$8.cross(tmpvec3, xUnitVec3, a);
-				if (vec3$8.length(tmpvec3) < 1e-6) vec3$8.cross(tmpvec3, yUnitVec3, a);
-				vec3$8.normalize(tmpvec3, tmpvec3);
+				vec3$9.cross(tmpvec3, xUnitVec3, a);
+				if (vec3$9.length(tmpvec3) < 1e-6) vec3$9.cross(tmpvec3, yUnitVec3, a);
+				vec3$9.normalize(tmpvec3, tmpvec3);
 				quat$2.setAxisAngle(out, tmpvec3, Math.PI);
 				return out;
 			} else if (dot > .999999) {
@@ -82071,7 +82071,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 				out[3] = 1;
 				return out;
 			} else {
-				vec3$8.cross(tmpvec3, a, b);
+				vec3$9.cross(tmpvec3, a, b);
 				out[0] = tmpvec3[0];
 				out[1] = tmpvec3[1];
 				out[2] = tmpvec3[2];
@@ -82112,7 +82112,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @returns {quat} a new quaternion
 	* @function
 	*/
-	quat$2.clone = vec4$9.clone;
+	quat$2.clone = vec4$10.clone;
 	/**
 	* Creates a new quat initialized with the given values
 	*
@@ -82123,7 +82123,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @returns {quat} a new quaternion
 	* @function
 	*/
-	quat$2.fromValues = vec4$9.fromValues;
+	quat$2.fromValues = vec4$10.fromValues;
 	/**
 	* Copy the values from one quat to another
 	*
@@ -82132,7 +82132,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @returns {quat} out
 	* @function
 	*/
-	quat$2.copy = vec4$9.copy;
+	quat$2.copy = vec4$10.copy;
 	/**
 	* Set the components of a quat to the given values
 	*
@@ -82144,7 +82144,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @returns {quat} out
 	* @function
 	*/
-	quat$2.set = vec4$9.set;
+	quat$2.set = vec4$10.set;
 	/**
 	* Set a quat to the identity quaternion
 	*
@@ -82185,7 +82185,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @returns {quat} out
 	* @function
 	*/
-	quat$2.add = vec4$9.add;
+	quat$2.add = vec4$10.add;
 	/**
 	* Multiplies two quat's
 	*
@@ -82216,7 +82216,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @returns {quat} out
 	* @function
 	*/
-	quat$2.scale = vec4$9.scale;
+	quat$2.scale = vec4$10.scale;
 	/**
 	* Rotates a quaternion by the given angle about the X axis
 	*
@@ -82293,7 +82293,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @returns {Number} dot product of a and b
 	* @function
 	*/
-	quat$2.dot = vec4$9.dot;
+	quat$2.dot = vec4$10.dot;
 	/**
 	* Performs a linear interpolation between two quat's
 	*
@@ -82304,7 +82304,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @returns {quat} out
 	* @function
 	*/
-	quat$2.lerp = vec4$9.lerp;
+	quat$2.lerp = vec4$10.lerp;
 	/**
 	* Performs a spherical linear interpolation between two quat
 	*
@@ -82376,7 +82376,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @returns {Number} length of a
 	* @function
 	*/
-	quat$2.length = vec4$9.length;
+	quat$2.length = vec4$10.length;
 	/**
 	* Alias for {@link quat.length}
 	* @function
@@ -82389,7 +82389,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @returns {Number} squared length of a
 	* @function
 	*/
-	quat$2.squaredLength = vec4$9.squaredLength;
+	quat$2.squaredLength = vec4$10.squaredLength;
 	/**
 	* Alias for {@link quat.squaredLength}
 	* @function
@@ -82403,7 +82403,7 @@ var init_gl_matrix$1 = __esmMin((() => {
 	* @returns {quat} out
 	* @function
 	*/
-	quat$2.normalize = vec4$9.normalize;
+	quat$2.normalize = vec4$10.normalize;
 	/**
 	* Creates a quaternion from the given 3x3 rotation matrix.
 	*
@@ -82569,10 +82569,10 @@ function add_path(heap, x, y, dist, before, x1, y1) {
 * @param {object} gat - Altitude info
 */
 function setGat(gat) {
-	GAT.width = gat.width;
-	GAT.height = gat.height;
-	GAT.cells = gat.cells;
-	GAT.type = gat.types;
+	GAT$1.width = gat.width;
+	GAT$1.height = gat.height;
+	GAT$1.cells = gat.cells;
+	GAT$1.type = gat.types;
 }
 /**
 * Check the direct path between two points and find if there is a cell that is in range
@@ -82609,11 +82609,11 @@ function searchLong(x0, y0, x1, y1, range, out) {
 		x += dx;
 		y += dy;
 		if (result.success && x === x1 && y === y1) break;
-		if (GAT.cells[x + y * GAT.width] === GAT.type.NONE) {
+		if (GAT$1.cells[x + y * GAT$1.width] === GAT$1.type.NONE) {
 			result.success = false;
 			break;
 		}
-		if (!result.success && GAT.cells[x + y * GAT.width] === GAT.type.SNIPABLE) {
+		if (!result.success && GAT$1.cells[x + y * GAT$1.width] === GAT$1.type.SNIPABLE) {
 			result.success = false;
 			break;
 		}
@@ -82647,10 +82647,10 @@ function searchLong(x0, y0, x1, y1, range, out) {
 function search(x0, y0, x1, y1, range, out) {
 	let x, y, i, j, currentNode;
 	let error, dirFlag, pathLen, dist, finalLen, skip;
-	const width = GAT.width;
-	const height = GAT.height;
-	const types = GAT.cells;
-	const TYPE = GAT.type;
+	const width = GAT$1.width;
+	const height = GAT$1.height;
+	const types = GAT$1.cells;
+	const TYPE = GAT$1.type;
 	const result = searchLong(x0, y0, x1, y1, range, out);
 	if (result.success) return result.pathLength + 1;
 	_heap.set(_heap_clean);
@@ -82723,7 +82723,7 @@ function search(x0, y0, x1, y1, range, out) {
 	return finalLen + 1;
 }
 function updateGat(x, y, type) {
-	GAT.cells[x + y * GAT.width] = type;
+	GAT$1.cells[x + y * GAT$1.width] = type;
 }
 /**
 * Check the direct path between two points and find if there is a cell that is in range
@@ -82779,9 +82779,9 @@ function searchLongIgnoreCellType(x0, y0, x1, y1, range, out) {
 	}
 	return result;
 }
-var GAT, MAX_HEAP, MAX_WALKPATH, MOVE_COST, MOVE_DIAGONAL_COST, _heap, _heap_clean, short_clean, char_clean, _x, _y, _dist, _cost, _before, _flag$1, PathFinding_default;
+var GAT$1, MAX_HEAP, MAX_WALKPATH, MOVE_COST, MOVE_DIAGONAL_COST, _heap, _heap_clean, short_clean, char_clean, _x, _y, _dist, _cost, _before, _flag$1, PathFinding_default;
 var init_PathFinding = __esmMin((() => {
-	GAT = {
+	GAT$1 = {
 		width: 0,
 		height: 0,
 		cells: null,
@@ -84005,7 +84005,7 @@ var init_PostProcess = __esmMin((() => {
 	};
 }));
 // src/Renderer/Effects/Shaders/VerticalFlip.js
-var _program$38, _buffer$23, _active$4, VerticalFlip;
+var _program$39, _buffer$24, _active$4, VerticalFlip;
 var init_VerticalFlip = __esmMin((() => {
 	init_VerticalFlip$2();
 	init_VerticalFlip$1();
@@ -84014,15 +84014,15 @@ var init_VerticalFlip = __esmMin((() => {
 	_active$4 = false;
 	VerticalFlip = class {
 		static init(gl) {
-			if (_program$38) return;
+			if (_program$39) return;
 			try {
-				_program$38 = WebGL_default.createShaderProgram(gl, VerticalFlip_default$1, VerticalFlip_default);
+				_program$39 = WebGL_default.createShaderProgram(gl, VerticalFlip_default$1, VerticalFlip_default);
 			} catch (e) {
 				console.error("Error when compiling shader VerticalFlip.", e);
 				return;
 			}
-			_buffer$23 = gl.createBuffer();
-			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$23);
+			_buffer$24 = gl.createBuffer();
+			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$24);
 			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
 				-1,
 				-1,
@@ -84049,19 +84049,19 @@ var init_VerticalFlip = __esmMin((() => {
 		* @param {WebGLFramebuffer} outputFbo - Target
 		*/
 		static render(gl, inputTexture, outputFbo) {
-			if (!_buffer$23 || !_program$38 || !_active$4) return;
+			if (!_buffer$24 || !_program$39 || !_active$4) return;
 			PostProcess.beforeRenderPass(gl, outputFbo);
-			gl.useProgram(_program$38);
-			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$23);
-			let posLoc = _program$38.attribute.aPosition;
+			gl.useProgram(_program$39);
+			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$24);
+			let posLoc = _program$39.attribute.aPosition;
 			gl.enableVertexAttribArray(posLoc);
 			gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 16, 0);
-			posLoc = _program$38.attribute.aTextureCoord;
+			posLoc = _program$39.attribute.aTextureCoord;
 			gl.enableVertexAttribArray(posLoc);
 			gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 16, 8);
 			gl.activeTexture(gl.TEXTURE0);
 			gl.bindTexture(gl.TEXTURE_2D, inputTexture);
-			gl.uniform1i(_program$38.uniform.uTexture, 0);
+			gl.uniform1i(_program$39.uniform.uTexture, 0);
 			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 			PostProcess.afterRenderPass(gl);
 		}
@@ -84069,13 +84069,13 @@ var init_VerticalFlip = __esmMin((() => {
 		* @returns {WebGLProgram} Shader program
 		*/
 		static program() {
-			return _program$38;
+			return _program$39;
 		}
 		/** Resets effect state */
 		static clean(gl) {
 			_active$4 = false;
-			if (_buffer$23) gl.deleteBuffer(_buffer$23);
-			_program$38 = _buffer$23 = null;
+			if (_buffer$24) gl.deleteBuffer(_buffer$24);
+			_program$39 = _buffer$24 = null;
 		}
 		/** @returns {boolean} Whether the effect is active */
 		static isActive() {
@@ -84088,24 +84088,24 @@ var init_VerticalFlip = __esmMin((() => {
 	};
 }));
 // src/Renderer/Map/Altitude.js
-var _cells, _types$1, mat4$24, vec3$7, vec4$8, _from, _to, _unit, _matrix$7, buffer1x1, buffer5x5, buffer7x7, buffer13x13, tmp, Altitude, TYPE_TABLE;
-var init_Altitude = __esmMin((() => {
+var _cells, _types$1, mat4$24, vec3$8, vec4$9, _from, _to, _unit, _matrix$7, buffer1x1, buffer5x5, buffer7x7, buffer13x13, tmp$1, Altitude, TYPE_TABLE;
+var init_Altitude$1 = __esmMin((() => {
 	init_gl_matrix$1();
 	init_PathFinding();
 	init_MouseEventHandler();
 	init_VerticalFlip();
 	_cells = null;
 	_types$1 = null;
-	({mat4: mat4$24, vec3: vec3$7, vec4: vec4$8} = exports$3);
-	_from = vec3$7.create();
-	_to = vec4$8.create();
-	_unit = vec3$7.create();
+	({mat4: mat4$24, vec3: vec3$8, vec4: vec4$9} = exports$3);
+	_from = vec3$8.create();
+	_to = vec4$9.create();
+	_unit = vec3$8.create();
 	_matrix$7 = mat4$24.create();
 	buffer1x1 = /* @__PURE__ */ new Float32Array(30);
 	buffer5x5 = /* @__PURE__ */ new Float32Array(750);
 	buffer7x7 = /* @__PURE__ */ new Float32Array(1470);
 	buffer13x13 = /* @__PURE__ */ new Float32Array(5070);
-	tmp = /* @__PURE__ */ new Float32Array(5);
+	tmp$1 = /* @__PURE__ */ new Float32Array(5);
 	Altitude = class Altitude {
 		/**
 		* Initialize Altitude mesh
@@ -84140,16 +84140,16 @@ var init_Altitude = __esmMin((() => {
 			const cx = Math.floor(x);
 			const cy = Math.floor(y);
 			if (!_cells || cx < 0 || cy < 0 || cx >= Altitude.width || cy >= Altitude.height) {
-				tmp[0] = tmp[1] = tmp[2] = tmp[3] = tmp[4] = 0;
-				return tmp;
+				tmp$1[0] = tmp$1[1] = tmp$1[2] = tmp$1[3] = tmp$1[4] = 0;
+				return tmp$1;
 			}
 			const index = (cx + cy * Altitude.width) * 5;
-			tmp[0] = _cells[index + 0];
-			tmp[1] = _cells[index + 1];
-			tmp[2] = _cells[index + 2];
-			tmp[3] = _cells[index + 3];
-			tmp[4] = _cells[index + 4];
-			return tmp;
+			tmp$1[0] = _cells[index + 0];
+			tmp$1[1] = _cells[index + 1];
+			tmp$1[2] = _cells[index + 2];
+			tmp$1[3] = _cells[index + 3];
+			tmp$1[4] = _cells[index + 4];
+			return tmp$1;
 		}
 		/**
 		* Return cell type
@@ -84208,12 +84208,12 @@ var init_Altitude = __esmMin((() => {
 			_to[3] = 1;
 			mat4$24.multiply(_matrix$7, projection, modelView);
 			mat4$24.invert(_matrix$7, _matrix$7);
-			vec4$8.transformMat4(_to, _to, _matrix$7);
+			vec4$9.transformMat4(_to, _to, _matrix$7);
 			_to[0] /= _to[3];
 			_to[1] /= _to[3];
 			_to[2] /= _to[3];
-			vec3$7.sub(_unit, _to, _from);
-			vec3$7.normalize(_unit, _unit);
+			vec3$8.sub(_unit, _to, _from);
+			vec3$8.normalize(_unit, _unit);
 			for (i = 0; i < count; ++i) {
 				_from[0] += _unit[0];
 				_from[1] += _unit[1];
@@ -106038,6 +106038,810 @@ var init_WorldMap$3 = __esmMin((() => {
 				}
 			]
 		}
+	];
+}));
+// src/DB/Map/NavigationEra.js
+function isPreSatanMorroc(settings) {
+	const episode = Number(settings && settings.episode);
+	return Number.isFinite(episode) && episode < 12;
+}
+function isEpisodeInRange(entry, episode) {
+	return episode >= entry.ep_from && episode < entry.ep_to;
+}
+function getIncomingNavigationMapPoint(mapName, links) {
+	const target = String(mapName || "").replace(/\.gat$/i, "").toLowerCase();
+	const incoming = (Array.isArray(links) ? links : []).filter((link) => link && String(link[8] || "").replace(/\.gat$/i, "").toLowerCase() === target);
+	const link = incoming.find((candidate) => Number(candidate[2]) === 200) || incoming[0];
+	if (!link) return null;
+	const x = Number(link[9]);
+	const y = Number(link[10]);
+	return Number.isFinite(x) && Number.isFinite(y) && x >= 0 && y >= 0 ? {
+		x,
+		y
+	} : null;
+}
+function applyNavigationMapEra(maps, settings) {
+	if (!isPreSatanMorroc(settings)) return maps;
+	const filtered = maps.filter((map) => map && !POST_SATAN_MAPS.has(map[0]));
+	const existing = new Set(filtered.map((map) => map[0]));
+	return filtered.concat(PRE_SATAN_MAPS.filter((map) => !existing.has(map[0])));
+}
+function applyNavigationLinkEra(links, settings) {
+	if (!isPreSatanMorroc(settings)) return links;
+	return links.filter((link) => link && !POST_SATAN_MAPS.has(link[0]) && !POST_SATAN_MAPS.has(link[8])).concat(PRE_SATAN_LINKS);
+}
+function applyNavigationDistanceEra(distances, settings) {
+	return isPreSatanMorroc(settings) ? [] : distances;
+}
+var POST_SATAN_MAPS, PRE_SATAN_MAPS, PRE_SATAN_LINKS;
+var init_NavigationEra = __esmMin((() => {
+	POST_SATAN_MAPS = /* @__PURE__ */ new Set([
+		"moc_fild20",
+		"moc_fild21",
+		"moc_fild22",
+		"moc_fild22b"
+	]);
+	PRE_SATAN_MAPS = [
+		[
+			"moc_fild04",
+			"moc_fild04",
+			5001,
+			400,
+			400
+		],
+		[
+			"moc_fild05",
+			"moc_fild05",
+			5001,
+			400,
+			400
+		],
+		[
+			"moc_fild06",
+			"moc_fild06",
+			5001,
+			400,
+			400
+		],
+		[
+			"moc_fild08",
+			"moc_fild08",
+			5001,
+			400,
+			400
+		],
+		[
+			"moc_fild09",
+			"moc_fild09",
+			5001,
+			400,
+			400
+		],
+		[
+			"moc_fild10",
+			"moc_fild10",
+			5001,
+			400,
+			400
+		],
+		[
+			"moc_fild14",
+			"moc_fild14",
+			5001,
+			400,
+			400
+		],
+		[
+			"moc_fild15",
+			"moc_fild15",
+			5001,
+			400,
+			400
+		]
+	];
+	PRE_SATAN_LINKS = [
+		[
+			"moc_fild01",
+			9e5,
+			200,
+			99999,
+			"moc_fild01_moc_fild04_pre_satan_900000",
+			"",
+			101,
+			16,
+			"moc_fild04",
+			317,
+			376
+		],
+		[
+			"moc_fild04",
+			900001,
+			200,
+			99999,
+			"moc_fild04_moc_fild05_pre_satan_900001",
+			"",
+			14,
+			122,
+			"moc_fild05",
+			378,
+			119
+		],
+		[
+			"moc_fild04",
+			900002,
+			200,
+			99999,
+			"moc_fild04_moc_fild05_pre_satan_900002",
+			"",
+			14,
+			146,
+			"moc_fild05",
+			378,
+			119
+		],
+		[
+			"moc_fild04",
+			900003,
+			200,
+			99999,
+			"moc_fild04_moc_fild05_pre_satan_900003",
+			"",
+			14,
+			98,
+			"moc_fild05",
+			378,
+			119
+		],
+		[
+			"moc_fild04",
+			900004,
+			200,
+			99999,
+			"moc_fild04_moc_fild08_pre_satan_900004",
+			"",
+			175,
+			18,
+			"moc_fild08",
+			170,
+			380
+		],
+		[
+			"moc_fild04",
+			900005,
+			200,
+			99999,
+			"moc_fild04_moc_fild05_pre_satan_900005",
+			"",
+			19,
+			206,
+			"moc_fild05",
+			373,
+			208
+		],
+		[
+			"moc_fild04",
+			900006,
+			200,
+			99999,
+			"moc_fild04_moc_fild01_pre_satan_900006",
+			"",
+			292,
+			381,
+			"moc_fild01",
+			76,
+			25
+		],
+		[
+			"moc_fild04",
+			900007,
+			200,
+			99999,
+			"moc_fild04_moc_fild01_pre_satan_900007",
+			"",
+			314,
+			381,
+			"moc_fild01",
+			76,
+			25
+		],
+		[
+			"moc_fild04",
+			900008,
+			200,
+			99999,
+			"moc_fild04_moc_fild01_pre_satan_900008",
+			"",
+			336,
+			381,
+			"moc_fild01",
+			76,
+			25
+		],
+		[
+			"moc_fild04",
+			900009,
+			200,
+			99999,
+			"moc_fild04_prt_fild09_pre_satan_900009",
+			"",
+			92,
+			381,
+			"prt_fild09",
+			246,
+			19
+		],
+		[
+			"moc_fild05",
+			900010,
+			200,
+			99999,
+			"moc_fild05_prt_fild10_pre_satan_900010",
+			"",
+			144,
+			375,
+			"prt_fild10",
+			263,
+			23
+		],
+		[
+			"moc_fild05",
+			900011,
+			200,
+			99999,
+			"moc_fild05_moc_fild06_pre_satan_900011",
+			"",
+			18,
+			136,
+			"moc_fild06",
+			367,
+			317
+		],
+		[
+			"moc_fild05",
+			900012,
+			200,
+			99999,
+			"moc_fild05_moc_fild06_pre_satan_900012",
+			"",
+			18,
+			154,
+			"moc_fild06",
+			367,
+			317
+		],
+		[
+			"moc_fild05",
+			900013,
+			200,
+			99999,
+			"moc_fild05_moc_fild06_pre_satan_900013",
+			"",
+			18,
+			172,
+			"moc_fild06",
+			367,
+			317
+		],
+		[
+			"moc_fild05",
+			900014,
+			200,
+			99999,
+			"moc_fild05_moc_fild09_pre_satan_900014",
+			"",
+			268,
+			18,
+			"moc_fild09",
+			267,
+			368
+		],
+		[
+			"moc_fild05",
+			900015,
+			200,
+			99999,
+			"moc_fild05_prt_fild09_pre_satan_900015",
+			"",
+			325,
+			382,
+			"prt_fild09",
+			95,
+			19
+		],
+		[
+			"moc_fild05",
+			900016,
+			200,
+			99999,
+			"moc_fild05_moc_fild04_pre_satan_900016",
+			"",
+			378,
+			208,
+			"moc_fild04",
+			26,
+			206
+		],
+		[
+			"moc_fild05",
+			900017,
+			200,
+			99999,
+			"moc_fild05_moc_fild04_pre_satan_900017",
+			"",
+			384,
+			108,
+			"moc_fild04",
+			22,
+			123
+		],
+		[
+			"moc_fild05",
+			900018,
+			200,
+			99999,
+			"moc_fild05_moc_fild04_pre_satan_900018",
+			"",
+			384,
+			126,
+			"moc_fild04",
+			22,
+			123
+		],
+		[
+			"moc_fild05",
+			900019,
+			200,
+			99999,
+			"moc_fild05_moc_fild04_pre_satan_900019",
+			"",
+			384,
+			144,
+			"moc_fild04",
+			22,
+			123
+		],
+		[
+			"moc_fild05",
+			900020,
+			200,
+			99999,
+			"moc_fild05_moc_fild09_pre_satan_900020",
+			"",
+			82,
+			16,
+			"moc_fild09",
+			80,
+			366
+		],
+		[
+			"moc_fild06",
+			900021,
+			200,
+			99999,
+			"moc_fild06_moc_fild07_pre_satan_900021",
+			"",
+			18,
+			198,
+			"moc_fild07",
+			378,
+			201
+		],
+		[
+			"moc_fild06",
+			900022,
+			200,
+			99999,
+			"moc_fild06_moc_fild10_pre_satan_900022",
+			"",
+			207,
+			18,
+			"moc_fild10",
+			208,
+			295
+		],
+		[
+			"moc_fild06",
+			900023,
+			200,
+			99999,
+			"moc_fild06_moc_fild05_pre_satan_900023",
+			"",
+			377,
+			316,
+			"moc_fild05",
+			24,
+			153
+		],
+		[
+			"moc_fild07",
+			900024,
+			200,
+			99999,
+			"moc_fild07_moc_fild06_pre_satan_900024",
+			"",
+			381,
+			201,
+			"moc_fild06",
+			28,
+			201
+		],
+		[
+			"moc_fild08",
+			900025,
+			200,
+			99999,
+			"moc_fild08_moc_fild09_pre_satan_900025",
+			"",
+			16,
+			207,
+			"moc_fild09",
+			371,
+			195
+		],
+		[
+			"moc_fild08",
+			900026,
+			200,
+			99999,
+			"moc_fild08_moc_fild04_pre_satan_900026",
+			"",
+			170,
+			383,
+			"moc_fild04",
+			175,
+			21
+		],
+		[
+			"moc_fild08",
+			900027,
+			200,
+			99999,
+			"moc_fild08_moc_fild14_pre_satan_900027",
+			"",
+			204,
+			16,
+			"moc_fild14",
+			196,
+			379
+		],
+		[
+			"moc_fild08",
+			900028,
+			200,
+			99999,
+			"moc_fild08_moc_fild13_pre_satan_900028",
+			"",
+			383,
+			211,
+			"moc_fild13",
+			32,
+			171
+		],
+		[
+			"moc_fild09",
+			900029,
+			200,
+			99999,
+			"moc_fild09_moc_fild15_pre_satan_900029",
+			"",
+			126,
+			20,
+			"moc_fild15",
+			158,
+			360
+		],
+		[
+			"moc_fild09",
+			900030,
+			200,
+			99999,
+			"moc_fild09_moc_fild05_pre_satan_900030",
+			"",
+			267,
+			371,
+			"moc_fild05",
+			268,
+			21
+		],
+		[
+			"moc_fild09",
+			900031,
+			200,
+			99999,
+			"moc_fild09_moc_fild10_pre_satan_900031",
+			"",
+			30,
+			162,
+			"moc_fild10",
+			381,
+			258
+		],
+		[
+			"moc_fild09",
+			900032,
+			200,
+			99999,
+			"moc_fild09_moc_fild08_pre_satan_900032",
+			"",
+			374,
+			195,
+			"moc_fild08",
+			19,
+			207
+		],
+		[
+			"moc_fild09",
+			900033,
+			200,
+			99999,
+			"moc_fild09_moc_fild05_pre_satan_900033",
+			"",
+			80,
+			369,
+			"moc_fild05",
+			82,
+			19
+		],
+		[
+			"moc_fild10",
+			900034,
+			200,
+			99999,
+			"moc_fild10_moc_fild11_pre_satan_900034",
+			"",
+			189,
+			23,
+			"moc_fild11",
+			189,
+			360
+		],
+		[
+			"moc_fild10",
+			900035,
+			200,
+			99999,
+			"moc_fild10_morocc_pre_satan_900035",
+			"",
+			19,
+			207,
+			"morocc",
+			299,
+			207
+		],
+		[
+			"moc_fild10",
+			900036,
+			200,
+			99999,
+			"moc_fild10_moc_fild06_pre_satan_900036",
+			"",
+			208,
+			298,
+			"moc_fild06",
+			207,
+			21
+		],
+		[
+			"moc_fild10",
+			900037,
+			200,
+			99999,
+			"moc_fild10_moc_fild09_pre_satan_900037",
+			"",
+			384,
+			258,
+			"moc_fild09",
+			33,
+			162
+		],
+		[
+			"moc_fild11",
+			900038,
+			200,
+			99999,
+			"moc_fild11_moc_fild10_pre_satan_900038",
+			"",
+			189,
+			363,
+			"moc_fild10",
+			189,
+			26
+		],
+		[
+			"moc_fild11",
+			900039,
+			200,
+			99999,
+			"moc_fild11_moc_fild15_pre_satan_900039",
+			"",
+			379,
+			197,
+			"moc_fild15",
+			41,
+			105
+		],
+		[
+			"moc_fild13",
+			900040,
+			200,
+			99999,
+			"moc_fild13_moc_fild08_pre_satan_900040",
+			"",
+			29,
+			171,
+			"moc_fild08",
+			380,
+			211
+		],
+		[
+			"moc_fild14",
+			900041,
+			200,
+			99999,
+			"moc_fild14_moc_fild15_pre_satan_900041",
+			"",
+			16,
+			278,
+			"moc_fild15",
+			364,
+			276
+		],
+		[
+			"moc_fild14",
+			900042,
+			200,
+			99999,
+			"moc_fild14_moc_fild08_pre_satan_900042",
+			"",
+			196,
+			382,
+			"moc_fild08",
+			204,
+			19
+		],
+		[
+			"moc_fild15",
+			900043,
+			200,
+			99999,
+			"moc_fild15_moc_fild16_pre_satan_900043",
+			"",
+			104,
+			16,
+			"moc_fild16",
+			125,
+			380
+		],
+		[
+			"moc_fild15",
+			900044,
+			200,
+			99999,
+			"moc_fild15_moc_fild09_pre_satan_900044",
+			"",
+			158,
+			363,
+			"moc_fild09",
+			126,
+			23
+		],
+		[
+			"moc_fild15",
+			900045,
+			200,
+			99999,
+			"moc_fild15_moc_fild16_pre_satan_900045",
+			"",
+			348,
+			18,
+			"moc_fild16",
+			334,
+			379
+		],
+		[
+			"moc_fild15",
+			900046,
+			200,
+			99999,
+			"moc_fild15_moc_fild14_pre_satan_900046",
+			"",
+			367,
+			276,
+			"moc_fild14",
+			19,
+			278
+		],
+		[
+			"moc_fild15",
+			900047,
+			200,
+			99999,
+			"moc_fild15_moc_fild11_pre_satan_900047",
+			"",
+			38,
+			105,
+			"moc_fild11",
+			376,
+			197
+		],
+		[
+			"moc_fild16",
+			900048,
+			200,
+			99999,
+			"moc_fild16_moc_fild15_pre_satan_900048",
+			"",
+			125,
+			383,
+			"moc_fild15",
+			104,
+			19
+		],
+		[
+			"moc_fild16",
+			900049,
+			200,
+			99999,
+			"moc_fild16_moc_fild15_pre_satan_900049",
+			"",
+			334,
+			382,
+			"moc_fild15",
+			348,
+			21
+		],
+		[
+			"prt_fild09",
+			900050,
+			200,
+			99999,
+			"prt_fild09_moc_fild04_pre_satan_900050",
+			"",
+			246,
+			16,
+			"moc_fild04",
+			92,
+			378
+		],
+		[
+			"prt_fild09",
+			900051,
+			200,
+			99999,
+			"prt_fild09_moc_fild05_pre_satan_900051",
+			"",
+			95,
+			16,
+			"moc_fild05",
+			325,
+			379
+		],
+		[
+			"prt_fild10",
+			900052,
+			200,
+			99999,
+			"prt_fild10_moc_fild05_pre_satan_900052",
+			"",
+			263,
+			20,
+			"moc_fild05",
+			144,
+			372
+		],
+		[
+			"morocc",
+			900053,
+			200,
+			99999,
+			"morocc_moc_fild10_pre_satan_900053",
+			"",
+			302,
+			207,
+			"moc_fild10",
+			22,
+			207
+		]
 	];
 }));
 // src/DB/Skills/SkillConst.js
@@ -205323,22 +206127,22 @@ var init_PacketRegister = __esmMin((() => {
 * Initialize to get keys for packet encryption
 */
 function Init$12() {
-	_available = false;
+	_available$1 = false;
 	const packetKeys = Configs.get("packetKeys");
 	if (!packetKeys) return;
 	if (packetKeys instanceof Array) {
-		_available = true;
+		_available$1 = true;
 		_keys.set(packetKeys);
 	} else {
 		let date, key;
 		if (typeof packetKeys === "number") date = packetKeys;
 		else date = Configs.get("packetver");
 		for (key in KeysTable) if (date >= key) {
-			_available = true;
+			_available$1 = true;
 			_keys.set(KeysTable[key]);
 		}
 	}
-	if (_available) console.log("%c[PACKETCRYPT] Encrypt sent packets using keys", "color:#007000", _keys);
+	if (_available$1) console.log("%c[PACKETCRYPT] Encrypt sent packets using keys", "color:#007000", _keys);
 }
 /**
 * Encrypt header using keys
@@ -205346,7 +206150,7 @@ function Init$12() {
 * @param {DataView} view
 */
 function Process(view) {
-	if (_available) {
+	if (_available$1) {
 		let cmd = view.getInt16(0, true);
 		_keys[0] = imul(_keys[0], _keys[1]) + _keys[2] & 4294967295;
 		cmd ^= _keys[0] >> 16 & 32767;
@@ -205360,13 +206164,13 @@ function Reset() {
 	_keys[0] = 0;
 	_keys[1] = 0;
 	_keys[2] = 0;
-	_available = false;
+	_available$1 = false;
 }
-var _keys, _available, KeysTable, imul, PacketCrypt_default;
+var _keys, _available$1, KeysTable, imul, PacketCrypt_default;
 var init_PacketCrypt = __esmMin((() => {
 	init_Configs();
 	_keys = /* @__PURE__ */ new Uint32Array(3);
-	_available = false;
+	_available$1 = false;
 	KeysTable = {
 		20101123: [
 			1228242290,
@@ -209528,9 +210332,9 @@ end
 	};
 }));
 // src/Core/Events.js
-var _events, _tick$1, _uid, Events;
+var _events$1, _tick$1, _uid, Events;
 var init_Events = __esmMin((() => {
-	_events = [];
+	_events$1 = [];
 	_tick$1 = 0;
 	_uid = 0;
 	Events = class {
@@ -209550,11 +210354,11 @@ var init_Events = __esmMin((() => {
 				tick,
 				uid: _uid++
 			};
-			for (i = 0, count = _events.length; i < count; ++i) if (tick < _events[i].tick) {
-				_events.splice(i, 0, event);
+			for (i = 0, count = _events$1.length; i < count; ++i) if (tick < _events$1[i].tick) {
+				_events$1.splice(i, 0, event);
 				return event.uid;
 			}
-			_events.push(event);
+			_events$1.push(event);
 			return event.uid;
 		}
 		/**
@@ -209565,9 +210369,9 @@ var init_Events = __esmMin((() => {
 		*/
 		static clearTimeout(uid) {
 			let i;
-			const count = _events.length;
-			for (i = 0; i < count; ++i) if (_events[i].uid === uid) {
-				_events.splice(i, 1);
+			const count = _events$1.length;
+			for (i = 0; i < count; ++i) if (_events$1[i].uid === uid) {
+				_events$1.splice(i, 1);
 				return;
 			}
 		}
@@ -209577,10 +210381,10 @@ var init_Events = __esmMin((() => {
 		* @param {number} game tick
 		*/
 		static process(tick) {
-			let count = _events.length;
+			let count = _events$1.length;
 			while (count > 0) {
-				if (_events[0].tick > tick) break;
-				_events.shift().callback();
+				if (_events$1[0].tick > tick) break;
+				_events$1.shift().callback();
 				count--;
 			}
 			_tick$1 = tick;
@@ -209589,7 +210393,7 @@ var init_Events = __esmMin((() => {
 		* Delete events from memory
 		*/
 		static free() {
-			_events.length = 0;
+			_events$1.length = 0;
 		}
 	};
 }));
@@ -210285,17 +211089,17 @@ function init$14(gl) {
 			ctx.fillStyle = "rgb( 50, 240, 160)";
 			ctx.globalCompositeOperation = "source-atop";
 			ctx.fillRect(0, 0, canvas.width, canvas.height);
-			_texture$7 = gl.createTexture();
-			gl.bindTexture(gl.TEXTURE_2D, _texture$7);
+			_texture$8 = gl.createTexture();
+			gl.bindTexture(gl.TEXTURE_2D, _texture$8);
 			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 			if (enableMipmap) gl.generateMipmap(gl.TEXTURE_2D);
 		});
 	});
-	_buffer$22 = gl.createBuffer();
-	_program$37 = WebGL_default.createShaderProgram(gl, GridSelector_default$2, GridSelector_default$1);
-	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$22);
+	_buffer$23 = gl.createBuffer();
+	_program$38 = WebGL_default.createShaderProgram(gl, GridSelector_default$2, GridSelector_default$1);
+	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$23);
 	gl.bufferData(gl.ARRAY_BUFFER, _buffer_data.byteLength, gl.DYNAMIC_DRAW);
 }
 /**
@@ -210309,11 +211113,11 @@ function init$14(gl) {
 * @param {number} y
 */
 function render$13(gl, modelView, projection, fog, x, y) {
-	if (!_texture$7) return;
-	const uniform = _program$37.uniform;
-	const attribute = _program$37.attribute;
+	if (!_texture$8) return;
+	const uniform = _program$38.uniform;
+	const attribute = _program$38.attribute;
 	let z;
-	gl.useProgram(_program$37);
+	gl.useProgram(_program$38);
 	gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 	gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 	gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
@@ -210322,7 +211126,7 @@ function render$13(gl, modelView, projection, fog, x, y) {
 	gl.uniform3fv(uniform.uFogColor, fog.color);
 	gl.enableVertexAttribArray(attribute.aPosition);
 	gl.enableVertexAttribArray(attribute.aTextCoord);
-	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$22);
+	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$23);
 	gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
 	gl.vertexAttribPointer(attribute.aTextCoord, 2, gl.FLOAT, false, 20, 12);
 	gl.activeTexture(gl.TEXTURE0);
@@ -210340,7 +211144,7 @@ function render$13(gl, modelView, projection, fog, x, y) {
 		_buffer_data[16] = z[3];
 		gl.bufferSubData(gl.ARRAY_BUFFER, 0, _buffer_data);
 	}
-	gl.bindTexture(gl.TEXTURE_2D, _texture$7);
+	gl.bindTexture(gl.TEXTURE_2D, _texture$8);
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 	gl.disableVertexAttribArray(attribute.aPosition);
 	gl.disableVertexAttribArray(attribute.aTextCoord);
@@ -210351,31 +211155,31 @@ function render$13(gl, modelView, projection, fog, x, y) {
 * @param {object} gl context
 */
 function free$8(gl) {
-	if (_buffer$22) {
-		gl.deleteBuffer(_buffer$22);
-		_buffer$22 = null;
+	if (_buffer$23) {
+		gl.deleteBuffer(_buffer$23);
+		_buffer$23 = null;
 	}
-	if (_texture$7) {
-		gl.deleteTexture(_texture$7);
-		_texture$7 = null;
+	if (_texture$8) {
+		gl.deleteTexture(_texture$8);
+		_texture$8 = null;
 	}
-	if (_program$37) {
-		gl.deleteProgram(_program$37);
-		_program$37 = null;
+	if (_program$38) {
+		gl.deleteProgram(_program$38);
+		_program$38 = null;
 	}
 }
-var _program$37, _buffer$22, _texture$7, _xy, _buffer_data, GridSelector_default;
+var _program$38, _buffer$23, _texture$8, _xy, _buffer_data, GridSelector_default;
 var init_GridSelector = __esmMin((() => {
-	init_Altitude();
+	init_Altitude$1();
 	init_Client();
 	init_WebGL();
 	init_Texture();
 	init_Configs();
 	init_GridSelector$2();
 	init_GridSelector$1();
-	_program$37 = null;
-	_buffer$22 = null;
-	_texture$7 = null;
+	_program$38 = null;
+	_buffer$23 = null;
+	_texture$8 = null;
 	_xy = null;
 	_buffer_data = new Float32Array([
 		0,
@@ -210462,12 +211266,12 @@ var init_Map = __esmMin((() => {
 }));
 // src/Renderer/Map/Ground.vs?raw
 var Ground_default$2;
-var init_Ground$2 = __esmMin((() => {
+var init_Ground$3 = __esmMin((() => {
 	Ground_default$2 = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec3 aPosition;\r\nin vec3 aVertexNormal;\r\nin vec2 aTextureCoord;\r\nin vec2 aLightmapCoord;\r\nin vec2 aTileColorCoord;\r\n\r\nout vec2 vTextureCoord;\r\nout vec2 vLightmapCoord;\r\nout vec2 vTileColorCoord;\r\nout float vLightWeighting;\r\n\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uProjectionMat;\r\n\r\nuniform vec3 uLightDirection;\r\nuniform vec3 uLightEnv;\r\n\r\nvoid main(void) {\r\n    gl_Position     = uProjectionMat * uModelViewMat * vec4( aPosition, 1.0);\r\n\r\n    vTextureCoord   = aTextureCoord;\r\n    vLightmapCoord  = aLightmapCoord;\r\n    vTileColorCoord = aTileColorCoord;\r\n\r\n    float dotProduct = dot(aVertexNormal, uLightDirection );\r\n    vLightWeighting = max(dotProduct, 0.0);\r\n}";
 }));
 // src/Renderer/Map/Ground.fs?raw
 var Ground_default$1;
-var init_Ground$1 = __esmMin((() => {
+var init_Ground$2 = __esmMin((() => {
 	Ground_default$1 = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\nin vec2 vLightmapCoord;\r\nin vec2 vTileColorCoord;\r\nin float vLightWeighting;\r\nout vec4 fragColor;\r\n\r\nuniform sampler2D uDiffuse;\r\nuniform sampler2D uLightmap;\r\nuniform sampler2D uTileColor;\r\nuniform bool uLightMapUse;\r\nuniform bool uPosterize;\r\nuniform bool uGammaCorrection;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\nuniform vec3  uLightAmbient;\r\nuniform vec3  uLightDiffuse;\r\nuniform float uLightOpacity;\r\nuniform vec3  uLightDirection;\r\nuniform vec3 uLightEnv;\r\n\r\nvec3 posterize(vec3 c) {\r\n    c *= 255.0;\r\n    c = floor(c / 16.0) * 16.0;\r\n    c /= 255.0;\r\n    return c;\r\n}\r\n\r\nvoid main(void) {\r\n    vec4 textureSample = texture(uDiffuse, vTextureCoord.st);\r\n    if (textureSample.a < 0.1)\r\n        discard;\r\n\r\n    if (vTileColorCoord.st != vec2(0.0,0.0)) {\r\n        textureSample    *= texture( uTileColor, vTileColorCoord.st);\r\n    }\r\n\r\n    vec3 color = (vLightWeighting * uLightDiffuse + uLightAmbient);\r\n    textureSample.rgb *= clamp(color, 0.0, 1.0);\r\n    textureSample.rgb *= clamp(uLightEnv, 0.0, 1.0);\r\n\r\n    if (uLightMapUse) {\r\n        vec4 lightmap = texture( uLightmap, vLightmapCoord.st);\r\n        if(uPosterize) {\r\n            lightmap.rgb = posterize(lightmap.rgb);\r\n        } else if(uGammaCorrection){\r\n            lightmap.rgb = pow(lightmap.rgb, vec3(1.1));\r\n        }\r\n        textureSample.rgb *= lightmap.a;\r\n        textureSample.rgb += clamp(lightmap.rgb, 0.0, 1.0);\r\n    }\r\n\r\n    fragColor = textureSample;\r\n\r\n    if (uFogUse) {\r\n        float depth     = gl_FragCoord.z / gl_FragCoord.w;\r\n        float fogFactor = smoothstep( uFogNear, uFogFar, depth );\r\n        fragColor    = mix( fragColor, vec4(uFogColor, fragColor.w), fogFactor );\r\n    }\r\n\r\n}";
 }));
 // src/Renderer/Map/Ground.js
@@ -210482,9 +211286,9 @@ var init_Ground$1 = __esmMin((() => {
 * @param {object} light structure
 */
 function render$12(gl, modelView, projection, normalMat, fog, light) {
-	const uniform = _program$36.uniform;
-	const attribute = _program$36.attribute;
-	gl.useProgram(_program$36);
+	const uniform = _program$37.uniform;
+	const attribute = _program$37.attribute;
+	gl.useProgram(_program$37);
 	gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 	gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 	gl.uniform3fv(uniform.uLightDirection, light.direction);
@@ -210504,7 +211308,7 @@ function render$12(gl, modelView, projection, normalMat, fog, light) {
 	gl.enableVertexAttribArray(attribute.aTextureCoord);
 	gl.enableVertexAttribArray(attribute.aLightmapCoord);
 	gl.enableVertexAttribArray(attribute.aTileColorCoord);
-	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$21);
+	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$22);
 	gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 48, 0);
 	gl.vertexAttribPointer(attribute.aVertexNormal, 3, gl.FLOAT, false, 48, 12);
 	gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 48, 24);
@@ -210654,9 +211458,9 @@ function init$13(gl, data) {
 	_width = data.width;
 	data.height;
 	_shadowMap = data.shadowMap;
-	if (!_buffer$21) _buffer$21 = gl.createBuffer();
-	if (!_program$36) _program$36 = WebGL_default.createShaderProgram(gl, Ground_default$2, Ground_default$1);
-	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$21);
+	if (!_buffer$22) _buffer$22 = gl.createBuffer();
+	if (!_program$37) _program$37 = WebGL_default.createShaderProgram(gl, Ground_default$2, Ground_default$1);
+	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$22);
 	gl.bufferData(gl.ARRAY_BUFFER, data.mesh, gl.STATIC_DRAW);
 	initLightmap(gl, data.lightmap, data.lightmapSize);
 	initTileColor(gl, data.tileColor, data.width, data.height);
@@ -210680,9 +211484,9 @@ function free$7(gl) {
 		gl.deleteTexture(_textureAtlas);
 		_textureAtlas = null;
 	}
-	if (_buffer$21) {
-		gl.deleteBuffer(_buffer$21);
-		_buffer$21 = null;
+	if (_buffer$22) {
+		gl.deleteBuffer(_buffer$22);
+		_buffer$22 = null;
 	}
 	_shadowMap = null;
 	_vertCount$1 = 0;
@@ -210706,18 +211510,18 @@ function getShadowFactor(x, y) {
 	for (y = -3; y < 3; ++y) for (x = -3; x < 3; ++x) factor += _shadowMap[_x + x + (_y + y) * _width * 8];
 	return factor / 36 / 255;
 }
-var procCanvas$2, procCtx$2, _program$36, _buffer$21, _lightmap, _tileColor, _textureAtlas, _shadowMap, _vertCount$1, _width, Ground_default;
-var init_Ground = __esmMin((() => {
+var procCanvas$2, procCtx$2, _program$37, _buffer$22, _lightmap, _tileColor, _textureAtlas, _shadowMap, _vertCount$1, _width, Ground_default;
+var init_Ground$1 = __esmMin((() => {
 	init_WebGL();
 	init_Texture();
 	init_Map();
 	init_Configs();
+	init_Ground$3();
 	init_Ground$2();
-	init_Ground$1();
 	procCanvas$2 = document.createElement("canvas");
 	procCtx$2 = procCanvas$2.getContext("2d", { willReadFrequently: true });
-	_program$36 = null;
-	_buffer$21 = null;
+	_program$37 = null;
+	_buffer$22 = null;
 	_lightmap = null;
 	_tileColor = null;
 	_textureAtlas = null;
@@ -210786,7 +211590,7 @@ function pack(spr) {
 		for (const spot of placed) spot.frame._atlas = null;
 	};
 }
-var PALETTE_ROWS, UNIT_INDEX, UNIT_RGBA, UNIT_PALETTES, ArrayAtlas, _gl$5, _generation$2, _index$1, _rgba, _palettes, _paletteRows, _paletteNext, SpriteAtlas;
+var PALETTE_ROWS, UNIT_INDEX, UNIT_RGBA, UNIT_PALETTES, ArrayAtlas, _gl$6, _generation$2, _index$1, _rgba, _palettes, _paletteRows, _paletteNext, SpriteAtlas;
 var init_SpriteAtlas = __esmMin((() => {
 	init_Graphics();
 	PALETTE_ROWS = 512;
@@ -210962,7 +211766,7 @@ var init_SpriteAtlas = __esmMin((() => {
 			}
 		}
 	};
-	_gl$5 = null;
+	_gl$6 = null;
 	_generation$2 = 0;
 	_index$1 = null;
 	_rgba = null;
@@ -210986,13 +211790,13 @@ var init_SpriteAtlas = __esmMin((() => {
 		* @param {WebGL2RenderingContext} gl
 		*/
 		static init(gl) {
-			if (_gl$5 === gl) return;
+			if (_gl$6 === gl) return;
 			if (_index$1) {
 				_index$1.destroy();
 				_rgba.destroy();
 			}
-			if (_palettes) _gl$5.deleteTexture(_palettes);
-			_gl$5 = gl;
+			if (_palettes) _gl$6.deleteTexture(_palettes);
+			_gl$6 = gl;
 			_generation$2++;
 			_index$1 = new ArrayAtlas(gl, false, 2048, 2, 16);
 			_rgba = new ArrayAtlas(gl, true, 1024, 1, 16);
@@ -211014,7 +211818,7 @@ var init_SpriteAtlas = __esmMin((() => {
 		* new generation makes every sprite file pack itself again.
 		*/
 		static contextRestored() {
-			_gl$5 = null;
+			_gl$6 = null;
 			_index$1 = null;
 			_rgba = null;
 			_palettes = null;
@@ -211053,7 +211857,7 @@ var init_SpriteAtlas = __esmMin((() => {
 			const known = _paletteRows.get(texture);
 			if (known !== void 0) return known;
 			if (_paletteNext >= PALETTE_ROWS || !data || data.length < 1024) return -1;
-			const gl = _gl$5;
+			const gl = _gl$6;
 			const row = _paletteNext++;
 			gl.activeTexture(gl.TEXTURE0 + UNIT_PALETTES);
 			gl.bindTexture(gl.TEXTURE_2D, _palettes);
@@ -211093,8 +211897,8 @@ var init_SpriteBatch$1 = __esmMin((() => {
 * @param {WebGL2RenderingContext} gl
 */
 function init$12(gl) {
-	_gl$4 = gl;
-	_program$35 = WebGL_default.createShaderProgram(gl, SpriteBatch_default$1, SpriteBatch_default);
+	_gl$5 = gl;
+	_program$36 = WebGL_default.createShaderProgram(gl, SpriteBatch_default$1, SpriteBatch_default);
 	_quad = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, _quad);
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
@@ -211117,7 +211921,7 @@ function init$12(gl) {
 	]), gl.STATIC_DRAW);
 	_instanceBuffer = gl.createBuffer();
 	_vao = gl.createVertexArray();
-	const attribute = _program$35.attribute;
+	const attribute = _program$36.attribute;
 	gl.bindVertexArray(_vao);
 	gl.bindBuffer(gl.ARRAY_BUFFER, _quad);
 	gl.enableVertexAttribArray(attribute.aPosition);
@@ -211146,8 +211950,8 @@ function init$12(gl) {
 * @param {number} first - index of the run's first sprite in the buffer
 */
 function pointInstances(first) {
-	const gl = _gl$4;
-	const attribute = _program$35.attribute;
+	const gl = _gl$5;
+	const attribute = _program$36.attribute;
 	const base = first * STRIDE;
 	gl.vertexAttribPointer(attribute.aPositionZIndex, 4, gl.FLOAT, false, STRIDE, base);
 	gl.vertexAttribPointer(attribute.aOffsetSize, 4, gl.FLOAT, false, STRIDE, base + 16);
@@ -211156,7 +211960,7 @@ function pointInstances(first) {
 	gl.vertexAttribPointer(attribute.aAngleDepthShadowCap, 4, gl.FLOAT, false, STRIDE, base + 64);
 	gl.vertexAttribPointer(attribute.aSource, 3, gl.FLOAT, false, STRIDE, base + 80);
 }
-var mat4$23, FLOATS, STRIDE, SOURCE_OWN, SOURCE_INDEX, SOURCE_RGBA, PALETTE_NONE, PALETTE_OWN, QUEUE_SHADOW, QUEUE_MAIN, Queue, Run, _gl$4, _program$35, _vao, _quad, _instanceBuffer, _upload, _active$3, _queues, _modelView$2, _viewModel, _projection, _fogColor, _frame, _glState, SpriteBatch;
+var mat4$23, FLOATS, STRIDE, SOURCE_OWN, SOURCE_INDEX, SOURCE_RGBA, PALETTE_NONE, PALETTE_OWN, QUEUE_SHADOW, QUEUE_MAIN, Queue, Run, _gl$5, _program$36, _vao, _quad, _instanceBuffer, _upload, _active$3, _queues, _modelView$2, _viewModel, _projection, _fogColor, _frame, _glState, SpriteBatch;
 var init_SpriteBatch = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
@@ -211207,8 +212011,8 @@ var init_SpriteBatch = __esmMin((() => {
 			this.noCorrection = false;
 		}
 	};
-	_gl$4 = null;
-	_program$35 = null;
+	_gl$5 = null;
+	_program$36 = null;
 	_vao = null;
 	_quad = null;
 	_instanceBuffer = null;
@@ -211277,7 +212081,7 @@ var init_SpriteBatch = __esmMin((() => {
 		*/
 		static open(gl, state) {
 			if (!SpriteBatch.enabled || _active$3 || typeof gl.drawArraysInstanced !== "function") return false;
-			if (!_program$35 || _gl$4 !== gl) init$12(gl);
+			if (!_program$36 || _gl$5 !== gl) init$12(gl);
 			SpriteAtlas.init(gl);
 			SpriteAtlas.recyclePalettes();
 			_glState.depthTest = state.depthTest;
@@ -211330,8 +212134,8 @@ var init_SpriteBatch = __esmMin((() => {
 		* keep using them. Call from Renderer.onContextRestored.
 		*/
 		static contextRestored() {
-			_gl$4 = null;
-			_program$35 = null;
+			_gl$5 = null;
+			_program$36 = null;
 			_vao = null;
 			_quad = null;
 			_instanceBuffer = null;
@@ -211391,14 +212195,14 @@ var init_SpriteBatch = __esmMin((() => {
 			const main = _queues[QUEUE_MAIN];
 			const total = shadow.count + main.count;
 			if (!_active$3 || !total) return 0;
-			const gl = _gl$4;
-			const uniform = _program$35.uniform;
+			const gl = _gl$5;
+			const uniform = _program$36.uniform;
 			if (_upload.length < total * FLOATS) _upload = new Float32Array(total * FLOATS * 2);
 			_upload.set(shadow.data.subarray(0, shadow.count * FLOATS), 0);
 			_upload.set(main.data.subarray(0, main.count * FLOATS), shadow.count * FLOATS);
 			gl.bindBuffer(gl.ARRAY_BUFFER, _instanceBuffer);
 			gl.bufferData(gl.ARRAY_BUFFER, _upload, gl.STREAM_DRAW, 0, total * FLOATS);
-			gl.useProgram(_program$35);
+			gl.useProgram(_program$36);
 			gl.bindVertexArray(_vao);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, _projection);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, _modelView$2);
@@ -211490,8 +212294,8 @@ function RenderCanvas3D(isBlendModeOne) {
 		RecordCanvas3D.call(this, isBlendModeOne);
 		return;
 	}
-	const uniform = _program$34.uniform;
-	const gl = _gl$3;
+	const uniform = _program$35.uniform;
+	const gl = _gl$4;
 	const use_pal = this.image.palette !== null;
 	if (isBlendModeOne) gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
 	else if (isBlendModeOne === false) gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
@@ -211526,9 +212330,9 @@ function RenderCanvas3D(isBlendModeOne) {
 	gl.uniform2fv(uniform.uSpriteRendererSize, _size$7);
 	gl.uniform2fv(uniform.uSpriteRendererOffset, _offset);
 	gl.uniform1i(uniform.uIsRGBA, this.sprite ? this.sprite.type : 1);
-	if (_groupId !== _lastGroupId || _texture$6 !== this.image.texture) {
+	if (_groupId !== _lastGroupId || _texture$7 !== this.image.texture) {
 		_lastGroupId = _groupId;
-		gl.bindTexture(gl.TEXTURE_2D, _texture$6 = this.image.texture);
+		gl.bindTexture(gl.TEXTURE_2D, _texture$7 = this.image.texture);
 	}
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 }
@@ -211700,13 +212504,13 @@ function setDepth(depthTest, depthMask) {
 	if (_depthTest !== depthTest) {
 		_depthTest = depthTest;
 		if (direct) {
-			if (depthTest) _gl$3.enable(_gl$3.DEPTH_TEST);
-			else _gl$3.disable(_gl$3.DEPTH_TEST);
+			if (depthTest) _gl$4.enable(_gl$4.DEPTH_TEST);
+			else _gl$4.disable(_gl$4.DEPTH_TEST);
 		}
 	}
 	if (_depthMask !== depthMask) {
 		_depthMask = depthMask;
-		if (direct) _gl$3.depthMask(depthMask);
+		if (direct) _gl$4.depthMask(depthMask);
 	}
 }
 /**
@@ -211714,12 +212518,12 @@ function setDepth(depthTest, depthMask) {
 * the bound texture.
 */
 function syncAfterBatch() {
-	_gl$3.useProgram(_program$34);
-	_gl$3.activeTexture(_gl$3.TEXTURE0);
-	_texture$6 = null;
+	_gl$4.useProgram(_program$35);
+	_gl$4.activeTexture(_gl$4.TEXTURE0);
+	_texture$7 = null;
 	_groupId++;
 }
-var mat4$22, MAX_COLORS_PER_PALETTE, RenderCanvas2D, _program$34, _buffer$20, _ctx$4, _gl$3, _groupId, _lastGroupId, _shadow, _angle, _depth, _disableDepthCorrection, _depthMask, _depthTest, _blendOne, _texture$6, _usepal, _pos$8, _matrix$6, _size$7, _offset, SpriteRenderer;
+var mat4$22, MAX_COLORS_PER_PALETTE, RenderCanvas2D, _program$35, _buffer$21, _ctx$4, _gl$4, _groupId, _lastGroupId, _shadow, _angle, _depth, _disableDepthCorrection, _depthMask, _depthTest, _blendOne, _texture$7, _usepal, _pos$8, _matrix$6, _size$7, _offset, SpriteRenderer;
 var init_SpriteRenderer = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
@@ -211761,10 +212565,10 @@ var init_SpriteRenderer = __esmMin((() => {
 			_ctx$4.restore();
 		};
 	})();
-	_program$34 = null;
-	_buffer$20 = null;
+	_program$35 = null;
+	_buffer$21 = null;
 	_ctx$4 = null;
-	_gl$3 = null;
+	_gl$4 = null;
 	_groupId = 0;
 	_lastGroupId = 0;
 	_shadow = null;
@@ -211774,7 +212578,7 @@ var init_SpriteRenderer = __esmMin((() => {
 	_depthMask = true;
 	_depthTest = true;
 	_blendOne = null;
-	_texture$6 = null;
+	_texture$7 = null;
 	_usepal = null;
 	_pos$8 = /* @__PURE__ */ new Int16Array(2);
 	_matrix$6 = /* @__PURE__ */ new Float32Array(16);
@@ -211782,7 +212586,7 @@ var init_SpriteRenderer = __esmMin((() => {
 	_offset = /* @__PURE__ */ new Float32Array(2);
 	SpriteRenderer = class {
 		static get gl() {
-			return _gl$3;
+			return _gl$4;
 		}
 		static get is2D() {
 			return this.render === RenderCanvas2D;
@@ -211877,9 +212681,9 @@ var init_SpriteRenderer = __esmMin((() => {
 		* @param {object} gl context
 		*/
 		static init(gl) {
-			if (!_buffer$20) {
-				_buffer$20 = gl.createBuffer();
-				gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$20);
+			if (!_buffer$21) {
+				_buffer$21 = gl.createBuffer();
+				gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$21);
 				gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
 					-.5,
 					.5,
@@ -211899,7 +212703,7 @@ var init_SpriteRenderer = __esmMin((() => {
 					1
 				]), gl.STATIC_DRAW);
 			}
-			if (!_program$34) _program$34 = WebGL_default.createShaderProgram(gl, SpriteRenderer_default$1, SpriteRenderer_default);
+			if (!_program$35) _program$35 = WebGL_default.createShaderProgram(gl, SpriteRenderer_default$1, SpriteRenderer_default);
 			SpriteBatch.enabled = Configs.get("spriteBatching", true) !== false;
 		}
 		/**
@@ -211911,14 +212715,14 @@ var init_SpriteRenderer = __esmMin((() => {
 		* @param {object} fog structure
 		*/
 		static bind3DContext(gl, modelView, projection, fog) {
-			const attribute = _program$34.attribute;
-			const uniform = _program$34.uniform;
+			const attribute = _program$35.attribute;
+			const uniform = _program$35.uniform;
 			if (SpriteBatch.active) {
 				this.flushBatch();
 				SpriteBatch.invalidate();
 			}
 			SpriteBatch.setFrame(modelView, projection, fog, Camera.zoom);
-			gl.useProgram(_program$34);
+			gl.useProgram(_program$35);
 			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 			gl.uniformMatrix4fv(uniform.uViewModelMat, false, mat4$22.invert(_matrix$6, modelView));
@@ -211934,13 +212738,13 @@ var init_SpriteRenderer = __esmMin((() => {
 			gl.uniform1i(uniform.uDisableDepthCorrection, _disableDepthCorrection = false);
 			gl.enableVertexAttribArray(attribute.aPosition);
 			gl.enableVertexAttribArray(attribute.aTextureCoord);
-			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$20);
+			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$21);
 			gl.vertexAttribPointer(attribute.aPosition, 2, gl.FLOAT, false, 16, 0);
 			gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 16, 8);
 			this.render = RenderCanvas3D;
 			this.xSize = 5;
 			this.ySize = 5;
-			_gl$3 = gl;
+			_gl$4 = gl;
 			_depthMask = true;
 			_groupId++;
 		}
@@ -211950,7 +212754,7 @@ var init_SpriteRenderer = __esmMin((() => {
 		* @param {object} gl context
 		*/
 		static unbind(gl) {
-			const attribute = _program$34.attribute;
+			const attribute = _program$35.attribute;
 			gl.disableVertexAttribArray(attribute.aPosition);
 			gl.disableVertexAttribArray(attribute.aTextureCoord);
 		}
@@ -211984,7 +212788,7 @@ var init_SpriteRenderer = __esmMin((() => {
 		* @param {function} execute function with this parameters before restore gl state.
 		*/
 		static runWithDepth(depthTest, depthMask, depthCorrection, fn) {
-			if (!_gl$3) {
+			if (!_gl$4) {
 				fn();
 				return;
 			}
@@ -212065,9 +212869,9 @@ function init$11(gl, water) {
 	_wavePitch = water.wavePitch;
 	_waterOpacity = water.type !== 4 && water.type !== 6 ? .8 : 1;
 	if (!_vertCount) return;
-	if (!_program$33) _program$33 = WebGL_default.createShaderProgram(gl, Water_default$2, Water_default$1);
-	_buffer$19 = gl.createBuffer();
-	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$19);
+	if (!_program$34) _program$34 = WebGL_default.createShaderProgram(gl, Water_default$2, Water_default$1);
+	_buffer$20 = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$20);
 	gl.bufferData(gl.ARRAY_BUFFER, water.mesh, gl.STATIC_DRAW);
 	function onTextureLoaded(texture, index) {
 		_textures$6[index] = texture;
@@ -212086,10 +212890,10 @@ function init$11(gl, water) {
 */
 function render$11(gl, modelView, projection, fog, light, tick) {
 	if (!_vertCount) return;
-	const uniform = _program$33.uniform;
-	const attribute = _program$33.attribute;
+	const uniform = _program$34.uniform;
+	const attribute = _program$34.attribute;
 	const frame = tick / (1e3 / 60);
-	gl.useProgram(_program$33);
+	gl.useProgram(_program$34);
 	gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 	gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 	gl.uniform1i(uniform.uFogUse, fog.use && fog.exist);
@@ -212098,7 +212902,7 @@ function render$11(gl, modelView, projection, fog, light, tick) {
 	gl.uniform3fv(uniform.uFogColor, fog.color);
 	gl.enableVertexAttribArray(attribute.aPosition);
 	gl.enableVertexAttribArray(attribute.aTextureCoord);
-	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$19);
+	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$20);
 	gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 20, 0);
 	gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 20, 12);
 	gl.activeTexture(gl.TEXTURE0);
@@ -212122,13 +212926,13 @@ function render$11(gl, modelView, projection, fog, light, tick) {
 */
 function free$6(gl) {
 	let i;
-	if (_buffer$19) {
-		gl.deleteBuffer(_buffer$19);
-		_buffer$19 = null;
+	if (_buffer$20) {
+		gl.deleteBuffer(_buffer$20);
+		_buffer$20 = null;
 	}
-	if (_program$33) {
-		gl.deleteProgram(_program$33);
-		_program$33 = null;
+	if (_program$34) {
+		gl.deleteProgram(_program$34);
+		_program$34 = null;
 	}
 	for (i = 0; i < 32; ++i) if (_textures$6[i]) {
 		gl.deleteTexture(_textures$6[i]);
@@ -212136,14 +212940,14 @@ function free$6(gl) {
 	}
 	_vertCount = 0;
 }
-var _program$33, _buffer$19, _vertCount, _textures$6, _waveSpeed, _waveHeight, _wavePitch, _animSpeed, _waterOpacity, Water_default;
+var _program$34, _buffer$20, _vertCount, _textures$6, _waveSpeed, _waveHeight, _wavePitch, _animSpeed, _waterOpacity, Water_default;
 var init_Water = __esmMin((() => {
 	init_WebGL();
 	init_SpriteRenderer();
 	init_Water$2();
 	init_Water$1();
-	_program$33 = null;
-	_buffer$19 = null;
+	_program$34 = null;
+	_buffer$20 = null;
 	_vertCount = 0;
 	_textures$6 = new Array(32);
 	_waveSpeed = 0;
@@ -212173,14 +212977,14 @@ var init_OccluderFade$1 = __esmMin((() => {
 	OccluderFade_default = "// Fades world geometry lying between the camera and the followed entity\r\n// (third person camera). Included by the model fragment shaders.\r\n//\r\n// uOccluderFadeMode:\r\n//   0 - disabled\r\n//   1 - dither (screen-door, single opaque pass)\r\n//   2 - alpha, opaque pass: discard fragments inside the fade capsule\r\n//   3 - alpha, blend pass: draw only fragments inside the fade capsule, translucent\r\n//   4 - line of sight query: keep only fragments inside the (narrow) capsule,\r\n//       used with an occlusion query to detect geometry covering the entity\r\n\r\nuniform int   uOccluderFadeMode;\r\nuniform vec3  uOccluderFadeEye;\r\nuniform vec3  uOccluderFadeFocus;\r\nuniform float uOccluderFadeRadius;\r\nuniform float uOccluderFadeOpacity;\r\nuniform float uOccluderFadeStrength;\r\n\r\nconst float OCCLUDER_FADE_BAYER[16] = float[16](\r\n	 0.0,  8.0,  2.0, 10.0,\r\n	12.0,  4.0, 14.0,  6.0,\r\n	 3.0, 11.0,  1.0,  9.0,\r\n	15.0,  7.0, 13.0,  5.0\r\n);\r\n\r\n// The faded region is a cylinder of constant radius from the eye to the focus,\r\n// cut by a vertical plane through the focus (so a raised camera never fades\r\n// anything behind the player); it closes over this distance (cells) before it.\r\nconst float OCCLUDER_FADE_END = 0.5;\r\n\r\n// x: distance to the eye->focus axis,\r\n// y: signed horizontal distance past the focus, along the view direction\r\nvec2 occluderFadeCylinder(vec3 worldPos) {\r\n	vec3 axis = uOccluderFadeFocus - uOccluderFadeEye;\r\n	vec3 rel  = worldPos - uOccluderFadeEye;\r\n	float len  = max(length(axis), 0.01);\r\n	float t    = clamp(dot(rel, axis) / (len * len), 0.0, 1.0);\r\n	// cut plane normal: horizontal view direction, tilting back to the view\r\n	// axis as the camera gets steep (a vertical plane is meaningless top-down)\r\n	vec3 level = vec3(axis.x, 0.0, axis.z);\r\n	float flatness = length(level) / len;\r\n	vec3 hdir  = level / max(length(level), 0.01);\r\n	vec3 cut   = normalize(mix(axis / len, hdir, smoothstep(0.3, 0.6, flatness)));\r\n	return vec2(length(rel - axis * t), dot(worldPos - uOccluderFadeFocus, cut));\r\n}\r\n\r\n// 0.0 = untouched, 1.0 = fully inside the cylinder between eye and focus\r\nfloat occluderFadeAmount(vec3 worldPos) {\r\n	vec2 c = occluderFadeCylinder(worldPos);\r\n	float radial = 1.0 - smoothstep(uOccluderFadeRadius * 0.5, uOccluderFadeRadius, c.x);\r\n	float along  = 1.0 - smoothstep(-OCCLUDER_FADE_END, 0.0, c.y);\r\n	return radial * along * uOccluderFadeStrength;\r\n}\r\n\r\n// Applies the fade to the fragment alpha. Returns false when the fragment must be discarded.\r\nbool occluderFade(vec3 worldPos, inout float alpha) {\r\n	if (uOccluderFadeMode == 0) {\r\n		return true;\r\n	}\r\n\r\n	if (uOccluderFadeMode == 4) {\r\n		vec2 c = occluderFadeCylinder(worldPos);\r\n		// stop short of the focus so the floor under the entity does not count\r\n		return c.x < uOccluderFadeRadius && c.y < -0.5;\r\n	}\r\n\r\n	float fade = occluderFadeAmount(worldPos);\r\n	float visibility = 1.0 - fade * (1.0 - uOccluderFadeOpacity);\r\n\r\n	if (uOccluderFadeMode == 1) {\r\n		ivec2 p = ivec2(gl_FragCoord.xy) & 3;\r\n		float threshold = (OCCLUDER_FADE_BAYER[p.x + p.y * 4] + 0.5) / 16.0;\r\n		return visibility > threshold;\r\n	}\r\n\r\n	if (uOccluderFadeMode == 2) {\r\n		return fade < 0.01;\r\n	}\r\n\r\n	if (fade < 0.01) {\r\n		return false;\r\n	}\r\n	alpha *= visibility;\r\n	return true;\r\n}\r\n";
 }));
 // src/Renderer/Map/OccluderFade.js
-var mat4$21, vec3$6, SHADER_INCLUDE, MODE, SETTING, QUERY, QUERY_RADIUS, FADE_IN_MS, FADE_OUT_MS, _inverse, _eye, _queries, _queryPending, _queryHit, _strength, _lastTick$1, OccluderFade;
+var mat4$21, vec3$7, SHADER_INCLUDE, MODE, SETTING, QUERY, QUERY_RADIUS, FADE_IN_MS, FADE_OUT_MS, _inverse, _eye, _queries, _queryPending, _queryHit, _strength, _lastTick$1, OccluderFade;
 var init_OccluderFade = __esmMin((() => {
 	init_OccluderFade$1();
 	init_Camera();
 	init_Graphics();
 	init_SpriteRenderer();
 	init_gl_matrix();
-	({mat4: mat4$21, vec3: vec3$6} = gl_matrix_default);
+	({mat4: mat4$21, vec3: vec3$7} = gl_matrix_default);
 	SHADER_INCLUDE = "// #include OccluderFade.glsl";
 	MODE = {
 		OFF: 0,
@@ -212202,7 +213006,7 @@ var init_OccluderFade = __esmMin((() => {
 	FADE_IN_MS = 150;
 	FADE_OUT_MS = 300;
 	_inverse = mat4$21.create();
-	_eye = vec3$6.create();
+	_eye = vec3$7.create();
 	_queries = [null, null];
 	_queryPending = [false, false];
 	_queryHit = [false, false];
@@ -212423,9 +213227,9 @@ function init$10(gl, data) {
 	_objects.length = count;
 	_batchesReady = false;
 	_pendingTextures = count;
-	if (!_buffer$18) _buffer$18 = gl.createBuffer();
-	if (!_program$32) _program$32 = WebGL_default.createShaderProgram(gl, Models_default$2, OccluderFade.injectShader(Models_default$1));
-	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$18);
+	if (!_buffer$19) _buffer$19 = gl.createBuffer();
+	if (!_program$33) _program$33 = WebGL_default.createShaderProgram(gl, Models_default$2, OccluderFade.injectShader(Models_default$1));
+	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$19);
 	gl.bufferData(gl.ARRAY_BUFFER, data.buffer, gl.STATIC_DRAW);
 	function onTextureLoaded(texture, index) {
 		_objects[index].texture = texture;
@@ -212472,9 +213276,9 @@ function drawMeshes(gl) {
 * @param {object} light structure
 */
 function bind$1(gl, modelView, projection, fog, light) {
-	const uniform = _program$32.uniform;
-	const attribute = _program$32.attribute;
-	gl.useProgram(_program$32);
+	const uniform = _program$33.uniform;
+	const attribute = _program$33.attribute;
+	gl.useProgram(_program$33);
 	gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 	gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 	gl.uniform3fv(uniform.uLightDirection, light.direction);
@@ -212491,7 +213295,7 @@ function bind$1(gl, modelView, projection, fog, light) {
 	gl.enableVertexAttribArray(attribute.aVertexNormal);
 	gl.enableVertexAttribArray(attribute.aTextureCoord);
 	gl.enableVertexAttribArray(attribute.aAlpha);
-	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$18);
+	gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$19);
 	gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, 36, 0);
 	gl.vertexAttribPointer(attribute.aVertexNormal, 3, gl.FLOAT, false, 36, 12);
 	gl.vertexAttribPointer(attribute.aTextureCoord, 2, gl.FLOAT, false, 36, 24);
@@ -212505,7 +213309,7 @@ function bind$1(gl, modelView, projection, fog, light) {
 * @param {object} gl context
 */
 function unbind(gl) {
-	const attribute = _program$32.attribute;
+	const attribute = _program$33.attribute;
 	gl.disableVertexAttribArray(attribute.aPosition);
 	gl.disableVertexAttribArray(attribute.aVertexNormal);
 	gl.disableVertexAttribArray(attribute.aTextureCoord);
@@ -212523,8 +213327,8 @@ function unbind(gl) {
 */
 function render$10(gl, modelView, projection, normalMat, fog, light) {
 	bind$1(gl, modelView, projection, fog, light);
-	OccluderFade.renderOpaque(gl, _program$32.uniform, () => drawMeshes(gl));
-	OccluderFade.renderQuery(gl, _program$32.uniform, () => drawMeshes(gl), OccluderFade.QUERY.MODELS);
+	OccluderFade.renderOpaque(gl, _program$33.uniform, () => drawMeshes(gl));
+	OccluderFade.renderQuery(gl, _program$33.uniform, () => drawMeshes(gl), OccluderFade.QUERY.MODELS);
 	unbind(gl);
 }
 /**
@@ -212541,7 +213345,7 @@ function render$10(gl, modelView, projection, normalMat, fog, light) {
 function renderFaded$1(gl, modelView, projection, normalMat, fog, light) {
 	if (!OccluderFade.needsBlendPass()) return;
 	bind$1(gl, modelView, projection, fog, light);
-	OccluderFade.renderBlend(gl, _program$32.uniform, () => drawMeshes(gl));
+	OccluderFade.renderBlend(gl, _program$33.uniform, () => drawMeshes(gl));
 	unbind(gl);
 }
 /**
@@ -212551,28 +213355,28 @@ function renderFaded$1(gl, modelView, projection, normalMat, fog, light) {
 */
 function free$5(gl) {
 	let i, count;
-	if (_buffer$18) {
-		gl.deleteBuffer(_buffer$18);
-		_buffer$18 = null;
+	if (_buffer$19) {
+		gl.deleteBuffer(_buffer$19);
+		_buffer$19 = null;
 	}
-	if (_program$32) {
-		gl.deleteProgram(_program$32);
-		_program$32 = null;
+	if (_program$33) {
+		gl.deleteProgram(_program$33);
+		_program$33 = null;
 	}
 	for (i = 0, count = _objects.length; i < count; ++i) gl.deleteTexture(_objects[i].texture);
 	_objects.length = 0;
 	_batches.length = 0;
 	_batchesReady = false;
 }
-var _program$32, _buffer$18, _objects, _batches, _batchesReady, _pendingTextures, Models_default;
+var _program$33, _buffer$19, _objects, _batches, _batchesReady, _pendingTextures, Models_default;
 var init_Models = __esmMin((() => {
 	init_Models$2();
 	init_Models$1();
 	init_WebGL();
 	init_Map();
 	init_OccluderFade();
-	_program$32 = null;
-	_buffer$18 = null;
+	_program$33 = null;
+	_buffer$19 = null;
 	_objects = [];
 	_batches = [];
 	_batchesReady = false;
@@ -212599,35 +213403,35 @@ var init_AnimatedModels$1 = __esmMin((() => {
 * Initialize shader program
 */
 function init$9(gl) {
-	_program$31 = WebGL_default.createShaderProgram(gl, AnimatedModels_default$2, OccluderFade.injectShader(AnimatedModels_default$1));
-	_program$31.uniform = {
-		uModelViewMat: gl.getUniformLocation(_program$31, "uModelViewMat"),
-		uProjectionMat: gl.getUniformLocation(_program$31, "uProjectionMat"),
-		uNormalMat: gl.getUniformLocation(_program$31, "uNormalMat"),
-		uLightDirection: gl.getUniformLocation(_program$31, "uLightDirection"),
-		uLightOpacity: gl.getUniformLocation(_program$31, "uLightOpacity"),
-		uLightAmbient: gl.getUniformLocation(_program$31, "uLightAmbient"),
-		uLightDiffuse: gl.getUniformLocation(_program$31, "uLightDiffuse"),
-		uLightEnv: gl.getUniformLocation(_program$31, "uLightEnv"),
-		uFogUse: gl.getUniformLocation(_program$31, "uFogUse"),
-		uFogNear: gl.getUniformLocation(_program$31, "uFogNear"),
-		uFogFar: gl.getUniformLocation(_program$31, "uFogFar"),
-		uFogColor: gl.getUniformLocation(_program$31, "uFogColor"),
-		uDiffuse: gl.getUniformLocation(_program$31, "uDiffuse"),
-		uMatrixTexture: gl.getUniformLocation(_program$31, "uMatrixTexture"),
-		uOccluderFadeMode: gl.getUniformLocation(_program$31, "uOccluderFadeMode"),
-		uOccluderFadeEye: gl.getUniformLocation(_program$31, "uOccluderFadeEye"),
-		uOccluderFadeFocus: gl.getUniformLocation(_program$31, "uOccluderFadeFocus"),
-		uOccluderFadeRadius: gl.getUniformLocation(_program$31, "uOccluderFadeRadius"),
-		uOccluderFadeOpacity: gl.getUniformLocation(_program$31, "uOccluderFadeOpacity"),
-		uOccluderFadeStrength: gl.getUniformLocation(_program$31, "uOccluderFadeStrength")
+	_program$32 = WebGL_default.createShaderProgram(gl, AnimatedModels_default$2, OccluderFade.injectShader(AnimatedModels_default$1));
+	_program$32.uniform = {
+		uModelViewMat: gl.getUniformLocation(_program$32, "uModelViewMat"),
+		uProjectionMat: gl.getUniformLocation(_program$32, "uProjectionMat"),
+		uNormalMat: gl.getUniformLocation(_program$32, "uNormalMat"),
+		uLightDirection: gl.getUniformLocation(_program$32, "uLightDirection"),
+		uLightOpacity: gl.getUniformLocation(_program$32, "uLightOpacity"),
+		uLightAmbient: gl.getUniformLocation(_program$32, "uLightAmbient"),
+		uLightDiffuse: gl.getUniformLocation(_program$32, "uLightDiffuse"),
+		uLightEnv: gl.getUniformLocation(_program$32, "uLightEnv"),
+		uFogUse: gl.getUniformLocation(_program$32, "uFogUse"),
+		uFogNear: gl.getUniformLocation(_program$32, "uFogNear"),
+		uFogFar: gl.getUniformLocation(_program$32, "uFogFar"),
+		uFogColor: gl.getUniformLocation(_program$32, "uFogColor"),
+		uDiffuse: gl.getUniformLocation(_program$32, "uDiffuse"),
+		uMatrixTexture: gl.getUniformLocation(_program$32, "uMatrixTexture"),
+		uOccluderFadeMode: gl.getUniformLocation(_program$32, "uOccluderFadeMode"),
+		uOccluderFadeEye: gl.getUniformLocation(_program$32, "uOccluderFadeEye"),
+		uOccluderFadeFocus: gl.getUniformLocation(_program$32, "uOccluderFadeFocus"),
+		uOccluderFadeRadius: gl.getUniformLocation(_program$32, "uOccluderFadeRadius"),
+		uOccluderFadeOpacity: gl.getUniformLocation(_program$32, "uOccluderFadeOpacity"),
+		uOccluderFadeStrength: gl.getUniformLocation(_program$32, "uOccluderFadeStrength")
 	};
-	_program$31.attribute = {
-		aPosition: gl.getAttribLocation(_program$31, "aPosition"),
-		aNormal: gl.getAttribLocation(_program$31, "aNormal"),
-		aTextureCoord: gl.getAttribLocation(_program$31, "aTextureCoord"),
-		aAlpha: gl.getAttribLocation(_program$31, "aAlpha"),
-		aMatrixIndex: gl.getAttribLocation(_program$31, "aMatrixIndex")
+	_program$32.attribute = {
+		aPosition: gl.getAttribLocation(_program$32, "aPosition"),
+		aNormal: gl.getAttribLocation(_program$32, "aNormal"),
+		aTextureCoord: gl.getAttribLocation(_program$32, "aTextureCoord"),
+		aAlpha: gl.getAttribLocation(_program$32, "aAlpha"),
+		aMatrixIndex: gl.getAttribLocation(_program$32, "aMatrixIndex")
 	};
 }
 /**
@@ -212731,7 +213535,7 @@ function isNodeStatic(node) {
 */
 function add$2(gl, modelData) {
 	if (!modelData || !modelData.nodes || modelData.nodes.length === 0) return;
-	if (!_program$31) init$9(gl);
+	if (!_program$32) init$9(gl);
 	const instances = [];
 	for (let i = 0; i < modelData.instances.length; i++) {
 		const instArray = modelData.instances[i];
@@ -212787,12 +213591,12 @@ function add$2(gl, modelData) {
 		if (node.posKeyframes) for (let pk = 0; pk < node.posKeyframes.length; pk++) {
 			const kf = node.posKeyframes[pk];
 			totalAnimationLength = Math.max(totalAnimationLength, kf.frame || 0);
-			kf._vec = vec3$5.fromValues(kf.px, kf.py, kf.pz);
+			kf._vec = vec3$6.fromValues(kf.px, kf.py, kf.pz);
 		}
 		if (node.scaleKeyFrames) for (let sk = 0; sk < node.scaleKeyFrames.length; sk++) {
 			const kf = node.scaleKeyFrames[sk];
 			totalAnimationLength = Math.max(totalAnimationLength, kf.Frame || 0);
-			kf._vec = vec3$5.fromValues(kf.Scale[0], kf.Scale[1], kf.Scale[2]);
+			kf._vec = vec3$6.fromValues(kf.Scale[0], kf.Scale[1], kf.Scale[2]);
 		}
 		const suffixMat = mat4$20.create();
 		mat4$20.identity(suffixMat);
@@ -212932,7 +213736,7 @@ function add$2(gl, modelData) {
 	animModel.vao = gl.createVertexArray();
 	gl.bindVertexArray(animModel.vao);
 	gl.bindBuffer(gl.ARRAY_BUFFER, animModel.buffer);
-	const attribute = _program$31.attribute;
+	const attribute = _program$32.attribute;
 	const stride = 40;
 	gl.enableVertexAttribArray(attribute.aPosition);
 	gl.vertexAttribPointer(attribute.aPosition, 3, gl.FLOAT, false, stride, 0);
@@ -212973,7 +213777,7 @@ function getPositionAtFrame$2(keyframes, frame, out) {
 	}
 	if (!next) return prev._vec;
 	const t = (frame - prev.frame) / (next.frame - prev.frame);
-	return vec3$5.lerp(out, prev._vec, next._vec, t);
+	return vec3$6.lerp(out, prev._vec, next._vec, t);
 }
 function getRotationAtFrame$2(keyframes, frame, out) {
 	if (!keyframes || keyframes.length === 0) return null;
@@ -213005,7 +213809,7 @@ function getScaleAtFrame$2(keyframes, frame, out) {
 	const fPrev = typeof prev.Frame !== "undefined" ? prev.Frame : prev.frame;
 	const fNext = typeof next.Frame !== "undefined" ? next.Frame : next.frame;
 	const t = (frame - fPrev) / (fNext - fPrev);
-	return vec3$5.lerp(out, prev._vec, next._vec, t);
+	return vec3$6.lerp(out, prev._vec, next._vec, t);
 }
 /**
 * Write static geometry (model space positions, precomputed normals, UVs, alpha, matrixIndex)
@@ -213113,8 +213917,8 @@ function updateModelBuffer(gl, model, frame, force) {
 * Bind program and per-frame uniforms shared by both model passes
 */
 function bind(gl, modelView, projection, normalMat, fog, light) {
-	const uniform = _program$31.uniform;
-	gl.useProgram(_program$31);
+	const uniform = _program$32.uniform;
+	gl.useProgram(_program$32);
 	gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
 	gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 	gl.uniformMatrix3fv(uniform.uNormalMat, false, normalMat);
@@ -213158,14 +213962,14 @@ function drawModels(gl) {
 */
 function render$9(gl, modelView, projection, normalMat, fog, light, tick) {
 	if (_animatedModels.length === 0) return;
-	if (!_program$31) init$9(gl);
+	if (!_program$32) init$9(gl);
 	bind(gl, modelView, projection, normalMat, fog, light);
 	for (let m = 0; m < _animatedModels.length; m++) {
 		const model = _animatedModels[m];
 		updateModelBuffer(gl, model, tick % (model.animLen || 1), false);
 	}
-	OccluderFade.renderOpaque(gl, _program$31.uniform, () => drawModels(gl));
-	OccluderFade.renderQuery(gl, _program$31.uniform, () => drawModels(gl), OccluderFade.QUERY.ANIMATED);
+	OccluderFade.renderOpaque(gl, _program$32.uniform, () => drawModels(gl));
+	OccluderFade.renderQuery(gl, _program$32.uniform, () => drawModels(gl), OccluderFade.QUERY.ANIMATED);
 	gl.bindVertexArray(null);
 }
 /**
@@ -213173,9 +213977,9 @@ function render$9(gl, modelView, projection, normalMat, fog, light, tick) {
 * Reuses the vertex data uploaded by render() this frame.
 */
 function renderFaded(gl, modelView, projection, normalMat, fog, light) {
-	if (_animatedModels.length === 0 || !_program$31 || !OccluderFade.needsBlendPass()) return;
+	if (_animatedModels.length === 0 || !_program$32 || !OccluderFade.needsBlendPass()) return;
 	bind(gl, modelView, projection, normalMat, fog, light);
-	OccluderFade.renderBlend(gl, _program$31.uniform, () => drawModels(gl));
+	OccluderFade.renderBlend(gl, _program$32.uniform, () => drawModels(gl));
 	gl.bindVertexArray(null);
 }
 /**
@@ -213184,7 +213988,7 @@ function renderFaded(gl, modelView, projection, normalMat, fog, light) {
 function hasAnimatedModels() {
 	return _animatedModels.length > 0;
 }
-var mat3$4, mat4$20, vec3$5, quat$1, _tempVec3, _tempVec3Scale, _tempQuat, _tempMat4, _tempMat4Node, _program$31, _animatedModels, AnimatedModels_default;
+var mat3$4, mat4$20, vec3$6, quat$1, _tempVec3, _tempVec3Scale, _tempQuat, _tempMat4, _tempMat4Node, _program$32, _animatedModels, AnimatedModels_default;
 var init_AnimatedModels = __esmMin((() => {
 	init_Client();
 	init_gl_matrix();
@@ -213195,14 +213999,14 @@ var init_AnimatedModels = __esmMin((() => {
 	init_OccluderFade();
 	mat3$4 = gl_matrix_default.mat3;
 	mat4$20 = gl_matrix_default.mat4;
-	vec3$5 = gl_matrix_default.vec3;
+	vec3$6 = gl_matrix_default.vec3;
 	quat$1 = gl_matrix_default.quat;
-	_tempVec3 = vec3$5.create();
-	_tempVec3Scale = vec3$5.create();
+	_tempVec3 = vec3$6.create();
+	_tempVec3Scale = vec3$6.create();
 	_tempQuat = quat$1.create();
 	_tempMat4 = mat4$20.create();
 	_tempMat4Node = mat4$20.create();
-	_program$31 = null;
+	_program$32 = null;
 	_animatedModels = [];
 	AnimatedModels_default = {
 		init: init$9,
@@ -216890,31 +217694,31 @@ function grayBroadcast(src, out) {
 * Initialize the shader program.
 */
 function init$8(gl) {
-	_program$30 = WebGL_default.createShaderProgram(gl, GR2Model_default$1, GR2Model_default);
-	_program$30.uniform = {
-		uModelViewMat: gl.getUniformLocation(_program$30, "uModelViewMat"),
-		uProjectionMat: gl.getUniformLocation(_program$30, "uProjectionMat"),
-		uNormalMat: gl.getUniformLocation(_program$30, "uNormalMat"),
-		uBones: gl.getUniformLocation(_program$30, "uBones[0]"),
-		uLightDirection: gl.getUniformLocation(_program$30, "uLightDirection"),
-		uLightOpacity: gl.getUniformLocation(_program$30, "uLightOpacity"),
-		uLightAmbient: gl.getUniformLocation(_program$30, "uLightAmbient"),
-		uLightDiffuse: gl.getUniformLocation(_program$30, "uLightDiffuse"),
-		uLightEnv: gl.getUniformLocation(_program$30, "uLightEnv"),
-		uAlphaRef: gl.getUniformLocation(_program$30, "uAlphaRef"),
-		uAlpha: gl.getUniformLocation(_program$30, "uAlpha"),
-		uFogUse: gl.getUniformLocation(_program$30, "uFogUse"),
-		uFogNear: gl.getUniformLocation(_program$30, "uFogNear"),
-		uFogFar: gl.getUniformLocation(_program$30, "uFogFar"),
-		uFogColor: gl.getUniformLocation(_program$30, "uFogColor"),
-		uDiffuse: gl.getUniformLocation(_program$30, "uDiffuse")
+	_program$31 = WebGL_default.createShaderProgram(gl, GR2Model_default$1, GR2Model_default);
+	_program$31.uniform = {
+		uModelViewMat: gl.getUniformLocation(_program$31, "uModelViewMat"),
+		uProjectionMat: gl.getUniformLocation(_program$31, "uProjectionMat"),
+		uNormalMat: gl.getUniformLocation(_program$31, "uNormalMat"),
+		uBones: gl.getUniformLocation(_program$31, "uBones[0]"),
+		uLightDirection: gl.getUniformLocation(_program$31, "uLightDirection"),
+		uLightOpacity: gl.getUniformLocation(_program$31, "uLightOpacity"),
+		uLightAmbient: gl.getUniformLocation(_program$31, "uLightAmbient"),
+		uLightDiffuse: gl.getUniformLocation(_program$31, "uLightDiffuse"),
+		uLightEnv: gl.getUniformLocation(_program$31, "uLightEnv"),
+		uAlphaRef: gl.getUniformLocation(_program$31, "uAlphaRef"),
+		uAlpha: gl.getUniformLocation(_program$31, "uAlpha"),
+		uFogUse: gl.getUniformLocation(_program$31, "uFogUse"),
+		uFogNear: gl.getUniformLocation(_program$31, "uFogNear"),
+		uFogFar: gl.getUniformLocation(_program$31, "uFogFar"),
+		uFogColor: gl.getUniformLocation(_program$31, "uFogColor"),
+		uDiffuse: gl.getUniformLocation(_program$31, "uDiffuse")
 	};
-	_program$30.attribute = {
-		aPosition: gl.getAttribLocation(_program$30, "aPosition"),
-		aNormal: gl.getAttribLocation(_program$30, "aNormal"),
-		aTextureCoord: gl.getAttribLocation(_program$30, "aTextureCoord"),
-		aBoneIndex: gl.getAttribLocation(_program$30, "aBoneIndex"),
-		aBoneWeight: gl.getAttribLocation(_program$30, "aBoneWeight")
+	_program$31.attribute = {
+		aPosition: gl.getAttribLocation(_program$31, "aPosition"),
+		aNormal: gl.getAttribLocation(_program$31, "aNormal"),
+		aTextureCoord: gl.getAttribLocation(_program$31, "aTextureCoord"),
+		aBoneIndex: gl.getAttribLocation(_program$31, "aBoneIndex"),
+		aBoneWeight: gl.getAttribLocation(_program$31, "aBoneWeight")
 	};
 }
 /**
@@ -217072,7 +217876,7 @@ function acquire(path) {
 */
 function buildTypeGL(gl, type) {
 	type.textures = makeTypeTextures(gl, type.parsed);
-	const attr = _program$30.attribute;
+	const attr = _program$31.attribute;
 	type.submeshes = type.meshes.map(function(mesh) {
 		const vao = gl.createVertexArray();
 		gl.bindVertexArray(vao);
@@ -217190,15 +217994,15 @@ function normalize3(v) {
 * Camera.modelView (the view matrix); the per-instance world is composed on top.
 */
 function render$8(gl, modelView, projection, normalMat, fog, light, tick) {
-	_gl$2 = gl;
+	_gl$3 = gl;
 	if (_instances.length === 0 || !light) return;
-	if (!_program$30) init$8(gl);
+	if (!_program$31) init$8(gl);
 	for (const path in _types) {
 		const type = _types[path];
 		if (type.cpuReady && !type.glReady) buildTypeGL(gl, type);
 	}
-	const uniform = _program$30.uniform;
-	gl.useProgram(_program$30);
+	const uniform = _program$31.uniform;
+	gl.useProgram(_program$31);
 	gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
 	gl.uniform1f(uniform.uLightOpacity, light.opacity != null ? light.opacity : 1);
 	gl.uniform3fv(uniform.uLightEnv, light.env || _phaseEnv);
@@ -217456,8 +218260,8 @@ function detach(inst) {
 	if (idx !== -1) _instances.splice(idx, 1);
 	const type = _types[inst.path];
 	if (type && type.refcount > 0) type.refcount--;
-	if (inst.emblemTex && _gl$2) {
-		_gl$2.deleteTexture(inst.emblemTex);
+	if (inst.emblemTex && _gl$3) {
+		_gl$3.deleteTexture(inst.emblemTex);
 		inst.emblemTex = null;
 	}
 	inst.entity = null;
@@ -217547,14 +218351,14 @@ function clear() {
 	for (let i = 0; i < insts.length; i++) detach(insts[i]);
 	_poseCache = {};
 }
-var mat3$3, mat4$19, ALPHA_REF, _phaseDiffuse, _phaseAmbient, _phaseEnv, _gr2FlagDiffuse, _gr2EmpDiffuse, _gr2EmpAmbient, _gr2FlagAmbient, GR2_ROSTER, _program$30, _gl$2, _types, _missing, _instances, _poseCache, _dbgCellTile, _dbgTileInst, _dbgCellInited, _debugCell, BASE_SPHERE_HALF_EXTENT, _readyPromise, _mv, _mvp, _nmat, _lightView, _clip, CULL_MARGIN, CLIP_W_EPS, DIR_STEP_DEG, FADE$1, TEX_MISSING_PX, TEX_GREY_PX, A4_NIBBLE_EXPAND, _emblemCanvas, GR2_VERTEX_STRIDE, GR2_VERTEX_LAYOUT, GR2ModelRenderer_default;
+var mat3$3, mat4$19, ALPHA_REF, _phaseDiffuse, _phaseAmbient, _phaseEnv, _gr2FlagDiffuse, _gr2EmpDiffuse, _gr2EmpAmbient, _gr2FlagAmbient, GR2_ROSTER, _program$31, _gl$3, _types, _missing, _instances, _poseCache, _dbgCellTile, _dbgTileInst, _dbgCellInited, _debugCell, BASE_SPHERE_HALF_EXTENT, _readyPromise, _mv, _mvp, _nmat, _lightView, _clip, CULL_MARGIN, CLIP_W_EPS, DIR_STEP_DEG, FADE$1, TEX_MISSING_PX, TEX_GREY_PX, A4_NIBBLE_EXPAND, _emblemCanvas, GR2_VERTEX_STRIDE, GR2_VERTEX_LAYOUT, GR2ModelRenderer_default;
 var init_GR2ModelRenderer = __esmMin((() => {
 	init_Client();
 	init_gl_matrix();
 	init_WebGL();
 	init_SpriteRenderer();
 	init_SessionStorage();
-	init_Altitude();
+	init_Altitude$1();
 	init_FlatColorTile();
 	init_GR2Loader();
 	init_granny_ro_wasm_esm();
@@ -217606,8 +218410,8 @@ var init_GR2ModelRenderer = __esmMin((() => {
 		sguardian90_9: "emp",
 		treasurebox_2: "emp"
 	};
-	_program$30 = null;
-	_gl$2 = null;
+	_program$31 = null;
+	_gl$3 = null;
 	_types = {};
 	_missing = {};
 	_instances = [];
@@ -221565,7 +222369,7 @@ function updateOverlay() {
 	const last = _marks.maps[_marks.maps.length - 1];
 	_overlay.textContent = (frames ? Math.round(frames * 1e3 / Math.max(elapsed, 1)) : 0) + " fps  " + (frames ? (elapsed / frames).toFixed(1) : "-") + " ms (max " + worst.toFixed(0) + ")\nwork " + (frames ? (work / frames).toFixed(1) : "-") + " ms  draws " + (frames ? Math.round(draws / frames) : 0) + "\n" + (last ? last.map + " load " + Math.round(last.loadMs) + " ms" : "") + (_marks.login !== null ? "  login " + Math.round(_marks.login) + " ms" : "") + (now - _lastFrameStart > 1e3 ? "\n(no frames)" : "");
 }
-var MAX_FRAMES, HITCH_MS, SLOW_MS, MAX_SLOW, DRAW_CALLS, _interval, _work, _draws, _total, _pending$1, _windowStart, _frameStart, _frameTime, _lastFrameStart, _frameDraws, _frameVertices, _totalVertices, _gl$1, _overlay, _overlayTimer, _overlayWanted, _mapStart, _mapName$6, _mapReady, _slow, _slowTotal, _marks, PerfProbe;
+var MAX_FRAMES, HITCH_MS, SLOW_MS, MAX_SLOW, DRAW_CALLS, _interval, _work, _draws, _total, _pending$1, _windowStart, _frameStart, _frameTime, _lastFrameStart, _frameDraws, _frameVertices, _totalVertices, _gl$2, _overlay, _overlayTimer, _overlayWanted, _mapStart, _mapName$6, _mapReady, _slow, _slowTotal, _marks, PerfProbe;
 var init_PerfProbe = __esmMin((() => {
 	init_Configs();
 	MAX_FRAMES = 36e3;
@@ -221591,7 +222395,7 @@ var init_PerfProbe = __esmMin((() => {
 	_frameDraws = 0;
 	_frameVertices = 0;
 	_totalVertices = 0;
-	_gl$1 = null;
+	_gl$2 = null;
 	_overlay = null;
 	_overlayTimer = 0;
 	_overlayWanted = true;
@@ -221622,8 +222426,8 @@ var init_PerfProbe = __esmMin((() => {
 				PerfProbe.enabled = true;
 				PerfProbe.reset();
 			}
-			if (!gl || _gl$1 === gl) return;
-			_gl$1 = gl;
+			if (!gl || _gl$2 === gl) return;
+			_gl$2 = gl;
 			wrapContext(gl);
 			if (!_overlay && _overlayWanted) makeOverlay();
 		}
@@ -221764,7 +222568,7 @@ var init_PerfProbe = __esmMin((() => {
 		*/
 		static overlay(show) {
 			_overlayWanted = !!show;
-			if (show && !_overlay && _gl$1) makeOverlay();
+			if (show && !_overlay && _gl$2) makeOverlay();
 			else if (!show && _overlay) {
 				clearInterval(_overlayTimer);
 				_overlay.remove();
@@ -227072,7 +227876,7 @@ var init_MiniMapCommon = __esmMin((() => {
 	init_Preferences$1();
 	init_SessionStorage();
 	init_Renderer();
-	init_Altitude();
+	init_Altitude$1();
 	init_KeyEventHandler();
 	init_UIManager();
 	init_GUIComponent();
@@ -227093,28 +227897,4631 @@ var init_MiniMap$1 = __esmMin((() => {
 // src/UI/Components/WorldMap/WorldMap.html?raw
 var WorldMap_default$2;
 var init_WorldMap$2 = __esmMin((() => {
-	WorldMap_default$2 = "<div id=\"WorldMap\">\r\n	<div class=\"border\">\r\n		<div class=\"titlebar\" data-background=\"basic_interface/titlebar_mid.bmp\">\r\n			<div class=\"left\">\r\n				<select name=\"mapList\" id=\"WorldMaps\"></select>\r\n			</div>\r\n			<div class=\"right\">\r\n				<button class=\"base showlvl\" data-background=\"checkbox_0.bmp\" data-preload=\"checkbox_1.bmp\"></button>\r\n				<span data-text=\"2209\">Show Monsters</span>\r\n				<button\r\n					class=\"base togglemaps\"\r\n					data-background=\"minimap/i_object_3.bmp\"\r\n					data-hover=\"minimap/i_object_2.bmp\"\r\n				></button>\r\n				<button\r\n					class=\"base close\"\r\n					data-background=\"basic_interface/sys_close_off.bmp\"\r\n					data-hover=\"basic_interface/sys_close_on.bmp\"\r\n				></button>\r\n			</div>\r\n		</div>\r\n\r\n		<div class=\"map\">\r\n			<div class=\"content\"></div>\r\n		</div>\r\n	</div>\r\n	<div id=\"map-tooltip\" style=\"display: none\">\r\n		<div class=\"tooltip-img\"></div>\r\n		<div class=\"tooltip-mapname\"></div>\r\n		<div class=\"tooltip-mapid\"></div>\r\n	</div>\r\n</div>\r\n";
+	WorldMap_default$2 = "<div id=\"WorldMap\">\r\n	<div class=\"border\">\r\n		<div class=\"titlebar\" data-background=\"basic_interface/titlebar_mid.bmp\">\r\n			<div class=\"left\">\r\n				<select name=\"mapList\" id=\"WorldMaps\"></select>\r\n			</div>\r\n			<div class=\"right\">\r\n				<button class=\"base showlvl\" data-background=\"checkbox_0.bmp\" data-preload=\"checkbox_1.bmp\"></button>\r\n				<span data-text=\"2209\">Show Monsters</span>\r\n				<button\r\n					class=\"base togglemaps\"\r\n					data-background=\"minimap/i_object_3.bmp\"\r\n					data-hover=\"minimap/i_object_2.bmp\"\r\n				></button>\r\n				<button\r\n					class=\"base close\"\r\n					data-background=\"basic_interface/sys_close_off.bmp\"\r\n					data-hover=\"basic_interface/sys_close_on.bmp\"\r\n				></button>\r\n			</div>\r\n		</div>\r\n\r\n		<div class=\"map\">\r\n			<div class=\"content\"></div>\r\n		</div>\r\n	</div>\r\n	<div id=\"map-tooltip\" style=\"display: none\">\r\n		<div class=\"tooltip-map-details\">\r\n			<div class=\"tooltip-img\"></div>\r\n			<div class=\"tooltip-mapname\"></div>\r\n			<div class=\"tooltip-mapid\"></div>\r\n		</div>\r\n		<div class=\"tooltip-monsters\" aria-hidden=\"true\">\r\n			<div class=\"tooltip-monster-header\">\r\n				<span>Monsters</span>\r\n				<span class=\"tooltip-monster-count\"></span>\r\n			</div>\r\n			<div class=\"tooltip-monster-list\"></div>\r\n		</div>\r\n	</div>\r\n</div>\r\n";
 }));
 // src/UI/Components/WorldMap/WorldMap.css?raw
 var WorldMap_default$1;
 var init_WorldMap$1 = __esmMin((() => {
-	WorldMap_default$1 = ":host {\r\n	width: 100%;\r\n	height: 100%;\r\n	top: 0;\r\n	left: 0;\r\n}\r\n\r\n#loader {\r\n	position: relative;\r\n	transform: translate(-10%, -50%);\r\n	top: 50%;\r\n	left: 50%;\r\n}\r\n\r\n#WorldMap {\r\n	position: fixed;\r\n	top: 0;\r\n	left: 0;\r\n	background: black;\r\n	height: 100%;\r\n	width: 100%;\r\n}\r\n\r\n#WorldMap .hidden {\r\n	display: none;\r\n}\r\n\r\n#WorldMap .titlebar {\r\n	height: 17px;\r\n	background-color: white;\r\n	background-repeat: repeat-x;\r\n}\r\n\r\n#WorldMap .titlebar .base {\r\n	width: 11px;\r\n	height: 11px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	vertical-align: middle;\r\n}\r\n\r\n#WorldMap .titlebar .text {\r\n	text-shadow: 1px 1px white;\r\n	vertical-align: -2px;\r\n	white-space: nowrap;\r\n	/* chrome bug */\r\n	display: inline-block;\r\n	width: 60px;\r\n	height: 13px;\r\n	font-size: 11px;\r\n	font-weight: bold;\r\n}\r\n\r\n#WorldMap .titlebar .left {\r\n	margin-left: 3px;\r\n	float: left;\r\n	height: 17px;\r\n}\r\n\r\n#WorldMap .titlebar .right {\r\n	float: right;\r\n	margin-right: 3px;\r\n}\r\n\r\n#WorldMap .titlebar .clear {\r\n	clear: both;\r\n}\r\n\r\n#WorldMap select {\r\n	height: 17px;\r\n}\r\n\r\n/* V2 */\r\n#WorldMap .worldmap {\r\n	box-sizing: border-box;\r\n	display: grid;\r\n	justify-content: center;\r\n	overflow: auto;\r\n}\r\n\r\n#WorldMap .worldmap * {\r\n	box-sizing: border-box;\r\n}\r\n\r\n#WorldMap .border,\r\n#WorldMap .map,\r\n#WorldMap .content,\r\n#WorldMap .worldmap,\r\n#WorldMap .map-view {\r\n	height: 100%;\r\n}\r\n\r\n#WorldMap .worldmap .map-view {\r\n	position: relative;\r\n	background-repeat: no-repeat;\r\n	background-size: contain;\r\n}\r\n\r\n#WorldMap .worldmap .section {\r\n	position: absolute;\r\n	border: 0px;\r\n	border-radius: 4px;\r\n	background-color: rgba(0, 0, 0, 0);\r\n	cursor: pointer;\r\n	overflow: visible;\r\n}\r\n\r\n#WorldMap .worldmap .section:hover,\r\n#WorldMap .worldmap .section.allmapvisible,\r\n#WorldMap .worldmap .section.currentmap,\r\n#WorldMap .worldmap .section.membersonmap {\r\n	border: 1px solid #dddddd7a;\r\n}\r\n\r\n#WorldMap .worldmap .section:hover {\r\n	background-color: rgba(0, 128, 255, 0.5);\r\n}\r\n\r\n#WorldMap .worldmap .section.membersonmap:not(.currentmap) {\r\n	background-color: rgba(128, 255, 0, 0.5);\r\n}\r\n\r\n#WorldMap .worldmap .section.currentmap {\r\n	background-color: rgba(255, 128, 0, 0.5);\r\n}\r\n\r\n#WorldMap .worldmap .section .mapname {\r\n	display: none;\r\n}\r\n\r\n#WorldMap .worldmap .section.currentmap .mapname {\r\n	display: block;\r\n	position: absolute;\r\n	top: 3px;\r\n	left: 50%;\r\n	transform: translate(-50%, 0);\r\n	height: 11px;\r\n	color: white;\r\n	font-weight: bold;\r\n	text-shadow:\r\n		-1px -1px 0 #000,\r\n		1px -1px 0 #000,\r\n		-1px 1px 0 #000,\r\n		1px 1px 0 #000;\r\n	text-wrap: nowrap;\r\n	text-align: center;\r\n}\r\n\r\n#WorldMap .worldmap .section .mapid {\r\n	display: none;\r\n}\r\n\r\n#WorldMap .worldmap .section.allmapvisible .mapid {\r\n	display: block;\r\n	position: absolute;\r\n	bottom: 3px;\r\n	left: 50%;\r\n	transform: translate(-50%, 0);\r\n	height: 10px;\r\n	color: white;\r\n	text-shadow:\r\n		-1px -1px 0 #000,\r\n		1px -1px 0 #000,\r\n		-1px 1px 0 #000,\r\n		1px 1px 0 #000;\r\n	text-align: center;\r\n}\r\n\r\n#WorldMap .worldmap .airplane {\r\n	position: absolute;\r\n	width: 32px;\r\n	height: 32px;\r\n	top: 0px;\r\n	left: 0px;\r\n	transform: rotate(75deg);\r\n	background-repeat: no-repeat;\r\n	background-size: cover;\r\n}\r\n\r\n#WorldMap .showlvl {\r\n	width: 10px;\r\n	height: 12px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n\r\n#WorldMap .worldmap .section .level-range-text {\r\n	display: none;\r\n	position: absolute;\r\n\r\n	top: 85%;\r\n	left: 50%;\r\n	transform: translate(-50%, -50%);\r\n\r\n	width: 100%;\r\n	text-align: center;\r\n	font-weight: bold;\r\n	color: #ffffff;\r\n	text-shadow:\r\n		-1px -1px 0 #000,\r\n		1px -1px 0 #000,\r\n		-1px 1px 0 #000,\r\n		1px 1px 0 #000;\r\n}\r\n\r\n#WorldMap .worldmap.show-lvls .section .level-range-text {\r\n	display: block;\r\n}\r\n\r\n#WorldMap .worldmap .section .displayname {\r\n	display: none;\r\n}\r\n\r\n#WorldMap .worldmap .section.is-dungeon .displayname {\r\n	display: block;\r\n	position: absolute;\r\n	top: 3px;\r\n	left: 50%;\r\n	transform: translate(-50%, 0);\r\n	height: 11px;\r\n	color: white;\r\n	font-weight: bold;\r\n	text-shadow:\r\n		-1px -1px 0 #000,\r\n		1px -1px 0 #000,\r\n		-1px 1px 0 #000,\r\n		1px 1px 0 #000;\r\n	text-wrap: nowrap;\r\n	text-align: center;\r\n}\r\n\r\n#WorldMap .worldmap .section.currentmap .displayname {\r\n	display: block;\r\n	position: absolute;\r\n	top: 3px;\r\n	left: 50%;\r\n	transform: translate(-50%, 0);\r\n	height: 11px;\r\n	color: white;\r\n	font-weight: bold;\r\n	text-shadow:\r\n		-1px -1px 0 #000,\r\n		1px -1px 0 #000,\r\n		-1px 1px 0 #000,\r\n		1px 1px 0 #000;\r\n	text-wrap: nowrap;\r\n	text-align: center;\r\n}\r\n\r\n#WorldMap .worldmap.show-lvls .section:not(.is-dungeon):not(.is-dungeon-stacked) .mapname {\r\n	display: block;\r\n	position: absolute;\r\n	top: 3px;\r\n	left: 50%;\r\n	transform: translate(-50%, 0);\r\n	height: 11px;\r\n	color: white;\r\n	font-weight: bold;\r\n	text-shadow:\r\n		-1px -1px 0 #000,\r\n		1px -1px 0 #000,\r\n		-1px 1px 0 #000,\r\n		1px 1px 0 #000;\r\n	text-wrap: nowrap;\r\n	text-align: center;\r\n}\r\n\r\n#WorldMap .worldmap .section.is-dungeon {\r\n	background-color: rgba(255, 0, 0, 0.4) !important;\r\n	border: 1px solid rgba(255, 0, 0, 0.6) !important;\r\n}\r\n\r\n#WorldMap .worldmap .section.is-dungeon-stacked {\r\n	background-color: transparent !important;\r\n	border: 1px solid rgba(255, 0, 0, 0.6) !important;\r\n	display: block !important;\r\n}\r\n\r\n#WorldMap .worldmap .connector-line {\r\n	position: absolute;\r\n	height: 1px;\r\n	background-color: rgba(255, 0, 0, 0.5);\r\n	pointer-events: none;\r\n}\r\n\r\n#WorldMap #map-tooltip {\r\n	position: fixed;\r\n	z-index: 100;\r\n	pointer-events: none;\r\n	padding: 5px;\r\n	background-color: rgba(0, 0, 0, 0.85);\r\n	border: 1px solid #666;\r\n	border-radius: 4px;\r\n}\r\n\r\n#WorldMap #map-tooltip .tooltip-img {\r\n	width: 150px;\r\n	height: 150px;\r\n	background-color: #111;\r\n	background-size: cover;\r\n	background-position: center;\r\n}\r\n\r\n#WorldMap #map-tooltip .tooltip-mapname {\r\n	color: gold;\r\n	font-weight: bold;\r\n	text-align: center;\r\n	font-size: 12px;\r\n	padding: 3px 0 0;\r\n	text-shadow:\r\n		-1px -1px 0 #000,\r\n		1px -1px 0 #000,\r\n		-1px 1px 0 #000,\r\n		1px 1px 0 #000;\r\n}\r\n\r\n#WorldMap #map-tooltip .tooltip-mapid {\r\n	color: white;\r\n	text-align: center;\r\n	font-size: 11px;\r\n	padding: 2px 0;\r\n	text-shadow:\r\n		-1px -1px 0 #000,\r\n		1px -1px 0 #000,\r\n		-1px 1px 0 #000,\r\n		1px 1px 0 #000;\r\n}\r\n";
+	WorldMap_default$1 = ":host {\r\n	width: 100%;\r\n	height: 100%;\r\n	top: 0;\r\n	left: 0;\r\n}\r\n\r\n#loader {\r\n	position: relative;\r\n	transform: translate(-10%, -50%);\r\n	top: 50%;\r\n	left: 50%;\r\n}\r\n\r\n#WorldMap {\r\n	position: fixed;\r\n	top: 0;\r\n	left: 0;\r\n	background: black;\r\n	height: 100%;\r\n	width: 100%;\r\n}\r\n\r\n#WorldMap .hidden {\r\n	display: none;\r\n}\r\n\r\n#WorldMap .titlebar {\r\n	height: 17px;\r\n	background-color: white;\r\n	background-repeat: repeat-x;\r\n}\r\n\r\n#WorldMap .titlebar .base {\r\n	width: 11px;\r\n	height: 11px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n	vertical-align: middle;\r\n}\r\n\r\n#WorldMap .titlebar .text {\r\n	text-shadow: 1px 1px white;\r\n	vertical-align: -2px;\r\n	white-space: nowrap;\r\n	/* chrome bug */\r\n	display: inline-block;\r\n	width: 60px;\r\n	height: 13px;\r\n	font-size: 11px;\r\n	font-weight: bold;\r\n}\r\n\r\n#WorldMap .titlebar .left {\r\n	margin-left: 3px;\r\n	float: left;\r\n	height: 17px;\r\n}\r\n\r\n#WorldMap .titlebar .right {\r\n	float: right;\r\n	margin-right: 3px;\r\n}\r\n\r\n#WorldMap .titlebar .clear {\r\n	clear: both;\r\n}\r\n\r\n#WorldMap select {\r\n	height: 17px;\r\n}\r\n\r\n/* V2 */\r\n#WorldMap .worldmap {\r\n	box-sizing: border-box;\r\n	display: grid;\r\n	justify-content: center;\r\n	overflow: auto;\r\n}\r\n\r\n#WorldMap .worldmap * {\r\n	box-sizing: border-box;\r\n}\r\n\r\n#WorldMap .border,\r\n#WorldMap .map,\r\n#WorldMap .content,\r\n#WorldMap .worldmap,\r\n#WorldMap .map-view {\r\n	height: 100%;\r\n}\r\n\r\n#WorldMap .worldmap .map-view {\r\n	position: relative;\r\n	background-repeat: no-repeat;\r\n	background-size: contain;\r\n}\r\n\r\n#WorldMap .worldmap .section {\r\n	position: absolute;\r\n	border: 0px;\r\n	border-radius: 4px;\r\n	background-color: rgba(0, 0, 0, 0);\r\n	cursor: pointer;\r\n	overflow: visible;\r\n}\r\n\r\n#WorldMap .worldmap .section:hover,\r\n#WorldMap .worldmap .section.allmapvisible,\r\n#WorldMap .worldmap .section.currentmap,\r\n#WorldMap .worldmap .section.membersonmap {\r\n	border: 1px solid #dddddd7a;\r\n}\r\n\r\n#WorldMap .worldmap .section:hover {\r\n	background-color: rgba(0, 128, 255, 0.5);\r\n}\r\n\r\n#WorldMap .worldmap .section.membersonmap:not(.currentmap) {\r\n	background-color: rgba(128, 255, 0, 0.5);\r\n}\r\n\r\n#WorldMap .worldmap .section.currentmap {\r\n	background-color: rgba(255, 128, 0, 0.5);\r\n}\r\n\r\n#WorldMap .worldmap .section .mapname {\r\n	display: none;\r\n}\r\n\r\n#WorldMap .worldmap .section.currentmap .mapname {\r\n	display: none;\r\n	position: absolute;\r\n	top: 3px;\r\n	left: 50%;\r\n	transform: translate(-50%, 0);\r\n	height: 11px;\r\n	color: white;\r\n	font-weight: bold;\r\n	text-shadow:\r\n		-1px -1px 0 #000,\r\n		1px -1px 0 #000,\r\n		-1px 1px 0 #000,\r\n		1px 1px 0 #000;\r\n	text-wrap: nowrap;\r\n	text-align: center;\r\n}\r\n\r\n#WorldMap .worldmap .section .mapid {\r\n	display: none;\r\n}\r\n\r\n#WorldMap .worldmap .section.allmapvisible .mapid {\r\n	display: block;\r\n	position: absolute;\r\n	bottom: 3px;\r\n	left: 50%;\r\n	transform: translate(-50%, 0);\r\n	height: 10px;\r\n	color: white;\r\n	text-shadow:\r\n		-1px -1px 0 #000,\r\n		1px -1px 0 #000,\r\n		-1px 1px 0 #000,\r\n		1px 1px 0 #000;\r\n	text-align: center;\r\n}\r\n\r\n#WorldMap .worldmap .airplane {\r\n	position: absolute;\r\n	width: 32px;\r\n	height: 32px;\r\n	top: 0px;\r\n	left: 0px;\r\n	transform: rotate(75deg);\r\n	background-repeat: no-repeat;\r\n	background-size: cover;\r\n}\r\n\r\n#WorldMap .showlvl {\r\n	width: 10px;\r\n	height: 12px;\r\n	border: none;\r\n	background-color: transparent;\r\n	background-repeat: no-repeat;\r\n}\r\n\r\n#WorldMap .worldmap .section .monster-level-range {\r\n	display: block;\r\n	white-space: nowrap;\r\n	color: white;\r\n	font-size: 10px;\r\n	line-height: 1.2;\r\n	text-align: center;\r\n}\r\n\r\n#WorldMap .worldmap .section .monster-count-badge {\r\n	display: none;\r\n	position: absolute;\r\n	right: 3px;\r\n	bottom: 3px;\r\n	align-items: center;\r\n	justify-content: center;\r\n	min-width: 18px;\r\n	width: max-content;\r\n	height: 18px;\r\n	aspect-ratio: 1;\r\n	padding: 1px 3px;\r\n	border: 1px solid rgba(255, 225, 78, 0.92);\r\n	border-radius: 2px;\r\n	background: rgba(39, 28, 5, 0.86);\r\n	color: #ffe84f;\r\n	font-size: 10px;\r\n	font-weight: bold;\r\n	line-height: 1;\r\n	text-shadow: 0 1px 1px #000;\r\n	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);\r\n}\r\n\r\n#WorldMap .worldmap.show-lvls .section .monster-count-badge {\r\n	display: flex;\r\n}\r\n\r\n#WorldMap .worldmap.show-lvls .section.is-dungeon .monster-count-badge,\r\n#WorldMap .worldmap.show-lvls .section.is-dungeon-stacked .monster-count-badge {\r\n	display: none;\r\n}\r\n\r\n#WorldMap .worldmap .section .recommended-level-badge {\r\n	display: none;\r\n	border: 1px solid #ffe14e;\r\n	color: white;\r\n}\r\n\r\n#WorldMap .worldmap.show-lvls .section .recommended-level-badge {\r\n	display: flex;\r\n}\r\n\r\n#WorldMap .worldmap.show-lvls .section.is-dungeon .recommended-level-badge,\r\n#WorldMap .worldmap.show-lvls .section.is-dungeon-stacked .recommended-level-badge {\r\n	display: flex;\r\n}\r\n\r\n#WorldMap .worldmap .section .displayname {\r\n	display: none;\r\n}\r\n\r\n#WorldMap .worldmap .section.is-dungeon .displayname {\r\n	display: block;\r\n	position: absolute;\r\n	top: 3px;\r\n	left: 50%;\r\n	transform: translate(-50%, 0);\r\n	height: auto;\r\n	white-space: nowrap;\r\n	width: max-content;\r\n	max-width: none;\r\n	padding: 2px 5px;\r\n	border: 1px solid rgba(178, 45, 35, 0.9);\r\n	border-radius: 1px;\r\n	background-color: rgba(139, 37, 29, 0.9);\r\n	color: white;\r\n	font-weight: bold;\r\n	text-shadow:\r\n		-1px -1px 0 #000,\r\n		1px -1px 0 #000,\r\n		-1px 1px 0 #000,\r\n		1px 1px 0 #000;\r\n	text-wrap: nowrap;\r\n	text-align: center;\r\n}\r\n\r\n#WorldMap .worldmap.show-lvls .section:not(.is-dungeon):not(.is-dungeon-stacked) .displayname {\r\n	display: block;\r\n}\r\n\r\n#WorldMap .worldmap .section.currentmap .displayname {\r\n	display: block;\r\n	position: absolute;\r\n	top: 3px;\r\n	left: 50%;\r\n	transform: translate(-50%, 0);\r\n	height: 11px;\r\n	color: white;\r\n	font-weight: bold;\r\n	text-shadow:\r\n		-1px -1px 0 #000,\r\n		1px -1px 0 #000,\r\n		-1px 1px 0 #000,\r\n		1px 1px 0 #000;\r\n	text-wrap: nowrap;\r\n	text-align: center;\r\n}\r\n\r\n#WorldMap .worldmap.show-lvls .section:not(.currentmap):not(.is-dungeon):not(.is-dungeon-stacked) .mapname {\r\n	display: block;\r\n	position: absolute;\r\n	top: 3px;\r\n	left: 50%;\r\n	transform: translate(-50%, 0);\r\n	height: 11px;\r\n	color: white;\r\n	font-weight: bold;\r\n	text-shadow:\r\n		-1px -1px 0 #000,\r\n		1px -1px 0 #000,\r\n		-1px 1px 0 #000,\r\n		1px 1px 0 #000;\r\n	text-wrap: nowrap;\r\n	text-align: center;\r\n}\r\n\r\n#WorldMap .worldmap .section.is-dungeon {\r\n	background-color: transparent !important;\r\n	border-color: transparent !important;\r\n}\r\n\r\n/* Desktop-client service routes. The full layer only exists while an eligible town is hovered. */\r\n#WorldMap .worldmap-service-overlay,\r\n#WorldMap .worldmap-service-overlay * {\r\n	pointer-events: none;\r\n}\r\n\r\n#WorldMap .worldmap-service-overlay {\r\n	position: absolute;\r\n	inset: 0;\r\n	z-index: 20;\r\n	overflow: visible;\r\n	pointer-events: none;\r\n}\r\n\r\n#WorldMap .service-route-svg,\r\n#WorldMap .service-marker-layer {\r\n	position: absolute;\r\n	inset: 0;\r\n	width: 100%;\r\n	height: 100%;\r\n	overflow: visible;\r\n}\r\n\r\n#WorldMap .service-route-arrow-shadow,\r\n#WorldMap .service-route-arrow,\r\n#WorldMap .service-airship-line-shadow,\r\n#WorldMap .service-airship-line {\r\n	fill: none;\r\n	vector-effect: non-scaling-stroke;\r\n}\r\n\r\n#WorldMap .service-route-arrow-shadow {\r\n	stroke: rgba(43, 29, 0, 0.72);\r\n	stroke-width: 7;\r\n}\r\n\r\n#WorldMap .service-route-arrow {\r\n	stroke: rgba(255, 238, 72, 0.58);\r\n	stroke-width: 6.8;\r\n	stroke-linecap: round;\r\n	stroke-dasharray: 1;\r\n	stroke-dashoffset: 1;\r\n}\r\n\r\n#WorldMap .service-route-traveller {\r\n	fill: rgba(255, 238, 72, 0.72);\r\n	stroke: rgba(64, 41, 0, 0.62);\r\n	stroke-width: 1;\r\n	paint-order: stroke fill;\r\n	filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.75));\r\n}\r\n\r\n#WorldMap .service-airship-line-shadow {\r\n	stroke: rgba(27, 8, 17, 0.78);\r\n	stroke-width: 5;\r\n}\r\n\r\n#WorldMap .service-airship-line {\r\n	stroke: rgba(157, 42, 82, 0.96);\r\n	stroke-width: 2.5;\r\n	stroke-linecap: round;\r\n	stroke-linejoin: round;\r\n}\r\n\r\n#WorldMap .service-airplane {\r\n	filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.9)) saturate(1.15);\r\n}\r\n\r\n#WorldMap .service-airplane-smoke-puff {\r\n	fill: rgba(233, 238, 241, 0.72);\r\n	transform-box: fill-box;\r\n	transform-origin: center;\r\n	animation: worldmap-airplane-smoke 0.9s ease-out var(--smoke-delay, 0s) infinite;\r\n}\r\n\r\n@keyframes worldmap-airplane-smoke {\r\n	0% {\r\n		opacity: 0.8;\r\n		transform: translateX(0) scale(0.7);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		transform: translateX(-12px) scale(1.45);\r\n	}\r\n}\r\n\r\n#WorldMap .service-kafra-marker {\r\n	position: absolute;\r\n	transform: translate(-50%, -100%) translate(5px, -10px);\r\n	z-index: 3;\r\n}\r\n\r\n#WorldMap .service-kafra-character {\r\n	display: block;\r\n	width: 64px;\r\n	height: 64px;\r\n	image-rendering: pixelated;\r\n	filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.86));\r\n	transform: scale(1.2);\r\n	transform-origin: center bottom;\r\n}\r\n\r\n#WorldMap .service-kafra-marker.is-origin .service-kafra-character {\r\n	width: 72px;\r\n	height: 72px;\r\n}\r\n\r\n#WorldMap .service-destination-name {\r\n	position: absolute;\r\n	transform: translateX(-50%);\r\n	z-index: 4;\r\n	padding: 2px 7px;\r\n	border: 1px solid rgba(79, 52, 0, 0.85);\r\n	border-radius: 2px;\r\n	background: rgba(37, 26, 4, 0.84);\r\n	color: #ffe65a;\r\n	font-size: 11px;\r\n	font-weight: bold;\r\n	line-height: 1.2;\r\n	white-space: nowrap;\r\n	text-shadow: 0 1px 1px #000;\r\n	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.65);\r\n}\r\n\r\n#WorldMap .section.service-origin-highlight,\r\n#WorldMap .section.service-destination-highlight {\r\n	z-index: 2;\r\n	border: 2px solid rgba(255, 238, 70, 0.96) !important;\r\n	background-color: rgba(255, 220, 0, 0.18) !important;\r\n	box-shadow:\r\n		0 0 0 1px rgba(42, 26, 0, 0.8),\r\n		0 0 9px rgba(255, 222, 31, 0.78);\r\n}\r\n\r\n#WorldMap .worldmap .section.service-destination-highlight .displayname {\r\n	visibility: hidden;\r\n}\r\n\r\n@media (prefers-reduced-motion: reduce) {\r\n	#WorldMap .service-airship-line {\r\n		animation-duration: 4s;\r\n	}\r\n}\r\n\r\n#WorldMap .worldmap .section.is-dungeon-stacked {\r\n	background-color: transparent !important;\r\n	border-color: transparent !important;\r\n	display: block !important;\r\n}\r\n\r\n#WorldMap .worldmap .connector-line {\r\n	position: absolute;\r\n	height: 1px;\r\n	background-color: rgba(255, 0, 0, 0.5);\r\n	pointer-events: none;\r\n}\r\n\r\n#WorldMap #map-tooltip {\r\n	position: fixed;\r\n	z-index: 100;\r\n	pointer-events: none;\r\n	padding: 5px;\r\n	align-items: stretch;\r\n	gap: 5px;\r\n	background-color: rgba(0, 0, 0, 0.85);\r\n	border: 1px solid #666;\r\n	border-radius: 4px;\r\n	box-sizing: border-box;\r\n}\r\n\r\n#WorldMap #map-tooltip .tooltip-map-details {\r\n	flex: 0 0 150px;\r\n	width: 150px;\r\n}\r\n\r\n#WorldMap #map-tooltip .tooltip-img {\r\n	width: 150px;\r\n	height: 150px;\r\n	background-color: #111;\r\n	background-size: cover;\r\n	background-position: center;\r\n}\r\n\r\n#WorldMap #map-tooltip .tooltip-mapname {\r\n	color: gold;\r\n	font-weight: bold;\r\n	text-align: center;\r\n	font-size: 12px;\r\n	padding: 3px 0 0;\r\n	text-shadow:\r\n		-1px -1px 0 #000,\r\n		1px -1px 0 #000,\r\n		-1px 1px 0 #000,\r\n		1px 1px 0 #000;\r\n}\r\n\r\n#WorldMap #map-tooltip .tooltip-mapid {\r\n	color: white;\r\n	text-align: center;\r\n	font-size: 11px;\r\n	padding: 2px 0;\r\n	text-shadow:\r\n		-1px -1px 0 #000,\r\n		1px -1px 0 #000,\r\n		-1px 1px 0 #000,\r\n		1px 1px 0 #000;\r\n}\r\n\r\n#WorldMap #map-tooltip .tooltip-monsters {\r\n	display: none;\r\n	flex: 0 0 190px;\r\n	width: 190px;\r\n	min-height: 178px;\r\n	max-height: 260px;\r\n	box-sizing: border-box;\r\n	flex-direction: column;\r\n	overflow: hidden;\r\n	color: #eef8ff;\r\n	background: linear-gradient(180deg, rgba(22, 75, 137, 0.98), rgba(7, 31, 73, 0.98));\r\n	border: 1px solid #82b9ef;\r\n	box-shadow:\r\n		inset 0 0 0 1px rgba(2, 20, 54, 0.9),\r\n		inset 0 0 12px rgba(77, 164, 255, 0.2);\r\n}\r\n\r\n#WorldMap #map-tooltip.show-monster-list .tooltip-monsters {\r\n	display: flex;\r\n}\r\n\r\n#WorldMap #map-tooltip .tooltip-monster-header {\r\n	display: flex;\r\n	flex: 0 0 21px;\r\n	align-items: center;\r\n	justify-content: space-between;\r\n	box-sizing: border-box;\r\n	padding: 2px 6px;\r\n	color: #fff5b8;\r\n	font-size: 11px;\r\n	font-weight: bold;\r\n	background: linear-gradient(180deg, rgba(59, 130, 201, 0.95), rgba(21, 70, 128, 0.95));\r\n	border-bottom: 1px solid rgba(154, 208, 255, 0.8);\r\n	text-shadow: 1px 1px 0 #071a32;\r\n}\r\n\r\n#WorldMap #map-tooltip .tooltip-monster-count {\r\n	color: #d7efff;\r\n	font-weight: normal;\r\n}\r\n\r\n#WorldMap #map-tooltip .tooltip-monster-list {\r\n	flex: 1 1 auto;\r\n	min-height: 0;\r\n	overflow-y: auto;\r\n	scrollbar-color: #70a9df #102d55;\r\n	scrollbar-width: thin;\r\n}\r\n\r\n#WorldMap #map-tooltip .tooltip-monster-row {\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: space-between;\r\n	gap: 6px;\r\n	min-height: 18px;\r\n	box-sizing: border-box;\r\n	padding: 2px 5px;\r\n	font-size: 11px;\r\n	line-height: 14px;\r\n	border-bottom: 1px solid rgba(132, 189, 239, 0.2);\r\n	text-shadow: 1px 1px 0 #071426;\r\n}\r\n\r\n#WorldMap #map-tooltip .tooltip-monster-row:nth-child(even) {\r\n	background-color: rgba(100, 177, 242, 0.09);\r\n}\r\n\r\n#WorldMap #map-tooltip .tooltip-monster-name {\r\n	min-width: 0;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n}\r\n\r\n#WorldMap #map-tooltip .tooltip-monster-amount {\r\n	flex: 0 0 auto;\r\n	color: #9ed7ff;\r\n}\r\n\r\n#WorldMap #map-tooltip .tooltip-monster-empty {\r\n	padding: 12px 6px;\r\n	color: #bdd8ee;\r\n	font-size: 11px;\r\n	font-style: italic;\r\n	text-align: center;\r\n}\r\n\r\n/* Official-style blue navigation route overlay on the large world map */\r\n#WorldMap .worldmap .navigation-route-overlay {\r\n	position: absolute;\r\n	inset: 0;\r\n	width: 100%;\r\n	height: 100%;\r\n	pointer-events: none;\r\n	z-index: 20;\r\n}\r\n\r\n#WorldMap .worldmap .navigation-route-svg {\r\n	width: 100%;\r\n	height: 100%;\r\n	overflow: visible;\r\n}\r\n\r\n#WorldMap .worldmap .navigation-route-section {\r\n	fill: rgba(64, 120, 255, 0.22);\r\n	stroke: rgba(170, 235, 255, 0.90);\r\n	stroke-width: 2;\r\n}\r\n\r\n#WorldMap .worldmap .navigation-route-start {\r\n	fill: rgba(255, 220, 60, 0.24);\r\n	stroke: rgba(255, 255, 160, 0.95);\r\n}\r\n\r\n#WorldMap .worldmap .navigation-route-destination {\r\n	fill: rgba(48, 170, 255, 0.33);\r\n	stroke: rgba(230, 255, 255, 0.98);\r\n	stroke-width: 3;\r\n}\r\n\r\n#WorldMap .worldmap .navigation-route-line-shadow,\r\n#WorldMap .worldmap .navigation-route-line {\r\n	fill: none;\r\n	stroke-linecap: round;\r\n	stroke-linejoin: round;\r\n}\r\n\r\n#WorldMap .worldmap .navigation-route-line-shadow {\r\n	stroke: rgba(0, 60, 130, 0.55);\r\n	stroke-width: 22;\r\n}\r\n\r\n#WorldMap .worldmap .navigation-route-line {\r\n	stroke: rgba(130, 230, 255, 0.55);\r\n	stroke-width: 13;\r\n}\r\n\r\n#WorldMap .worldmap .navigation-route-node {\r\n	fill: rgba(220, 255, 255, 0.95);\r\n	stroke: rgba(0, 90, 200, 0.95);\r\n	stroke-width: 3;\r\n}\r\n\r\n#WorldMap .worldmap .navigation-route-node-destination {\r\n	fill: rgba(255, 255, 255, 0.98);\r\n	stroke: rgba(0, 150, 255, 1);\r\n	stroke-width: 4;\r\n}\r\n\r\n\r\n/* Official-like full-screen world map: no black margins on widescreen. */\r\n#WorldMap .border {\r\n	width: 100%;\r\n	height: 100%;\r\n	overflow: hidden;\r\n}\r\n\r\n#WorldMap .map {\r\n	width: 100%;\r\n	height: calc(100% - 17px) !important;\r\n	overflow: hidden;\r\n}\r\n\r\n#WorldMap .content,\r\n#WorldMap .worldmap {\r\n	width: 100%;\r\n	height: 100% !important;\r\n	overflow: hidden;\r\n}\r\n\r\n#WorldMap .worldmap {\r\n	display: block;\r\n	justify-content: initial;\r\n}\r\n\r\n#WorldMap .worldmap .map-view {\r\n	position: relative;\r\n	width: 100%;\r\n	height: 100%;\r\n	background-size: 100% 100%;\r\n	background-position: left top;\r\n	background-repeat: no-repeat;\r\n}\r\n\r\n/* v21: official-style world map navigation route.\r\n * The official client shows translucent route grid tiles plus an End/check\r\n * marker, not the previous custom blue nodes/circles.\r\n */\r\n#WorldMap .worldmap .navigation-route-overlay.official-route-style {\r\n	position: absolute;\r\n	inset: 0;\r\n	width: 100%;\r\n	height: 100%;\r\n	pointer-events: none;\r\n	z-index: 20;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell-layer,\r\n#WorldMap .worldmap .official-route-style .navigation-route-marker-layer {\r\n	position: absolute;\r\n	inset: 0;\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell-layer {\r\n	z-index: 1;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-svg {\r\n	position: absolute;\r\n	inset: 0;\r\n	width: 100%;\r\n	height: 100%;\r\n	overflow: visible;\r\n	z-index: 2;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-marker-layer {\r\n	z-index: 3;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell {\r\n	position: absolute;\r\n	background: rgba(74, 48, 180, 0.42);\r\n	border: 1px solid rgba(178, 152, 255, 0.78);\r\n	box-shadow:\r\n		inset 0 0 0 1px rgba(255, 255, 255, 0.15),\r\n		0 0 8px rgba(88, 62, 210, 0.35);\r\n	box-sizing: border-box;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell.route-start {\r\n	background: rgba(74, 48, 180, 0.38);\r\n	border-color: rgba(154, 235, 255, 0.85);\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell.route-end {\r\n	background: rgba(78, 52, 190, 0.48);\r\n	border-color: rgba(205, 180, 255, 0.95);\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-line-shadow,\r\n#WorldMap .worldmap .official-route-style .navigation-route-line {\r\n	fill: none;\r\n	stroke-linecap: square;\r\n	stroke-linejoin: round;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-line-shadow {\r\n	stroke: rgba(42, 26, 110, 0.42);\r\n	stroke-width: 19;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-line {\r\n	stroke: rgba(143, 224, 255, 0.68);\r\n	stroke-width: 11;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-node,\r\n#WorldMap .worldmap .official-route-style .navigation-route-node-destination {\r\n	display: none !important;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-start-marker,\r\n#WorldMap .worldmap .official-route-style .navigation-route-end-marker {\r\n	position: absolute;\r\n	box-sizing: border-box;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-start-icon {\r\n	position: absolute;\r\n	left: 50%;\r\n	top: 50%;\r\n	width: 14px;\r\n	height: 14px;\r\n	margin-left: -7px;\r\n	margin-top: -7px;\r\n	border-radius: 50%;\r\n	background: rgba(255, 255, 180, 0.92);\r\n	border: 2px solid rgba(75, 210, 255, 0.95);\r\n	box-shadow: 0 0 4px rgba(0, 120, 255, 0.8);\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-end-label {\r\n	position: absolute;\r\n	left: 4px;\r\n	top: 4px;\r\n	font-size: 12px;\r\n	line-height: 13px;\r\n	font-weight: bold;\r\n	font-family: Arial, sans-serif;\r\n	color: #8edcff;\r\n	text-shadow:\r\n		-1px -1px 0 rgba(0, 0, 0, 0.95),\r\n		 1px -1px 0 rgba(0, 0, 0, 0.95),\r\n		-1px  1px 0 rgba(0, 0, 0, 0.95),\r\n		 1px  1px 0 rgba(0, 0, 0, 0.95);\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-end-check {\r\n	position: absolute;\r\n	left: 9px;\r\n	top: 21px;\r\n	width: 28px;\r\n	height: 15px;\r\n	border-left: 4px solid rgba(210, 30, 42, 0.95);\r\n	border-bottom: 4px solid rgba(210, 30, 42, 0.95);\r\n	transform: rotate(-45deg);\r\n	box-shadow: -1px 1px 0 rgba(255,255,255,0.35);\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-start-icon {\r\n	background-image: var(--world-route-start-icon, none);\r\n	background-repeat: no-repeat;\r\n	background-position: center center;\r\n	background-size: contain;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style.has-start-icon .navigation-route-start-icon {\r\n	width: 22px;\r\n	height: 22px;\r\n	margin-left: -11px;\r\n	margin-top: -11px;\r\n	border: none;\r\n	border-radius: 0;\r\n	background-color: transparent;\r\n	box-shadow: none;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style.has-end-icon .navigation-route-end-check {\r\n	left: 8px;\r\n	top: 20px;\r\n	width: 22px;\r\n	height: 22px;\r\n	border: none;\r\n	background-image: var(--world-route-end-icon, none);\r\n	background-repeat: no-repeat;\r\n	background-position: center center;\r\n	background-size: contain;\r\n	transform: none;\r\n	box-shadow: none;\r\n}\r\n\r\n\r\n/* v22: use official worldview_interface BMPs for the world-map navigation route. */\r\n#WorldMap .worldmap .official-route-style .navigation-route-runline-layer {\r\n	position: absolute;\r\n	inset: 0;\r\n	width: 100%;\r\n	height: 100%;\r\n	z-index: 2;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-runline-segment {\r\n	position: absolute;\r\n	height: 16px;\r\n	margin-top: 0;\r\n	transform-origin: left center;\r\n	background-image: var(--world-route-runline-icon, none);\r\n	background-repeat: repeat-x;\r\n	background-position: left center;\r\n	background-size: auto 16px;\r\n	filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.45));\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell {\r\n	background-color: transparent !important;\r\n	background-image: var(--world-route-cell-icon, none) !important;\r\n	background-repeat: no-repeat !important;\r\n	background-position: center center !important;\r\n	background-size: 100% 100% !important;\r\n	border: none !important;\r\n	box-shadow: none !important;\r\n	z-index: 4;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell.route-map {\r\n	background-image: var(--world-route-map-cell-icon, var(--world-route-cell-icon, none)) !important;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell.route-mobnpc {\r\n	background-image: var(--world-route-mobnpc-cell-icon, var(--world-route-cell-icon, none)) !important;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell.route-end {\r\n	background-image: var(--world-route-cell-icon, none) !important;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-svg {\r\n	z-index: 3;\r\n	opacity: 0.42;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style.has-runline-icon .navigation-route-svg {\r\n	opacity: 0;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-line-shadow {\r\n	stroke: rgba(40, 25, 120, 0.40);\r\n	stroke-width: 15;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-line {\r\n	stroke: rgba(145, 224, 255, 0.55);\r\n	stroke-width: 8;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-marker-layer {\r\n	z-index: 6;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-start-marker,\r\n#WorldMap .worldmap .official-route-style .navigation-route-end-marker {\r\n	position: absolute;\r\n	pointer-events: none;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-start-icon {\r\n	left: 50%;\r\n	top: 50%;\r\n	width: 26px;\r\n	height: 26px;\r\n	margin-left: -13px;\r\n	margin-top: -13px;\r\n	background-image: var(--world-route-start-icon, none);\r\n	background-repeat: no-repeat;\r\n	background-position: center center;\r\n	background-size: contain;\r\n	background-color: transparent;\r\n	border: none;\r\n	border-radius: 0;\r\n	box-shadow: none;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-end-label {\r\n	left: 4px;\r\n	top: 5px;\r\n	font-size: 12px;\r\n	line-height: 13px;\r\n	font-weight: bold;\r\n	color: #99e5ff;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-end-check {\r\n	left: 2px;\r\n	top: 12px;\r\n	width: 48px;\r\n	height: 48px;\r\n	border: none;\r\n	background-image: var(--world-route-end-icon, none);\r\n	background-repeat: no-repeat;\r\n	background-position: center center;\r\n	background-size: contain;\r\n	transform: none;\r\n	box-shadow: none;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style.has-end-icon .navigation-route-end-check {\r\n	left: 2px;\r\n	top: 12px;\r\n	width: 48px;\r\n	height: 48px;\r\n}\r\n\r\n\r\n/* v23: official route correction.\r\n * Use route grid tiles + blue road line only. Do not repeat the MOB/NPC\r\n * search BMPs or wv_runline chevrons along every world-map segment. */\r\n#WorldMap .worldmap .official-route-style .navigation-route-runline-layer,\r\n#WorldMap .worldmap .official-route-style .navigation-route-runline-segment {\r\n	display: none !important;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell,\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell.route-map,\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell.route-mobnpc,\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell.route-end,\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell.route-start {\r\n	background-color: transparent !important;\r\n	background-image: var(--world-route-cell-icon, none) !important;\r\n	background-repeat: no-repeat !important;\r\n	background-position: center center !important;\r\n	background-size: 100% 100% !important;\r\n	border: none !important;\r\n	box-shadow: none !important;\r\n	opacity: 0.88 !important;\r\n	z-index: 2 !important;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell.route-dungeon {\r\n	background-image: var(--world-route-dungeon-cell-icon, var(--world-route-cell-icon, none)) !important;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-svg,\r\n#WorldMap .worldmap .official-route-style.has-runline-icon .navigation-route-svg {\r\n	display: block !important;\r\n	opacity: 1 !important;\r\n	z-index: 3 !important;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-line-shadow {\r\n	stroke: rgba(40, 55, 150, 0.38) !important;\r\n	stroke-width: 20 !important;\r\n	stroke-linecap: round !important;\r\n	stroke-linejoin: round !important;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-line {\r\n	stroke: rgba(126, 224, 255, 0.68) !important;\r\n	stroke-width: 11 !important;\r\n	stroke-linecap: round !important;\r\n	stroke-linejoin: round !important;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-start-marker,\r\n#WorldMap .worldmap .official-route-style .navigation-route-start-icon {\r\n	display: none !important;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-marker-layer {\r\n	z-index: 5 !important;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-end-marker {\r\n	position: absolute !important;\r\n	pointer-events: none !important;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-end-label {\r\n	left: 5px !important;\r\n	top: 5px !important;\r\n	font-size: 13px !important;\r\n	line-height: 13px !important;\r\n	font-weight: bold !important;\r\n	color: #92e6ff !important;\r\n	text-shadow:\r\n		-1px -1px 0 rgba(0, 0, 0, 0.95),\r\n		 1px -1px 0 rgba(0, 0, 0, 0.95),\r\n		-1px  1px 0 rgba(0, 0, 0, 0.95),\r\n		 1px  1px 0 rgba(0, 0, 0, 0.95) !important;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-end-check,\r\n#WorldMap .worldmap .official-route-style.has-end-icon .navigation-route-end-check {\r\n	left: 4px !important;\r\n	top: 15px !important;\r\n	width: 46px !important;\r\n	height: 46px !important;\r\n	border: none !important;\r\n	background-image: var(--world-route-end-icon, none) !important;\r\n	background-repeat: no-repeat !important;\r\n	background-position: center center !important;\r\n	background-size: contain !important;\r\n	transform: none !important;\r\n	box-shadow: none !important;\r\n}\r\n\r\n/* v24: restore official aspect ratio, destination-only check, and monster-density icons */\r\n#WorldMap .map {\r\n	width: 100% !important;\r\n	height: calc(100% - 17px) !important;\r\n	overflow: hidden !important;\r\n}\r\n\r\n#WorldMap .content,\r\n#WorldMap .worldmap {\r\n	width: 100% !important;\r\n	height: 100% !important;\r\n	overflow: auto !important;\r\n}\r\n\r\n#WorldMap .worldmap {\r\n	display: grid !important;\r\n	justify-content: center !important;\r\n	align-content: start !important;\r\n}\r\n\r\n#WorldMap .worldmap .map-view {\r\n	position: relative !important;\r\n	background-size: contain !important;\r\n	background-position: left top !important;\r\n	background-repeat: no-repeat !important;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell,\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell.route-map,\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell.route-mobnpc,\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell.route-dungeon,\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell.route-start,\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell.route-end {\r\n	background-image: none !important;\r\n	background-color: rgba(72, 52, 180, 0.34) !important;\r\n	border: 1px solid rgba(185, 170, 255, 0.75) !important;\r\n	box-shadow:\r\n		inset 0 0 0 1px rgba(255, 255, 255, 0.16),\r\n		0 0 6px rgba(50, 38, 160, 0.35) !important;\r\n	opacity: 1 !important;\r\n	box-sizing: border-box !important;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell.route-end {\r\n	border-color: rgba(130, 230, 255, 0.9) !important;\r\n	background-color: rgba(70, 95, 210, 0.35) !important;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell::before,\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell::after {\r\n	content: none !important;\r\n	display: none !important;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-marker-layer {\r\n	z-index: 7 !important;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-end-check,\r\n#WorldMap .worldmap .official-route-style.has-end-icon .navigation-route-end-check {\r\n	background-image: var(--world-route-end-icon, none) !important;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-monster-density-layer {\r\n	position: absolute;\r\n	inset: 0;\r\n	width: 100%;\r\n	height: 100%;\r\n	pointer-events: none;\r\n	z-index: 6;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-monster-density-marker {\r\n	position: absolute;\r\n	background-repeat: no-repeat;\r\n	background-position: center center;\r\n	background-size: contain;\r\n	filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.55));\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-monster-density-marker.density-1 {\r\n	background-image: var(--world-monster-density-1-icon, none);\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-monster-density-marker.density-2 {\r\n	background-image: var(--world-monster-density-2-icon, none);\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-monster-density-marker.density-3 {\r\n	background-image: var(--world-monster-density-3-icon, none);\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-monster-density-marker.density-4 {\r\n	background-image: var(--world-monster-density-4-icon, none);\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-monster-density-marker.density-5 {\r\n	background-image: var(--world-monster-density-5-icon, none);\r\n}\r\n\r\n\r\n/* v25: official search MOB markers and smaller destination end icon */\r\n#WorldMap .worldmap .official-route-style .navigation-monster-density-marker {\r\n	background-repeat: no-repeat !important;\r\n	background-position: center center !important;\r\n	background-size: contain !important;\r\n	filter: none !important;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-end-marker {\r\n	position: absolute !important;\r\n	pointer-events: none !important;\r\n	overflow: visible !important;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-end-label {\r\n	left: 1px !important;\r\n	top: 0 !important;\r\n	font-size: 11px !important;\r\n	line-height: 12px !important;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-end-check,\r\n#WorldMap .worldmap .official-route-style.has-end-icon .navigation-route-end-check {\r\n	left: 7px !important;\r\n	top: 12px !important;\r\n	width: 28px !important;\r\n	height: 28px !important;\r\n	background-image: var(--world-route-end-icon, none) !important;\r\n	background-repeat: no-repeat !important;\r\n	background-position: center center !important;\r\n	background-size: contain !important;\r\n	border: none !important;\r\n	box-shadow: none !important;\r\n	transform: none !important;\r\n}\r\n\r\n\r\n/* v26: correct official World View markers and clear MOB-search overlays cleanly.\r\n * The start/current tile shows the face/check/sword marker.  The destination\r\n * tile shows only the small wv_end.bmp icon in the upper-left corner. */\r\n#WorldMap .worldmap .official-route-style .navigation-route-marker-layer {\r\n	z-index: 8 !important;\r\n	pointer-events: none !important;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-start-marker,\r\n#WorldMap .worldmap .official-route-style .navigation-route-end-marker {\r\n	position: absolute !important;\r\n	pointer-events: none !important;\r\n	overflow: visible !important;\r\n	z-index: 8 !important;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-start-icon {\r\n	position: absolute !important;\r\n	left: 4px !important;\r\n	top: 4px !important;\r\n	width: 28px !important;\r\n	height: 28px !important;\r\n	background-image: var(--world-route-start-icon, none) !important;\r\n	background-repeat: no-repeat !important;\r\n	background-position: center center !important;\r\n	background-size: contain !important;\r\n	border: none !important;\r\n	box-shadow: none !important;\r\n	transform: none !important;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-end-label,\r\n#WorldMap .worldmap .official-route-style .navigation-route-end-check {\r\n	display: none !important;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-end-icon,\r\n#WorldMap .worldmap .official-route-style.has-end-icon .navigation-route-end-icon {\r\n	position: absolute !important;\r\n	left: 4px !important;\r\n	top: 4px !important;\r\n	width: 28px !important;\r\n	height: 28px !important;\r\n	background-image: var(--world-route-end-icon, none) !important;\r\n	background-repeat: no-repeat !important;\r\n	background-position: center center !important;\r\n	background-size: contain !important;\r\n	border: none !important;\r\n	box-shadow: none !important;\r\n	transform: none !important;\r\n}\r\n\r\n\r\n/* v27: use official worldview tile/icon BMPs.\r\n * The road-icon selector background is no longer requested in Navigation.\r\n * Route tiles use wv_select.bmp, the current tile uses wv_face1.bmp, and the\r\n * destination tile uses only the small wv_end.bmp icon. */\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell,\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell.route-map,\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell.route-mobnpc,\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell.route-dungeon,\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell.route-start,\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell.route-end {\r\n	background-color: transparent !important;\r\n	background-image: var(--world-route-cell-icon, none) !important;\r\n	background-repeat: no-repeat !important;\r\n	background-position: center center !important;\r\n	background-size: 100% 100% !important;\r\n	border: none !important;\r\n	box-shadow: none !important;\r\n	opacity: 1 !important;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-start-marker,\r\n#WorldMap .worldmap .official-route-style .navigation-route-start-icon {\r\n	display: block !important;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-start-icon {\r\n	position: absolute !important;\r\n	left: 4px !important;\r\n	top: 4px !important;\r\n	width: 28px !important;\r\n	height: 28px !important;\r\n	margin: 0 !important;\r\n	background-image: var(--world-route-start-icon, none) !important;\r\n	background-repeat: no-repeat !important;\r\n	background-position: center center !important;\r\n	background-size: contain !important;\r\n	background-color: transparent !important;\r\n	border: none !important;\r\n	border-radius: 0 !important;\r\n	box-shadow: none !important;\r\n	transform: none !important;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-end-icon,\r\n#WorldMap .worldmap .official-route-style.has-end-icon .navigation-route-end-icon {\r\n	display: block !important;\r\n	position: absolute !important;\r\n	left: 4px !important;\r\n	top: 4px !important;\r\n	width: 28px !important;\r\n	height: 28px !important;\r\n	margin: 0 !important;\r\n	background-image: var(--world-route-end-icon, none) !important;\r\n	background-repeat: no-repeat !important;\r\n	background-position: center center !important;\r\n	background-size: contain !important;\r\n	background-color: transparent !important;\r\n	border: none !important;\r\n	border-radius: 0 !important;\r\n	box-shadow: none !important;\r\n	transform: none !important;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-end-label,\r\n#WorldMap .worldmap .official-route-style .navigation-route-end-check {\r\n	display: none !important;\r\n}\r\n\r\n\r\n/* v28: show official NPC world-map search marker */\r\n#WorldMap .worldmap .official-route-style .navigation-npc-search-layer {\r\n	position: absolute;\r\n	inset: 0;\r\n	width: 100%;\r\n	height: 100%;\r\n	pointer-events: none;\r\n	z-index: 6;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-npc-search-marker {\r\n	position: absolute;\r\n	background-image: var(--world-route-npc-search-icon, none);\r\n	background-repeat: no-repeat;\r\n	background-position: center center;\r\n	background-size: contain;\r\n	filter: none;\r\n}\r\n\r\n\r\n/* v29: final official marker placement.\r\n * Regular route cells must not show the red check; only the current tile shows\r\n * the centered wv_face1.bmp sword/check marker.  Destination shows only the\r\n * small wv_end.bmp icon in the upper-left. */\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell,\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell.route-map,\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell.route-mobnpc,\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell.route-dungeon,\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell.route-end {\r\n	background-color: transparent !important;\r\n	background-image: var(--world-route-cell-icon, none) !important;\r\n	background-repeat: no-repeat !important;\r\n	background-position: center center !important;\r\n	background-size: 100% 100% !important;\r\n	border: none !important;\r\n	box-shadow: none !important;\r\n	opacity: 1 !important;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell.route-start {\r\n	background-color: transparent !important;\r\n	background-image: var(--world-route-selected-cell-icon, var(--world-route-cell-icon, none)) !important;\r\n	background-repeat: no-repeat !important;\r\n	background-position: center center !important;\r\n	background-size: 100% 100% !important;\r\n	border: none !important;\r\n	box-shadow: none !important;\r\n	opacity: 1 !important;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell::before,\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell::after,\r\n#WorldMap .worldmap .official-route-style .navigation-route-end-check,\r\n#WorldMap .worldmap .official-route-style .navigation-route-end-label {\r\n	content: none !important;\r\n	display: none !important;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-start-marker {\r\n	display: block !important;\r\n	position: absolute !important;\r\n	pointer-events: none !important;\r\n	overflow: visible !important;\r\n	z-index: 9 !important;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-start-icon,\r\n#WorldMap .worldmap .official-route-style.has-start-icon .navigation-route-start-icon {\r\n	display: block !important;\r\n	position: absolute !important;\r\n	left: 50% !important;\r\n	top: 50% !important;\r\n	width: 32px !important;\r\n	height: 32px !important;\r\n	margin: 0 !important;\r\n	transform: translate(-50%, -50%) !important;\r\n	background-image: var(--world-route-start-icon, none) !important;\r\n	background-repeat: no-repeat !important;\r\n	background-position: center center !important;\r\n	background-size: contain !important;\r\n	background-color: transparent !important;\r\n	border: none !important;\r\n	border-radius: 0 !important;\r\n	box-shadow: none !important;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-end-marker {\r\n	display: block !important;\r\n	position: absolute !important;\r\n	pointer-events: none !important;\r\n	overflow: visible !important;\r\n	z-index: 9 !important;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-end-icon,\r\n#WorldMap .worldmap .official-route-style.has-end-icon .navigation-route-end-icon {\r\n	display: block !important;\r\n	position: absolute !important;\r\n	left: 4px !important;\r\n	top: 4px !important;\r\n	width: 28px !important;\r\n	height: 28px !important;\r\n	margin: 0 !important;\r\n	transform: none !important;\r\n	background-image: var(--world-route-end-icon, none) !important;\r\n	background-repeat: no-repeat !important;\r\n	background-position: center center !important;\r\n	background-size: contain !important;\r\n	background-color: transparent !important;\r\n	border: none !important;\r\n	border-radius: 0 !important;\r\n	box-shadow: none !important;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-npc-search-layer {\r\n	position: absolute !important;\r\n	inset: 0 !important;\r\n	width: 100% !important;\r\n	height: 100% !important;\r\n	pointer-events: none !important;\r\n	z-index: 6 !important;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-npc-search-marker {\r\n	position: absolute !important;\r\n	background-image: var(--world-route-npc-search-icon, none) !important;\r\n	background-repeat: no-repeat !important;\r\n	background-position: center center !important;\r\n	background-size: contain !important;\r\n	filter: none !important;\r\n}\r\n\r\n\r\n/* v29: official-looking translucent blue route tiles.\r\n * Do not use wv_dunselect.bmp as the background for every route cell.\r\n * The path tiles should be simple semi-transparent blue blocks like the\r\n * official screenshot, while the current/start and destination markers stay\r\n * as separate icons on top. */\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell,\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell.route-map,\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell.route-mobnpc,\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell.route-dungeon,\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell.route-start,\r\n#WorldMap .worldmap .official-route-style .navigation-route-cell.route-end {\r\n	background-image: none !important;\r\n	background-color: rgba(112, 124, 255, 0.28) !important;\r\n	border: 1px solid rgba(196, 214, 255, 0.42) !important;\r\n	box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06) !important;\r\n	border-radius: 0 !important;\r\n	opacity: 1 !important;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-start-icon,\r\n#WorldMap .worldmap .official-route-style.has-start-icon .navigation-route-start-icon {\r\n	z-index: 9 !important;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-end-icon,\r\n#WorldMap .worldmap .official-route-style.has-end-icon .navigation-route-end-icon {\r\n	z-index: 9 !important;\r\n}\r\n\r\n\r\n/* v30: destination-only selected-tile check marker.\r\n * Use wv_select.bmp as the destination check marker and place it in the\r\n * lower-left of the destination tile. Do not show checks on route path tiles. */\r\n#WorldMap .worldmap .official-route-style .navigation-route-end-check,\r\n#WorldMap .worldmap .official-route-style.has-end-icon .navigation-route-end-check {\r\n	display: block !important;\r\n	position: absolute !important;\r\n	left: 3px !important;\r\n	top: 35px !important;\r\n	width: 24px !important;\r\n	height: 24px !important;\r\n	background-image: var(--world-route-selected-cell-icon, none) !important;\r\n	background-repeat: no-repeat !important;\r\n	background-position: center center !important;\r\n	background-size: contain !important;\r\n	background-color: transparent !important;\r\n	border: none !important;\r\n	box-shadow: none !important;\r\n	border-radius: 0 !important;\r\n	transform: none !important;\r\n	z-index: 10 !important;\r\n}\r\n\r\n#WorldMap .worldmap .official-route-style .navigation-route-marker-layer .navigation-route-cell .navigation-route-end-check {\r\n	display: none !important;\r\n}\r\n";
+}));
+// src/Loaders/wasm/gameFileDecrypt.js
+var GAME_FILE_DECRYPT_WASM_BASE64, getGameFileDecryptWasm;
+var init_gameFileDecrypt = __esmMin((() => {
+	init_wasmLoader();
+	GAME_FILE_DECRYPT_WASM_BASE64 = "AGFzbQEAAAABEwRgAABgAX8AYAJ/fwBgA39/fwADDAsAAQEBAQEBAQECAwUDAQABByYDBm1lbW9yeQIADGRlY29kZUhlYWRlcgAJCmRlY29kZUZ1bGwACgqHCQsKAEGoBUIANwMAC4EBAQV/EABBACEBAkADQCABQcAATg0BIAEtAABBAWshAiAAIAJBA3ZBB3FqLQAAIQNBoAEgAkEHcWotAAAhBCADIARxBEBBqAUgAUEDdkEHcWohBSAFIAUtAABBoAEgAUEHcWotAAByOgAACyABQQFqIQEMAAsLIABBqAUpAwA3AwALhQEBBX8QAEEAIQECQANAIAFBwABODQFBwAAgAWotAABBAWshAiAAIAJBA3ZBB3FqLQAAIQNBoAEgAkEHcWotAAAhBCADIARxBEBBqAUgAUEDdkEHcWohBSAFIAUtAABBoAEgAUEHcWotAAByOgAACyABQQFqIQEMAAsLIABBqAUpAwA3AwALgQEBBX8QAEEAIQECQANAIAFBIE4NAUGAASABai0AAEEBayECIAAgAkEDdmotAAAhA0GgASACQQdxai0AACEEIAMgBHEEQEGoBSABQQN2QQRqaiEFIAUgBS0AAEGgASABQQdxai0AAHI6AAALIAFBAWohAQwACwsgAEGoBSkDADcDAAvXAQEEfyAAQQRqLQAAIQEgAEEFai0AACECIABBBmotAAAhAyAAQQdqLQAAIQRBqAUgBEEFdCABQQN2ckE/cToAAEGpBSABQQF0IAJBB3ZyQT9xOgAAQaoFIAFBBXQgAkEDdnJBP3E6AABBqwUgAkEBdCADQQd2ckE/cToAAEGsBSACQQV0IANBA3ZyQT9xOgAAQa0FIANBAXQgBEEHdnJBP3E6AABBrgUgA0EFdCAEQQN2ckE/cToAAEGvBSAEQQF0IAFBB3ZyQT9xOgAAIABBqAUpAwA3AwALdAEFfxAAQQAhAQJAA0AgAUEETg0BQagDIAFBBnRqIQIgAiAAIAFBAXRqLQAAai0AACEDIAIgACABQQF0QQFqai0AAGotAAAhBEGoBSABaiADQfABcSAEQQ9xcjoAACABQQFqIQEMAAsLIABBqAUpAwA3AwALLQBBsAUgACkDADcDAEGwBRAEQbAFEAVBsAUQAyAAIAAoAgBBtAUoAgBzNgIACw4AIAAQASAAEAYgABACC6MBAQh/IAAtAAAhASAAQQFqLQAAIQIgAEECai0AACEDIABBA2otAAAhBCAAQQRqLQAAIQUgAEEFai0AACEGIABBBmotAAAhByAAQQdqLQAAIQhBqAUgBDoAAEGpBSAFOgAAQaoFIAc6AABBqwUgAToAAEGsBSACOgAAQa0FIAM6AABBrgUgBjoAAEGvBUGoASAIai0AADoAACAAQagFKQMANwMACzYBAn8gAUEDdiECQQAhAwJAA0AgA0EUTg0BIAMgAk4NASAAIANBA3RqEAcgA0EBaiEDDAALCwuFAQEDfyABQQN2IQNBACEEAkADQCAEQRRODQEgBCADTg0BIAAgBEEDdGoQByAEQQFqIQQMAAsLQRQhBEEAIQUCQANAIAQgA04NASAEIAJwRQRAIAAgBEEDdGoQBwUgBUEHRgRAIAAgBEEDdGoQCEEAIQULIAVBAWohBQsgBEEBaiEEDAALCwsL3wUJAEEAC0A6MioiGhIKAjw0LCQcFAwEPjYuJh4WDgZAODAoIBgQCDkxKSEZEQkBOzMrIxsTCwM9NS0lHRUNBT83LycfFw8HAEHAAAtAKAgwEDgYQCAnBy8PNxc/HyYGLg42Fj4eJQUtDTUVPR0kBCwMNBQ8HCMDKwszEzsbIgIqCjISOhohASkJMRE5GQBBgAELIBAHFBUdDBwRAQ8XGgUSHwoCCBgOIBsDCRMNHgYWCwQZAEGgAQsIgEAgEAgEAgEAQagBC4ACK2gCAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKgAsLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHd0lKS0xNTk9QUVJTVFVWV1hZWltcXV5f/2FiY2RlZmcBaWprgG1ub3BxcnN0dXZIeHl6e3x9fn9sgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7jAuru8vb6/ucHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6v7s7e7v8PHy8/T19vf4+fr7/P3rYABBqAMLQO8DQf3YdB5HJu/7IrPYhB45rKdgYsHNulyWkFkFO3qFQP0eyOeKiyHaQ2SfLRSxcvVbyLacN3bsOaCjBVJuD9kAQegDC0Cn3Q14ngvjlWA2Nk/5YFqjESTSh8hSdey7wUy6JP6PGdoTZq9J0JAGjGr7kTeNDXi/SRH0I+XOO1W8olfoInTOAEGoBAtALOrBv0okH8J5R6J8ttloFYBWXQEz/fSu3jAHm+WDm2hJtC6DH8K1fKIZ2OV8L4Pa92uQ/sQBWpdhpj1AC1jmPQBB6AQLQE3Rsg8oveR49koPk4sX0aQ67Mk1k1Z+y1UgoP5siRdiF2JLsbTe0YfJFDxKfqjifaCf9lxqCY3wD+NTJZU2KMs=";
+	getGameFileDecryptWasm = createWasmLoader(GAME_FILE_DECRYPT_WASM_BASE64, "gameFileDecrypt");
+}));
+// src/Loaders/GameFileDecrypt.js
+/**
+* Initial permutation (IP).
+*
+* @param {Uint8Array} src
+* @param {number} index
+*/
+function initialPermutation(src, index) {
+	let i, j;
+	for (i = 0; i < 64; ++i) {
+		j = initialPermutation.table[i] - 1;
+		if (src[index + (j >> 3 & 7)] & mask[j & 7]) tmp[i >> 3 & 7] |= mask[i & 7];
+	}
+	src.set(tmp, index);
+	tmp.set(clean$1);
+}
+/**
+* Final permutation (IP^-1).
+*
+* @param {Uint8Array} src
+* @param {number} index
+*/
+function finalPermutation(src, index) {
+	let i, j;
+	for (i = 0; i < 64; ++i) {
+		j = finalPermutation.table[i] - 1;
+		if (src[index + (j >> 3 & 7)] & mask[j & 7]) tmp[i >> 3 & 7] |= mask[i & 7];
+	}
+	src.set(tmp, index);
+	tmp.set(clean$1);
+}
+/**
+* Transposition (P-BOX).
+*
+* @param {Uint8Array} src
+* @param {number} index
+*/
+function transposition(src, index) {
+	let i, j;
+	for (i = 0; i < 32; ++i) {
+		j = transposition.table[i] - 1;
+		if (src[index + (j >> 3)] & mask[j & 7]) tmp[(i >> 3) + 4] |= mask[i & 7];
+	}
+	src.set(tmp, index);
+	tmp.set(clean$1);
+}
+/**
+* Expansion (E).
+* Expands upper four 8-bits (32b) into eight 6-bits (48b).
+*
+* @param {Uint8Array} src
+* @param {number} index
+*/
+function expansion(src, index) {
+	tmp[0] = (src[index + 7] << 5 | src[index + 4] >> 3) & 63;
+	tmp[1] = (src[index + 4] << 1 | src[index + 5] >> 7) & 63;
+	tmp[2] = (src[index + 4] << 5 | src[index + 5] >> 3) & 63;
+	tmp[3] = (src[index + 5] << 1 | src[index + 6] >> 7) & 63;
+	tmp[4] = (src[index + 5] << 5 | src[index + 6] >> 3) & 63;
+	tmp[5] = (src[index + 6] << 1 | src[index + 7] >> 7) & 63;
+	tmp[6] = (src[index + 6] << 5 | src[index + 7] >> 3) & 63;
+	tmp[7] = (src[index + 7] << 1 | src[index + 4] >> 7) & 63;
+	src.set(tmp, index);
+	tmp.set(clean$1);
+}
+/**
+* Substitution boxes (S-boxes).
+* NOTE: This implementation was optimized to process two nibbles in one step (twice as fast).
+*
+* @param {Uint8Array} src
+* @param {number} index
+*/
+function substitutionBox(src, index) {
+	let i = 0;
+	for (; i < 4; ++i) tmp[i] = substitutionBox.table[i][src[i * 2 + 0 + index]] & 240 | substitutionBox.table[i][src[i * 2 + 1 + index]] & 15;
+	src.set(tmp, index);
+	tmp.set(clean$1);
+}
+/**
+* DES round function.
+*  XORs src[0..3] with TP(SBOX(E(src[4..7]))).
+*
+* @param {Uint8Array} src
+* @param {number} index
+*/
+function roundFunction(src, index) {
+	for (let i = 0; i < 8; i++) tmp2[i] = src[index + i];
+	expansion(tmp2, 0);
+	substitutionBox(tmp2, 0);
+	transposition(tmp2, 0);
+	src[index + 0] ^= tmp2[4];
+	src[index + 1] ^= tmp2[5];
+	src[index + 2] ^= tmp2[6];
+	src[index + 3] ^= tmp2[7];
+}
+/**
+* DEcrypt a block
+*
+* @param {Uint8Array} src
+* @param {number} index
+*/
+function decryptBlock(src, index) {
+	initialPermutation(src, index);
+	roundFunction(src, index);
+	finalPermutation(src, index);
+}
+/**
+* Shuffle decode
+*
+* @param {Uint8Array} src
+* @param {number} index
+*/
+function shuffleDec(src, index) {
+	tmp[0] = src[index + 3];
+	tmp[1] = src[index + 4];
+	tmp[2] = src[index + 6];
+	tmp[3] = src[index + 0];
+	tmp[4] = src[index + 1];
+	tmp[5] = src[index + 2];
+	tmp[6] = src[index + 5];
+	tmp[7] = shuffleDec.table[src[index + 7]];
+	src.set(tmp, index);
+	tmp.set(clean$1);
+}
+var WASM_DATA_OFFSET, mask, tmp, tmp2, clean$1, GameFileDecrypt;
+var init_GameFileDecrypt = __esmMin((() => {
+	init_gameFileDecrypt();
+	WASM_DATA_OFFSET = 704;
+	mask = new Uint8Array([
+		128,
+		64,
+		32,
+		16,
+		8,
+		4,
+		2,
+		1
+	]);
+	tmp = /* @__PURE__ */ new Uint8Array(8);
+	tmp2 = /* @__PURE__ */ new Uint8Array(8);
+	clean$1 = /* @__PURE__ */ new Uint8Array(8);
+	initialPermutation.table = new Uint8Array([
+		58,
+		50,
+		42,
+		34,
+		26,
+		18,
+		10,
+		2,
+		60,
+		52,
+		44,
+		36,
+		28,
+		20,
+		12,
+		4,
+		62,
+		54,
+		46,
+		38,
+		30,
+		22,
+		14,
+		6,
+		64,
+		56,
+		48,
+		40,
+		32,
+		24,
+		16,
+		8,
+		57,
+		49,
+		41,
+		33,
+		25,
+		17,
+		9,
+		1,
+		59,
+		51,
+		43,
+		35,
+		27,
+		19,
+		11,
+		3,
+		61,
+		53,
+		45,
+		37,
+		29,
+		21,
+		13,
+		5,
+		63,
+		55,
+		47,
+		39,
+		31,
+		23,
+		15,
+		7
+	]);
+	finalPermutation.table = new Uint8Array([
+		40,
+		8,
+		48,
+		16,
+		56,
+		24,
+		64,
+		32,
+		39,
+		7,
+		47,
+		15,
+		55,
+		23,
+		63,
+		31,
+		38,
+		6,
+		46,
+		14,
+		54,
+		22,
+		62,
+		30,
+		37,
+		5,
+		45,
+		13,
+		53,
+		21,
+		61,
+		29,
+		36,
+		4,
+		44,
+		12,
+		52,
+		20,
+		60,
+		28,
+		35,
+		3,
+		43,
+		11,
+		51,
+		19,
+		59,
+		27,
+		34,
+		2,
+		42,
+		10,
+		50,
+		18,
+		58,
+		26,
+		33,
+		1,
+		41,
+		9,
+		49,
+		17,
+		57,
+		25
+	]);
+	transposition.table = new Uint8Array([
+		16,
+		7,
+		20,
+		21,
+		29,
+		12,
+		28,
+		17,
+		1,
+		15,
+		23,
+		26,
+		5,
+		18,
+		31,
+		10,
+		2,
+		8,
+		24,
+		14,
+		32,
+		27,
+		3,
+		9,
+		19,
+		13,
+		30,
+		6,
+		22,
+		11,
+		4,
+		25
+	]);
+	substitutionBox.table = [
+		new Uint8Array([
+			239,
+			3,
+			65,
+			253,
+			216,
+			116,
+			30,
+			71,
+			38,
+			239,
+			251,
+			34,
+			179,
+			216,
+			132,
+			30,
+			57,
+			172,
+			167,
+			96,
+			98,
+			193,
+			205,
+			186,
+			92,
+			150,
+			144,
+			89,
+			5,
+			59,
+			122,
+			133,
+			64,
+			253,
+			30,
+			200,
+			231,
+			138,
+			139,
+			33,
+			218,
+			67,
+			100,
+			159,
+			45,
+			20,
+			177,
+			114,
+			245,
+			91,
+			200,
+			182,
+			156,
+			55,
+			118,
+			236,
+			57,
+			160,
+			163,
+			5,
+			82,
+			110,
+			15,
+			217
+		]),
+		new Uint8Array([
+			167,
+			221,
+			13,
+			120,
+			158,
+			11,
+			227,
+			149,
+			96,
+			54,
+			54,
+			79,
+			249,
+			96,
+			90,
+			163,
+			17,
+			36,
+			210,
+			135,
+			200,
+			82,
+			117,
+			236,
+			187,
+			193,
+			76,
+			186,
+			36,
+			254,
+			143,
+			25,
+			218,
+			19,
+			102,
+			175,
+			73,
+			208,
+			144,
+			6,
+			140,
+			106,
+			251,
+			145,
+			55,
+			141,
+			13,
+			120,
+			191,
+			73,
+			17,
+			244,
+			35,
+			229,
+			206,
+			59,
+			85,
+			188,
+			162,
+			87,
+			232,
+			34,
+			116,
+			206
+		]),
+		new Uint8Array([
+			44,
+			234,
+			193,
+			191,
+			74,
+			36,
+			31,
+			194,
+			121,
+			71,
+			162,
+			124,
+			182,
+			217,
+			104,
+			21,
+			128,
+			86,
+			93,
+			1,
+			51,
+			253,
+			244,
+			174,
+			222,
+			48,
+			7,
+			155,
+			229,
+			131,
+			155,
+			104,
+			73,
+			180,
+			46,
+			131,
+			31,
+			194,
+			181,
+			124,
+			162,
+			25,
+			216,
+			229,
+			124,
+			47,
+			131,
+			218,
+			247,
+			107,
+			144,
+			254,
+			196,
+			1,
+			90,
+			151,
+			97,
+			166,
+			61,
+			64,
+			11,
+			88,
+			230,
+			61
+		]),
+		new Uint8Array([
+			77,
+			209,
+			178,
+			15,
+			40,
+			189,
+			228,
+			120,
+			246,
+			74,
+			15,
+			147,
+			139,
+			23,
+			209,
+			164,
+			58,
+			236,
+			201,
+			53,
+			147,
+			86,
+			126,
+			203,
+			85,
+			32,
+			160,
+			254,
+			108,
+			137,
+			23,
+			98,
+			23,
+			98,
+			75,
+			177,
+			180,
+			222,
+			209,
+			135,
+			201,
+			20,
+			60,
+			74,
+			126,
+			168,
+			226,
+			125,
+			160,
+			159,
+			246,
+			92,
+			106,
+			9,
+			141,
+			240,
+			15,
+			227,
+			83,
+			37,
+			149,
+			54,
+			40,
+			203
+		])
+	];
+	GameFileDecrypt = class GameFileDecrypt {
+		/**
+		* Decode the whole file
+		*
+		* @param {Uint8Array} buf
+		* @param {number} len
+		* @param {number} entry_len
+		*/
+		static decodeFull(buf, len, entry_len) {
+			const digits = entry_len.toString().length;
+			const cycle = digits < 3 ? 3 : digits < 5 ? digits + 1 : digits < 7 ? digits + 9 : digits + 15;
+			const wasm = getGameFileDecryptWasm();
+			if (wasm) {
+				const { memory, decodeFull } = wasm.exports;
+				const needed = WASM_DATA_OFFSET + len;
+				if (memory.buffer.byteLength < needed) try {
+					memory.grow(Math.ceil((needed - memory.buffer.byteLength) / 65536));
+				} catch (_e) {
+					GameFileDecrypt.decodeFullJS(buf, len, cycle);
+					return;
+				}
+				new Uint8Array(memory.buffer, WASM_DATA_OFFSET, len).set(buf.subarray(0, len));
+				decodeFull(WASM_DATA_OFFSET, len, cycle);
+				buf.set(new Uint8Array(memory.buffer, WASM_DATA_OFFSET, len));
+				return;
+			}
+			GameFileDecrypt.decodeFullJS(buf, len, cycle);
+		}
+		/**
+		* Pure JS fallback for decodeFull
+		*
+		* @param {Uint8Array} buf
+		* @param {number} len
+		* @param {number} cycle
+		*/
+		static decodeFullJS(buf, len, cycle) {
+			const nblocks = len >> 3;
+			let i, j;
+			for (i = 0; i < 20 && i < nblocks; ++i) decryptBlock(buf, i * 8);
+			for (i = 20, j = 0; i < nblocks; ++i) {
+				if (i % cycle === 0) {
+					decryptBlock(buf, i * 8);
+					continue;
+				}
+				if (j === 7) {
+					shuffleDec(buf, i * 8);
+					j = 0;
+				}
+				j++;
+			}
+		}
+		/**
+		* Decode only the header
+		*
+		* @param {Uint8Array} buf
+		* @param {number} len
+		*/
+		static decodeHeader(buf, len) {
+			const wasm = getGameFileDecryptWasm();
+			if (wasm) {
+				const hlen = Math.min(len & -8, 160);
+				if (hlen === 0) return;
+				const { memory, decodeHeader } = wasm.exports;
+				const needed = WASM_DATA_OFFSET + hlen;
+				if (memory.buffer.byteLength < needed) try {
+					memory.grow(Math.ceil((needed - memory.buffer.byteLength) / 65536));
+				} catch (_e) {
+					GameFileDecrypt.decodeHeaderJS(buf, len);
+					return;
+				}
+				new Uint8Array(memory.buffer, WASM_DATA_OFFSET, hlen).set(buf.subarray(0, hlen));
+				decodeHeader(WASM_DATA_OFFSET, hlen);
+				buf.set(new Uint8Array(memory.buffer, WASM_DATA_OFFSET, hlen), 0);
+				return;
+			}
+			GameFileDecrypt.decodeHeaderJS(buf, len);
+		}
+		/**
+		* Pure JS fallback for decodeHeader
+		*
+		* @param {Uint8Array} buf
+		* @param {number} len
+		*/
+		static decodeHeaderJS(buf, len) {
+			const nblocks = len >> 3;
+			let i = 0;
+			for (; i < 20 && i < nblocks; ++i) decryptBlock(buf, i * 8);
+		}
+	};
+	/**
+	* GRF substitution table
+	*
+	* @var {Uint8Array[]}
+	*/
+	shuffleDec.table = (function init_substitution() {
+		let i, count;
+		const out = /* @__PURE__ */ new Uint8Array(256);
+		const list = [
+			0,
+			43,
+			108,
+			128,
+			1,
+			104,
+			72,
+			119,
+			96,
+			255,
+			185,
+			192,
+			254,
+			235
+		];
+		for (i = 0; i < 256; ++i) out[i] = i;
+		for (i = 0, count = list.length; i < count; i += 2) {
+			out[list[i + 0]] = list[i + 1];
+			out[list[i + 1]] = list[i + 0];
+		}
+		return out;
+	})();
+}));
+// src/Utils/Inflate.js
+/**
+*
+* @param {Uint8Array} bytes
+* @constructor
+*/
+function Inflate(bytes) {
+	let bytesPos = 0;
+	const cmf = bytes[bytesPos++];
+	const flg = bytes[bytesPos++];
+	if (cmf === -1 || flg === -1) throw new Error("Invalid header in flate stream: " + cmf + ", " + flg);
+	if ((cmf & 15) != 8) throw new Error("Unknown compression method in flate stream: " + cmf + ", " + flg);
+	if (((cmf << 8) + flg) % 31 !== 0) throw new Error("Bad FCHECK in flate stream: " + cmf + ", " + flg);
+	if (flg & 32) throw new Error("FDICT bit set in flate stream: " + cmf + ", " + flg);
+	this.bytes = bytes;
+	this.bytesPos = bytesPos;
+	this.bytesLength = bytes.length;
+}
+var codeLenCodeMap, _codeLenCodeLengths, _clean_codeLenCodeLengths, _codeLengths, lengthDecode, distDecode, fixedLitCodeTab, fixedDistCodeTab;
+var init_Inflate = __esmMin((() => {
+	codeLenCodeMap = new Uint32Array([
+		16,
+		17,
+		18,
+		0,
+		8,
+		7,
+		9,
+		6,
+		10,
+		5,
+		11,
+		4,
+		12,
+		3,
+		13,
+		2,
+		14,
+		1,
+		15
+	]);
+	_codeLenCodeLengths = /* @__PURE__ */ new Uint32Array(19);
+	_clean_codeLenCodeLengths = /* @__PURE__ */ new Uint32Array(19);
+	_codeLengths = /* @__PURE__ */ new Uint8Array(640);
+	lengthDecode = new Uint32Array([
+		3,
+		4,
+		5,
+		6,
+		7,
+		8,
+		9,
+		10,
+		65547,
+		65549,
+		65551,
+		65553,
+		131091,
+		131095,
+		131099,
+		131103,
+		196643,
+		196651,
+		196659,
+		196667,
+		262211,
+		262227,
+		262243,
+		262259,
+		327811,
+		327843,
+		327875,
+		327907,
+		258,
+		258,
+		258
+	]);
+	distDecode = new Uint32Array([
+		1,
+		2,
+		3,
+		4,
+		65541,
+		65543,
+		131081,
+		131085,
+		196625,
+		196633,
+		262177,
+		262193,
+		327745,
+		327777,
+		393345,
+		393409,
+		459009,
+		459137,
+		524801,
+		525057,
+		590849,
+		591361,
+		657409,
+		658433,
+		724993,
+		727041,
+		794625,
+		798721,
+		868353,
+		876545
+	]);
+	fixedLitCodeTab = [new Uint32Array([
+		459008,
+		524368,
+		524304,
+		524568,
+		459024,
+		524400,
+		524336,
+		590016,
+		459016,
+		524384,
+		524320,
+		589984,
+		524288,
+		524416,
+		524352,
+		590048,
+		459012,
+		524376,
+		524312,
+		589968,
+		459028,
+		524408,
+		524344,
+		590032,
+		459020,
+		524392,
+		524328,
+		59e4,
+		524296,
+		524424,
+		524360,
+		590064,
+		459010,
+		524372,
+		524308,
+		524572,
+		459026,
+		524404,
+		524340,
+		590024,
+		459018,
+		524388,
+		524324,
+		589992,
+		524292,
+		524420,
+		524356,
+		590056,
+		459014,
+		524380,
+		524316,
+		589976,
+		459030,
+		524412,
+		524348,
+		590040,
+		459022,
+		524396,
+		524332,
+		590008,
+		524300,
+		524428,
+		524364,
+		590072,
+		459009,
+		524370,
+		524306,
+		524570,
+		459025,
+		524402,
+		524338,
+		590020,
+		459017,
+		524386,
+		524322,
+		589988,
+		524290,
+		524418,
+		524354,
+		590052,
+		459013,
+		524378,
+		524314,
+		589972,
+		459029,
+		524410,
+		524346,
+		590036,
+		459021,
+		524394,
+		524330,
+		590004,
+		524298,
+		524426,
+		524362,
+		590068,
+		459011,
+		524374,
+		524310,
+		524574,
+		459027,
+		524406,
+		524342,
+		590028,
+		459019,
+		524390,
+		524326,
+		589996,
+		524294,
+		524422,
+		524358,
+		590060,
+		459015,
+		524382,
+		524318,
+		589980,
+		459031,
+		524414,
+		524350,
+		590044,
+		459023,
+		524398,
+		524334,
+		590012,
+		524302,
+		524430,
+		524366,
+		590076,
+		459008,
+		524369,
+		524305,
+		524569,
+		459024,
+		524401,
+		524337,
+		590018,
+		459016,
+		524385,
+		524321,
+		589986,
+		524289,
+		524417,
+		524353,
+		590050,
+		459012,
+		524377,
+		524313,
+		589970,
+		459028,
+		524409,
+		524345,
+		590034,
+		459020,
+		524393,
+		524329,
+		590002,
+		524297,
+		524425,
+		524361,
+		590066,
+		459010,
+		524373,
+		524309,
+		524573,
+		459026,
+		524405,
+		524341,
+		590026,
+		459018,
+		524389,
+		524325,
+		589994,
+		524293,
+		524421,
+		524357,
+		590058,
+		459014,
+		524381,
+		524317,
+		589978,
+		459030,
+		524413,
+		524349,
+		590042,
+		459022,
+		524397,
+		524333,
+		590010,
+		524301,
+		524429,
+		524365,
+		590074,
+		459009,
+		524371,
+		524307,
+		524571,
+		459025,
+		524403,
+		524339,
+		590022,
+		459017,
+		524387,
+		524323,
+		589990,
+		524291,
+		524419,
+		524355,
+		590054,
+		459013,
+		524379,
+		524315,
+		589974,
+		459029,
+		524411,
+		524347,
+		590038,
+		459021,
+		524395,
+		524331,
+		590006,
+		524299,
+		524427,
+		524363,
+		590070,
+		459011,
+		524375,
+		524311,
+		524575,
+		459027,
+		524407,
+		524343,
+		590030,
+		459019,
+		524391,
+		524327,
+		589998,
+		524295,
+		524423,
+		524359,
+		590062,
+		459015,
+		524383,
+		524319,
+		589982,
+		459031,
+		524415,
+		524351,
+		590046,
+		459023,
+		524399,
+		524335,
+		590014,
+		524303,
+		524431,
+		524367,
+		590078,
+		459008,
+		524368,
+		524304,
+		524568,
+		459024,
+		524400,
+		524336,
+		590017,
+		459016,
+		524384,
+		524320,
+		589985,
+		524288,
+		524416,
+		524352,
+		590049,
+		459012,
+		524376,
+		524312,
+		589969,
+		459028,
+		524408,
+		524344,
+		590033,
+		459020,
+		524392,
+		524328,
+		590001,
+		524296,
+		524424,
+		524360,
+		590065,
+		459010,
+		524372,
+		524308,
+		524572,
+		459026,
+		524404,
+		524340,
+		590025,
+		459018,
+		524388,
+		524324,
+		589993,
+		524292,
+		524420,
+		524356,
+		590057,
+		459014,
+		524380,
+		524316,
+		589977,
+		459030,
+		524412,
+		524348,
+		590041,
+		459022,
+		524396,
+		524332,
+		590009,
+		524300,
+		524428,
+		524364,
+		590073,
+		459009,
+		524370,
+		524306,
+		524570,
+		459025,
+		524402,
+		524338,
+		590021,
+		459017,
+		524386,
+		524322,
+		589989,
+		524290,
+		524418,
+		524354,
+		590053,
+		459013,
+		524378,
+		524314,
+		589973,
+		459029,
+		524410,
+		524346,
+		590037,
+		459021,
+		524394,
+		524330,
+		590005,
+		524298,
+		524426,
+		524362,
+		590069,
+		459011,
+		524374,
+		524310,
+		524574,
+		459027,
+		524406,
+		524342,
+		590029,
+		459019,
+		524390,
+		524326,
+		589997,
+		524294,
+		524422,
+		524358,
+		590061,
+		459015,
+		524382,
+		524318,
+		589981,
+		459031,
+		524414,
+		524350,
+		590045,
+		459023,
+		524398,
+		524334,
+		590013,
+		524302,
+		524430,
+		524366,
+		590077,
+		459008,
+		524369,
+		524305,
+		524569,
+		459024,
+		524401,
+		524337,
+		590019,
+		459016,
+		524385,
+		524321,
+		589987,
+		524289,
+		524417,
+		524353,
+		590051,
+		459012,
+		524377,
+		524313,
+		589971,
+		459028,
+		524409,
+		524345,
+		590035,
+		459020,
+		524393,
+		524329,
+		590003,
+		524297,
+		524425,
+		524361,
+		590067,
+		459010,
+		524373,
+		524309,
+		524573,
+		459026,
+		524405,
+		524341,
+		590027,
+		459018,
+		524389,
+		524325,
+		589995,
+		524293,
+		524421,
+		524357,
+		590059,
+		459014,
+		524381,
+		524317,
+		589979,
+		459030,
+		524413,
+		524349,
+		590043,
+		459022,
+		524397,
+		524333,
+		590011,
+		524301,
+		524429,
+		524365,
+		590075,
+		459009,
+		524371,
+		524307,
+		524571,
+		459025,
+		524403,
+		524339,
+		590023,
+		459017,
+		524387,
+		524323,
+		589991,
+		524291,
+		524419,
+		524355,
+		590055,
+		459013,
+		524379,
+		524315,
+		589975,
+		459029,
+		524411,
+		524347,
+		590039,
+		459021,
+		524395,
+		524331,
+		590007,
+		524299,
+		524427,
+		524363,
+		590071,
+		459011,
+		524375,
+		524311,
+		524575,
+		459027,
+		524407,
+		524343,
+		590031,
+		459019,
+		524391,
+		524327,
+		589999,
+		524295,
+		524423,
+		524359,
+		590063,
+		459015,
+		524383,
+		524319,
+		589983,
+		459031,
+		524415,
+		524351,
+		590047,
+		459023,
+		524399,
+		524335,
+		590015,
+		524303,
+		524431,
+		524367,
+		590079
+	]), 9];
+	fixedDistCodeTab = [new Uint32Array([
+		327680,
+		327696,
+		327688,
+		327704,
+		327684,
+		327700,
+		327692,
+		327708,
+		327682,
+		327698,
+		327690,
+		327706,
+		327686,
+		327702,
+		327694,
+		0,
+		327681,
+		327697,
+		327689,
+		327705,
+		327685,
+		327701,
+		327693,
+		327709,
+		327683,
+		327699,
+		327691,
+		327707,
+		327687,
+		327703,
+		327695,
+		0
+	]), 5];
+	/**
+	* Extract data from ZIP
+	* @param {Uint8Array} output
+	*/
+	Inflate.prototype.getBytes = function(output) {
+		this.buffer = output;
+		this.bufferPos = 0;
+		this.codeSize = 0;
+		this.codeBuf = 0;
+		while (!this.readBlock());
+		return this.bufferPos;
+	};
+	/**
+	* Get bits
+	* @param {number} bits
+	* @returns {number}
+	*/
+	Inflate.prototype.getBits = function Inflate_getBits(bits) {
+		let codeSize = this.codeSize;
+		let codeBuf = this.codeBuf;
+		const bytes = this.bytes;
+		let bytesPos = this.bytesPos;
+		if (this.bytesLength <= bytesPos + (bits - codeSize) * .2) throw new Error("Bad encoding in flate stream ");
+		while (codeSize < bits) {
+			codeBuf |= bytes[bytesPos++] << codeSize;
+			codeSize += 8;
+		}
+		const b = codeBuf & (1 << bits) - 1;
+		this.codeBuf = codeBuf >> bits;
+		this.codeSize = codeSize - bits;
+		this.bytesPos = bytesPos;
+		return b;
+	};
+	/**
+	* Get Code
+	* @param {Array} table
+	* @returns {number}
+	*/
+	Inflate.prototype.getCode = function Inflate_getCode(table) {
+		const codes = table[0];
+		const maxLen = table[1];
+		let codeSize = this.codeSize;
+		let codeBuf = this.codeBuf;
+		const bytes = this.bytes;
+		let bytesPos = this.bytesPos;
+		if (this.bytesLength <= bytesPos + (maxLen - codeSize) * .2) throw new Error("Bad encoding in flate stream");
+		while (codeSize < maxLen) {
+			codeBuf |= bytes[bytesPos++] << codeSize;
+			codeSize += 8;
+		}
+		const code = codes[codeBuf & (1 << maxLen) - 1];
+		const codeLen = code >> 16;
+		const codeVal = code & 65535;
+		if (codeSize === 0 || codeSize < codeLen || codeLen === 0) throw new Error("Bad encoding in flate stream " + codeSize + " " + codeLen);
+		this.codeBuf = codeBuf >> codeLen;
+		this.codeSize = codeSize - codeLen;
+		this.bytesPos = bytesPos;
+		return codeVal;
+	};
+	/**
+	* Get bits
+	* @param {Uint32Array} lengths
+	* @param {number} start
+	* @param {number} end
+	* @returns {Array}
+	*/
+	Inflate.prototype.generateHuffmanTable = function Inflate_GenerateHuffmanTable(lengths, start, end) {
+		let maxLen = 0;
+		let i;
+		for (i = start; i < end; ++i) if (lengths[i] > maxLen) maxLen = lengths[i];
+		const size = 1 << maxLen;
+		const codes = new Uint32Array(size);
+		for (let len = 1, code = 0, skip = 2; len <= maxLen; ++len, code <<= 1, skip <<= 1) for (let val = start; val < end; ++val) if (lengths[val] === len) {
+			let code2 = 0;
+			let t = code;
+			const v = val - start;
+			for (i = 0; i < len; ++i) {
+				code2 = code2 << 1 | t & 1;
+				t >>= 1;
+			}
+			for (i = code2; i < size; i += skip) codes[i] = len << 16 | v;
+			++code;
+		}
+		return [codes, maxLen];
+	};
+	/**
+	* @returns {boolean}
+	*/
+	Inflate.prototype.readBlock = function Inflate_readBlock() {
+		let hdr = this.getBits(3);
+		const stop = !!(hdr & 1);
+		let len;
+		hdr >>= 1;
+		if (hdr === 0) {
+			const bytes = this.bytes;
+			let bytesPos = this.bytesPos;
+			const bytesLength = this.bytesLength;
+			if (bytesPos + 4 >= bytesLength) throw new Error("Bad block header in flate stream");
+			const blockLen = bytes[bytesPos++] | bytes[bytesPos++] << 8;
+			if ((bytes[bytesPos++] | bytes[bytesPos++] << 8) !== (~blockLen & 65535)) throw new Error("Bad uncompressed block length in flate stream");
+			this.codeBuf = 0;
+			this.codeSize = 0;
+			const bufferPos = this.bufferPos;
+			const end = bufferPos + blockLen;
+			this.bufferPos = end;
+			let n;
+			for (n = bufferPos; n < end && bytesPos < bytesLength; ++n) this.buffer[n] = bytes[bytesPos++];
+			this.bytesPos = bytesPos;
+			return stop || n < end;
+		}
+		let litCodeTable;
+		let distCodeTable;
+		if (hdr == 1) {
+			litCodeTable = fixedLitCodeTab;
+			distCodeTable = fixedDistCodeTab;
+		} else if (hdr == 2) {
+			let i;
+			const numLitCodes = this.getBits(5) + 257;
+			const numDistCodes = this.getBits(5) + 1;
+			const numCodeLenCodes = this.getBits(4) + 4;
+			_codeLenCodeLengths.set(_clean_codeLenCodeLengths);
+			for (i = 0; i < numCodeLenCodes; ++i) _codeLenCodeLengths[codeLenCodeMap[i]] = this.getBits(3);
+			const codeLenCodeTab = this.generateHuffmanTable(_codeLenCodeLengths, 0, 19);
+			len = 0;
+			let bitsLength, bitsOffset, what;
+			i = 0;
+			const codes = numLitCodes + numDistCodes;
+			while (i < codes) {
+				const code = this.getCode(codeLenCodeTab);
+				if (code === 16) {
+					bitsLength = 2;
+					bitsOffset = 3;
+					what = len;
+				} else if (code === 17) {
+					bitsLength = 3;
+					bitsOffset = 3;
+					what = len = 0;
+				} else if (code === 18) {
+					bitsLength = 7;
+					bitsOffset = 11;
+					what = len = 0;
+				} else {
+					_codeLengths[i++] = len = code;
+					continue;
+				}
+				let repeatLength = this.getBits(bitsLength) + bitsOffset;
+				while (repeatLength-- > 0) _codeLengths[i++] = what;
+			}
+			litCodeTable = this.generateHuffmanTable(_codeLengths, 0, numLitCodes);
+			distCodeTable = this.generateHuffmanTable(_codeLengths, numLitCodes, codes);
+		} else throw new Error("Unknown block type in flate stream");
+		const buffer = this.buffer;
+		let pos = this.bufferPos;
+		while (true) {
+			let code1 = this.getCode(litCodeTable);
+			if (code1 < 256) {
+				buffer[pos++] = code1;
+				continue;
+			}
+			if (code1 == 256) {
+				this.bufferPos = pos;
+				return stop;
+			}
+			code1 = lengthDecode[code1 - 257];
+			let code2 = code1 >> 16;
+			if (code2 > 0) code2 = this.getBits(code2);
+			len = (code1 & 65535) + code2;
+			code1 = this.getCode(distCodeTable);
+			code1 = distDecode[code1];
+			code2 = code1 >> 16;
+			if (code2 > 0) code2 = this.getBits(code2);
+			const dist = (code1 & 65535) + code2;
+			for (let k = 0; k < len; ++k, ++pos) buffer[pos] = buffer[pos - dist];
+		}
+	};
+}));
+// src/Loaders/GameFile.js
+/**
+* Load entries
+* Note: this function is quiet intensive, BinaryReader is slowing down
+* the process and generate too much memory to garbage (GC pause of 6sec).
+*
+* @param {Uint8Array} content table
+* @param {number} file count
+* @param {number} grf version
+*/
+function loadEntries(out, count, version) {
+	let i, pos, start, end;
+	const entries = new Array(count);
+	for (i = 0, pos = 0; i < count; ++i) {
+		start = pos;
+		while (out[pos]) pos++;
+		end = pos;
+		pos++;
+		entries[i] = {
+			filename: CodepageManager.decode(out.subarray(start, end), "utf-8"),
+			pack_size: out[pos++] | out[pos++] << 8 | out[pos++] << 16 | out[pos++] << 24,
+			length_aligned: out[pos++] | out[pos++] << 8 | out[pos++] << 16 | out[pos++] << 24,
+			real_size: out[pos++] | out[pos++] << 8 | out[pos++] << 16 | out[pos++] << 24,
+			type: out[pos++]
+		};
+		if (version === GRF.VERSION_300) {
+			entries[i].offset = (out[pos++] | out[pos++] << 8 | out[pos++] << 16 | out[pos++] << 24) >>> 0;
+			entries[i].offset += (out[pos++] | out[pos++] << 8 | out[pos++] << 16 | out[pos++] << 24) * 4294967296;
+		} else entries[i].offset = (out[pos++] | out[pos++] << 8 | out[pos++] << 16 | out[pos++] << 24) >>> 0;
+	}
+	return entries;
+}
+var fs$1, SKIP_EXTENSIONS, GRF;
+var init_GameFile = __esmMin((() => {
+	init_GameFileDecrypt();
+	init_BinaryReader();
+	init_Struct();
+	init_Inflate();
+	init_CodepageManager();
+	fs$1 = null;
+	if (typeof process !== "undefined" && process.versions?.electron) try {
+		fs$1 = Function("return require")()("fs");
+	} catch {}
+	SKIP_EXTENSIONS = /\.(gnd|gat|act|str)$/i;
+	GRF = class GRF {
+		constructor(data) {
+			if (data) this.load(data);
+		}
+		/**
+		* GRF Constants
+		*/
+		static VERSION_200 = 512;
+		static VERSION_300 = 768;
+		static SIG_MAGIC = "Master of Magic";
+		static SIG_EH3 = "Event Horizon";
+		static FILELIST_TYPE_FILE = 1;
+		static FILELIST_TYPE_ENCRYPT_MIXED = 2;
+		static FILELIST_TYPE_ENCRYPT_HEADER = 4;
+		/**
+		* GRF Structures
+		*/
+		static struct_header = new Struct("unsigned char signature[15]", "unsigned char key[15]", "unsigned long file_table_offset", "unsigned long skip", "unsigned long filecount", "unsigned long version");
+		static struct_table = new Struct("unsigned long pack_size", "unsigned long real_size");
+		static struct_entry = new Struct("unsigned long pack_size", "unsigned long length_aligned", "unsigned long real_size", "unsigned char type", "unsigned long offset");
+		/**
+		* GRF METHODs
+		*/
+		file = null;
+		reader = null;
+		header = null;
+		table = null;
+		/**
+		* Loading GRF
+		*
+		* @param {File} file
+		*/
+		load(file) {
+			this.file = file;
+			this.reader = new FileReaderSync();
+			const reader = this.reader;
+			let i, count;
+			file.slice = file.slice || file.webkitSlice || file.mozSlice;
+			reader.load = (start, len) => {
+				if (fs$1 && file.fd) {
+					const buf = Buffer.alloc(len);
+					fs$1.readSync(file.fd, buf, 0, len, start);
+					return new Uint8Array(buf).buffer;
+				}
+				return reader.readAsArrayBuffer(file.slice(start, start + len));
+			};
+			if (file.size < GRF.struct_header.size) throw new Error("GRF::load() - Not enough bytes to be a valid GRF");
+			let buffer = reader.load(0, GRF.struct_header.size);
+			let fp = new BinaryReader(buffer);
+			const header = fp.readStruct(GRF.struct_header);
+			header.signature = String.fromCharCode.apply(null, header.signature);
+			const nullPos = header.signature.indexOf("\0");
+			if (nullPos !== -1) header.signature = header.signature.substr(0, nullPos);
+			if (header.signature !== GRF.SIG_MAGIC && header.signature !== GRF.SIG_EH3) throw new Error(`GRF::load() - Incorrect header "${header.signature}", must be "Master of Magic" or "Event Horizon".`);
+			if (header.version !== GRF.VERSION_200 && header.version !== GRF.VERSION_300) throw new Error(`GRF::load() - Incorrect version "0x${parseInt(header.version, 10).toString(16)}", just support version "0x200" and "0x300"`);
+			if (header.version === GRF.VERSION_300) {
+				fp.seek(30, SEEK_SET);
+				header.file_table_offset = fp.readUInt64();
+				header.filecount = fp.readUInt();
+				header.realfilecount = header.filecount;
+			} else {
+				header.filecount -= header.skip + 7;
+				header.realfilecount = header.filecount;
+			}
+			if (header.file_table_offset + GRF.struct_header.size > file.size || header.file_table_offset < 0) throw new Error(`GRF::load() - Can't jump to table list (${header.file_table_offset}), file length: ${file.size}`);
+			let table_offset = header.file_table_offset + GRF.struct_header.size;
+			if (header.version === GRF.VERSION_300) table_offset += 4;
+			buffer = reader.load(table_offset, GRF.struct_table.size);
+			fp = new BinaryReader(buffer);
+			const table = fp.readStruct(GRF.struct_table);
+			buffer = reader.load(table_offset + GRF.struct_table.size, table.pack_size);
+			const data = new Uint8Array(buffer);
+			const out = new Uint8Array(table.real_size);
+			new Inflate(data).getBytes(out);
+			this.index = {};
+			const entries = loadEntries(out, header.realfilecount, header.version);
+			table.data = "";
+			for (i = 0, count = entries.length; i < count; ++i) {
+				table.data += `${entries[i].filename}\0`;
+				entries[i].filename = entries[i].filename.toLowerCase();
+				this.index[entries[i].filename] = entries[i];
+			}
+			this.header = header;
+			this.entries = entries;
+			this.table = table;
+		}
+		/**
+		* Decode entry to return its content
+		*
+		* @param {ArrayBuffer}
+		* @param {Entry}
+		* @param {function} callback
+		*/
+		decodeEntry(buffer, entry, callback) {
+			let out;
+			const data = new Uint8Array(buffer);
+			const isEncrypted = entry.type !== GRF.FILELIST_TYPE_FILE;
+			let handled = false;
+			if (entry.type & GRF.FILELIST_TYPE_ENCRYPT_MIXED) {
+				if (SKIP_EXTENSIONS.test(entry.filename)) GameFileDecrypt.decodeHeader(data, entry.length_aligned);
+				else GameFileDecrypt.decodeFull(data, entry.length_aligned, entry.pack_size);
+				handled = true;
+			} else if (entry.type & GRF.FILELIST_TYPE_ENCRYPT_HEADER) {
+				GameFileDecrypt.decodeHeader(data, entry.length_aligned);
+				handled = true;
+			}
+			if (isEncrypted && !handled) {
+				console.warn(`Unsupported encryption flag (${entry.type}) for file ${entry.filename}. This usually requires a custom decryption key.`);
+				return;
+			}
+			if (data[0] !== 0 && (data[0] !== 120 || data[1] !== 156 && data[1] !== 1 && data[1] !== 218 && data[1] !== 94)) {
+				console.warn(`GRF: file "${entry.filename}" is using a new encryption method which is not supported.`);
+				return;
+			}
+			try {
+				out = new Uint8Array(entry.real_size);
+				new Inflate(data).getBytes(out);
+				callback(out.buffer);
+			} catch (e) {
+				console.error("Failed to decode entry", entry.filename, "due to", e);
+			}
+		}
+		/**
+		* Search a file in the GRF
+		*
+		* @param {string} filename
+		*/
+		search(filename) {
+			return this.index[filename] || null;
+		}
+		/**
+		* Get a file content from GRF
+		*
+		* @param {string} filename
+		* @param {function} callback
+		*/
+		getFile(filename, callback) {
+			const path = filename.toLowerCase();
+			let blob;
+			let reader;
+			const entry = this.search(path);
+			if (entry) {
+				if (!(entry.type & GRF.FILELIST_TYPE_FILE)) return false;
+				if (fs$1 && this.file.fd) {
+					const buffer = Buffer.alloc(entry.length_aligned);
+					fs$1.readSync(this.file.fd, buffer, 0, entry.length_aligned, entry.offset + GRF.struct_header.size);
+					this.decodeEntry(new Uint8Array(buffer).buffer, entry, callback);
+					return true;
+				}
+				blob = this.file.slice(entry.offset + GRF.struct_header.size, entry.offset + GRF.struct_header.size + entry.length_aligned);
+				if (self.FileReader) {
+					reader = new FileReader();
+					reader.onload = () => {
+						this.decodeEntry(reader.result, entry, callback);
+					};
+					reader.readAsArrayBuffer(blob);
+				} else {
+					reader = new FileReaderSync();
+					this.decodeEntry(reader.readAsArrayBuffer(blob), entry, callback);
+				}
+				return true;
+			}
+			return false;
+		}
+	};
+}));
+// src/Loaders/World.js
+var RSW;
+var init_World = __esmMin((() => {
+	init_BinaryReader();
+	init_gl_matrix();
+	RSW = class RSW {
+		constructor(data) {
+			this.sounds = [];
+			this.lights = [];
+			this.effects = [];
+			this.models = [];
+			if (data) this.load(data);
+		}
+		/**
+		* Files to load
+		*/
+		files = {
+			buildnumber: null,
+			ini: null,
+			gnd: null,
+			gat: null,
+			src: null
+		};
+		/**
+		* Ground frustum culling
+		*/
+		ground = {
+			top: -500,
+			bottom: 500,
+			left: -500,
+			right: 500
+		};
+		/**
+		* Default water values (used to reset water on map change)
+		*/
+		static _defaultWater = {
+			level: 0,
+			type: 0,
+			waveHeight: 0,
+			waveSpeed: 0,
+			wavePitch: 0,
+			animSpeed: 0,
+			splitWidth: 0,
+			splitHeight: 0,
+			images: new Array(32)
+		};
+		/**
+		* Water informations
+		*/
+		water = Object.assign({}, RSW._defaultWater);
+		/**
+		* Light informations
+		*/
+		light = {
+			longitude: 45,
+			latitude: 45,
+			diffuse: [
+				1,
+				1,
+				1
+			],
+			ambient: [
+				0,
+				0,
+				0
+			],
+			opacity: 1,
+			direction: gl_matrix_default.vec3.create()
+		};
+		/**
+		* Start loading RSW file
+		*
+		* @param {ArrayBuffer} data
+		*/
+		load(data) {
+			let i, count;
+			const fp = new BinaryReader(data);
+			const header = fp.readBinaryString(4);
+			const version = fp.readByte() + fp.readByte() / 10;
+			if (header != "GRSW") throw new Error(`RSW::load() - Invalid header "${header}", must be "GRSW"`);
+			if (version >= 2.5) this.files.buildnumber = fp.readLong();
+			if (version >= 2.2) fp.readByte();
+			this.files.ini = fp.readBinaryString(40);
+			this.files.gnd = fp.readBinaryString(40);
+			this.files.gat = fp.readBinaryString(40);
+			if (version >= 1.4) this.files.src = fp.readBinaryString(40);
+			this.water = Object.assign({}, RSW._defaultWater);
+			if (version < 2.6) {
+				if (version >= 1.3) this.water.level = fp.readFloat() / 5;
+				else this.water.level = 0;
+				if (version >= 1.8) {
+					this.water.type = fp.readLong();
+					this.water.waveHeight = fp.readFloat() / 5;
+					this.water.waveSpeed = fp.readFloat();
+					this.water.wavePitch = fp.readFloat();
+				} else {
+					this.water.type = 0;
+					this.water.waveHeight = 1;
+					this.water.waveSpeed = 2;
+					this.water.wavePitch = 50;
+				}
+				if (version >= 1.9) this.water.animSpeed = fp.readLong();
+				else this.water.animSpeed = 3;
+			}
+			if (version >= 1.5) {
+				this.light.longitude = fp.readLong();
+				this.light.latitude = fp.readLong();
+				this.light.diffuse = [
+					fp.readFloat(),
+					fp.readFloat(),
+					fp.readFloat()
+				];
+				this.light.ambient = [
+					fp.readFloat(),
+					fp.readFloat(),
+					fp.readFloat()
+				];
+				if (version >= 1.7) this.light.opacity = fp.readFloat();
+			}
+			if (version >= 1.6) {
+				this.ground.top = fp.readLong();
+				this.ground.bottom = fp.readLong();
+				this.ground.left = fp.readLong();
+				this.ground.right = fp.readLong();
+			}
+			if (version >= 2.7 && this.files.buildnumber >= 221) {
+				count = fp.readLong();
+				fp.seek(4 * count, SEEK_CUR);
+			}
+			const models = this.models;
+			const lights = this.lights;
+			const sounds = this.sounds;
+			const effects = this.effects;
+			let m = 0, l = 0, s = 0, e = 0;
+			count = fp.readLong();
+			models.length = lights.length = sounds.length = effects.length = count;
+			for (i = 0; i < count; ++i) switch (fp.readLong()) {
+				case 1:
+					models[m++] = {
+						name: version >= 1.3 ? fp.readBinaryString(40) : null,
+						animType: version >= 1.3 ? fp.readLong() : 0,
+						animSpeed: version >= 1.3 ? fp.readFloat() : 1,
+						blockType: version >= 1.3 ? fp.readLong() : 0,
+						UnknownByte: version >= 2.6 && this.files.buildnumber >= 186 ? fp.readByte() : 0,
+						UnknownByte2: version >= 2.7 ? fp.readLong() : 0,
+						filename: fp.readBinaryString(80),
+						nodename: fp.readBinaryString(80),
+						position: [
+							fp.readFloat() / 5,
+							fp.readFloat() / 5,
+							fp.readFloat() / 5
+						],
+						rotation: [
+							fp.readFloat(),
+							fp.readFloat(),
+							fp.readFloat()
+						],
+						scale: [
+							fp.readFloat() / 5,
+							fp.readFloat() / 5,
+							fp.readFloat() / 5
+						]
+					};
+					continue;
+				case 2:
+					lights[l++] = {
+						name: fp.readBinaryString(80),
+						pos: [
+							fp.readFloat() / 5,
+							fp.readFloat() / 5,
+							fp.readFloat() / 5
+						],
+						color: [
+							fp.readLong(),
+							fp.readLong(),
+							fp.readLong()
+						],
+						range: fp.readFloat()
+					};
+					continue;
+				case 3:
+					sounds[s++] = {
+						name: fp.readBinaryString(80),
+						file: fp.readBinaryString(80),
+						pos: [
+							fp.readFloat() / 5,
+							fp.readFloat() / 5,
+							fp.readFloat() / 5
+						],
+						vol: fp.readFloat(),
+						width: fp.readLong(),
+						height: fp.readLong(),
+						range: fp.readFloat(),
+						cycle: version >= 2 ? fp.readFloat() : 0
+					};
+					continue;
+				case 4: effects[e++] = {
+					name: fp.readBinaryString(80),
+					pos: [
+						fp.readFloat() / 5,
+						fp.readFloat() / 5,
+						fp.readFloat() / 5
+					],
+					id: fp.readLong(),
+					delay: fp.readFloat() * 10,
+					param: [
+						fp.readFloat(),
+						fp.readFloat(),
+						fp.readFloat(),
+						fp.readFloat()
+					]
+				};
+			}
+			models.length = m;
+			sounds.length = s;
+			lights.length = l;
+			effects.length = e;
+		}
+		/**
+		* Compile RSW file
+		*/
+		compile() {
+			return {
+				water: this.water,
+				light: this.light,
+				sound: this.sounds,
+				effect: this.effects
+			};
+		}
+	};
+}));
+// src/Loaders/Ground.js
+var vec3$5, vec4$8, GND;
+var init_Ground = __esmMin((() => {
+	init_BinaryReader();
+	init_gl_matrix();
+	({vec3: vec3$5, vec4: vec4$8} = gl_matrix_default);
+	GND = class {
+		constructor(data) {
+			if (data) this.load(data);
+		}
+		/**
+		* Load file
+		*
+		* @param {ArrayBuffer} data
+		*/
+		load(data) {
+			this.fp = new BinaryReader(data);
+			const header = this.fp.readBinaryString(4);
+			if (header !== "GRGN") throw new Error(`GND::load() - Invalid header "${header}"`);
+			this.version = this.fp.readUByte() + this.fp.readUByte() / 10;
+			this.width = this.fp.readULong();
+			this.height = this.fp.readULong();
+			this.zoom = this.fp.readFloat();
+			this.parseTextures();
+			this.parseLightmaps();
+			this.tiles = this.parseTiles();
+			this.surfaces = this.parseSurfaces();
+			if (this.version >= 1.8) {
+				this.water = {
+					level: this.fp.readFloat() / 5,
+					type: this.fp.readLong(),
+					waveHeight: this.fp.readFloat() / 5,
+					waveSpeed: this.fp.readFloat(),
+					wavePitch: this.fp.readFloat(),
+					animSpeed: this.fp.readLong(),
+					splitWidth: this.fp.readLong(),
+					splitHeight: this.fp.readLong()
+				};
+				if (this.version >= 1.9) {
+					this.water.Zones = [];
+					const count = this.water.splitWidth * this.water.splitHeight;
+					for (let i = 0; i < count; i++) {
+						const waterSub = {
+							level: this.fp.readFloat(),
+							type: this.fp.readLong(),
+							waveHeight: this.fp.readFloat(),
+							waveSpeed: this.fp.readFloat(),
+							wavePitch: this.fp.readFloat(),
+							animSpeed: this.fp.readLong()
+						};
+						this.water.Zones.push(waterSub);
+					}
+				}
+			}
+		}
+		/**
+		* Loading textures
+		*/
+		parseTextures() {
+			let pos;
+			let texture;
+			const count = this.fp.readULong();
+			const length = this.fp.readULong();
+			const indexes = new Array(count);
+			const textures = [];
+			for (let i = 0, j = 0; i < count; ++i) {
+				texture = this.fp.readBinaryString(length);
+				pos = textures.indexOf(texture);
+				if (pos === -1) {
+					textures[j] = texture;
+					pos = j;
+					j++;
+				}
+				indexes[i] = pos;
+			}
+			this.textures = textures;
+			this.textureIndexes = indexes;
+		}
+		/**
+		* Parse Lightmap
+		*
+		* @return lightmap[][]
+		*/
+		parseLightmaps() {
+			const fp = this.fp;
+			const count = fp.readLong();
+			const per_cell_x = fp.readLong();
+			const per_cell_y = fp.readLong();
+			const size_cell = fp.readLong();
+			const per_cell = per_cell_x * per_cell_y * size_cell;
+			this.lightmap = {
+				per_cell,
+				count,
+				data: new Uint8Array(fp.buffer, fp.offset, count * per_cell * 4)
+			};
+			fp.seek(count * per_cell * 4, SEEK_CUR);
+		}
+		/**
+		* Parse Tiles
+		*
+		* @return Tiles[]
+		*/
+		parseTiles() {
+			const fp = this.fp;
+			const count = fp.readULong();
+			const tiles = new Array(count);
+			const ATLAS_COLS = Math.round(Math.sqrt(this.textures.length));
+			const ATLAS_ROWS = Math.ceil(Math.sqrt(this.textures.length));
+			const ATLAS_WIDTH = Math.pow(2, Math.ceil(Math.log(ATLAS_COLS * 258) / Math.log(2)));
+			const ATLAS_HEIGHT = Math.pow(2, Math.ceil(Math.log(ATLAS_ROWS * 258) / Math.log(2)));
+			const ATLAS_FACTOR_U = ATLAS_COLS * 258 / ATLAS_WIDTH;
+			const ATLAS_FACTOR_V = ATLAS_ROWS * 258 / ATLAS_HEIGHT;
+			const ATLAS_PX_U = 1 / 258;
+			const ATLAS_PX_V = 1 / 258;
+			function ATLAS_GENERATE(tile) {
+				const u = tile.texture % ATLAS_COLS;
+				const v = Math.floor(tile.texture / ATLAS_COLS);
+				tile.u1 = (u + tile.u1 * (1 - ATLAS_PX_U * 2) + ATLAS_PX_U) * ATLAS_FACTOR_U / ATLAS_COLS;
+				tile.u2 = (u + tile.u2 * (1 - ATLAS_PX_U * 2) + ATLAS_PX_U) * ATLAS_FACTOR_U / ATLAS_COLS;
+				tile.u3 = (u + tile.u3 * (1 - ATLAS_PX_U * 2) + ATLAS_PX_U) * ATLAS_FACTOR_U / ATLAS_COLS;
+				tile.u4 = (u + tile.u4 * (1 - ATLAS_PX_U * 2) + ATLAS_PX_U) * ATLAS_FACTOR_U / ATLAS_COLS;
+				tile.v1 = (v + tile.v1 * (1 - ATLAS_PX_V * 2) + ATLAS_PX_V) * ATLAS_FACTOR_V / ATLAS_ROWS;
+				tile.v2 = (v + tile.v2 * (1 - ATLAS_PX_V * 2) + ATLAS_PX_V) * ATLAS_FACTOR_V / ATLAS_ROWS;
+				tile.v3 = (v + tile.v3 * (1 - ATLAS_PX_V * 2) + ATLAS_PX_V) * ATLAS_FACTOR_V / ATLAS_ROWS;
+				tile.v4 = (v + tile.v4 * (1 - ATLAS_PX_V * 2) + ATLAS_PX_V) * ATLAS_FACTOR_V / ATLAS_ROWS;
+			}
+			for (let i = 0; i < count; ++i) {
+				tiles[i] = {
+					u1: fp.readFloat(),
+					u2: fp.readFloat(),
+					u3: fp.readFloat(),
+					u4: fp.readFloat(),
+					v1: fp.readFloat(),
+					v2: fp.readFloat(),
+					v3: fp.readFloat(),
+					v4: fp.readFloat(),
+					texture: fp.readUShort(),
+					light: fp.readUShort(),
+					color: [
+						fp.readUByte(),
+						fp.readUByte(),
+						fp.readUByte(),
+						fp.readUByte()
+					]
+				};
+				tiles[i].texture = this.textureIndexes[tiles[i].texture];
+				ATLAS_GENERATE(tiles[i]);
+			}
+			return tiles;
+		}
+		/**
+		* Parse GND surfaces
+		*
+		* @return Surfaces[]
+		*/
+		parseSurfaces() {
+			const fp = this.fp;
+			const count = this.width * this.height;
+			const surfaces = new Array(count);
+			for (let i = 0; i < count; ++i) surfaces[i] = {
+				height: [
+					fp.readFloat() / 5,
+					fp.readFloat() / 5,
+					fp.readFloat() / 5,
+					fp.readFloat() / 5
+				],
+				tile_up: fp.readLong(),
+				tile_front: fp.readLong(),
+				tile_right: fp.readLong()
+			};
+			return surfaces;
+		}
+		/**
+		* Create a large image_data array with all lightmaps
+		*
+		* @return {Uint8Array} pixels
+		*/
+		createLightmapImage() {
+			let _x, _y, idx;
+			const lightmap = this.lightmap;
+			const count = lightmap.count;
+			const data = lightmap.data;
+			const per_cell = lightmap.per_cell;
+			const width = Math.round(Math.sqrt(count));
+			const height = Math.ceil(Math.sqrt(count));
+			const _width = Math.pow(2, Math.ceil(Math.log(width * 8) / Math.log(2)));
+			const _height = Math.pow(2, Math.ceil(Math.log(height * 8) / Math.log(2)));
+			const out = new Uint8Array(_width * _height * 4);
+			for (let i = 0; i < count; ++i) {
+				const pos = i * 4 * per_cell;
+				const x = i % width * 8;
+				const y = (i / width | 0) * 8;
+				for (_x = 0; _x < 8; ++_x) for (_y = 0; _y < 8; ++_y) {
+					idx = (x + _x + (y + _y) * _width) * 4;
+					out[idx + 0] = data[pos + per_cell + (_x + _y * 8) * 3 + 0];
+					out[idx + 1] = data[pos + per_cell + (_x + _y * 8) * 3 + 1];
+					out[idx + 2] = data[pos + per_cell + (_x + _y * 8) * 3 + 2];
+					out[idx + 3] = data[pos + (_x + _y * 8)];
+				}
+			}
+			return out;
+		}
+		/**
+		* Create a large image_data array with all tiles color
+		*
+		* @return {Uint8Array} pixels
+		*/
+		createTilesColorImage() {
+			const width = this.width;
+			const height = this.height;
+			const surfaces = this.surfaces;
+			const tiles = this.tiles;
+			const data = new Uint8Array(width * height * 4);
+			for (let y = 0; y < height; ++y) for (let x = 0; x < width; ++x) {
+				const cell = surfaces[x + y * width];
+				if (cell.tile_up > -1) {
+					const [b, g, r, a] = tiles[cell.tile_up].color;
+					data.set([
+						r,
+						g,
+						b,
+						a
+					], (x + y * width) * 4);
+				}
+			}
+			return data;
+		}
+		/**
+		* Create ShadowMap data (only used to render shadow on Entities)
+		*/
+		createShadowmapData() {
+			let i, j, index;
+			const width = this.width;
+			const height = this.height;
+			const out = new Uint8Array(width * 8 * (height * 8));
+			const data = this.lightmap.data;
+			const per_cell = this.lightmap.per_cell;
+			const tiles = this.tiles;
+			const surfaces = this.surfaces;
+			for (let y = 0; y < height; ++y) for (let x = 0; x < width; ++x) {
+				const cell = surfaces[x + y * width];
+				if (cell.tile_up > -1) {
+					index = tiles[cell.tile_up].light * 4 * per_cell;
+					for (i = 0; i < 8; ++i) for (j = 0; j < 8; ++j) out[x * 8 + i + (y * 8 + j) * (width * 8)] = data[index + i + j * 8];
+				} else for (i = 0; i < 8; ++i) for (j = 0; j < 8; ++j) out[x * 8 + i + (y * 8 + j) * (width * 8)] = 255;
+			}
+			return out;
+		}
+		/**
+		* Smooth ground normals
+		*
+		* @return normals[]
+		*/
+		getSmoothNormal() {
+			let x, y, n;
+			const surfaces = this.surfaces;
+			const width = this.width;
+			const height = this.height;
+			const a = vec3$5.create();
+			const b = vec3$5.create();
+			const c = vec3$5.create();
+			const d = vec3$5.create();
+			const count = width * height;
+			const tmp = new Array(count);
+			const normals = new Array(count);
+			const empty_vec = vec3$5.create();
+			let cell;
+			for (y = 0; y < height; ++y) for (x = 0; x < width; ++x) {
+				tmp[x + y * width] = vec3$5.create();
+				cell = surfaces[x + y * width];
+				if (cell.tile_up > -1) {
+					a[0] = (x + 0) * 2;
+					a[1] = cell.height[0];
+					a[2] = (y + 0) * 2;
+					b[0] = (x + 1) * 2;
+					b[1] = cell.height[1];
+					b[2] = (y + 0) * 2;
+					c[0] = (x + 1) * 2;
+					c[1] = cell.height[3];
+					c[2] = (y + 1) * 2;
+					d[0] = (x + 0) * 2;
+					d[1] = cell.height[2];
+					d[2] = (y + 1) * 2;
+					vec4$8.calcNormal(a, b, c, d, tmp[x + y * width]);
+				}
+			}
+			for (y = 0; y < height; ++y) for (x = 0; x < width; ++x) {
+				n = normals[x + y * width] = [
+					[
+						0,
+						0,
+						0
+					],
+					[
+						0,
+						0,
+						0
+					],
+					[
+						0,
+						0,
+						0
+					],
+					[
+						0,
+						0,
+						0
+					]
+				];
+				vec3$5.add(n[0], n[0], tmp[x + 0 + (y + 0) * width]);
+				vec3$5.add(n[0], n[0], tmp[x - 1 + (y + 0) * width] || empty_vec);
+				vec3$5.add(n[0], n[0], tmp[x - 1 + (y - 1) * width] || empty_vec);
+				vec3$5.add(n[0], n[0], tmp[x + 0 + (y - 1) * width] || empty_vec);
+				vec3$5.normalize(n[0], n[0]);
+				vec3$5.add(n[1], n[1], tmp[x + 0 + (y + 0) * width]);
+				vec3$5.add(n[1], n[1], tmp[x + 1 + (y + 0) * width] || empty_vec);
+				vec3$5.add(n[1], n[1], tmp[x + 1 + (y - 1) * width] || empty_vec);
+				vec3$5.add(n[1], n[1], tmp[x + 0 + (y - 1) * width] || empty_vec);
+				vec3$5.normalize(n[1], n[1]);
+				vec3$5.add(n[2], n[2], tmp[x + 0 + (y + 0) * width]);
+				vec3$5.add(n[2], n[2], tmp[x + 1 + (y + 0) * width] || empty_vec);
+				vec3$5.add(n[2], n[2], tmp[x + 1 + (y + 1) * width] || empty_vec);
+				vec3$5.add(n[2], n[2], tmp[x + 0 + (y + 1) * width] || empty_vec);
+				vec3$5.normalize(n[2], n[2]);
+				vec3$5.add(n[3], n[3], tmp[x + 0 + (y + 0) * width]);
+				vec3$5.add(n[3], n[3], tmp[x - 1 + (y + 0) * width] || empty_vec);
+				vec3$5.add(n[3], n[3], tmp[x - 1 + (y + 1) * width] || empty_vec);
+				vec3$5.add(n[3], n[3], tmp[x + 0 + (y + 1) * width] || empty_vec);
+				vec3$5.normalize(n[3], n[3]);
+			}
+			return normals;
+		}
+		/**
+		* Compile GND file
+		*
+		* @param {number} WATER_LEVEL
+		* @param {number} WATER_HEIGHT
+		* @return object export
+		*/
+		compile(WATER_LEVEL, WATER_HEIGHT) {
+			const width = this.width, height = this.height;
+			const surfaces = this.surfaces, tiles = this.tiles;
+			const normals = this.getSmoothNormal();
+			let tile, cell_a, cell_b, n, h_a, h_b;
+			let x, y;
+			const water = [], mesh = [];
+			const l = {};
+			const lightmap = this.createLightmapImage();
+			const l_count_w = Math.round(Math.sqrt(this.lightmap.count));
+			const l_count_h = Math.ceil(Math.sqrt(this.lightmap.count));
+			const l_width = Math.pow(2, Math.ceil(Math.log(l_count_w * 8) / Math.log(2)));
+			const l_height = Math.pow(2, Math.ceil(Math.log(l_count_h * 8) / Math.log(2)));
+			function lightmap_atlas(i) {
+				l.u1 = (i % l_count_w + .125) / l_count_w * (l_count_w * 8 / l_width);
+				l.u2 = (i % l_count_w + .875) / l_count_w * (l_count_w * 8 / l_width);
+				l.v1 = ((i / l_count_w | 0) + .125) / l_count_h * (l_count_h * 8 / l_height);
+				l.v2 = ((i / l_count_w | 0) + .875) / l_count_h * (l_count_h * 8 / l_height);
+			}
+			for (y = 0; y < height; ++y) for (x = 0; x < width; ++x) {
+				cell_a = surfaces[x + y * width];
+				h_a = cell_a.height;
+				if (cell_a.tile_up > -1) {
+					tile = tiles[cell_a.tile_up];
+					n = normals[x + y * width];
+					lightmap_atlas(tile.light);
+					mesh.push((x + 0) * 2, h_a[0], (y + 0) * 2, n[0][0], n[0][1], n[0][2], tile.u1, tile.v1, l.u1, l.v1, (x + .5) / width, (y + .5) / height, (x + 1) * 2, h_a[1], (y + 0) * 2, n[1][0], n[1][1], n[1][2], tile.u2, tile.v2, l.u2, l.v1, (x + 1.5) / width, (y + .5) / height, (x + 1) * 2, h_a[3], (y + 1) * 2, n[2][0], n[2][1], n[2][2], tile.u4, tile.v4, l.u2, l.v2, (x + 1.5) / width, (y + 1.5) / height, (x + 1) * 2, h_a[3], (y + 1) * 2, n[2][0], n[2][1], n[2][2], tile.u4, tile.v4, l.u2, l.v2, (x + 1.5) / width, (y + 1.5) / height, (x + 0) * 2, h_a[2], (y + 1) * 2, n[3][0], n[3][1], n[3][2], tile.u3, tile.v3, l.u1, l.v2, (x + .5) / width, (y + 1.5) / height, (x + 0) * 2, h_a[0], (y + 0) * 2, n[0][0], n[0][1], n[0][2], tile.u1, tile.v1, l.u1, l.v1, (x + .5) / width, (y + .5) / height);
+					if (h_a[0] > WATER_LEVEL - WATER_HEIGHT || h_a[1] > WATER_LEVEL - WATER_HEIGHT || h_a[2] > WATER_LEVEL - WATER_HEIGHT || h_a[3] > WATER_LEVEL - WATER_HEIGHT) water.push((x + 0) * 2, WATER_LEVEL, (y + 0) * 2, (x + 0) % 5 / 5, (y + 0) % 5 / 5, (x + 1) * 2, WATER_LEVEL, (y + 0) * 2, (x + 1) % 5 / 5 || 1, (y + 0) % 5 / 5, (x + 1) * 2, WATER_LEVEL, (y + 1) * 2, (x + 1) % 5 / 5 || 1, (y + 1) % 5 / 5 || 1, (x + 1) * 2, WATER_LEVEL, (y + 1) * 2, (x + 1) % 5 / 5 || 1, (y + 1) % 5 / 5 || 1, (x + 0) * 2, WATER_LEVEL, (y + 1) * 2, (x + 0) % 5 / 5, (y + 1) % 5 / 5 || 1, (x + 0) * 2, WATER_LEVEL, (y + 0) * 2, (x + 0) % 5 / 5, (y + 0) % 5 / 5);
+				}
+				if (cell_a.tile_front > -1 && y + 1 < height) {
+					tile = tiles[cell_a.tile_front];
+					cell_b = surfaces[x + (y + 1) * width];
+					h_b = cell_b.height;
+					lightmap_atlas(tile.light);
+					mesh.push((x + 0) * 2, h_b[0], (y + 1) * 2, 0, 0, 1, tile.u3, tile.v3, l.u1, l.v2, 0, 0, (x + 1) * 2, h_a[3], (y + 1) * 2, 0, 0, 1, tile.u2, tile.v2, l.u2, l.v1, 0, 0, (x + 1) * 2, h_b[1], (y + 1) * 2, 0, 0, 1, tile.u4, tile.v4, l.u2, l.v2, 0, 0, (x + 0) * 2, h_b[0], (y + 1) * 2, 0, 0, 1, tile.u3, tile.v3, l.u1, l.v2, 0, 0, (x + 1) * 2, h_a[3], (y + 1) * 2, 0, 0, 1, tile.u2, tile.v2, l.u2, l.v1, 0, 0, (x + 0) * 2, h_a[2], (y + 1) * 2, 0, 0, 1, tile.u1, tile.v1, l.u1, l.v1, 0, 0);
+				}
+				if (cell_a.tile_right > -1 && x + 1 < width) {
+					tile = tiles[cell_a.tile_right];
+					cell_b = surfaces[x + 1 + y * width];
+					h_b = cell_b.height;
+					lightmap_atlas(tile.light);
+					mesh.push((x + 1) * 2, h_a[1], (y + 0) * 2, 1, 0, 0, tile.u2, tile.v2, l.u2, l.v1, 0, 0, (x + 1) * 2, h_a[3], (y + 1) * 2, 1, 0, 0, tile.u1, tile.v1, l.u1, l.v1, 0, 0, (x + 1) * 2, h_b[0], (y + 0) * 2, 1, 0, 0, tile.u4, tile.v4, l.u2, l.v2, 0, 0, (x + 1) * 2, h_b[0], (y + 0) * 2, 1, 0, 0, tile.u4, tile.v4, l.u2, l.v2, 0, 0, (x + 1) * 2, h_b[2], (y + 1) * 2, 1, 0, 0, tile.u3, tile.v3, l.u1, l.v2, 0, 0, (x + 1) * 2, h_a[3], (y + 1) * 2, 1, 0, 0, tile.u1, tile.v1, l.u1, l.v1, 0, 0);
+				}
+			}
+			return {
+				width: this.width,
+				height: this.height,
+				textures: this.textures,
+				lightmap,
+				lightmapSize: this.lightmap.count,
+				tileColor: this.createTilesColorImage(),
+				shadowMap: this.createShadowmapData(),
+				mesh: new Float32Array(mesh),
+				meshVertCount: mesh.length / 12,
+				waterMesh: new Float32Array(water),
+				waterVertCount: water.length / 5
+			};
+		}
+	};
+}));
+// src/Loaders/Altitude.js
+var GAT;
+var init_Altitude = __esmMin((() => {
+	init_BinaryReader();
+	GAT = class GAT {
+		/**
+		* Cell known type
+		*/
+		static TYPE = {
+			NONE: 1,
+			WALKABLE: 2,
+			WATER: 4,
+			SNIPABLE: 8
+		};
+		/**
+		* Taken from *athena at src/map/map.c
+		* I don't know if it's a good source but it's a good idea to match this references for now
+		*/
+		static TYPE_TABLE = {
+			0: GAT.TYPE.WALKABLE | GAT.TYPE.SNIPABLE,
+			1: GAT.TYPE.NONE,
+			2: GAT.TYPE.WALKABLE | GAT.TYPE.SNIPABLE,
+			3: GAT.TYPE.WALKABLE | GAT.TYPE.SNIPABLE | GAT.TYPE.WATER,
+			4: GAT.TYPE.WALKABLE | GAT.TYPE.SNIPABLE,
+			5: GAT.TYPE.SNIPABLE,
+			6: GAT.TYPE.WALKABLE | GAT.TYPE.SNIPABLE,
+			[-1]: GAT.TYPE.NONE,
+			[2147483648]: GAT.TYPE.WALKABLE | GAT.TYPE.SNIPABLE,
+			[2147483649]: GAT.TYPE.NONE,
+			[2147483650]: GAT.TYPE.WALKABLE | GAT.TYPE.SNIPABLE,
+			[2147483651]: GAT.TYPE.WALKABLE | GAT.TYPE.SNIPABLE | GAT.TYPE.WATER,
+			[2147483652]: GAT.TYPE.NONE,
+			[2147483653]: GAT.TYPE.WALKABLE | GAT.TYPE.SNIPABLE,
+			[2147483654]: GAT.TYPE.WALKABLE | GAT.TYPE.SNIPABLE,
+			[2147483655]: GAT.TYPE.NONE,
+			[2147483656]: GAT.TYPE.NONE,
+			[2147483657]: GAT.TYPE.NONE
+		};
+		constructor(data) {
+			if (data) this.load(data);
+		}
+		/**
+		* Load a GAT file
+		*
+		* @param {ArrayBuffer} data
+		*/
+		load(data) {
+			let i, count;
+			const fp = new BinaryReader(data);
+			const header = fp.readBinaryString(4);
+			if (header !== "GRAT") throw new Error(`GAT::load() - Invalid header "${header}", must be "GRAT"`);
+			const version = fp.readUByte() + fp.readUByte() / 10;
+			const width = fp.readULong();
+			const height = fp.readULong();
+			const cells = new Float32Array(width * height * 5);
+			for (i = 0, count = width * height; i < count; ++i) {
+				cells[i * 5 + 0] = fp.readFloat() * .2;
+				cells[i * 5 + 1] = fp.readFloat() * .2;
+				cells[i * 5 + 2] = fp.readFloat() * .2;
+				cells[i * 5 + 3] = fp.readFloat() * .2;
+				cells[i * 5 + 4] = GAT.TYPE_TABLE[fp.readULong()];
+			}
+			this.width = width;
+			this.height = height;
+			this.cells = cells;
+			this.version = version;
+		}
+		/**
+		* Compile GAT file
+		*/
+		compile() {
+			return {
+				cells: this.cells,
+				width: this.width,
+				height: this.height
+			};
+		}
+	};
+}));
+// src/Loaders/Model.js
+/**
+* Interpolate rotation keyframes using SLERP
+*
+* @param {Array} keyframes
+* @param {number} frame
+* @param {number} animLen
+* @returns {Array|null} quaternion or null
+*/
+function getRotationAtFrame$1(keyframes, frame, animLen) {
+	if (!keyframes || keyframes.length === 0) return null;
+	if (keyframes.length === 1) return keyframes[0].q;
+	let prev = keyframes[0];
+	let next = null;
+	for (let i = 0; i < keyframes.length; i++) {
+		if (keyframes[i].frame > frame) {
+			next = keyframes[i];
+			break;
+		}
+		prev = keyframes[i];
+	}
+	if (!next) return prev.q;
+	const frameDiff = next.frame - prev.frame;
+	if (frameDiff === 0) return prev.q;
+	const t = (frame - prev.frame) / frameDiff;
+	return slerpQuat$1(prev.q, next.q, t);
+}
+/**
+* SLERP quaternion interpolation
+*/
+function slerpQuat$1(q1, q2, t) {
+	const result = /* @__PURE__ */ new Float32Array(4);
+	let dot = q1[0] * q2[0] + q1[1] * q2[1] + q1[2] * q2[2] + q1[3] * q2[3];
+	let q2Sign = 1;
+	if (dot < 0) {
+		dot = -dot;
+		q2Sign = -1;
+	}
+	let scale0, scale1;
+	if (dot > .9995) {
+		scale0 = 1 - t;
+		scale1 = t * q2Sign;
+	} else {
+		const theta = Math.acos(dot);
+		const sinTheta = Math.sin(theta);
+		scale0 = Math.sin((1 - t) * theta) / sinTheta;
+		scale1 = Math.sin(t * theta) / sinTheta * q2Sign;
+	}
+	result[0] = scale0 * q1[0] + scale1 * q2[0];
+	result[1] = scale0 * q1[1] + scale1 * q2[1];
+	result[2] = scale0 * q1[2] + scale1 * q2[2];
+	result[3] = scale0 * q1[3] + scale1 * q2[3];
+	return result;
+}
+/**
+* Interpolate position keyframes
+*
+* @param {Array} keyframes
+* @param {number} frame
+* @param {number} animLen
+* @returns {Array|null} position or null
+*/
+function getPositionAtFrame$1(keyframes, frame, animLen) {
+	if (!keyframes || keyframes.length === 0) return null;
+	if (keyframes.length === 1) return [
+		keyframes[0].px,
+		keyframes[0].py,
+		keyframes[0].pz
+	];
+	let prev = keyframes[0];
+	let next = null;
+	for (let i = 0; i < keyframes.length; i++) {
+		if (keyframes[i].frame > frame) {
+			next = keyframes[i];
+			break;
+		}
+		prev = keyframes[i];
+	}
+	if (!next) return [
+		prev.px,
+		prev.py,
+		prev.pz
+	];
+	const frameDiff = next.frame - prev.frame;
+	if (frameDiff === 0) return [
+		prev.px,
+		prev.py,
+		prev.pz
+	];
+	const t = (frame - prev.frame) / frameDiff;
+	return [
+		prev.px + (next.px - prev.px) * t,
+		prev.py + (next.py - prev.py) * t,
+		prev.pz + (next.pz - prev.pz) * t
+	];
+}
+/**
+* Interpolate scale keyframes
+*
+* @param {Array} keyframes
+* @param {number} frame
+* @param {number} animLen
+* @returns {Array|null} scale or null
+*/
+function getScaleAtFrame$1(keyframes, frame, animLen) {
+	if (!keyframes || keyframes.length === 0) return null;
+	if (keyframes.length === 1) return keyframes[0].Scale;
+	let prev = keyframes[0];
+	let next = null;
+	for (let i = 0; i < keyframes.length; i++) {
+		if (keyframes[i].Frame > frame) {
+			next = keyframes[i];
+			break;
+		}
+		prev = keyframes[i];
+	}
+	if (!next) return prev.Scale;
+	const frameDiff = next.Frame - prev.Frame;
+	if (frameDiff === 0) return prev.Scale;
+	const t = (frame - prev.Frame) / frameDiff;
+	return [
+		prev.Scale[0] + (next.Scale[0] - prev.Scale[0]) * t,
+		prev.Scale[1] + (next.Scale[1] - prev.Scale[1]) * t,
+		prev.Scale[2] + (next.Scale[2] - prev.Scale[2]) * t
+	];
+}
+var vec3$4, mat3$2, mat4$18, Box, Node, RSM;
+var init_Model = __esmMin((() => {
+	init_BinaryReader();
+	init_gl_matrix();
+	vec3$4 = gl_matrix_default.vec3;
+	mat3$2 = gl_matrix_default.mat3;
+	mat4$18 = gl_matrix_default.mat4;
+	Box = class {
+		constructor() {
+			this.max = vec3$4.fromValues(-Infinity, -Infinity, -Infinity);
+			this.min = vec3$4.fromValues(Infinity, Infinity, Infinity);
+			this.offset = vec3$4.create();
+			this.range = vec3$4.create();
+			this.center = vec3$4.create();
+		}
+	};
+	Node = class {
+		/**
+		* Node Constructor
+		*
+		* @param {object} rsm
+		* @param {object} fp BinaryReader
+		* @param {boolean} only
+		*/
+		constructor(rsm, fp, only) {
+			let i, j, k, count;
+			const version = rsm.version;
+			let posKeyframes, scaleKeyFrames, textureKeyFrameGroup;
+			let textures = [];
+			this.main = rsm;
+			this.is_only = only;
+			if (version >= 2.2) {
+				this.name = fp.readBinaryString(fp.readLong());
+				this.parentname = fp.readBinaryString(fp.readLong());
+			} else {
+				this.name = fp.readBinaryString(40);
+				this.parentname = fp.readBinaryString(40);
+			}
+			count = fp.readLong();
+			textures = new Array(count);
+			for (i = 0; i < count; i++) textures[i] = version >= 2.3 ? fp.readBinaryString(fp.readLong()) : fp.readLong();
+			this.mat3 = [
+				fp.readFloat(),
+				fp.readFloat(),
+				fp.readFloat(),
+				fp.readFloat(),
+				fp.readFloat(),
+				fp.readFloat(),
+				fp.readFloat(),
+				fp.readFloat(),
+				fp.readFloat()
+			];
+			this.offset = [
+				fp.readFloat(),
+				fp.readFloat(),
+				fp.readFloat()
+			];
+			if (version >= 2.2) {
+				this.pos = [
+					0,
+					0,
+					0
+				];
+				this.rotangle = 0;
+				this.rotaxis = [
+					0,
+					0,
+					0
+				];
+				this.scale = [
+					1,
+					1,
+					1
+				];
+				this.flip = [
+					1,
+					-1,
+					1
+				];
+			} else {
+				this.pos = [
+					fp.readFloat(),
+					fp.readFloat(),
+					fp.readFloat()
+				];
+				this.rotangle = fp.readFloat();
+				this.rotaxis = [
+					fp.readFloat(),
+					fp.readFloat(),
+					fp.readFloat()
+				];
+				this.scale = [
+					fp.readFloat(),
+					fp.readFloat(),
+					fp.readFloat()
+				];
+				this.flip = [
+					1,
+					1,
+					1
+				];
+			}
+			count = fp.readLong();
+			const vertices = new Array(count);
+			for (i = 0; i < count; ++i) vertices[i] = [
+				fp.readFloat(),
+				fp.readFloat(),
+				fp.readFloat()
+			];
+			count = fp.readLong();
+			const tvertices = new Float32Array(count * 6);
+			for (i = 0, j = 0; i < count; ++i, j += 6) {
+				if (version >= 1.2) {
+					tvertices[j + 0] = fp.readUByte() / 255;
+					tvertices[j + 1] = fp.readUByte() / 255;
+					tvertices[j + 2] = fp.readUByte() / 255;
+					tvertices[j + 3] = fp.readUByte() / 255;
+				}
+				tvertices[j + 4] = fp.readFloat() * .98 + .01;
+				tvertices[j + 5] = fp.readFloat() * .98 + .01;
+			}
+			count = fp.readLong();
+			const faces = new Array(count);
+			for (i = 0; i < count; ++i) {
+				let len = -1;
+				if (version >= 2.2) len = fp.readLong();
+				faces[i] = {
+					vertidx: [
+						fp.readUShort(),
+						fp.readUShort(),
+						fp.readUShort()
+					],
+					tvertidx: [
+						fp.readUShort(),
+						fp.readUShort(),
+						fp.readUShort()
+					],
+					texid: fp.readUShort(),
+					padding: fp.readUShort(),
+					twoSide: fp.readLong()
+				};
+				if (version >= 1.2) {
+					faces[i].smoothGroup = fp.readLong();
+					if (len > 24) faces[i].smoothGroup_1 = fp.readLong();
+					if (len > 28) faces[i].smoothGroup_2 = fp.readLong();
+					if (len > 32) fp.seek(len - 32, SEEK_CUR);
+				}
+			}
+			if (version >= 1.6) {
+				count = fp.readLong();
+				scaleKeyFrames = new Array(count);
+				for (i = 0; i < count; i++) scaleKeyFrames[i] = {
+					Frame: fp.readLong(),
+					Scale: [
+						fp.readFloat(),
+						fp.readFloat(),
+						fp.readFloat()
+					],
+					Data: fp.readFloat()
+				};
+			}
+			count = fp.readLong();
+			const rotKeyframes = new Array(count);
+			for (i = 0; i < count; ++i) rotKeyframes[i] = {
+				frame: fp.readLong(),
+				q: [
+					fp.readFloat(),
+					fp.readFloat(),
+					fp.readFloat(),
+					fp.readFloat()
+				]
+			};
+			if (version >= 2.2) {
+				count = fp.readLong();
+				posKeyframes = new Array(count);
+				for (i = 0; i < count; ++i) posKeyframes[i] = {
+					frame: fp.readLong(),
+					px: fp.readFloat(),
+					py: fp.readFloat(),
+					pz: fp.readFloat(),
+					Data: fp.readLong()
+				};
+			}
+			if (version >= 2.3) {
+				count = fp.readLong();
+				textureKeyFrameGroup = new Array(count);
+				for (i = 0; i < count; ++i) {
+					const textureId = fp.readLong();
+					const amountTextureAnimations = fp.readLong();
+					if (!textureKeyFrameGroup[i]) textureKeyFrameGroup[i] = [];
+					if (!textureKeyFrameGroup[i][textureId]) textureKeyFrameGroup[i][textureId] = [];
+					for (j = 0; j < amountTextureAnimations; ++j) {
+						const type = fp.readLong();
+						const amountFrames = fp.readLong();
+						if (!textureKeyFrameGroup[i][textureId][type]) textureKeyFrameGroup[i][textureId][type] = [];
+						for (k = 0; k < amountFrames; ++k) textureKeyFrameGroup[i][textureId][type].push({
+							frame: fp.readLong(),
+							offset: fp.readFloat()
+						});
+					}
+				}
+			}
+			this.box = new RSM.Box();
+			this.matrix = mat4$18.create();
+			this.textures = textures;
+			this.vertices = vertices;
+			this.tvertices = tvertices;
+			this.faces = faces;
+			this.rotKeyframes = rotKeyframes;
+			this.posKeyframes = posKeyframes;
+			this.scaleKeyFrames = scaleKeyFrames;
+			this.textureKeyFrameGroup = textureKeyFrameGroup;
+		}
+		/**
+		* Calculate node bounding box
+		*
+		* @param {mat4} _matrix
+		*/
+		calcBoundingBox(_matrix) {
+			let i, j, count;
+			const v = vec3$4.create();
+			const box = this.box;
+			const nodes = this.main.nodes;
+			const matrix = mat4$18.create();
+			const vertices = this.vertices;
+			const max = Math.max, min = Math.min;
+			let x, y, z;
+			mat4$18.copy(this.matrix, _matrix);
+			if (this.baseMatrix) mat4$18.multiply(this.matrix, this.matrix, this.baseMatrix);
+			mat4$18.translate(this.matrix, this.matrix, this.pos);
+			if (!this.rotKeyframes.length) mat4$18.rotate(this.matrix, this.matrix, this.rotangle, this.rotaxis);
+			else mat4$18.rotateQuat(this.matrix, this.matrix, this.rotKeyframes[0].q);
+			mat4$18.scale(this.matrix, this.matrix, this.scale);
+			mat4$18.copy(matrix, this.matrix);
+			if (!this.is_only) mat4$18.translate(matrix, matrix, this.offset);
+			mat4$18.multiply(matrix, matrix, mat3$2.toMat4(this.mat3));
+			for (i = 0, count = vertices.length; i < count; ++i) {
+				x = vertices[i][0];
+				y = vertices[i][1];
+				z = vertices[i][2];
+				v[0] = matrix[0] * x + matrix[4] * y + matrix[8] * z + matrix[12];
+				v[1] = matrix[1] * x + matrix[5] * y + matrix[9] * z + matrix[13];
+				v[2] = matrix[2] * x + matrix[6] * y + matrix[10] * z + matrix[14];
+				for (j = 0; j < 3; j++) {
+					box.min[j] = min(v[j], box.min[j]);
+					box.max[j] = max(v[j], box.max[j]);
+				}
+			}
+			for (i = 0; i < 3; i++) {
+				box.offset[i] = (box.max[i] + box.min[i]) / 2;
+				box.range[i] = (box.max[i] - box.min[i]) / 2;
+				box.center[i] = box.min[i] + box.range[i];
+			}
+			for (i = 0, count = nodes.length; i < count; ++i) {
+				if (this.absoluteTransform) break;
+				if (nodes[i].parentname === this.name && this.name !== this.parentname) nodes[i].calcBoundingBox(this.matrix);
+			}
+		}
+		/**
+		* Compile Node
+		*
+		* @param {mat4} instance_matrix
+		*/
+		compile(instance_matrix) {
+			const modelViewMat = mat4$18.create();
+			const normalMat = mat4$18.create();
+			const textures = this.textures;
+			const faces = this.faces;
+			const vertices = this.vertices;
+			const mesh = {};
+			const mesh_size = [];
+			const shadeGroup = new Array(32);
+			const shadeGroupUsed = new Array(32);
+			let i, x, y, z, count;
+			const matrix = mat4$18.create();
+			mat4$18.identity(matrix);
+			mat4$18.translate(matrix, matrix, [
+				-this.main.box.center[0],
+				-this.main.box.max[1],
+				-this.main.box.center[2]
+			]);
+			mat4$18.multiply(matrix, matrix, this.matrix);
+			if (!this.is_only) mat4$18.translate(matrix, matrix, this.offset);
+			mat4$18.multiply(matrix, matrix, mat3$2.toMat4(this.mat3));
+			mat4$18.multiply(modelViewMat, instance_matrix, matrix);
+			mat4$18.extractRotation(normalMat, modelViewMat);
+			count = vertices.length;
+			const vert = new Float32Array(count * 3);
+			for (i = 0; i < count; ++i) {
+				x = vertices[i][0];
+				y = vertices[i][1];
+				z = vertices[i][2];
+				vert[i * 3 + 0] = modelViewMat[0] * x + modelViewMat[4] * y + modelViewMat[8] * z + modelViewMat[12];
+				vert[i * 3 + 1] = modelViewMat[1] * x + modelViewMat[5] * y + modelViewMat[9] * z + modelViewMat[13];
+				vert[i * 3 + 2] = modelViewMat[2] * x + modelViewMat[6] * y + modelViewMat[10] * z + modelViewMat[14];
+			}
+			const face_normal = new Float32Array(faces.length * 3);
+			for (i = 0, count = textures.length; i < count; ++i) mesh_size[textures[i]] = 0;
+			for (i = 0, count = faces.length; i < count; ++i) mesh_size[textures[faces[i].texid]]++;
+			for (i = 0, count = textures.length; i < count; ++i) mesh[textures[i]] = new Float32Array(mesh_size[textures[i]] * 9 * 3);
+			switch (this.main.shadeType) {
+				default:
+				case RSM.SHADING.NONE:
+					this.calcNormal_NONE(face_normal);
+					this.generate_mesh_FLAT(vert, face_normal, mesh);
+					break;
+				case RSM.SHADING.FLAT:
+					this.calcNormal_FLAT(face_normal, normalMat, shadeGroupUsed);
+					this.generate_mesh_FLAT(vert, face_normal, mesh);
+					break;
+				case RSM.SHADING.SMOOTH:
+					this.calcNormal_FLAT(face_normal, normalMat, shadeGroupUsed);
+					this.calcNormal_SMOOTH(face_normal, shadeGroupUsed, shadeGroup);
+					this.generate_mesh_SMOOTH(vert, shadeGroup, mesh);
+			}
+			return mesh;
+		}
+		/**
+		* Compile Node at a specific animation frame
+		*
+		* @param {mat4} instance_matrix
+		* @param {number} frame - Animation frame
+		* @param {number} animLen - Total animation length
+		*/
+		compileAtFrame(instance_matrix, frame, animLen) {
+			const modelViewMat = mat4$18.create();
+			const normalMat = mat4$18.create();
+			const textures = this.textures;
+			const faces = this.faces;
+			const vertices = this.vertices;
+			const mesh = {};
+			const mesh_size = [];
+			const shadeGroup = new Array(32);
+			const shadeGroupUsed = new Array(32);
+			let i, x, y, z, count;
+			const matrix = mat4$18.create();
+			mat4$18.identity(matrix);
+			mat4$18.translate(matrix, matrix, [
+				-this.main.box.center[0],
+				-this.main.box.max[1],
+				-this.main.box.center[2]
+			]);
+			const nodeMatrix = mat4$18.create();
+			mat4$18.identity(nodeMatrix);
+			if (this.baseMatrix) mat4$18.multiply(nodeMatrix, nodeMatrix, this.baseMatrix);
+			const animPos = getPositionAtFrame$1(this.posKeyframes, frame, animLen);
+			if (animPos) mat4$18.translate(nodeMatrix, nodeMatrix, animPos);
+			else mat4$18.translate(nodeMatrix, nodeMatrix, this.pos);
+			const animRot = getRotationAtFrame$1(this.rotKeyframes, frame, animLen);
+			if (animRot) mat4$18.rotateQuat(nodeMatrix, nodeMatrix, animRot);
+			else if (this.rotKeyframes && this.rotKeyframes.length > 0) mat4$18.rotateQuat(nodeMatrix, nodeMatrix, this.rotKeyframes[0].q);
+			else mat4$18.rotate(nodeMatrix, nodeMatrix, this.rotangle, this.rotaxis);
+			const animScale = getScaleAtFrame$1(this.scaleKeyFrames, frame, animLen);
+			if (animScale) mat4$18.scale(nodeMatrix, nodeMatrix, animScale);
+			else mat4$18.scale(nodeMatrix, nodeMatrix, this.scale);
+			mat4$18.multiply(matrix, matrix, nodeMatrix);
+			if (!this.is_only) mat4$18.translate(matrix, matrix, this.offset);
+			mat4$18.multiply(matrix, matrix, mat3$2.toMat4(this.mat3));
+			mat4$18.multiply(modelViewMat, instance_matrix, matrix);
+			mat4$18.extractRotation(normalMat, modelViewMat);
+			count = vertices.length;
+			const vert = new Float32Array(count * 3);
+			for (i = 0; i < count; ++i) {
+				x = vertices[i][0];
+				y = vertices[i][1];
+				z = vertices[i][2];
+				vert[i * 3 + 0] = modelViewMat[0] * x + modelViewMat[4] * y + modelViewMat[8] * z + modelViewMat[12];
+				vert[i * 3 + 1] = modelViewMat[1] * x + modelViewMat[5] * y + modelViewMat[9] * z + modelViewMat[13];
+				vert[i * 3 + 2] = modelViewMat[2] * x + modelViewMat[6] * y + modelViewMat[10] * z + modelViewMat[14];
+			}
+			const face_normal = new Float32Array(faces.length * 3);
+			for (i = 0, count = textures.length; i < count; ++i) mesh_size[textures[i]] = 0;
+			for (i = 0, count = faces.length; i < count; ++i) mesh_size[textures[faces[i].texid]]++;
+			for (i = 0, count = textures.length; i < count; ++i) mesh[textures[i]] = new Float32Array(mesh_size[textures[i]] * 9 * 3);
+			switch (this.main.shadeType) {
+				default:
+				case RSM.SHADING.NONE:
+					this.calcNormal_NONE(face_normal);
+					this.generate_mesh_FLAT(vert, face_normal, mesh);
+					break;
+				case RSM.SHADING.FLAT:
+					this.calcNormal_FLAT(face_normal, normalMat, shadeGroupUsed);
+					this.generate_mesh_FLAT(vert, face_normal, mesh);
+					break;
+				case RSM.SHADING.SMOOTH:
+					this.calcNormal_FLAT(face_normal, normalMat, shadeGroupUsed);
+					this.calcNormal_SMOOTH(face_normal, shadeGroupUsed, shadeGroup);
+					this.generate_mesh_SMOOTH(vert, shadeGroup, mesh);
+			}
+			return mesh;
+		}
+		/**
+		* Generate default normals
+		*
+		* @param {Float32Array[]} out
+		*/
+		calcNormal_NONE(out) {
+			let i, count;
+			for (i = 1, count = out.length; i < count; i += 3) out[i] = -1;
+		}
+		/**
+		* Generate FLAT normals
+		*
+		* @param {Float32Array[]} out
+		* @param {mat4} normalMat
+		* @param {Array} groupUsed
+		*/
+		calcNormal_FLAT(out, normalMat, groupUsed) {
+			let i, j, count;
+			let face;
+			const temp_vec = vec3$4.create();
+			const faces = this.faces;
+			const vertices = this.vertices;
+			for (i = 0, j = 0, count = faces.length; i < count; ++i, j += 3) {
+				face = faces[i];
+				vec3$4.calcNormal(vertices[face.vertidx[0]], vertices[face.vertidx[1]], vertices[face.vertidx[2]], temp_vec);
+				out[j] = normalMat[0] * temp_vec[0] + normalMat[4] * temp_vec[1] + normalMat[8] * temp_vec[2] + normalMat[12];
+				out[j + 1] = normalMat[1] * temp_vec[0] + normalMat[5] * temp_vec[1] + normalMat[9] * temp_vec[2] + normalMat[13];
+				out[j + 2] = normalMat[2] * temp_vec[0] + normalMat[6] * temp_vec[1] + normalMat[10] * temp_vec[2] + normalMat[14];
+				groupUsed[face.smoothGroup] = true;
+			}
+		}
+		/**
+		* Generate smooth normals
+		*
+		* @param {Float32Array[]} normal
+		* @param {Array} groupUsed
+		* @param {Array} group
+		*/
+		calcNormal_SMOOTH(normal, groupUsed, group) {
+			let i, j, k, l, v, x, y, z, len;
+			const size = this.vertices.length;
+			const faces = this.faces;
+			let face, norm;
+			const count = faces.length;
+			for (j = 0; j < 32; ++j) {
+				if (!groupUsed[j]) continue;
+				group[j] = new Float32Array(size * 3);
+				norm = group[j];
+				for (v = 0, l = 0; v < size; ++v, l += 3) {
+					x = 0;
+					y = 0;
+					z = 0;
+					for (i = 0, k = 0; i < count; ++i, k += 3) {
+						face = faces[i];
+						if (face.smoothGroup === j && (face.vertidx[0] === v || face.vertidx[1] === v || face.vertidx[2] === v)) {
+							x += normal[k];
+							y += normal[k + 1];
+							z += normal[k + 2];
+						}
+					}
+					len = 1 / Math.sqrt(x * x + y * y + z * z);
+					norm[l] = x * len;
+					norm[l + 1] = y * len;
+					norm[l + 2] = z * len;
+				}
+			}
+		}
+		/**
+		* Generate Mesh (with normals type FLAT)
+		*
+		* @param {Float32Array[]} vert
+		* @param {Float32Array[]} norm
+		* @param {Array} mesh
+		*/
+		generate_mesh_FLAT(vert, norm, mesh) {
+			let a, b, o, i, j, k, t, count;
+			const faces = this.faces;
+			const textures = this.textures;
+			const tver = this.tvertices;
+			const alpha = this.main.alpha;
+			const offset = [];
+			let face, idx, tidx, out;
+			for (i = 0, count = textures.length; i < count; ++i) offset[textures[i]] = 0;
+			for (i = 0, o = 0, k = 0, count = faces.length; i < count; ++i, k += 3) {
+				face = faces[i];
+				idx = face.vertidx;
+				tidx = face.tvertidx;
+				t = textures[face.texid];
+				out = mesh[t];
+				o = offset[t];
+				for (j = 0; j < 3; j++, o += 9) {
+					a = idx[j] * 3;
+					b = tidx[j] * 6;
+					out[o + 0] = vert[a + 0];
+					out[o + 1] = vert[a + 1];
+					out[o + 2] = vert[a + 2];
+					out[o + 3] = norm[k + 0];
+					out[o + 4] = norm[k + 1];
+					out[o + 5] = norm[k + 2];
+					out[o + 6] = tver[b + 4];
+					out[o + 7] = tver[b + 5];
+					out[o + 8] = alpha;
+				}
+				offset[t] = o;
+			}
+		}
+		/**
+		* Generate Mesh (with normals type SMOOTH)
+		*
+		* @param {Float32Array[]} vert
+		* @param {Array} shadeGroup
+		* @param {Array} mesh
+		*/
+		generate_mesh_SMOOTH(vert, shadeGroup, mesh) {
+			let a, b, o, i, j, t, count;
+			const faces = this.faces;
+			const textures = this.textures;
+			const tver = this.tvertices;
+			const alpha = this.main.alpha;
+			const offset = [];
+			let norm, face, idx, tidx, out;
+			for (i = 0, count = textures.length; i < count; ++i) offset[textures[i]] = 0;
+			for (i = 0, o = 0, count = faces.length; i < count; ++i) {
+				face = faces[i];
+				norm = shadeGroup[face.smoothGroup];
+				idx = face.vertidx;
+				tidx = face.tvertidx;
+				t = textures[face.texid];
+				out = mesh[t];
+				o = offset[t];
+				for (j = 0; j < 3; j++, o += 9) {
+					a = idx[j] * 3;
+					b = tidx[j] * 6;
+					out[o + 0] = vert[a + 0];
+					out[o + 1] = vert[a + 1];
+					out[o + 2] = vert[a + 2];
+					out[o + 3] = norm[a + 0];
+					out[o + 4] = norm[a + 1];
+					out[o + 5] = norm[a + 2];
+					out[o + 6] = tver[b + 4];
+					out[o + 7] = tver[b + 5];
+					out[o + 8] = alpha;
+				}
+				offset[t] = o;
+			}
+		}
+	};
+	RSM = class RSM {
+		constructor(data) {
+			if (data) this.load(data);
+		}
+		/**
+		* Model Shading type
+		*/
+		static SHADING = {
+			NONE: 0,
+			FLAT: 1,
+			SMOOTH: 2
+		};
+		/**
+		* Bounding Box
+		*/
+		static Box = Box;
+		/**
+		* Loading RSM file
+		*
+		* @param {ArrayBuffer} data
+		*/
+		load(data) {
+			let i, count;
+			let posKeyframes;
+			let mainNodeName = null;
+			const textures = [];
+			const additionalTextures = [];
+			const fp = new BinaryReader(data);
+			const header = fp.readBinaryString(4);
+			if (header !== "GRSM" && header !== "GRSX") throw new Error(`RSM::load() - Incorrect header "${header}", must be "GRSM"`);
+			const major = fp.readByte();
+			const minor = fp.readByte();
+			this.version = major + minor / 10;
+			if (major === 2 && minor >= 2) {
+				this.loadRsm2(fp, minor);
+				return;
+			}
+			this.animLen = fp.readLong();
+			this.shadeType = fp.readLong();
+			this.main_node = null;
+			this.alpha = this.version >= 1.4 ? fp.readUByte() / 255 : 1;
+			if (this.version >= 2.3) {
+				this.frameRatePerSecond = fp.readFloat();
+				count = fp.readLong();
+				for (i = 0; i < count; i++) textures.push(fp.readBinaryString(fp.readLong()));
+			} else if (this.version >= 2.2) {
+				this.frameRatePerSecond = fp.readFloat();
+				count = fp.readLong();
+				for (i = 0; i < count; ++i) additionalTextures.push(fp.readBinaryString(fp.readLong()));
+				count = fp.readLong();
+				for (i = 0; i < count; i++) textures.push(fp.readBinaryString(fp.readLong()));
+			} else {
+				fp.seek(16, SEEK_CUR);
+				count = fp.readLong();
+				for (i = 0; i < count; ++i) additionalTextures.push(fp.readBinaryString(40));
+				mainNodeName = fp.readBinaryString(40);
+				textures.push(mainNodeName);
+			}
+			count = fp.readLong();
+			const nodes = new Array(count);
+			if (nodes.length === 0) throw new Error("RSM::load() - Model contains no nodes");
+			for (i = 0; i < count; ++i) {
+				nodes[i] = new RSM.Node(this, fp, count === 1);
+				if (mainNodeName && nodes[i].name === mainNodeName) this.main_node = nodes[i];
+			}
+			if (this.main_node === null) this.main_node = nodes[0];
+			if (this.version < 1.6) {
+				count = fp.readLong();
+				posKeyframes = new Array(count);
+				for (i = 0; i < count; ++i) posKeyframes[i] = {
+					frame: fp.readLong(),
+					px: fp.readFloat(),
+					py: fp.readFloat(),
+					pz: fp.readFloat(),
+					data: fp.readFloat()
+				};
+				this.posKeyframes = posKeyframes;
+			} else this.posKeyframes = [];
+			count = fp.offset >= fp.length ? 0 : fp.readLong();
+			const volumebox = new Array(count);
+			for (i = 0; i < count; ++i) volumebox[i] = {
+				size: [
+					fp.readFloat(),
+					fp.readFloat(),
+					fp.readFloat()
+				],
+				pos: [
+					fp.readFloat(),
+					fp.readFloat(),
+					fp.readFloat()
+				],
+				rot: [
+					fp.readFloat(),
+					fp.readFloat(),
+					fp.readFloat()
+				],
+				flag: this.version >= 1.3 ? fp.readLong() : 0
+			};
+			this.textures = additionalTextures;
+			this.nodes = nodes;
+			if (this.version >= 2.3) {
+				for (i = 0; i < this.main_node.textures.length; i++) if (!this.textures.includes(this.main_node.textures[i])) {
+					const texture = this.main_node.textures[i];
+					this.textures.push(texture);
+					this.main_node.textures[i] = this.textures.indexOf(texture);
+				}
+				this.nodes.forEach((node) => {
+					for (i = 0; i < node.textures.length; i++) if (typeof node.textures[i] !== "number") {
+						const texture = node.textures[i];
+						if (!this.textures.includes(texture)) this.textures.push(texture);
+						node.textures[i] = this.textures.indexOf(texture);
+					}
+				});
+			}
+			this.volumebox = volumebox;
+			this.instances = [];
+			this.box = new RSM.Box();
+			this.calcBoundingBox();
+		}
+		/**
+		* Load an RSM2 model.
+		*
+		* RSM2 stores an absolute 3x4 world transform per node and uses
+		* length-prefixed strings. Versions 2.2 and 2.3 also use different face
+		* encodings, so they cannot be parsed by the legacy Node constructor.
+		* The transform is baked into the vertices here while retaining the
+		* existing Node/renderer mesh API.
+		*
+		* @param {object} fp BinaryReader
+		* @param {number} minor RSM2 minor version
+		*/
+		loadRsm2(fp, minor) {
+			let i;
+			const readString = () => fp.readBinaryString(fp.readLong());
+			this.animLen = fp.readLong();
+			this.shadeType = fp.readLong();
+			this.alpha = fp.readUByte() / 255;
+			this.frameRatePerSecond = fp.readFloat();
+			const sharedTextures = [];
+			if (minor <= 2) {
+				const textureCount = fp.readLong();
+				for (i = 0; i < textureCount; i++) sharedTextures.push(readString());
+			}
+			const rootNodeCount = fp.readLong();
+			const rootNodeNames = new Array(rootNodeCount);
+			for (i = 0; i < rootNodeCount; i++) rootNodeNames[i] = readString();
+			const nodeCount = fp.readLong();
+			const nodes = new Array(nodeCount);
+			const allTextures = sharedTextures.slice();
+			const addTexture = (texture) => {
+				let index = allTextures.indexOf(texture);
+				if (index === -1) {
+					index = allTextures.length;
+					allTextures.push(texture);
+				}
+				return index;
+			};
+			for (i = 0; i < nodeCount; i++) {
+				const name = readString();
+				const parentname = readString();
+				const textureCount = fp.readLong();
+				const nodeTextures = new Array(textureCount);
+				for (let j = 0; j < textureCount; j++) {
+					const texture = minor <= 2 ? sharedTextures[fp.readLong()] : readString();
+					nodeTextures[j] = addTexture(texture || "");
+				}
+				const transform = new Array(12);
+				for (let j = 0; j < transform.length; j++) transform[j] = fp.readFloat();
+				const vertexCount = fp.readLong();
+				const vertices = new Array(vertexCount);
+				for (let j = 0; j < vertexCount; j++) {
+					const x = fp.readFloat();
+					const y = fp.readFloat();
+					const z = fp.readFloat();
+					vertices[j] = [
+						x,
+						y,
+						z
+					];
+				}
+				const tvertexCount = fp.readLong();
+				const tvertices = new Float32Array(tvertexCount * 6);
+				for (let j = 0; j < tvertexCount; j++) {
+					const offset = j * 6;
+					fp.readULong();
+					tvertices[offset + 4] = fp.readFloat() * .98 + .01;
+					tvertices[offset + 5] = fp.readFloat() * .98 + .01;
+				}
+				const faceCount = fp.readLong();
+				const faces = new Array(faceCount);
+				for (let j = 0; j < faceCount; j++) {
+					let faceLength = 24;
+					if (minor >= 2) faceLength = fp.readLong();
+					const face = {
+						vertidx: [
+							fp.readUShort(),
+							fp.readUShort(),
+							fp.readUShort()
+						],
+						tvertidx: [
+							fp.readUShort(),
+							fp.readUShort(),
+							fp.readUShort()
+						],
+						texid: fp.readUShort(),
+						padding: fp.readUShort(),
+						twoSide: fp.readLong(),
+						smoothGroup: 0
+					};
+					if (minor === 1 || minor >= 2) face.smoothGroup = fp.readLong();
+					const consumed = minor >= 2 ? 24 : 24;
+					if (minor >= 2 && faceLength > consumed) fp.seek(faceLength - consumed, SEEK_CUR);
+					faces[j] = face;
+				}
+				const scaleCount = fp.readLong();
+				const scaleKeyFrames = new Array(scaleCount);
+				for (let j = 0; j < scaleCount; j++) scaleKeyFrames[j] = {
+					Frame: fp.readLong(),
+					Scale: [
+						fp.readFloat(),
+						fp.readFloat(),
+						fp.readFloat()
+					],
+					Data: fp.readFloat()
+				};
+				const rotationCount = fp.readLong();
+				const rotationKeyFrames = new Array(rotationCount);
+				for (let j = 0; j < rotationCount; j++) rotationKeyFrames[j] = {
+					frame: fp.readLong(),
+					q: [
+						fp.readFloat(),
+						fp.readFloat(),
+						fp.readFloat(),
+						fp.readFloat()
+					]
+				};
+				const positionCount = fp.readLong();
+				const positionKeyFrames = new Array(positionCount);
+				for (let j = 0; j < positionCount; j++) positionKeyFrames[j] = {
+					frame: fp.readLong(),
+					px: fp.readFloat(),
+					py: fp.readFloat(),
+					pz: fp.readFloat(),
+					Data: fp.readLong()
+				};
+				if (minor === 3) {
+					const uvAnimationCount = fp.readLong();
+					for (let j = 0; j < uvAnimationCount; j++) {
+						fp.readLong();
+						const typeCount = fp.readLong();
+						for (let k = 0; k < typeCount; k++) {
+							fp.readLong();
+							fp.seek(fp.readLong() * 8, SEEK_CUR);
+						}
+					}
+				}
+				const node = Object.create(Node.prototype);
+				node.main = this;
+				node.is_only = true;
+				node.name = name;
+				node.parentname = parentname || null;
+				node.textures = nodeTextures;
+				node.mat3 = [
+					1,
+					0,
+					0,
+					0,
+					1,
+					0,
+					0,
+					0,
+					1
+				];
+				node.offset = [
+					0,
+					0,
+					0
+				];
+				node.pos = [
+					0,
+					0,
+					0
+				];
+				node.rotangle = 0;
+				node.rotaxis = [
+					0,
+					0,
+					0
+				];
+				node.scale = [
+					1,
+					1,
+					1
+				];
+				node.flip = [
+					1,
+					-1,
+					1
+				];
+				node.box = new RSM.Box();
+				node.matrix = mat4$18.create();
+				node.vertices = vertices;
+				node.tvertices = tvertices;
+				node.faces = faces;
+				node.rotKeyframes = rotationKeyFrames;
+				node.posKeyframes = positionKeyFrames;
+				node.scaleKeyFrames = scaleKeyFrames;
+				node.textureKeyFrameGroup = [];
+				node.absoluteTransform = true;
+				node.baseMatrix = mat4$18.create();
+				node.baseMatrix[0] = transform[0];
+				node.baseMatrix[1] = transform[1];
+				node.baseMatrix[2] = transform[2];
+				node.baseMatrix[4] = transform[3];
+				node.baseMatrix[5] = transform[4];
+				node.baseMatrix[6] = transform[5];
+				node.baseMatrix[8] = transform[6];
+				node.baseMatrix[9] = transform[7];
+				node.baseMatrix[10] = transform[8];
+				node.baseMatrix[12] = transform[9];
+				node.baseMatrix[13] = transform[10];
+				node.baseMatrix[14] = transform[11];
+				nodes[i] = node;
+			}
+			if (fp.offset + 4 <= fp.length) {
+				const volumeBoxCount = fp.readLong();
+				const remaining = fp.length - fp.offset;
+				const volumeBoxSize = remaining === volumeBoxCount * 40 || remaining < volumeBoxCount * 232 ? 40 : 232;
+				if (volumeBoxCount >= 0 && fp.offset + volumeBoxCount * volumeBoxSize <= fp.length) fp.seek(volumeBoxCount * volumeBoxSize, SEEK_CUR);
+			}
+			this.textures = allTextures;
+			this.nodes = nodes;
+			if (nodes.length === 0) throw new Error("RSM::load() - Model contains no nodes");
+			this.main_node = rootNodeNames.map((name) => nodes.find((node) => node.name === name)).find(Boolean) || nodes[0];
+			this.posKeyframes = [];
+			this.volumebox = [];
+			this.instances = [];
+			this.box = new RSM.Box();
+			this.calcBoundingBox();
+		}
+		/**
+		* Create a model instance
+		*
+		* @param {object} model
+		* @param {number} width
+		* @param {number} height
+		*/
+		createInstance(model, width, height) {
+			const matrix = mat4$18.create();
+			mat4$18.identity(matrix);
+			mat4$18.translate(matrix, matrix, [
+				model.position[0] + width,
+				model.position[1],
+				model.position[2] + height
+			]);
+			mat4$18.rotateZ(matrix, matrix, model.rotation[2] / 180 * Math.PI);
+			mat4$18.rotateX(matrix, matrix, model.rotation[0] / 180 * Math.PI);
+			mat4$18.rotateY(matrix, matrix, model.rotation[1] / 180 * Math.PI);
+			mat4$18.scale(matrix, matrix, model.scale);
+			if (this.main_node.main.version >= 2.2) {
+				mat4$18.scale(matrix, matrix, this.main_node.flip);
+				mat4$18.translate(matrix, matrix, this.main_node.offset);
+				mat4$18.translate(matrix, matrix, [
+					0,
+					this.box.range[1],
+					0
+				]);
+				mat4$18.translate(matrix, matrix, this.box.offset);
+			}
+			this.instances.push(matrix);
+		}
+		/**
+		* Calculate model bounding box
+		*/
+		calcBoundingBox() {
+			let i, j;
+			const box = this.box;
+			const matrix = mat4$18.create();
+			const nodes = this.nodes;
+			const min = Math.min, max = Math.max;
+			const count = nodes.length;
+			mat4$18.identity(matrix);
+			this.main_node.calcBoundingBox(matrix);
+			for (i = 0; i < 3; ++i) {
+				for (j = 0; j < count; ++j) {
+					box.max[i] = max(box.max[i], nodes[j].box.max[i]);
+					box.min[i] = min(box.min[i], nodes[j].box.min[i]);
+				}
+				box.offset[i] = (box.max[i] + box.min[i]) / 2;
+				box.range[i] = (box.max[i] - box.min[i]) / 2;
+				box.center[i] = box.min[i] + box.range[i];
+			}
+		}
+		/**
+		* Compile Model
+		*/
+		compile() {
+			const nodes = this.nodes;
+			const instances = this.instances;
+			const node_count = nodes.length;
+			const instance_count = instances.length;
+			let i, j, k;
+			const meshes = new Array(node_count * instance_count);
+			for (i = 0, k = 0; i < node_count; ++i) for (j = 0; j < instance_count; ++j, k++) meshes[k] = nodes[i].compile(instances[j]);
+			return {
+				meshes,
+				textures: this.textures
+			};
+		}
+		/**
+		* Check if this model has animation keyframes
+		*
+		* @return {boolean}
+		*/
+		hasAnimation() {
+			if (this._hasanimation) return true;
+			for (let i = 0; i < this.nodes.length; i++) {
+				const node = this.nodes[i];
+				if (node.rotKeyframes && node.rotKeyframes.length > 0 || node.posKeyframes && node.posKeyframes.length > 0 || node.scaleKeyFrames && node.scaleKeyFrames.length > 0) {
+					this._hasanimation = true;
+					return true;
+				}
+			}
+			return false;
+		}
+		static Node = Node;
+		/**
+		* Compile Model at a specific animation frame
+		*
+		* @param {number} frame - Animation frame
+		*/
+		compileAtFrame(frame) {
+			const nodes = this.nodes;
+			const instances = this.instances;
+			const animLen = this.animLen || 1;
+			const node_count = nodes.length;
+			const instance_count = instances.length;
+			let i, j, k;
+			const meshes = new Array(node_count * instance_count);
+			for (i = 0, k = 0; i < node_count; ++i) for (j = 0; j < instance_count; ++j, k++) meshes[k] = nodes[i].compileAtFrame(instances[j], frame, animLen);
+			return {
+				meshes,
+				textures: this.textures
+			};
+		}
+	};
+}));
+// src/Loaders/Str.js
+var STRAnimation, STRLayer, STR;
+var init_Str = __esmMin((() => {
+	init_BinaryReader();
+	STRAnimation = class {
+		constructor(fp) {
+			this.frame = fp.readLong();
+			this.type = fp.readULong();
+			this.pos = new Float32Array([fp.readFloat(), fp.readFloat()]);
+			this.uv = new Float32Array([
+				fp.readFloat(),
+				fp.readFloat(),
+				fp.readFloat(),
+				fp.readFloat(),
+				fp.readFloat(),
+				fp.readFloat(),
+				fp.readFloat(),
+				fp.readFloat()
+			]);
+			this.xy = new Float32Array([
+				fp.readFloat(),
+				fp.readFloat(),
+				fp.readFloat(),
+				fp.readFloat(),
+				fp.readFloat(),
+				fp.readFloat(),
+				fp.readFloat(),
+				fp.readFloat()
+			]);
+			this.aniframe = fp.readFloat();
+			this.anitype = fp.readULong();
+			this.delay = fp.readFloat();
+			this.angle = fp.readFloat() / (1024 / 360);
+			this.color = new Float32Array([
+				fp.readFloat() / 255,
+				fp.readFloat() / 255,
+				fp.readFloat() / 255,
+				fp.readFloat() / 255
+			]);
+			this.srcalpha = fp.readULong();
+			this.destalpha = fp.readULong();
+			this.mtpreset = fp.readULong();
+		}
+	};
+	STRLayer = class {
+		constructor(fp, texturePath) {
+			let i;
+			this.texcnt = fp.readLong();
+			this.texname = new Array(this.texcnt);
+			for (i = 0; i < this.texcnt; ++i) this.texname[i] = `data\\texture\\effect\\${texturePath}${fp.readBinaryString(128)}`;
+			this.anikeynum = fp.readLong();
+			this.animations = new Array(this.anikeynum);
+			for (i = 0; i < this.anikeynum; ++i) this.animations[i] = new STRAnimation(fp);
+		}
+	};
+	STR = class {
+		constructor(data, texturePath) {
+			this.version = 0;
+			this.texturePath = texturePath ?? "";
+			if (data) this.load(data);
+		}
+		/**
+		* Parse a STR file
+		*
+		* @param {ArrayBuffer} data
+		*/
+		load(data) {
+			let i;
+			const fp = new BinaryReader(data);
+			this.header = fp.readBinaryString(4);
+			if (this.header !== "STRM") throw new Error(`STR::load() - Incorrect header "${this.header}", must be "STRM"`);
+			this.version = fp.readULong();
+			if (this.version !== 148) throw new Error(`STR - Invalid version "${this.version}", not supported`);
+			this.fps = fp.readULong();
+			this.maxKey = fp.readULong();
+			this.layernum = fp.readULong();
+			fp.seek(16, SEEK_CUR);
+			this.layers = new Array(this.layernum);
+			for (i = 0; i < this.layernum; ++i) this.layers[i] = new STRLayer(fp, this.texturePath);
+		}
+	};
+}));
+// src/Core/FileSystem.js
+/**
+* @param {string} char
+* @returns {string} its encoding; `%uXXXX` for a lone surrogate, which
+* encodeURIComponent refuses
+*/
+function encodeChar(char) {
+	try {
+		return encodeURIComponent(char);
+	} catch (_e) {
+		return `%u${char.charCodeAt(0).toString(16)}`;
+	}
+}
+/**
+* @param {string} path
+* @returns {string} the name it is stored under
+*/
+function toStoredPath(path) {
+	return _storeDir + path.replace(_unsafeChars, encodeChar);
+}
+/**
+* @param {string} name
+* @returns {string} the name it was stored for
+*/
+function fromStoredName(name) {
+	return name.replace(/%u([0-9a-f]{4})|(?:%[0-9A-F]{2})+/gi, (match, unit) => {
+		if (unit) return String.fromCharCode(parseInt(unit, 16));
+		try {
+			return decodeURIComponent(match);
+		} catch (_e) {
+			return match;
+		}
+	});
+}
+/**
+* Normalize file path
+*
+* @param {array} FileList
+* @returns {array} normalized filelist
+*/
+function normalizeFilesPath(files) {
+	let i, count;
+	const list = new Array(files.length);
+	const backslash = /\\\\/g;
+	for (i = 0, count = files.length; i < count; ++i) {
+		list[i] = files[i].file;
+		list[i]._path = files[i].path.replace(backslash, "/");
+	}
+	return list;
+}
+/**
+* Error Handler give a human error
+*/
+function errorHandler(e) {
+	let msg = "";
+	const FileError = {
+		QUOTA_EXCEEDED_ERR: 22,
+		NOT_FOUND_ERR: 1,
+		SECURITY_ERR: 2,
+		INVALID_MODIFICATION_ERR: 9,
+		INVALID_STATE_ERR: 7
+	};
+	switch (e.code) {
+		case FileError.QUOTA_EXCEEDED_ERR:
+			msg = "QUOTA_EXCEEDED_ERR";
+			break;
+		case FileError.NOT_FOUND_ERR:
+			msg = "NOT_FOUND_ERR";
+			break;
+		case FileError.SECURITY_ERR:
+			msg = "SECURITY_ERR";
+			break;
+		case FileError.INVALID_MODIFICATION_ERR:
+			msg = "INVALID_MODIFICATION_ERR";
+			break;
+		case FileError.INVALID_STATE_ERR:
+			msg = "INVALID_STATE_ERR";
+			break;
+		default: msg = "Unknown Error";
+	}
+	trigger("onerror", msg);
+}
+/**
+* Calculate FullClient total size
+* @returns {integer}
+*/
+function calculateClientSize() {
+	let i, count;
+	_clientSize = 0;
+	for (i = 0, count = _files.length; i < count; ++i) _clientSize += _files[i].size || 0;
+}
+/**
+* Start to upload files to FileSystem (async !)
+*
+* @param {number} index
+*/
+function processUpload(index) {
+	const file = _files[index];
+	if (index >= _files.length) {
+		let i, count;
+		const tmpDir = _fs_sync.root.getDirectory("/__tmp_upload/", {});
+		const entries = tmpDir.createReader().readEntries();
+		for (i = 0, count = entries.length; i < count; ++i) entries[i].moveTo(_fs_sync.root, entries[i].name);
+		tmpDir.removeRecursively();
+		_files.length = 0;
+		trigger("onuploaded");
+		return;
+	}
+	if (file.name[0] === ".") {
+		_files.splice(index, 1);
+		processUpload(index);
+		return;
+	}
+	_fs$1.root.getFile("/__tmp_upload/" + toStoredPath(file._path), { create: true }, function(fileEntry) {
+		fileEntry.createWriter(function(writer) {
+			writer.onerror = errorHandler;
+			writer.onwriteend = function() {
+				_streamOffset += file.size;
+				processUpload(index + 1);
+			};
+			let last_tick = Date.now();
+			writer.onprogress = function(evt) {
+				const now = Date.now();
+				if (last_tick + 100 > now) return;
+				last_tick = now;
+				trigger("onprogress", {
+					filename: file.name,
+					filePath: file._path,
+					file: {
+						total: evt.total,
+						loaded: evt.loaded,
+						perc: (evt.loaded / evt.total * 100).toFixed(2)
+					},
+					total: {
+						total: _clientSize,
+						loaded: _streamOffset + evt.loaded,
+						perc: ((_streamOffset + evt.loaded) / _clientSize * 100).toFixed(2)
+					}
+				});
+			};
+			writer.write(file);
+		});
+	}, errorHandler);
+}
+/**
+* Build directory hierarchy
+*/
+function buildHierarchy() {
+	const cache = {};
+	let i = 0, count = _files.length;
+	let path;
+	const filename = /\/?[^/]+$/;
+	for (; i < count; ++i) {
+		path = _files[i]._path.split("/").slice(0, -1).join("/");
+		while (!(path in cache) && path.length) {
+			cache[path] = true;
+			path = path.replace(filename, "");
+		}
+	}
+	const keys = Object.keys(cache);
+	keys.sort();
+	_fs_sync.root.getDirectory("/__tmp_upload/", { create: true });
+	_fs_sync.root.getDirectory("/__tmp_upload/cache-v2/", { create: true });
+	for (i = 0, count = keys.length; i < count; ++i) _fs_sync.root.getDirectory("/__tmp_upload/" + toStoredPath(keys[i]), { create: true });
+}
+/**
+* Trigger an event
+*
+* @param {string} eventname
+* @param {mixed...}
+*/
+function trigger(eventname) {
+	if (_events[eventname]) _events[eventname].apply(null, Array.prototype.slice.call(arguments, 1));
+}
+var _files, _clientSize, _streamOffset, _events, _fs_sync, _fs$1, _available, _save, _storeDir, _writeDir, _writeCount, _unsafeChars, FileSystem;
+var init_FileSystem$1 = __esmMin((() => {
+	_files = [];
+	_clientSize = 0;
+	_streamOffset = 0;
+	_events = {};
+	_available = !!(self.requestFileSystemSync || self.webkitRequestFileSystemSync);
+	_save = false;
+	_storeDir = "cache-v2/";
+	_writeDir = "cache-write/";
+	_writeCount = 0;
+	_unsafeChars = /[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\x20-\x7e]|%/g;
+	FileSystem = class FileSystem {
+		/**
+		* Bind an event
+		*
+		* @param {string} eventname
+		* @param {function} callback
+		*/
+		static bind(eventname, callback) {
+			_events[eventname] = callback;
+		}
+		/**
+		* Get a file in FileSystem (sync)
+		*
+		* @param {string} filename
+		* @returns {File}
+		*/
+		static getFileSync(filename) {
+			filename = filename.replace(/\\/g, "/");
+			if (!_available || _files.length) {
+				let i;
+				const count = _files.length;
+				for (i = 0; i < count; ++i) if (_files[i]._path.toLowerCase() === filename.toLowerCase()) return _files[i];
+				return null;
+			}
+			const paths = [toStoredPath(filename), filename];
+			for (let i = 0; i < paths.length; ++i) {
+				let fileEntry;
+				try {
+					fileEntry = _fs_sync.root.getFile(paths[i], { create: false });
+				} catch (_e) {
+					continue;
+				}
+				if (fileEntry.isFile) return fileEntry.file();
+			}
+			return null;
+		}
+		/**
+		* Get a file in FileSystem (async)
+		*
+		* @param {string} filename
+		* @param {function} once loaded
+		* @param {function} callback if not found
+		*/
+		static getFile(filename, onload, onerror) {
+			filename = filename.replace(/\\/g, "/");
+			if (!_available || _files.length) {
+				let i;
+				const count = _files.length;
+				for (i = 0; i < count; ++i) if (_files[i]._path.toLowerCase() === filename.toLowerCase()) {
+					onload(_files[i]);
+					return;
+				}
+				onerror();
+				return;
+			}
+			const paths = [toStoredPath(filename), filename];
+			function tryPath(i) {
+				if (i >= paths.length) {
+					onerror();
+					return;
+				}
+				const next = () => tryPath(i + 1);
+				try {
+					_fs$1.root.getFile(paths[i], { create: false }, (fileEntry) => {
+						if (fileEntry.isFile) fileEntry.file(onload);
+						else next();
+					}, next);
+				} catch (_e) {
+					next();
+				}
+			}
+			tryPath(0);
+		}
+		/**
+		* Save the content of a files in file system
+		* (used to save the remote client)
+		*
+		* @param {string} filePath
+		* @param {ArrayBuffer} buffer
+		*/
+		static saveFile(filePath, buffer) {
+			if (!_save || !_available) return;
+			const filename = toStoredPath(filePath.replace(/\\/g, "/"));
+			const directories = filename.split("/");
+			const name = directories.pop();
+			let path = "";
+			let dir = _fs_sync.root;
+			let tmpEntry = null;
+			try {
+				while (directories.length) {
+					path += directories.shift() + "/";
+					dir = _fs_sync.root.getDirectory(path, { create: true });
+				}
+				tmpEntry = _fs_sync.root.getDirectory(_writeDir, { create: true }).getFile(String(_writeCount++), { create: true });
+				const writer = tmpEntry.createWriter();
+				writer.truncate(0);
+				writer.write(new Blob([buffer]));
+				tmpEntry.moveTo(dir, name);
+			} catch (e) {
+				console.warn(`[FileSystem] cannot cache ${filename}: ${e.name}`);
+				if (tmpEntry) try {
+					tmpEntry.remove();
+				} catch (_e) {}
+			}
+		}
+		/**
+		* Search a file from FileSystem using a regex
+		*
+		* @param {RegExp|string} to match the filename
+		*/
+		static search(regex) {
+			let i, count;
+			const list = [];
+			if (!(regex instanceof RegExp)) regex = new RegExp("^" + regex.replace(/([.*+?^=!:${}()|[\]/\\])/g, "\\$1") + "$", "i");
+			if (!_available || _files.length) {
+				for (i = 0, count = _files.length; i < count; ++i) if (_files[i].name.match(regex)) list.push(_files[i]);
+				return list;
+			}
+			let entries;
+			try {
+				entries = _fs_sync.root.getDirectory(_storeDir, {}).createReader().readEntries();
+			} catch (_e) {
+				entries = [];
+			}
+			const found = Object.create(null);
+			for (i = 0, count = entries.length; i < count; ++i) {
+				const name = fromStoredName(entries[i].name);
+				if (entries[i].isFile && name.match(regex)) {
+					found[name] = true;
+					list.push(entries[i].file());
+				}
+			}
+			entries = _fs_sync.root.createReader().readEntries();
+			for (i = 0, count = entries.length; i < count; ++i) if (entries[i].isFile && !found[entries[i].name] && entries[i].name.match(regex)) list.push(entries[i].file());
+			return list;
+		}
+		/**
+		* Remove all files from FileSystem
+		*/
+		static cleanup() {
+			let i, count;
+			const entries = _fs_sync.root.createReader().readEntries();
+			let retryCount = 0;
+			const maxRetries = 3;
+			function removeWithRetry(entry, callback) {
+				try {
+					if (entry.isDirectory) entry.removeRecursively(callback, callback);
+					else entry.remove(callback, callback);
+				} catch (e) {
+					if (retryCount < maxRetries && e.name === "InvalidModificationError") {
+						retryCount++;
+						setTimeout(() => {
+							removeWithRetry(entry, callback);
+						}, 100);
+					} else callback(e);
+				}
+			}
+			for (i = 0, count = entries.length; i < count; ++i) removeWithRetry(entries[i], (error) => {
+				if (error) console.warn("Failed to remove entry:", error);
+			});
+		}
+		/**
+		* Initialize FileSystem API
+		*
+		* @param {Array} FileList
+		* @param {boolean} save files
+		* @param {Object} quota information
+		*/
+		static init(files, save, quota) {
+			_files = normalizeFilesPath(files);
+			if (!_available) {
+				trigger("onready");
+				return;
+			}
+			calculateClientSize();
+			const requestFileSystemSync = self.requestFileSystemSync || self.webkitRequestFileSystemSync;
+			const requestFileSystem = self.requestFileSystem || self.webkitRequestFileSystem;
+			const size = _clientSize || quota.used || quota.remaining;
+			requestFileSystem(self.TEMPORARY, size, (fs) => {
+				_fs$1 = fs;
+				_fs_sync = requestFileSystemSync(self.TEMPORARY, size);
+				if (save && _files.length) {
+					FileSystem.cleanup();
+					buildHierarchy();
+					processUpload(0);
+				}
+				_save = save;
+				trigger("onready");
+			}, errorHandler);
+		}
+	};
+}));
+// src/Core/FileManager.js
+var fs, _batchQueue, _batchTimer, FileManager;
+var init_FileManager = __esmMin((() => {
+	init_GameFile();
+	init_World();
+	init_Ground();
+	init_Altitude();
+	init_Model();
+	init_Sprite();
+	init_Action();
+	init_Str();
+	init_FileSystem$1();
+	fs = null;
+	if (typeof process !== "undefined" && process.versions?.electron) try {
+		fs = Function("return require")()("fs");
+	} catch {}
+	_batchQueue = [];
+	_batchTimer = null;
+	FileManager = class FileManager {
+		/**
+		* Where is the remote client located ?
+		* @var {string} http
+		*/
+		static remoteClient = "";
+		/**
+		* List of Game Archives loads
+		* @var {array} GameFile[]
+		*/
+		static gameFiles = [];
+		/**
+		* Files alias
+		* @var {object}
+		*/
+		static filesAlias = {};
+		/**
+		* Initialize file manager with a list of files
+		*
+		* @param {mixed} grf list
+		*/
+		static init(grfList) {
+			let content, files, result, regex;
+			let i, count, sortBySize = true;
+			let list = [];
+			if (typeof grfList === "string") {
+				if (fs) content = fs.readFileSync(grfList);
+				else if ((files = FileSystem.search(grfList)).length) content = new FileReaderSync().readAsText(files[0]);
+				else grfList = /\.grf$/i;
+				if (content) {
+					regex = /(\d+)=([^\s]+)/g;
+					while (result = regex.exec(content)) list[parseInt(result[1])] = result[2];
+					for (i = 0, count = list.length; i < count;) {
+						if (list[i] === void 0) {
+							list.splice(i, 1);
+							count--;
+							continue;
+						}
+						i++;
+					}
+					grfList = list;
+					sortBySize = false;
+				}
+			}
+			if (grfList instanceof Array) {
+				list = grfList;
+				for (i = 0, count = list.length; i < count; ++i) {
+					if (fs && fs.existsSync(list[i])) {
+						list[i] = {
+							name: list[i],
+							size: fs.statSync(list[i]).size,
+							fd: fs.openSync(list[i], "r")
+						};
+						continue;
+					}
+					list[i] = FileSystem.getFileSync(list[i]);
+				}
+			}
+			if (grfList instanceof RegExp) list = FileSystem.search(grfList);
+			if (sortBySize) list.sort(function(a, b) {
+				return a.size - b.size;
+			});
+			for (i = 0, count = list.length; i < count; ++i) FileManager.addGameFile(list[i]);
+		}
+		/**
+		* Add a game archive to the list
+		*
+		* @param {File} file to load
+		*/
+		static addGameFile(file) {
+			try {
+				const grf = new GRF();
+				grf.load(file);
+				FileManager.gameFiles.push(grf);
+				if (FileManager.onGameFileLoaded) FileManager.onGameFileLoaded(file.name);
+			} catch (e) {
+				if (FileManager.onGameFileError) FileManager.onGameFileError(file.name, e.message);
+			}
+		}
+		/**
+		* Clean up Game files
+		*/
+		static clean() {
+			FileManager.gameFiles.length = 0;
+		}
+		/**
+		* Search a file in each GameFile
+		*
+		* @param {RegExp} regex
+		* @return {Array} filename list
+		*/
+		static search(regex) {
+			if (!FileManager.gameFiles.length && FileManager.remoteClient) {
+				const req = new XMLHttpRequest();
+				req.open("POST", FileManager.remoteClient, false);
+				req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+				req.overrideMimeType("text/plain; charset=ISO-8859-1");
+				req.send("filter=" + encodeURIComponent(regex.source));
+				return req.responseText.split("\n");
+			}
+			return Array.from(new Set(FileManager.gameFiles.flatMap((file) => file.table.data.match(regex) || [])));
+		}
+		/**
+		* Get a file
+		*
+		* @param {string} filename
+		* @param {function} callback
+		*/
+		static get(filename, callback) {
+			filename = filename.replace(/^\s+|\s+$/g, "");
+			if (fs && fs.existsSync(filename)) {
+				callback(fs.readFileSync(filename));
+				return;
+			}
+			FileSystem.getFile(filename, function onFound(file) {
+				const reader = new FileReader();
+				reader.onloadend = function onLoad(event) {
+					callback(event.target.result);
+				};
+				reader.readAsArrayBuffer(file);
+			}, function onNotFound() {
+				const path = filename.replace(/\//g, "\\");
+				const fileList = FileManager.gameFiles;
+				const count = fileList.length;
+				for (let i = 0; i < count; ++i) if (fileList[i].getFile(path, callback)) return;
+				FileManager.getHTTP(filename, callback);
+			});
+		}
+		/**
+		* Trying to load a file from the remote host
+		*
+		* @param {string} filename
+		* @param {function} callback
+		*/
+		static getHTTP(filename, callback) {
+			filename = filename.replace(/\\/g, "/");
+			let url = filename.replace(/[^/]+/g, (a) => {
+				return encodeURIComponent(a);
+			});
+			if (!FileManager.remoteClient) url = "/client/" + url;
+			else url = FileManager.remoteClient + url;
+			if (filename.match(/\.(mp3|wav)$/)) {
+				callback(url);
+				return;
+			}
+			if (typeof fetch !== "undefined") {
+				fetch(url).then(function(response) {
+					if (!response.ok) throw new Error("HTTP " + response.status);
+					if ((response.headers.get("content-type") || "").indexOf("text/html") !== -1) throw new Error("Received HTML instead of binary data (likely 404 page)");
+					return response.arrayBuffer();
+				}).then((buffer) => {
+					callback(buffer);
+					FileSystem.saveFile(filename, buffer);
+				}).catch(() => {
+					callback(null, "Can't get file");
+				});
+				return;
+			}
+			const xhr = new XMLHttpRequest();
+			xhr.open("GET", url, true);
+			xhr.responseType = "arraybuffer";
+			xhr.onload = () => {
+				if (xhr.status == 200) {
+					callback(xhr.response);
+					FileSystem.saveFile(filename, xhr.response);
+				} else callback(null, "Can't get file");
+			};
+			xhr.onerror = () => {
+				callback(null, "Can't get file");
+			};
+			try {
+				xhr.send(null);
+			} catch (_e) {
+				callback(null, "Can't get file");
+			}
+		}
+		static getBatchHTTP(filename, callback) {
+			if (!FileManager.remoteClient) {
+				FileManager.getHTTP(filename, callback);
+				return;
+			}
+			_batchQueue.push({
+				filename,
+				callback
+			});
+			if (!_batchTimer) _batchTimer = setTimeout(() => {
+				const queue = _batchQueue.splice(0);
+				_batchTimer = null;
+				if (queue.length === 1) {
+					FileManager.getHTTP(queue[0].filename, queue[0].callback);
+					return;
+				}
+				const files = queue.map((q) => {
+					return q.filename.replace(/\\/g, "/");
+				});
+				fetch(FileManager.remoteClient + "batch", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ files })
+				}).then((r) => {
+					return r.json();
+				}).then((results) => {
+					queue.forEach((q) => {
+						const key = q.filename.replace(/\\/g, "/");
+						if (results[key]) {
+							const binary = atob(results[key]);
+							const buffer = new ArrayBuffer(binary.length);
+							const view = new Uint8Array(buffer);
+							for (let i = 0; i < binary.length; i++) view[i] = binary.charCodeAt(i);
+							q.callback(buffer);
+							FileSystem.saveFile(q.filename, buffer);
+						} else q.callback(null, "Can't get file");
+					});
+				}).catch(() => {
+					queue.forEach((q) => {
+						FileManager.getHTTP(q.filename, q.callback);
+					});
+				});
+			}, 16);
+		}
+		/**
+		* Load a file
+		*
+		* @param {string} filename
+		* @param {function} callback
+		* @return {string|object}
+		*/
+		static load(filename, callback, args) {
+			if (!filename) {
+				callback(null, "undefined ?");
+				return;
+			}
+			filename = filename.replace(/^\s+|\s+$/g, "");
+			FileManager.get(filename, (buffer, error) => {
+				const ext = filename.match(/.[^.]+$/).toString().substr(1).toLowerCase();
+				let result = null;
+				if (!buffer || buffer.byteLength === 0) {
+					callback(null, error);
+					return;
+				}
+				error = null;
+				try {
+					switch (ext) {
+						case "jpg":
+						case "jpeg":
+						case "bmp":
+						case "gif":
+						case "png":
+							result = URL.createObjectURL(new Blob([buffer], { type: "image/" + ext }));
+							break;
+						case "wav":
+						case "mp3":
+						case "ogg":
+							if (buffer instanceof ArrayBuffer) {
+								result = URL.createObjectURL(new Blob([buffer], { type: "audio/" + ext }));
+								break;
+							}
+							result = buffer;
+							break;
+						case "tga":
+							result = buffer;
+							break;
+						case "xml":
+						case "txt":
+						case "lua":
+						case "lub":
+						case "csv":
+							result = new Uint8Array(buffer);
+							break;
+						case "spr": {
+							const spr = new SPR(buffer);
+							if (args && args.to_rgba) spr.switchToRGBA();
+							result = spr.compile();
+							break;
+						}
+						case "rsw":
+							result = new RSW(buffer);
+							break;
+						case "gnd":
+							result = new GND(buffer);
+							break;
+						case "gat":
+							result = new GAT(buffer);
+							break;
+						case "rsm":
+						case "rsm2":
+							result = new RSM(buffer);
+							break;
+						case "act":
+							result = new ACT(buffer).compile();
+							break;
+						case "str":
+							result = new STR(buffer, args?.texturePath ?? "");
+							break;
+						default: result = buffer;
+					}
+				} catch (e) {
+					error = e.message;
+				}
+				callback(result, error);
+			});
+		}
+	};
+}));
+// src/Renderer/Effects/NavigationFootstep.vs?raw
+var NavigationFootstep_default$1;
+var init_NavigationFootstep$2 = __esmMin((() => {
+	NavigationFootstep_default$1 = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec2 aPosition;\r\nout vec2 vLocal;\r\nout vec2 vTextureCoord;\r\n\r\nuniform mat4 uModelViewMat;\r\nuniform mat4 uProjectionMat;\r\nuniform vec3 uPosition;\r\nuniform float uSize;\r\nuniform float uAngle;\r\n\r\nvoid main(void) {\r\n    float c = cos(uAngle);\r\n    float s = sin(uAngle);\r\n    vec2 local = aPosition * uSize;\r\n    vec2 rotated = vec2(local.x * c - local.y * s, local.x * s + local.y * c);\r\n\r\n    vec4 position = vec4(\r\n        uPosition.x + 0.5 + rotated.x,\r\n        -uPosition.z,\r\n        uPosition.y + 0.5 + rotated.y,\r\n        1.0\r\n    );\r\n\r\n    gl_Position = uProjectionMat * uModelViewMat * position;\r\n    gl_Position.z -= 0.012;\r\n    vLocal = aPosition;\r\n    vTextureCoord = vec2((aPosition.x + 1.0) * 0.5, 1.0 - ((aPosition.y + 1.0) * 0.5));\r\n}\r\n";
+}));
+// src/Renderer/Effects/NavigationFootstep.fs?raw
+var NavigationFootstep_default;
+var init_NavigationFootstep$1 = __esmMin((() => {
+	NavigationFootstep_default = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec2 vLocal;\r\nin vec2 vTextureCoord;\r\nout vec4 fragColor;\r\n\r\nuniform vec4 uColor;\r\nuniform float uAlpha;\r\nuniform float uTick;\r\nuniform float uIndex;\r\nuniform float uUseTexture;\r\nuniform sampler2D uDiffuse;\r\n\r\nfloat rectShape(vec2 p, vec2 center, vec2 halfSize, float feather) {\r\n    vec2 d = abs(p - center) - halfSize;\r\n    float dist = length(max(d, 0.0)) + min(max(d.x, d.y), 0.0);\r\n    return 1.0 - smoothstep(0.0, feather, dist);\r\n}\r\n\r\nfloat arrowHead(vec2 p, float grow) {\r\n    float y0 = 0.02 - grow;\r\n    float y1 = 0.86 + grow;\r\n    float t = clamp((p.y - y0) / max(0.001, y1 - y0), 0.0, 1.0);\r\n    float halfWidth = mix(0.58 + grow, 0.02, t);\r\n    float xMask = 1.0 - smoothstep(halfWidth, halfWidth + 0.035, abs(p.x));\r\n    float yMask = smoothstep(y0 - 0.035, y0 + 0.035, p.y) * (1.0 - smoothstep(y1 - 0.035, y1 + 0.035, p.y));\r\n    return xMask * yMask;\r\n}\r\n\r\nvoid main(void) {\r\n    float pulse = 0.82 + 0.18 * sin(uTick * 0.006 + uIndex * 0.65);\r\n\r\n    if (uUseTexture > 0.5) {\r\n        vec4 tex = texture(uDiffuse, vTextureCoord);\r\n        float alpha = tex.a * uAlpha * pulse;\r\n\r\n        if (alpha < 0.025) {\r\n            discard;\r\n        }\r\n\r\n        fragColor = vec4(tex.rgb, alpha);\r\n        return;\r\n    }\r\n\r\n    vec2 p = vLocal;\r\n\r\n    float shaft = rectShape(p, vec2(0.0, -0.32), vec2(0.17, 0.48), 0.035);\r\n    float head = arrowHead(p, 0.00);\r\n    float mark = max(shaft, head);\r\n\r\n    float shaftOutline = rectShape(p, vec2(0.0, -0.32), vec2(0.23, 0.54), 0.040);\r\n    float headOutline = arrowHead(p, 0.06);\r\n    float outline = max(max(shaftOutline, headOutline) - mark, 0.0);\r\n\r\n    float glow = rectShape(p, vec2(0.0, -0.10), vec2(0.48, 0.82), 0.42) * 0.22;\r\n    float alpha = (mark + outline * 0.82 + glow) * uAlpha * pulse;\r\n\r\n    if (alpha < 0.025) {\r\n        discard;\r\n    }\r\n\r\n    vec3 outlineColor = vec3(0.20, 0.12, 0.00);\r\n    vec3 glowColor = vec3(1.00, 0.92, 0.25);\r\n    vec3 color = glow > mark && glow > outline ? glowColor : mix(outlineColor, uColor.rgb, mark);\r\n\r\n    fragColor = vec4(color, alpha);\r\n}\r\n";
+}));
+// src/Renderer/Effects/NavigationFootstep.js
+function normalizePath(path) {
+	return String(path || "").replace(/\\/g, "/").replace(/^\/+/, "");
+}
+function uniqueList$1(list) {
+	const seen = {};
+	const out = [];
+	for (let i = 0; i < list.length; i++) {
+		const item = normalizePath(list[i]);
+		if (!item || seen[item]) continue;
+		seen[item] = true;
+		out.push(item);
+	}
+	return out;
+}
+function findOfficialFootstepTextures() {
+	const iconIndex = Math.max(1, Math.min(8, Number(_selectedRoadIcon) || 1));
+	let navMatches = [];
+	const preferred = [];
+	for (let i = 0; i < 8; i++) preferred.push(DB.INTERFACE_PATH + "navigation_interface3/navi_grid" + iconIndex + "_" + i + ".tga");
+	try {
+		navMatches = FileManager.search(new RegExp("data[\\\\/]texture[\\\\/].*[\\\\/]navigation_interface3[\\\\/]navi_grid" + iconIndex + "_[0-7]\\\\.(bmp|tga|png)$", "i")) || [];
+	} catch (_e) {
+		navMatches = [];
+	}
+	try {
+		FileManager.search(/data[\\/]texture[\\/]effect[\\/].*(foot|footprint|navi|navigation|arrow).*\.(bmp|tga|png)$/i);
+	} catch (_e) {}
+	const matches = navMatches.map(normalizePath).sort((a, b) => a.localeCompare(b));
+	return uniqueList$1(preferred.concat(matches, FALLBACK_FOOTSTEP_TEXTURES));
+}
+function requestOfficialFootstepTexture(gl) {
+	if (!gl) return;
+	const iconIndex = Math.max(1, Math.min(8, Number(_selectedRoadIcon) || 1));
+	if (_textureRequested && _loadedRoadIcon === iconIndex) return;
+	_textureRequested = true;
+	_loadedRoadIcon = iconIndex;
+	const token = ++_textureRequestToken;
+	const candidates = findOfficialFootstepTextures();
+	let index = 0;
+	const tryNext = () => {
+		if (token !== _textureRequestToken) return;
+		if (index >= candidates.length) {
+			_useTexture = false;
+			return;
+		}
+		const path = candidates[index++];
+		Client.loadFile(path, (buffer) => {
+			if (token !== _textureRequestToken) return;
+			if (!buffer) {
+				tryNext();
+				return;
+			}
+			WebGL_default.texture(gl, buffer, (texture) => {
+				if (token !== _textureRequestToken) {
+					if (texture) gl.deleteTexture(texture);
+					return;
+				}
+				if (!texture) {
+					tryNext();
+					return;
+				}
+				if (_texture$6) gl.deleteTexture(_texture$6);
+				_texture$6 = texture;
+				_useTexture = true;
+			});
+		}, tryNext);
+	};
+	tryNext();
+}
+var _program$30, _buffer$18, _texture$6, _textureRequested, _textureRequestToken, _useTexture, _gl$1, _selectedRoadIcon, _loadedRoadIcon, FALLBACK_FOOTSTEP_TEXTURES, NavigationFootstep;
+var init_NavigationFootstep = __esmMin((() => {
+	init_Client();
+	init_FileManager();
+	init_DBManager();
+	init_WebGL();
+	init_NavigationFootstep$2();
+	init_NavigationFootstep$1();
+	_texture$6 = null;
+	_textureRequested = false;
+	_textureRequestToken = 0;
+	_useTexture = false;
+	_gl$1 = null;
+	_selectedRoadIcon = 1;
+	_loadedRoadIcon = 0;
+	FALLBACK_FOOTSTEP_TEXTURES = [
+		"data/texture/effect/footprint.bmp",
+		"data/texture/effect/footprint.tga",
+		"data/texture/effect/footprint_01.bmp",
+		"data/texture/effect/footprint_01.tga",
+		"data/texture/effect/footprint01.bmp",
+		"data/texture/effect/footprint01.tga",
+		"data/texture/effect/navi_footprint.bmp",
+		"data/texture/effect/navi_footprint.tga",
+		"data/texture/effect/navigation_footprint.bmp",
+		"data/texture/effect/navigation_footprint.tga",
+		"data/texture/effect/navi_arrow.bmp",
+		"data/texture/effect/navi_arrow.tga",
+		"data/texture/effect/navigation_arrow.bmp",
+		"data/texture/effect/navigation_arrow.tga"
+	];
+	NavigationFootstep = class NavigationFootstep {
+		constructor(position, angle, index, alpha) {
+			this.position = position;
+			this.angle = angle || 0;
+			this.index = index || 0;
+			this.alpha = alpha == null ? .95 : alpha;
+			this.size = .7;
+		}
+		init() {
+			this.ready = true;
+		}
+		free() {
+			this.ready = false;
+		}
+		render(gl, tick) {
+			if (!_program$30 || !_buffer$18) return;
+			const uniform = _program$30.uniform;
+			gl.uniform3fv(uniform.uPosition, this.position);
+			gl.uniform1f(uniform.uSize, this.size);
+			gl.uniform1f(uniform.uAngle, this.angle);
+			gl.uniform1f(uniform.uAlpha, this.alpha);
+			gl.uniform1f(uniform.uTick, tick || 0);
+			gl.uniform1f(uniform.uIndex, this.index);
+			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$18);
+			gl.drawArrays(gl.TRIANGLES, 0, 6);
+		}
+		static init(gl) {
+			_gl$1 = gl;
+			_program$30 = WebGL_default.createShaderProgram(gl, NavigationFootstep_default$1, NavigationFootstep_default);
+			_buffer$18 = gl.createBuffer();
+			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$18);
+			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+				-1,
+				-1,
+				1,
+				-1,
+				1,
+				1,
+				1,
+				1,
+				-1,
+				1,
+				-1,
+				-1
+			]), gl.STATIC_DRAW);
+			requestOfficialFootstepTexture(gl);
+			NavigationFootstep.ready = true;
+		}
+		static free(gl) {
+			if (_texture$6) {
+				gl.deleteTexture(_texture$6);
+				_texture$6 = null;
+			}
+			_useTexture = false;
+			_textureRequested = false;
+			_textureRequestToken++;
+			_gl$1 = null;
+			if (_program$30) {
+				gl.deleteProgram(_program$30);
+				_program$30 = null;
+			}
+			if (_buffer$18) {
+				gl.deleteBuffer(_buffer$18);
+				_buffer$18 = null;
+			}
+			NavigationFootstep.ready = false;
+		}
+		static setRoadIcon(index) {
+			index = Math.max(1, Math.min(8, Number(index) || 1));
+			if (_selectedRoadIcon === index && _useTexture && _texture$6) return;
+			_selectedRoadIcon = index;
+			_textureRequested = false;
+			_textureRequestToken++;
+			_useTexture = false;
+			if (_gl$1) requestOfficialFootstepTexture(_gl$1);
+		}
+		static beforeRender(gl, modelView, projection, fog, tick) {
+			const uniform = _program$30.uniform;
+			const attribute = _program$30.attribute;
+			gl.useProgram(_program$30);
+			gl.depthMask(false);
+			gl.uniformMatrix4fv(uniform.uModelViewMat, false, modelView);
+			gl.uniformMatrix4fv(uniform.uProjectionMat, false, projection);
+			gl.uniform4fv(uniform.uColor, NavigationFootstep.color);
+			gl.uniform1f(uniform.uUseTexture, _useTexture && _texture$6 ? 1 : 0);
+			if (_useTexture && _texture$6) {
+				gl.activeTexture(gl.TEXTURE0);
+				gl.bindTexture(gl.TEXTURE_2D, _texture$6);
+				gl.uniform1i(uniform.uDiffuse, 0);
+			}
+			gl.enableVertexAttribArray(attribute.aPosition);
+			gl.bindBuffer(gl.ARRAY_BUFFER, _buffer$18);
+			gl.vertexAttribPointer(attribute.aPosition, 2, gl.FLOAT, false, 8, 0);
+		}
+		static afterRender(gl) {
+			gl.depthMask(true);
+			gl.disableVertexAttribArray(_program$30.attribute.aPosition);
+			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+		}
+	};
+	NavigationFootstep.usesTexture = function usesTexture() {
+		return !!(_useTexture && _texture$6);
+	};
+	NavigationFootstep.color = new Float32Array([
+		1,
+		.86,
+		.1,
+		1
+	]);
+	NavigationFootstep.renderBeforeEntities = true;
 }));
 // src/UI/Components/Navigation/Navigation.html?raw
 var Navigation_default$2;
 var init_Navigation$2 = __esmMin((() => {
-	Navigation_default$2 = "<div class=\"Navigation\">\r\n	<div class=\"titlebar\">\r\n		<div class=\"left\" data-background=\"basic_interface/titlebar_left.bmp\"></div>\r\n		<div class=\"center\" data-background=\"basic_interface/titlebar_mid.bmp\"></div>\r\n		<div class=\"right\" data-background=\"basic_interface/titlebar_right.bmp\"></div>\r\n		<div class=\"title\">Navigation</div>\r\n		<ui-button\r\n			class=\"close\"\r\n			bg=\"basic_interface/sys_close_off.bmp\"\r\n			hover=\"basic_interface/sys_close_on.bmp\"\r\n		></ui-button>\r\n	</div>\r\n	<div class=\"content\">\r\n		<div class=\"search-container\">\r\n			<select class=\"search-type\">\r\n				<option value=\"ALL\">ALL</option>\r\n				<option value=\"NPC\">NPC</option>\r\n				<option value=\"MOB\">MOB</option>\r\n			</select>\r\n			<div class=\"search-left\" data-background=\"basic_interface/txtbox_l.bmp\"></div>\r\n			<div class=\"search-middle\" data-background=\"basic_interface/txtbox_m.bmp\"></div>\r\n			<div class=\"search-right\" data-background=\"basic_interface/txtbox_r.bmp\"></div>\r\n			<input type=\"text\" class=\"search-input\" placeholder=\"Search...\" />\r\n			<ui-button\r\n				class=\"search-button\"\r\n				bg=\"navigation_interface/navisearch_a.bmp\"\r\n				hover=\"navigation_interface/navisearch_b.bmp\"\r\n				down=\"navigation_interface/navisearch_c.bmp\"\r\n			></ui-button>\r\n		</div>\r\n		<div class=\"map-container\">\r\n			<div class=\"services-toggle-container\">\r\n				<label class=\"services-checkbox\"> <input type=\"checkbox\" class=\"services-toggle\" /> Services </label>\r\n			</div>\r\n			<div class=\"location-title\"></div>\r\n			<div class=\"map-display\">\r\n				<!-- Map will be displayed here -->\r\n			</div>\r\n		</div>\r\n		<div class=\"airship-bar\">\r\n			<ui-button\r\n				class=\"airship-move\"\r\n				bg=\"private_airplane/btn_move_normal.bmp\"\r\n				hover=\"private_airplane/btn_move_over.bmp\"\r\n				down=\"private_airplane/btn_move_press.bmp\"\r\n				disabled\r\n			></ui-button>\r\n		</div>\r\n	</div>\r\n	<div class=\"footer\">\r\n		<div class=\"coordinates-bar\">\r\n			<div class=\"map-name\"></div>\r\n			<div class=\"mouse-info\">\r\n				<span class=\"mouse-label\">Mouse:</span>\r\n				<span class=\"mouse-coordinates\"></span>\r\n			</div>\r\n			<div class=\"target-info\">\r\n				<span class=\"target-label\">Target:</span>\r\n				<span class=\"target-coordinates\"></span>\r\n			</div>\r\n		</div>\r\n	</div>\r\n</div>\r\n";
+	Navigation_default$2 = "<div class=\"Navigation\">\r\n	<div class=\"titlebar\">\r\n		<div class=\"left\" data-background=\"basic_interface/titlebar_left.bmp\"></div>\r\n		<div class=\"center\" data-background=\"basic_interface/titlebar_mid.bmp\"></div>\r\n		<div class=\"right\" data-background=\"basic_interface/titlebar_right.bmp\"></div>\r\n		<div class=\"title\">Navigation</div>\r\n		<ui-button\r\n			class=\"restore\"\r\n			bg=\"basic_interface/sys_mini_off.bmp\"\r\n			hover=\"basic_interface/sys_mini_on.bmp\"\r\n		></ui-button>\r\n		<ui-button\r\n			class=\"close\"\r\n			bg=\"basic_interface/sys_close_off.bmp\"\r\n			hover=\"basic_interface/sys_close_on.bmp\"\r\n		></ui-button>\r\n	</div>\r\n	<div class=\"mini-content\">\r\n		<div class=\"mini-current\"></div>\r\n		<div class=\"mini-target\"></div>\r\n	</div>\r\n	<div class=\"content\">\r\n		<div class=\"search-container\">\r\n			<select class=\"search-type\">\r\n				<option value=\"ALL\">all</option>\r\n				<option value=\"NPC\">npc</option>\r\n				<option value=\"MOB\">mob</option>\r\n				<option value=\"MAP\">map</option>\r\n			</select>\r\n			<div class=\"search-left\" data-background=\"basic_interface/txtbox_l.bmp\"></div>\r\n			<div class=\"search-middle\" data-background=\"basic_interface/txtbox_m.bmp\"></div>\r\n			<div class=\"search-right\" data-background=\"basic_interface/txtbox_r.bmp\"></div>\r\n			<input type=\"text\" class=\"search-input\" />\r\n			<ui-button\r\n				class=\"search-button\"\r\n				bg=\"navigation_interface3/btn_searchbar_normal.bmp\"\r\n				hover=\"navigation_interface3/btn_searchbar_over.bmp\"\r\n				down=\"navigation_interface3/btn_searchbar_press.bmp\"\r\n			></ui-button>\r\n			<ui-button\r\n				class=\"folder-button\"\r\n				bg=\"navigation_interface3/btn_navidata_open_normal.bmp\"\r\n				hover=\"navigation_interface3/btn_navidata_open_over.bmp\"\r\n				down=\"navigation_interface3/btn_navidata_open_press.bmp\"\r\n			></ui-button>\r\n		</div>\r\n\r\n		<div class=\"map-container\">\r\n			<div class=\"services-toggle-container\">\r\n				<label class=\"services-checkbox\" title=\"Allow transport/service routes such as airship, boat, Kafra, town guide, and similar NPC services.\"> <input type=\"checkbox\" class=\"services-toggle\" /> Services </label>\r\n			</div>\r\n			<div class=\"location-title\"></div>\r\n			<div class=\"map-display\">\r\n				<!-- Map will be displayed here -->\r\n			</div>\r\n		</div>\r\n		<div class=\"airship-bar\">\r\n			<ui-button\r\n				class=\"airship-move\"\r\n				bg=\"private_airplane/btn_move_normal.bmp\"\r\n				hover=\"private_airplane/btn_move_over.bmp\"\r\n				down=\"private_airplane/btn_move_press.bmp\"\r\n				disabled\r\n			></ui-button>\r\n		</div>\r\n\r\n		<div class=\"result-view\">\r\n			<div class=\"result-header\">\r\n				<span class=\"search-icon official-search-result-icon\"></span>\r\n				<span class=\"result-count\">Search result[0]</span>\r\n				<span class=\"selected-result-link\"></span>\r\n			</div>\r\n			<div class=\"result-body\">\r\n				<div class=\"result-left-panel\">\r\n					<ul class=\"results-list\"></ul>\r\n				</div>\r\n				<div class=\"result-right-panel\">\r\n					<div class=\"result-detail-panel\">\r\n						<div class=\"detail-empty\">Search for a monster, NPC, or map.</div>\r\n						<div class=\"detail-content\">\r\n							<div class=\"detail-title-row\">\r\n								<span class=\"detail-type-badge\"></span>\r\n								<span class=\"detail-name\"></span>\r\n							</div>\r\n							<div class=\"detail-main\">\r\n								<div class=\"detail-text\"></div>\r\n								<div class=\"detail-preview\">\r\n									<div class=\"detail-sprite-wrap\">\r\n										<canvas class=\"detail-sprite-canvas\" width=\"58\" height=\"58\"></canvas>\r\n										<div class=\"detail-sprite-fallback\"></div>\r\n									</div>\r\n									<div class=\"detail-map-preview\"><img class=\"detail-map-preview-img\" alt=\"\" /></div>\r\n								</div>\r\n							</div>\r\n							<div class=\"detail-map-list\"></div>\r\n						</div>\r\n					</div>\r\n					<div class=\"result-action-row\">\r\n						<label class=\"result-services-checkbox\" title=\"Allow transport/service routes such as airship, boat, Kafra, town guide, and similar NPC services.\"> <input type=\"checkbox\" class=\"services-toggle\" /> service </label>\r\n						<ui-button\r\n							class=\"nav-action share-action\"\r\n							bg=\"navigation_interface3/btn_share_normal.bmp\"\r\n							hover=\"navigation_interface3/btn_share_over.bmp\"\r\n							down=\"navigation_interface3/btn_share_press.bmp\"\r\n						></ui-button>\r\n						<ui-button\r\n							class=\"nav-action find-action\"\r\n							bg=\"navigation_interface3/btn_find_normal.bmp\"\r\n							hover=\"navigation_interface3/btn_find_over.bmp\"\r\n							down=\"navigation_interface3/btn_find_press.bmp\"\r\n						></ui-button>\r\n					</div>\r\n				</div>\r\n			</div>\r\n		</div>\r\n	</div>\r\n	<div class=\"footer\">\r\n		<label class=\"minimize-toggle-label\">\r\n			<input type=\"checkbox\" class=\"minimize-toggle\" />\r\n			<span>Minimize</span>\r\n		</label>\r\n		<div class=\"footer-actions\">\r\n			<ui-button\r\n				class=\"footer-detaillist-button\"\r\n				bg=\"navigation_interface3/btn_detaillist_normal.bmp\"\r\n				hover=\"navigation_interface3/btn_detaillist_over.bmp\"\r\n				down=\"navigation_interface3/btn_detaillist_press.bmp\"\r\n			></ui-button>\r\n			<ui-button\r\n				class=\"footer-roadicon-button\"\r\n				bg=\"navigation_interface3/btn_roadiocn_select1_normal.bmp\"\r\n				hover=\"navigation_interface3/btn_roadiocn_select1_over.bmp\"\r\n				down=\"navigation_interface3/btn_roadiocn_select1_press.bmp\"\r\n			></ui-button>\r\n		</div>\r\n		<div class=\"coordinates-bar\">\r\n			<div class=\"map-name\"></div>\r\n			<div class=\"mouse-info\">\r\n				<span class=\"mouse-label\">Mouse:</span>\r\n				<span class=\"mouse-coordinates\"></span>\r\n			</div>\r\n			<div class=\"target-info\">\r\n				<span class=\"target-label\">Target:</span>\r\n				<span class=\"target-coordinates\"></span>\r\n			</div>\r\n		</div>\r\n	</div>\r\n	<div class=\"roadicon-selector\">\r\n		<ui-button\r\n			class=\"roadicon-choice roadicon-choice-1 selected\"\r\n			data-roadicon-index=\"1\"\r\n			bg=\"navigation_interface3/btn_roadiocn_select1_normal.bmp\"\r\n			hover=\"navigation_interface3/btn_roadiocn_select1_over.bmp\"\r\n			down=\"navigation_interface3/btn_roadiocn_select1_press.bmp\"\r\n		></ui-button>\r\n		<ui-button\r\n			class=\"roadicon-choice roadicon-choice-2\"\r\n			data-roadicon-index=\"2\"\r\n			bg=\"navigation_interface3/btn_roadiocn_select2_normal.bmp\"\r\n			hover=\"navigation_interface3/btn_roadiocn_select2_over.bmp\"\r\n			down=\"navigation_interface3/btn_roadiocn_select2_press.bmp\"\r\n		></ui-button>\r\n		<ui-button\r\n			class=\"roadicon-choice roadicon-choice-3\"\r\n			data-roadicon-index=\"3\"\r\n			bg=\"navigation_interface3/btn_roadiocn_select3_normal.bmp\"\r\n			hover=\"navigation_interface3/btn_roadiocn_select3_over.bmp\"\r\n			down=\"navigation_interface3/btn_roadiocn_select3_press.bmp\"\r\n		></ui-button>\r\n		<ui-button\r\n			class=\"roadicon-choice roadicon-choice-4\"\r\n			data-roadicon-index=\"4\"\r\n			bg=\"navigation_interface3/btn_roadiocn_select4_normal.bmp\"\r\n			hover=\"navigation_interface3/btn_roadiocn_select4_over.bmp\"\r\n			down=\"navigation_interface3/btn_roadiocn_select4_press.bmp\"\r\n		></ui-button>\r\n		<ui-button\r\n			class=\"roadicon-choice roadicon-choice-5\"\r\n			data-roadicon-index=\"5\"\r\n			bg=\"navigation_interface3/btn_roadiocn_select5_normal.bmp\"\r\n			hover=\"navigation_interface3/btn_roadiocn_select5_over.bmp\"\r\n			down=\"navigation_interface3/btn_roadiocn_select5_press.bmp\"\r\n		></ui-button>\r\n		<ui-button\r\n			class=\"roadicon-choice roadicon-choice-6\"\r\n			data-roadicon-index=\"6\"\r\n			bg=\"navigation_interface3/btn_roadiocn_select6_normal.bmp\"\r\n			hover=\"navigation_interface3/btn_roadiocn_select6_over.bmp\"\r\n			down=\"navigation_interface3/btn_roadiocn_select6_press.bmp\"\r\n		></ui-button>\r\n		<ui-button\r\n			class=\"roadicon-choice roadicon-choice-7\"\r\n			data-roadicon-index=\"7\"\r\n			bg=\"navigation_interface3/btn_roadiocn_select7_normal.bmp\"\r\n			hover=\"navigation_interface3/btn_roadiocn_select7_over.bmp\"\r\n			down=\"navigation_interface3/btn_roadiocn_select7_press.bmp\"\r\n		></ui-button>\r\n		<ui-button\r\n			class=\"roadicon-choice roadicon-choice-8\"\r\n			data-roadicon-index=\"8\"\r\n			bg=\"navigation_interface3/btn_roadiocn_select8_normal.bmp\"\r\n			hover=\"navigation_interface3/btn_roadiocn_select8_over.bmp\"\r\n			down=\"navigation_interface3/btn_roadiocn_select8_press.bmp\"\r\n		></ui-button>\r\n	</div>\r\n</div>\r\n";
 }));
 // src/UI/Components/Navigation/Navigation.css?raw
 var Navigation_default$1;
 var init_Navigation$1 = __esmMin((() => {
-	Navigation_default$1 = ":host {\r\n	top: 200px;\r\n	left: 200px;\r\n}\r\n\r\n.Navigation {\r\n	width: 300px;\r\n	height: 324px;\r\n	z-index: 50;\r\n	background-repeat: repeat-y;\r\n	background-color: transparent;\r\n}\r\n\r\n.Navigation .titlebar {\r\n	width: 100%;\r\n	height: 17px;\r\n	position: relative;\r\n	z-index: 2;\r\n	cursor: move;\r\n}\r\n\r\n.Navigation .titlebar .left {\r\n	width: 15px;\r\n	height: 17px;\r\n	background-repeat: no-repeat;\r\n	position: absolute;\r\n	top: 0px;\r\n	left: 0px;\r\n}\r\n\r\n.Navigation .titlebar .center {\r\n	width: calc(100% - 20px);\r\n	height: 17px;\r\n	background-repeat: repeat-x;\r\n	position: absolute;\r\n	top: 0px;\r\n	left: 12px;\r\n}\r\n\r\n.Navigation .titlebar .right {\r\n	width: 12px;\r\n	height: 17px;\r\n	background-repeat: no-repeat;\r\n	position: absolute;\r\n	top: 0px;\r\n	right: 0px;\r\n}\r\n\r\n.Navigation .titlebar .title {\r\n	position: absolute;\r\n	top: 0px;\r\n	left: 10px;\r\n	height: 17px;\r\n	line-height: 17px;\r\n	white-space: nowrap;\r\n	text-shadow: 1px 1px white;\r\n	color: #000000;\r\n	font-size: 11px;\r\n	font-weight: bold;\r\n}\r\n\r\n.Navigation .titlebar .close {\r\n	position: absolute;\r\n	top: 2px;\r\n	right: 2px;\r\n	width: 13px;\r\n	height: 13px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n	cursor: pointer;\r\n}\r\n\r\n.Navigation .content {\r\n	width: 100%;\r\n	height: calc(100% - 17px);\r\n	position: relative;\r\n	display: flex;\r\n	flex-direction: column;\r\n	background-color: #f7f7f7;\r\n	border: 1px solid #d4d4d4;\r\n	border-top: none;\r\n	box-sizing: border-box;\r\n}\r\n\r\n.Navigation .search-container {\r\n	width: 100%;\r\n	height: 25px;\r\n	position: relative;\r\n	display: flex;\r\n	align-items: center;\r\n	padding: 5px 10px;\r\n	box-sizing: border-box;\r\n	background-color: #f7f7f7;\r\n}\r\n\r\n.Navigation .services-toggle-container {\r\n	display: flex;\r\n	align-items: center;\r\n	padding: 0;\r\n	margin: 0;\r\n	background-color: #f7f7f7;\r\n	position: absolute;\r\n	left: 6px;\r\n}\r\n\r\n.Navigation .services-checkbox {\r\n	color: #000;\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n.Navigation .services-toggle {\r\n	margin-right: 4px;\r\n	margin-top: 3px;\r\n}\r\n\r\n.Navigation .search-type {\r\n	top: 3px;\r\n	height: 20px;\r\n	margin-right: 5px;\r\n	border: 1px solid #ccc;\r\n	background-color: #fff;\r\n	padding: 0 2px;\r\n	cursor: pointer;\r\n	width: 50px;\r\n	z-index: 2;\r\n	position: relative;\r\n}\r\n\r\n.Navigation .search-left {\r\n	position: absolute;\r\n	top: 5px;\r\n	left: 65px;\r\n	width: 3px;\r\n	height: 20px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n}\r\n\r\n.Navigation .search-middle {\r\n	position: absolute;\r\n	top: 5px;\r\n	left: 68px;\r\n	right: 38px;\r\n	height: 20px;\r\n	background-repeat: repeat-x;\r\n	background-color: transparent;\r\n}\r\n\r\n.Navigation .search-right {\r\n	position: absolute;\r\n	top: 5px;\r\n	right: 35px;\r\n	width: 3px;\r\n	height: 20px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n}\r\n\r\n.Navigation .search-input {\r\n	position: absolute;\r\n	top: 5px;\r\n	left: 68px;\r\n	right: 38px;\r\n	height: 20px;\r\n	border: none;\r\n	background-color: transparent;\r\n	padding: 0 5px;\r\n	z-index: 1;\r\n}\r\n\r\n.Navigation .search-button {\r\n	position: absolute;\r\n	top: 7px;\r\n	right: 5px;\r\n	width: 33px;\r\n	height: 20px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n	cursor: pointer;\r\n}\r\n\r\n.Navigation .map-container {\r\n	width: 100%;\r\n	flex: 1;\r\n	position: relative;\r\n	display: flex;\r\n	flex-direction: column;\r\n	align-items: center;\r\n	padding: 0 10px 10px 10px;\r\n	box-sizing: border-box;\r\n	background-color: #f7f7f7;\r\n}\r\n\r\n.Navigation .location-title {\r\n	width: 100%;\r\n	height: 16px;\r\n	line-height: 16px;\r\n	text-align: center;\r\n	color: #000000;\r\n	text-shadow: none;\r\n	margin-bottom: 2px;\r\n	font-weight: bold;\r\n	background-color: #f7f7f7;\r\n}\r\n\r\n.Navigation .map-display {\r\n	width: 280px;\r\n	height: 230px;\r\n	margin: 0 auto;\r\n	position: relative;\r\n	background-color: #000000;\r\n	border: 1px solid #666666;\r\n	box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);\r\n}\r\n\r\n.Navigation .airship-bar {\r\n	width: 100%;\r\n	height: 24px;\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: flex-start;\r\n	background-color: #f7f7f7;\r\n}\r\n\r\n.Navigation .airship-move {\r\n	width: 120px;\r\n	height: 20px;\r\n	background-repeat: no-repeat;\r\n	cursor: pointer;\r\n}\r\n\r\n.Navigation .footer {\r\n	width: 100%;\r\n	position: relative;\r\n	height: 20px;\r\n	background-color: #f7f7f7;\r\n	border-top: 1px solid #d4d4d4;\r\n	box-sizing: border-box;\r\n}\r\n\r\n.Navigation .coordinates-bar {\r\n	position: relative;\r\n	width: 100%;\r\n	padding: 1px 5px;\r\n	box-sizing: border-box;\r\n	display: flex;\r\n	justify-content: space-between;\r\n	align-items: center;\r\n	height: 20px;\r\n	overflow: hidden;\r\n}\r\n\r\n.Navigation .map-name {\r\n	font-weight: bold;\r\n	color: #000;\r\n	flex: 1;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n}\r\n\r\n.Navigation .mouse-info,\r\n.Navigation .target-info {\r\n	display: none;\r\n	align-items: center;\r\n	color: #000;\r\n	margin-left: 8px;\r\n	white-space: nowrap;\r\n}\r\n\r\n.Navigation .mouse-label,\r\n.Navigation .target-label {\r\n	margin-right: 2px;\r\n}\r\n\r\n/* Path marker styles */\r\n.Navigation .start-marker,\r\n.Navigation .end-marker {\r\n	position: absolute;\r\n	width: 16px;\r\n	height: 16px;\r\n	transform: translate(-50%, -50%);\r\n}\r\n\r\n.Navigation .start-marker {\r\n	background-color: blue;\r\n}\r\n\r\n.Navigation .end-marker {\r\n	background-color: red;\r\n}\r\n\r\n.Navigation .path-line {\r\n	stroke: yellow;\r\n	stroke-width: 2;\r\n	fill: none;\r\n}\r\n\r\n.Navigation .search-results {\r\n	position: absolute;\r\n	top: 30px;\r\n	left: 10px;\r\n	right: 10px;\r\n	max-height: 200px;\r\n	background-color: #fff;\r\n	border: 1px solid #ccc;\r\n	z-index: 100;\r\n	overflow-y: auto;\r\n	display: none;\r\n	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);\r\n}\r\n\r\n.Navigation .no-results {\r\n	padding: 10px;\r\n	text-align: center;\r\n	color: #666;\r\n}\r\n\r\n.Navigation .results-list {\r\n	list-style: none;\r\n	margin: 0;\r\n	padding: 0;\r\n}\r\n\r\n.Navigation .result-item {\r\n	padding: 5px 10px;\r\n	border-bottom: 1px solid #eee;\r\n	cursor: pointer;\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n.Navigation .result-item:last-child {\r\n	border-bottom: none;\r\n}\r\n\r\n.Navigation .result-item:hover {\r\n	background-color: #f0f0f0;\r\n}\r\n\r\n.Navigation .result-type {\r\n	margin-right: 5px;\r\n	font-weight: bold;\r\n	color: #666;\r\n	width: 30px;\r\n}\r\n\r\n.Navigation .npc_icon {\r\n	color: #0066cc;\r\n}\r\n\r\n.Navigation .mob_icon {\r\n	color: #cc0000;\r\n}\r\n\r\n.Navigation .result-name {\r\n	flex: 1;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n}\r\n\r\n.Navigation .result-map {\r\n	color: #666;\r\n	margin-left: 5px;\r\n}\r\n";
+	Navigation_default$1 = ":host {\r\n	top: 200px;\r\n	left: 200px;\r\n}\r\n\r\n.Navigation {\r\n	position: relative;\r\n	--nav-scroll-up: none;\r\n	--nav-scroll-mid: none;\r\n	--nav-scroll-down: none;\r\n	--nav-bar-up: none;\r\n	--nav-bar-mid: none;\r\n	--nav-bar-down: none;\r\n	width: 300px;\r\n	height: 320px;\r\n	z-index: 50;\r\n	background-repeat: repeat-y;\r\n	background-color: transparent;\r\n}\r\n\r\n.Navigation .titlebar {\r\n	width: 100%;\r\n	height: 17px;\r\n	position: relative;\r\n	z-index: 2;\r\n	cursor: move;\r\n}\r\n\r\n.Navigation .titlebar .left {\r\n	width: 15px;\r\n	height: 17px;\r\n	background-repeat: no-repeat;\r\n	position: absolute;\r\n	top: 0px;\r\n	left: 0px;\r\n}\r\n\r\n.Navigation .titlebar .center {\r\n	width: calc(100% - 20px);\r\n	height: 17px;\r\n	background-repeat: repeat-x;\r\n	position: absolute;\r\n	top: 0px;\r\n	left: 12px;\r\n}\r\n\r\n.Navigation .titlebar .right {\r\n	width: 12px;\r\n	height: 17px;\r\n	background-repeat: no-repeat;\r\n	position: absolute;\r\n	top: 0px;\r\n	right: 0px;\r\n}\r\n\r\n.Navigation .titlebar .title {\r\n	position: absolute;\r\n	top: 0px;\r\n	left: 10px;\r\n	height: 17px;\r\n	line-height: 17px;\r\n	white-space: nowrap;\r\n	text-shadow: 1px 1px white;\r\n	color: #000000;\r\n	font-size: 11px;\r\n	font-weight: bold;\r\n}\r\n\r\n.Navigation .titlebar .close {\r\n	position: absolute;\r\n	top: 2px;\r\n	right: 2px;\r\n	width: 13px;\r\n	height: 13px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n	cursor: pointer;\r\n}\r\n\r\n.Navigation .content {\r\n	width: 100%;\r\n	height: calc(100% - 37px);\r\n	position: relative;\r\n	display: flex;\r\n	flex-direction: column;\r\n	background-color: #f7f7f7;\r\n	border: 1px solid #d4d4d4;\r\n	border-top: none;\r\n	box-sizing: border-box;\r\n}\r\n\r\n.Navigation .search-container {\r\n	width: 100%;\r\n	height: 25px;\r\n	position: relative;\r\n	display: flex;\r\n	align-items: center;\r\n	padding: 5px 10px;\r\n	box-sizing: border-box;\r\n	background-color: #f7f7f7;\r\n}\r\n\r\n.Navigation .services-toggle-container {\r\n	display: flex;\r\n	align-items: center;\r\n	padding: 0;\r\n	margin: 0;\r\n	background-color: #f7f7f7;\r\n	position: absolute;\r\n	left: 6px;\r\n}\r\n\r\n.Navigation .services-checkbox {\r\n	color: #000;\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n.Navigation .services-toggle {\r\n	margin-right: 4px;\r\n	margin-top: 3px;\r\n}\r\n\r\n.Navigation .search-type {\r\n	top: 3px;\r\n	height: 20px;\r\n	margin-right: 5px;\r\n	border: 1px solid #ccc;\r\n	background-color: #fff;\r\n	padding: 0 2px;\r\n	cursor: pointer;\r\n	width: 50px;\r\n	z-index: 2;\r\n	position: relative;\r\n}\r\n\r\n.Navigation .search-left {\r\n	position: absolute;\r\n	top: 5px;\r\n	left: 65px;\r\n	width: 3px;\r\n	height: 20px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n}\r\n\r\n.Navigation .search-middle {\r\n	position: absolute;\r\n	top: 5px;\r\n	left: 68px;\r\n	right: 38px;\r\n	height: 20px;\r\n	background-repeat: repeat-x;\r\n	background-color: transparent;\r\n}\r\n\r\n.Navigation .search-right {\r\n	position: absolute;\r\n	top: 5px;\r\n	right: 35px;\r\n	width: 3px;\r\n	height: 20px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n}\r\n\r\n.Navigation .search-input {\r\n	position: absolute;\r\n	top: 5px;\r\n	left: 68px;\r\n	right: 38px;\r\n	height: 20px;\r\n	border: none;\r\n	background-color: transparent;\r\n	padding: 0 5px;\r\n	z-index: 1;\r\n}\r\n\r\n.Navigation .search-button {\r\n	position: absolute;\r\n	top: 7px;\r\n	right: 5px;\r\n	width: 33px;\r\n	height: 20px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n	cursor: pointer;\r\n}\r\n\r\n.Navigation .map-container {\r\n	width: 100%;\r\n	flex: 1;\r\n	position: relative;\r\n	display: flex;\r\n	flex-direction: column;\r\n	align-items: center;\r\n	padding: 0 10px 10px 10px;\r\n	box-sizing: border-box;\r\n	background-color: #f7f7f7;\r\n}\r\n\r\n.Navigation .location-title {\r\n	width: 100%;\r\n	height: 16px;\r\n	line-height: 16px;\r\n	text-align: center;\r\n	color: #000000;\r\n	text-shadow: none;\r\n	margin-bottom: 2px;\r\n	font-weight: bold;\r\n	background-color: #f7f7f7;\r\n}\r\n\r\n.Navigation .map-display {\r\n	width: 280px;\r\n	height: 230px;\r\n	margin: 0 auto;\r\n	position: relative;\r\n	background-color: #000000;\r\n	border: 1px solid #666666;\r\n	box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);\r\n}\r\n\r\n.Navigation .footer {\r\n	width: 100%;\r\n	position: relative;\r\n	height: 20px;\r\n	background-color: #f7f7f7;\r\n	border-top: 1px solid #d4d4d4;\r\n	box-sizing: border-box;\r\n}\r\n\r\n.Navigation .coordinates-bar {\r\n	position: relative;\r\n	width: 100%;\r\n	padding: 1px 5px;\r\n	box-sizing: border-box;\r\n	display: flex;\r\n	justify-content: space-between;\r\n	align-items: center;\r\n	height: 20px;\r\n	overflow: hidden;\r\n}\r\n\r\n.Navigation .map-name {\r\n	font-weight: bold;\r\n	color: #000;\r\n	flex: 1;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n}\r\n\r\n.Navigation .mouse-info,\r\n.Navigation .target-info {\r\n	display: none;\r\n	align-items: center;\r\n	color: #000;\r\n	margin-left: 8px;\r\n	white-space: nowrap;\r\n}\r\n\r\n.Navigation .mouse-label,\r\n.Navigation .target-label {\r\n	margin-right: 2px;\r\n}\r\n\r\n/* Path marker styles */\r\n.Navigation .start-marker,\r\n.Navigation .end-marker {\r\n	position: absolute;\r\n	width: 16px;\r\n	height: 16px;\r\n	transform: translate(-50%, -50%);\r\n}\r\n\r\n.Navigation .start-marker {\r\n	background-color: blue;\r\n}\r\n\r\n.Navigation .end-marker {\r\n	background-color: red;\r\n}\r\n\r\n.Navigation .path-line {\r\n	stroke: yellow;\r\n	stroke-width: 2;\r\n	fill: none;\r\n}\r\n\r\n.Navigation .search-results {\r\n	position: absolute;\r\n	top: 30px;\r\n	left: 10px;\r\n	right: 10px;\r\n	max-height: 205px;\r\n	background-color: #fff;\r\n	border: 1px solid #8d8d8d;\r\n	z-index: 1000;\r\n	overflow-y: auto;\r\n	display: none;\r\n	box-sizing: border-box;\r\n	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.35);\r\n}\r\n\r\n.Navigation .no-results {\r\n	padding: 10px;\r\n	text-align: center;\r\n	color: #666;\r\n}\r\n\r\n.Navigation .results-list {\r\n	list-style: none;\r\n	margin: 0;\r\n	padding: 0;\r\n}\r\n\r\n.Navigation .result-item {\r\n	padding: 5px 10px;\r\n	border-bottom: 1px solid #eee;\r\n	cursor: pointer;\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n.Navigation .result-item:last-child {\r\n	border-bottom: none;\r\n}\r\n\r\n.Navigation .result-item:hover {\r\n	background-color: #f0f0f0;\r\n}\r\n\r\n.Navigation .result-type {\r\n	margin-right: 5px;\r\n	font-weight: bold;\r\n	color: #666;\r\n	width: 30px;\r\n}\r\n\r\n.Navigation .npc_icon {\r\n	color: #0066cc;\r\n}\r\n\r\n.Navigation .mob_icon {\r\n	color: #cc0000;\r\n}\r\n\r\n.Navigation .map_icon {\r\n	color: #008800;\r\n}\r\n\r\n.Navigation .result-name {\r\n	flex: 1;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n}\r\n\r\n.Navigation .result-map {\r\n	color: #666;\r\n	margin-left: 5px;\r\n}\r\n\r\n/* Minimized official-style navigation panel */\r\n.Navigation .titlebar .minimize {\r\n	position: absolute;\r\n	top: 2px;\r\n	right: 17px;\r\n	width: 13px;\r\n	height: 13px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n	cursor: pointer;\r\n}\r\n\r\n.Navigation .mini-content {\r\n	display: none;\r\n}\r\n\r\n.Navigation.minimized {\r\n	width: 155px;\r\n	height: auto;\r\n	background: rgba(245, 245, 245, 0.72);\r\n	border: 1px solid rgba(80, 80, 80, 0.35);\r\n	box-sizing: border-box;\r\n}\r\n\r\n.Navigation.minimized .titlebar {\r\n	height: 17px;\r\n}\r\n\r\n.Navigation.minimized .titlebar .left,\r\n.Navigation.minimized .titlebar .center,\r\n.Navigation.minimized .titlebar .right {\r\n	opacity: 0.65;\r\n}\r\n\r\n.Navigation.minimized .titlebar .title {\r\n	left: 5px;\r\n	right: 32px;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n}\r\n\r\n.Navigation.minimized .content,\r\n.Navigation.minimized .footer {\r\n	display: none;\r\n}\r\n\r\n.Navigation.minimized .mini-content {\r\n	display: block;\r\n	min-height: 32px;\r\n	padding: 1px 4px 3px 10px;\r\n	background: rgba(245, 245, 245, 0.72);\r\n	box-sizing: border-box;\r\n	font-size: 11px;\r\n	line-height: 14px;\r\n	color: #000;\r\n	text-shadow: 1px 1px rgba(255, 255, 255, 0.85);\r\n}\r\n\r\n.Navigation.minimized .mini-current,\r\n.Navigation.minimized .mini-target {\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n}\r\n\r\n.Navigation.minimized .mini-current::before {\r\n	content: '';\r\n	position: absolute;\r\n	width: 7px;\r\n	height: 7px;\r\n	margin-left: -9px;\r\n	margin-top: 3px;\r\n	border: 1px solid #2f80ff;\r\n	border-radius: 50%;\r\n	background: rgba(115, 185, 255, 0.6);\r\n}\r\n\r\n.Navigation.minimized .mini-target {\r\n	font-weight: bold;\r\n}\r\n\r\n.Navigation.minimized .mini-current {\r\n	position: relative;\r\n}\r\n\r\n/* Official-style full-window Minimize checkbox. The checkbox reduces the\r\n * window to the small status panel, but keeps the active route and footsteps. */\r\n.Navigation .titlebar .restore {\r\n	position: absolute;\r\n	top: 2px;\r\n	right: 17px;\r\n	width: 13px;\r\n	height: 13px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n	cursor: pointer;\r\n	display: none;\r\n}\r\n\r\n.Navigation .footer {\r\n	height: 20px;\r\n}\r\n\r\n.Navigation .minimize-toggle-label {\r\n	position: absolute;\r\n	left: 4px;\r\n	top: 1px;\r\n	height: 18px;\r\n	line-height: 18px;\r\n	display: flex;\r\n	align-items: center;\r\n	gap: 2px;\r\n	font-size: 11px;\r\n	color: #000;\r\n	white-space: nowrap;\r\n	z-index: 2;\r\n}\r\n\r\n.Navigation .minimize-toggle-label input {\r\n	margin: 0 2px 0 0;\r\n	width: 12px;\r\n	height: 12px;\r\n}\r\n\r\n.Navigation .coordinates-bar {\r\n	position: absolute;\r\n	left: 82px;\r\n	right: 4px;\r\n	width: auto;\r\n	padding: 1px 2px;\r\n}\r\n\r\n.Navigation.minimized .titlebar .restore {\r\n	display: block;\r\n}\r\n\r\n.Navigation.minimized .titlebar .close {\r\n	display: block;\r\n}\r\n\r\n.Navigation.minimized .titlebar .title {\r\n	right: 32px;\r\n}\r\n\r\n.Navigation.minimized .mini-content {\r\n	border-left: 1px solid rgba(80, 80, 80, 0.35);\r\n	border-right: 1px solid rgba(80, 80, 80, 0.35);\r\n	border-bottom: 1px solid rgba(80, 80, 80, 0.35);\r\n}\r\n\r\n.Navigation.minimized .mini-current::before {\r\n	content: '◆';\r\n	position: absolute;\r\n	margin-left: -10px;\r\n	margin-top: 0px;\r\n	width: auto;\r\n	height: auto;\r\n	border: none;\r\n	border-radius: 0;\r\n	background: transparent;\r\n	color: #2f80ff;\r\n	font-size: 9px;\r\n	line-height: 14px;\r\n}\r\n\r\n.Navigation.minimized .mini-target::before {\r\n	content: '>';\r\n	margin-right: 1px;\r\n	font-weight: bold;\r\n}\r\n\r\n/* Official-style result/detail Navigation view */\r\n.Navigation.has-results {\r\n	width: 300px;\r\n	height: 365px;\r\n}\r\n\r\n.Navigation.has-results .content {\r\n	height: calc(100% - 37px);\r\n}\r\n\r\n.Navigation .folder-button {\r\n	position: absolute;\r\n	top: 6px;\r\n	right: 4px;\r\n	width: 25px;\r\n	height: 20px;\r\n	background-repeat: no-repeat;\r\n	background-color: transparent;\r\n	border: none;\r\n	cursor: pointer;\r\n}\r\n\r\n.Navigation .folder-button + * {\r\n	display: none;\r\n}\r\n\r\n.Navigation .search-button {\r\n	right: 32px;\r\n}\r\n\r\n.Navigation .search-middle {\r\n	right: 65px;\r\n}\r\n\r\n.Navigation .search-right {\r\n	right: 62px;\r\n}\r\n\r\n.Navigation .search-input {\r\n	right: 65px;\r\n	font-size: 12px;\r\n}\r\n\r\n.Navigation .result-view {\r\n	display: none;\r\n	flex: 1;\r\n	min-height: 0;\r\n	background: #f7f7f7;\r\n	border-top: 1px solid #b9b9b9;\r\n	box-sizing: border-box;\r\n	flex-direction: column;\r\n	font-size: 11px;\r\n	color: #000;\r\n}\r\n\r\n.Navigation.has-results .map-container {\r\n	display: none;\r\n}\r\n\r\n.Navigation.has-results .result-view {\r\n	display: flex;\r\n}\r\n\r\n.Navigation .result-header {\r\n	height: 18px;\r\n	line-height: 18px;\r\n	padding: 0 3px;\r\n	box-sizing: border-box;\r\n	white-space: nowrap;\r\n	border-bottom: 1px solid #d0d0d0;\r\n}\r\n\r\n.Navigation .search-icon {\r\n	font-size: 13px;\r\n	margin-right: 2px;\r\n}\r\n\r\n.Navigation .result-body {\r\n	flex: 1;\r\n	min-height: 0;\r\n	display: flex;\r\n	border-bottom: 1px solid #d0d0d0;\r\n}\r\n\r\n.Navigation .result-left-panel {\r\n	width: 132px;\r\n	border-right: 1px solid #c6c6c6;\r\n	background: #fff;\r\n	overflow-y: auto;\r\n	overflow-x: hidden;\r\n}\r\n\r\n.Navigation .result-view .results-list {\r\n	list-style: none;\r\n	margin: 0;\r\n	padding: 0;\r\n}\r\n\r\n.Navigation .result-view .result-item {\r\n	display: flex;\r\n	align-items: center;\r\n	height: 17px;\r\n	line-height: 17px;\r\n	padding: 0 2px;\r\n	border: none;\r\n	cursor: pointer;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n	font-size: 11px;\r\n}\r\n\r\n.Navigation .result-view .result-item:hover,\r\n.Navigation .result-view .result-item.selected {\r\n	background: #dfe8ff;\r\n}\r\n\r\n.Navigation .result-view .result-type {\r\n	width: auto;\r\n	min-width: 17px;\r\n	margin-right: 1px;\r\n	font-weight: bold;\r\n	font-size: 11px;\r\n}\r\n\r\n.Navigation .result-view .mob_icon,\r\n.Navigation .detail-type-badge.mob_icon,\r\n.Navigation .spawn-type.mob_icon {\r\n	color: #e00000;\r\n}\r\n\r\n.Navigation .result-view .npc_icon,\r\n.Navigation .detail-type-badge.npc_icon,\r\n.Navigation .spawn-type.npc_icon {\r\n	color: #1155dd;\r\n}\r\n\r\n.Navigation .result-view .map_icon,\r\n.Navigation .detail-type-badge.map_icon,\r\n.Navigation .spawn-type.map_icon {\r\n	color: #008000;\r\n}\r\n\r\n.Navigation .result-view .result-name {\r\n	flex: 1;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n}\r\n\r\n.Navigation .result-view .result-map {\r\n	display: none;\r\n}\r\n\r\n.Navigation .result-detail-panel {\r\n	flex: 1;\r\n	position: relative;\r\n	background: #f7f7f7;\r\n	min-width: 0;\r\n	overflow: hidden;\r\n}\r\n\r\n.Navigation .detail-empty {\r\n	padding: 8px;\r\n	color: #777;\r\n	line-height: 15px;\r\n}\r\n\r\n.Navigation .detail-content {\r\n	display: none;\r\n	height: 100%;\r\n	box-sizing: border-box;\r\n	padding: 2px 3px;\r\n}\r\n\r\n.Navigation .result-detail-panel.has-selection .detail-empty {\r\n	display: none;\r\n}\r\n\r\n.Navigation .result-detail-panel.has-selection .detail-content {\r\n	display: block;\r\n}\r\n\r\n.Navigation .detail-title-row {\r\n	height: 17px;\r\n	line-height: 17px;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n	color: #0033cc;\r\n}\r\n\r\n.Navigation .detail-type-badge {\r\n	font-weight: bold;\r\n	margin-right: 2px;\r\n}\r\n\r\n.Navigation .detail-name {\r\n	font-weight: bold;\r\n}\r\n\r\n.Navigation .detail-main {\r\n	display: flex;\r\n	min-height: 62px;\r\n}\r\n\r\n.Navigation .detail-text {\r\n	flex: 1;\r\n	line-height: 14px;\r\n	color: #3333cc;\r\n	white-space: pre-line;\r\n	min-width: 0;\r\n}\r\n\r\n.Navigation .detail-preview {\r\n	width: 58px;\r\n	min-width: 58px;\r\n	text-align: center;\r\n	padding-top: 1px;\r\n	box-sizing: border-box;\r\n}\r\n\r\n.Navigation .detail-sprite-label {\r\n	height: 19px;\r\n	line-height: 19px;\r\n	font-size: 10px;\r\n	color: #555;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n}\r\n\r\n.Navigation .detail-map-preview {\r\n	width: 46px;\r\n	height: 46px;\r\n	margin: 0 auto;\r\n	border: 1px solid #666;\r\n	background: #000;\r\n	overflow: hidden;\r\n}\r\n\r\n.Navigation .detail-map-preview-img {\r\n	width: 100%;\r\n	height: 100%;\r\n	object-fit: cover;\r\n	display: block;\r\n}\r\n\r\n.Navigation .detail-map-list {\r\n	position: absolute;\r\n	left: 3px;\r\n	right: 3px;\r\n	bottom: 3px;\r\n	top: 88px;\r\n	background: #fff;\r\n	border: 1px solid #c7c7c7;\r\n	overflow-y: auto;\r\n	overflow-x: hidden;\r\n}\r\n\r\n.Navigation .spawn-row {\r\n	height: 17px;\r\n	line-height: 17px;\r\n	padding: 0 2px;\r\n	box-sizing: border-box;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n	cursor: pointer;\r\n}\r\n\r\n.Navigation .spawn-row:hover,\r\n.Navigation .spawn-row.selected {\r\n	background: #e4ecff;\r\n}\r\n\r\n.Navigation .spawn-type {\r\n	font-weight: bold;\r\n	margin-right: 1px;\r\n}\r\n\r\n.Navigation .spawn-rate {\r\n	color: #333;\r\n}\r\n\r\n.Navigation .result-action-row {\r\n	height: 52px;\r\n	padding: 2px 4px;\r\n	box-sizing: border-box;\r\n	position: relative;\r\n}\r\n\r\n.Navigation .result-services-checkbox {\r\n	position: absolute;\r\n	left: 5px;\r\n	top: 4px;\r\n	height: 16px;\r\n	line-height: 16px;\r\n	font-size: 11px;\r\n	color: #000;\r\n}\r\n\r\n.Navigation .result-services-checkbox input {\r\n	vertical-align: middle;\r\n	margin: 0 2px 0 0;\r\n}\r\n\r\n.Navigation .nav-action,\r\n.Navigation .move-action {\r\n	position: absolute;\r\n	height: 20px;\r\n	font-size: 11px;\r\n	line-height: 16px;\r\n	padding: 0 5px;\r\n	border: 1px solid #9e9e9e;\r\n	background: linear-gradient(#fff, #dedede);\r\n	border-radius: 2px;\r\n	color: #254fa4;\r\n	cursor: pointer;\r\n}\r\n\r\n.Navigation .share-action {\r\n	left: 74px;\r\n	top: 4px;\r\n	width: 58px;\r\n}\r\n\r\n.Navigation .find-action {\r\n	right: 4px;\r\n	top: 4px;\r\n	width: 58px;\r\n}\r\n\r\n.Navigation .move-action {\r\n	left: 145px;\r\n	right: 4px;\r\n	bottom: 4px;\r\n	width: auto;\r\n	font-weight: bold;\r\n	font-size: 12px;\r\n	color: #3333cc;\r\n}\r\n\r\n.Navigation .no-results {\r\n	padding: 6px;\r\n	text-align: left;\r\n	color: #666;\r\n	font-size: 11px;\r\n}\r\n\r\n/* -------------------------------------------------------------------------\r\n * Official Ragnarok/rAthena-style Navigation search result panel polish.\r\n * The layout intentionally follows the old client: result list on the left,\r\n * detail pane on the right, small [M]/[N]/[MAP] badges, compact action row.\r\n * GRF icons are applied at runtime when available; CSS badges remain fallback.\r\n * ------------------------------------------------------------------------- */\r\n.Navigation.has-results {\r\n	width: 300px;\r\n	height: 360px;\r\n}\r\n\r\n.Navigation.has-results .content {\r\n	height: calc(100% - 37px);\r\n	background: #f4f4f4;\r\n}\r\n\r\n.Navigation.has-results .search-container {\r\n	height: 27px;\r\n	padding: 3px 5px;\r\n}\r\n\r\n.Navigation.has-results .search-type {\r\n	left: 0;\r\n	top: 0;\r\n	width: 49px;\r\n	height: 20px;\r\n	font-size: 12px;\r\n}\r\n\r\n.Navigation.has-results .search-left {\r\n	left: 57px;\r\n	top: 4px;\r\n}\r\n\r\n.Navigation.has-results .search-middle {\r\n	left: 60px;\r\n	right: 37px;\r\n	top: 4px;\r\n}\r\n\r\n.Navigation.has-results .search-right {\r\n	right: 34px;\r\n	top: 4px;\r\n}\r\n\r\n.Navigation.has-results .search-input {\r\n	left: 60px;\r\n	right: 37px;\r\n	top: 4px;\r\n	height: 19px;\r\n	font-size: 12px;\r\n}\r\n\r\n.Navigation.has-results .search-button {\r\n	right: 4px;\r\n	top: 4px;\r\n	width: 33px;\r\n	height: 20px;\r\n}\r\n\r\n.Navigation.has-results .folder-button {\r\n	display: none;\r\n}\r\n\r\n.Navigation .result-view {\r\n	border-top: none;\r\n	background: #f4f4f4;\r\n	font-size: 11px;\r\n}\r\n\r\n.Navigation .result-header {\r\n	height: 18px;\r\n	line-height: 18px;\r\n	padding: 0 4px;\r\n	border-top: 1px solid #d7d7d7;\r\n	border-bottom: none;\r\n	background: #f4f4f4;\r\n	color: #000;\r\n}\r\n\r\n.Navigation .official-search-result-icon {\r\n	display: inline-block;\r\n	width: 12px;\r\n	height: 12px;\r\n	margin: 2px 3px 0 0;\r\n	vertical-align: top;\r\n	position: relative;\r\n}\r\n\r\n.Navigation .official-search-result-icon::before {\r\n	content: '';\r\n	position: absolute;\r\n	left: 1px;\r\n	top: 1px;\r\n	width: 7px;\r\n	height: 7px;\r\n	border: 1px solid #444;\r\n	border-radius: 50%;\r\n	background: transparent;\r\n}\r\n\r\n.Navigation .official-search-result-icon::after {\r\n	content: '';\r\n	position: absolute;\r\n	left: 8px;\r\n	top: 9px;\r\n	width: 6px;\r\n	height: 1px;\r\n	background: #444;\r\n	transform: rotate(45deg);\r\n	transform-origin: left center;\r\n}\r\n\r\n.Navigation .official-search-result-icon.grf-loaded::before,\r\n.Navigation .official-search-result-icon.grf-loaded::after,\r\n.Navigation .button-icon.grf-loaded::before,\r\n.Navigation .official-type-badge.grf-loaded .official-type-text {\r\n	display: none;\r\n}\r\n\r\n.Navigation .result-body {\r\n	border-top: none;\r\n	border-bottom: 1px solid #c5c5c5;\r\n}\r\n\r\n.Navigation .result-left-panel {\r\n	width: 136px;\r\n	background: #ffffff;\r\n	border-right: 1px solid #b9b9b9;\r\n}\r\n\r\n.Navigation .result-view .result-item {\r\n	height: 16px;\r\n	line-height: 16px;\r\n	padding: 0 2px 0 1px;\r\n	font-size: 11px;\r\n}\r\n\r\n.Navigation .result-view .result-item:hover,\r\n.Navigation .result-view .result-item.selected {\r\n	background: #dbe8ff;\r\n}\r\n\r\n.Navigation .official-type-badge {\r\n	display: inline-flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n	width: 13px;\r\n	height: 13px;\r\n	min-width: 13px;\r\n	margin-right: 1px;\r\n	box-sizing: border-box;\r\n	font-family: Arial, sans-serif;\r\n	font-size: 10px;\r\n	font-weight: bold;\r\n	line-height: 12px;\r\n	background-repeat: no-repeat;\r\n	background-position: center center;\r\n}\r\n\r\n.Navigation .official-type-badge.mob_icon {\r\n	border: 1px solid #b50000;\r\n	background-color: #ffdddd;\r\n	color: #e00000;\r\n}\r\n\r\n.Navigation .official-type-badge.npc_icon {\r\n	border: 1px solid #1e5bc9;\r\n	background-color: #e5efff;\r\n	color: #1155dd;\r\n}\r\n\r\n.Navigation .official-type-badge.map_icon {\r\n	border: 1px solid #007f20;\r\n	background-color: #e2ffe8;\r\n	color: #008000;\r\n}\r\n\r\n.Navigation .result-view .result-name {\r\n	font-size: 11px;\r\n	color: #000;\r\n}\r\n\r\n.Navigation .result-detail-panel {\r\n	background: #f4f4f4;\r\n}\r\n\r\n.Navigation .detail-content {\r\n	padding: 1px 3px 2px 4px;\r\n}\r\n\r\n.Navigation .detail-title-row {\r\n	height: 17px;\r\n	line-height: 17px;\r\n	color: #0033cc;\r\n	font-size: 11px;\r\n}\r\n\r\n.Navigation .detail-title-row .official-type-badge {\r\n	position: relative;\r\n	top: 2px;\r\n}\r\n\r\n.Navigation .detail-main {\r\n	min-height: 74px;\r\n	height: 74px;\r\n	display: flex;\r\n}\r\n\r\n.Navigation .detail-text {\r\n	font-size: 11px;\r\n	line-height: 14px;\r\n	color: #3333cc;\r\n	white-space: pre-line;\r\n	padding-left: 2px;\r\n}\r\n\r\n.Navigation .detail-preview {\r\n	width: 58px;\r\n	min-width: 58px;\r\n	padding-top: 0;\r\n}\r\n\r\n.Navigation .detail-sprite-wrap {\r\n	width: 58px;\r\n	height: 58px;\r\n	position: relative;\r\n	margin: 0 auto 2px auto;\r\n	overflow: visible;\r\n}\r\n\r\n.Navigation .detail-sprite-canvas {\r\n	width: 58px;\r\n	height: 58px;\r\n	display: block;\r\n}\r\n\r\n.Navigation .detail-sprite-fallback {\r\n	position: absolute;\r\n	left: 0;\r\n	top: 0;\r\n	width: 58px;\r\n	height: 58px;\r\n	display: none;\r\n	align-items: center;\r\n	justify-content: center;\r\n	font-size: 10px;\r\n	color: #777;\r\n	text-align: center;\r\n}\r\n\r\n.Navigation .detail-sprite-wrap.no-sprite .detail-sprite-fallback {\r\n	display: flex;\r\n}\r\n\r\n.Navigation .detail-sprite-wrap.no-sprite .detail-sprite-canvas {\r\n	display: none;\r\n}\r\n\r\n.Navigation .detail-map-preview {\r\n	width: 44px;\r\n	height: 44px;\r\n	margin: 0 auto;\r\n	border: 1px solid #666;\r\n}\r\n\r\n.Navigation .detail-map-list {\r\n	top: 94px;\r\n	left: 2px;\r\n	right: 2px;\r\n	bottom: 2px;\r\n	border: 1px solid #c4c4c4;\r\n	background: #fff;\r\n}\r\n\r\n.Navigation .spawn-row {\r\n	height: 16px;\r\n	line-height: 16px;\r\n	font-size: 11px;\r\n	padding: 0 2px;\r\n}\r\n\r\n.Navigation .spawn-row .official-type-badge {\r\n	position: relative;\r\n	top: 2px;\r\n}\r\n\r\n.Navigation .result-action-row {\r\n	height: 53px;\r\n	background: #f4f4f4;\r\n	padding: 0;\r\n}\r\n\r\n.Navigation .result-services-checkbox {\r\n	left: 5px;\r\n	top: 2px;\r\n}\r\n\r\n.Navigation .nav-action,\r\n.Navigation .move-action {\r\n	display: inline-flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n	gap: 2px;\r\n	height: 18px;\r\n	font-size: 11px;\r\n	line-height: 16px;\r\n	padding: 0 3px;\r\n	border: 1px solid #9b9b9b;\r\n	border-radius: 2px;\r\n	background: linear-gradient(#ffffff, #e0e0e0);\r\n	box-shadow: inset 1px 1px 0 rgba(255,255,255,.8);\r\n	color: #244a9a;\r\n}\r\n\r\n.Navigation .share-action {\r\n	left: 70px;\r\n	top: 2px;\r\n	width: 60px;\r\n}\r\n\r\n.Navigation .find-action {\r\n	right: 4px;\r\n	top: 2px;\r\n	width: 60px;\r\n}\r\n\r\n.Navigation .move-action {\r\n	left: 142px;\r\n	right: 4px;\r\n	bottom: 3px;\r\n	height: 20px;\r\n	font-weight: normal;\r\n	font-size: 12px;\r\n	color: #3333cc;\r\n}\r\n\r\n.Navigation .button-icon {\r\n	display: inline-block;\r\n	width: 14px;\r\n	height: 14px;\r\n	position: relative;\r\n	background-repeat: no-repeat;\r\n	background-position: center center;\r\n}\r\n\r\n.Navigation .share-icon::before {\r\n	content: '↗';\r\n	position: absolute;\r\n	left: 1px;\r\n	top: -2px;\r\n	font-size: 14px;\r\n	color: #2e60cc;\r\n}\r\n\r\n.Navigation .find-icon::before {\r\n	content: '';\r\n	position: absolute;\r\n	left: 2px;\r\n	top: 1px;\r\n	width: 7px;\r\n	height: 7px;\r\n	border: 1px solid #2e60cc;\r\n	border-radius: 50%;\r\n}\r\n\r\n.Navigation .find-icon::after {\r\n	content: '';\r\n	position: absolute;\r\n	left: 9px;\r\n	top: 9px;\r\n	width: 5px;\r\n	height: 1px;\r\n	background: #2e60cc;\r\n	transform: rotate(45deg);\r\n}\r\n\r\n.Navigation .move-icon::before {\r\n	content: '✥';\r\n	position: absolute;\r\n	left: 0;\r\n	top: -2px;\r\n	font-size: 14px;\r\n	color: #2e60cc;\r\n}\r\n\r\n.Navigation.has-results .footer {\r\n	height: 20px;\r\n}\r\n\r\n.Navigation.has-results .coordinates-bar {\r\n	display: none;\r\n}\r\n\r\n/* -------------------------------------------------------------------------\r\n * Final official result-panel alignment.\r\n * This overrides the earlier broad styles so the window matches the classic\r\n * Ragnarok Navigation pane: left result list, right detail/action column,\r\n * selected name in the header, and actions only under the right pane.\r\n * ------------------------------------------------------------------------- */\r\n.Navigation.has-results {\r\n	width: 300px;\r\n	height: 360px;\r\n}\r\n\r\n.Navigation.has-results .content {\r\n	height: calc(100% - 37px);\r\n	background: #f4f4f4;\r\n}\r\n\r\n.Navigation.has-results .search-container {\r\n	height: 27px;\r\n	padding: 3px 5px;\r\n}\r\n\r\n.Navigation.has-results .search-type {\r\n	width: 49px;\r\n	height: 20px;\r\n	font-size: 12px;\r\n	line-height: 16px;\r\n	margin-right: 4px;\r\n}\r\n\r\n.Navigation.has-results .search-left {\r\n	left: 57px;\r\n	top: 4px;\r\n}\r\n\r\n.Navigation.has-results .search-middle {\r\n	left: 60px;\r\n	right: 64px;\r\n	top: 4px;\r\n}\r\n\r\n.Navigation.has-results .search-right {\r\n	right: 61px;\r\n	top: 4px;\r\n}\r\n\r\n.Navigation.has-results .search-input {\r\n	left: 60px;\r\n	right: 64px;\r\n	top: 4px;\r\n	height: 19px;\r\n	font-size: 12px;\r\n	padding: 0 4px;\r\n}\r\n\r\n.Navigation.has-results .search-button {\r\n	right: 31px;\r\n	top: 4px;\r\n	width: 33px;\r\n	height: 20px;\r\n}\r\n\r\n.Navigation.has-results .folder-button {\r\n	display: block;\r\n	right: 4px;\r\n	top: 4px;\r\n	width: 25px;\r\n	height: 20px;\r\n}\r\n\r\n.Navigation .result-view {\r\n	position: relative;\r\n	flex: 1;\r\n	min-height: 0;\r\n	background: #f4f4f4;\r\n	border-top: none;\r\n	font-size: 11px;\r\n	line-height: 14px;\r\n}\r\n\r\n.Navigation .result-header {\r\n	position: relative;\r\n	flex: 0 0 18px;\r\n	height: 18px;\r\n	line-height: 18px;\r\n	padding: 0 4px;\r\n	box-sizing: border-box;\r\n	border-top: 1px solid #d7d7d7;\r\n	border-bottom: none;\r\n	background: #f4f4f4;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n}\r\n\r\n.Navigation .selected-result-link {\r\n	position: absolute;\r\n	left: 142px;\r\n	top: 0;\r\n	right: 3px;\r\n	height: 18px;\r\n	line-height: 18px;\r\n	color: #0033cc;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n}\r\n\r\n.Navigation .result-body {\r\n	flex: 1;\r\n	min-height: 0;\r\n	display: flex;\r\n	border-top: none;\r\n	border-bottom: none;\r\n	background: #ffffff;\r\n}\r\n\r\n.Navigation .result-left-panel {\r\n	width: 139px;\r\n	flex: 0 0 139px;\r\n	height: 100%;\r\n	background: #ffffff;\r\n	border-right: 1px solid #b9b9b9;\r\n	overflow-y: auto;\r\n	overflow-x: hidden;\r\n	box-sizing: border-box;\r\n}\r\n\r\n.Navigation .result-right-panel {\r\n	flex: 1;\r\n	min-width: 0;\r\n	height: 100%;\r\n	display: flex;\r\n	flex-direction: column;\r\n	background: #f4f4f4;\r\n	box-sizing: border-box;\r\n}\r\n\r\n.Navigation .result-detail-panel {\r\n	flex: 1;\r\n	min-height: 0;\r\n	position: relative;\r\n	background: #f4f4f4;\r\n	overflow: hidden;\r\n}\r\n\r\n.Navigation .detail-content {\r\n	position: relative;\r\n	display: none;\r\n	height: 100%;\r\n	box-sizing: border-box;\r\n	padding: 3px 3px 2px 3px;\r\n}\r\n\r\n.Navigation .result-detail-panel.has-selection .detail-content {\r\n	display: block;\r\n}\r\n\r\n.Navigation .detail-title-row {\r\n	display: none;\r\n}\r\n\r\n.Navigation .detail-main {\r\n	height: 84px;\r\n	min-height: 84px;\r\n	display: flex;\r\n}\r\n\r\n.Navigation .detail-text {\r\n	flex: 1;\r\n	min-width: 0;\r\n	padding-left: 2px;\r\n	padding-top: 0;\r\n	font-size: 11px;\r\n	line-height: 14px;\r\n	color: #3333cc;\r\n	white-space: pre-line;\r\n	overflow: hidden;\r\n}\r\n\r\n.Navigation .detail-preview {\r\n	width: 60px;\r\n	min-width: 60px;\r\n	padding-top: 0;\r\n	text-align: center;\r\n	box-sizing: border-box;\r\n}\r\n\r\n.Navigation .detail-sprite-wrap {\r\n	width: 58px;\r\n	height: 58px;\r\n	position: relative;\r\n	margin: 0 auto 2px auto;\r\n	overflow: visible;\r\n}\r\n\r\n.Navigation .detail-sprite-fallback {\r\n	font-size: 0;\r\n	line-height: 0;\r\n	color: transparent;\r\n}\r\n\r\n.Navigation .detail-map-preview {\r\n	width: 44px;\r\n	height: 44px;\r\n	margin: 0 auto;\r\n	border: 1px solid #666;\r\n	background: #000;\r\n	overflow: hidden;\r\n}\r\n\r\n.Navigation .detail-map-list {\r\n	position: absolute;\r\n	left: 3px;\r\n	right: 3px;\r\n	top: 88px;\r\n	bottom: 3px;\r\n	background: #ffffff;\r\n	border: 1px solid #c4c4c4;\r\n	overflow-y: auto;\r\n	overflow-x: hidden;\r\n	box-sizing: border-box;\r\n}\r\n\r\n.Navigation .spawn-row {\r\n	height: 16px;\r\n	line-height: 16px;\r\n	font-size: 11px;\r\n	padding: 0 2px;\r\n	box-sizing: border-box;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n}\r\n\r\n.Navigation .result-action-row {\r\n	position: relative;\r\n	flex: 0 0 61px;\r\n	height: 61px;\r\n	padding: 0;\r\n	box-sizing: border-box;\r\n	background: #f4f4f4;\r\n	border-top: 1px solid #c9c9c9;\r\n}\r\n\r\n.Navigation .result-services-checkbox {\r\n	position: absolute;\r\n	left: 4px;\r\n	top: 3px;\r\n	height: 16px;\r\n	line-height: 16px;\r\n	font-size: 11px;\r\n	color: #000;\r\n}\r\n\r\n.Navigation .result-services-checkbox input {\r\n	vertical-align: middle;\r\n	margin: 0 2px 0 0;\r\n}\r\n\r\n.Navigation .nav-action,\r\n.Navigation .move-action {\r\n	position: absolute;\r\n	display: inline-flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n	gap: 2px;\r\n	height: 18px;\r\n	font-size: 11px;\r\n	line-height: 16px;\r\n	padding: 0 3px;\r\n	border: 1px solid #9b9b9b;\r\n	border-radius: 2px;\r\n	background: linear-gradient(#ffffff, #e0e0e0);\r\n	box-shadow: inset 1px 1px 0 rgba(255,255,255,.8);\r\n	color: #244a9a;\r\n	cursor: pointer;\r\n	box-sizing: border-box;\r\n}\r\n\r\n.Navigation .share-action {\r\n	left: 4px;\r\n	top: 22px;\r\n	width: 59px;\r\n}\r\n\r\n.Navigation .find-action {\r\n	right: 4px;\r\n	top: 22px;\r\n	width: 59px;\r\n}\r\n\r\n.Navigation .move-action {\r\n	left: 3px;\r\n	right: 3px;\r\n	top: auto;\r\n	bottom: 3px;\r\n	width: auto;\r\n	height: 20px;\r\n	font-weight: normal;\r\n	font-size: 12px;\r\n	color: #3333cc;\r\n}\r\n\r\n.Navigation.has-results .footer {\r\n	height: 20px;\r\n}\r\n\r\n.Navigation.has-results .coordinates-bar {\r\n	display: none;\r\n}\r\n\r\n\r\n/* -------------------------------------------------------------------------\r\n * Result-panel final fix: keep the small map preview above the spawn list\r\n * and keep enough room for the monster sprite + map thumbnail. This prevents\r\n * the map thumbnail from underlapping/being covered by the spawn list.\r\n * ------------------------------------------------------------------------- */\r\n.Navigation.has-results {\r\n	width: 300px;\r\n	height: 360px;\r\n}\r\n\r\n.Navigation .detail-main {\r\n	height: 112px;\r\n	min-height: 112px;\r\n	display: flex;\r\n}\r\n\r\n.Navigation .detail-preview {\r\n	width: 62px;\r\n	min-width: 62px;\r\n	padding-top: 0;\r\n	text-align: center;\r\n	box-sizing: border-box;\r\n}\r\n\r\n.Navigation .detail-sprite-wrap {\r\n	width: 58px;\r\n	height: 58px;\r\n	position: relative;\r\n	margin: 0 auto 3px auto;\r\n	overflow: visible;\r\n}\r\n\r\n.Navigation .detail-sprite-canvas {\r\n	width: 58px;\r\n	height: 58px;\r\n	display: block;\r\n}\r\n\r\n.Navigation .detail-map-preview {\r\n	width: 44px;\r\n	height: 44px;\r\n	margin: 0 auto;\r\n	border: 1px solid #666;\r\n	background: #000;\r\n	overflow: hidden;\r\n	box-sizing: border-box;\r\n}\r\n\r\n.Navigation .detail-map-list {\r\n	top: 116px;\r\n	left: 3px;\r\n	right: 3px;\r\n	bottom: 3px;\r\n	z-index: 1;\r\n}\r\n\r\n.Navigation .detail-map-preview {\r\n	position: relative;\r\n	z-index: 2;\r\n}\r\n\r\n.Navigation .detail-text {\r\n	padding-top: 1px;\r\n}\r\n\r\n\r\n/* --- official minimize + badge cleanup overrides --- */\r\n.Navigation {\r\n	overflow: hidden;\r\n}\r\n\r\n.Navigation.minimized {\r\n	width: 158px !important;\r\n	height: auto !important;\r\n	background: rgba(246, 246, 246, 0.82) !important;\r\n	border: 1px solid rgba(85, 85, 85, 0.45) !important;\r\n	box-sizing: border-box !important;\r\n}\r\n\r\n.Navigation.minimized .titlebar {\r\n	width: 100% !important;\r\n}\r\n\r\n.Navigation.minimized .mini-content {\r\n	display: block !important;\r\n	min-height: 32px !important;\r\n	padding: 2px 4px 4px 10px !important;\r\n	background: rgba(246, 246, 246, 0.82) !important;\r\n	border-top: none !important;\r\n	box-sizing: border-box !important;\r\n}\r\n\r\n.Navigation.minimized .mini-current,\r\n.Navigation.minimized .mini-target {\r\n	font-size: 11px;\r\n	line-height: 14px;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n}\r\n\r\n.Navigation.minimized .mini-current::before {\r\n	content: '◆' !important;\r\n	position: absolute;\r\n	margin-left: -10px;\r\n	margin-top: 0;\r\n	width: auto;\r\n	height: auto;\r\n	border: none;\r\n	background: transparent;\r\n	color: #2b73d6;\r\n	font-size: 9px;\r\n	line-height: 14px;\r\n}\r\n\r\n.Navigation.minimized .mini-target::before {\r\n	content: '>' !important;\r\n	margin-right: 1px;\r\n	font-weight: bold;\r\n}\r\n\r\n.Navigation .official-type-badge {\r\n	width: 13px;\r\n	height: 13px;\r\n	min-width: 13px;\r\n	font-size: 10px;\r\n	line-height: 11px;\r\n}\r\n\r\n.Navigation .official-type-badge.mob_icon {\r\n	border-color: #b70000 !important;\r\n	background-color: #ffdede !important;\r\n	color: #d60000 !important;\r\n}\r\n\r\n.Navigation .official-type-badge.npc_icon {\r\n	border-color: #69a6ff !important;\r\n	background-color: #e9f3ff !important;\r\n	color: #5fa6ff !important;\r\n}\r\n\r\n.Navigation .official-type-badge.map_icon {\r\n	border-color: #0f8d25 !important;\r\n	background-color: #e5ffe8 !important;\r\n	color: #1a9c35 !important;\r\n}\r\n\r\n.Navigation .result-view .npc_icon,\r\n.Navigation .detail-type-badge.npc_icon,\r\n.Navigation .spawn-type.npc_icon {\r\n	color: #5fa6ff !important;\r\n}\r\n\r\n.Navigation .result-view .map_icon,\r\n.Navigation .detail-type-badge.map_icon,\r\n.Navigation .spawn-type.map_icon {\r\n	color: #1a9c35 !important;\r\n}\r\n\r\n.Navigation .result-action-row .nav-action,\r\n.Navigation .result-action-row .move-action {\r\n	border: none !important;\r\n	box-shadow: none !important;\r\n	background-color: transparent !important;\r\n}\r\n\r\n\r\n/* --- Navigation final runtime fixes --- */\r\n.Navigation {\r\n	width: 300px !important;\r\n	height: 320px !important;\r\n	overflow: hidden;\r\n}\r\n\r\n.Navigation.has-results {\r\n	width: 300px !important;\r\n	height: 360px !important;\r\n}\r\n\r\n.Navigation .content,\r\n.Navigation.has-results .content {\r\n	height: calc(100% - 37px) !important;\r\n}\r\n\r\n.Navigation.minimized {\r\n	width: 158px !important;\r\n	height: auto !important;\r\n}\r\n\r\n.Navigation .official-type-badge.grf-loaded .official-type-text {\r\n	display: none !important;\r\n}\r\n\r\n.Navigation .official-type-badge.mob_icon,\r\n.Navigation .official-type-badge.mob_icon .official-type-text {\r\n	border-color: #b70000 !important;\r\n	background-color: #ffdede !important;\r\n	color: #d60000 !important;\r\n}\r\n\r\n.Navigation .official-type-badge.npc_icon,\r\n.Navigation .official-type-badge.npc_icon .official-type-text {\r\n	border-color: #69a6ff !important;\r\n	background-color: #e9f3ff !important;\r\n	color: #5fa6ff !important;\r\n}\r\n\r\n.Navigation .official-type-badge.map_icon,\r\n.Navigation .official-type-badge.map_icon .official-type-text {\r\n	border-color: #0f8d25 !important;\r\n	background-color: #e5ffe8 !important;\r\n	color: #1a9c35 !important;\r\n}\r\n\r\n.Navigation .detail-main {\r\n	height: 112px !important;\r\n	min-height: 112px !important;\r\n}\r\n\r\n.Navigation .detail-map-list {\r\n	top: 116px !important;\r\n}\r\n\r\n/* --- Official compact Navigation result window override --- */\r\n.Navigation.has-results {\r\n	width: 270px !important;\r\n	height: 336px !important;\r\n	background: #f4f4f4 !important;\r\n}\r\n\r\n.Navigation.has-results .content {\r\n	height: calc(100% - 37px) !important;\r\n	background: #f4f4f4 !important;\r\n	border-left: 1px solid #b8b8b8 !important;\r\n	border-right: 1px solid #b8b8b8 !important;\r\n	border-bottom: none !important;\r\n}\r\n\r\n.Navigation.has-results .search-container {\r\n	height: 27px !important;\r\n	padding: 3px 4px !important;\r\n	background: #f4f4f4 !important;\r\n	box-sizing: border-box !important;\r\n}\r\n\r\n.Navigation.has-results .search-type {\r\n	position: relative !important;\r\n	left: 0 !important;\r\n	top: 0 !important;\r\n	width: 54px !important;\r\n	height: 20px !important;\r\n	margin: 0 3px 0 0 !important;\r\n	font-size: 11px !important;\r\n	line-height: 18px !important;\r\n	padding: 0 0 0 4px !important;\r\n	border: 1px solid #b8b8b8 !important;\r\n	background: #ffffff !important;\r\n	color: #000 !important;\r\n	text-transform: lowercase !important;\r\n	box-sizing: border-box !important;\r\n}\r\n\r\n.Navigation.has-results .search-left {\r\n	left: 58px !important;\r\n	top: 4px !important;\r\n	height: 20px !important;\r\n}\r\n\r\n.Navigation.has-results .search-middle {\r\n	left: 61px !important;\r\n	right: 62px !important;\r\n	top: 4px !important;\r\n	height: 20px !important;\r\n}\r\n\r\n.Navigation.has-results .search-right {\r\n	right: 59px !important;\r\n	top: 4px !important;\r\n	height: 20px !important;\r\n}\r\n\r\n.Navigation.has-results .search-input {\r\n	left: 61px !important;\r\n	right: 62px !important;\r\n	top: 4px !important;\r\n	height: 19px !important;\r\n	padding: 0 4px !important;\r\n	font-size: 11px !important;\r\n	line-height: 19px !important;\r\n	box-sizing: border-box !important;\r\n}\r\n\r\n.Navigation.has-results .search-button {\r\n	right: 30px !important;\r\n	top: 4px !important;\r\n	width: 28px !important;\r\n	height: 20px !important;\r\n}\r\n\r\n.Navigation.has-results .folder-button {\r\n	display: block !important;\r\n	right: 3px !important;\r\n	top: 4px !important;\r\n	width: 26px !important;\r\n	height: 20px !important;\r\n}\r\n\r\n.Navigation.has-results .result-view {\r\n	position: relative !important;\r\n	flex: 1 1 auto !important;\r\n	min-height: 0 !important;\r\n	background: #f4f4f4 !important;\r\n	border: none !important;\r\n	font-size: 11px !important;\r\n	line-height: 14px !important;\r\n}\r\n\r\n.Navigation.has-results .result-header {\r\n	position: relative !important;\r\n	flex: 0 0 18px !important;\r\n	height: 18px !important;\r\n	line-height: 18px !important;\r\n	padding: 0 3px !important;\r\n	background: #f4f4f4 !important;\r\n	border-top: none !important;\r\n	border-bottom: none !important;\r\n	box-sizing: border-box !important;\r\n}\r\n\r\n.Navigation.has-results .official-search-result-icon {\r\n	width: 12px !important;\r\n	height: 12px !important;\r\n	margin: 2px 2px 0 0 !important;\r\n}\r\n\r\n.Navigation.has-results .selected-result-link {\r\n	left: 139px !important;\r\n	right: 2px !important;\r\n	font-size: 11px !important;\r\n	color: #0033cc !important;\r\n}\r\n\r\n.Navigation.has-results .result-body {\r\n	flex: 1 1 auto !important;\r\n	min-height: 0 !important;\r\n	display: flex !important;\r\n	background: #ffffff !important;\r\n	border-top: none !important;\r\n	border-bottom: 1px solid #c7c7c7 !important;\r\n}\r\n\r\n.Navigation.has-results .result-left-panel {\r\n	width: 138px !important;\r\n	flex: 0 0 138px !important;\r\n	height: 100% !important;\r\n	background: #ffffff !important;\r\n	border-right: 1px solid #b6b6b6 !important;\r\n	box-sizing: border-box !important;\r\n	overflow-y: auto !important;\r\n	overflow-x: hidden !important;\r\n}\r\n\r\n.Navigation.has-results .result-right-panel {\r\n	flex: 1 1 auto !important;\r\n	min-width: 0 !important;\r\n	height: 100% !important;\r\n	display: flex !important;\r\n	flex-direction: column !important;\r\n	background: #f4f4f4 !important;\r\n	box-sizing: border-box !important;\r\n}\r\n\r\n.Navigation.has-results .result-view .result-item {\r\n	height: 16px !important;\r\n	line-height: 16px !important;\r\n	padding: 0 1px !important;\r\n	font-size: 11px !important;\r\n	white-space: nowrap !important;\r\n	box-sizing: border-box !important;\r\n}\r\n\r\n.Navigation.has-results .result-view .result-name,\r\n.Navigation.has-results .result-amount {\r\n	font-size: 11px !important;\r\n	line-height: 16px !important;\r\n	color: #000 !important;\r\n}\r\n\r\n.Navigation.has-results .result-amount {\r\n	flex: 0 0 auto !important;\r\n	margin-right: 0 !important;\r\n}\r\n\r\n.Navigation.has-results .official-type-badge {\r\n	width: 12px !important;\r\n	height: 12px !important;\r\n	min-width: 12px !important;\r\n	margin-right: 0 !important;\r\n	font-size: 10px !important;\r\n	line-height: 10px !important;\r\n	position: relative !important;\r\n	top: 1px !important;\r\n}\r\n\r\n.Navigation.has-results .result-detail-panel {\r\n	flex: 1 1 auto !important;\r\n	min-height: 0 !important;\r\n	position: relative !important;\r\n	background: #f4f4f4 !important;\r\n	overflow: hidden !important;\r\n}\r\n\r\n.Navigation.has-results .detail-content {\r\n	position: relative !important;\r\n	display: none !important;\r\n	height: 100% !important;\r\n	padding: 1px 3px 2px 3px !important;\r\n	box-sizing: border-box !important;\r\n}\r\n\r\n.Navigation.has-results .result-detail-panel.has-selection .detail-content {\r\n	display: block !important;\r\n}\r\n\r\n.Navigation.has-results .detail-title-row {\r\n	display: none !important;\r\n}\r\n\r\n.Navigation.has-results .detail-main {\r\n	height: 99px !important;\r\n	min-height: 99px !important;\r\n	display: flex !important;\r\n}\r\n\r\n.Navigation.has-results .detail-text {\r\n	flex: 1 1 auto !important;\r\n	min-width: 0 !important;\r\n	padding: 0 0 0 1px !important;\r\n	font-size: 11px !important;\r\n	line-height: 14px !important;\r\n	color: #3333cc !important;\r\n	white-space: pre-line !important;\r\n	overflow: hidden !important;\r\n}\r\n\r\n.Navigation.has-results .detail-preview {\r\n	width: 58px !important;\r\n	min-width: 58px !important;\r\n	padding-top: 0 !important;\r\n	text-align: center !important;\r\n	box-sizing: border-box !important;\r\n}\r\n\r\n.Navigation.has-results .detail-sprite-wrap {\r\n	width: 58px !important;\r\n	height: 52px !important;\r\n	position: relative !important;\r\n	margin: 0 auto 1px auto !important;\r\n	overflow: visible !important;\r\n}\r\n\r\n.Navigation.has-results .detail-sprite-canvas {\r\n	width: 58px !important;\r\n	height: 58px !important;\r\n	display: block !important;\r\n}\r\n\r\n.Navigation.has-results .detail-map-preview {\r\n	width: 44px !important;\r\n	height: 44px !important;\r\n	margin: 0 auto !important;\r\n	border: 1px solid #555 !important;\r\n	background: #000 !important;\r\n	box-sizing: border-box !important;\r\n	overflow: hidden !important;\r\n}\r\n\r\n.Navigation.has-results .detail-map-list {\r\n	position: absolute !important;\r\n	left: 3px !important;\r\n	right: 3px !important;\r\n	top: 102px !important;\r\n	bottom: 3px !important;\r\n	background: #ffffff !important;\r\n	border: 1px solid #c4c4c4 !important;\r\n	overflow-y: auto !important;\r\n	overflow-x: hidden !important;\r\n	box-sizing: border-box !important;\r\n	z-index: 1 !important;\r\n}\r\n\r\n.Navigation.has-results .spawn-row {\r\n	height: 16px !important;\r\n	line-height: 16px !important;\r\n	font-size: 11px !important;\r\n	padding: 0 1px !important;\r\n	box-sizing: border-box !important;\r\n	white-space: nowrap !important;\r\n	overflow: hidden !important;\r\n	text-overflow: ellipsis !important;\r\n}\r\n\r\n.Navigation.has-results .spawn-row .official-type-badge {\r\n	top: 1px !important;\r\n}\r\n\r\n.Navigation.has-results .result-action-row {\r\n	position: relative !important;\r\n	flex: 0 0 55px !important;\r\n	height: 55px !important;\r\n	padding: 0 !important;\r\n	background: #f4f4f4 !important;\r\n	border-top: none !important;\r\n	box-sizing: border-box !important;\r\n}\r\n\r\n.Navigation.has-results .result-services-checkbox {\r\n	left: 5px !important;\r\n	top: 1px !important;\r\n	height: 16px !important;\r\n	line-height: 16px !important;\r\n	font-size: 11px !important;\r\n}\r\n\r\n.Navigation.has-results .nav-action,\r\n.Navigation.has-results .move-action {\r\n	height: 19px !important;\r\n	font-size: 11px !important;\r\n	line-height: 17px !important;\r\n	padding: 0 3px !important;\r\n	border: none !important;\r\n	border-radius: 0 !important;\r\n	background-color: transparent !important;\r\n	box-shadow: none !important;\r\n	color: #244a9a !important;\r\n	box-sizing: border-box !important;\r\n}\r\n\r\n.Navigation.has-results .share-action {\r\n	left: 3px !important;\r\n	top: 20px !important;\r\n	width: 58px !important;\r\n}\r\n\r\n.Navigation.has-results .find-action {\r\n	right: 3px !important;\r\n	top: 20px !important;\r\n	width: 58px !important;\r\n}\r\n\r\n.Navigation.has-results .move-action {\r\n	left: 3px !important;\r\n	right: 3px !important;\r\n	top: auto !important;\r\n	bottom: 2px !important;\r\n	height: 20px !important;\r\n	width: auto !important;\r\n	font-size: 12px !important;\r\n	font-weight: normal !important;\r\n	color: #3333cc !important;\r\n}\r\n\r\n.Navigation.has-results .footer {\r\n	height: 20px !important;\r\n	background: #f4f4f4 !important;\r\n	border-top: 1px solid #d7d7d7 !important;\r\n	box-sizing: border-box !important;\r\n}\r\n\r\n.Navigation.has-results .coordinates-bar {\r\n	display: none !important;\r\n}\r\n\r\n.Navigation .footer-actions {\r\n	display: none;\r\n}\r\n\r\n.Navigation.has-results .footer-actions {\r\n	display: flex !important;\r\n	position: absolute !important;\r\n	right: 4px !important;\r\n	top: 1px !important;\r\n	height: 18px !important;\r\n	gap: 3px !important;\r\n	align-items: center !important;\r\n	z-index: 3 !important;\r\n}\r\n\r\n.Navigation.has-results .footer-worldmap-button,\r\n.Navigation.has-results .footer-navi-button {\r\n	width: 28px !important;\r\n	height: 18px !important;\r\n	padding: 0 !important;\r\n	border: 1px solid #9b9b9b !important;\r\n	border-radius: 2px !important;\r\n	background-repeat: no-repeat !important;\r\n	background-position: center center !important;\r\n	background-color: #ededed !important;\r\n	box-sizing: border-box !important;\r\n	cursor: pointer !important;\r\n}\r\n\r\n.Navigation.has-results .footer-navi-button {\r\n	position: relative !important;\r\n	background: linear-gradient(#ffffff, #e0e0e0) !important;\r\n}\r\n\r\n.Navigation.has-results .footer-navi-button::before {\r\n	content: '' !important;\r\n	position: absolute !important;\r\n	left: 8px !important;\r\n	top: 3px !important;\r\n	width: 0 !important;\r\n	height: 0 !important;\r\n	border-left: 6px solid transparent !important;\r\n	border-right: 6px solid transparent !important;\r\n	border-bottom: 10px solid #f0c845 !important;\r\n}\r\n\r\n.Navigation.has-results .footer-navi-button::after {\r\n	content: '' !important;\r\n	position: absolute !important;\r\n	left: 9px !important;\r\n	top: 4px !important;\r\n	width: 10px !important;\r\n	height: 10px !important;\r\n	border-left: 1px solid rgba(255,255,255,.8) !important;\r\n	transform: rotate(0deg) !important;\r\n}\r\n\r\n\r\n/* -------------------------------------------------------------------------\r\n * Final official-navigation fixes (pass 2)\r\n * ---------------------------------------------------------------------- */\r\n.Navigation.has-results .result-body,\r\n.Navigation.has-results .result-right-panel,\r\n.Navigation.has-results .result-detail-panel,\r\n.Navigation.has-results .detail-content {\r\n	overflow: hidden !important;\r\n}\r\n\r\n.Navigation.has-results .result-left-panel {\r\n	scrollbar-gutter: stable;\r\n}\r\n\r\n.Navigation.has-results .result-view .results-list {\r\n	display: block !important;\r\n	margin: 0 !important;\r\n	padding: 0 !important;\r\n}\r\n\r\n.Navigation.has-results .detail-map-list {\r\n	scrollbar-gutter: stable;\r\n}\r\n\r\n.Navigation .nav-action,\r\n.Navigation .move-action,\r\n.Navigation .footer-detaillist-button,\r\n.Navigation .footer-roadicon-button {\r\n	display: block;\r\n	background-repeat: no-repeat;\r\n	background-position: center center;\r\n	background-color: transparent;\r\n	border: none;\r\n	padding: 0;\r\n}\r\n\r\n.Navigation .nav-action::before,\r\n.Navigation .nav-action::after,\r\n.Navigation .move-action::before,\r\n.Navigation .move-action::after,\r\n.Navigation .footer-roadicon-button::before,\r\n.Navigation .footer-roadicon-button::after {\r\n	content: none !important;\r\n	display: none !important;\r\n}\r\n\r\n.Navigation .nav-action .button-icon,\r\n.Navigation .move-action .button-icon {\r\n	display: none !important;\r\n}\r\n\r\n.Navigation.has-results .nav-action,\r\n.Navigation.has-results .move-action {\r\n	border: none !important;\r\n	border-radius: 0 !important;\r\n	background-color: transparent !important;\r\n	box-shadow: none !important;\r\n	padding: 0 !important;\r\n}\r\n\r\n.Navigation.has-results .share-action {\r\n	left: 3px !important;\r\n	top: 20px !important;\r\n	width: 58px !important;\r\n	height: 19px !important;\r\n}\r\n\r\n.Navigation.has-results .find-action {\r\n	right: 3px !important;\r\n	top: 20px !important;\r\n	width: 58px !important;\r\n	height: 19px !important;\r\n}\r\n\r\n.Navigation.has-results .move-action {\r\n	left: 3px !important;\r\n	right: 3px !important;\r\n	bottom: 2px !important;\r\n	width: auto !important;\r\n	height: 20px !important;\r\n}\r\n\r\n.Navigation .footer-actions {\r\n	display: none;\r\n}\r\n\r\n.Navigation.has-results .footer-actions {\r\n	display: flex !important;\r\n	position: absolute !important;\r\n	right: 4px !important;\r\n	top: 1px !important;\r\n	height: 18px !important;\r\n	gap: 3px !important;\r\n	align-items: center !important;\r\n	z-index: 3 !important;\r\n}\r\n\r\n.Navigation.has-results .footer-detaillist-button,\r\n.Navigation.has-results .footer-roadicon-button {\r\n	width: 28px !important;\r\n	height: 18px !important;\r\n	box-sizing: border-box !important;\r\n	cursor: pointer !important;\r\n}\r\n\r\n.Navigation .official-type-badge.grf-loaded {\r\n	border: none !important;\r\n	background-color: transparent !important;\r\n}\r\n\r\n\r\n/* official navigation_interface3 scrollbars */\r\n.Navigation .results-list::-webkit-scrollbar,\r\n.Navigation .detail-map-list::-webkit-scrollbar {\r\n	width: 14px;\r\n	height: 14px;\r\n}\r\n\r\n.Navigation .results-list::-webkit-scrollbar-corner,\r\n.Navigation .detail-map-list::-webkit-scrollbar-corner {\r\n	display: none;\r\n}\r\n\r\n.Navigation .results-list::-webkit-scrollbar-button:vertical:decrement,\r\n.Navigation .detail-map-list::-webkit-scrollbar-button:vertical:decrement {\r\n	background: var(--nav-scroll-up) center center no-repeat;\r\n	height: 14px;\r\n	width: 14px;\r\n	background-color: transparent;\r\n}\r\n\r\n.Navigation .results-list::-webkit-scrollbar-button:vertical:increment,\r\n.Navigation .detail-map-list::-webkit-scrollbar-button:vertical:increment {\r\n	background: var(--nav-scroll-down) center center no-repeat;\r\n	height: 14px;\r\n	width: 14px;\r\n	background-color: transparent;\r\n}\r\n\r\n.Navigation .results-list::-webkit-scrollbar-track,\r\n.Navigation .detail-map-list::-webkit-scrollbar-track,\r\n.Navigation .results-list::-webkit-scrollbar-track-piece,\r\n.Navigation .detail-map-list::-webkit-scrollbar-track-piece {\r\n	background: var(--nav-bar-mid) center repeat-y;\r\n	background-color: transparent;\r\n}\r\n\r\n.Navigation .results-list::-webkit-scrollbar-thumb:vertical,\r\n.Navigation .detail-map-list::-webkit-scrollbar-thumb:vertical {\r\n	background: var(--nav-scroll-mid) center repeat-y;\r\n	background-color: transparent;\r\n	min-height: 18px;\r\n	border: none;\r\n}\r\n\r\n.Navigation .results-list,\r\n.Navigation .detail-map-list {\r\n	scrollbar-color: #8ba9d6 transparent;\r\n	scrollbar-width: thin;\r\n}\r\n\r\n\r\n/* official map-click / route view */\r\n.Navigation:not(.has-results) .content {\r\n	background: #f4f4f4 !important;\r\n}\r\n\r\n.Navigation:not(.has-results) .map-container {\r\n	flex: 1 1 auto !important;\r\n	min-height: 0 !important;\r\n	display: flex !important;\r\n	align-items: stretch !important;\r\n	padding: 0 4px 0 4px !important;\r\n	background: #f4f4f4 !important;\r\n	box-sizing: border-box !important;\r\n}\r\n\r\n.Navigation:not(.has-results) .map-container .services-toggle-container,\r\n.Navigation:not(.has-results) .location-title {\r\n	display: none !important;\r\n}\r\n\r\n.Navigation:not(.has-results) .map-display {\r\n	width: calc(100% - 8px) !important;\r\n	height: calc(100% - 2px) !important;\r\n	margin: 0 4px 0 4px !important;\r\n	position: relative !important;\r\n	background: #000000 !important;\r\n	border: 1px solid #1d1d1d !important;\r\n	box-shadow: none !important;\r\n	overflow: hidden !important;\r\n	box-sizing: border-box !important;\r\n}\r\n\r\n.Navigation:not(.has-results) .map-display canvas {\r\n	width: 100% !important;\r\n	height: 100% !important;\r\n	display: block !important;\r\n}\r\n\r\n.Navigation:not(.has-results) .coordinates-bar {\r\n	display: none !important;\r\n}\r\n\r\n.Navigation:not(.has-results) .footer {\r\n	height: 20px !important;\r\n	background: #f4f4f4 !important;\r\n	border-top: 1px solid #d7d7d7 !important;\r\n	box-sizing: border-box !important;\r\n}\r\n\r\n.Navigation:not(.has-results) .footer-actions {\r\n	display: flex !important;\r\n	position: absolute !important;\r\n	right: 4px !important;\r\n	top: 1px !important;\r\n	height: 18px !important;\r\n	gap: 3px !important;\r\n	align-items: center !important;\r\n	z-index: 3 !important;\r\n}\r\n\r\n.Navigation:not(.has-results) .footer-detaillist-button,\r\n.Navigation:not(.has-results) .footer-roadicon-button {\r\n	display: block !important;\r\n	width: 28px !important;\r\n	height: 18px !important;\r\n	border: none !important;\r\n	background-repeat: no-repeat !important;\r\n	background-position: center center !important;\r\n	background-color: transparent !important;\r\n	box-sizing: border-box !important;\r\n	cursor: pointer !important;\r\n}\r\n\r\n\r\n/* v11: official action buttons + no left result scrollbar */\r\n.Navigation.has-results .result-action-row {\r\n	flex: 0 0 55px !important;\r\n	height: 55px !important;\r\n	overflow: visible !important;\r\n	z-index: 5 !important;\r\n}\r\n\r\n.Navigation.has-results .result-action-row .nav-action,\r\n.Navigation.has-results .result-action-row .move-action {\r\n	position: absolute !important;	display: block !important;\r\n	background-repeat: no-repeat !important;\r\n	background-position: center center !important;\r\n	background-color: transparent !important;\r\n	border: none !important;\r\n	box-shadow: none !important;\r\n	padding: 0 !important;\r\n	box-sizing: border-box !important;\r\n	cursor: pointer !important;\r\n	z-index: 6 !important;\r\n}\r\n\r\n.Navigation.has-results .result-action-row .share-action {\r\n	left: 3px !important;\r\n	top: 20px !important;\r\n	width: 58px !important;\r\n	height: 19px !important;\r\n}\r\n\r\n.Navigation.has-results .result-action-row .find-action {\r\n	right: 3px !important;\r\n	top: 20px !important;\r\n	width: 58px !important;\r\n	height: 19px !important;\r\n}\r\n\r\n.Navigation.has-results .result-action-row .move-action {\r\n	left: 3px !important;\r\n	right: 3px !important;\r\n	bottom: 2px !important;\r\n	width: auto !important;\r\n	height: 20px !important;\r\n}\r\n\r\n.Navigation.has-results .result-left-panel {\r\n	overflow: hidden !important;\r\n	scrollbar-gutter: auto !important;\r\n}\r\n\r\n.Navigation.has-results .result-view .results-list {\r\n	height: 100% !important;\r\n	overflow: hidden !important;\r\n	scrollbar-width: none !important;\r\n}\r\n\r\n.Navigation.has-results .result-view .results-list::-webkit-scrollbar {\r\n	width: 0 !important;\r\n	height: 0 !important;\r\n	display: none !important;\r\n}\r\n\r\n\r\n/* v12: remove MOVE button, keep only Share + Find, hide all left scrollbars */\r\n.Navigation .move-action,\r\n.Navigation.has-results .move-action {\r\n	display: none !important;\r\n}\r\n\r\n.Navigation.has-results .result-action-row {\r\n	flex: 0 0 42px !important;\r\n	height: 42px !important;\r\n	overflow: visible !important;\r\n	z-index: 5 !important;\r\n}\r\n\r\n.Navigation.has-results .result-action-row .share-action {\r\n	left: 3px !important;\r\n	top: 20px !important;\r\n	width: 58px !important;\r\n	height: 19px !important;\r\n	display: block !important;\r\n}\r\n\r\n.Navigation.has-results .result-action-row .find-action {\r\n	right: 3px !important;\r\n	top: 20px !important;\r\n	width: 58px !important;\r\n	height: 19px !important;\r\n	display: block !important;\r\n}\r\n\r\n.Navigation.has-results .result-left-panel,\r\n.Navigation.has-results .result-left-panel *,\r\n.Navigation.has-results .result-view .results-list {\r\n	overflow: hidden !important;\r\n	scrollbar-width: none !important;\r\n	-ms-overflow-style: none !important;\r\n}\r\n\r\n.Navigation.has-results .result-left-panel::-webkit-scrollbar,\r\n.Navigation.has-results .result-left-panel *::-webkit-scrollbar,\r\n.Navigation.has-results .result-view .results-list::-webkit-scrollbar {\r\n	width: 0 !important;\r\n	height: 0 !important;\r\n	display: none !important;\r\n}\r\n\r\n/* Only the right spawn/detail list keeps the official scrollbar. */\r\n.Navigation.has-results .detail-map-list {\r\n	overflow-y: auto !important;\r\n	overflow-x: hidden !important;\r\n}\r\n\r\n/* v12: official road/footprint icon selector */\r\n.Navigation .roadicon-selector {\r\n	display: none;\r\n	position: absolute;\r\n	right: 3px;\r\n	bottom: 20px;\r\n	width: 132px;\r\n	height: 67px;\r\n	background-repeat: no-repeat;\r\n	background-position: center center;\r\n	background-color: transparent;\r\n	z-index: 100;\r\n}\r\n\r\n.Navigation .roadicon-selector.open {\r\n	display: block !important;\r\n}\r\n\r\n.Navigation .roadicon-choice {\r\n	position: absolute;\r\n	width: 28px;\r\n	height: 28px;\r\n	background-repeat: no-repeat;\r\n	background-position: center center;\r\n	background-color: transparent;\r\n	border: none;\r\n	padding: 0;\r\n	cursor: pointer;\r\n}\r\n\r\n.Navigation .roadicon-choice.selected {\r\n	filter: brightness(1.08);\r\n}\r\n\r\n.Navigation .roadicon-choice-1 { left: 8px; top: 6px; }\r\n.Navigation .roadicon-choice-2 { left: 37px; top: 6px; }\r\n.Navigation .roadicon-choice-3 { left: 66px; top: 6px; }\r\n.Navigation .roadicon-choice-4 { left: 95px; top: 6px; }\r\n.Navigation .roadicon-choice-5 { left: 8px; top: 35px; }\r\n.Navigation .roadicon-choice-6 { left: 37px; top: 35px; }\r\n.Navigation .roadicon-choice-7 { left: 66px; top: 35px; }\r\n.Navigation .roadicon-choice-8 { left: 95px; top: 35px; }\r\n\r\n\r\n/* v15: final search-panel fixes: one scrollbar, non-overlapping actions, map preview mode */\r\n.Navigation.has-results .result-left-panel,\r\n.Navigation.has-results .result-view .results-list {\r\n	overflow: hidden !important;\r\n	scrollbar-width: none !important;\r\n	-ms-overflow-style: none !important;\r\n	scrollbar-gutter: auto !important;\r\n}\r\n\r\n.Navigation.has-results .result-left-panel::-webkit-scrollbar,\r\n.Navigation.has-results .result-view .results-list::-webkit-scrollbar {\r\n	width: 0 !important;\r\n	height: 0 !important;\r\n	display: none !important;\r\n}\r\n\r\n.Navigation.has-results .result-detail-panel,\r\n.Navigation.has-results .detail-content,\r\n.Navigation.has-results .result-right-panel {\r\n	overflow: hidden !important;\r\n}\r\n\r\n.Navigation.has-results .detail-map-list {\r\n	overflow-y: auto !important;\r\n	overflow-x: hidden !important;\r\n	scrollbar-gutter: auto !important;\r\n}\r\n\r\n.Navigation.has-results .result-action-row {\r\n	flex: 0 0 42px !important;\r\n	height: 42px !important;\r\n	position: relative !important;\r\n	overflow: hidden !important;\r\n}\r\n\r\n.Navigation.has-results .result-action-row .share-action,\r\n.Navigation.has-results .result-action-row .find-action {\r\n	position: absolute !important;\r\n	display: block !important;\r\n	top: 20px !important;\r\n	width: 56px !important;\r\n	height: 19px !important;\r\n	min-width: 56px !important;\r\n	max-width: 56px !important;\r\n	border: none !important;\r\n	padding: 0 !important;\r\n	margin: 0 !important;\r\n	background-color: transparent !important;\r\n	background-repeat: no-repeat !important;\r\n	background-position: center center !important;\r\n	box-shadow: none !important;\r\n	z-index: 10 !important;\r\n}\r\n\r\n.Navigation.has-results .result-action-row .share-action {\r\n	left: 4px !important;\r\n	right: auto !important;\r\n}\r\n\r\n.Navigation.has-results .result-action-row .find-action {\r\n	left: auto !important;\r\n	right: 4px !important;\r\n}\r\n\r\n.Navigation.has-results .result-detail-panel.map-selection .detail-main {\r\n	display: block !important;\r\n	height: 100px !important;\r\n	min-height: 100px !important;\r\n	position: relative !important;\r\n}\r\n\r\n.Navigation.has-results .result-detail-panel.map-selection .detail-text,\r\n.Navigation.has-results .result-detail-panel.map-selection .detail-sprite-wrap {\r\n	display: none !important;\r\n}\r\n\r\n.Navigation.has-results .result-detail-panel.map-selection .detail-preview {\r\n	display: block !important;\r\n	width: 100% !important;\r\n	min-width: 0 !important;\r\n	padding-top: 2px !important;\r\n	text-align: center !important;\r\n}\r\n\r\n.Navigation.has-results .result-detail-panel.map-selection .detail-map-preview {\r\n	width: 88px !important;\r\n	height: 72px !important;\r\n	margin: 4px auto 0 auto !important;\r\n	border: 1px solid #555 !important;\r\n	background: #000 !important;\r\n}\r\n\r\n.Navigation.has-results .result-detail-panel.map-selection .detail-map-preview-img {\r\n	width: 100% !important;\r\n	height: 100% !important;\r\n	object-fit: contain !important;\r\n}\r\n\r\n.Navigation.has-results .result-detail-panel.map-selection .detail-map-list {\r\n	top: 104px !important;\r\n}\r\n\r\n.Navigation .airship-bar {\r\n	width: 100%;\r\n	height: 24px;\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: flex-start;\r\n	background-color: #f7f7f7;\r\n}\r\n\r\n.Navigation.has-results .airship-bar {\r\n	display: none !important;\r\n}\r\n\r\n.Navigation .airship-move {\r\n	width: 120px;\r\n	height: 20px;\r\n	background-repeat: no-repeat;\r\n	cursor: pointer;\r\n}\r\n\r\n\r\n/* v16: final official detail layout and single-left-hidden scrollbar */\r\n.Navigation.has-results .result-left-panel {\r\n	overflow: hidden !important;\r\n}\r\n\r\n.Navigation.has-results .result-view {\r\n	overflow: hidden !important;\r\n}\r\n\r\n.Navigation.has-results .result-view .results-list {\r\n	height: 100% !important;\r\n	overflow-y: scroll !important;\r\n	overflow-x: hidden !important;\r\n	scrollbar-width: none !important;\r\n	-ms-overflow-style: none !important;\r\n}\r\n\r\n.Navigation.has-results .result-view .results-list::-webkit-scrollbar {\r\n	width: 0 !important;\r\n	height: 0 !important;\r\n	display: none !important;\r\n}\r\n\r\n.Navigation.has-results .detail-main {\r\n	height: 102px !important;\r\n	min-height: 102px !important;\r\n	display: flex !important;\r\n	align-items: flex-start !important;\r\n}\r\n\r\n.Navigation.has-results .detail-text {\r\n	flex: 1 1 auto !important;\r\n	padding: 1px 0 0 1px !important;\r\n	line-height: 14px !important;\r\n}\r\n\r\n.Navigation.has-results .detail-preview {\r\n	width: 60px !important;\r\n	min-width: 60px !important;\r\n	display: flex !important;\r\n	flex-direction: column !important;\r\n	align-items: center !important;\r\n	justify-content: flex-start !important;\r\n	padding-top: 1px !important;\r\n	gap: 1px !important;\r\n}\r\n\r\n.Navigation.has-results .detail-sprite-wrap {\r\n	width: 58px !important;\r\n	height: 56px !important;\r\n	margin: 0 auto !important;\r\n	overflow: hidden !important;\r\n	display: flex !important;\r\n	align-items: center !important;\r\n	justify-content: center !important;\r\n}\r\n\r\n.Navigation.has-results .detail-sprite-canvas {\r\n	width: 58px !important;\r\n	height: 58px !important;\r\n	display: block !important;\r\n	margin: 0 auto !important;\r\n}\r\n\r\n.Navigation.has-results .detail-map-preview {\r\n	width: 44px !important;\r\n	height: 44px !important;\r\n	margin: 0 auto !important;\r\n	flex: 0 0 auto !important;\r\n}\r\n\r\n.Navigation.has-results .detail-map-list {\r\n	top: 104px !important;\r\n}\r\n\r\n.Navigation.has-results .result-action-row {\r\n	position: relative !important;\r\n	height: 42px !important;\r\n	flex: 0 0 42px !important;\r\n}\r\n\r\n.Navigation.has-results .result-action-row .share-action,\r\n.Navigation.has-results .result-action-row .find-action {\r\n	position: absolute !important;\r\n	top: 20px !important;\r\n	width: 57px !important;\r\n	height: 19px !important;\r\n	display: block !important;\r\n}\r\n\r\n.Navigation.has-results .result-action-row .share-action {\r\n	left: 3px !important;\r\n	right: auto !important;\r\n}\r\n\r\n.Navigation.has-results .result-action-row .find-action {\r\n	right: 3px !important;\r\n	left: auto !important;\r\n}\r\n\r\n\r\n/* v17: final cleanup for sprite centering, action buttons, and no visible right scrollbar */\r\n.Navigation.has-results .detail-preview {\r\n	width: 58px !important;\r\n	min-width: 58px !important;\r\n	margin-right: 0 !important;\r\n	padding-top: 0 !important;\r\n	gap: 0 !important;\r\n}\r\n\r\n.Navigation.has-results .detail-sprite-wrap {\r\n	width: 58px !important;\r\n	height: 58px !important;\r\n	margin: 0 auto 1px auto !important;\r\n	overflow: hidden !important;\r\n}\r\n\r\n.Navigation.has-results .detail-map-preview {\r\n	width: 44px !important;\r\n	height: 44px !important;\r\n	margin: 0 auto !important;\r\n}\r\n\r\n.Navigation.has-results .result-action-row {\r\n	position: relative !important;\r\n	height: 44px !important;\r\n	flex: 0 0 44px !important;\r\n	overflow: hidden !important;\r\n	padding: 0 !important;\r\n}\r\n\r\n.Navigation.has-results .result-services-checkbox {\r\n	left: 4px !important;\r\n	top: 1px !important;\r\n	z-index: 2 !important;\r\n}\r\n\r\n.Navigation.has-results .nav-action,\r\n.Navigation.has-results .result-action-row .share-action,\r\n.Navigation.has-results .result-action-row .find-action {\r\n	position: absolute !important;\r\n	top: 20px !important;\r\n	height: 19px !important;\r\n	width: 58px !important;\r\n	display: block !important;\r\n	background-repeat: no-repeat !important;\r\n	background-position: center center !important;\r\n	background-size: 100% 100% !important;\r\n	overflow: hidden !important;\r\n	z-index: 3 !important;\r\n}\r\n\r\n.Navigation.has-results .result-action-row .share-action {\r\n	left: 3px !important;\r\n	right: auto !important;\r\n}\r\n\r\n.Navigation.has-results .result-action-row .find-action {\r\n	right: 3px !important;\r\n	left: auto !important;\r\n}\r\n\r\n.Navigation.has-results .detail-map-list {\r\n	overflow-y: auto !important;\r\n	overflow-x: hidden !important;\r\n	scrollbar-width: none !important;\r\n	-ms-overflow-style: none !important;\r\n}\r\n\r\n.Navigation.has-results .detail-map-list::-webkit-scrollbar {\r\n	width: 0 !important;\r\n	height: 0 !important;\r\n	display: none !important;\r\n}\r\n\r\n/* v18: keep minimized Navigation as one compact window even after search results. */\r\n.Navigation.minimized,\r\n.Navigation.minimized.has-results {\r\n	width: 158px !important;\r\n	height: 54px !important;\r\n	min-height: 54px !important;\r\n	max-height: 54px !important;\r\n	overflow: hidden !important;\r\n	background: rgba(246, 246, 246, 0.82) !important;\r\n	border: 1px solid rgba(85, 85, 85, 0.45) !important;\r\n	box-sizing: border-box !important;\r\n}\r\n\r\n.Navigation.minimized .titlebar,\r\n.Navigation.minimized.has-results .titlebar {\r\n	width: 158px !important;\r\n	height: 17px !important;\r\n}\r\n\r\n.Navigation.minimized .content,\r\n.Navigation.minimized.has-results .content,\r\n.Navigation.minimized .footer,\r\n.Navigation.minimized.has-results .footer,\r\n.Navigation.minimized .result-view,\r\n.Navigation.minimized.has-results .result-view {\r\n	display: none !important;\r\n}\r\n\r\n.Navigation.minimized .mini-content,\r\n.Navigation.minimized.has-results .mini-content {\r\n	display: block !important;\r\n	height: 35px !important;\r\n	min-height: 0 !important;\r\n	max-height: 35px !important;\r\n	padding: 2px 4px 3px 10px !important;\r\n	border: none !important;\r\n	overflow: hidden !important;\r\n	box-sizing: border-box !important;\r\n}\r\n\r\n.Navigation.minimized .mini-current,\r\n.Navigation.minimized .mini-target,\r\n.Navigation.minimized.has-results .mini-current,\r\n.Navigation.minimized.has-results .mini-target {\r\n	max-width: 142px !important;\r\n	height: 14px !important;\r\n	line-height: 14px !important;\r\n}\r\n\r\n\r\n/* v18: large sprite overlay in search detail panel */\r\n.Navigation.has-results .detail-main {\r\n	position: relative !important;\r\n	overflow: visible !important;\r\n}\r\n\r\n.Navigation.has-results .detail-text {\r\n	position: relative !important;\r\n	z-index: 2 !important;\r\n	padding-right: 0 !important;\r\n}\r\n\r\n.Navigation.has-results .detail-preview {\r\n	position: absolute !important;\r\n	top: 0 !important;\r\n	right: 0 !important;\r\n	width: 96px !important;\r\n	min-width: 96px !important;\r\n	height: 100% !important;\r\n	display: block !important;\r\n	text-align: initial !important;\r\n	pointer-events: none !important;\r\n	z-index: 1 !important;\r\n}\r\n\r\n.Navigation.has-results .detail-sprite-wrap {\r\n	position: absolute !important;\r\n	top: 0 !important;\r\n	right: -8px !important;\r\n	width: 96px !important;\r\n	height: 96px !important;\r\n	margin: 0 !important;\r\n	overflow: visible !important;\r\n	display: flex !important;\r\n	align-items: center !important;\r\n	justify-content: center !important;\r\n	z-index: 1 !important;\r\n}\r\n\r\n.Navigation.has-results .detail-sprite-canvas {\r\n	width: 96px !important;\r\n	height: 96px !important;\r\n	display: block !important;\r\n	margin: 0 !important;\r\n}\r\n\r\n.Navigation.has-results .detail-sprite-fallback {\r\n	width: 96px !important;\r\n	height: 96px !important;\r\n	left: 0 !important;\r\n	top: 0 !important;\r\n}\r\n\r\n.Navigation.has-results .detail-map-preview {\r\n	position: absolute !important;\r\n	right: 4px !important;\r\n	bottom: 0 !important;\r\n	margin: 0 !important;\r\n	z-index: 2 !important;\r\n}\r\n\r\n\r\n/* v19: keep Navigation as one window shell; only switch the inner view. */\r\n.Navigation:not(.minimized),\r\n.Navigation.has-results:not(.minimized) {\r\n	width: 300px !important;\r\n	height: 320px !important;\r\n	max-width: 300px !important;\r\n	max-height: 320px !important;\r\n}\r\n\r\n.Navigation.has-results:not(.minimized) .content {\r\n	height: calc(100% - 37px) !important;\r\n}\r\n\r\n/* v19: center the larger actor sprite inside the detail panel. */\r\n.Navigation.has-results:not(.minimized) .detail-sprite-wrap {\r\n	right: 30px !important;\r\n}\r\n\r\n.Navigation.has-results:not(.minimized) .detail-sprite-canvas {\r\n	width: 96px !important;\r\n	height: 96px !important;\r\n}\r\n\r\n.Navigation.has-results:not(.minimized) .detail-map-preview {\r\n	right: 4px !important;\r\n	z-index: 2 !important;\r\n}\r\n\r\n\r\n/* v19: keep one default search field, stable one-window shell, map-fit preview, and clean action buttons */\r\n.Navigation.has-results {\r\n	width: 300px !important;\r\n	height: 320px !important;\r\n}\r\n\r\n.Navigation.has-results .search-container {\r\n	height: 25px !important;\r\n	padding: 5px 10px !important;\r\n	background-color: #f7f7f7 !important;\r\n}\r\n\r\n.Navigation.has-results .search-type {\r\n	position: relative !important;\r\n	top: 3px !important;\r\n	width: 50px !important;\r\n	height: 20px !important;\r\n	margin-right: 5px !important;\r\n	padding: 0 2px !important;\r\n	z-index: 2 !important;\r\n}\r\n\r\n.Navigation.has-results .search-left {\r\n	top: 5px !important;\r\n	left: 65px !important;\r\n	width: 3px !important;\r\n	height: 20px !important;\r\n}\r\n\r\n.Navigation.has-results .search-middle {\r\n	top: 5px !important;\r\n	left: 68px !important;\r\n	right: 65px !important;\r\n	height: 20px !important;\r\n}\r\n\r\n.Navigation.has-results .search-right {\r\n	top: 5px !important;\r\n	right: 62px !important;\r\n	width: 3px !important;\r\n	height: 20px !important;\r\n}\r\n\r\n.Navigation.has-results .search-input {\r\n	top: 5px !important;\r\n	left: 68px !important;\r\n	right: 65px !important;\r\n	height: 20px !important;\r\n	padding: 0 5px !important;\r\n	font-size: 12px !important;\r\n	border: none !important;\r\n	background: transparent !important;\r\n}\r\n\r\n.Navigation.has-results .search-button {\r\n	top: 7px !important;\r\n	right: 32px !important;\r\n	width: 33px !important;\r\n	height: 20px !important;\r\n}\r\n\r\n.Navigation.has-results .folder-button {\r\n	top: 6px !important;\r\n	right: 4px !important;\r\n	width: 25px !important;\r\n	height: 20px !important;\r\n	display: block !important;\r\n}\r\n\r\n.Navigation.has-results .result-body {\r\n	height: calc(100% - 18px) !important;\r\n}\r\n\r\n.Navigation.has-results .result-left-panel {\r\n	width: 138px !important;\r\n	flex: 0 0 138px !important;\r\n}\r\n\r\n.Navigation.has-results .result-right-panel {\r\n	position: relative !important;\r\n}\r\n\r\n.Navigation.has-results .result-detail-panel.map-selection .detail-main {\r\n	display: block !important;\r\n	height: 112px !important;\r\n	min-height: 112px !important;\r\n	position: relative !important;\r\n	overflow: hidden !important;\r\n}\r\n\r\n.Navigation.has-results .result-detail-panel.map-selection .detail-preview {\r\n	position: relative !important;\r\n	display: block !important;\r\n	width: 100% !important;\r\n	height: 100% !important;\r\n	min-width: 0 !important;\r\n	padding-top: 0 !important;\r\n	text-align: center !important;\r\n}\r\n\r\n.Navigation.has-results .result-detail-panel.map-selection .detail-map-preview {\r\n	position: absolute !important;\r\n	left: 50% !important;\r\n	top: 4px !important;\r\n	transform: translateX(-50%) !important;\r\n	width: 98px !important;\r\n	height: 98px !important;\r\n	margin: 0 !important;\r\n	border: 1px solid #555 !important;\r\n	background: #000 !important;\r\n	box-sizing: border-box !important;\r\n	overflow: hidden !important;\r\n}\r\n\r\n.Navigation.has-results .result-detail-panel.map-selection .detail-map-preview-img {\r\n	width: 100% !important;\r\n	height: 100% !important;\r\n	object-fit: contain !important;\r\n	display: block !important;\r\n}\r\n\r\n.Navigation.has-results .result-detail-panel.map-selection .detail-map-list {\r\n	top: 116px !important;\r\n}\r\n\r\n.Navigation.has-results .result-action-row {\r\n	position: relative !important;\r\n	height: 44px !important;\r\n	flex: 0 0 44px !important;\r\n	overflow: hidden !important;\r\n	padding: 0 !important;\r\n	border-top: 1px solid #c9c9c9 !important;\r\n	background: #f4f4f4 !important;\r\n}\r\n\r\n.Navigation.has-results .result-services-checkbox {\r\n	left: 4px !important;\r\n	top: 2px !important;\r\n	z-index: 2 !important;\r\n}\r\n\r\n.Navigation.has-results .result-action-row .share-action,\r\n.Navigation.has-results .result-action-row .find-action {\r\n	position: absolute !important;\r\n	top: 21px !important;\r\n	width: 57px !important;\r\n	height: 19px !important;\r\n	display: block !important;\r\n	background-repeat: no-repeat !important;\r\n	background-position: center center !important;\r\n	background-size: 100% 100% !important;\r\n	border: none !important;\r\n	box-shadow: none !important;\r\n	padding: 0 !important;\r\n	z-index: 3 !important;\r\n}\r\n\r\n.Navigation.has-results .result-action-row .share-action {\r\n	left: 4px !important;\r\n	right: auto !important;\r\n}\r\n\r\n.Navigation.has-results .result-action-row .find-action {\r\n	right: 4px !important;\r\n	left: auto !important;\r\n}\r\n\r\n\r\n/* v20: closer to official result layout: smaller map preview and uncropped top-right folder icon */\r\n.Navigation .folder-button,\r\n.Navigation.has-results .folder-button {\r\n	right: 2px !important;\r\n	top: 5px !important;\r\n	width: 28px !important;\r\n	height: 22px !important;\r\n	background-repeat: no-repeat !important;\r\n	background-position: center center !important;\r\n	background-size: contain !important;\r\n	overflow: visible !important;\r\n}\r\n\r\n.Navigation .search-button,\r\n.Navigation.has-results .search-button {\r\n	right: 30px !important;\r\n	top: 6px !important;\r\n	width: 24px !important;\r\n	height: 22px !important;\r\n	background-repeat: no-repeat !important;\r\n	background-position: center center !important;\r\n	background-size: contain !important;\r\n}\r\n\r\n.Navigation .search-middle,\r\n.Navigation.has-results .search-middle {\r\n	right: 60px !important;\r\n}\r\n\r\n.Navigation .search-right,\r\n.Navigation.has-results .search-right {\r\n	right: 57px !important;\r\n}\r\n\r\n.Navigation .search-input,\r\n.Navigation.has-results .search-input {\r\n	right: 60px !important;\r\n}\r\n\r\n.Navigation.has-results .result-detail-panel.map-selection .detail-main {\r\n	height: 100px !important;\r\n	min-height: 100px !important;\r\n}\r\n\r\n.Navigation.has-results .result-detail-panel.map-selection .detail-map-preview {\r\n	width: 78px !important;\r\n	height: 78px !important;\r\n	top: 7px !important;\r\n}\r\n\r\n.Navigation.has-results .result-detail-panel.map-selection .detail-map-list {\r\n	top: 104px !important;\r\n}\r\n\r\n.Navigation .airship-bar {\r\n	width: 100%;\r\n	height: 24px;\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: flex-start;\r\n	background-color: #f7f7f7;\r\n}\r\n\r\n.Navigation.has-results .airship-bar {\r\n	display: none !important;\r\n}\r\n\r\n.Navigation .airship-move {\r\n	width: 120px;\r\n	height: 20px;\r\n	background-repeat: no-repeat;\r\n	cursor: pointer;\r\n}\r\n";
 }));
 // src/UI/Components/Navigation/MapPathFinder.js
-var MapPathFinder;
+function normalizeMapName$1(mapName) {
+	return String(mapName || "").replace(/\.gat$/, "");
+}
+function normalizeWarpTypes(warpTypes) {
+	if (!warpTypes) return WALK_LINK_TYPES.slice();
+	if (Array.isArray(warpTypes)) return warpTypes.map(Number).filter((type) => Number.isFinite(type));
+	if (typeof warpTypes === "object") {
+		if (warpTypes.allowServices || warpTypes.services || warpTypes.includeServices) return ALL_SERVICE_ROUTE_TYPES.slice();
+		if (Array.isArray(warpTypes.types)) return normalizeWarpTypes(warpTypes.types);
+	}
+	return WALK_LINK_TYPES.slice();
+}
+function isServiceLinkType(warpType) {
+	return SERVICE_LINK_TYPES.indexOf(Number(warpType)) !== -1;
+}
+function ensureGraphNode(graph, mapName) {
+	if (!mapName) return;
+	if (!graph[mapName]) graph[mapName] = {};
+}
+function isBetterConnection(current, distance, hopCount, service) {
+	if (!current) return true;
+	if (hopCount < current.hopCount) return true;
+	if (hopCount > current.hopCount) return false;
+	if (!!current.service !== !!service) return current.service && !service;
+	return distance < current.distance;
+}
+var MapPathFinder, WALK_LINK_TYPES, SERVICE_LINK_TYPES, ALL_SERVICE_ROUTE_TYPES;
 var init_MapPathFinder = __esmMin((() => {
 	init_DBManager();
 	MapPathFinder = {};
+	WALK_LINK_TYPES = [200];
+	SERVICE_LINK_TYPES = [
+		201,
+		202,
+		203,
+		204,
+		205
+	];
+	ALL_SERVICE_ROUTE_TYPES = WALK_LINK_TYPES.concat(SERVICE_LINK_TYPES);
 	/**
 	* Find a path between maps using Dijkstra's algorithm
 	*
@@ -227124,15 +232531,24 @@ var init_MapPathFinder = __esmMin((() => {
 	* @param {string} endMap - Destination map name
 	* @param {number} endX - Destination X coordinate
 	* @param {number} endY - Destination Y coordinate
-	* @param {Array} warpTypes - Types of warps to consider [default: [200]]
+	* @param {Array|Object} warpTypes - Allowed link types, or {allowServices:true}
 	* @returns {Array|null} Array of warps with map, coordinates and warpId, or null if no path found
 	*/
 	MapPathFinder.findPathBetweenMaps = function findPathBetweenMaps(startMap, startX, startY, endMap, endX, endY, warpTypes) {
 		if (!startMap || !endMap || startX === void 0 || startY === void 0 || endX === void 0 || endY === void 0) return null;
-		warpTypes = warpTypes || [200];
-		startMap = startMap.replace(/\.gat$/, "");
-		endMap = endMap.replace(/\.gat$/, "");
-		if (startMap === endMap) return [{
+		const includeMetadata = warpTypes !== void 0;
+		warpTypes = normalizeWarpTypes(warpTypes);
+		startMap = normalizeMapName$1(startMap);
+		endMap = normalizeMapName$1(endMap);
+		if (startMap === endMap) return [includeMetadata ? {
+			map: startMap,
+			x: endX,
+			y: endY,
+			warpId: null,
+			type: null,
+			service: false,
+			name: ""
+		} : {
 			map: startMap,
 			x: endX,
 			y: endY,
@@ -227146,34 +232562,40 @@ var init_MapPathFinder = __esmMin((() => {
 		for (let i = 0; i < naviLinkTable.length; i++) {
 			const warp = naviLinkTable[i];
 			if (!warp || warp.length < 11) continue;
-			const srcMap = warp[0];
+			const srcMap = normalizeMapName$1(warp[0]);
 			const warpId = warp[1];
-			const warpType = warp[2];
-			const destMap = warp[8];
+			const warpType = Number(warp[2]);
+			const destMap = normalizeMapName$1(warp[8]);
 			if (!srcMap || !destMap || warpTypes.indexOf(warpType) === -1) continue;
-			if (!graph[srcMap]) graph[srcMap] = {};
-			if (!graph[srcMap][destMap]) graph[srcMap][destMap] = {
-				distance: 1,
-				warpId,
-				hopCount: 1
-			};
+			const service = isServiceLinkType(warpType);
+			const baseDistance = service ? .75 : 1;
+			ensureGraphNode(graph, srcMap);
+			ensureGraphNode(graph, destMap);
 			const warpKey = srcMap + "_" + warpId;
 			warpDetails[warpKey] = {
 				id: warpId,
 				type: warpType,
+				service,
 				spriteId: warp[3],
-				name: warp[4],
+				name: warp[4] || "",
 				srcMap,
-				srcX: warp[6],
-				srcY: warp[7],
+				srcX: Number(warp[6]) || 0,
+				srcY: Number(warp[7]) || 0,
 				destMap,
-				destX: warp[9],
-				destY: warp[10]
+				destX: Number(warp[9]) || 0,
+				destY: Number(warp[10]) || 0
+			};
+			if (isBetterConnection(graph[srcMap][destMap], baseDistance, 1, service)) graph[srcMap][destMap] = {
+				distance: baseDistance,
+				warpId,
+				type: warpType,
+				service,
+				hopCount: 1
 			};
 		}
 		if (naviLinkDistanceTable && naviLinkDistanceTable.length) {
 			for (let i = 0; i < naviLinkDistanceTable.length; i++) if (typeof naviLinkDistanceTable[i] === "string") {
-				const mapName = naviLinkDistanceTable[i];
+				const mapName = normalizeMapName$1(naviLinkDistanceTable[i]);
 				if (i + 2 < naviLinkDistanceTable.length) {
 					const linksData = naviLinkDistanceTable[i + 2];
 					if (Array.isArray(linksData)) for (let j = 0; j < linksData.length; j++) {
@@ -227185,14 +232607,17 @@ var init_MapPathFinder = __esmMin((() => {
 						for (let k = 1; k < linksData[j].length; k++) {
 							const destData = linksData[j][k];
 							if (Array.isArray(destData) && destData.length >= 3) {
-								const destMapName = destData[0];
-								const hopCount = destData[1];
-								const pathCost = destData[2];
+								const destMapName = normalizeMapName$1(destData[0]);
+								const hopCount = Number(destData[1]) || 1;
+								const pathCost = Number(destData[2]) || 1;
 								if (!destMapName) continue;
-								if (!graph[mapName]) graph[mapName] = {};
-								if (!graph[mapName][destMapName] || hopCount < graph[mapName][destMapName].hopCount || hopCount === graph[mapName][destMapName].hopCount && pathCost < graph[mapName][destMapName].distance) graph[mapName][destMapName] = {
+								ensureGraphNode(graph, mapName);
+								ensureGraphNode(graph, destMapName);
+								if (isBetterConnection(graph[mapName][destMapName], pathCost, hopCount, warpInfo.service)) graph[mapName][destMapName] = {
 									distance: pathCost,
 									warpId: linkId,
+									type: warpInfo.type,
+									service: warpInfo.service,
 									hopCount
 								};
 							}
@@ -227223,6 +232648,12 @@ var init_MapPathFinder = __esmMin((() => {
 		distances[startMap] = 0;
 		hopCounts[startMap] = 0;
 		if (!unvisited.has(startMap)) unvisited.add(startMap);
+		if (!unvisited.has(endMap)) {
+			unvisited.add(endMap);
+			distances[endMap] = Infinity;
+			hopCounts[endMap] = Infinity;
+			previous[endMap] = null;
+		}
 		while (unvisited.size > 0) {
 			let current = null;
 			let smallestHopCount = Infinity;
@@ -227251,7 +232682,15 @@ var init_MapPathFinder = __esmMin((() => {
 		if (!previous[endMap]) return null;
 		const path = [];
 		let current = endMap;
-		path.unshift({
+		path.unshift(includeMetadata ? {
+			map: endMap,
+			x: endX,
+			y: endY,
+			warpId: null,
+			type: null,
+			service: false,
+			name: ""
+		} : {
 			map: endMap,
 			x: endX,
 			y: endY,
@@ -227264,7 +232703,18 @@ var init_MapPathFinder = __esmMin((() => {
 			const warpId = prevInfo.warpId;
 			const warpInfo = warpDetails[prevMap + "_" + warpId];
 			if (!warpInfo) break;
-			path.unshift({
+			path.unshift(includeMetadata ? {
+				map: prevMap,
+				x: warpInfo.srcX,
+				y: warpInfo.srcY,
+				warpId,
+				type: warpInfo.type,
+				service: warpInfo.service,
+				name: warpInfo.name,
+				destMap: warpInfo.destMap,
+				destX: warpInfo.destX,
+				destY: warpInfo.destY
+			} : {
 				map: prevMap,
 				x: warpInfo.srcX,
 				y: warpInfo.srcY,
@@ -227541,6 +232991,17 @@ var init_PrivateAirship = __esmMin((() => {
 	Network.hookPacket(PACKET.ZC.PRIVATE_AIRSHIP_RESPONSE, PrivateAirship.onResponse);
 	PrivateAirship_default = UIManager.addComponent(PrivateAirship);
 }));
+// src/UI/Components/Navigation/NavigationRouteState.js
+function getNavigationRoute() {
+	return currentRoute;
+}
+function setNavigationRoute(route) {
+	currentRoute = route;
+}
+var currentRoute;
+var init_NavigationRouteState = __esmMin((() => {
+	currentRoute = null;
+}));
 // src/UI/Components/Navigation/Navigation.js
 /**
 * Async image create helper
@@ -227550,6 +233011,467 @@ function createAsyncImage() {
 	img.decoding = "async";
 	return img;
 }
+function normalizeGrfPath(path) {
+	return String(path || "").replace(/\\/g, "/").replace(/^\/+/, "");
+}
+function uniqueList(list) {
+	const seen = {};
+	const out = [];
+	for (let i = 0; i < list.length; i++) {
+		const item = normalizeGrfPath(list[i]);
+		if (!item || seen[item]) continue;
+		seen[item] = true;
+		out.push(item);
+	}
+	return out;
+}
+function getOfficialListIconName(result) {
+	if (!result) return "";
+	if (result.type === "MOB") return "mob";
+	if (result.type === "NPC") return "npc";
+	return "map";
+}
+function applyOfficialBadgeBackground(badge, iconName) {
+	if (!badge || !iconName) return;
+	const uri = _navInterfaceIconURI[iconName];
+	if (!uri) {
+		badge.classList.remove("grf-loaded");
+		badge.style.backgroundImage = "";
+		return;
+	}
+	badge.classList.add("grf-loaded");
+	badge.style.backgroundImage = "url(" + uri + ")";
+	badge.style.backgroundSize = "contain";
+}
+function refreshOfficialBadgeIcons(root) {
+	if (!root) return;
+	const badges = root.querySelectorAll(".official-type-badge");
+	for (let i = 0; i < badges.length; i++) {
+		const badge = badges[i];
+		applyOfficialBadgeBackground(badge, badge.getAttribute("data-official-icon"));
+	}
+}
+function loadOfficialNavigationIcon(path, image, key, root) {
+	Client.loadFile(path, (dataURI) => {
+		if (!dataURI) return;
+		image.src = dataURI;
+		if (key) {
+			_navInterfaceIconURI[key] = dataURI;
+			refreshOfficialBadgeIcons(root || Navigation.getRoot());
+			applyOfficialNavigationScrollSkin(root || Navigation.getRoot());
+		}
+	});
+}
+function applyOfficialNavigationScrollSkin(root) {
+	if (!root) return;
+	const target = root.querySelector ? root.querySelector(".Navigation") : root;
+	if (!target || !target.style || !target.style.setProperty) return;
+	const style = target.style;
+	if (_navInterfaceIconURI.scrollUp) style.setProperty("--nav-scroll-up", "url(" + _navInterfaceIconURI.scrollUp + ")");
+	if (_navInterfaceIconURI.scrollDown) style.setProperty("--nav-scroll-down", "url(" + _navInterfaceIconURI.scrollDown + ")");
+	if (_navInterfaceIconURI.scrollMid) style.setProperty("--nav-scroll-mid", "url(" + _navInterfaceIconURI.scrollMid + ")");
+	if (_navInterfaceIconURI.barUp) style.setProperty("--nav-bar-up", "url(" + _navInterfaceIconURI.barUp + ")");
+	if (_navInterfaceIconURI.barDown) style.setProperty("--nav-bar-down", "url(" + _navInterfaceIconURI.barDown + ")");
+	if (_navInterfaceIconURI.barMid) style.setProperty("--nav-bar-mid", "url(" + _navInterfaceIconURI.barMid + ")");
+}
+function applyOfficialNavigationIcons(root) {
+	if (!root) return;
+	loadOfficialNavigationIcon(DB.INTERFACE_PATH + "navigation_interface3/icon_list_map.bmp", _navListMapIcon, "map", root);
+	loadOfficialNavigationIcon(DB.INTERFACE_PATH + "navigation_interface3/icon_list_mob.bmp", _navListMobIcon, "mob", root);
+	loadOfficialNavigationIcon(DB.INTERFACE_PATH + "navigation_interface3/icon_list_npc.bmp", _navListNpcIcon, "npc", root);
+	loadOfficialNavigationIcon(DB.INTERFACE_PATH + "navigation_interface3/icon_list_riute.bmp", _navListRouteIcon, "route", root);
+	loadOfficialNavigationIcon(DB.INTERFACE_PATH + "navigation_interface3/icon_list_start.bmp", _navListStartIcon, "start", root);
+	loadOfficialNavigationIcon(DB.INTERFACE_PATH + "navigation_interface3/icon_list_target.bmp", _navListTargetIcon, "target", root);
+	loadOfficialNavigationIcon(DB.INTERFACE_PATH + "navigation_interface3/ico_destination.bmp", _navIcoDestination, "destination", root);
+	loadOfficialNavigationIcon(DB.INTERFACE_PATH + "navigation_interface3/ico_location.bmp", _navIcoLocation, "location", root);
+	loadOfficialNavigationIcon(DB.INTERFACE_PATH + "navigation_interface3/navi_scroll_up.bmp", _navScrollUp, "scrollUp", root);
+	loadOfficialNavigationIcon(DB.INTERFACE_PATH + "navigation_interface3/navi_scroll_mid.bmp", _navScrollMid, "scrollMid", root);
+	loadOfficialNavigationIcon(DB.INTERFACE_PATH + "navigation_interface3/navi_scroll_down.bmp", _navScrollDown, "scrollDown", root);
+	loadOfficialNavigationIcon(DB.INTERFACE_PATH + "navigation_interface3/navi_bar_up.bmp", _navBarUp, "barUp", root);
+	loadOfficialNavigationIcon(DB.INTERFACE_PATH + "navigation_interface3/navi_bar_mid.bmp", _navBarMid, "barMid", root);
+	loadOfficialNavigationIcon(DB.INTERFACE_PATH + "navigation_interface3/navi_bar_down.bmp", _navBarDown, "barDown", root);
+	applyOfficialNavigationScrollSkin(root);
+}
+function createOfficialTypeBadge(result) {
+	const badge = document.createElement("span");
+	const iconName = getOfficialListIconName(result);
+	badge.className = "official-type-badge " + getResultTypeClass(result);
+	badge.setAttribute("data-official-icon", iconName);
+	const text = document.createElement("span");
+	text.className = "official-type-text";
+	text.textContent = result && result.type === "NPC" ? "N" : "M";
+	badge.appendChild(text);
+	applyOfficialBadgeBackground(badge, iconName);
+	return badge;
+}
+function stopAnimatedSpritePreview(root) {
+	if (!root) return;
+	const state = root._navMonsterPreviewState;
+	if (state && state.timer) clearInterval(state.timer);
+	root._navMonsterPreviewState = null;
+}
+function clearSpritePreview(canvas) {
+	if (!canvas) return;
+	canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+}
+function setSpritePreviewFallback(root, message) {
+	const wrap = root.querySelector(".detail-sprite-wrap");
+	const fallback = root.querySelector(".detail-sprite-fallback");
+	const canvas = root.querySelector(".detail-sprite-canvas");
+	stopAnimatedSpritePreview(root);
+	if (canvas) clearSpritePreview(canvas);
+	if (fallback) fallback.textContent = message || "";
+	if (wrap) wrap.classList.add("no-sprite");
+}
+function getMonsterBasePreviewPath(result) {
+	const id = Number(result && result.id);
+	if (Number.isFinite(id) && id > 0) try {
+		const bodyPath = DB.getBodyPath(id, 0);
+		if (bodyPath) return bodyPath;
+	} catch (_e) {}
+	if (result && result.sprite) return "data/sprite/monster/" + String(result.sprite).toLowerCase();
+	return "";
+}
+function getMonsterSpriteCandidatePaths(result) {
+	const basePath = getMonsterBasePreviewPath(result);
+	const paths = [];
+	if (basePath) paths.push(basePath);
+	if (result && result.sprite) {
+		const spriteName = String(result.sprite).toLowerCase();
+		paths.push("data/sprite/¸ó½ºÅÍ/" + spriteName);
+		paths.push("data/sprite/monster/" + spriteName);
+	}
+	return uniqueList(paths);
+}
+function getNpcSpriteCandidatePaths(result) {
+	const ids = [
+		result && result.classId,
+		result && result.npcClassId,
+		result && result.jobId,
+		result && result.id
+	];
+	const paths = [];
+	for (let i = 0; i < ids.length; i++) {
+		const id = Number(ids[i]);
+		if (!Number.isFinite(id) || !id) continue;
+		try {
+			const bodyPath = DB.getBodyPath(id, 0);
+			if (bodyPath) paths.push(bodyPath);
+		} catch (_e) {}
+	}
+	return uniqueList(paths);
+}
+function getActorSpriteCandidatePaths(result) {
+	if (result && result.type === "NPC") return getNpcSpriteCandidatePaths(result);
+	return getMonsterSpriteCandidatePaths(result);
+}
+function getActorPreviewCacheKey(result) {
+	if (!result) return "";
+	if (result.type === "NPC") return "NPC:" + (Number(result.classId || result.npcClassId || result.jobId || result.id) || result.name || "");
+	return "MOB:" + (Number(result.id) || result.sprite || result.name || "");
+}
+function loadPreviewShadowBuffers(callback) {
+	if (_previewShadowBuffersLoaded) {
+		callback(_previewShadowSprBuffer, _previewShadowActBuffer);
+		return;
+	}
+	_previewShadowCallbacks.push(callback);
+	if (_previewShadowBuffersLoading) return;
+	_previewShadowBuffersLoading = true;
+	const finishShadowLoad = (sprData, actData) => {
+		_previewShadowSprBuffer = sprData && sprData.frames ? sprData : null;
+		_previewShadowActBuffer = actData && actData.actions ? actData : null;
+		_previewShadowBuffersLoaded = true;
+		_previewShadowBuffersLoading = false;
+		const callbacks = _previewShadowCallbacks.splice(0);
+		for (let i = 0; i < callbacks.length; i++) callbacks[i](_previewShadowSprBuffer, _previewShadowActBuffer);
+	};
+	Client.loadFile("data/sprite/shadow.spr", (sprData) => {
+		Client.loadFile("data/sprite/shadow.act", (actData) => finishShadowLoad(sprData, actData), () => finishShadowLoad(null, null));
+	}, () => finishShadowLoad(null, null));
+}
+function buildMonsterPreviewRuntime(sprData, actData, shadowSprData, shadowActData) {
+	if (!sprData || !sprData.frames || !actData || !actData.actions) throw new Error("Invalid sprite or action data");
+	const entity = new Entity();
+	entity.effectColor[0] = 1;
+	entity.effectColor[1] = 1;
+	entity.effectColor[2] = 1;
+	entity.effectColor[3] = 1;
+	let idleActionIndex = 0;
+	for (let i = 0; i < Math.min(actData.actions.length, 8); i++) {
+		const candidate = actData.actions[i];
+		if (candidate && candidate.animations && candidate.animations.length) {
+			idleActionIndex = i;
+			break;
+		}
+	}
+	const runtime = {
+		sprite: sprData,
+		action: actData,
+		entity,
+		idleActionIndex,
+		position: new Uint16Array([0, 0]),
+		shadowSprite: null,
+		shadowAction: null,
+		shadowEntity: null
+	};
+	if (shadowSprData && shadowSprData.frames && shadowActData && shadowActData.actions) {
+		runtime.shadowSprite = shadowSprData;
+		runtime.shadowAction = shadowActData;
+		runtime.shadowEntity = new Entity();
+		runtime.shadowEntity.effectColor[0] = 1;
+		runtime.shadowEntity.effectColor[1] = 1;
+		runtime.shadowEntity.effectColor[2] = 1;
+		runtime.shadowEntity.effectColor[3] = 1;
+	}
+	return runtime;
+}
+function getCanvasAlphaBounds(ctx, width, height) {
+	const pixels = ctx.getImageData(0, 0, width, height).data;
+	let minX = width;
+	let minY = height;
+	let maxX = -1;
+	let maxY = -1;
+	for (let y = 0; y < height; y++) {
+		let row = y * width * 4;
+		for (let x = 0; x < width; x++) if (pixels[row + x * 4 + 3] > 4) {
+			if (x < minX) minX = x;
+			if (y < minY) minY = y;
+			if (x > maxX) maxX = x;
+			if (y > maxY) maxY = y;
+		}
+	}
+	if (maxX < minX || maxY < minY) return null;
+	return {
+		x: Math.max(0, minX - 2),
+		y: Math.max(0, minY - 2),
+		width: Math.min(width - Math.max(0, minX - 2), maxX - minX + 5),
+		height: Math.min(height - Math.max(0, minY - 2), maxY - minY + 5)
+	};
+}
+function getPreviewOffscreen(runtime) {
+	if (!runtime.previewCanvas) {
+		runtime.previewCanvas = document.createElement("canvas");
+		runtime.previewCanvas.width = 220;
+		runtime.previewCanvas.height = 220;
+		runtime.previewCtx = runtime.previewCanvas.getContext("2d", { willReadFrequently: true });
+	}
+	return {
+		canvas: runtime.previewCanvas,
+		ctx: runtime.previewCtx
+	};
+}
+function renderActorPreviewFrame(runtime, animation, offscreen, offCtx, originX, originY) {
+	offCtx.setTransform(1, 0, 0, 1, 0, 0);
+	offCtx.clearRect(0, 0, offscreen.width, offscreen.height);
+	offCtx.imageSmoothingEnabled = false;
+	if (runtime.shadowSprite && runtime.shadowAction && runtime.shadowEntity) {
+		const shadowAction = runtime.shadowAction.actions[0];
+		const shadowAnimation = shadowAction && shadowAction.animations && shadowAction.animations[0];
+		if (shadowAnimation && shadowAnimation.layers && shadowAnimation.layers.length) {
+			SpriteRenderer.bind2DContext(offCtx, originX, originY);
+			for (let i = 0; i < shadowAnimation.layers.length; i++) runtime.shadowEntity.renderLayer(shadowAnimation.layers[i], runtime.shadowSprite, runtime.shadowSprite, 1, runtime.position, "shadow", false);
+		}
+	}
+	SpriteRenderer.bind2DContext(offCtx, originX, originY);
+	for (let i = 0; i < animation.layers.length; i++) runtime.entity.renderLayer(animation.layers[i], runtime.sprite, runtime.sprite, 1, runtime.position, false);
+}
+function mergePreviewBounds(a, b, canvasWidth, canvasHeight) {
+	if (!b) return a;
+	if (!a) return {
+		x: b.x,
+		y: b.y,
+		width: b.width,
+		height: b.height
+	};
+	const x1 = Math.max(0, Math.min(a.x, b.x));
+	const y1 = Math.max(0, Math.min(a.y, b.y));
+	const x2 = Math.min(canvasWidth, Math.max(a.x + a.width, b.x + b.width));
+	const y2 = Math.min(canvasHeight, Math.max(a.y + a.height, b.y + b.height));
+	return {
+		x: x1,
+		y: y1,
+		width: Math.max(1, x2 - x1),
+		height: Math.max(1, y2 - y1)
+	};
+}
+function getStablePreviewBounds(runtime, idleAction, offscreen, offCtx, originX, originY) {
+	if (runtime.stablePreviewBounds) return runtime.stablePreviewBounds;
+	let unionBounds = null;
+	for (let i = 0; i < idleAction.animations.length; i++) {
+		const frameAnimation = idleAction.animations[i];
+		if (!frameAnimation || !frameAnimation.layers || !frameAnimation.layers.length) continue;
+		renderActorPreviewFrame(runtime, frameAnimation, offscreen, offCtx, originX, originY);
+		unionBounds = mergePreviewBounds(unionBounds, getCanvasAlphaBounds(offCtx, offscreen.width, offscreen.height), offscreen.width, offscreen.height);
+	}
+	runtime.stablePreviewBounds = unionBounds;
+	return unionBounds;
+}
+function drawAnimatedMonsterPreview(root, runtime, frameTime) {
+	const target = root.querySelector(".detail-sprite-canvas");
+	const wrap = root.querySelector(".detail-sprite-wrap");
+	if (!target || !runtime || !runtime.action || !runtime.sprite) {
+		setSpritePreviewFallback(root, "");
+		return;
+	}
+	const idleAction = runtime.action.actions[runtime.idleActionIndex] || runtime.action.actions[0];
+	if (!idleAction || !idleAction.animations || !idleAction.animations.length) {
+		setSpritePreviewFallback(root, "");
+		return;
+	}
+	const delay = Math.max(60, Number(idleAction.delay) || 150);
+	const animIndex = Math.floor(frameTime / delay) % idleAction.animations.length;
+	const animation = idleAction.animations[animIndex];
+	if (!animation || !animation.layers || !animation.layers.length) {
+		if (wrap) wrap.classList.remove("no-sprite");
+		return;
+	}
+	const preview = getPreviewOffscreen(runtime);
+	const offscreen = preview.canvas;
+	const offCtx = preview.ctx;
+	const originX = 110;
+	const originY = 160;
+	const stableBounds = getStablePreviewBounds(runtime, idleAction, offscreen, offCtx, originX, originY);
+	renderActorPreviewFrame(runtime, animation, offscreen, offCtx, originX, originY);
+	const bounds = stableBounds || getCanvasAlphaBounds(offCtx, offscreen.width, offscreen.height);
+	const ctx = target.getContext("2d");
+	target.width = DETAIL_SPRITE_CANVAS_SIZE;
+	target.height = DETAIL_SPRITE_CANVAS_SIZE;
+	ctx.clearRect(0, 0, target.width, target.height);
+	ctx.imageSmoothingEnabled = false;
+	if (!bounds) {
+		if (wrap) wrap.classList.remove("no-sprite");
+		return;
+	}
+	const maxPreviewWidth = DETAIL_SPRITE_MAX_WIDTH;
+	const maxPreviewHeight = DETAIL_SPRITE_MAX_HEIGHT;
+	const scale = Math.min(maxPreviewWidth / bounds.width, maxPreviewHeight / bounds.height, 2);
+	const drawWidth = Math.max(1, Math.round(bounds.width * scale));
+	const drawHeight = Math.max(1, Math.round(bounds.height * scale));
+	const drawX = Math.floor((target.width - drawWidth) / 2);
+	let drawY = Math.floor((target.height - drawHeight) / 2);
+	if (drawY < 0) drawY = 0;
+	ctx.drawImage(offscreen, bounds.x, bounds.y, bounds.width, bounds.height, drawX, drawY, drawWidth, drawHeight);
+	if (wrap) wrap.classList.remove("no-sprite");
+}
+function startAnimatedMonsterPreview(root, runtime) {
+	if (!root || !runtime) {
+		setSpritePreviewFallback(root, "");
+		return;
+	}
+	stopAnimatedSpritePreview(root);
+	const fallback = root.querySelector(".detail-sprite-fallback");
+	if (fallback) fallback.textContent = "";
+	const state = {
+		runtime,
+		startedAt: Date.now(),
+		timer: null
+	};
+	root._navMonsterPreviewState = state;
+	const renderNow = () => {
+		if (!root._navMonsterPreviewState || root._navMonsterPreviewState !== state) return;
+		drawAnimatedMonsterPreview(root, runtime, Date.now() - state.startedAt);
+	};
+	renderNow();
+	state.timer = setInterval(renderNow, 100);
+}
+function loadMonsterSpritePreview(root, result) {
+	const cacheKey = getActorPreviewCacheKey(result);
+	if (!root || !cacheKey) {
+		setSpritePreviewFallback(root, "");
+		return;
+	}
+	if (_monsterPreviewRuntimeCache[cacheKey]) {
+		startAnimatedMonsterPreview(root, _monsterPreviewRuntimeCache[cacheKey]);
+		return;
+	}
+	setSpritePreviewFallback(root, "");
+	const candidates = getActorSpriteCandidatePaths(result);
+	let index = 0;
+	const tryNextSprite = () => {
+		if (index >= candidates.length) {
+			setSpritePreviewFallback(root, "");
+			return;
+		}
+		const basePath = candidates[index++];
+		let sprPath = basePath;
+		let actPath = basePath;
+		if (!/\.spr$/i.test(sprPath) && !/\.act$/i.test(sprPath)) {
+			sprPath += ".spr";
+			actPath += ".act";
+		} else {
+			sprPath = sprPath.replace(/\.act$/i, ".spr");
+			actPath = actPath.replace(/\.spr$/i, ".act");
+		}
+		Client.loadFile(sprPath, (sprData) => {
+			if (!sprData || !sprData.frames) {
+				tryNextSprite();
+				return;
+			}
+			Client.loadFile(actPath, (actData) => {
+				if (!actData || !actData.actions) {
+					tryNextSprite();
+					return;
+				}
+				loadPreviewShadowBuffers((shadowSprData, shadowActData) => {
+					try {
+						const runtime = buildMonsterPreviewRuntime(sprData, actData, shadowSprData, shadowActData);
+						_monsterPreviewRuntimeCache[cacheKey] = runtime;
+						startAnimatedMonsterPreview(root, runtime);
+					} catch (_e) {
+						tryNextSprite();
+					}
+				});
+			}, tryNextSprite);
+		}, tryNextSprite, { to_rgba: true });
+	};
+	tryNextSprite();
+}
+function updateDetailSpritePreview(root, result) {
+	if (!root || !result) {
+		setSpritePreviewFallback(root, "");
+		return;
+	}
+	if (result.type === "MOB" || result.type === "NPC") {
+		loadMonsterSpritePreview(root, result);
+		return;
+	}
+	setSpritePreviewFallback(root, "MAP");
+}
+function updateRoadIconSelectorUI(root) {
+	if (!root) return;
+	const choices = root.querySelectorAll(".roadicon-choice");
+	for (let i = 0; i < choices.length; i++) {
+		const index = Number(choices[i].getAttribute("data-roadicon-index")) || 1;
+		choices[i].classList.toggle("selected", index === _selectedRoadIconIndex);
+	}
+}
+function closeRoadIconSelector(root) {
+	if (!root) return;
+	const selector = root.querySelector(".roadicon-selector");
+	if (selector) selector.classList.remove("open");
+}
+function updateSelectedRoadIconButton(root) {
+	if (!root) return;
+	const button = root.querySelector(".footer-roadicon-button");
+	if (!button) return;
+	const index = Math.max(1, Math.min(8, Number(_selectedRoadIconIndex) || 1));
+	button.setAttribute("bg", "navigation_interface3/btn_roadiocn_select" + index + "_normal.bmp");
+	button.setAttribute("hover", "navigation_interface3/btn_roadiocn_select" + index + "_over.bmp");
+	button.setAttribute("down", "navigation_interface3/btn_roadiocn_select" + index + "_press.bmp");
+}
+function setSelectedRoadIcon(index) {
+	index = Math.max(1, Math.min(8, Number(index) || 1));
+	_selectedRoadIconIndex = index;
+	if (NavigationFootstep && typeof NavigationFootstep.setRoadIcon === "function") NavigationFootstep.setRoadIcon(index);
+	const root = Navigation.getRoot && Navigation.getRoot();
+	updateRoadIconSelectorUI(root);
+	updateSelectedRoadIconButton(root);
+	if (_path && _path.length > 1) {
+		clearWorldFootsteps();
+		resetFootstepProgress();
+	}
+}
 /**
 * Local utility functions
 */
@@ -227557,7 +233479,7 @@ function createAsyncImage() {
 * Normalize a map name (remove .gat extension)
 */
 function normalizeMapName(mapName) {
-	mapName = mapName.replace(/\.gat$/, "").toLowerCase();
+	mapName = String(mapName || "").replace(/\.gat$/, "").toLowerCase();
 	mapName = mapName.replace(/^(.+)_[a-d]$/, "$1");
 	return mapName;
 }
@@ -227604,6 +233526,44 @@ function mapToScreen(x, y, width, height) {
 		y: (_mapData.height - y) / _mapData.height * mapHeight + offsetY
 	};
 }
+function getNavigationMapCanvasSize() {
+	const root = Navigation.getRoot && Navigation.getRoot();
+	const mapDisplay = root && root.querySelector ? root.querySelector(".map-display") : null;
+	const rect = mapDisplay && mapDisplay.getBoundingClientRect ? mapDisplay.getBoundingClientRect() : null;
+	return {
+		width: Math.max(1, Math.round(rect && rect.width || 280)),
+		height: Math.max(1, Math.round(rect && rect.height || 230))
+	};
+}
+function resizeNavigationMapCanvas(ctx) {
+	if (!ctx || !ctx.canvas) return getNavigationMapCanvasSize();
+	const size = getNavigationMapCanvasSize();
+	if (ctx.canvas.width !== size.width) ctx.canvas.width = size.width;
+	if (ctx.canvas.height !== size.height) ctx.canvas.height = size.height;
+	return size;
+}
+function drawNavigationMapLabel(ctx, text, x, y, options) {
+	if (!ctx || !text) return;
+	options = options || {};
+	ctx.save();
+	ctx.font = options.font || "bold 11px Arial, sans-serif";
+	ctx.textAlign = options.align || "left";
+	ctx.textBaseline = options.baseline || "top";
+	ctx.lineWidth = 3;
+	ctx.strokeStyle = "rgba(0,0,0,0.88)";
+	ctx.fillStyle = options.color || "#ffffff";
+	ctx.strokeText(text, x, y);
+	ctx.fillText(text, x, y);
+	ctx.restore();
+}
+function drawNavigationMapOverlays(ctx, width, height, currentMap, currentPos) {
+	if (!ctx) return;
+	const safeMap = normalizeMapName(currentMap || "");
+	const safeX = Math.floor(Number(currentPos && currentPos.x) || 0);
+	const safeY = Math.floor(Number(currentPos && currentPos.y) || 0);
+	if (safeMap) drawNavigationMapLabel(ctx, safeMap + " " + safeX + " " + safeY, 5, 5);
+	if (_finalTargetData && _finalTargetData.map) drawNavigationMapLabel(ctx, "[Dest] " + normalizeMapName(_finalTargetData.map), 5, height - 16);
+}
 /**
 * Get the current map name
 */
@@ -227622,6 +233582,719 @@ function getPlayerPosition() {
 		x: Math.ceil(SessionStorage_default.Entity.position[0]),
 		y: Math.ceil(SessionStorage_default.Entity.position[1])
 	};
+}
+/**
+* Remove all navigation route footsteps from the 3D floor.
+*/
+function clearWorldFootsteps() {
+	if (_navigationFootstepMarkers.length > 0) EffectManager.remove(null, _navigationFootstepOwnerAID);
+	_navigationFootstepKey = "";
+	_navigationFootstepMap = "";
+	_navigationFootstepMarkers = [];
+}
+/**
+* Calculate the map-direction angle for a footstep marker.
+*/
+function getFootstepAngle(previousPoint, currentPoint, nextPoint, useTexture = false) {
+	const fromPoint = previousPoint || currentPoint;
+	const toPoint = nextPoint || currentPoint;
+	let dx = Number(toPoint.x) - Number(fromPoint.x);
+	let dy = Number(toPoint.y) - Number(fromPoint.y);
+	if (!dx && !dy && currentPoint && previousPoint) {
+		dx = Number(currentPoint.x) - Number(previousPoint.x);
+		dy = Number(currentPoint.y) - Number(previousPoint.y);
+	}
+	if (!dx && !dy) return 0;
+	return Math.atan2(dy, dx) + (useTexture ? Math.PI / 2 : -Math.PI / 2);
+}
+/**
+* Build a stable signature for the current floor route.
+*/
+function getFootstepPathKey(mapName, path) {
+	if (!mapName || !path || !path.length) return "";
+	const first = path[0];
+	const last = path[path.length - 1];
+	const middle = path[Math.floor(path.length / 2)] || first;
+	return [
+		mapName,
+		path.length,
+		first.x,
+		first.y,
+		middle.x,
+		middle.y,
+		last.x,
+		last.y
+	].join(":");
+}
+function getAllowedWarpTypes() {
+	const root = Navigation.getRoot && Navigation.getRoot();
+	const servicesToggle = root && root.querySelector(".services-toggle");
+	if (servicesToggle && servicesToggle.checked) return WALK_NAV_LINK_TYPES.concat(SERVICE_NAV_LINK_TYPES);
+	return WALK_NAV_LINK_TYPES.slice();
+}
+/**
+* Build a stable key for the current navigation segment. It intentionally does
+* not include the player's X/Y position, otherwise the route would recalculate
+* every time the player walks one cell. The segment is recalculated only when
+* the current map, final target, or Services mode changes.
+*/
+function getSegmentRequestKey(currentMap, finalTargetData) {
+	if (!currentMap || !finalTargetData) return "";
+	return [
+		normalizeMapName(currentMap),
+		normalizeMapName(finalTargetData.map),
+		Math.floor(Number(finalTargetData.x) || 0),
+		Math.floor(Number(finalTargetData.y) || 0),
+		getAllowedWarpTypes().join("-")
+	].join(":");
+}
+/**
+* Reset only the current calculated segment markers, not the final target.
+*/
+function resetFootstepProgress() {
+	_navigationFootstepProgressIndex = 0;
+	_navigationFootstepPlayerCellKey = "";
+	_navigationFootstepKey = "";
+}
+function resetSegmentTracking() {
+	_currentSegmentRequestKey = "";
+	_pendingSegmentRequestKey = "";
+	resetFootstepProgress();
+}
+function getCellDistance(x1, y1, x2, y2) {
+	return Math.max(Math.abs(Number(x1) - Number(x2)), Math.abs(Number(y1) - Number(y2)));
+}
+function getNavigationTick() {
+	return Renderer && Number.isFinite(Renderer.tick) ? Renderer.tick : Date.now();
+}
+function findNearestNavigationPathIndex(currentPos) {
+	let bestIndex = -1;
+	let bestDistance = Infinity;
+	if (!currentPos || !_path || !_path.length) return {
+		index: bestIndex,
+		distance: bestDistance
+	};
+	for (let i = 0; i < _path.length; i++) {
+		const point = _path[i];
+		if (!point || point.isWarp) continue;
+		const distance = getCellDistance(currentPos.x, currentPos.y, point.x, point.y);
+		if (distance < bestDistance) {
+			bestDistance = distance;
+			bestIndex = i;
+		}
+	}
+	return {
+		index: bestIndex,
+		distance: bestDistance
+	};
+}
+function requestNavigationRecalculateFromPlayer(reason) {
+	if (!_finalTargetData || _pathUpdateLock) return false;
+	const currentMap = getCurrentMap();
+	const currentPos = getPlayerPosition();
+	if (!currentMap || !currentPos) return false;
+	const now = getNavigationTick();
+	if (_navigationBacktrackRecalculateTick && now - _navigationBacktrackRecalculateTick < _navigationBacktrackRecalculateThrottle) return false;
+	_navigationBacktrackRecalculateTick = now;
+	_currentSegmentRequestKey = "";
+	_pendingSegmentRequestKey = "";
+	resetFootstepProgress();
+	Navigation.navigateTo({
+		startMap: currentMap,
+		startX: currentPos.x,
+		startY: currentPos.y,
+		endMap: _finalTargetData.airshipMap || _finalTargetData.map,
+		endX: _finalTargetData.x,
+		endY: _finalTargetData.y,
+		displayName: _finalTargetData.displayName,
+		isNpc: _finalTargetData.isNpc,
+		force: true,
+		resumeSegment: true,
+		silentRecalculate: true,
+		recalculateReason: reason || "backtrack"
+	});
+	return true;
+}
+function buildMiniStatusLine(mapName, x, y, prefix) {
+	mapName = normalizeMapName(mapName);
+	prefix = prefix || "";
+	if (!mapName) return prefix ? `${prefix}No target` : "";
+	return `${prefix}${mapName} ${Math.floor(Number(x) || 0)} ${Math.floor(Number(y) || 0)}`;
+}
+function getResultTypeClass(result) {
+	if (!result || !result.type) return "map_icon";
+	if (result.type === "MOB") return "mob_icon";
+	if (result.type === "NPC") return "npc_icon";
+	return "map_icon";
+}
+function getResultListAmount(result) {
+	if (!result) return "";
+	if (result.type === "MAP") {
+		const count = Array.isArray(result.monsters) ? result.monsters.length : 0;
+		return count > 0 ? "[" + count + "]" : "";
+	}
+	if (result.type === "NPC") {
+		const count = Array.isArray(result.spawns) ? result.spawns.length : 0;
+		return count > 0 ? "[" + count + "]" : "";
+	}
+	if (result.type !== "MOB") return "";
+	const spawn = result.spawns && result.spawns[0] || null;
+	const amount = spawn ? Number(spawn.amount) : 0;
+	return amount > 0 ? "[" + amount + "]" : "";
+}
+function getResultListLabel(result) {
+	if (!result) return "";
+	if (result.type === "MAP") return normalizeMapName(result.mapName || result.id || result.name || "");
+	return result.name || result.mapName || "";
+}
+function getNpcSpawnLabel(result, spawn) {
+	const mapName = normalizeMapName(spawn && spawn.mapName || result.mapName || "");
+	return (result.name || "NPC") + "(" + mapName + ")";
+}
+function createOfficialTypeBadgeForType(type) {
+	return createOfficialTypeBadge({ type });
+}
+function getSelectedMapMonster(result) {
+	if (!result || result.type !== "MAP") return null;
+	if (result._selectedMapMonster) return result._selectedMapMonster;
+	return Array.isArray(result.monsters) && result.monsters.length ? result.monsters[0] : null;
+}
+function getSpawnRateLabel(amount) {
+	amount = Number(amount) || 0;
+	if (amount >= 60) return "Very High";
+	if (amount >= 25) return "High";
+	if (amount >= 10) return "Average";
+	if (amount >= 3) return "Low";
+	return "Very Low";
+}
+function getSelectedResultTarget(result) {
+	if (!result) return null;
+	const spawn = result._selectedSpawn || result.spawns && result.spawns[0];
+	if (spawn) return {
+		mapName: normalizeMapName(spawn.mapName || result.mapName),
+		x: Number(spawn.x),
+		y: Number(spawn.y),
+		displayName: result.name || spawn.displayName || spawn.mapName
+	};
+	return {
+		mapName: normalizeMapName(result.mapName),
+		x: Number(result.x),
+		y: Number(result.y),
+		displayName: result.name || result.mapName
+	};
+}
+function getNavigationMapPreviewPath(mapName) {
+	const mapBaseName = normalizeMapName(mapName).replace(/\..*/, "");
+	let bmpPath = DB.INTERFACE_PATH.replace("data/texture/", "") + "map/" + mapBaseName + ".bmp";
+	bmpPath = bmpPath.replace(/\//g, "\\");
+	bmpPath = DB.mapalias[bmpPath] || bmpPath;
+	return "data/texture/" + bmpPath;
+}
+function loadResultMapPreview(img, mapName) {
+	if (!img || !mapName) return;
+	img.removeAttribute("src");
+	Client.loadFile(getNavigationMapPreviewPath(mapName), (dataURI) => {
+		if (dataURI) img.src = dataURI;
+		else img.src = TRANSPARENT_PIXEL;
+	});
+}
+function buildDetailText(result, target) {
+	if (!result) return "";
+	if (result.type === "MOB") {
+		const lines = [];
+		if (result.level) lines.push("Lv. " + result.level);
+		if (result.elementName) lines.push(result.elementName);
+		if (result.raceName) lines.push(result.raceName);
+		if (result.sizeName) lines.push(result.sizeName);
+		return lines.join("\n");
+	}
+	if (result.type === "NPC") return [normalizeMapName(target.mapName), Math.floor(Number(target.x) || 0) + ", " + Math.floor(Number(target.y) || 0)].join("\n");
+	if (result.type === "MAP") return "";
+	return [
+		DB.getNaviMapDisplayName(target.mapName) || target.mapName,
+		normalizeMapName(target.mapName),
+		Math.floor(Number(target.x) || 0) + ", " + Math.floor(Number(target.y) || 0)
+	].join("\n");
+}
+function syncServiceToggles(changedToggle) {
+	const root = Navigation.getRoot && Navigation.getRoot();
+	if (!root || !changedToggle) return;
+	const checked = !!changedToggle.checked;
+	const toggles = root.querySelectorAll(".services-toggle");
+	for (let i = 0; i < toggles.length; i++) if (toggles[i] !== changedToggle) toggles[i].checked = checked;
+}
+function updateMinimizedStatus(currentMap, currentPos) {
+	const root = Navigation.getRoot && Navigation.getRoot();
+	if (!root) return;
+	currentMap = normalizeMapName(currentMap || getCurrentMap());
+	currentPos = currentPos || getPlayerPosition();
+	const currentEl = root.querySelector(".mini-current");
+	if (currentEl) {
+		const text = buildMiniStatusLine(currentMap, currentPos.x, currentPos.y, "");
+		currentEl.textContent = text;
+		currentEl.title = text;
+	}
+	const targetEl = root.querySelector(".mini-target");
+	if (targetEl) {
+		const target = _finalTargetData || _targetData;
+		const text = target && target.map ? buildMiniStatusLine(target.map, target.x, target.y, "") : "No target";
+		targetEl.textContent = text;
+		targetEl.title = text;
+	}
+}
+function applyMinimizedState() {
+	const root = Navigation.getRoot && Navigation.getRoot();
+	if (!root) return;
+	const inner = root.querySelector(".Navigation");
+	if (!inner) return;
+	inner.classList.toggle("minimized", !!_isMinimized);
+	const width = _isMinimized ? NAV_MINIMIZED_WIDTH : NAV_WINDOW_WIDTH;
+	const height = _isMinimized ? NAV_MINIMIZED_HEIGHT : NAV_WINDOW_HEIGHT;
+	inner.style.width = width + "px";
+	inner.style.height = height + "px";
+	inner.style.maxWidth = width + "px";
+	inner.style.maxHeight = height + "px";
+	inner.style.overflow = _isMinimized ? "hidden" : "";
+	if (Navigation._host) {
+		Navigation._host.style.width = width + "px";
+		Navigation._host.style.height = height + "px";
+		Navigation._host.style.maxWidth = width + "px";
+		Navigation._host.style.maxHeight = height + "px";
+		Navigation._host.style.overflow = _isMinimized ? "hidden" : "visible";
+	}
+	const minimizeToggle = root.querySelector(".minimize-toggle");
+	if (minimizeToggle && minimizeToggle.checked !== !!_isMinimized) minimizeToggle.checked = !!_isMinimized;
+	updateMinimizedStatus();
+}
+/**
+* Move the visual footstep cursor forward as the player walks.
+*
+* Important: this intentionally does not change _path and does not call the
+* pathfinder. Official navigation keeps the selected route, then only the
+* floor footsteps in front of the player advance/disappear visually.
+*/
+function updateFootstepProgressFromPlayer(currentMap, currentPos) {
+	currentMap = normalizeMapName(currentMap);
+	if (!currentMap || !currentPos || !_targetData || normalizeMapName(_targetData.map) !== currentMap || !_path || _path.length < 2) return {
+		changed: false,
+		recalculate: false
+	};
+	const positionKey = [
+		currentMap,
+		Math.floor(currentPos.x),
+		Math.floor(currentPos.y)
+	].join(":");
+	if (positionKey === _navigationFootstepPlayerCellKey) return {
+		changed: false,
+		recalculate: false
+	};
+	_navigationFootstepPlayerCellKey = positionKey;
+	const nearest = findNearestNavigationPathIndex(currentPos);
+	if (nearest.index < 0) return {
+		changed: false,
+		recalculate: false
+	};
+	const progressIndex = Math.floor(Number(_navigationFootstepProgressIndex) || 0);
+	if (nearest.distance > _navigationOffRouteRecalculateDistance) return {
+		changed: false,
+		recalculate: true,
+		reason: "off-route"
+	};
+	if (nearest.index + _navigationBacktrackIndexThreshold < progressIndex) return {
+		changed: false,
+		recalculate: true,
+		reason: "backtrack"
+	};
+	if (nearest.distance > _navigationFootstepNearDistance && Math.abs(nearest.index - progressIndex) > _navigationFootstepSpacing) return {
+		changed: false,
+		recalculate: false
+	};
+	if (nearest.index > progressIndex) {
+		_navigationFootstepProgressIndex = nearest.index;
+		return {
+			changed: true,
+			recalculate: false
+		};
+	}
+	return {
+		changed: false,
+		recalculate: false
+	};
+}
+/**
+* Build the minimap route view without mutating the calculated path.
+* The cyan route appears to shorten from the player position, while the saved
+* path remains stable and is not recalculated every time the player walks.
+*/
+function getVisualNavigationPath(currentMap, currentPos) {
+	currentMap = normalizeMapName(currentMap);
+	if (!currentMap || !currentPos || !_targetData || normalizeMapName(_targetData.map) !== currentMap || !_path || _path.length < 2) return _path;
+	const startPoint = {
+		x: Math.floor(currentPos.x),
+		y: Math.floor(currentPos.y),
+		isWarp: false,
+		warpId: null
+	};
+	const progressIndex = Math.min(_path.length - 2, Math.max(0, _navigationFootstepProgressIndex || 0));
+	return [startPoint].concat(_path.slice(progressIndex + 1));
+}
+/**
+* Tell the large world map which maps are part of the current navigation route.
+* This lets the world map draw the blue official-style route overlay without
+* importing WorldMap here and creating a circular dependency.
+*/
+function clearWorldMapMonsterSearchMarkers() {
+	if (typeof window === "undefined") return;
+	const current = getNavigationRoute();
+	if (!current || !current.active) return;
+	let detail;
+	if (current.searchOnly) detail = { active: false };
+	else if (Array.isArray(current.targetSpawns) && current.targetSpawns.length || Array.isArray(current.targetEntries) && current.targetEntries.length) detail = Object.assign({}, current, {
+		targetType: "",
+		targetName: "",
+		targetSpawns: [],
+		targetEntries: []
+	});
+	else return;
+	_lastPublishedNavigationRouteKey = "";
+	setNavigationRoute(detail);
+	document.dispatchEvent(new CustomEvent("roBrowserNavigationRouteChanged", { detail }));
+}
+function publishWorldMapSearchResult(result, allResults) {
+	if (!result) {
+		clearWorldMapMonsterSearchMarkers();
+		return;
+	}
+	if (result.type === "MOB" && Array.isArray(result.spawns) && result.spawns.length) {
+		const targetSpawns = result.spawns.map((spawn) => ({
+			mapName: normalizeMapName(spawn.mapName || result.mapName || ""),
+			amount: Number(spawn.amount) || 0,
+			rateLabel: spawn.rateLabel || getSpawnRateLabel(spawn.amount)
+		}));
+		const key = [
+			"search-mob",
+			result.id || result.name || "",
+			targetSpawns.map((spawn) => [
+				spawn.mapName,
+				spawn.amount,
+				spawn.rateLabel
+			].join(",")).join(">")
+		].join(":");
+		if (key === _lastPublishedNavigationRouteKey) return;
+		_lastPublishedNavigationRouteKey = key;
+		const detail = {
+			active: true,
+			searchOnly: true,
+			startMap: "",
+			endMap: "",
+			displayName: result.name || "",
+			targetType: "MOB",
+			targetName: result.name || "",
+			targetSpawns,
+			targetEntries: [],
+			routeMaps: [],
+			points: []
+		};
+		setNavigationRoute(detail);
+		document.dispatchEvent(new CustomEvent("roBrowserNavigationRouteChanged", { detail }));
+		return;
+	}
+	if (result.type === "NPC") {
+		const npcEntries = Array.isArray(result.spawns) && result.spawns.length ? result.spawns : (Array.isArray(allResults) && allResults.length ? allResults : [result]).filter((candidate) => candidate && candidate.type === "NPC");
+		const seen = {};
+		const targetEntries = [];
+		for (let i = 0; i < npcEntries.length; i++) {
+			const candidate = npcEntries[i];
+			const mapName = normalizeMapName(candidate && candidate.mapName || candidate && candidate._selectedSpawn && candidate._selectedSpawn.mapName || "");
+			if (!mapName || seen[mapName]) continue;
+			seen[mapName] = true;
+			targetEntries.push({
+				mapName,
+				x: Math.floor(Number(candidate && candidate.x || candidate && candidate._selectedSpawn && candidate._selectedSpawn.x || 0)),
+				y: Math.floor(Number(candidate && candidate.y || candidate && candidate._selectedSpawn && candidate._selectedSpawn.y || 0))
+			});
+		}
+		if (!targetEntries.length) {
+			clearWorldMapMonsterSearchMarkers();
+			return;
+		}
+		const key = [
+			"search-npc",
+			result.id || result.name || "",
+			targetEntries.map((entry) => [
+				entry.mapName,
+				entry.x,
+				entry.y
+			].join(",")).join(">")
+		].join(":");
+		if (key === _lastPublishedNavigationRouteKey) return;
+		_lastPublishedNavigationRouteKey = key;
+		const detail = {
+			active: true,
+			searchOnly: true,
+			startMap: "",
+			endMap: "",
+			displayName: result.name || "",
+			targetType: "NPC",
+			targetName: result.name || "",
+			targetSpawns: [],
+			targetEntries,
+			routeMaps: [],
+			points: []
+		};
+		setNavigationRoute(detail);
+		document.dispatchEvent(new CustomEvent("roBrowserNavigationRouteChanged", { detail }));
+		return;
+	}
+	clearWorldMapMonsterSearchMarkers();
+}
+function publishNavigationRoute(active, routePath, startMap, endMap, displayName) {
+	let points = [];
+	let routeMaps = [];
+	function addMap(mapName) {
+		mapName = normalizeMapName(mapName);
+		if (mapName && routeMaps.indexOf(mapName) === -1) routeMaps.push(mapName);
+	}
+	if (active) {
+		addMap(startMap);
+		points = (routePath || []).filter((point) => point && point.map).map((point) => {
+			const mapName = normalizeMapName(point.map);
+			addMap(mapName);
+			return {
+				map: mapName,
+				x: Math.floor(Number(point.x) || 0),
+				y: Math.floor(Number(point.y) || 0),
+				warpId: point.warpId || null,
+				type: point.type || null,
+				service: !!point.service,
+				name: point.name || ""
+			};
+		});
+		addMap(endMap);
+	}
+	const pointsKey = points.map((point) => [
+		point.map,
+		point.x,
+		point.y,
+		point.warpId || "",
+		point.type || "",
+		point.service ? "svc" : "walk"
+	].join(",")).join(">");
+	const key = active ? [
+		"active",
+		normalizeMapName(startMap),
+		normalizeMapName(endMap),
+		routeMaps.join(">"),
+		pointsKey
+	].join(":") : "inactive";
+	if (key === _lastPublishedNavigationRouteKey) return;
+	_lastPublishedNavigationRouteKey = key;
+	const targetResult = Navigation.targetResult || null;
+	const targetSpawns = targetResult && targetResult.type === "MOB" && Array.isArray(targetResult.spawns) ? targetResult.spawns.map((spawn) => ({
+		mapName: normalizeMapName(spawn.mapName || ""),
+		amount: Number(spawn.amount) || 0,
+		rateLabel: spawn.rateLabel || getSpawnRateLabel(spawn.amount)
+	})) : [];
+	const targetEntries = targetResult && targetResult.type === "NPC" ? [{
+		mapName: normalizeMapName(targetResult._selectedSpawn && targetResult._selectedSpawn.mapName || targetResult.mapName || endMap || ""),
+		x: Math.floor(Number(targetResult._selectedSpawn && targetResult._selectedSpawn.x || targetResult.x || 0)),
+		y: Math.floor(Number(targetResult._selectedSpawn && targetResult._selectedSpawn.y || targetResult.y || 0))
+	}] : [];
+	const detail = {
+		active: !!active,
+		startMap: normalizeMapName(startMap),
+		endMap: normalizeMapName(endMap),
+		displayName: displayName || "",
+		targetType: targetResult && targetResult.type ? String(targetResult.type).toUpperCase() : "",
+		targetName: targetResult && targetResult.name ? String(targetResult.name) : "",
+		targetSpawns,
+		targetEntries,
+		routeMaps,
+		points
+	};
+	setNavigationRoute(detail);
+	document.dispatchEvent(new CustomEvent("roBrowserNavigationRouteChanged", { detail }));
+}
+/**
+* Draw the classic roBrowserLegacy navigation route on the Navigation minimap.
+* This keeps the minimap route as a straight solid cyan line, with yellow dots
+* for warp points, matching the original client behavior.
+*/
+function drawMiniMapRoute(ctx, path, mapToScreenBound) {
+	if (!path || path.length < 2) return;
+	ctx.save();
+	ctx.lineWidth = 2;
+	ctx.lineCap = "round";
+	ctx.lineJoin = "round";
+	ctx.setLineDash([5, 4]);
+	ctx.strokeStyle = "#00e5ff";
+	ctx.shadowBlur = 0;
+	let currentSegment = [];
+	for (let i = 0; i < path.length; i++) {
+		const point = path[i];
+		if (!point) continue;
+		const pos = mapToScreenBound(point.x, point.y);
+		if (currentSegment.length === 0) {
+			currentSegment.push(pos);
+			continue;
+		}
+		if (point.isWarp || i === path.length - 1) {
+			currentSegment.push(pos);
+			ctx.strokeStyle = "#00e5ff";
+			ctx.beginPath();
+			ctx.moveTo(currentSegment[0].x, currentSegment[0].y);
+			for (let j = 1; j < currentSegment.length; j++) ctx.lineTo(currentSegment[j].x, currentSegment[j].y);
+			ctx.stroke();
+			if (point.isWarp) {
+				ctx.beginPath();
+				ctx.arc(pos.x, pos.y, 3, 0, Math.PI * 2);
+				ctx.fillStyle = "yellow";
+				ctx.fill();
+				if (i + 1 < path.length) {
+					const exitPos = mapToScreenBound(path[i + 1].x, path[i + 1].y);
+					ctx.beginPath();
+					ctx.arc(exitPos.x, exitPos.y, 3, 0, Math.PI * 2);
+					ctx.fillStyle = "yellow";
+					ctx.fill();
+					currentSegment = [exitPos];
+					i++;
+				} else currentSegment = [pos];
+			} else currentSegment = [pos];
+		} else currentSegment.push(pos);
+	}
+	ctx.restore();
+}
+/**
+* Draw the classic red destination dot on the Navigation minimap.
+*/
+function drawNavigationTargetPin(ctx, pos) {
+	if (!pos) return;
+	ctx.save();
+	const icon = _navIcoDestination.complete && _navIcoDestination.width ? _navIcoDestination : _navListTargetIcon.complete && _navListTargetIcon.width ? _navListTargetIcon : null;
+	if (icon) ctx.drawImage(icon, Math.round(pos.x - icon.width / 2), Math.round(pos.y - icon.height / 2));
+	else {
+		ctx.fillStyle = "red";
+		ctx.beginPath();
+		ctx.arc(pos.x, pos.y, 3, 0, Math.PI * 2);
+		ctx.fill();
+	}
+	ctx.restore();
+}
+/**
+* Render yellow official-style route arrows on the actual game floor for the active route.
+*/
+function getFootstepEffectID(markerIndex) {
+	return _navigationFootstepEffectID + markerIndex;
+}
+function addWorldFootstep(marker) {
+	if (!marker || !marker.removed) return;
+	const effect = new NavigationFootstep(marker.position, marker.angle, marker.markerIndex, marker.alpha);
+	EffectManager.add(effect, {
+		Init: {
+			ownerAID: _navigationFootstepOwnerAID,
+			position: marker.position,
+			startTick: Renderer.tick,
+			duration: -1,
+			persistent: true
+		},
+		Inst: {
+			effectID: marker.effectID,
+			duplicateID: 0,
+			position: marker.position,
+			startTick: Renderer.tick,
+			duration: -1,
+			endTick: -1,
+			persistent: true,
+			renderBeforeEntities: true
+		}
+	});
+	marker.removed = false;
+}
+function removeWorldFootstep(marker) {
+	if (!marker || marker.removed) return;
+	EffectManager.remove(null, _navigationFootstepOwnerAID, marker.effectID);
+	marker.removed = true;
+}
+/**
+* Spawn the yellow floor footsteps once for the current same-map route segment.
+* Official navigation does not rebuild the floor footsteps every frame. The
+* route is generated once, then passed markers are removed as the player walks.
+*/
+function spawnWorldFootsteps(currentMap) {
+	clearWorldFootsteps();
+	if (!currentMap || !_path || _path.length < 2) return;
+	let footstepIndex = 0;
+	const startIndex = Math.max(_navigationFootstepSpacing, 1);
+	for (let i = startIndex; i < _path.length && footstepIndex < _navigationFootstepMax; i += _navigationFootstepSpacing) {
+		const point = _path[i];
+		if (!point || point.isWarp) continue;
+		const previousPoint = _path[Math.max(0, i - 1)];
+		const nextPoint = _path[Math.min(_path.length - 1, i + 1)];
+		const x = Math.floor(Number(point.x));
+		const y = Math.floor(Number(point.y));
+		if (!Number.isFinite(x) || !Number.isFinite(y)) continue;
+		const z = Altitude && typeof Altitude.getCellHeight === "function" ? Altitude.getCellHeight(x, y) : 0;
+		const marker = {
+			pathIndex: i,
+			effectID: getFootstepEffectID(footstepIndex),
+			markerIndex: footstepIndex,
+			position: new Float32Array([
+				x,
+				y,
+				z
+			]),
+			angle: getFootstepAngle(previousPoint, point, nextPoint, NavigationFootstep.usesTexture()),
+			alpha: .95,
+			x,
+			y,
+			removed: true
+		};
+		_navigationFootstepMarkers.push(marker);
+		addWorldFootstep(marker);
+		footstepIndex++;
+	}
+	_navigationFootstepKey = getFootstepPathKey(currentMap, _path);
+	_navigationFootstepMap = currentMap;
+}
+/**
+* Remove only footsteps that the player has already reached/passed. This keeps
+* the official behavior: no constant respawn/rebuild of the whole footstep list.
+*/
+function updatePassedWorldFootsteps(currentPos) {
+	if (!_navigationFootstepMarkers || !_navigationFootstepMarkers.length || !currentPos) return;
+	let progressPathIndex = Math.floor(Number(_navigationFootstepProgressIndex) || 0);
+	for (let i = 0; i < _navigationFootstepMarkers.length; i++) {
+		const marker = _navigationFootstepMarkers[i];
+		if (!marker) continue;
+		if (getCellDistance(currentPos.x, currentPos.y, marker.x, marker.y) <= _navigationFootstepNearDistance) progressPathIndex = Math.max(progressPathIndex, marker.pathIndex);
+	}
+	if (progressPathIndex > _navigationFootstepProgressIndex) _navigationFootstepProgressIndex = progressPathIndex;
+	for (let i = 0; i < _navigationFootstepMarkers.length; i++) {
+		const marker = _navigationFootstepMarkers[i];
+		if (!marker) continue;
+		if (marker.pathIndex <= _navigationFootstepProgressIndex) removeWorldFootstep(marker);
+	}
+}
+/**
+* Render/update yellow official-style route arrows on the actual game floor.
+*/
+function updateWorldFootsteps() {
+	const currentMap = getCurrentMap();
+	const currentPos = getPlayerPosition();
+	if (!currentMap || !_path || _path.length < 2 || !_targetData || normalizeMapName(_targetData.map) !== currentMap) {
+		clearWorldFootsteps();
+		return;
+	}
+	const progressResult = updateFootstepProgressFromPlayer(currentMap, currentPos);
+	if (progressResult && progressResult.recalculate) {
+		if (requestNavigationRecalculateFromPlayer(progressResult.reason)) return;
+	}
+	const routeKey = getFootstepPathKey(currentMap, _path);
+	if (routeKey && (routeKey !== _navigationFootstepKey || _navigationFootstepMap !== currentMap)) {
+		spawnWorldFootsteps(currentMap);
+		return;
+	}
+	updatePassedWorldFootsteps(currentPos);
 }
 /**
 * Terminate the pathfinding worker
@@ -227650,12 +234323,17 @@ function initializePathFindingWorker() {
 					_pathUpdateLock = false;
 					if (_finalTargetData && data.path && data.workerId === _pathFindingWorker.id) {
 						const mapName = getCurrentMap();
+						_currentSegmentRequestKey = _pendingSegmentRequestKey;
+						_pendingSegmentRequestKey = "";
+						resetFootstepProgress();
 						_path = data.path;
 						if (_path.length > 0) {
 							this.updateTargetText();
 							this.setTargetCoordinatesBlinking(false);
 							this.setLocationTitle(mapName, _finalTargetData.map, _finalTargetData.displayName);
+							updateWorldFootsteps();
 						} else {
+							clearWorldFootsteps();
 							this.updateTargetText(true);
 							this.setTargetCoordinatesBlinking(false);
 							this.setLocationTitle(mapName, null);
@@ -227669,26 +234347,46 @@ function resetPathFindingWorker() {
 	terminatePathFindingWorker();
 	initializePathFindingWorker();
 }
-var PRIVATE_AIRSHIP_PACKETVER, Navigation, _arrow, _toolDealer, _weaponDealer, _armorDealer, _blacksmith, _guide, _inn, _kafra, _map, _ctx$1, _towninfo, _markers, _path, _lastPathUpdate, _pathUpdateThrottle, _pathUpdateLock, _pathFindingWorker, _mapData, _targetData, _finalTargetData, _isMapClickTarget, _blinking, _fadeInterval, _originalColor, _documentClickHandler, Navigation_default;
+var PRIVATE_AIRSHIP_PACKETVER, Navigation, TRANSPARENT_PIXEL, NAV_WINDOW_WIDTH, NAV_WINDOW_HEIGHT, NAV_MINIMIZED_WIDTH, NAV_MINIMIZED_HEIGHT, DETAIL_SPRITE_CANVAS_SIZE, DETAIL_SPRITE_MAX_WIDTH, DETAIL_SPRITE_MAX_HEIGHT, _monsterPreviewRuntimeCache, _previewShadowBuffersLoaded, _previewShadowBuffersLoading, _previewShadowSprBuffer, _previewShadowActBuffer, _previewShadowCallbacks, _arrow, _toolDealer, _weaponDealer, _armorDealer, _blacksmith, _guide, _inn, _kafra, _navListMapIcon, _navListMobIcon, _navListNpcIcon, _navListRouteIcon, _navListStartIcon, _navListTargetIcon, _navIcoDestination, _navIcoLocation, _navScrollUp, _navScrollMid, _navScrollDown, _navBarUp, _navBarMid, _navBarDown, _navInterfaceIconURI, _map, _ctx$1, _towninfo, _markers, _path, _pathUpdateLock, _pathFindingWorker, _mapData, _targetData, _finalTargetData, _searchResults, _selectedSearchResult, _isMapClickTarget, _selectedRoadIconIndex, _blinking, _fadeInterval, _originalColor, _documentClickHandler, _isMinimized, _loadingMapName, _navigationFootstepOwnerAID, _navigationFootstepEffectID, _navigationFootstepKey, _navigationFootstepMap, _navigationFootstepMarkers, _lastPublishedNavigationRouteKey, _currentSegmentRequestKey, _pendingSegmentRequestKey, _navigationFootstepProgressIndex, _navigationFootstepPlayerCellKey, _navigationFootstepNearDistance, _navigationFootstepSpacing, _navigationFootstepMax, _navigationBacktrackRecalculateTick, _navigationBacktrackRecalculateThrottle, _navigationBacktrackIndexThreshold, _navigationOffRouteRecalculateDistance, WALK_NAV_LINK_TYPES, SERVICE_NAV_LINK_TYPES, Navigation_default;
 var init_Navigation = __esmMin((() => {
 	init_KeyEventHandler();
 	init_Renderer();
+	init_EffectManager();
+	init_NavigationFootstep();
 	init_MapRenderer();
 	init_UIManager();
 	init_GUIComponent();
 	init_Elements();
-	init_Altitude();
+	init_Altitude$1();
 	init_SessionStorage();
 	init_Client();
+	init_FileManager();
 	init_DBManager();
+	init_Entity$1();
+	init_SpriteRenderer();
 	init_Navigation$2();
 	init_Navigation$1();
 	init_MapPathFinder();
 	init_PrivateAirship();
 	init_PacketVerManager();
+	init_NavigationRouteState();
 	PRIVATE_AIRSHIP_PACKETVER = 20180321;
 	Navigation = new GUIComponent("Navigation", Navigation_default$1);
 	Navigation.render = () => Navigation_default$2;
+	TRANSPARENT_PIXEL = "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==";
+	NAV_WINDOW_WIDTH = 300;
+	NAV_WINDOW_HEIGHT = 320;
+	NAV_MINIMIZED_WIDTH = 158;
+	NAV_MINIMIZED_HEIGHT = 54;
+	DETAIL_SPRITE_CANVAS_SIZE = 96;
+	DETAIL_SPRITE_MAX_WIDTH = 90;
+	DETAIL_SPRITE_MAX_HEIGHT = 90;
+	_monsterPreviewRuntimeCache = {};
+	_previewShadowBuffersLoaded = false;
+	_previewShadowBuffersLoading = false;
+	_previewShadowSprBuffer = null;
+	_previewShadowActBuffer = null;
+	_previewShadowCallbacks = [];
 	_arrow = createAsyncImage();
 	_toolDealer = createAsyncImage();
 	_weaponDealer = createAsyncImage();
@@ -227697,29 +234395,77 @@ var init_Navigation = __esmMin((() => {
 	_guide = createAsyncImage();
 	_inn = createAsyncImage();
 	_kafra = createAsyncImage();
+	_navListMapIcon = createAsyncImage();
+	_navListMobIcon = createAsyncImage();
+	_navListNpcIcon = createAsyncImage();
+	_navListRouteIcon = createAsyncImage();
+	_navListStartIcon = createAsyncImage();
+	_navListTargetIcon = createAsyncImage();
+	_navIcoDestination = createAsyncImage();
+	_navIcoLocation = createAsyncImage();
+	_navScrollUp = createAsyncImage();
+	_navScrollMid = createAsyncImage();
+	_navScrollDown = createAsyncImage();
+	_navBarUp = createAsyncImage();
+	_navBarMid = createAsyncImage();
+	_navBarDown = createAsyncImage();
+	_navInterfaceIconURI = {};
 	_map = createAsyncImage();
 	_ctx$1 = null;
 	_towninfo = [];
 	_markers = [];
 	_path = [];
-	_lastPathUpdate = 0;
-	_pathUpdateThrottle = 500;
 	_pathUpdateLock = false;
 	_pathFindingWorker = null;
 	_mapData = null;
 	_targetData = null;
 	_finalTargetData = null;
+	_searchResults = [];
+	_selectedSearchResult = null;
 	_isMapClickTarget = false;
+	_selectedRoadIconIndex = 1;
 	_blinking = false;
 	_fadeInterval = null;
 	_originalColor = "";
 	_documentClickHandler = null;
+	_isMinimized = false;
+	_loadingMapName = null;
+	_navigationFootstepOwnerAID = "navigation-footsteps";
+	_navigationFootstepEffectID = 990001;
+	_navigationFootstepKey = "";
+	_navigationFootstepMap = "";
+	_navigationFootstepMarkers = [];
+	_lastPublishedNavigationRouteKey = "";
+	_currentSegmentRequestKey = "";
+	_pendingSegmentRequestKey = "";
+	_navigationFootstepProgressIndex = 0;
+	_navigationFootstepPlayerCellKey = "";
+	_navigationFootstepNearDistance = 2;
+	_navigationFootstepSpacing = 4;
+	_navigationFootstepMax = 128;
+	_navigationBacktrackRecalculateTick = 0;
+	_navigationBacktrackRecalculateThrottle = 1e3;
+	_navigationBacktrackIndexThreshold = 3;
+	_navigationOffRouteRecalculateDistance = 8;
+	WALK_NAV_LINK_TYPES = [200];
+	SERVICE_NAV_LINK_TYPES = [
+		201,
+		202,
+		203,
+		204,
+		205
+	];
 	/**
 	* Convert screen coordinates to map coordinates
 	*/
 	Navigation.screenToMapCoordinates = function screenToMapCoordinates(screenX, screenY) {
-		const width = 280;
-		const height = 230;
+		const size = getNavigationMapCanvasSize();
+		const width = size.width;
+		const height = size.height;
+		if (!_mapData || !_mapData.width || !_mapData.height) return {
+			x: 0,
+			y: 0
+		};
 		const scaleX = width / _mapData.width;
 		const scaleY = height / _mapData.height;
 		const scale = Math.min(scaleX, scaleY);
@@ -227742,8 +234488,11 @@ var init_Navigation = __esmMin((() => {
 	Navigation.init = function init() {
 		const root = Navigation.getRoot();
 		_mapData = { walkableType: Altitude.TYPE.WALKABLE };
-		this._host.style.top = `${Math.max(0, Math.min(Renderer.height - 300, 200))}px`;
-		this._host.style.left = `${Math.max(0, Math.min(Renderer.width - 300, 200))}px`;
+		this._host.style.top = `${Math.max(0, Math.min(Renderer.height - NAV_WINDOW_HEIGHT, 200))}px`;
+		this._host.style.left = `${Math.max(0, Math.min(Renderer.width - NAV_WINDOW_WIDTH, 200))}px`;
+		this._host.style.width = "300px";
+		this._host.style.height = "320px";
+		this._host.style.overflow = "visible";
 		const canvas = document.createElement("canvas");
 		canvas.width = 280;
 		canvas.height = 230;
@@ -227774,22 +234523,121 @@ var init_Navigation = __esmMin((() => {
 		Client.loadFile(`${DB.INTERFACE_PATH}information/kafra.bmp`, (dataURI) => {
 			_kafra.src = dataURI;
 		});
-		root.querySelector(".close").addEventListener("click", () => this.hide());
-		root.querySelector(".search-button").addEventListener("click", () => this.onSearch());
-		root.querySelector(".airship-move").addEventListener("click", () => this.onAirshipMove());
+		applyOfficialNavigationIcons(root);
+		const closeBtn = root.querySelector(".close");
+		if (closeBtn) {
+			closeBtn.addEventListener("mousedown", (e) => e.stopImmediatePropagation());
+			closeBtn.addEventListener("click", (e) => {
+				e.stopPropagation();
+				this.hide();
+			});
+		}
+		const restoreBtn = root.querySelector(".restore");
+		if (restoreBtn) {
+			restoreBtn.addEventListener("mousedown", (e) => e.stopImmediatePropagation());
+			restoreBtn.addEventListener("click", (e) => {
+				e.stopPropagation();
+				this.setMinimized(false);
+			});
+		}
+		const minimizeToggle = root.querySelector(".minimize-toggle");
+		if (minimizeToggle) {
+			minimizeToggle.addEventListener("mousedown", (e) => e.stopImmediatePropagation());
+			minimizeToggle.addEventListener("click", (e) => e.stopPropagation());
+			minimizeToggle.addEventListener("change", (e) => {
+				e.stopPropagation();
+				this.setMinimized(minimizeToggle.checked);
+			});
+		}
+		root.querySelector(".search-button").addEventListener("click", (e) => {
+			e.stopPropagation();
+			this.onSearch(true);
+		});
+		const airshipMoveButton = root.querySelector(".airship-move");
+		if (airshipMoveButton) airshipMoveButton.addEventListener("click", () => this.onAirshipMove());
+		_searchResults = [];
+		_selectedSearchResult = null;
+		this.setResultsViewVisible(false);
+		const resultList = root.querySelector(".result-view .results-list");
+		if (resultList) resultList.innerHTML = "";
+		const detailPanel = root.querySelector(".result-detail-panel");
+		if (detailPanel) detailPanel.classList.remove("has-selection", "map-selection", "npc-selection");
 		const searchInput = root.querySelector(".search-input");
 		searchInput.addEventListener("keypress", (e) => {
-			if (e.which === KEYS.ENTER || e.key === "Enter") this.onSearch();
+			if (e.which === KEYS.ENTER || e.key === "Enter") {
+				e.stopPropagation();
+				this.onSearch(true);
+			}
 		});
+		let searchInputTimer = null;
+		searchInput.addEventListener("input", () => {
+			if (searchInputTimer) clearTimeout(searchInputTimer);
+			searchInputTimer = setTimeout(() => this.onSearch(false), 120);
+		});
+		root.querySelector(".search-type").addEventListener("change", () => this.onSearch(false));
+		const serviceToggles = root.querySelectorAll(".services-toggle");
+		for (let i = 0; i < serviceToggles.length; i++) serviceToggles[i].addEventListener("change", (e) => {
+			syncServiceToggles(e.currentTarget);
+			resetSegmentTracking();
+			if (_finalTargetData) {
+				const currentMap = getCurrentMap();
+				const currentPos = getPlayerPosition();
+				this.navigateTo({
+					startMap: currentMap,
+					startX: currentPos.x,
+					startY: currentPos.y,
+					endMap: _finalTargetData.airshipMap || _finalTargetData.map,
+					endX: _finalTargetData.x,
+					endY: _finalTargetData.y,
+					displayName: _finalTargetData.displayName,
+					isNpc: _finalTargetData.isNpc,
+					force: true
+				});
+			}
+		});
+		const findButton = root.querySelector(".find-action");
+		if (findButton) findButton.addEventListener("click", (e) => {
+			e.stopPropagation();
+			this.moveSelectedSearchResult(true);
+		});
+		const shareButton = root.querySelector(".share-action");
+		if (shareButton) shareButton.addEventListener("click", (e) => {
+			e.stopPropagation();
+			this.shareSelectedSearchResult();
+		});
+		const roadIconButton = root.querySelector(".footer-roadicon-button");
+		const roadIconSelector = root.querySelector(".roadicon-selector");
+		if (roadIconButton && roadIconSelector) {
+			roadIconButton.addEventListener("click", (e) => {
+				e.stopPropagation();
+				roadIconSelector.classList.toggle("open");
+			});
+			roadIconSelector.addEventListener("mousedown", (e) => e.stopPropagation());
+			roadIconSelector.addEventListener("click", (e) => e.stopPropagation());
+			const roadIconChoices = root.querySelectorAll(".roadicon-choice");
+			for (let i = 0; i < roadIconChoices.length; i++) roadIconChoices[i].addEventListener("click", (e) => {
+				e.stopPropagation();
+				setSelectedRoadIcon(roadIconChoices[i].getAttribute("data-roadicon-index"));
+				closeRoadIconSelector(root);
+			});
+			updateRoadIconSelectorUI(root);
+			setSelectedRoadIcon(_selectedRoadIconIndex);
+		}
 		searchInput.addEventListener("focus", () => {
+			if (searchInput.value.trim().length >= 2) {
+				this.onSearch(false);
+				return;
+			}
 			const resultsContainer = root.querySelector(".search-results");
-			if (resultsContainer && resultsContainer.children.length > 0) resultsContainer.style.display = "";
+			if (resultsContainer && resultsContainer.children.length > 0) resultsContainer.style.display = "block";
 		});
 		_documentClickHandler = (e) => {
-			if (!e.target.closest(".search-results, .search-input, .search-button, .search-type")) {
-				const resultsContainer = root.querySelector(".search-results");
-				if (resultsContainer) resultsContainer.style.display = "none";
-			}
+			if ((e.composedPath ? e.composedPath() : []).some((node) => {
+				return node && node.classList && (node.classList.contains("search-results") || node.classList.contains("result-item") || node.classList.contains("search-input") || node.classList.contains("search-button") || node.classList.contains("search-type") || node.classList.contains("footer-roadicon-button") || node.classList.contains("roadicon-selector") || node.classList.contains("roadicon-choice"));
+			})) return;
+			const resultsContainer = root.querySelector(".search-results");
+			if (resultsContainer) resultsContainer.style.display = "none";
+			closeRoadIconSelector(root);
 		};
 		document.addEventListener("click", _documentClickHandler);
 		root.querySelector(".map-display").addEventListener("click", (e) => this.onMapClick(e));
@@ -227803,6 +234651,7 @@ var init_Navigation = __esmMin((() => {
 	*/
 	Navigation.onAppend = function onAppend() {
 		this.clearPath();
+		applyMinimizedState();
 		Renderer.render(this.renderCanvas.bind(this));
 		initializePathFindingWorker();
 		const mapName = getCurrentMap();
@@ -227826,74 +234675,296 @@ var init_Navigation = __esmMin((() => {
 	* Once removed from DOM
 	*/
 	Navigation.onRemove = function onRemove() {
-		this.clearPath();
+		_path = [];
+		_targetData = null;
+		_pathUpdateLock = false;
+		_loadingMapName = null;
+		resetSegmentTracking();
+		clearWorldFootsteps();
+		stopAnimatedSpritePreview(this.getRoot && this.getRoot());
 		terminatePathFindingWorker();
-		if (_documentClickHandler) document.removeEventListener("click", _documentClickHandler);
+		if (_documentClickHandler) {
+			document.removeEventListener("click", _documentClickHandler);
+			_documentClickHandler = null;
+		}
 	};
 	/**
-	* Handle search button click
+	* Show or hide the official-style result/detail panel.
 	*/
-	Navigation.onSearch = function onSearch() {
+	Navigation.setResultsViewVisible = function setResultsViewVisible(visible) {
+		const root = Navigation.getRoot && Navigation.getRoot();
+		if (!root) return;
+		const inner = root.querySelector(".Navigation");
+		if (inner) inner.classList.toggle("has-results", !!visible);
+		applyMinimizedState();
+	};
+	/**
+	* Handle search button click / typing search.
+	*/
+	Navigation.onSearch = function onSearch(forceOpen) {
 		const root = Navigation.getRoot();
 		const query = root.querySelector(".search-input").value.trim();
 		const type = root.querySelector(".search-type").value;
-		if (query.length < 2) return;
+		if (query.length < 2) {
+			_searchResults = [];
+			_selectedSearchResult = null;
+			clearWorldMapMonsterSearchMarkers();
+			this.displaySearchResults([]);
+			this.setResultsViewVisible(false);
+			return;
+		}
 		const results = DB.searchNavigation(query, type);
 		this.displaySearchResults(results);
 	};
 	/**
-	* Display search results
+	* Display search results in the official two-panel style.
 	*/
 	Navigation.displaySearchResults = function displaySearchResults(results) {
 		const root = Navigation.getRoot();
-		let resultsContainer = root.querySelector(".search-results");
-		if (!resultsContainer) {
-			resultsContainer = document.createElement("div");
-			resultsContainer.className = "search-results";
-			root.querySelector(".content").appendChild(resultsContainer);
-		} else resultsContainer.innerHTML = "";
-		if (results.length === 0) {
-			resultsContainer.innerHTML = "<div class=\"no-results\">No results found</div>";
-			resultsContainer.style.display = "";
+		const list = root.querySelector(".result-view .results-list");
+		const count = root.querySelector(".result-count");
+		const detailPanel = root.querySelector(".result-detail-panel");
+		_searchResults = results || [];
+		_selectedSearchResult = _searchResults.length ? _searchResults[0] : null;
+		this.setResultsViewVisible(true);
+		if (count) count.textContent = "Search result[" + _searchResults.length + "]";
+		const selectedLink = root.querySelector(".selected-result-link");
+		if (selectedLink) selectedLink.textContent = _selectedSearchResult ? "[" + (_selectedSearchResult.name || _selectedSearchResult.mapName || "") + "]" : "";
+		if (!list) return;
+		list.innerHTML = "";
+		if (!_searchResults.length) {
+			const empty = document.createElement("li");
+			empty.className = "no-results";
+			empty.textContent = "No results found";
+			list.appendChild(empty);
+			clearWorldMapMonsterSearchMarkers();
+			if (detailPanel) detailPanel.classList.remove("has-selection", "map-selection", "npc-selection");
 			return;
 		}
-		const resultsList = document.createElement("ul");
-		resultsList.className = "results-list";
-		resultsContainer.appendChild(resultsList);
-		for (let i = 0; i < results.length; i++) {
-			const result = results[i];
+		for (let i = 0; i < _searchResults.length; i++) {
+			const result = _searchResults[i];
 			const resultItem = document.createElement("li");
-			resultItem.className = "result-item";
-			resultItem.innerHTML = `<span class="result-type ${result.type === "NPC" ? "npc_icon" : "mob_icon"}">${result.type}</span><span class="result-name">${result.name}</span><span class="result-map">${result.mapName}</span>`;
+			resultItem.className = "result-item" + (i === 0 ? " selected" : "");
+			resultItem.appendChild(createOfficialTypeBadge(result));
+			const resultAmount = getResultListAmount(result);
+			if (resultAmount) {
+				const amountSpan = document.createElement("span");
+				amountSpan.className = "result-amount";
+				amountSpan.textContent = resultAmount;
+				resultItem.appendChild(amountSpan);
+			}
+			const nameSpan = document.createElement("span");
+			nameSpan.className = "result-name";
+			nameSpan.textContent = getResultListLabel(result);
+			resultItem.appendChild(nameSpan);
 			resultItem._resultData = result;
 			resultItem.addEventListener("click", () => {
-				this.navigateToSearchResult(result);
+				this.selectSearchResult(result, resultItem);
 			});
-			resultsList.appendChild(resultItem);
+			resultItem.addEventListener("dblclick", () => {
+				this.selectSearchResult(result, resultItem);
+				this.moveSelectedSearchResult(true);
+			});
+			list.appendChild(resultItem);
 		}
-		resultsContainer.style.display = "";
+		this.renderSelectedResultDetail();
 	};
 	/**
-	* Navigate to a search result
+	* Select one result from the official-style search list.
 	*/
-	Navigation.navigateToSearchResult = function navigateToSearchResult(result) {
-		if (!result || !result.mapName) return;
+	Navigation.selectSearchResult = function selectSearchResult(result, item) {
+		const root = Navigation.getRoot();
+		_selectedSearchResult = result || null;
+		const listItems = root.querySelectorAll(".result-view .result-item");
+		for (let i = 0; i < listItems.length; i++) listItems[i].classList.toggle("selected", listItems[i] === item);
+		this.renderSelectedResultDetail();
+	};
+	/**
+	* Render the selected result detail panel: monster/NPC/map info + map list.
+	*/
+	Navigation.renderSelectedResultDetail = function renderSelectedResultDetail() {
+		const root = Navigation.getRoot();
+		const detailPanel = root.querySelector(".result-detail-panel");
+		if (!detailPanel) return;
+		const result = _selectedSearchResult;
+		if (!result) {
+			detailPanel.classList.remove("has-selection", "map-selection", "npc-selection");
+			return;
+		}
+		if (result.spawns && result.spawns.length && !result._selectedSpawn) result._selectedSpawn = result.spawns[0];
+		const target = getSelectedResultTarget(result);
+		if (!target || !target.mapName) {
+			detailPanel.classList.remove("has-selection", "map-selection", "npc-selection");
+			return;
+		}
+		detailPanel.classList.add("has-selection");
+		detailPanel.classList.toggle("map-selection", result.type === "MAP");
+		detailPanel.classList.toggle("npc-selection", result.type === "NPC");
+		const selectedLink = root.querySelector(".selected-result-link");
+		if (selectedLink) selectedLink.textContent = "[" + (result.name || target.mapName) + "]";
+		publishWorldMapSearchResult(result, _searchResults);
+		const badge = root.querySelector(".detail-type-badge");
+		if (badge) {
+			badge.className = "detail-type-badge";
+			badge.innerHTML = "";
+			badge.appendChild(createOfficialTypeBadge(result));
+		}
+		const name = root.querySelector(".detail-name");
+		if (name) {
+			if (result.type === "NPC") name.textContent = getNpcSpawnLabel(result, result._selectedSpawn || { mapName: target.mapName });
+			else if (result.type === "MAP") name.textContent = DB.getNaviMapDisplayName(target.mapName) || result.name || target.mapName;
+			else name.textContent = result.name || target.mapName;
+		}
+		const detailText = root.querySelector(".detail-text");
+		if (detailText) detailText.textContent = buildDetailText(result, target);
+		updateDetailSpritePreview(root, result);
+		const previewImg = root.querySelector(".detail-map-preview-img");
+		if (previewImg) loadResultMapPreview(previewImg, target.mapName);
+		const mapList = root.querySelector(".detail-map-list");
+		if (!mapList) return;
+		mapList.innerHTML = "";
+		if (result.type === "MAP") {
+			const monsters = Array.isArray(result.monsters) ? result.monsters : [];
+			if (monsters.length && !result._selectedMapMonster) result._selectedMapMonster = monsters[0];
+			for (let i = 0; i < monsters.length; i++) {
+				const monster = monsters[i];
+				const row = document.createElement("div");
+				row.className = "spawn-row map-monster-row";
+				if (result._selectedMapMonster === monster) row.classList.add("selected");
+				row.appendChild(createOfficialTypeBadgeForType("MOB"));
+				const label = document.createElement("span");
+				label.className = "spawn-map-name";
+				label.textContent = monster.name || "";
+				row.appendChild(label);
+				if (monster.rateLabel) {
+					const rate = document.createElement("span");
+					rate.className = "spawn-rate";
+					rate.textContent = " (" + monster.rateLabel + ")";
+					row.appendChild(rate);
+				}
+				row.title = (monster.name || "") + " - " + normalizeMapName(result.mapName || "") + " " + (monster.rateLabel || "");
+				row.addEventListener("click", () => {
+					result._selectedMapMonster = monster;
+					this.renderSelectedResultDetail();
+				});
+				row.addEventListener("dblclick", () => {
+					result._selectedMapMonster = monster;
+					this.moveSelectedSearchResult(true);
+				});
+				mapList.appendChild(row);
+			}
+			return;
+		}
+		const spawns = result.spawns && result.spawns.length ? result.spawns : [{
+			mapName: result.mapName,
+			x: result.x,
+			y: result.y,
+			rateLabel: result.type === "MAP" ? DB.getNaviMapDisplayName(result.mapName) : ""
+		}];
+		for (let i = 0; i < spawns.length; i++) {
+			const spawn = spawns[i];
+			const row = document.createElement("div");
+			row.className = "spawn-row";
+			if (result._selectedSpawn && result._selectedSpawn === spawn || !result._selectedSpawn && i === 0) row.classList.add("selected");
+			row.appendChild(createOfficialTypeBadge(result));
+			const label = document.createElement("span");
+			label.className = "spawn-map-name";
+			label.textContent = result.type === "NPC" ? getNpcSpawnLabel(result, spawn) : normalizeMapName(spawn.mapName || result.mapName);
+			row.appendChild(label);
+			if (spawn.rateLabel && result.type !== "NPC") {
+				const rate = document.createElement("span");
+				rate.className = "spawn-rate";
+				rate.textContent = " (" + spawn.rateLabel + ")";
+				row.appendChild(rate);
+			}
+			row.title = (DB.getNaviMapDisplayName(spawn.mapName) || spawn.mapName) + " " + Math.floor(Number(spawn.x) || 0) + "," + Math.floor(Number(spawn.y) || 0);
+			row.addEventListener("click", () => {
+				result._selectedSpawn = spawn;
+				this.renderSelectedResultDetail();
+			});
+			row.addEventListener("dblclick", () => {
+				result._selectedSpawn = spawn;
+				this.moveSelectedSearchResult(true);
+			});
+			mapList.appendChild(row);
+		}
+	};
+	/**
+	* Start navigation to the currently selected search result.
+	*/
+	Navigation.moveSelectedSearchResult = function moveSelectedSearchResult(closeResults) {
+		const result = _selectedSearchResult;
+		if (!result) return;
+		this.navigateToSearchResult(result, closeResults);
+	};
+	/**
+	* Copy/share the selected result as a navigation coordinate text.
+	*/
+	Navigation.shareSelectedSearchResult = function shareSelectedSearchResult() {
+		const target = getSelectedResultTarget(_selectedSearchResult);
+		if (!target) return;
+		const text = "/navi " + target.mapName + " " + Math.floor(Number(target.x) || 0) + " " + Math.floor(Number(target.y) || 0);
+		if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).catch(() => {});
+	};
+	/**
+	* Navigate to a search result.
+	*/
+	Navigation.navigateToSearchResult = function navigateToSearchResult(result, closeResults) {
+		const target = getSelectedResultTarget(result);
+		if (!result || !target || !target.mapName) return;
 		this.targetResult = result;
 		_isMapClickTarget = false;
 		const currentMap = getCurrentMap();
 		const currentPos = getPlayerPosition();
+		const selectedMapMonster = getSelectedMapMonster(result);
+		const displayName = result.type === "MAP" && selectedMapMonster ? selectedMapMonster.name || target.displayName : target.displayName;
 		this.navigateTo({
 			startMap: currentMap,
 			startX: currentPos.x,
 			startY: currentPos.y,
-			endMap: result.mapName,
-			endX: result.x,
-			endY: result.y,
-			displayName: result.name,
-			isNpc: result.type === "NPC"
+			endMap: target.mapName,
+			endX: target.x,
+			endY: target.y,
+			displayName,
+			isNpc: result.type === "NPC",
+			force: true
 		});
-		const resultsContainer = Navigation.getRoot().querySelector(".search-results");
-		if (resultsContainer) resultsContainer.style.display = "none";
+		if (closeResults !== false) this.setResultsViewVisible(false);
+	};
+	/**
+	* Navigate directly to a map destination.
+	* This is used by the large World Map. A world-map section has a map id,
+	* but it is not an NPC/MOB result, so it should not depend on text search.
+	*/
+	Navigation.navigateToMap = function navigateToMap(mapName, displayName) {
+		mapName = normalizeMapName(mapName);
+		if (!mapName) return;
+		const point = DB.getNaviMapPoint(mapName) || {
+			x: -1,
+			y: -1
+		};
+		const currentMap = getCurrentMap();
+		const currentPos = getPlayerPosition();
+		this.targetResult = {
+			type: "MAP",
+			id: mapName,
+			name: displayName || DB.getNaviMapDisplayName(mapName) || mapName,
+			mapName,
+			x: point.x,
+			y: point.y
+		};
+		_isMapClickTarget = false;
+		this.navigateTo({
+			startMap: currentMap,
+			startX: currentPos.x,
+			startY: currentPos.y,
+			endMap: mapName,
+			endX: point.x,
+			endY: point.y,
+			displayName: this.targetResult.name,
+			force: true
+		});
+		this.setResultsViewVisible(false);
 	};
 	/**
 	* Find the closest walkable cell to the given coordinates
@@ -227953,13 +235024,18 @@ var init_Navigation = __esmMin((() => {
 			endX: mapCoords.x,
 			endY: mapCoords.y,
 			displayName: "Map Click",
-			airshipMap: MapRenderer.currentMap
+			airshipMap: MapRenderer.currentMap,
+			force: true
 		});
 	};
 	/**
 	* Load a map for display
 	*/
 	Navigation.loadMap = function loadMap(mapName, displayName) {
+		mapName = normalizeMapName(mapName);
+		if (!mapName) return;
+		if (_loadingMapName === mapName && (!_mapData || _mapData.map !== mapName)) return;
+		_loadingMapName = mapName;
 		if (_isMapClickTarget && _mapData && _mapData.map && _mapData.map !== mapName) {
 			this.clear();
 			_isMapClickTarget = false;
@@ -227971,49 +235047,113 @@ var init_Navigation = __esmMin((() => {
 		bmpPath = DB.mapalias[bmpPath] || bmpPath;
 		Client.loadFile("data/texture/" + bmpPath, (dataURI) => {
 			if (dataURI) _map.src = dataURI;
-			else _map.src = "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==";
+			else _map.src = TRANSPARENT_PIXEL;
 		});
 		let gatPath = mapBaseName + ".gat";
 		gatPath = gatPath.replace(/\//g, "\\");
 		gatPath = DB.mapalias[gatPath] || gatPath;
 		Client.loadFile("data/" + gatPath, (gatData) => {
-			if (gatData) {
-				if (gatData.cells && gatData.width && gatData.height) {
-					_mapData.width = gatData.width;
-					_mapData.height = gatData.height;
-					_mapData.cells = gatData.cells;
-					const cellCount = gatData.width * gatData.height;
-					const cellTypes = new Uint8Array(cellCount);
-					for (let i = 0; i < cellCount; i++) {
-						const cellIndex = i * 5 + 4;
-						cellTypes[i] = gatData.cells[cellIndex];
-					}
-					_mapData.cellTypes = cellTypes;
-					_mapData.map = mapBaseName;
+			if (gatData && gatData.cells && gatData.width && gatData.height) {
+				_mapData.width = gatData.width;
+				_mapData.height = gatData.height;
+				_mapData.cells = gatData.cells;
+				const cellCount = gatData.width * gatData.height;
+				const cellTypes = new Uint8Array(cellCount);
+				for (let i = 0; i < cellCount; i++) {
+					const cellIndex = i * 5 + 4;
+					cellTypes[i] = gatData.cells[cellIndex];
 				}
+				_mapData.cellTypes = cellTypes;
+				_mapData.map = mapBaseName;
+				_mapData.warps = DB.getNaviLinkTable().filter((link) => normalizeMapName(link[0]) === mapBaseName && normalizeMapName(link[8]) === mapBaseName && getAllowedWarpTypes().includes(Number(link[2]))).map((link) => ({
+					srcX: Number(link[6]),
+					srcY: Number(link[7]),
+					destX: Number(link[9]),
+					destY: Number(link[10]),
+					id: link[1]
+				}));
 			}
+			if (_loadingMapName === mapBaseName) _loadingMapName = null;
 		});
 		this.setMapNameText(mapName);
 	};
 	/**
-	* Clear the end marker
+	* Fully reset navigation state and visuals.
+	*
+	* This must be used when leaving the map server (logout / character select),
+	* otherwise the previous target, floor arrows, and world-map route overlay can
+	* survive into the next screen because they live outside the normal minimap
+	* canvas state.
+	*/
+	Navigation.resetNavigationState = function resetNavigationState(options) {
+		options = options || {};
+		_path = [];
+		_markers.length = 0;
+		_pathUpdateLock = false;
+		_targetData = null;
+		_finalTargetData = null;
+		_isMapClickTarget = false;
+		_loadingMapName = null;
+		resetSegmentTracking();
+		this.targetResult = null;
+		this.setTargetCoordinatesBlinking(false);
+		clearWorldFootsteps();
+		_lastPublishedNavigationRouteKey = "";
+		publishNavigationRoute(false);
+		if (options.terminateWorker) terminatePathFindingWorker();
+		if (options.resetMapData) {
+			_mapData = { walkableType: Altitude.TYPE.WALKABLE };
+			_map.src = TRANSPARENT_PIXEL;
+		}
+		const root = Navigation.getRoot && Navigation.getRoot();
+		if (!root) return;
+		const targetInfo = root.querySelector(".target-info");
+		if (targetInfo) targetInfo.style.display = "none";
+		const mouseInfo = root.querySelector(".mouse-info");
+		if (mouseInfo) mouseInfo.style.display = "none";
+		const targetCoords = root.querySelector(".target-coordinates");
+		if (targetCoords) targetCoords.textContent = "";
+		const mouseCoords = root.querySelector(".mouse-coordinates");
+		if (mouseCoords) mouseCoords.textContent = "";
+		const resultsContainer = root.querySelector(".search-results");
+		if (resultsContainer) {
+			resultsContainer.innerHTML = "";
+			resultsContainer.style.display = "none";
+		}
+		_searchResults = [];
+		_selectedSearchResult = null;
+		this.setResultsViewVisible(false);
+		const resultList = root.querySelector(".result-view .results-list");
+		if (resultList) resultList.innerHTML = "";
+		const detailPanel = root.querySelector(".result-detail-panel");
+		if (detailPanel) detailPanel.classList.remove("has-selection", "map-selection", "npc-selection");
+		const searchInput = root.querySelector(".search-input");
+		if (searchInput && options.keepSearch !== true) searchInput.value = "";
+		if (options.clearTitles) {
+			const locationTitle = root.querySelector(".location-title");
+			if (locationTitle) locationTitle.textContent = "";
+			const mapNameEl = root.querySelector(".map-name");
+			if (mapNameEl) mapNameEl.textContent = "";
+		} else {
+			const currentMap = getCurrentMap();
+			if (currentMap) {
+				this.setLocationTitle(currentMap, null);
+				this.setMapNameText(currentMap);
+			}
+		}
+	};
+	/**
+	* Clear the current route target while keeping the window usable.
 	*/
 	Navigation.clear = function clear() {
-		this.clearPath();
-		_finalTargetData = null;
-		_targetData = null;
-		_isMapClickTarget = false;
-		const targetInfo = Navigation.getRoot().querySelector(".target-info");
-		if (targetInfo) targetInfo.style.display = "none";
-		const currentMap = getCurrentMap();
-		if (currentMap) this.setLocationTitle(currentMap, null);
+		this.resetNavigationState();
 		this.updateAirshipButton();
 	};
 	/**
 	* Enable the Private Airship Move button while there is a target
 	*/
 	Navigation.updateAirshipButton = function updateAirshipButton() {
-		const root = Navigation.getRoot();
+		const root = Navigation.getRoot && Navigation.getRoot();
 		const bar = root && root.querySelector(".airship-bar");
 		const button = root && root.querySelector(".airship-move");
 		if (!bar || !button) return;
@@ -228033,8 +235173,9 @@ var init_Navigation = __esmMin((() => {
 	};
 	Navigation.clearPath = function clearPath() {
 		_path = [];
-		_lastPathUpdate = 0;
 		_pathUpdateLock = false;
+		resetSegmentTracking();
+		clearWorldFootsteps();
 	};
 	/**
 	* Add a marker to the map
@@ -228052,28 +235193,22 @@ var init_Navigation = __esmMin((() => {
 	*/
 	Navigation.renderCanvas = function renderCanvas(tick) {
 		if ((this._host ? getComputedStyle(this._host).display : "none") === "none") return;
-		const width = 280;
-		const height = 230;
 		const ctx = _ctx$1;
 		if (!ctx) return;
+		const canvasSize = resizeNavigationMapCanvas(ctx);
+		const width = canvasSize.width;
+		const height = canvasSize.height;
 		const currentMap = getCurrentMap();
 		const currentPos = getPlayerPosition();
-		if (_finalTargetData && tick - _lastPathUpdate > _pathUpdateThrottle && !_pathUpdateLock) {
-			this.navigateTo({
-				startMap: currentMap,
-				startX: currentPos.x,
-				startY: currentPos.y,
-				endMap: _finalTargetData.airshipMap || _finalTargetData.map,
-				endX: _finalTargetData.x,
-				endY: _finalTargetData.y,
-				displayName: _finalTargetData.displayName,
-				isNpc: _finalTargetData.isNpc
-			});
-			_lastPathUpdate = tick;
-		}
+		updateMinimizedStatus(currentMap, currentPos);
+		if (currentMap && (!_mapData || _mapData.map !== currentMap)) this.loadMap(currentMap);
+		if (_finalTargetData && currentMap === _finalTargetData.map && Math.abs(currentPos.x - _finalTargetData.x) <= 1 && Math.abs(currentPos.y - _finalTargetData.y) <= 1) this.clear();
+		if (_path && _path.length > 1) updateWorldFootsteps();
+		if (_finalTargetData && !_pathUpdateLock) this.ensureNavigationSegment(currentMap, currentPos);
 		ctx.clearRect(0, 0, width, height);
 		ctx.fillStyle = "#000";
 		ctx.fillRect(0, 0, width, height);
+		if (!_mapData || !_mapData.width || !_mapData.height) return;
 		if (_map.complete && _map.width) {
 			const scaleX = width / _mapData.width;
 			const scaleY = height / _mapData.height;
@@ -228118,56 +235253,20 @@ var init_Navigation = __esmMin((() => {
 			}
 			if (img.complete && img.width) ctx.drawImage(img, pos.x - img.width / 2, pos.y - img.height / 2);
 		}
-		if (_path && _path.length > 0) {
-			ctx.lineWidth = 2;
-			let currentSegment = [];
-			for (let i = 0; i < _path.length; i++) {
-				const point = _path[i];
-				const pos = mapToScreenBound(point.x, point.y);
-				if (currentSegment.length === 0) {
-					currentSegment.push(pos);
-					continue;
-				}
-				if (point.isWarp || i === _path.length - 1) {
-					currentSegment.push(pos);
-					ctx.strokeStyle = "cyan";
-					ctx.beginPath();
-					ctx.moveTo(currentSegment[0].x, currentSegment[0].y);
-					for (let j = 1; j < currentSegment.length; j++) ctx.lineTo(currentSegment[j].x, currentSegment[j].y);
-					ctx.stroke();
-					if (point.isWarp) {
-						ctx.beginPath();
-						ctx.arc(pos.x, pos.y, 3, 0, Math.PI * 2);
-						ctx.fillStyle = "yellow";
-						ctx.fill();
-						if (i + 1 < _path.length) {
-							const exitPos = mapToScreenBound(_path[i + 1].x, _path[i + 1].y);
-							ctx.beginPath();
-							ctx.arc(exitPos.x, exitPos.y, 3, 0, Math.PI * 2);
-							ctx.fillStyle = "yellow";
-							ctx.fill();
-							currentSegment = [exitPos];
-							i++;
-						} else currentSegment = [pos];
-					} else currentSegment = [pos];
-				} else currentSegment.push(pos);
-			}
-		}
-		if (_targetData) {
-			const lastPoint = mapToScreenBound(_targetData.x, _targetData.y);
-			ctx.fillStyle = "red";
-			ctx.beginPath();
-			ctx.arc(lastPoint.x, lastPoint.y, 3, 0, Math.PI * 2);
-			ctx.fill();
-		}
+		drawMiniMapRoute(ctx, getVisualNavigationPath(currentMap, currentPos), mapToScreenBound);
+		if (_targetData) drawNavigationTargetPin(ctx, mapToScreenBound(_targetData.x, _targetData.y));
 		const startPos = mapToScreenBound(currentPos.x, currentPos.y);
-		if (_arrow.complete && _arrow.width) {
+		const startIcon = _navIcoLocation.complete && _navIcoLocation.width ? _navIcoLocation : _navListStartIcon.complete && _navListStartIcon.width ? _navListStartIcon : _arrow.complete && _arrow.width ? _arrow : null;
+		if (startIcon) {
 			ctx.save();
-			ctx.translate(startPos.x, startPos.y);
-			ctx.rotate((SessionStorage_default.Entity.direction + 4) * 45 * Math.PI / 180);
-			ctx.drawImage(_arrow, -_arrow.width / 2, -_arrow.height / 2);
+			if (startIcon === _arrow) {
+				ctx.translate(startPos.x, startPos.y);
+				ctx.rotate((SessionStorage_default.Entity.direction + 4) * 45 * Math.PI / 180);
+				ctx.drawImage(startIcon, -startIcon.width / 2, -startIcon.height / 2);
+			} else ctx.drawImage(startIcon, Math.round(startPos.x - startIcon.width / 2), Math.round(startPos.y - startIcon.height / 2));
 			ctx.restore();
 		}
+		drawNavigationMapOverlays(ctx, width, height, currentMap, currentPos);
 		for (let i = 0; i < _markers.length; i++) {
 			const marker = _markers[i];
 			const pos = mapToScreenBound(marker.x, marker.y);
@@ -228279,24 +235378,6 @@ var init_Navigation = __esmMin((() => {
 	Navigation.findPath = function findPath(startX, startY, endX, endY) {
 		if (_pathFindingWorker && !_pathUpdateLock) {
 			_pathUpdateLock = true;
-			const naviLinkTable = DB.getNaviLinkTable();
-			const currentMap = getCurrentMap();
-			const warps = [];
-			if (naviLinkTable && naviLinkTable.length) for (let i = 0; i < naviLinkTable.length; i++) {
-				const warp = naviLinkTable[i];
-				if (!warp || warp.length < 11) continue;
-				const srcMap = warp[0].replace(/\.gat$/, "").toLowerCase();
-				const destMap = warp[8].replace(/\.gat$/, "").toLowerCase();
-				if (srcMap === currentMap && destMap === currentMap) warps.push({
-					id: warp[1],
-					type: warp[2],
-					srcX: warp[6],
-					srcY: warp[7],
-					destX: warp[9],
-					destY: warp[10]
-				});
-			}
-			_mapData.warps = warps;
 			_pathFindingWorker.postMessage({
 				type: "findPath",
 				startX,
@@ -228305,9 +235386,22 @@ var init_Navigation = __esmMin((() => {
 				endY,
 				mapData: _mapData,
 				workerId: _pathFindingWorker.id,
-				existingPath: _path
+				existingPath: null
 			});
 		}
+	};
+	/**
+	* Toggle minimized mode. Minimize keeps the active route and floor footsteps.
+	*/
+	Navigation.toggleMinimize = function toggleMinimize() {
+		this.setMinimized(!_isMinimized);
+	};
+	/**
+	* Set minimized state without clearing navigation.
+	*/
+	Navigation.setMinimized = function setMinimized(minimized) {
+		_isMinimized = !!minimized;
+		applyMinimizedState();
 	};
 	/**
 	* Toggle the navigation window (show/hide)
@@ -228321,6 +235415,7 @@ var init_Navigation = __esmMin((() => {
 	*/
 	Navigation.show = function show() {
 		const root = Navigation.getRoot();
+		this.setMinimized(false);
 		this.clearPath();
 		initializePathFindingWorker();
 		const mouseInfo = root.querySelector(".mouse-info");
@@ -228329,6 +235424,7 @@ var init_Navigation = __esmMin((() => {
 		if (targetInfo) targetInfo.style.display = "none";
 		const mapName = getCurrentMap();
 		const currentPos = getPlayerPosition();
+		if (mapName && (!_mapData || _mapData.map !== mapName)) this.loadMap(mapName);
 		if (_finalTargetData) this.navigateTo({
 			startMap: mapName,
 			startX: currentPos.x,
@@ -228348,13 +235444,17 @@ var init_Navigation = __esmMin((() => {
 	* Hide the navigation window
 	*/
 	Navigation.hide = function hide() {
+		this.setMinimized(false);
+		stopAnimatedSpritePreview(this.getRoot && this.getRoot());
+		this.resetNavigationState({ terminateWorker: true });
 		this.ui.hide();
-		terminatePathFindingWorker();
 	};
 	Navigation.onKeyDown = function onKeyDown(event) {
+		if (this.isEditableFocused()) return;
 		const hostDisplay = this._host ? getComputedStyle(this._host).display : "none";
 		if ((event.which === KEYS.ESCAPE || event.key === "Escape") && hostDisplay !== "none") this.hide();
 	};
+	Navigation.captureKeyEvents = true;
 	/**
 	* Handle mouse movement over the map to display coordinates
 	*/
@@ -228398,57 +235498,108 @@ var init_Navigation = __esmMin((() => {
 			endMap: mapName,
 			endX: x,
 			endY: y,
-			displayName
+			displayName,
+			force: true
 		});
 	};
 	/**
 	* Wait for map data to be loaded
 	*/
 	Navigation.waitForMapData = function waitForMapData(callback) {
-		if (!_mapData || _mapData.map !== getCurrentMap()) setTimeout(() => {
-			Navigation.waitForMapData(callback);
-		}, 100);
-		else callback.bind(this)();
+		const currentMap = getCurrentMap();
+		if (!_mapData || _mapData.map !== currentMap) {
+			if (currentMap && _loadingMapName !== currentMap) this.loadMap(currentMap);
+			setTimeout(() => {
+				Navigation.waitForMapData(callback);
+			}, 100);
+		} else callback.bind(this)();
+	};
+	/**
+	* Recalculate the current-map segment only when the active segment changes.
+	* This is what lets navigation continue after a map change without constantly
+	* rebuilding the path while the player is walking on the same map.
+	*/
+	Navigation.ensureNavigationSegment = function ensureNavigationSegment(currentMap, currentPos) {
+		if (!_finalTargetData || !currentMap || !currentPos) return;
+		const requestKey = getSegmentRequestKey(currentMap, _finalTargetData);
+		if (!requestKey || requestKey === _currentSegmentRequestKey || requestKey === _pendingSegmentRequestKey) return;
+		this.navigateTo({
+			startMap: currentMap,
+			startX: currentPos.x,
+			startY: currentPos.y,
+			endMap: _finalTargetData.airshipMap || _finalTargetData.map,
+			endX: _finalTargetData.x,
+			endY: _finalTargetData.y,
+			displayName: _finalTargetData.displayName,
+			isNpc: _finalTargetData.isNpc,
+			force: true,
+			resumeSegment: true
+		});
 	};
 	/**
 	* Unified navigation function that handles both same-map and cross-map navigation
 	*/
 	Navigation.navigateTo = function navigateTo(options) {
-		const root = Navigation.getRoot();
 		const startMap = normalizeMapName(options.startMap);
 		const endMap = normalizeMapName(options.endMap);
 		const displayName = options.displayName;
-		if (_finalTargetData && (_finalTargetData.map !== endMap || _finalTargetData.x !== options.endX || _finalTargetData.y !== options.endY)) {
-			this.clearPath();
-			resetPathFindingWorker();
-			this.setTargetCoordinatesText(options.endX, options.endY, { targetMap: endMap });
-			this.setTargetCoordinatesBlinking(true);
-		}
-		const airshipMap = String(options.airshipMap || options.endMap || "").replace(/\.gat$/, "").toLowerCase();
-		_finalTargetData = {
+		const endX = Math.floor(Number(options.endX) || 0);
+		const endY = Math.floor(Number(options.endY) || 0);
+		const nextFinalTarget = {
 			map: endMap,
-			x: options.endX,
-			y: options.endY,
+			x: endX,
+			y: endY,
 			displayName,
-			airshipMap,
+			airshipMap: String(options.airshipMap || options.endMap || "").replace(/\.gat$/, "").toLowerCase(),
 			isNpc: !!options.isNpc
 		};
+		const finalTargetChanged = !_finalTargetData || _finalTargetData.map !== nextFinalTarget.map || _finalTargetData.airshipMap !== nextFinalTarget.airshipMap || !!_finalTargetData.isNpc !== nextFinalTarget.isNpc || Math.floor(Number(_finalTargetData.x) || 0) !== nextFinalTarget.x || Math.floor(Number(_finalTargetData.y) || 0) !== nextFinalTarget.y;
+		const requestKey = getSegmentRequestKey(startMap, nextFinalTarget);
+		if (!options.force && !finalTargetChanged) {
+			if (requestKey && (requestKey === _currentSegmentRequestKey || requestKey === _pendingSegmentRequestKey)) return;
+		}
+		if (finalTargetChanged || options.force) {
+			this.clearPath();
+			resetPathFindingWorker();
+			this.setTargetCoordinatesText(endX, endY, { targetMap: endMap });
+			if (options.silentRecalculate) this.setTargetCoordinatesBlinking(false);
+			else this.setTargetCoordinatesBlinking(true);
+		}
+		_finalTargetData = nextFinalTarget;
 		this.updateAirshipButton();
-		let warpTypes = [200, 201];
-		const servicesToggle = root.querySelector(".services-toggle");
-		if (servicesToggle && servicesToggle.checked) warpTypes = [
-			200,
-			201,
-			202,
-			203,
-			204,
-			205
-		];
-		const path = MapPathFinder.findPathBetweenMaps(startMap, options.startX, options.startY, endMap, options.endX, options.endY, warpTypes);
+		updateMinimizedStatus(startMap, {
+			x: options.startX,
+			y: options.startY
+		});
+		const warpTypes = getAllowedWarpTypes();
+		const path = MapPathFinder.findPathBetweenMaps(startMap, options.startX, options.startY, endMap, endX, endY, warpTypes);
 		if (path && path.length > 0) {
+			_pendingSegmentRequestKey = requestKey;
+			publishNavigationRoute(true, path, startMap, endMap, displayName);
 			const target = path[0];
 			this.waitForMapData(function() {
-				const walkableCell = this.findClosestWalkableCell(target.x, target.y);
+				const useMapCenterFallback = target.x === -1 && target.y === -1;
+				if (!useMapCenterFallback && (target.x < 0 || target.y < 0 || target.map === _mapData.map && (target.x >= _mapData.width || target.y >= _mapData.height))) {
+					this.clear();
+					return;
+				}
+				let walkableCell;
+				if (useMapCenterFallback) {
+					const centerX = Math.floor(_mapData.width / 2);
+					const centerY = Math.floor(_mapData.height / 2);
+					let bestDistance = Infinity;
+					for (let y = 0; y < _mapData.height; y++) for (let x = 0; x < _mapData.width; x++) {
+						if (!(_mapData.cellTypes[x + y * _mapData.width] & _mapData.walkableType)) continue;
+						const distance = (x - centerX) ** 2 + (y - centerY) ** 2;
+						if (distance < bestDistance) {
+							bestDistance = distance;
+							walkableCell = {
+								x,
+								y
+							};
+						}
+					}
+				} else walkableCell = this.findClosestWalkableCell(target.x, target.y);
 				if (walkableCell) {
 					_targetData = {
 						x: walkableCell.x,
@@ -228459,9 +235610,533 @@ var init_Navigation = __esmMin((() => {
 					this.findPath(options.startX, options.startY, _targetData.x, _targetData.y);
 				} else this.clear();
 			});
+		} else {
+			_currentSegmentRequestKey = requestKey;
+			_pendingSegmentRequestKey = "";
+			_targetData = null;
+			publishNavigationRoute(false);
+			clearWorldFootsteps();
+			this.updateTargetText(true);
+			this.setTargetCoordinatesBlinking(false);
 		}
 	};
+	Navigation.renderNpcSprite = function renderNpcSprite(canvas, npcClassId = 117) {
+		if (!canvas || !canvas.parentElement) return null;
+		const root = canvas.parentElement;
+		root._navMonsterPreviewCancelled = false;
+		canvas.classList.add("detail-sprite-canvas");
+		canvas.dataset.authenticNpcSprite = "4_f_kafra1";
+		const cacheKey = "NPC:" + npcClassId;
+		if (_monsterPreviewRuntimeCache[cacheKey]) {
+			startAnimatedMonsterPreview(root, _monsterPreviewRuntimeCache[cacheKey]);
+			return () => {
+				root._navMonsterPreviewCancelled = true;
+				stopAnimatedSpritePreview(root);
+			};
+		}
+		let basePath = "";
+		try {
+			basePath = DB.getBodyPath(npcClassId, 0) || "";
+		} catch (_e) {
+			return null;
+		}
+		if (!basePath) return null;
+		const sprPath = basePath.replace(/\.act$/i, "") + (/\.spr$/i.test(basePath) ? "" : ".spr");
+		const actPath = basePath.replace(/\.spr$/i, "") + (/\.act$/i.test(basePath) ? "" : ".act");
+		Client.loadFile(sprPath, (sprData) => {
+			if (root._navMonsterPreviewCancelled || !sprData || !sprData.frames) {
+				clearSpritePreview(canvas);
+				return;
+			}
+			Client.loadFile(actPath, (actData) => {
+				if (root._navMonsterPreviewCancelled || !actData || !actData.actions) {
+					clearSpritePreview(canvas);
+					return;
+				}
+				loadPreviewShadowBuffers((shadowSprData, shadowActData) => {
+					if (root._navMonsterPreviewCancelled) return;
+					try {
+						const runtime = buildMonsterPreviewRuntime(sprData, actData, shadowSprData, shadowActData);
+						_monsterPreviewRuntimeCache[cacheKey] = runtime;
+						startAnimatedMonsterPreview(root, runtime);
+					} catch (_e) {
+						clearSpritePreview(canvas);
+					}
+				});
+			}, () => clearSpritePreview(canvas));
+		}, () => clearSpritePreview(canvas), { to_rgba: true });
+		return () => {
+			root._navMonsterPreviewCancelled = true;
+			stopAnimatedSpritePreview(root);
+		};
+	};
 	Navigation_default = UIManager.addComponent(Navigation);
+}));
+// src/UI/Components/WorldMap/WorldMapMonsterTooltip.js
+function createTextElement(className, text) {
+	const element = document.createElement("span");
+	element.className = className;
+	element.textContent = text;
+	return element;
+}
+function createWorldMapRecommendedLevelBadge(section) {
+	const recommendedLevel = String(section?.moblevel ?? "").trim();
+	if (!recommendedLevel) return null;
+	const badge = createTextElement("monster-count-badge recommended-level-badge", recommendedLevel);
+	badge.title = `Recommended level ${recommendedLevel}`;
+	badge.setAttribute("aria-label", badge.title);
+	return badge;
+}
+function createWorldMapMonsterLevelRange(monsters) {
+	const validLevels = (Array.isArray(monsters) ? monsters : []).flatMap((monster) => {
+		if ([1, 2].includes(Number(monster?.mobType ?? monster?.mobtype))) return [];
+		if (Array.isArray(monster?.baseLevels)) return monster.baseLevels;
+		if (Array.isArray(monster?.levels)) return monster.levels;
+		return [monster?.baseLevel ?? monster?.level];
+	}).map(Number).filter((level) => Number.isFinite(level) && level > 0);
+	if (!validLevels.length) return null;
+	const minimum = Math.min(...validLevels);
+	const maximum = Math.max(...validLevels);
+	const element = createTextElement("monster-level-range", `Lv. ${minimum === maximum ? String(minimum) : `${minimum}-${maximum}`}`);
+	element.setAttribute("aria-label", minimum === maximum ? `Monster level ${minimum}` : `Monster levels ${minimum} to ${maximum}`);
+	return element;
+}
+/**
+* Fill the World Map hover panel with the monsters resolved by Navigation.
+*
+* @param {HTMLElement} tooltip
+* @param {Array<Object>} monsters
+* @param {boolean} visible
+*/
+function renderWorldMapMonsterPanel(tooltip, monsters, visible) {
+	if (!tooltip) return;
+	const panel = tooltip.querySelector(".tooltip-monsters");
+	const list = tooltip.querySelector(".tooltip-monster-list");
+	const count = tooltip.querySelector(".tooltip-monster-count");
+	const shouldShow = Boolean(visible && panel && list);
+	tooltip.classList.toggle("show-monster-list", shouldShow);
+	if (panel) panel.setAttribute("aria-hidden", shouldShow ? "false" : "true");
+	if (!list) return;
+	list.replaceChildren();
+	if (!shouldShow) {
+		if (count) count.textContent = "";
+		return;
+	}
+	const entries = Array.isArray(monsters) ? monsters.filter((monster) => monster && String(monster.name || "").trim()) : [];
+	if (count) count.textContent = "[" + entries.length + "]";
+	if (!entries.length) {
+		const empty = document.createElement("div");
+		empty.className = "tooltip-monster-empty";
+		empty.textContent = "No monster data";
+		list.appendChild(empty);
+		return;
+	}
+	for (const monster of entries) {
+		const row = document.createElement("div");
+		row.className = MONSTER_ROW_CLASS;
+		row.dataset.monsterId = String(monster.id || "");
+		const name = String(monster.name || "").trim();
+		const amount = Math.max(0, Math.floor(Number(monster.amount) || 0));
+		const amountLabel = amount ? "[" + amount + "]" : "";
+		const rateLabel = String(monster.rateLabel || "").trim();
+		row.appendChild(createTextElement("tooltip-monster-name", name));
+		row.appendChild(createTextElement("tooltip-monster-amount", amountLabel));
+		row.title = [
+			name,
+			rateLabel,
+			amountLabel
+		].filter(Boolean).join(" ");
+		list.appendChild(row);
+	}
+}
+var MONSTER_ROW_CLASS;
+var init_WorldMapMonsterTooltip = __esmMin((() => {
+	MONSTER_ROW_CLASS = "tooltip-monster-row";
+}));
+// src/UI/Components/WorldMap/WorldMapServiceOverlay.js
+function normalizeMapId(value) {
+	return String(value || "").replace(/\.gat$/i, "").toLowerCase();
+}
+function getKafraEntries(townInfo) {
+	return (Array.isArray(townInfo) ? townInfo : townInfo ? [townInfo] : []).filter((entry) => {
+		if (!entry || typeof entry !== "object") return false;
+		return Number(entry.Type) === 6 || /kafra/i.test(String(entry.Name || entry.name || ""));
+	});
+}
+function getKafraDestinationIds(mapId) {
+	return [...KAFRA_TELEPORT_ROUTES[normalizeMapId(mapId)] || []];
+}
+function getAirshipRoutes(mapId) {
+	const normalizedMapId = normalizeMapId(mapId);
+	return AIRSHIP_ROUTES.filter((route) => route.stops.includes(normalizedMapId));
+}
+function getCenter(section) {
+	return {
+		x: Number(section.left) + Number(section.width) / 2,
+		y: Number(section.top) + Number(section.height) / 2
+	};
+}
+function createSvg(name, className) {
+	const node = document.createElementNS(SVG_NS, name);
+	if (className) node.setAttribute("class", className);
+	return node;
+}
+function getSectionNode(mapView, mapId) {
+	return Array.from(mapView.querySelectorAll(".section")).find((node) => normalizeMapId(node.id) === normalizeMapId(mapId)) || null;
+}
+function clearHighlightClasses(mapView) {
+	mapView.querySelectorAll(".service-origin-highlight,.service-destination-highlight").forEach((node) => node.classList.remove("service-origin-highlight", "service-destination-highlight"));
+}
+function clearWorldMapServiceOverlay(mapView) {
+	if (!mapView) return;
+	mapView.querySelectorAll(".worldmap-service-overlay").forEach((node) => {
+		node._cancelServiceRouteAnimations?.();
+		node.querySelectorAll(".service-kafra-character").forEach((canvas) => canvas._stopKafraSprite?.());
+		node.remove();
+	});
+	clearHighlightClasses(mapView);
+}
+function isCurrentOverlay(mapView, overlay) {
+	return overlay.isConnected && overlay.parentNode === mapView;
+}
+function loadImageAsset({ image, path, mapView, overlay, loadAsset, setSource }) {
+	if (!path) return;
+	const applySource = (source) => {
+		if (!source || !isCurrentOverlay(mapView, overlay)) return;
+		setSource(image, source);
+	};
+	if (typeof loadAsset === "function") loadAsset(path, applySource);
+	else applySource(path);
+}
+function setSvgImageSource(image, source) {
+	image.setAttribute("href", source);
+	image.setAttributeNS(XLINK_NS, "href", source);
+}
+function addKafraMarker({ layer, section, renderKafraSprite }) {
+	const marker = document.createElement("div");
+	marker.className = "service-kafra-marker is-origin";
+	marker.dataset.mapId = section.id;
+	marker.setAttribute("aria-hidden", "true");
+	const center = getCenter(section);
+	marker.style.left = `${center.x / BASE_WIDTH * 100}%`;
+	marker.style.top = `${center.y / BASE_HEIGHT * 100}%`;
+	const character = document.createElement("canvas");
+	character.className = "service-kafra-character detail-sprite-canvas";
+	character.dataset.authenticNpcSprite = "4_f_kafra1";
+	marker.appendChild(character);
+	layer.appendChild(marker);
+	if (typeof renderKafraSprite === "function") character._stopKafraSprite = renderKafraSprite(character);
+}
+function addDestinationName(layer, section) {
+	const label = document.createElement("div");
+	label.className = "service-destination-name";
+	label.dataset.destinationMapId = section.id;
+	label.textContent = section.name || section.id;
+	const center = getCenter(section);
+	label.style.left = `${center.x / BASE_WIDTH * 100}%`;
+	label.style.top = `${(Number(section.top) + Number(section.height) + 4) / BASE_HEIGHT * 100}%`;
+	layer.appendChild(label);
+}
+function applyServiceRouteProgress(route, traveller, motionPath, progress) {
+	const clampedProgress = Math.max(0, Math.min(1, Number(progress) || 0));
+	route.style.strokeDashoffset = String(1 - clampedProgress);
+	const routeLength = motionPath.getTotalLength();
+	if (!Number.isFinite(routeLength) || routeLength <= 0) return;
+	const distance = routeLength * clampedProgress;
+	const tangentSample = Math.max(routeLength * .001, .01);
+	const point = motionPath.getPointAtLength(distance);
+	const before = motionPath.getPointAtLength(Math.max(0, distance - tangentSample));
+	const after = motionPath.getPointAtLength(Math.min(routeLength, distance + tangentSample));
+	const dx = after.x - before.x;
+	const dy = after.y - before.y;
+	const tangentLength = Math.hypot(dx, dy);
+	if (!tangentLength) return;
+	const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+	traveller.setAttribute("transform", `translate(${point.x + dx / tangentLength * 8} ${point.y + dy / tangentLength * 8}) rotate(${angle})`);
+}
+function startServiceRouteAnimation(overlay, route, traveller, motionPath, index) {
+	const requestFrame = globalThis.requestAnimationFrame;
+	if (typeof requestFrame !== "function") return;
+	const frames = overlay._serviceRouteAnimationFrames || /* @__PURE__ */ new Set();
+	overlay._serviceRouteAnimationFrames = frames;
+	if (!overlay._cancelServiceRouteAnimations) overlay._cancelServiceRouteAnimations = () => {
+		const cancelFrame = globalThis.cancelAnimationFrame;
+		if (typeof cancelFrame === "function") frames.forEach((frameId) => cancelFrame(frameId));
+		frames.clear();
+	};
+	const delay = index * 80;
+	const duration = 900;
+	let startedAt = null;
+	let frameId = null;
+	const tick = (timestamp) => {
+		frames.delete(frameId);
+		if (!overlay.isConnected) return;
+		if (startedAt === null) startedAt = timestamp;
+		const progress = Math.max(0, Math.min(1, (timestamp - startedAt - delay) / duration));
+		applyServiceRouteProgress(route, traveller, motionPath, progress);
+		if (progress < 1) {
+			frameId = requestFrame(tick);
+			frames.add(frameId);
+		}
+	};
+	frameId = requestFrame(tick);
+	frames.add(frameId);
+}
+function addArrow(svg, overlay, from, to, index) {
+	const dx = to.x - from.x;
+	const dy = to.y - from.y;
+	const length = Math.sqrt(dx * dx + dy * dy);
+	if (!length) return;
+	const ux = dx / length;
+	const uy = dy / length;
+	const insetScale = Math.min(1, Math.max(0, length - 12) / 76);
+	const start = {
+		x: from.x + ux * 34 * insetScale,
+		y: from.y + uy * 34 * insetScale
+	};
+	const end = {
+		x: to.x - ux * 42 * insetScale,
+		y: to.y - uy * 42 * insetScale
+	};
+	const pathData = `M ${start.x} ${start.y} L ${end.x} ${end.y}`;
+	const routeLength = Math.sqrt((end.x - start.x) ** 2 + (end.y - start.y) ** 2);
+	const motionPath = {
+		getTotalLength: () => routeLength,
+		getPointAtLength: (distance) => ({
+			x: start.x + ux * Math.max(0, Math.min(routeLength, distance)),
+			y: start.y + uy * Math.max(0, Math.min(routeLength, distance))
+		})
+	};
+	const progressSource = `kafra-route-${index}`;
+	const progressGroup = createSvg("g", "service-route-progress");
+	progressGroup.dataset.routeScale = "1.7";
+	const route = createSvg("path", "service-route-arrow");
+	route.setAttribute("d", pathData);
+	route.setAttribute("pathLength", "1");
+	route.dataset.progressSource = progressSource;
+	progressGroup.appendChild(route);
+	const traveller = createSvg("path", "service-route-traveller");
+	traveller.setAttribute("d", "M -13.6 -8.5 L 3.4 0 L -13.6 8.5 Z");
+	traveller.dataset.progressSource = progressSource;
+	progressGroup.appendChild(traveller);
+	svg.appendChild(progressGroup);
+	applyServiceRouteProgress(route, traveller, motionPath, 0);
+	startServiceRouteAnimation(overlay, route, traveller, motionPath, index);
+}
+function renderKafraOverlay({ overlay, mapView, origin, destinations, renderKafraSprite }) {
+	const svg = createSvg("svg", "service-route-svg service-kafra-route-svg");
+	svg.setAttribute("viewBox", `0 0 ${BASE_WIDTH} ${BASE_HEIGHT}`);
+	svg.setAttribute("preserveAspectRatio", "none");
+	const originCenter = getCenter(origin);
+	destinations.forEach((destination, index) => addArrow(svg, overlay, originCenter, getCenter(destination), index));
+	overlay.appendChild(svg);
+	const markerLayer = document.createElement("div");
+	markerLayer.className = "service-marker-layer";
+	overlay.appendChild(markerLayer);
+	addKafraMarker({
+		layer: markerLayer,
+		section: origin,
+		renderKafraSprite
+	});
+	destinations.forEach((destination) => {
+		addDestinationName(markerLayer, destination);
+		getSectionNode(mapView, destination.id)?.classList.add("service-destination-highlight");
+	});
+}
+function renderAirshipRoute({ overlay, mapView, route, routeSections, hoveredMapId, airplaneSrc, loadAsset }) {
+	const svg = createSvg("svg", "service-route-svg service-airship-svg");
+	svg.dataset.airshipRoute = route.id;
+	svg.setAttribute("viewBox", `0 0 ${BASE_WIDTH} ${BASE_HEIGHT}`);
+	svg.setAttribute("preserveAspectRatio", "none");
+	const routePath = routeSections.map((section, index) => {
+		const point = getCenter(section);
+		return `${index ? "L" : "M"} ${point.x} ${point.y}`;
+	}).join(" ");
+	const shadow = createSvg("path", "service-airship-line-shadow");
+	shadow.setAttribute("d", routePath);
+	svg.appendChild(shadow);
+	const line = createSvg("path", "service-airship-line");
+	const motionPathId = `worldmap-airship-motion-path-${route.id}`;
+	line.id = motionPathId;
+	line.setAttribute("d", routePath);
+	svg.appendChild(line);
+	const plane = createSvg("g", "service-airplane");
+	plane.dataset.facingForward = "true";
+	const smoke = createSvg("g", "service-airplane-smoke");
+	smoke.setAttribute("transform", "scale(2)");
+	for (let i = 0; i < 3; i++) {
+		const puff = createSvg("circle", "service-airplane-smoke-puff");
+		puff.setAttribute("cx", String(-22 - i * 7));
+		puff.setAttribute("cy", String((i - 1) * 2));
+		puff.setAttribute("r", String(3.5 - i * .5));
+		puff.style.setProperty("--smoke-delay", `${i * -.22}s`);
+		smoke.appendChild(puff);
+	}
+	plane.appendChild(smoke);
+	const sprite = createSvg("image", "service-airplane-sprite");
+	sprite.setAttribute("width", "42");
+	sprite.setAttribute("height", "42");
+	sprite.setAttribute("x", "-21");
+	sprite.setAttribute("y", "-21");
+	sprite.setAttribute("transform", "rotate(90)");
+	plane.appendChild(sprite);
+	const motion = createSvg("animateMotion");
+	motion.setAttribute("dur", route.id === "domestic" ? "8s" : "6s");
+	motion.setAttribute("repeatCount", "indefinite");
+	motion.setAttribute("rotate", "auto");
+	const motionPath = createSvg("mpath");
+	motionPath.setAttribute("href", `#${motionPathId}`);
+	motionPath.setAttributeNS(XLINK_NS, "href", `#${motionPathId}`);
+	motion.appendChild(motionPath);
+	plane.appendChild(motion);
+	svg.appendChild(plane);
+	overlay.appendChild(svg);
+	loadImageAsset({
+		image: sprite,
+		path: airplaneSrc,
+		mapView,
+		overlay,
+		loadAsset,
+		setSource: setSvgImageSource
+	});
+	const highlighted = /* @__PURE__ */ new Set();
+	routeSections.forEach((section) => {
+		const mapId = normalizeMapId(section.id);
+		if (mapId === hoveredMapId || highlighted.has(mapId)) return;
+		highlighted.add(mapId);
+		getSectionNode(mapView, section.id)?.classList.add("service-destination-highlight");
+	});
+}
+function resolveAirshipRouteSections(route, sectionsById) {
+	const routeSections = route.stops.map((mapId) => sectionsById.get(mapId));
+	return routeSections.every(Boolean) ? routeSections : [];
+}
+function renderWorldMapServiceOverlay({ mapView, hoveredMapId, sections, getTownInfo, isVisible = () => true, airplaneSrc = "", renderKafraSprite, loadAsset }) {
+	if (!mapView || typeof getTownInfo !== "function") return null;
+	clearWorldMapServiceOverlay(mapView);
+	const normalizedHoveredId = normalizeMapId(hoveredMapId);
+	const visibleSections = (sections || []).filter((section) => section && isVisible(section));
+	const sectionsById = new Map(visibleSections.map((section) => [normalizeMapId(section.id), section]));
+	const origin = sectionsById.get(normalizedHoveredId);
+	if (!origin) return null;
+	const destinations = (getKafraEntries(getTownInfo(normalizedHoveredId)).length > 0 ? getKafraDestinationIds(normalizedHoveredId) : []).map((mapId) => sectionsById.get(mapId)).filter(Boolean);
+	const airshipRoutes = getAirshipRoutes(normalizedHoveredId).map((route) => ({
+		route,
+		sections: resolveAirshipRouteSections(route, sectionsById)
+	})).filter((item) => item.sections.length > 1);
+	if (!destinations.length && !airshipRoutes.length) return null;
+	getSectionNode(mapView, origin.id)?.classList.add("service-origin-highlight");
+	const overlay = document.createElement("div");
+	overlay.className = "worldmap-service-overlay";
+	overlay.setAttribute("aria-hidden", "true");
+	mapView.appendChild(overlay);
+	const modes = [];
+	if (destinations.length) {
+		modes.push("kafra");
+		renderKafraOverlay({
+			overlay,
+			mapView,
+			origin,
+			destinations,
+			renderKafraSprite
+		});
+	}
+	if (airshipRoutes.length) {
+		modes.push("airship");
+		airshipRoutes.forEach((item) => {
+			renderAirshipRoute({
+				overlay,
+				mapView,
+				route: item.route,
+				routeSections: item.sections,
+				hoveredMapId: normalizedHoveredId,
+				airplaneSrc,
+				loadAsset
+			});
+		});
+	}
+	overlay.dataset.mode = modes.join(" ");
+	return overlay;
+}
+var SVG_NS, XLINK_NS, BASE_WIDTH, BASE_HEIGHT, KAFRA_TELEPORT_ROUTES, AIRSHIP_ROUTES;
+var init_WorldMapServiceOverlay = __esmMin((() => {
+	SVG_NS = "http://www.w3.org/2000/svg";
+	XLINK_NS = "http://www.w3.org/1999/xlink";
+	BASE_WIDTH = 1280;
+	BASE_HEIGHT = 1024;
+	KAFRA_TELEPORT_ROUTES = Object.freeze({
+		prontera: Object.freeze([
+			"izlude",
+			"geffen",
+			"payon",
+			"morocc",
+			"gef_fild10",
+			"alberta"
+		]),
+		alberta: Object.freeze([
+			"payon",
+			"morocc",
+			"prontera"
+		]),
+		aldebaran: Object.freeze([
+			"geffen",
+			"yuno",
+			"izlude",
+			"mjolnir_02"
+		]),
+		comodo: Object.freeze([
+			"morocc",
+			"cmd_fild07",
+			"umbala"
+		]),
+		cmd_fild07: Object.freeze(["comodo", "morocc"]),
+		geffen: Object.freeze([
+			"prontera",
+			"aldebaran",
+			"gef_fild10",
+			"mjolnir_02"
+		]),
+		izlude: Object.freeze([
+			"geffen",
+			"payon",
+			"morocc",
+			"aldebaran"
+		]),
+		morocc: Object.freeze([
+			"prontera",
+			"payon",
+			"alberta",
+			"comodo",
+			"cmd_fild07"
+		]),
+		umbala: Object.freeze(["comodo"]),
+		payon: Object.freeze([
+			"prontera",
+			"alberta",
+			"morocc"
+		]),
+		yuno: Object.freeze(["aldebaran"])
+	});
+	AIRSHIP_ROUTES = Object.freeze([Object.freeze({
+		id: "domestic",
+		stops: Object.freeze([
+			"yuno",
+			"einbroch",
+			"lighthalzen",
+			"einbroch",
+			"yuno",
+			"hugel",
+			"yuno"
+		])
+	}), Object.freeze({
+		id: "international",
+		stops: Object.freeze([
+			"izlude",
+			"yuno",
+			"rachel",
+			"izlude"
+		])
+	})]);
 }));
 // src/UI/Components/WorldMap/WorldMap.js
 /**
@@ -228471,7 +236146,7 @@ function setMapList() {
 	const selectEl = WorldMap.getRoot().querySelector("#WorldMaps");
 	if (!selectEl) return;
 	let list = "";
-	for (const map of WorldMap_default$3) if (WorldMap.settings.episode >= map.ep_from && WorldMap.settings.episode < map.ep_to) list += `<option value="${map.id}">${map.name}</option>`;
+	for (const map of WorldMap_default$3) if (isEpisodeInRange(map, WorldMap.settings.episode)) list += `<option value="${map.id}">${map.name}</option>`;
 	selectEl.innerHTML = list;
 }
 function onSelect() {
@@ -228483,6 +236158,7 @@ function onSelect() {
 * @param {string} name eg. `"worldmap_localizing1"`
 */
 function selectMap(name = null) {
+	clearWorldMapServiceState();
 	if (!name || name === null || name === "") {
 		if (WorldMap_default$3.length > 0 && WorldMap_default$3[0].id !== null && WorldMap_default$3[0].id !== "") name = WorldMap_default$3[0].id;
 		else name = "worldmap.jpg";
@@ -228499,7 +236175,9 @@ function selectMap(name = null) {
 * Resize world map
 */
 function resizeMap() {
-	const mapContainer = WorldMap.getRoot().querySelector(".map-view");
+	const root = WorldMap.getRoot();
+	clearWorldMapServiceState();
+	const mapContainer = root.querySelector(".map-view");
 	if (!mapContainer) return;
 	const currentwidth = typeof Renderer !== "undefined" && Renderer.width || window.innerWidth;
 	const currentheight = (typeof Renderer !== "undefined" && Renderer.height || window.innerHeight) - C_TITLEBARHEIGHT;
@@ -228522,8 +236200,311 @@ function onWorldMapSectionClick(e) {
 	Navigation_default.show();
 	const input = Navigation_default.getRoot().querySelector(".search-input");
 	if (input) input.value = displayName || mapId;
-	Navigation_default.onSearch();
+	if (Navigation_default.navigateToMap) Navigation_default.navigateToMap(mapId, displayName || mapId);
+	else Navigation_default.onSearch(true);
 	Navigation_default.focus();
+}
+function normalizeWorldMapName(mapName) {
+	return String(mapName || "").replace(/\.gat$/i, "").toLowerCase();
+}
+function onNavigationRouteChanged(event) {
+	const detail = event.detail || {};
+	_navigationRoute = detail.active ? detail : null;
+	renderNavigationRouteOverlay();
+}
+function getWorldMapSectionById(worldMapData, mapId) {
+	mapId = normalizeWorldMapName(mapId);
+	if (!worldMapData || !worldMapData.maps || !mapId) return null;
+	for (let i = 0; i < worldMapData.maps.length; i++) {
+		const section = worldMapData.maps[i];
+		if (section && normalizeWorldMapName(section.id) === mapId) return section;
+	}
+	return null;
+}
+function getSectionCenter(section) {
+	return {
+		x: section.left + section.width / 2,
+		y: section.top + section.height / 2
+	};
+}
+function createRouteSvgElement(name) {
+	return document.createElementNS("http://www.w3.org/2000/svg", name);
+}
+function setRouteTileRectByCenter(element, center, size) {
+	size = size || 64;
+	element.style.left = (center.x - size / 2) / C_BASEWIDTH * 100 + "%";
+	element.style.top = (center.y - size / 2) / C_BASEHEIGHT * 100 + "%";
+	element.style.width = size / C_BASEWIDTH * 100 + "%";
+	element.style.height = size / C_BASEHEIGHT * 100 + "%";
+}
+function getRouteTargetType() {
+	return String(_navigationRoute && _navigationRoute.targetType || "").toUpperCase();
+}
+function getRouteCellClassName(index, total, item) {
+	let className = "navigation-route-cell";
+	if (index === 0) className += " route-start";
+	if (index === total - 1) className += " route-end";
+	if (item && item.section && Number(item.section.type) === 1) className += " route-dungeon";
+	return className;
+}
+function applyWorldRouteIconVariables(overlay) {
+	if (!overlay || !overlay.style) return;
+	if (_worldRouteIconURI.cell) {
+		overlay.style.setProperty("--world-route-cell-icon", "url(" + _worldRouteIconURI.cell + ")");
+		overlay.classList.add("has-cell-icon");
+	}
+	if (_worldRouteIconURI.selectedCell) {
+		overlay.style.setProperty("--world-route-selected-cell-icon", "url(" + _worldRouteIconURI.selectedCell + ")");
+		overlay.classList.add("has-selected-cell-icon");
+	}
+	if (_worldRouteIconURI.mapCell) {
+		overlay.style.setProperty("--world-route-map-cell-icon", "url(" + _worldRouteIconURI.mapCell + ")");
+		overlay.classList.add("has-map-cell-icon");
+	}
+	if (_worldRouteIconURI.mobNpcCell) {
+		overlay.style.setProperty("--world-route-mobnpc-cell-icon", "url(" + _worldRouteIconURI.mobNpcCell + ")");
+		overlay.classList.add("has-mobnpc-cell-icon");
+	}
+	if (_worldRouteIconURI.dungeonCell) {
+		overlay.style.setProperty("--world-route-dungeon-cell-icon", "url(" + _worldRouteIconURI.dungeonCell + ")");
+		overlay.classList.add("has-dungeon-cell-icon");
+	}
+	if (_worldRouteIconURI.runLine) {
+		overlay.style.setProperty("--world-route-runline-icon", "url(" + _worldRouteIconURI.runLine + ")");
+		overlay.classList.add("has-runline-icon");
+	}
+	if (_worldRouteIconURI.start) {
+		overlay.style.setProperty("--world-route-start-icon", "url(" + _worldRouteIconURI.start + ")");
+		overlay.classList.add("has-start-icon");
+	}
+	if (_worldRouteIconURI.end) {
+		overlay.style.setProperty("--world-route-end-icon", "url(" + _worldRouteIconURI.end + ")");
+		overlay.classList.add("has-end-icon");
+	}
+	if (_worldRouteIconURI.npcSearch) {
+		overlay.style.setProperty("--world-route-npc-search-icon", "url(" + _worldRouteIconURI.npcSearch + ")");
+		overlay.classList.add("has-npc-search-icon");
+	}
+	for (let i = 1; i <= 5; i++) {
+		const key = "mob" + i;
+		if (_worldRouteIconURI[key]) {
+			overlay.style.setProperty("--world-monster-density-" + i + "-icon", "url(" + _worldRouteIconURI[key] + ")");
+			overlay.classList.add("has-monster-density-icons");
+		}
+	}
+}
+function makeMagentaTransparent(dataURI, callback) {
+	if (!dataURI || dataURI instanceof ArrayBuffer) {
+		callback(dataURI);
+		return;
+	}
+	const img = new Image();
+	img.onload = () => {
+		try {
+			const width = img.naturalWidth || img.width;
+			const height = img.naturalHeight || img.height;
+			if (!width || !height) {
+				callback(dataURI);
+				return;
+			}
+			const canvas = document.createElement("canvas");
+			canvas.width = width;
+			canvas.height = height;
+			const ctx = canvas.getContext("2d");
+			ctx.drawImage(img, 0, 0);
+			const imageData = ctx.getImageData(0, 0, width, height);
+			const pixels = imageData.data;
+			for (let i = 0; i < pixels.length; i += 4) if (pixels[i] >= 245 && pixels[i + 1] <= 10 && pixels[i + 2] >= 245) pixels[i + 3] = 0;
+			ctx.putImageData(imageData, 0, 0);
+			callback(canvas.toDataURL("image/png"));
+		} catch (_e) {
+			callback(dataURI);
+		}
+	};
+	img.onerror = () => callback(dataURI);
+	img.decoding = "async";
+	img.src = dataURI;
+}
+function requestWorldRouteIcon(key, relativePath, overlay, makeTransparent) {
+	if (_worldRouteIconURI[key]) {
+		applyWorldRouteIconVariables(overlay);
+		return;
+	}
+	Client.loadFile(DB.INTERFACE_PATH + relativePath, (dataURI) => {
+		if (!dataURI || dataURI instanceof ArrayBuffer) return;
+		const finish = (convertedURI) => {
+			_worldRouteIconURI[key] = convertedURI || dataURI;
+			applyWorldRouteIconVariables(overlay);
+		};
+		if (makeTransparent !== false) makeMagentaTransparent(dataURI, finish);
+		else finish(dataURI);
+	}, () => {});
+}
+function requestWorldRouteIcons(overlay) {
+	requestWorldRouteIcon("cell", "worldview_interface/wv_dunselect.bmp", overlay);
+	requestWorldRouteIcon("selectedCell", "worldview_interface/wv_select.bmp", overlay);
+	requestWorldRouteIcon("start", "worldview_interface/wv_face1.bmp", overlay);
+	requestWorldRouteIcon("end", "worldview_interface/wv_end.bmp", overlay);
+	requestWorldRouteIcon("npcSearch", "worldview_interface/wv_sreachnpc.bmp", overlay);
+}
+function requestWorldMonsterDensityIcons(overlay) {
+	for (let i = 1; i <= 5; i++) requestWorldRouteIcon("mob" + i, "worldview_interface/wv_sreachmob" + i + ".bmp", overlay);
+}
+function getMonsterDensityIndex(amount, rateLabel) {
+	const label = String(rateLabel || "").toLowerCase();
+	amount = Number(amount) || 0;
+	if (label.indexOf("very high") !== -1 || amount >= 60) return 5;
+	if (label === "high" || amount >= 25) return 4;
+	if (label === "average" || amount >= 10) return 3;
+	if (label === "low" || amount >= 3) return 2;
+	return 1;
+}
+function createMonsterDensityMarkerLayer(worldMapData) {
+	const markerLayer = document.createElement("div");
+	markerLayer.className = "navigation-monster-density-layer";
+	if (getRouteTargetType() !== "MOB" || !_navigationRoute || !_navigationRoute.targetSpawns) return markerLayer;
+	const bestByMap = {};
+	for (let i = 0; i < _navigationRoute.targetSpawns.length; i++) {
+		const spawn = _navigationRoute.targetSpawns[i];
+		const mapId = normalizeWorldMapName(spawn && spawn.mapName);
+		if (!mapId) continue;
+		const amount = Number(spawn.amount) || 0;
+		if (!bestByMap[mapId] || amount > bestByMap[mapId].amount) bestByMap[mapId] = {
+			mapName: mapId,
+			amount,
+			rateLabel: spawn.rateLabel || ""
+		};
+	}
+	const mapIds = Object.keys(bestByMap);
+	for (let i = 0; i < mapIds.length; i++) {
+		const spawn = bestByMap[mapIds[i]];
+		const section = getWorldMapSectionById(worldMapData, spawn.mapName);
+		if (!section) continue;
+		const marker = document.createElement("div");
+		marker.className = "navigation-monster-density-marker density-" + getMonsterDensityIndex(spawn.amount, spawn.rateLabel);
+		marker.title = (spawn.rateLabel || "") + (spawn.amount ? " [" + spawn.amount + "]" : "");
+		setRouteTileRectByCenter(marker, getSectionCenter(section), 64);
+		markerLayer.appendChild(marker);
+	}
+	return markerLayer;
+}
+function createNpcSearchMarkerLayer(worldMapData) {
+	const markerLayer = document.createElement("div");
+	markerLayer.className = "navigation-npc-search-layer";
+	if (getRouteTargetType() !== "NPC" || !_navigationRoute || !Array.isArray(_navigationRoute.targetEntries) || !_navigationRoute.targetEntries.length) return markerLayer;
+	const seen = {};
+	for (let i = 0; i < _navigationRoute.targetEntries.length; i++) {
+		const entry = _navigationRoute.targetEntries[i];
+		const mapId = normalizeWorldMapName(entry && entry.mapName);
+		if (!mapId || seen[mapId]) continue;
+		seen[mapId] = true;
+		const section = getWorldMapSectionById(worldMapData, mapId);
+		if (!section) continue;
+		const marker = document.createElement("div");
+		marker.className = "navigation-npc-search-marker";
+		marker.title = _navigationRoute.targetName || mapId;
+		setRouteTileRectByCenter(marker, getSectionCenter(section), 64);
+		markerLayer.appendChild(marker);
+	}
+	return markerLayer;
+}
+function createRouteMarkerLayer(visibleRoute) {
+	const markerLayer = document.createElement("div");
+	markerLayer.className = "navigation-route-marker-layer";
+	if (!visibleRoute.length) return markerLayer;
+	const startItem = visibleRoute[0];
+	const endItem = visibleRoute[visibleRoute.length - 1];
+	if (startItem && startItem.section) {
+		const startMarker = document.createElement("div");
+		startMarker.className = "navigation-route-start-marker";
+		setRouteTileRectByCenter(startMarker, startItem.center, 64);
+		const startIcon = document.createElement("span");
+		startIcon.className = "navigation-route-start-icon";
+		startMarker.appendChild(startIcon);
+		markerLayer.appendChild(startMarker);
+	}
+	if (endItem && endItem.section) {
+		const endMarker = document.createElement("div");
+		endMarker.className = "navigation-route-end-marker";
+		setRouteTileRectByCenter(endMarker, endItem.center, 64);
+		const endIcon = document.createElement("span");
+		endIcon.className = "navigation-route-end-icon";
+		endMarker.appendChild(endIcon);
+		const endCheck = document.createElement("span");
+		endCheck.className = "navigation-route-end-check";
+		endMarker.appendChild(endCheck);
+		markerLayer.appendChild(endMarker);
+	}
+	return markerLayer;
+}
+/**
+* Draw the official-style route overlay on the large world map.
+*/
+function renderNavigationRouteOverlay(mapView, worldMapData) {
+	const root = WorldMap.getRoot();
+	mapView = mapView || root.querySelector(".worldmap .map-view");
+	worldMapData = worldMapData || _activeWorldMapData;
+	if (!_navigationRoute && getNavigationRoute()) {
+		const savedRoute = getNavigationRoute();
+		_navigationRoute = savedRoute.active ? savedRoute : null;
+	}
+	if (!mapView) return;
+	const oldOverlay = mapView.querySelector(".navigation-route-overlay");
+	if (oldOverlay) oldOverlay.remove();
+	const hasMonsterMarkers = !!(_navigationRoute && getRouteTargetType() === "MOB" && Array.isArray(_navigationRoute.targetSpawns) && _navigationRoute.targetSpawns.length);
+	const hasNpcMarkers = !!(_navigationRoute && getRouteTargetType() === "NPC" && Array.isArray(_navigationRoute.targetEntries) && _navigationRoute.targetEntries.length);
+	const hasRouteMaps = !!(_navigationRoute && Array.isArray(_navigationRoute.routeMaps) && _navigationRoute.routeMaps.length);
+	if (!_navigationRoute || !worldMapData || !hasRouteMaps && !hasMonsterMarkers && !hasNpcMarkers) return;
+	const visibleRoute = [];
+	const seen = {};
+	for (let i = 0; i < _navigationRoute.routeMaps.length; i++) {
+		const mapId = normalizeWorldMapName(_navigationRoute.routeMaps[i]);
+		if (seen[mapId]) continue;
+		seen[mapId] = true;
+		const section = getWorldMapSectionById(worldMapData, mapId);
+		if (!section) continue;
+		visibleRoute.push({
+			mapId,
+			section,
+			center: getSectionCenter(section)
+		});
+	}
+	if (!visibleRoute.length && !hasMonsterMarkers && !hasNpcMarkers) return;
+	const overlay = document.createElement("div");
+	overlay.className = "navigation-route-overlay official-route-style";
+	applyWorldRouteIconVariables(overlay);
+	requestWorldRouteIcons(overlay);
+	requestWorldMonsterDensityIcons(overlay);
+	const cellLayer = document.createElement("div");
+	cellLayer.className = "navigation-route-cell-layer";
+	overlay.appendChild(cellLayer);
+	for (let i = 0; i < visibleRoute.length; i++) {
+		const item = visibleRoute[i];
+		const cell = document.createElement("div");
+		cell.className = getRouteCellClassName(i, visibleRoute.length, item);
+		setRouteTileRectByCenter(cell, item.center, 64);
+		cellLayer.appendChild(cell);
+	}
+	if (visibleRoute.length >= 2) {
+		const svg = createRouteSvgElement("svg");
+		svg.setAttribute("viewBox", `0 0 ${C_BASEWIDTH} ${C_BASEHEIGHT}`);
+		svg.setAttribute("preserveAspectRatio", "none");
+		svg.classList.add("navigation-route-svg");
+		const points = visibleRoute.map((item) => `${item.center.x},${item.center.y}`).join(" ");
+		const pathShadow = createRouteSvgElement("polyline");
+		pathShadow.setAttribute("points", points);
+		pathShadow.classList.add("navigation-route-line-shadow");
+		svg.appendChild(pathShadow);
+		const pathLine = createRouteSvgElement("polyline");
+		pathLine.setAttribute("points", points);
+		pathLine.classList.add("navigation-route-line");
+		svg.appendChild(pathLine);
+		overlay.appendChild(svg);
+	}
+	overlay.appendChild(createMonsterDensityMarkerLayer(worldMapData));
+	overlay.appendChild(createNpcSearchMarkerLayer(worldMapData));
+	if (visibleRoute.length) overlay.appendChild(createRouteMarkerLayer(visibleRoute));
+	mapView.appendChild(overlay);
 }
 /**
 * When worldmap container is mouse over
@@ -228534,6 +236515,17 @@ function onWorldMapMouseOver(e) {
 	if (!section || section === _hoveredSection) return;
 	_hoveredSection = section;
 	showTooltip(section);
+	const mapView = section.closest(".map-view");
+	if (mapView) renderWorldMapServiceOverlay({
+		mapView,
+		hoveredMapId: section.id,
+		sections: _activeWorldMapData?.maps || [],
+		getTownInfo: (mapId) => DB.getTownInfo(mapId),
+		isVisible: (mapSection) => (isEpisodeInRange(mapSection, WorldMap.settings.episode) || WorldMap.settings.add.includes(mapSection.id)) && !WorldMap.settings.remove.includes(mapSection.id),
+		renderKafraSprite: (canvas) => Navigation_default.renderNpcSprite(canvas, 117),
+		airplaneSrc: `${DB.INTERFACE_PATH}worldview_interface/wv_airplen32.bmp`,
+		loadAsset: (path, onLoad) => Client.loadFile(path, onLoad)
+	});
 }
 /**
 * When worldmap container is mouse out
@@ -228542,7 +236534,7 @@ function onWorldMapMouseOver(e) {
 function onWorldMapMouseOut(e) {
 	if (!_hoveredSection) return;
 	if (_hoveredSection.contains(e.relatedTarget)) return;
-	_hoveredSection = null;
+	clearWorldMapServiceState();
 	hideTooltip();
 }
 /**
@@ -228557,13 +236549,15 @@ function showTooltip(section) {
 	tooltip.querySelector(".tooltip-mapid").textContent = section.id;
 	const tooltipImg = tooltip.querySelector(".tooltip-img");
 	tooltipImg.style.backgroundImage = "";
+	renderWorldMapMonsterPanel(tooltip, WorldMap.showLVLMode ? DB.getNavigationMapMonsters(section.id) : [], WorldMap.showLVLMode);
 	const rect = section.getBoundingClientRect();
-	tooltip.style.display = "block";
+	tooltip.style.display = "flex";
 	tooltip.style.left = rect.right + 10 + "px";
 	tooltip.style.top = rect.top + "px";
 	const tooltipRect = tooltip.getBoundingClientRect();
 	if (tooltipRect.right > window.innerWidth) tooltip.style.left = rect.left - tooltipRect.width - 10 + "px";
-	if (tooltipRect.bottom > window.innerHeight) tooltip.style.top = window.innerHeight - tooltipRect.height - 10 + "px";
+	if (tooltipRect.bottom > window.innerHeight) tooltip.style.top = Math.max(5, window.innerHeight - tooltipRect.height - 10) + "px";
+	if (tooltip.getBoundingClientRect().left < 0) tooltip.style.left = "5px";
 	Client.loadFile(`${DB.INTERFACE_PATH}map/${section.id}.bmp`, (data) => {
 		if (_hoveredSection === section) tooltipImg.style.backgroundImage = `url(${data})`;
 	});
@@ -228576,6 +236570,15 @@ function hideTooltip() {
 	if (tooltip) tooltip.style.display = "none";
 }
 /**
+* Remove all hover-only service visuals and reset delegated hover state.
+* Shared by rerender, resize, hide, close and removal lifecycle paths.
+*/
+function clearWorldMapServiceState() {
+	const mapView = WorldMap.getRoot()?.querySelector?.(".map-view");
+	_hoveredSection = null;
+	clearWorldMapServiceOverlay(mapView);
+}
+/**
 * Create the .worldmap container and loop through all the maps
 * and render them to the container.
 *
@@ -228583,6 +236586,8 @@ function hideTooltip() {
 * @param {string} imgData world map image data as a base64
 */
 function createWorldMapView(map, imgData) {
+	clearWorldMapServiceState();
+	_activeWorldMapData = map;
 	const container = WorldMap.getRoot().querySelector(".map .content");
 	const worldmap = document.createElement("div");
 	const currentMap = MapRenderer.currentMap.replace(/\.gat$/i, "");
@@ -228601,7 +236606,7 @@ function createWorldMapView(map, imgData) {
 		y: section.top + section.height / 2
 	};
 	const renderedDungeonPos = /* @__PURE__ */ new Set();
-	for (const section of map.maps) if ((WorldMap.settings.episode >= section.ep_from && WorldMap.settings.episode < section.ep_to || WorldMap.settings.add.includes(section.id)) && !WorldMap.settings.remove.includes(section.id)) {
+	for (const section of map.maps) if ((isEpisodeInRange(section, WorldMap.settings.episode) || WorldMap.settings.add.includes(section.id)) && !WorldMap.settings.remove.includes(section.id)) {
 		const el = document.createElement("div");
 		const el_mapid = document.createElement("div");
 		const el_mapname = document.createElement("div");
@@ -228676,52 +236681,19 @@ function createWorldMapView(map, imgData) {
 		}
 		el_mapid.className = "mapid";
 		el_mapid.innerHTML = section.id;
+		const monsterLevelRange = createWorldMapMonsterLevelRange(DB.getNavigationMapMonsters(section.id));
+		if (monsterLevelRange) el_displayname.appendChild(monsterLevelRange);
 		el.appendChild(el_displayname);
 		el.appendChild(el_mapname);
 		el.appendChild(el_mapid);
-		if (section.moblevel !== void 0 && section.moblevel.length > 0) {
-			const el_level = document.createElement("div");
-			el_level.className = "level-range-text";
-			el_level.innerText = section.moblevel;
-			el.appendChild(el_level);
-		}
+		const recommendedLevelBadge = createWorldMapRecommendedLevelBadge(section);
+		if (recommendedLevelBadge) el.appendChild(recommendedLevelBadge);
 		mapView.appendChild(el);
 	}
-	if (map.id === "worldmap") loadAirplane(mapView);
 	worldmap.appendChild(mapView);
+	renderNavigationRouteOverlay(mapView, map);
 	container.innerHTML = "";
 	container.appendChild(worldmap);
-}
-/**
-* Load airplane image and append it to the DOM (.map-view element)
-*
-* @param {HTMLElement} mapView target where to append to
-*/
-function loadAirplane(mapView) {
-	Client.loadFile(DB.INTERFACE_PATH + "worldview_interface/wv_airplen32.bmp", (data) => {
-		const airplane = document.createElement("img");
-		airplane.id = "midgard-airplane";
-		airplane.className = "airplane";
-		airplane.decoding = "async";
-		airplane.src = data;
-		setAirplanePosition(airplane);
-		mapView.appendChild(airplane);
-	});
-}
-/**
-* Refresh airplane position
-*
-* @param {HTMLElement} airplane optional. if not provided, will use .worldmap #midgard-airplane
-*
-* @todo use server time and set position and angle
-*/
-function setAirplanePosition(airplane) {
-	const root = WorldMap.getRoot();
-	const el = airplane || root.querySelector(".worldmap #midgard-airplane");
-	if (!el) return;
-	el.style.top = "35%";
-	el.style.left = "35%";
-	el.style.transform = "rotate(75deg)";
 }
 /**
 * Mark the built sections that have party members on them
@@ -228762,6 +236734,7 @@ function onShowLVL() {
 		if (!WorldMap.showLVLMode) worldmapEl.classList.remove("show-lvls");
 		else worldmapEl.classList.add("show-lvls");
 	}
+	if (_hoveredSection) showTooltip(_hoveredSection);
 }
 /**
 * Stop event propagation
@@ -228775,9 +236748,11 @@ function stopPropagation$11(event) {
 * Closing window
 */
 function onClose$7() {
+	clearWorldMapServiceState();
+	hideTooltip();
 	WorldMap._host.style.display = "none";
 }
-var WorldMap, _preferences$39, _partyMembersByMap, _hoveredSection, C_TITLEBARHEIGHT, C_BASEWIDTH, C_BASEHEIGHT, C_ASPECTX, C_ASPECTY, WorldMap_default;
+var WorldMap, _preferences$39, _partyMembersByMap, _hoveredSection, _activeWorldMapData, _navigationRoute, _routeListenerAttached, _worldRouteIconURI, C_TITLEBARHEIGHT, C_BASEWIDTH, C_BASEHEIGHT, C_ASPECTX, C_ASPECTY, WorldMap_default;
 var init_WorldMap = __esmMin((() => {
 	init_DBManager();
 	init_Client();
@@ -228790,10 +236765,15 @@ var init_WorldMap = __esmMin((() => {
 	init_GUIComponent();
 	init_SessionStorage();
 	init_WorldMap$3();
+	init_NavigationEra();
 	init_WorldMap$2();
 	init_WorldMap$1();
 	init_Navigation();
+	init_WorldMapMonsterTooltip();
+	init_WorldMapServiceOverlay();
+	init_NavigationRouteState();
 	WorldMap = new GUIComponent("WorldMap", WorldMap_default$1);
+	WorldMap.responsiveMode = "fixed";
 	WorldMap.render = () => WorldMap_default$2;
 	_preferences$39 = Preferences.get("WorldMap", {
 		x: 0,
@@ -228804,6 +236784,10 @@ var init_WorldMap = __esmMin((() => {
 	}, 1);
 	_partyMembersByMap = {};
 	_hoveredSection = null;
+	_activeWorldMapData = null;
+	_navigationRoute = null;
+	_routeListenerAttached = false;
+	_worldRouteIconURI = {};
 	C_TITLEBARHEIGHT = 17;
 	C_BASEWIDTH = 1280;
 	C_BASEHEIGHT = 1024;
@@ -228835,6 +236819,10 @@ var init_WorldMap = __esmMin((() => {
 	* Apply preferences once append to body
 	*/
 	WorldMap.onAppend = function onAppend() {
+		if (!_routeListenerAttached) {
+			document.addEventListener("roBrowserNavigationRouteChanged", onNavigationRouteChanged);
+			_routeListenerAttached = true;
+		}
 		if (!_preferences$39.show) this._host.style.display = "none";
 		this.settings = {
 			episode: 98,
@@ -228858,6 +236846,13 @@ var init_WorldMap = __esmMin((() => {
 		this._host.style.left = "0px";
 	};
 	WorldMap.onRemove = function onRemove() {
+		if (_routeListenerAttached) {
+			document.removeEventListener("roBrowserNavigationRouteChanged", onNavigationRouteChanged);
+			_routeListenerAttached = false;
+		}
+		_navigationRoute = null;
+		clearWorldMapServiceState();
+		hideTooltip();
 		_preferences$39.show = this._host.style.display !== "none";
 		_preferences$39.y = 0;
 		_preferences$39.x = 0;
@@ -228870,6 +236865,7 @@ var init_WorldMap = __esmMin((() => {
 	*/
 	WorldMap.toggle = function toggle() {
 		if (this._host.style.display !== "none") {
+			clearWorldMapServiceState();
 			this._host.style.display = "none";
 			hideTooltip();
 		} else {
@@ -250441,839 +258437,6 @@ var init_Group = __esmMin((() => {
 		}
 	};
 }));
-// src/Utils/Inflate.js
-/**
-*
-* @param {Uint8Array} bytes
-* @constructor
-*/
-function Inflate(bytes) {
-	let bytesPos = 0;
-	const cmf = bytes[bytesPos++];
-	const flg = bytes[bytesPos++];
-	if (cmf === -1 || flg === -1) throw new Error("Invalid header in flate stream: " + cmf + ", " + flg);
-	if ((cmf & 15) != 8) throw new Error("Unknown compression method in flate stream: " + cmf + ", " + flg);
-	if (((cmf << 8) + flg) % 31 !== 0) throw new Error("Bad FCHECK in flate stream: " + cmf + ", " + flg);
-	if (flg & 32) throw new Error("FDICT bit set in flate stream: " + cmf + ", " + flg);
-	this.bytes = bytes;
-	this.bytesPos = bytesPos;
-	this.bytesLength = bytes.length;
-}
-var codeLenCodeMap, _codeLenCodeLengths, _clean_codeLenCodeLengths, _codeLengths, lengthDecode, distDecode, fixedLitCodeTab, fixedDistCodeTab;
-var init_Inflate = __esmMin((() => {
-	codeLenCodeMap = new Uint32Array([
-		16,
-		17,
-		18,
-		0,
-		8,
-		7,
-		9,
-		6,
-		10,
-		5,
-		11,
-		4,
-		12,
-		3,
-		13,
-		2,
-		14,
-		1,
-		15
-	]);
-	_codeLenCodeLengths = /* @__PURE__ */ new Uint32Array(19);
-	_clean_codeLenCodeLengths = /* @__PURE__ */ new Uint32Array(19);
-	_codeLengths = /* @__PURE__ */ new Uint8Array(640);
-	lengthDecode = new Uint32Array([
-		3,
-		4,
-		5,
-		6,
-		7,
-		8,
-		9,
-		10,
-		65547,
-		65549,
-		65551,
-		65553,
-		131091,
-		131095,
-		131099,
-		131103,
-		196643,
-		196651,
-		196659,
-		196667,
-		262211,
-		262227,
-		262243,
-		262259,
-		327811,
-		327843,
-		327875,
-		327907,
-		258,
-		258,
-		258
-	]);
-	distDecode = new Uint32Array([
-		1,
-		2,
-		3,
-		4,
-		65541,
-		65543,
-		131081,
-		131085,
-		196625,
-		196633,
-		262177,
-		262193,
-		327745,
-		327777,
-		393345,
-		393409,
-		459009,
-		459137,
-		524801,
-		525057,
-		590849,
-		591361,
-		657409,
-		658433,
-		724993,
-		727041,
-		794625,
-		798721,
-		868353,
-		876545
-	]);
-	fixedLitCodeTab = [new Uint32Array([
-		459008,
-		524368,
-		524304,
-		524568,
-		459024,
-		524400,
-		524336,
-		590016,
-		459016,
-		524384,
-		524320,
-		589984,
-		524288,
-		524416,
-		524352,
-		590048,
-		459012,
-		524376,
-		524312,
-		589968,
-		459028,
-		524408,
-		524344,
-		590032,
-		459020,
-		524392,
-		524328,
-		59e4,
-		524296,
-		524424,
-		524360,
-		590064,
-		459010,
-		524372,
-		524308,
-		524572,
-		459026,
-		524404,
-		524340,
-		590024,
-		459018,
-		524388,
-		524324,
-		589992,
-		524292,
-		524420,
-		524356,
-		590056,
-		459014,
-		524380,
-		524316,
-		589976,
-		459030,
-		524412,
-		524348,
-		590040,
-		459022,
-		524396,
-		524332,
-		590008,
-		524300,
-		524428,
-		524364,
-		590072,
-		459009,
-		524370,
-		524306,
-		524570,
-		459025,
-		524402,
-		524338,
-		590020,
-		459017,
-		524386,
-		524322,
-		589988,
-		524290,
-		524418,
-		524354,
-		590052,
-		459013,
-		524378,
-		524314,
-		589972,
-		459029,
-		524410,
-		524346,
-		590036,
-		459021,
-		524394,
-		524330,
-		590004,
-		524298,
-		524426,
-		524362,
-		590068,
-		459011,
-		524374,
-		524310,
-		524574,
-		459027,
-		524406,
-		524342,
-		590028,
-		459019,
-		524390,
-		524326,
-		589996,
-		524294,
-		524422,
-		524358,
-		590060,
-		459015,
-		524382,
-		524318,
-		589980,
-		459031,
-		524414,
-		524350,
-		590044,
-		459023,
-		524398,
-		524334,
-		590012,
-		524302,
-		524430,
-		524366,
-		590076,
-		459008,
-		524369,
-		524305,
-		524569,
-		459024,
-		524401,
-		524337,
-		590018,
-		459016,
-		524385,
-		524321,
-		589986,
-		524289,
-		524417,
-		524353,
-		590050,
-		459012,
-		524377,
-		524313,
-		589970,
-		459028,
-		524409,
-		524345,
-		590034,
-		459020,
-		524393,
-		524329,
-		590002,
-		524297,
-		524425,
-		524361,
-		590066,
-		459010,
-		524373,
-		524309,
-		524573,
-		459026,
-		524405,
-		524341,
-		590026,
-		459018,
-		524389,
-		524325,
-		589994,
-		524293,
-		524421,
-		524357,
-		590058,
-		459014,
-		524381,
-		524317,
-		589978,
-		459030,
-		524413,
-		524349,
-		590042,
-		459022,
-		524397,
-		524333,
-		590010,
-		524301,
-		524429,
-		524365,
-		590074,
-		459009,
-		524371,
-		524307,
-		524571,
-		459025,
-		524403,
-		524339,
-		590022,
-		459017,
-		524387,
-		524323,
-		589990,
-		524291,
-		524419,
-		524355,
-		590054,
-		459013,
-		524379,
-		524315,
-		589974,
-		459029,
-		524411,
-		524347,
-		590038,
-		459021,
-		524395,
-		524331,
-		590006,
-		524299,
-		524427,
-		524363,
-		590070,
-		459011,
-		524375,
-		524311,
-		524575,
-		459027,
-		524407,
-		524343,
-		590030,
-		459019,
-		524391,
-		524327,
-		589998,
-		524295,
-		524423,
-		524359,
-		590062,
-		459015,
-		524383,
-		524319,
-		589982,
-		459031,
-		524415,
-		524351,
-		590046,
-		459023,
-		524399,
-		524335,
-		590014,
-		524303,
-		524431,
-		524367,
-		590078,
-		459008,
-		524368,
-		524304,
-		524568,
-		459024,
-		524400,
-		524336,
-		590017,
-		459016,
-		524384,
-		524320,
-		589985,
-		524288,
-		524416,
-		524352,
-		590049,
-		459012,
-		524376,
-		524312,
-		589969,
-		459028,
-		524408,
-		524344,
-		590033,
-		459020,
-		524392,
-		524328,
-		590001,
-		524296,
-		524424,
-		524360,
-		590065,
-		459010,
-		524372,
-		524308,
-		524572,
-		459026,
-		524404,
-		524340,
-		590025,
-		459018,
-		524388,
-		524324,
-		589993,
-		524292,
-		524420,
-		524356,
-		590057,
-		459014,
-		524380,
-		524316,
-		589977,
-		459030,
-		524412,
-		524348,
-		590041,
-		459022,
-		524396,
-		524332,
-		590009,
-		524300,
-		524428,
-		524364,
-		590073,
-		459009,
-		524370,
-		524306,
-		524570,
-		459025,
-		524402,
-		524338,
-		590021,
-		459017,
-		524386,
-		524322,
-		589989,
-		524290,
-		524418,
-		524354,
-		590053,
-		459013,
-		524378,
-		524314,
-		589973,
-		459029,
-		524410,
-		524346,
-		590037,
-		459021,
-		524394,
-		524330,
-		590005,
-		524298,
-		524426,
-		524362,
-		590069,
-		459011,
-		524374,
-		524310,
-		524574,
-		459027,
-		524406,
-		524342,
-		590029,
-		459019,
-		524390,
-		524326,
-		589997,
-		524294,
-		524422,
-		524358,
-		590061,
-		459015,
-		524382,
-		524318,
-		589981,
-		459031,
-		524414,
-		524350,
-		590045,
-		459023,
-		524398,
-		524334,
-		590013,
-		524302,
-		524430,
-		524366,
-		590077,
-		459008,
-		524369,
-		524305,
-		524569,
-		459024,
-		524401,
-		524337,
-		590019,
-		459016,
-		524385,
-		524321,
-		589987,
-		524289,
-		524417,
-		524353,
-		590051,
-		459012,
-		524377,
-		524313,
-		589971,
-		459028,
-		524409,
-		524345,
-		590035,
-		459020,
-		524393,
-		524329,
-		590003,
-		524297,
-		524425,
-		524361,
-		590067,
-		459010,
-		524373,
-		524309,
-		524573,
-		459026,
-		524405,
-		524341,
-		590027,
-		459018,
-		524389,
-		524325,
-		589995,
-		524293,
-		524421,
-		524357,
-		590059,
-		459014,
-		524381,
-		524317,
-		589979,
-		459030,
-		524413,
-		524349,
-		590043,
-		459022,
-		524397,
-		524333,
-		590011,
-		524301,
-		524429,
-		524365,
-		590075,
-		459009,
-		524371,
-		524307,
-		524571,
-		459025,
-		524403,
-		524339,
-		590023,
-		459017,
-		524387,
-		524323,
-		589991,
-		524291,
-		524419,
-		524355,
-		590055,
-		459013,
-		524379,
-		524315,
-		589975,
-		459029,
-		524411,
-		524347,
-		590039,
-		459021,
-		524395,
-		524331,
-		590007,
-		524299,
-		524427,
-		524363,
-		590071,
-		459011,
-		524375,
-		524311,
-		524575,
-		459027,
-		524407,
-		524343,
-		590031,
-		459019,
-		524391,
-		524327,
-		589999,
-		524295,
-		524423,
-		524359,
-		590063,
-		459015,
-		524383,
-		524319,
-		589983,
-		459031,
-		524415,
-		524351,
-		590047,
-		459023,
-		524399,
-		524335,
-		590015,
-		524303,
-		524431,
-		524367,
-		590079
-	]), 9];
-	fixedDistCodeTab = [new Uint32Array([
-		327680,
-		327696,
-		327688,
-		327704,
-		327684,
-		327700,
-		327692,
-		327708,
-		327682,
-		327698,
-		327690,
-		327706,
-		327686,
-		327702,
-		327694,
-		0,
-		327681,
-		327697,
-		327689,
-		327705,
-		327685,
-		327701,
-		327693,
-		327709,
-		327683,
-		327699,
-		327691,
-		327707,
-		327687,
-		327703,
-		327695,
-		0
-	]), 5];
-	/**
-	* Extract data from ZIP
-	* @param {Uint8Array} output
-	*/
-	Inflate.prototype.getBytes = function(output) {
-		this.buffer = output;
-		this.bufferPos = 0;
-		this.codeSize = 0;
-		this.codeBuf = 0;
-		while (!this.readBlock());
-		return this.bufferPos;
-	};
-	/**
-	* Get bits
-	* @param {number} bits
-	* @returns {number}
-	*/
-	Inflate.prototype.getBits = function Inflate_getBits(bits) {
-		let codeSize = this.codeSize;
-		let codeBuf = this.codeBuf;
-		const bytes = this.bytes;
-		let bytesPos = this.bytesPos;
-		if (this.bytesLength <= bytesPos + (bits - codeSize) * .2) throw new Error("Bad encoding in flate stream ");
-		while (codeSize < bits) {
-			codeBuf |= bytes[bytesPos++] << codeSize;
-			codeSize += 8;
-		}
-		const b = codeBuf & (1 << bits) - 1;
-		this.codeBuf = codeBuf >> bits;
-		this.codeSize = codeSize - bits;
-		this.bytesPos = bytesPos;
-		return b;
-	};
-	/**
-	* Get Code
-	* @param {Array} table
-	* @returns {number}
-	*/
-	Inflate.prototype.getCode = function Inflate_getCode(table) {
-		const codes = table[0];
-		const maxLen = table[1];
-		let codeSize = this.codeSize;
-		let codeBuf = this.codeBuf;
-		const bytes = this.bytes;
-		let bytesPos = this.bytesPos;
-		if (this.bytesLength <= bytesPos + (maxLen - codeSize) * .2) throw new Error("Bad encoding in flate stream");
-		while (codeSize < maxLen) {
-			codeBuf |= bytes[bytesPos++] << codeSize;
-			codeSize += 8;
-		}
-		const code = codes[codeBuf & (1 << maxLen) - 1];
-		const codeLen = code >> 16;
-		const codeVal = code & 65535;
-		if (codeSize === 0 || codeSize < codeLen || codeLen === 0) throw new Error("Bad encoding in flate stream " + codeSize + " " + codeLen);
-		this.codeBuf = codeBuf >> codeLen;
-		this.codeSize = codeSize - codeLen;
-		this.bytesPos = bytesPos;
-		return codeVal;
-	};
-	/**
-	* Get bits
-	* @param {Uint32Array} lengths
-	* @param {number} start
-	* @param {number} end
-	* @returns {Array}
-	*/
-	Inflate.prototype.generateHuffmanTable = function Inflate_GenerateHuffmanTable(lengths, start, end) {
-		let maxLen = 0;
-		let i;
-		for (i = start; i < end; ++i) if (lengths[i] > maxLen) maxLen = lengths[i];
-		const size = 1 << maxLen;
-		const codes = new Uint32Array(size);
-		for (let len = 1, code = 0, skip = 2; len <= maxLen; ++len, code <<= 1, skip <<= 1) for (let val = start; val < end; ++val) if (lengths[val] === len) {
-			let code2 = 0;
-			let t = code;
-			const v = val - start;
-			for (i = 0; i < len; ++i) {
-				code2 = code2 << 1 | t & 1;
-				t >>= 1;
-			}
-			for (i = code2; i < size; i += skip) codes[i] = len << 16 | v;
-			++code;
-		}
-		return [codes, maxLen];
-	};
-	/**
-	* @returns {boolean}
-	*/
-	Inflate.prototype.readBlock = function Inflate_readBlock() {
-		let hdr = this.getBits(3);
-		const stop = !!(hdr & 1);
-		let len;
-		hdr >>= 1;
-		if (hdr === 0) {
-			const bytes = this.bytes;
-			let bytesPos = this.bytesPos;
-			const bytesLength = this.bytesLength;
-			if (bytesPos + 4 >= bytesLength) throw new Error("Bad block header in flate stream");
-			const blockLen = bytes[bytesPos++] | bytes[bytesPos++] << 8;
-			if ((bytes[bytesPos++] | bytes[bytesPos++] << 8) !== (~blockLen & 65535)) throw new Error("Bad uncompressed block length in flate stream");
-			this.codeBuf = 0;
-			this.codeSize = 0;
-			const bufferPos = this.bufferPos;
-			const end = bufferPos + blockLen;
-			this.bufferPos = end;
-			let n;
-			for (n = bufferPos; n < end && bytesPos < bytesLength; ++n) this.buffer[n] = bytes[bytesPos++];
-			this.bytesPos = bytesPos;
-			return stop || n < end;
-		}
-		let litCodeTable;
-		let distCodeTable;
-		if (hdr == 1) {
-			litCodeTable = fixedLitCodeTab;
-			distCodeTable = fixedDistCodeTab;
-		} else if (hdr == 2) {
-			let i;
-			const numLitCodes = this.getBits(5) + 257;
-			const numDistCodes = this.getBits(5) + 1;
-			const numCodeLenCodes = this.getBits(4) + 4;
-			_codeLenCodeLengths.set(_clean_codeLenCodeLengths);
-			for (i = 0; i < numCodeLenCodes; ++i) _codeLenCodeLengths[codeLenCodeMap[i]] = this.getBits(3);
-			const codeLenCodeTab = this.generateHuffmanTable(_codeLenCodeLengths, 0, 19);
-			len = 0;
-			let bitsLength, bitsOffset, what;
-			i = 0;
-			const codes = numLitCodes + numDistCodes;
-			while (i < codes) {
-				const code = this.getCode(codeLenCodeTab);
-				if (code === 16) {
-					bitsLength = 2;
-					bitsOffset = 3;
-					what = len;
-				} else if (code === 17) {
-					bitsLength = 3;
-					bitsOffset = 3;
-					what = len = 0;
-				} else if (code === 18) {
-					bitsLength = 7;
-					bitsOffset = 11;
-					what = len = 0;
-				} else {
-					_codeLengths[i++] = len = code;
-					continue;
-				}
-				let repeatLength = this.getBits(bitsLength) + bitsOffset;
-				while (repeatLength-- > 0) _codeLengths[i++] = what;
-			}
-			litCodeTable = this.generateHuffmanTable(_codeLengths, 0, numLitCodes);
-			distCodeTable = this.generateHuffmanTable(_codeLengths, numLitCodes, codes);
-		} else throw new Error("Unknown block type in flate stream");
-		const buffer = this.buffer;
-		let pos = this.bufferPos;
-		while (true) {
-			let code1 = this.getCode(litCodeTable);
-			if (code1 < 256) {
-				buffer[pos++] = code1;
-				continue;
-			}
-			if (code1 == 256) {
-				this.bufferPos = pos;
-				return stop;
-			}
-			code1 = lengthDecode[code1 - 257];
-			let code2 = code1 >> 16;
-			if (code2 > 0) code2 = this.getBits(code2);
-			len = (code1 & 65535) + code2;
-			code1 = this.getCode(distCodeTable);
-			code1 = distDecode[code1];
-			code2 = code1 >> 16;
-			if (code2 > 0) code2 = this.getBits(code2);
-			const dist = (code1 & 65535) + code2;
-			for (let k = 0; k < len; ++k, ++pos) buffer[pos] = buffer[pos - dist];
-		}
-	};
-}));
 // src/UI/Components/SkillListMH/SkillListMH.js
 /**
 * Build a Homunculus/Mercenary skill window on top of the shared SkillList
@@ -254535,7 +261698,7 @@ var init_SnowWeather = __esmMin((() => {
 	init_Renderer();
 	init_MapRenderer();
 	init_SpriteRenderer();
-	init_Altitude();
+	init_Altitude$1();
 	init_SessionStorage();
 	RAG_TICK_MS$2 = 25;
 	FADEOUT_TAIL_MS$3 = 1e3 * RAG_TICK_MS$2;
@@ -254772,7 +261935,7 @@ var init_SakuraWeatherEffect = __esmMin((() => {
 	init_Renderer();
 	init_MapRenderer();
 	init_SpriteRenderer();
-	init_Altitude();
+	init_Altitude$1();
 	init_SessionStorage();
 	RAG_TICK_MS$1 = 25;
 	FADEOUT_TAIL_MS$2 = 1e3 * RAG_TICK_MS$1;
@@ -255422,8 +262585,8 @@ var init_CloudWeatherEffect = __esmMin((() => {
 		setUpCloudData(now) {
 			for (let i = 0; i < this._profile.maxClouds; i++) {
 				if (!this._clouds[i]) this._clouds[i] = {
-					position: vec3$8.create(),
-					direction: vec3$8.create(),
+					position: vec3$9.create(),
+					direction: vec3$9.create(),
 					born_tick: 0,
 					death_tick: 0
 				};
@@ -255482,7 +262645,7 @@ var init_CloudWeatherEffect = __esmMin((() => {
 				SpriteRenderer.image.texture = this._textures[cloud.sprite];
 				const dt = Math.min(tick - (cloud._lastTick || cloud.born_tick), 250);
 				cloud._lastTick = tick;
-				vec3$8.scaleAndAdd(cloud.position, cloud.position, cloud.direction, dt / 25);
+				vec3$9.scaleAndAdd(cloud.position, cloud.position, cloud.direction, dt / 25);
 				SpriteRenderer.position.set(cloud.position);
 				SpriteRenderer.runWithDepth(!overlay, false, !overlay, () => {
 					SpriteRenderer.render();
@@ -256336,18 +263499,21 @@ var init_ProcessCommand = __esmMin((() => {
 			}
 		},
 		navi: {
-			description: "Navigate to a map location. Usage: /navi mapname x y",
+			description: "Navigate to a map location. Usage: /navi mapname x y (use -1 -1 for map center)",
 			callback: function(text) {
-				const matches = text.match(/^navi\s+(\S+)\s+(\d+)\s+(\d+)/);
+				const matches = text.match(/^navi\s+(\S+)\s+(-?\d+)\s+(-?\d+)/);
 				if (matches) {
+					const x = parseInt(matches[2], 10);
+					const y = parseInt(matches[3], 10);
+					if (!(x === -1 && y === -1 || x >= 0 && y >= 0)) return;
 					Navigation_default.append();
 					Navigation_default.navigateTo({
 						startMap: MapRenderer.currentMap,
 						startX: SessionStorage_default.Entity.position[0] | 0,
 						startY: SessionStorage_default.Entity.position[1] | 0,
 						endMap: matches[1],
-						endX: parseInt(matches[2], 10),
-						endY: parseInt(matches[3], 10),
+						endX: x,
+						endY: y,
 						displayName: matches[1] + " (" + matches[2] + ", " + matches[3] + ")"
 					});
 					return;
@@ -256554,7 +263720,7 @@ function generateCylinder(totalCircleSides, circleSides, repeatTextureX) {
 	}
 	return new Float32Array(mesh);
 }
-var _program$28, blendMode$3, mat4$18, _matrix$5, Cylinder;
+var _program$28, blendMode$3, mat4$17, _matrix$5, Cylinder;
 var init_Cylinder = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
@@ -256564,8 +263730,8 @@ var init_Cylinder = __esmMin((() => {
 	init_Cylinder$2();
 	init_Cylinder$1();
 	blendMode$3 = {};
-	mat4$18 = gl_matrix_default.mat4;
-	_matrix$5 = mat4$18.create();
+	mat4$17 = gl_matrix_default.mat4;
+	_matrix$5 = mat4$17.create();
 	Cylinder = class {
 		constructor(effect, EF_Inst_Par, EF_Init_Par) {
 			const position = EF_Inst_Par.position;
@@ -256717,11 +263883,11 @@ var init_Cylinder = __esmMin((() => {
 				this.position[2]
 			];
 			if (this.rotate || this.angleX || this.angleY || this.angleZ || this.rotateWithCamera || this.fixedPerspective) {
-				mat4$18.identity(_matrix$5);
-				if (this.rotate) mat4$18.rotateY(_matrix$5, _matrix$5, tick / 4 / 180 * Math.PI);
-				if (this.angleX) mat4$18.rotateX(_matrix$5, _matrix$5, this.angleX / 180 * Math.PI);
-				if (this.angleY) mat4$18.rotateY(_matrix$5, _matrix$5, this.angleY / 180 * Math.PI);
-				if (this.angleZ) mat4$18.rotateZ(_matrix$5, _matrix$5, this.angleZ / 180 * Math.PI);
+				mat4$17.identity(_matrix$5);
+				if (this.rotate) mat4$17.rotateY(_matrix$5, _matrix$5, tick / 4 / 180 * Math.PI);
+				if (this.angleX) mat4$17.rotateX(_matrix$5, _matrix$5, this.angleX / 180 * Math.PI);
+				if (this.angleY) mat4$17.rotateY(_matrix$5, _matrix$5, this.angleY / 180 * Math.PI);
+				if (this.angleZ) mat4$17.rotateZ(_matrix$5, _matrix$5, this.angleZ / 180 * Math.PI);
 				if (this.rotateWithCamera || this.fixedPerspective) {
 					let magic = this.posY;
 					if (this.fixedPerspective) {
@@ -256730,14 +263896,14 @@ var init_Cylinder = __esmMin((() => {
 							currentPosition[2] += this.posZ * Math.cos(vcRad) - this.posY * Math.sin(vcRad);
 							magic = this.posY * Math.sin(vcRad) + this.posZ * Math.sin(vcRad);
 						}
-						mat4$18.rotateX(_matrix$5, _matrix$5, vcRad);
+						mat4$17.rotateX(_matrix$5, _matrix$5, vcRad);
 					}
 					const hcRad = Camera.angle[1] * Math.PI / 180;
 					if (this.posX || this.posY) {
 						currentPosition[0] += this.posX * Math.cos(hcRad) - magic * Math.sin(hcRad);
 						currentPosition[1] += magic * Math.cos(hcRad) + this.posX * Math.sin(hcRad);
 					}
-					mat4$18.rotateY(_matrix$5, _matrix$5, hcRad);
+					mat4$17.rotateY(_matrix$5, _matrix$5, hcRad);
 				} else {
 					currentPosition[0] += this.posX;
 					currentPosition[1] += this.posY;
@@ -257526,1117 +264692,6 @@ var init_RsmEffect$2 = __esmMin((() => {
 var RsmEffect_default;
 var init_RsmEffect$1 = __esmMin((() => {
 	RsmEffect_default = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec2 vTextureCoord;\r\nin float vLightWeighting;\r\nin float vAlpha;\r\nout vec4 fragColor;\r\n\r\nuniform sampler2D uDiffuse;\r\n\r\nuniform bool  uFogUse;\r\nuniform float uFogNear;\r\nuniform float uFogFar;\r\nuniform vec3  uFogColor;\r\n\r\nuniform vec3  uLightAmbient;\r\nuniform vec3  uLightDiffuse;\r\nuniform float uLightOpacity;\r\n\r\nvoid main(void) {\r\n	vec4 textureSample  = texture( uDiffuse,  vTextureCoord.st );\r\n\r\n	if (textureSample.a == 0.0) {\r\n		discard;\r\n	}\r\n\r\n	vec3 Ambient	= uLightAmbient * uLightOpacity;\r\n	vec3 Diffuse	= uLightDiffuse * vLightWeighting;\r\n	vec4 LightColor = vec4( Ambient + Diffuse, 1.0);\r\n\r\n	fragColor	= textureSample * clamp(LightColor, 0.0, 1.0);\r\n	fragColor.a *= vAlpha;\r\n\r\n	if (uFogUse) {\r\n		float depth	 = gl_FragCoord.z / gl_FragCoord.w;\r\n		float fogFactor = smoothstep( uFogNear, uFogFar, depth );\r\n		fragColor	= mix( fragColor, vec4( uFogColor, fragColor.w ), fogFactor );\r\n	}\r\n}";
-}));
-// src/Loaders/Model.js
-/**
-* Interpolate rotation keyframes using SLERP
-*
-* @param {Array} keyframes
-* @param {number} frame
-* @param {number} animLen
-* @returns {Array|null} quaternion or null
-*/
-function getRotationAtFrame$1(keyframes, frame, animLen) {
-	if (!keyframes || keyframes.length === 0) return null;
-	if (keyframes.length === 1) return keyframes[0].q;
-	let prev = keyframes[0];
-	let next = null;
-	for (let i = 0; i < keyframes.length; i++) {
-		if (keyframes[i].frame > frame) {
-			next = keyframes[i];
-			break;
-		}
-		prev = keyframes[i];
-	}
-	if (!next) return prev.q;
-	const frameDiff = next.frame - prev.frame;
-	if (frameDiff === 0) return prev.q;
-	const t = (frame - prev.frame) / frameDiff;
-	return slerpQuat$1(prev.q, next.q, t);
-}
-/**
-* SLERP quaternion interpolation
-*/
-function slerpQuat$1(q1, q2, t) {
-	const result = /* @__PURE__ */ new Float32Array(4);
-	let dot = q1[0] * q2[0] + q1[1] * q2[1] + q1[2] * q2[2] + q1[3] * q2[3];
-	let q2Sign = 1;
-	if (dot < 0) {
-		dot = -dot;
-		q2Sign = -1;
-	}
-	let scale0, scale1;
-	if (dot > .9995) {
-		scale0 = 1 - t;
-		scale1 = t * q2Sign;
-	} else {
-		const theta = Math.acos(dot);
-		const sinTheta = Math.sin(theta);
-		scale0 = Math.sin((1 - t) * theta) / sinTheta;
-		scale1 = Math.sin(t * theta) / sinTheta * q2Sign;
-	}
-	result[0] = scale0 * q1[0] + scale1 * q2[0];
-	result[1] = scale0 * q1[1] + scale1 * q2[1];
-	result[2] = scale0 * q1[2] + scale1 * q2[2];
-	result[3] = scale0 * q1[3] + scale1 * q2[3];
-	return result;
-}
-/**
-* Interpolate position keyframes
-*
-* @param {Array} keyframes
-* @param {number} frame
-* @param {number} animLen
-* @returns {Array|null} position or null
-*/
-function getPositionAtFrame$1(keyframes, frame, animLen) {
-	if (!keyframes || keyframes.length === 0) return null;
-	if (keyframes.length === 1) return [
-		keyframes[0].px,
-		keyframes[0].py,
-		keyframes[0].pz
-	];
-	let prev = keyframes[0];
-	let next = null;
-	for (let i = 0; i < keyframes.length; i++) {
-		if (keyframes[i].frame > frame) {
-			next = keyframes[i];
-			break;
-		}
-		prev = keyframes[i];
-	}
-	if (!next) return [
-		prev.px,
-		prev.py,
-		prev.pz
-	];
-	const frameDiff = next.frame - prev.frame;
-	if (frameDiff === 0) return [
-		prev.px,
-		prev.py,
-		prev.pz
-	];
-	const t = (frame - prev.frame) / frameDiff;
-	return [
-		prev.px + (next.px - prev.px) * t,
-		prev.py + (next.py - prev.py) * t,
-		prev.pz + (next.pz - prev.pz) * t
-	];
-}
-/**
-* Interpolate scale keyframes
-*
-* @param {Array} keyframes
-* @param {number} frame
-* @param {number} animLen
-* @returns {Array|null} scale or null
-*/
-function getScaleAtFrame$1(keyframes, frame, animLen) {
-	if (!keyframes || keyframes.length === 0) return null;
-	if (keyframes.length === 1) return keyframes[0].Scale;
-	let prev = keyframes[0];
-	let next = null;
-	for (let i = 0; i < keyframes.length; i++) {
-		if (keyframes[i].Frame > frame) {
-			next = keyframes[i];
-			break;
-		}
-		prev = keyframes[i];
-	}
-	if (!next) return prev.Scale;
-	const frameDiff = next.Frame - prev.Frame;
-	if (frameDiff === 0) return prev.Scale;
-	const t = (frame - prev.Frame) / frameDiff;
-	return [
-		prev.Scale[0] + (next.Scale[0] - prev.Scale[0]) * t,
-		prev.Scale[1] + (next.Scale[1] - prev.Scale[1]) * t,
-		prev.Scale[2] + (next.Scale[2] - prev.Scale[2]) * t
-	];
-}
-var vec3$4, mat3$2, mat4$17, Box, Node, RSM;
-var init_Model = __esmMin((() => {
-	init_BinaryReader();
-	init_gl_matrix();
-	vec3$4 = gl_matrix_default.vec3;
-	mat3$2 = gl_matrix_default.mat3;
-	mat4$17 = gl_matrix_default.mat4;
-	Box = class {
-		constructor() {
-			this.max = vec3$4.fromValues(-Infinity, -Infinity, -Infinity);
-			this.min = vec3$4.fromValues(Infinity, Infinity, Infinity);
-			this.offset = vec3$4.create();
-			this.range = vec3$4.create();
-			this.center = vec3$4.create();
-		}
-	};
-	Node = class {
-		/**
-		* Node Constructor
-		*
-		* @param {object} rsm
-		* @param {object} fp BinaryReader
-		* @param {boolean} only
-		*/
-		constructor(rsm, fp, only) {
-			let i, j, k, count;
-			const version = rsm.version;
-			let posKeyframes, scaleKeyFrames, textureKeyFrameGroup;
-			let textures = [];
-			this.main = rsm;
-			this.is_only = only;
-			if (version >= 2.2) {
-				this.name = fp.readBinaryString(fp.readLong());
-				this.parentname = fp.readBinaryString(fp.readLong());
-			} else {
-				this.name = fp.readBinaryString(40);
-				this.parentname = fp.readBinaryString(40);
-			}
-			count = fp.readLong();
-			textures = new Array(count);
-			for (i = 0; i < count; i++) textures[i] = version >= 2.3 ? fp.readBinaryString(fp.readLong()) : fp.readLong();
-			this.mat3 = [
-				fp.readFloat(),
-				fp.readFloat(),
-				fp.readFloat(),
-				fp.readFloat(),
-				fp.readFloat(),
-				fp.readFloat(),
-				fp.readFloat(),
-				fp.readFloat(),
-				fp.readFloat()
-			];
-			this.offset = [
-				fp.readFloat(),
-				fp.readFloat(),
-				fp.readFloat()
-			];
-			if (version >= 2.2) {
-				this.pos = [
-					0,
-					0,
-					0
-				];
-				this.rotangle = 0;
-				this.rotaxis = [
-					0,
-					0,
-					0
-				];
-				this.scale = [
-					1,
-					1,
-					1
-				];
-				this.flip = [
-					1,
-					-1,
-					1
-				];
-			} else {
-				this.pos = [
-					fp.readFloat(),
-					fp.readFloat(),
-					fp.readFloat()
-				];
-				this.rotangle = fp.readFloat();
-				this.rotaxis = [
-					fp.readFloat(),
-					fp.readFloat(),
-					fp.readFloat()
-				];
-				this.scale = [
-					fp.readFloat(),
-					fp.readFloat(),
-					fp.readFloat()
-				];
-				this.flip = [
-					1,
-					1,
-					1
-				];
-			}
-			count = fp.readLong();
-			const vertices = new Array(count);
-			for (i = 0; i < count; ++i) vertices[i] = [
-				fp.readFloat(),
-				fp.readFloat(),
-				fp.readFloat()
-			];
-			count = fp.readLong();
-			const tvertices = new Float32Array(count * 6);
-			for (i = 0, j = 0; i < count; ++i, j += 6) {
-				if (version >= 1.2) {
-					tvertices[j + 0] = fp.readUByte() / 255;
-					tvertices[j + 1] = fp.readUByte() / 255;
-					tvertices[j + 2] = fp.readUByte() / 255;
-					tvertices[j + 3] = fp.readUByte() / 255;
-				}
-				tvertices[j + 4] = fp.readFloat() * .98 + .01;
-				tvertices[j + 5] = fp.readFloat() * .98 + .01;
-			}
-			count = fp.readLong();
-			const faces = new Array(count);
-			for (i = 0; i < count; ++i) {
-				let len = -1;
-				if (version >= 2.2) len = fp.readLong();
-				faces[i] = {
-					vertidx: [
-						fp.readUShort(),
-						fp.readUShort(),
-						fp.readUShort()
-					],
-					tvertidx: [
-						fp.readUShort(),
-						fp.readUShort(),
-						fp.readUShort()
-					],
-					texid: fp.readUShort(),
-					padding: fp.readUShort(),
-					twoSide: fp.readLong()
-				};
-				if (version >= 1.2) {
-					faces[i].smoothGroup = fp.readLong();
-					if (len > 24) faces[i].smoothGroup_1 = fp.readLong();
-					if (len > 28) faces[i].smoothGroup_2 = fp.readLong();
-					if (len > 32) fp.seek(len - 32, SEEK_CUR);
-				}
-			}
-			if (version >= 1.6) {
-				count = fp.readLong();
-				scaleKeyFrames = new Array(count);
-				for (i = 0; i < count; i++) scaleKeyFrames[i] = {
-					Frame: fp.readLong(),
-					Scale: [
-						fp.readFloat(),
-						fp.readFloat(),
-						fp.readFloat()
-					],
-					Data: fp.readFloat()
-				};
-			}
-			count = fp.readLong();
-			const rotKeyframes = new Array(count);
-			for (i = 0; i < count; ++i) rotKeyframes[i] = {
-				frame: fp.readLong(),
-				q: [
-					fp.readFloat(),
-					fp.readFloat(),
-					fp.readFloat(),
-					fp.readFloat()
-				]
-			};
-			if (version >= 2.2) {
-				count = fp.readLong();
-				posKeyframes = new Array(count);
-				for (i = 0; i < count; ++i) posKeyframes[i] = {
-					frame: fp.readLong(),
-					px: fp.readFloat(),
-					py: fp.readFloat(),
-					pz: fp.readFloat(),
-					Data: fp.readLong()
-				};
-			}
-			if (version >= 2.3) {
-				count = fp.readLong();
-				textureKeyFrameGroup = new Array(count);
-				for (i = 0; i < count; ++i) {
-					const textureId = fp.readLong();
-					const amountTextureAnimations = fp.readLong();
-					if (!textureKeyFrameGroup[i]) textureKeyFrameGroup[i] = [];
-					if (!textureKeyFrameGroup[i][textureId]) textureKeyFrameGroup[i][textureId] = [];
-					for (j = 0; j < amountTextureAnimations; ++j) {
-						const type = fp.readLong();
-						const amountFrames = fp.readLong();
-						if (!textureKeyFrameGroup[i][textureId][type]) textureKeyFrameGroup[i][textureId][type] = [];
-						for (k = 0; k < amountFrames; ++k) textureKeyFrameGroup[i][textureId][type].push({
-							frame: fp.readLong(),
-							offset: fp.readFloat()
-						});
-					}
-				}
-			}
-			this.box = new RSM.Box();
-			this.matrix = mat4$17.create();
-			this.textures = textures;
-			this.vertices = vertices;
-			this.tvertices = tvertices;
-			this.faces = faces;
-			this.rotKeyframes = rotKeyframes;
-			this.posKeyframes = posKeyframes;
-			this.scaleKeyFrames = scaleKeyFrames;
-			this.textureKeyFrameGroup = textureKeyFrameGroup;
-		}
-		/**
-		* Calculate node bounding box
-		*
-		* @param {mat4} _matrix
-		*/
-		calcBoundingBox(_matrix) {
-			let i, j, count;
-			const v = vec3$4.create();
-			const box = this.box;
-			const nodes = this.main.nodes;
-			const matrix = mat4$17.create();
-			const vertices = this.vertices;
-			const max = Math.max, min = Math.min;
-			let x, y, z;
-			mat4$17.copy(this.matrix, _matrix);
-			if (this.baseMatrix) mat4$17.multiply(this.matrix, this.matrix, this.baseMatrix);
-			mat4$17.translate(this.matrix, this.matrix, this.pos);
-			if (!this.rotKeyframes.length) mat4$17.rotate(this.matrix, this.matrix, this.rotangle, this.rotaxis);
-			else mat4$17.rotateQuat(this.matrix, this.matrix, this.rotKeyframes[0].q);
-			mat4$17.scale(this.matrix, this.matrix, this.scale);
-			mat4$17.copy(matrix, this.matrix);
-			if (!this.is_only) mat4$17.translate(matrix, matrix, this.offset);
-			mat4$17.multiply(matrix, matrix, mat3$2.toMat4(this.mat3));
-			for (i = 0, count = vertices.length; i < count; ++i) {
-				x = vertices[i][0];
-				y = vertices[i][1];
-				z = vertices[i][2];
-				v[0] = matrix[0] * x + matrix[4] * y + matrix[8] * z + matrix[12];
-				v[1] = matrix[1] * x + matrix[5] * y + matrix[9] * z + matrix[13];
-				v[2] = matrix[2] * x + matrix[6] * y + matrix[10] * z + matrix[14];
-				for (j = 0; j < 3; j++) {
-					box.min[j] = min(v[j], box.min[j]);
-					box.max[j] = max(v[j], box.max[j]);
-				}
-			}
-			for (i = 0; i < 3; i++) {
-				box.offset[i] = (box.max[i] + box.min[i]) / 2;
-				box.range[i] = (box.max[i] - box.min[i]) / 2;
-				box.center[i] = box.min[i] + box.range[i];
-			}
-			for (i = 0, count = nodes.length; i < count; ++i) {
-				if (this.absoluteTransform) break;
-				if (nodes[i].parentname === this.name && this.name !== this.parentname) nodes[i].calcBoundingBox(this.matrix);
-			}
-		}
-		/**
-		* Compile Node
-		*
-		* @param {mat4} instance_matrix
-		*/
-		compile(instance_matrix) {
-			const modelViewMat = mat4$17.create();
-			const normalMat = mat4$17.create();
-			const textures = this.textures;
-			const faces = this.faces;
-			const vertices = this.vertices;
-			const mesh = {};
-			const mesh_size = [];
-			const shadeGroup = new Array(32);
-			const shadeGroupUsed = new Array(32);
-			let i, x, y, z, count;
-			const matrix = mat4$17.create();
-			mat4$17.identity(matrix);
-			mat4$17.translate(matrix, matrix, [
-				-this.main.box.center[0],
-				-this.main.box.max[1],
-				-this.main.box.center[2]
-			]);
-			mat4$17.multiply(matrix, matrix, this.matrix);
-			if (!this.is_only) mat4$17.translate(matrix, matrix, this.offset);
-			mat4$17.multiply(matrix, matrix, mat3$2.toMat4(this.mat3));
-			mat4$17.multiply(modelViewMat, instance_matrix, matrix);
-			mat4$17.extractRotation(normalMat, modelViewMat);
-			count = vertices.length;
-			const vert = new Float32Array(count * 3);
-			for (i = 0; i < count; ++i) {
-				x = vertices[i][0];
-				y = vertices[i][1];
-				z = vertices[i][2];
-				vert[i * 3 + 0] = modelViewMat[0] * x + modelViewMat[4] * y + modelViewMat[8] * z + modelViewMat[12];
-				vert[i * 3 + 1] = modelViewMat[1] * x + modelViewMat[5] * y + modelViewMat[9] * z + modelViewMat[13];
-				vert[i * 3 + 2] = modelViewMat[2] * x + modelViewMat[6] * y + modelViewMat[10] * z + modelViewMat[14];
-			}
-			const face_normal = new Float32Array(faces.length * 3);
-			for (i = 0, count = textures.length; i < count; ++i) mesh_size[textures[i]] = 0;
-			for (i = 0, count = faces.length; i < count; ++i) mesh_size[textures[faces[i].texid]]++;
-			for (i = 0, count = textures.length; i < count; ++i) mesh[textures[i]] = new Float32Array(mesh_size[textures[i]] * 9 * 3);
-			switch (this.main.shadeType) {
-				default:
-				case RSM.SHADING.NONE:
-					this.calcNormal_NONE(face_normal);
-					this.generate_mesh_FLAT(vert, face_normal, mesh);
-					break;
-				case RSM.SHADING.FLAT:
-					this.calcNormal_FLAT(face_normal, normalMat, shadeGroupUsed);
-					this.generate_mesh_FLAT(vert, face_normal, mesh);
-					break;
-				case RSM.SHADING.SMOOTH:
-					this.calcNormal_FLAT(face_normal, normalMat, shadeGroupUsed);
-					this.calcNormal_SMOOTH(face_normal, shadeGroupUsed, shadeGroup);
-					this.generate_mesh_SMOOTH(vert, shadeGroup, mesh);
-			}
-			return mesh;
-		}
-		/**
-		* Compile Node at a specific animation frame
-		*
-		* @param {mat4} instance_matrix
-		* @param {number} frame - Animation frame
-		* @param {number} animLen - Total animation length
-		*/
-		compileAtFrame(instance_matrix, frame, animLen) {
-			const modelViewMat = mat4$17.create();
-			const normalMat = mat4$17.create();
-			const textures = this.textures;
-			const faces = this.faces;
-			const vertices = this.vertices;
-			const mesh = {};
-			const mesh_size = [];
-			const shadeGroup = new Array(32);
-			const shadeGroupUsed = new Array(32);
-			let i, x, y, z, count;
-			const matrix = mat4$17.create();
-			mat4$17.identity(matrix);
-			mat4$17.translate(matrix, matrix, [
-				-this.main.box.center[0],
-				-this.main.box.max[1],
-				-this.main.box.center[2]
-			]);
-			const nodeMatrix = mat4$17.create();
-			mat4$17.identity(nodeMatrix);
-			if (this.baseMatrix) mat4$17.multiply(nodeMatrix, nodeMatrix, this.baseMatrix);
-			const animPos = getPositionAtFrame$1(this.posKeyframes, frame, animLen);
-			if (animPos) mat4$17.translate(nodeMatrix, nodeMatrix, animPos);
-			else mat4$17.translate(nodeMatrix, nodeMatrix, this.pos);
-			const animRot = getRotationAtFrame$1(this.rotKeyframes, frame, animLen);
-			if (animRot) mat4$17.rotateQuat(nodeMatrix, nodeMatrix, animRot);
-			else if (this.rotKeyframes && this.rotKeyframes.length > 0) mat4$17.rotateQuat(nodeMatrix, nodeMatrix, this.rotKeyframes[0].q);
-			else mat4$17.rotate(nodeMatrix, nodeMatrix, this.rotangle, this.rotaxis);
-			const animScale = getScaleAtFrame$1(this.scaleKeyFrames, frame, animLen);
-			if (animScale) mat4$17.scale(nodeMatrix, nodeMatrix, animScale);
-			else mat4$17.scale(nodeMatrix, nodeMatrix, this.scale);
-			mat4$17.multiply(matrix, matrix, nodeMatrix);
-			if (!this.is_only) mat4$17.translate(matrix, matrix, this.offset);
-			mat4$17.multiply(matrix, matrix, mat3$2.toMat4(this.mat3));
-			mat4$17.multiply(modelViewMat, instance_matrix, matrix);
-			mat4$17.extractRotation(normalMat, modelViewMat);
-			count = vertices.length;
-			const vert = new Float32Array(count * 3);
-			for (i = 0; i < count; ++i) {
-				x = vertices[i][0];
-				y = vertices[i][1];
-				z = vertices[i][2];
-				vert[i * 3 + 0] = modelViewMat[0] * x + modelViewMat[4] * y + modelViewMat[8] * z + modelViewMat[12];
-				vert[i * 3 + 1] = modelViewMat[1] * x + modelViewMat[5] * y + modelViewMat[9] * z + modelViewMat[13];
-				vert[i * 3 + 2] = modelViewMat[2] * x + modelViewMat[6] * y + modelViewMat[10] * z + modelViewMat[14];
-			}
-			const face_normal = new Float32Array(faces.length * 3);
-			for (i = 0, count = textures.length; i < count; ++i) mesh_size[textures[i]] = 0;
-			for (i = 0, count = faces.length; i < count; ++i) mesh_size[textures[faces[i].texid]]++;
-			for (i = 0, count = textures.length; i < count; ++i) mesh[textures[i]] = new Float32Array(mesh_size[textures[i]] * 9 * 3);
-			switch (this.main.shadeType) {
-				default:
-				case RSM.SHADING.NONE:
-					this.calcNormal_NONE(face_normal);
-					this.generate_mesh_FLAT(vert, face_normal, mesh);
-					break;
-				case RSM.SHADING.FLAT:
-					this.calcNormal_FLAT(face_normal, normalMat, shadeGroupUsed);
-					this.generate_mesh_FLAT(vert, face_normal, mesh);
-					break;
-				case RSM.SHADING.SMOOTH:
-					this.calcNormal_FLAT(face_normal, normalMat, shadeGroupUsed);
-					this.calcNormal_SMOOTH(face_normal, shadeGroupUsed, shadeGroup);
-					this.generate_mesh_SMOOTH(vert, shadeGroup, mesh);
-			}
-			return mesh;
-		}
-		/**
-		* Generate default normals
-		*
-		* @param {Float32Array[]} out
-		*/
-		calcNormal_NONE(out) {
-			let i, count;
-			for (i = 1, count = out.length; i < count; i += 3) out[i] = -1;
-		}
-		/**
-		* Generate FLAT normals
-		*
-		* @param {Float32Array[]} out
-		* @param {mat4} normalMat
-		* @param {Array} groupUsed
-		*/
-		calcNormal_FLAT(out, normalMat, groupUsed) {
-			let i, j, count;
-			let face;
-			const temp_vec = vec3$4.create();
-			const faces = this.faces;
-			const vertices = this.vertices;
-			for (i = 0, j = 0, count = faces.length; i < count; ++i, j += 3) {
-				face = faces[i];
-				vec3$4.calcNormal(vertices[face.vertidx[0]], vertices[face.vertidx[1]], vertices[face.vertidx[2]], temp_vec);
-				out[j] = normalMat[0] * temp_vec[0] + normalMat[4] * temp_vec[1] + normalMat[8] * temp_vec[2] + normalMat[12];
-				out[j + 1] = normalMat[1] * temp_vec[0] + normalMat[5] * temp_vec[1] + normalMat[9] * temp_vec[2] + normalMat[13];
-				out[j + 2] = normalMat[2] * temp_vec[0] + normalMat[6] * temp_vec[1] + normalMat[10] * temp_vec[2] + normalMat[14];
-				groupUsed[face.smoothGroup] = true;
-			}
-		}
-		/**
-		* Generate smooth normals
-		*
-		* @param {Float32Array[]} normal
-		* @param {Array} groupUsed
-		* @param {Array} group
-		*/
-		calcNormal_SMOOTH(normal, groupUsed, group) {
-			let i, j, k, l, v, x, y, z, len;
-			const size = this.vertices.length;
-			const faces = this.faces;
-			let face, norm;
-			const count = faces.length;
-			for (j = 0; j < 32; ++j) {
-				if (!groupUsed[j]) continue;
-				group[j] = new Float32Array(size * 3);
-				norm = group[j];
-				for (v = 0, l = 0; v < size; ++v, l += 3) {
-					x = 0;
-					y = 0;
-					z = 0;
-					for (i = 0, k = 0; i < count; ++i, k += 3) {
-						face = faces[i];
-						if (face.smoothGroup === j && (face.vertidx[0] === v || face.vertidx[1] === v || face.vertidx[2] === v)) {
-							x += normal[k];
-							y += normal[k + 1];
-							z += normal[k + 2];
-						}
-					}
-					len = 1 / Math.sqrt(x * x + y * y + z * z);
-					norm[l] = x * len;
-					norm[l + 1] = y * len;
-					norm[l + 2] = z * len;
-				}
-			}
-		}
-		/**
-		* Generate Mesh (with normals type FLAT)
-		*
-		* @param {Float32Array[]} vert
-		* @param {Float32Array[]} norm
-		* @param {Array} mesh
-		*/
-		generate_mesh_FLAT(vert, norm, mesh) {
-			let a, b, o, i, j, k, t, count;
-			const faces = this.faces;
-			const textures = this.textures;
-			const tver = this.tvertices;
-			const alpha = this.main.alpha;
-			const offset = [];
-			let face, idx, tidx, out;
-			for (i = 0, count = textures.length; i < count; ++i) offset[textures[i]] = 0;
-			for (i = 0, o = 0, k = 0, count = faces.length; i < count; ++i, k += 3) {
-				face = faces[i];
-				idx = face.vertidx;
-				tidx = face.tvertidx;
-				t = textures[face.texid];
-				out = mesh[t];
-				o = offset[t];
-				for (j = 0; j < 3; j++, o += 9) {
-					a = idx[j] * 3;
-					b = tidx[j] * 6;
-					out[o + 0] = vert[a + 0];
-					out[o + 1] = vert[a + 1];
-					out[o + 2] = vert[a + 2];
-					out[o + 3] = norm[k + 0];
-					out[o + 4] = norm[k + 1];
-					out[o + 5] = norm[k + 2];
-					out[o + 6] = tver[b + 4];
-					out[o + 7] = tver[b + 5];
-					out[o + 8] = alpha;
-				}
-				offset[t] = o;
-			}
-		}
-		/**
-		* Generate Mesh (with normals type SMOOTH)
-		*
-		* @param {Float32Array[]} vert
-		* @param {Array} shadeGroup
-		* @param {Array} mesh
-		*/
-		generate_mesh_SMOOTH(vert, shadeGroup, mesh) {
-			let a, b, o, i, j, t, count;
-			const faces = this.faces;
-			const textures = this.textures;
-			const tver = this.tvertices;
-			const alpha = this.main.alpha;
-			const offset = [];
-			let norm, face, idx, tidx, out;
-			for (i = 0, count = textures.length; i < count; ++i) offset[textures[i]] = 0;
-			for (i = 0, o = 0, count = faces.length; i < count; ++i) {
-				face = faces[i];
-				norm = shadeGroup[face.smoothGroup];
-				idx = face.vertidx;
-				tidx = face.tvertidx;
-				t = textures[face.texid];
-				out = mesh[t];
-				o = offset[t];
-				for (j = 0; j < 3; j++, o += 9) {
-					a = idx[j] * 3;
-					b = tidx[j] * 6;
-					out[o + 0] = vert[a + 0];
-					out[o + 1] = vert[a + 1];
-					out[o + 2] = vert[a + 2];
-					out[o + 3] = norm[a + 0];
-					out[o + 4] = norm[a + 1];
-					out[o + 5] = norm[a + 2];
-					out[o + 6] = tver[b + 4];
-					out[o + 7] = tver[b + 5];
-					out[o + 8] = alpha;
-				}
-				offset[t] = o;
-			}
-		}
-	};
-	RSM = class RSM {
-		constructor(data) {
-			if (data) this.load(data);
-		}
-		/**
-		* Model Shading type
-		*/
-		static SHADING = {
-			NONE: 0,
-			FLAT: 1,
-			SMOOTH: 2
-		};
-		/**
-		* Bounding Box
-		*/
-		static Box = Box;
-		/**
-		* Loading RSM file
-		*
-		* @param {ArrayBuffer} data
-		*/
-		load(data) {
-			let i, count;
-			let posKeyframes;
-			let mainNodeName = null;
-			const textures = [];
-			const additionalTextures = [];
-			const fp = new BinaryReader(data);
-			const header = fp.readBinaryString(4);
-			if (header !== "GRSM" && header !== "GRSX") throw new Error(`RSM::load() - Incorrect header "${header}", must be "GRSM"`);
-			const major = fp.readByte();
-			const minor = fp.readByte();
-			this.version = major + minor / 10;
-			if (major === 2 && minor >= 2) {
-				this.loadRsm2(fp, minor);
-				return;
-			}
-			this.animLen = fp.readLong();
-			this.shadeType = fp.readLong();
-			this.main_node = null;
-			this.alpha = this.version >= 1.4 ? fp.readUByte() / 255 : 1;
-			if (this.version >= 2.3) {
-				this.frameRatePerSecond = fp.readFloat();
-				count = fp.readLong();
-				for (i = 0; i < count; i++) textures.push(fp.readBinaryString(fp.readLong()));
-			} else if (this.version >= 2.2) {
-				this.frameRatePerSecond = fp.readFloat();
-				count = fp.readLong();
-				for (i = 0; i < count; ++i) additionalTextures.push(fp.readBinaryString(fp.readLong()));
-				count = fp.readLong();
-				for (i = 0; i < count; i++) textures.push(fp.readBinaryString(fp.readLong()));
-			} else {
-				fp.seek(16, SEEK_CUR);
-				count = fp.readLong();
-				for (i = 0; i < count; ++i) additionalTextures.push(fp.readBinaryString(40));
-				mainNodeName = fp.readBinaryString(40);
-				textures.push(mainNodeName);
-			}
-			count = fp.readLong();
-			const nodes = new Array(count);
-			if (nodes.length === 0) throw new Error("RSM::load() - Model contains no nodes");
-			for (i = 0; i < count; ++i) {
-				nodes[i] = new RSM.Node(this, fp, count === 1);
-				if (mainNodeName && nodes[i].name === mainNodeName) this.main_node = nodes[i];
-			}
-			if (this.main_node === null) this.main_node = nodes[0];
-			if (this.version < 1.6) {
-				count = fp.readLong();
-				posKeyframes = new Array(count);
-				for (i = 0; i < count; ++i) posKeyframes[i] = {
-					frame: fp.readLong(),
-					px: fp.readFloat(),
-					py: fp.readFloat(),
-					pz: fp.readFloat(),
-					data: fp.readFloat()
-				};
-				this.posKeyframes = posKeyframes;
-			} else this.posKeyframes = [];
-			count = fp.offset >= fp.length ? 0 : fp.readLong();
-			const volumebox = new Array(count);
-			for (i = 0; i < count; ++i) volumebox[i] = {
-				size: [
-					fp.readFloat(),
-					fp.readFloat(),
-					fp.readFloat()
-				],
-				pos: [
-					fp.readFloat(),
-					fp.readFloat(),
-					fp.readFloat()
-				],
-				rot: [
-					fp.readFloat(),
-					fp.readFloat(),
-					fp.readFloat()
-				],
-				flag: this.version >= 1.3 ? fp.readLong() : 0
-			};
-			this.textures = additionalTextures;
-			this.nodes = nodes;
-			if (this.version >= 2.3) {
-				for (i = 0; i < this.main_node.textures.length; i++) if (!this.textures.includes(this.main_node.textures[i])) {
-					const texture = this.main_node.textures[i];
-					this.textures.push(texture);
-					this.main_node.textures[i] = this.textures.indexOf(texture);
-				}
-				this.nodes.forEach((node) => {
-					for (i = 0; i < node.textures.length; i++) if (typeof node.textures[i] !== "number") {
-						const texture = node.textures[i];
-						if (!this.textures.includes(texture)) this.textures.push(texture);
-						node.textures[i] = this.textures.indexOf(texture);
-					}
-				});
-			}
-			this.volumebox = volumebox;
-			this.instances = [];
-			this.box = new RSM.Box();
-			this.calcBoundingBox();
-		}
-		/**
-		* Load an RSM2 model.
-		*
-		* RSM2 stores an absolute 3x4 world transform per node and uses
-		* length-prefixed strings. Versions 2.2 and 2.3 also use different face
-		* encodings, so they cannot be parsed by the legacy Node constructor.
-		* The transform is baked into the vertices here while retaining the
-		* existing Node/renderer mesh API.
-		*
-		* @param {object} fp BinaryReader
-		* @param {number} minor RSM2 minor version
-		*/
-		loadRsm2(fp, minor) {
-			let i;
-			const readString = () => fp.readBinaryString(fp.readLong());
-			this.animLen = fp.readLong();
-			this.shadeType = fp.readLong();
-			this.alpha = fp.readUByte() / 255;
-			this.frameRatePerSecond = fp.readFloat();
-			const sharedTextures = [];
-			if (minor <= 2) {
-				const textureCount = fp.readLong();
-				for (i = 0; i < textureCount; i++) sharedTextures.push(readString());
-			}
-			const rootNodeCount = fp.readLong();
-			const rootNodeNames = new Array(rootNodeCount);
-			for (i = 0; i < rootNodeCount; i++) rootNodeNames[i] = readString();
-			const nodeCount = fp.readLong();
-			const nodes = new Array(nodeCount);
-			const allTextures = sharedTextures.slice();
-			const addTexture = (texture) => {
-				let index = allTextures.indexOf(texture);
-				if (index === -1) {
-					index = allTextures.length;
-					allTextures.push(texture);
-				}
-				return index;
-			};
-			for (i = 0; i < nodeCount; i++) {
-				const name = readString();
-				const parentname = readString();
-				const textureCount = fp.readLong();
-				const nodeTextures = new Array(textureCount);
-				for (let j = 0; j < textureCount; j++) {
-					const texture = minor <= 2 ? sharedTextures[fp.readLong()] : readString();
-					nodeTextures[j] = addTexture(texture || "");
-				}
-				const transform = new Array(12);
-				for (let j = 0; j < transform.length; j++) transform[j] = fp.readFloat();
-				const vertexCount = fp.readLong();
-				const vertices = new Array(vertexCount);
-				for (let j = 0; j < vertexCount; j++) {
-					const x = fp.readFloat();
-					const y = fp.readFloat();
-					const z = fp.readFloat();
-					vertices[j] = [
-						x,
-						y,
-						z
-					];
-				}
-				const tvertexCount = fp.readLong();
-				const tvertices = new Float32Array(tvertexCount * 6);
-				for (let j = 0; j < tvertexCount; j++) {
-					const offset = j * 6;
-					fp.readULong();
-					tvertices[offset + 4] = fp.readFloat() * .98 + .01;
-					tvertices[offset + 5] = fp.readFloat() * .98 + .01;
-				}
-				const faceCount = fp.readLong();
-				const faces = new Array(faceCount);
-				for (let j = 0; j < faceCount; j++) {
-					let faceLength = 24;
-					if (minor >= 2) faceLength = fp.readLong();
-					const face = {
-						vertidx: [
-							fp.readUShort(),
-							fp.readUShort(),
-							fp.readUShort()
-						],
-						tvertidx: [
-							fp.readUShort(),
-							fp.readUShort(),
-							fp.readUShort()
-						],
-						texid: fp.readUShort(),
-						padding: fp.readUShort(),
-						twoSide: fp.readLong(),
-						smoothGroup: 0
-					};
-					if (minor === 1 || minor >= 2) face.smoothGroup = fp.readLong();
-					const consumed = minor >= 2 ? 24 : 24;
-					if (minor >= 2 && faceLength > consumed) fp.seek(faceLength - consumed, SEEK_CUR);
-					faces[j] = face;
-				}
-				const scaleCount = fp.readLong();
-				const scaleKeyFrames = new Array(scaleCount);
-				for (let j = 0; j < scaleCount; j++) scaleKeyFrames[j] = {
-					Frame: fp.readLong(),
-					Scale: [
-						fp.readFloat(),
-						fp.readFloat(),
-						fp.readFloat()
-					],
-					Data: fp.readFloat()
-				};
-				const rotationCount = fp.readLong();
-				const rotationKeyFrames = new Array(rotationCount);
-				for (let j = 0; j < rotationCount; j++) rotationKeyFrames[j] = {
-					frame: fp.readLong(),
-					q: [
-						fp.readFloat(),
-						fp.readFloat(),
-						fp.readFloat(),
-						fp.readFloat()
-					]
-				};
-				const positionCount = fp.readLong();
-				const positionKeyFrames = new Array(positionCount);
-				for (let j = 0; j < positionCount; j++) positionKeyFrames[j] = {
-					frame: fp.readLong(),
-					px: fp.readFloat(),
-					py: fp.readFloat(),
-					pz: fp.readFloat(),
-					Data: fp.readLong()
-				};
-				if (minor === 3) {
-					const uvAnimationCount = fp.readLong();
-					for (let j = 0; j < uvAnimationCount; j++) {
-						fp.readLong();
-						const typeCount = fp.readLong();
-						for (let k = 0; k < typeCount; k++) {
-							fp.readLong();
-							fp.seek(fp.readLong() * 8, SEEK_CUR);
-						}
-					}
-				}
-				const node = Object.create(Node.prototype);
-				node.main = this;
-				node.is_only = true;
-				node.name = name;
-				node.parentname = parentname || null;
-				node.textures = nodeTextures;
-				node.mat3 = [
-					1,
-					0,
-					0,
-					0,
-					1,
-					0,
-					0,
-					0,
-					1
-				];
-				node.offset = [
-					0,
-					0,
-					0
-				];
-				node.pos = [
-					0,
-					0,
-					0
-				];
-				node.rotangle = 0;
-				node.rotaxis = [
-					0,
-					0,
-					0
-				];
-				node.scale = [
-					1,
-					1,
-					1
-				];
-				node.flip = [
-					1,
-					-1,
-					1
-				];
-				node.box = new RSM.Box();
-				node.matrix = mat4$17.create();
-				node.vertices = vertices;
-				node.tvertices = tvertices;
-				node.faces = faces;
-				node.rotKeyframes = rotationKeyFrames;
-				node.posKeyframes = positionKeyFrames;
-				node.scaleKeyFrames = scaleKeyFrames;
-				node.textureKeyFrameGroup = [];
-				node.absoluteTransform = true;
-				node.baseMatrix = mat4$17.create();
-				node.baseMatrix[0] = transform[0];
-				node.baseMatrix[1] = transform[1];
-				node.baseMatrix[2] = transform[2];
-				node.baseMatrix[4] = transform[3];
-				node.baseMatrix[5] = transform[4];
-				node.baseMatrix[6] = transform[5];
-				node.baseMatrix[8] = transform[6];
-				node.baseMatrix[9] = transform[7];
-				node.baseMatrix[10] = transform[8];
-				node.baseMatrix[12] = transform[9];
-				node.baseMatrix[13] = transform[10];
-				node.baseMatrix[14] = transform[11];
-				nodes[i] = node;
-			}
-			if (fp.offset + 4 <= fp.length) {
-				const volumeBoxCount = fp.readLong();
-				const remaining = fp.length - fp.offset;
-				const volumeBoxSize = remaining === volumeBoxCount * 40 || remaining < volumeBoxCount * 232 ? 40 : 232;
-				if (volumeBoxCount >= 0 && fp.offset + volumeBoxCount * volumeBoxSize <= fp.length) fp.seek(volumeBoxCount * volumeBoxSize, SEEK_CUR);
-			}
-			this.textures = allTextures;
-			this.nodes = nodes;
-			if (nodes.length === 0) throw new Error("RSM::load() - Model contains no nodes");
-			this.main_node = rootNodeNames.map((name) => nodes.find((node) => node.name === name)).find(Boolean) || nodes[0];
-			this.posKeyframes = [];
-			this.volumebox = [];
-			this.instances = [];
-			this.box = new RSM.Box();
-			this.calcBoundingBox();
-		}
-		/**
-		* Create a model instance
-		*
-		* @param {object} model
-		* @param {number} width
-		* @param {number} height
-		*/
-		createInstance(model, width, height) {
-			const matrix = mat4$17.create();
-			mat4$17.identity(matrix);
-			mat4$17.translate(matrix, matrix, [
-				model.position[0] + width,
-				model.position[1],
-				model.position[2] + height
-			]);
-			mat4$17.rotateZ(matrix, matrix, model.rotation[2] / 180 * Math.PI);
-			mat4$17.rotateX(matrix, matrix, model.rotation[0] / 180 * Math.PI);
-			mat4$17.rotateY(matrix, matrix, model.rotation[1] / 180 * Math.PI);
-			mat4$17.scale(matrix, matrix, model.scale);
-			if (this.main_node.main.version >= 2.2) {
-				mat4$17.scale(matrix, matrix, this.main_node.flip);
-				mat4$17.translate(matrix, matrix, this.main_node.offset);
-				mat4$17.translate(matrix, matrix, [
-					0,
-					this.box.range[1],
-					0
-				]);
-				mat4$17.translate(matrix, matrix, this.box.offset);
-			}
-			this.instances.push(matrix);
-		}
-		/**
-		* Calculate model bounding box
-		*/
-		calcBoundingBox() {
-			let i, j;
-			const box = this.box;
-			const matrix = mat4$17.create();
-			const nodes = this.nodes;
-			const min = Math.min, max = Math.max;
-			const count = nodes.length;
-			mat4$17.identity(matrix);
-			this.main_node.calcBoundingBox(matrix);
-			for (i = 0; i < 3; ++i) {
-				for (j = 0; j < count; ++j) {
-					box.max[i] = max(box.max[i], nodes[j].box.max[i]);
-					box.min[i] = min(box.min[i], nodes[j].box.min[i]);
-				}
-				box.offset[i] = (box.max[i] + box.min[i]) / 2;
-				box.range[i] = (box.max[i] - box.min[i]) / 2;
-				box.center[i] = box.min[i] + box.range[i];
-			}
-		}
-		/**
-		* Compile Model
-		*/
-		compile() {
-			const nodes = this.nodes;
-			const instances = this.instances;
-			const node_count = nodes.length;
-			const instance_count = instances.length;
-			let i, j, k;
-			const meshes = new Array(node_count * instance_count);
-			for (i = 0, k = 0; i < node_count; ++i) for (j = 0; j < instance_count; ++j, k++) meshes[k] = nodes[i].compile(instances[j]);
-			return {
-				meshes,
-				textures: this.textures
-			};
-		}
-		/**
-		* Check if this model has animation keyframes
-		*
-		* @return {boolean}
-		*/
-		hasAnimation() {
-			if (this._hasanimation) return true;
-			for (let i = 0; i < this.nodes.length; i++) {
-				const node = this.nodes[i];
-				if (node.rotKeyframes && node.rotKeyframes.length > 0 || node.posKeyframes && node.posKeyframes.length > 0 || node.scaleKeyFrames && node.scaleKeyFrames.length > 0) {
-					this._hasanimation = true;
-					return true;
-				}
-			}
-			return false;
-		}
-		static Node = Node;
-		/**
-		* Compile Model at a specific animation frame
-		*
-		* @param {number} frame - Animation frame
-		*/
-		compileAtFrame(frame) {
-			const nodes = this.nodes;
-			const instances = this.instances;
-			const animLen = this.animLen || 1;
-			const node_count = nodes.length;
-			const instance_count = instances.length;
-			let i, j, k;
-			const meshes = new Array(node_count * instance_count);
-			for (i = 0, k = 0; i < node_count; ++i) for (j = 0; j < instance_count; ++j, k++) meshes[k] = nodes[i].compileAtFrame(instances[j], frame, animLen);
-			return {
-				meshes,
-				textures: this.textures
-			};
-		}
-	};
 }));
 // src/Renderer/Effects/RsmEffect.js
 /**
@@ -259835,7 +265890,7 @@ var init_ThreeDEffect = __esmMin((() => {
 	init_Client();
 	init_SpriteRenderer();
 	init_EntityManager();
-	init_Altitude();
+	init_Altitude$1();
 	init_Camera();
 	init_Entity$1();
 	blendMode$1 = {};
@@ -260859,7 +266914,7 @@ var init_QuadHorn = __esmMin((() => {
 var rand, Trail;
 var init_Trail = __esmMin((() => {
 	init_EffectManager();
-	init_Altitude();
+	init_Altitude$1();
 	init_Map();
 	rand = (min, max) => min + Math.random() * (max - min);
 	Trail = class {
@@ -261508,7 +267563,7 @@ var init_EffectManager = __esmMin((() => {
 	init_ShuffledGrid();
 	init_SpinSets();
 	init_Renderer();
-	init_Altitude();
+	init_Altitude$1();
 	init_SoundManager();
 	init_Map();
 	init_QuadHorn();
@@ -263267,8 +269322,8 @@ function setUpCloudData() {
 	let i = 0;
 	for (; i < MAX_CLOUDS; i++) {
 		if (!_clouds[i]) _clouds[i] = {
-			position: vec3$8.create(),
-			direction: vec3$8.create(),
+			position: vec3$9.create(),
+			direction: vec3$9.create(),
 			born_tick: 0,
 			death_tick: 0
 		};
@@ -263331,7 +269386,7 @@ function render$6(gl, modelView, projection, fog, tick) {
 		SpriteRenderer.image.texture = _textures$5[cloud.sprite];
 		const dt = Math.min(tick - (cloud._lastTick || cloud.born_tick), 250);
 		cloud._lastTick = tick;
-		vec3$8.scaleAndAdd(cloud.position, cloud.position, cloud.direction, dt / 25);
+		vec3$9.scaleAndAdd(cloud.position, cloud.position, cloud.direction, dt / 25);
 		SpriteRenderer.position.set(cloud.position);
 		SpriteRenderer.runWithDepth(true, false, true, function() {
 			SpriteRenderer.render();
@@ -266128,8 +272183,8 @@ var init_MapRenderer = __esmMin((() => {
 	init_Camera();
 	init_EntityManager();
 	init_GridSelector();
-	init_Ground();
-	init_Altitude();
+	init_Ground$1();
+	init_Altitude$1();
 	init_Water();
 	init_Models();
 	init_AnimatedModels();
@@ -267598,7 +273653,7 @@ var init_RainWeather = __esmMin((() => {
 	init_Renderer();
 	init_MapRenderer();
 	init_SpriteRenderer();
-	init_Altitude();
+	init_Altitude$1();
 	init_Camera();
 	init_Audio();
 	init_SessionStorage();
@@ -268260,7 +274315,7 @@ var init_SwirlingAura = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
 	init_Client();
-	init_Altitude();
+	init_Altitude$1();
 	init_SpriteRenderer();
 	mat4$8 = gl_matrix_default.mat4;
 	E_DIVISION = 21;
@@ -268530,7 +274585,7 @@ var init_GroundAura = __esmMin((() => {
 	init_GroundAura$1();
 	init_WebGL();
 	init_Client();
-	init_Altitude();
+	init_Altitude$1();
 	init_SpriteRenderer();
 	GroundAura = class {
 		constructor(position, size, distance, textureName, tick) {
@@ -268753,7 +274808,7 @@ var init_Level99Bubble = __esmMin((() => {
 	init_WebGL();
 	init_Client();
 	init_Camera();
-	init_Altitude();
+	init_Altitude$1();
 	init_SpriteRenderer();
 	DEG_TO_RAD = Math.PI / 180;
 	GAME_TO_WORLD = .1 * 2.2;
@@ -270100,7 +276155,7 @@ var init_MagicTarget = __esmMin((() => {
 	init_WebGL();
 	init_gl_matrix();
 	init_Client();
-	init_Altitude();
+	init_Altitude$1();
 	init_Camera();
 	init_MagicTargetSim();
 	init_MagicTarget$2();
@@ -274354,7 +280409,7 @@ var init_EffectTable = __esmMin((() => {
 	init_CasterMarks();
 	init_RotateLine();
 	init_WarlockSphere();
-	init_Altitude();
+	init_Altitude$1();
 	init_Renderer();
 	init_ChatBox();
 	ServiceEffects = Songs_default.ServiceEffects;
@@ -311580,7 +317635,142 @@ var DBManager_exports = /* @__PURE__ */ __exportAll({ default: () => DB });
 */
 function fillNaviTable(table, json) {
 	table.length = 0;
-	if (json) Object.assign(table, json);
+	if (json) Object.assign(table, normalizeLuaTable(json));
+	if (table === NaviMobTable) {
+		navigationMobRowsByMap = /* @__PURE__ */ new Map();
+		for (const mob of table) {
+			if (!mob) continue;
+			const mapName = normalizeNaviMapName(mob[0]);
+			if (!mapName) continue;
+			let rows = navigationMobRowsByMap.get(mapName);
+			if (!rows) navigationMobRowsByMap.set(mapName, rows = []);
+			rows.push(mob);
+		}
+	}
+}
+/**
+* Normalize Lua tables converted to JS objects.
+*
+* Some LUB navigation files use numeric Lua keys. The current Lua-to-JSON
+* extractor can return those tables as objects like { "1": [...] } instead
+* of real arrays, so code using .length will silently fail.
+*/
+function isNumericLuaKey(key) {
+	return /^(0|[1-9]\d*)$/.test(String(key));
+}
+function normalizeLuaTable(value) {
+	if (Array.isArray(value)) return value.map(normalizeLuaTable);
+	if (value && typeof value === "object") {
+		const keys = Object.keys(value);
+		if (!keys.length) return [];
+		if (keys.every(isNumericLuaKey)) {
+			const sorted = keys.sort((a, b) => Number(a) - Number(b));
+			if (sorted.every((key, index) => Number(key) === index + 1)) return sorted.map((key) => normalizeLuaTable(value[key]));
+		}
+		const normalized = Object.create(null);
+		for (let i = 0; i < keys.length; i++) {
+			const key = keys[i];
+			normalized[key] = normalizeLuaTable(value[key]);
+		}
+		return normalized;
+	}
+	return value;
+}
+function normalizeNaviMapName(mapName) {
+	return String(mapName || "").replace(/\.gat$/, "").toLowerCase();
+}
+function getDefaultNaviMapPoint(mapName) {
+	return getIncomingNavigationMapPoint(normalizeNaviMapName(mapName), applyNavigationLinkEra(normalizeLuaTable(NaviLinkTable), Configs.get("worldMapSettings", { episode: 98 })));
+}
+function normalizeSearchText(value) {
+	return String(value || "").toLowerCase().replace(/\.gat$/g, "").replace(/[_\-()\[\],:]+/g, " ").replace(/\s+/g, " ").trim();
+}
+function findWorldMapEntry(mapName) {
+	const targetMap = normalizeNaviMapName(mapName);
+	for (let i = 0; i < WorldMap_default$3.length; i++) {
+		const worldMap = WorldMap_default$3[i];
+		if (!worldMap || !worldMap.maps) continue;
+		for (let j = 0; j < worldMap.maps.length; j++) {
+			const section = worldMap.maps[j];
+			if (section && normalizeNaviMapName(section.id) === targetMap) return section;
+		}
+	}
+	return null;
+}
+function getNavigationMapDisplayName(mapName) {
+	const normalizedMap = normalizeNaviMapName(mapName);
+	const mapInfo = MapInfo[normalizedMap + ".rsw"] || MapInfo[normalizedMap] || null;
+	if (mapInfo && mapInfo.displayName) return mapInfo.displayName;
+	const worldMapEntry = findWorldMapEntry(normalizedMap);
+	if (worldMapEntry && worldMapEntry.name) return worldMapEntry.name;
+	return normalizedMap;
+}
+function navigationMapMatchesQuery(mapName, displayName, query) {
+	const normalizedQuery = normalizeSearchText(query);
+	if (!normalizedQuery) return false;
+	return normalizeSearchText(mapName).indexOf(normalizedQuery) !== -1 || normalizeSearchText(displayName).indexOf(normalizedQuery) !== -1;
+}
+function decodeNavigationMobClass(value) {
+	value = Number(value) || 0;
+	return value > 65535 ? value & 65535 : value;
+}
+function getNavigationMobAmount(value) {
+	value = Number(value) || 0;
+	return value > 65535 ? value >>> 16 : 1;
+}
+function getNavigationSpawnRateLabel(amount) {
+	amount = Number(amount) || 0;
+	if (amount >= 60) return "Very High";
+	if (amount >= 25) return "High";
+	if (amount >= 10) return "Average";
+	if (amount >= 3) return "Low";
+	return "Very Low";
+}
+function decodeNavigationMobInfo(value) {
+	value = Number(value) || 0;
+	const race = value & 255;
+	const size = value >> 8 & 255;
+	const elementPacked = value >> 16 & 65535;
+	const element = elementPacked % 20;
+	const elementLevel = Math.floor(elementPacked / 20);
+	return {
+		raw: value,
+		race,
+		raceName: [
+			"Formless",
+			"Undead",
+			"Brute",
+			"Plant",
+			"Insect",
+			"Fish",
+			"Demon",
+			"Demi-Human",
+			"Angel",
+			"Dragon",
+			"Boss",
+			"Non-Boss"
+		][race] || "Unknown",
+		size,
+		sizeName: [
+			"Small",
+			"Medium",
+			"Large"
+		][size] || "Medium",
+		element,
+		elementLevel,
+		elementName: ([
+			"Neutral",
+			"Water",
+			"Earth",
+			"Fire",
+			"Wind",
+			"Poison",
+			"Holy",
+			"Dark",
+			"Ghost",
+			"Undead"
+		][element] || "Neutral") + (elementLevel ? " " + elementLevel : "")
+	};
 }
 async function startLua() {
 	LuaModuleLoader.clearCache();
@@ -314389,7 +320579,7 @@ function updateMapTable() {
 		else MapTable[key] = { name: MapInfo[key].displayName };
 	}
 }
-var ASSASSIN_DUAL_WEAPON_TYPES, PRIEST_KNUCKLE_INCOMPATIBLE_JOBS, SHIELD_VIEW_1_JOBS, SHIELD_VIEW_1_2_JOBS, SHIELD_VIEW_1_4_JOBS, SHIELD_VIEW_1_2_4_JOBS, SHIELD_ITEM_UNSUPPORTED_JOBS, lua, HO_AI, MER_AI, default_HO_AI, default_MER_AI, mountPalettes, mountPalettesProbe, MsgStringTable, JokeTable, ScreamTable, MapTable, SkillDescription, SexTable, PetTalkTable, CheckAttendanceTable, buyingStoreItemList, LaphineSysTable, LaphineUpgTable, ItemDBNameTbl, ItemReformTable, EnchantListTable, SignBoardTranslatedTable, SignBoardTable, NaviMapTable, NaviMobTable, NaviNpcTable, NaviLinkTable, NaviLinkDistanceTable, NaviNpcDistanceTable, QuestInfo, TitleTable, PetDBTable, EggIDToJobID, ReputeGroup, ReputeInfo, AchievementTable, MsgEmotionCSV, HatEffectID, HatEffectInfo, FootPrintEffectInfo, CashShopBannerTable, Ez2streffect, unknownItem, servers, langType, userCharpage, grfCharpage, userStringDecoder, DB, SUFFIX_TO_FIELD, HARDCODED_FIELD_MAPPING, EZ2_VARIANT_WORD;
+var ASSASSIN_DUAL_WEAPON_TYPES, PRIEST_KNUCKLE_INCOMPATIBLE_JOBS, SHIELD_VIEW_1_JOBS, SHIELD_VIEW_1_2_JOBS, SHIELD_VIEW_1_4_JOBS, SHIELD_VIEW_1_2_4_JOBS, SHIELD_ITEM_UNSUPPORTED_JOBS, lua, HO_AI, MER_AI, default_HO_AI, default_MER_AI, mountPalettes, mountPalettesProbe, MsgStringTable, JokeTable, ScreamTable, MapTable, SkillDescription, SexTable, PetTalkTable, CheckAttendanceTable, buyingStoreItemList, LaphineSysTable, LaphineUpgTable, ItemDBNameTbl, ItemReformTable, EnchantListTable, SignBoardTranslatedTable, SignBoardTable, NaviMapTable, NaviMobTable, navigationMobRowsByMap, NaviNpcTable, NaviLinkTable, NaviLinkDistanceTable, NaviNpcDistanceTable, QuestInfo, TitleTable, PetDBTable, EggIDToJobID, ReputeGroup, ReputeInfo, AchievementTable, MsgEmotionCSV, HatEffectID, HatEffectInfo, FootPrintEffectInfo, CashShopBannerTable, Ez2streffect, unknownItem, servers, langType, userCharpage, grfCharpage, userStringDecoder, DB, SUFFIX_TO_FIELD, HARDCODED_FIELD_MAPPING, EZ2_VARIANT_WORD;
 var init_DBManager = __esmMin((() => {
 	init_Client();
 	init_Configs();
@@ -314416,6 +320606,7 @@ var init_DBManager = __esmMin((() => {
 	init_RobeTable();
 	init_ItemRandomOptionTable();
 	init_WorldMap$3();
+	init_NavigationEra();
 	init_SkillConst();
 	init_SkillInfo();
 	init_SkillTreeView();
@@ -314654,6 +320845,7 @@ var init_DBManager = __esmMin((() => {
 	SignBoardTable = {};
 	NaviMapTable = [];
 	NaviMobTable = [];
+	navigationMobRowsByMap = /* @__PURE__ */ new Map();
 	NaviNpcTable = [];
 	NaviLinkTable = [];
 	NaviLinkDistanceTable = [];
@@ -314727,6 +320919,7 @@ var init_DBManager = __esmMin((() => {
 				NaviLinkDistanceTable,
 				NaviNpcDistanceTable
 			]) table.length = 0;
+			navigationMobRowsByMap.clear();
 			let index = 0, count = 0;
 			function onLoad() {
 				count++;
@@ -317064,6 +323257,55 @@ var init_DBManager = __esmMin((() => {
 			});
 		}
 		/**
+		* Get grouped monster entries for a single navigation map.
+		*
+		* @param {string} mapName
+		* @returns {Array<Object>} grouped monsters in that map
+		*/
+		static getNavigationMapMonsters(mapName) {
+			mapName = normalizeNaviMapName(mapName);
+			if (!mapName) return [];
+			const mobTable = navigationMobRowsByMap.get(mapName) || [];
+			const grouped = {};
+			const point = getDefaultNaviMapPoint(mapName) || {
+				x: 0,
+				y: 0
+			};
+			for (let i = 0; i < mobTable.length; i++) {
+				const mob = mobTable[i];
+				if (!mob) continue;
+				const mobName = mob[4] || "";
+				if (!mobName) continue;
+				const mobClass = decodeNavigationMobClass(mob[3]);
+				const amount = getNavigationMobAmount(mob[3]);
+				const key = [mobClass, mobName].join(":");
+				const mobLevel = Number(mob[6]);
+				const mobType = Number(mob[2]);
+				if (!grouped[key]) grouped[key] = {
+					type: "MOB",
+					id: mobClass,
+					mobType,
+					levels: Number.isFinite(mobLevel) && mobLevel > 0 ? [mobLevel] : [],
+					name: mobName,
+					mapName,
+					x: point.x,
+					y: point.y,
+					amount,
+					rateLabel: getNavigationSpawnRateLabel(amount)
+				};
+				else if (amount > grouped[key].amount) {
+					grouped[key].amount = amount;
+					grouped[key].rateLabel = getNavigationSpawnRateLabel(amount);
+				}
+				if (Number.isFinite(mobLevel) && mobLevel > 0 && !grouped[key].levels.includes(mobLevel)) grouped[key].levels.push(mobLevel);
+			}
+			return Object.keys(grouped).map((key) => grouped[key]).sort(function(a, b) {
+				const aName = String(a.name || "").toLowerCase();
+				const bName = String(b.name || "").toLowerCase();
+				return aName.localeCompare(bName) || String(a.id || "").localeCompare(String(b.id || ""));
+			});
+		}
+		/**
 		* Search for NPCs or MOBs in the navigation tables
 		*
 		* @param {string} query - The search query
@@ -317073,41 +323315,210 @@ var init_DBManager = __esmMin((() => {
 		static searchNavigation(query, type) {
 			if (!query || query.length < 2) return [];
 			query = query.toLowerCase();
+			type = type || "ALL";
 			const results = [];
-			if (type === "ALL" || type === "NPC") for (let i = 0; i < NaviNpcTable.length; i++) {
-				const npc = NaviNpcTable[i];
-				const mapName = npc[0];
-				const npcId = npc[1];
-				const npcName = npc[4] || "";
-				if (!npcName) continue;
-				if (npcName.toLowerCase().indexOf(query) !== -1) results.push({
-					type: "NPC",
-					id: npcId,
-					name: npcName,
-					mapName,
-					x: npc[6],
-					y: npc[7]
-				});
+			const seen = {};
+			function pushResult(result) {
+				if (!result || !result.mapName) return;
+				result.mapName = normalizeNaviMapName(result.mapName);
+				result.x = Number(result.x);
+				result.y = Number(result.y);
+				if (!Number.isFinite(result.x) || !Number.isFinite(result.y)) {
+					const point = getDefaultNaviMapPoint(result.mapName) || {
+						x: 0,
+						y: 0
+					};
+					result.x = point.x;
+					result.y = point.y;
+				}
+				let key;
+				if (result.type === "MAP") key = [result.type, result.mapName].join(":");
+				else if (result.type === "NPC" && Array.isArray(result.spawns) && result.spawns.length) key = [result.type, String(result.name || "").toLowerCase()].join(":");
+				else key = [
+					result.type,
+					result.id,
+					result.mapName,
+					result.x,
+					result.y,
+					result.name
+				].join(":");
+				if (seen[key]) return;
+				seen[key] = true;
+				results.push(result);
 			}
-			if (type === "ALL" || type === "MOB") for (let i = 0; i < NaviMobTable.length; i++) {
-				const mob = NaviMobTable[i];
-				const mapName = mob[0];
-				const mobId = mob[3];
-				const mobName = mob[4] || "";
-				if (!mobName) continue;
-				if (mobName.toLowerCase().indexOf(query) !== -1) results.push({
-					type: "MOB",
-					id: mobId,
-					name: mobName,
-					mapName,
-					x: null,
-					y: null
-				});
+			if (type === "ALL" || type === "MAP") {
+				const maps = applyNavigationMapEra(normalizeLuaTable(NaviMapTable), Configs.get("worldMapSettings", { episode: 98 }));
+				for (let i = 0; i < maps.length; i++) {
+					const map = maps[i];
+					if (!map) continue;
+					const mapName = normalizeNaviMapName(map[0]);
+					const displayName = getNavigationMapDisplayName(mapName);
+					if (!navigationMapMatchesQuery(mapName, displayName, query)) continue;
+					const point = getDefaultNaviMapPoint(mapName);
+					pushResult({
+						type: "MAP",
+						id: mapName,
+						name: displayName,
+						mapName,
+						x: point ? point.x : -1,
+						y: point ? point.y : -1
+					});
+				}
+				for (let i = 0; i < WorldMap_default$3.length; i++) {
+					const worldMap = WorldMap_default$3[i];
+					if (!worldMap || !worldMap.maps) continue;
+					for (let j = 0; j < worldMap.maps.length; j++) {
+						const section = worldMap.maps[j];
+						if (!section || !section.id) continue;
+						const mapName = normalizeNaviMapName(section.id);
+						const displayName = getNavigationMapDisplayName(mapName);
+						if (!navigationMapMatchesQuery(mapName, displayName, query) && !navigationMapMatchesQuery(mapName, section.name, query)) continue;
+						const point = getDefaultNaviMapPoint(mapName);
+						pushResult({
+							type: "MAP",
+							id: mapName,
+							name: displayName || section.name || mapName,
+							mapName,
+							x: point ? point.x : -1,
+							y: point ? point.y : -1
+						});
+					}
+				}
 			}
+			if (type === "ALL" || type === "NPC") {
+				const npcTable = normalizeLuaTable(NaviNpcTable);
+				const groupedNpcs = {};
+				for (let i = 0; i < npcTable.length; i++) {
+					const npc = npcTable[i];
+					if (!npc) continue;
+					const npcName = npc[4] || "";
+					if (!npcName || npcName.toLowerCase().indexOf(query) === -1) continue;
+					const mapName = normalizeNaviMapName(npc[0]);
+					const key = String(npcName || "").toLowerCase();
+					if (!groupedNpcs[key]) groupedNpcs[key] = {
+						type: "NPC",
+						id: npc[1],
+						classId: Number(npc[3]) || Number(npc[1]) || 0,
+						npcType: npc[2],
+						name: npcName,
+						mapName,
+						x: npc[6],
+						y: npc[7],
+						spawns: []
+					};
+					groupedNpcs[key].spawns.push({
+						mapName,
+						x: Number(npc[6]) || 0,
+						y: Number(npc[7]) || 0,
+						displayName: getNavigationMapDisplayName(mapName)
+					});
+				}
+				const npcKeys = Object.keys(groupedNpcs);
+				for (let i = 0; i < npcKeys.length; i++) {
+					const result = groupedNpcs[npcKeys[i]];
+					result.spawns.sort(function(a, b) {
+						return String(a.mapName || "").localeCompare(String(b.mapName || ""));
+					});
+					if (result.spawns.length) {
+						result.mapName = result.spawns[0].mapName;
+						result.x = result.spawns[0].x;
+						result.y = result.spawns[0].y;
+					}
+					pushResult(result);
+				}
+			}
+			if (type === "ALL" || type === "MOB") {
+				const mobTable = normalizeLuaTable(NaviMobTable);
+				const groupedMobs = {};
+				for (let i = 0; i < mobTable.length; i++) {
+					const mob = mobTable[i];
+					if (!mob) continue;
+					const mobName = mob[4] || "";
+					if (!mobName || mobName.toLowerCase().indexOf(query) === -1) continue;
+					const mobClass = decodeNavigationMobClass(mob[3]);
+					const amount = getNavigationMobAmount(mob[3]);
+					const info = decodeNavigationMobInfo(mob[7]);
+					const mapName = normalizeNaviMapName(mob[0]);
+					const point = getDefaultNaviMapPoint(mapName) || {
+						x: 0,
+						y: 0
+					};
+					const key = [mobClass, mobName].join(":");
+					if (!groupedMobs[key]) groupedMobs[key] = {
+						type: "MOB",
+						id: mobClass,
+						uniqueCode: mob[1],
+						mobType: mob[2],
+						name: mobName,
+						mapName,
+						x: point.x,
+						y: point.y,
+						sprite: mob[5] || "",
+						level: Number(mob[6]) || 0,
+						info: Number(mob[7]) || 0,
+						race: info.race,
+						raceName: info.raceName,
+						size: info.size,
+						sizeName: info.sizeName,
+						element: info.element,
+						elementLevel: info.elementLevel,
+						elementName: info.elementName,
+						spawns: []
+					};
+					groupedMobs[key].spawns.push({
+						mapName,
+						x: point.x,
+						y: point.y,
+						amount,
+						rateLabel: getNavigationSpawnRateLabel(amount),
+						displayName: getNavigationMapDisplayName(mapName)
+					});
+				}
+				const groupedKeys = Object.keys(groupedMobs);
+				for (let i = 0; i < groupedKeys.length; i++) {
+					const result = groupedMobs[groupedKeys[i]];
+					result.spawns.sort(function(a, b) {
+						return String(a.mapName || "").localeCompare(String(b.mapName || ""));
+					});
+					if (result.spawns.length) {
+						result.mapName = result.spawns[0].mapName;
+						result.x = result.spawns[0].x;
+						result.y = result.spawns[0].y;
+					}
+					pushResult(result);
+				}
+			}
+			for (let i = 0; i < results.length; i++) if (results[i] && results[i].type === "MAP") results[i].monsters = DB.getNavigationMapMonsters(results[i].mapName);
 			results.sort(function(a, b) {
-				return a.name.localeCompare(b.name);
+				const aName = String(a.name || a.mapName || "").toLowerCase();
+				const bName = String(b.name || b.mapName || "").toLowerCase();
+				const aExact = aName === query ? 0 : 1;
+				const bExact = bName === query ? 0 : 1;
+				const aStarts = aName.indexOf(query) === 0 ? 0 : 1;
+				const bStarts = bName.indexOf(query) === 0 ? 0 : 1;
+				return aExact - bExact || aStarts - bStarts || aName.length - bName.length || aName.localeCompare(bName) || String(a.mapName || "").localeCompare(String(b.mapName || ""));
 			});
-			return results.slice(0, 50);
+			return results;
+		}
+		/**
+		* Get the default navigation point for a map.
+		* Used by the World Map and MAP search results to route to a map even
+		* when there is no exact NPC/monster coordinate.
+		*
+		* @param {string} mapName
+		* @returns {{x:number,y:number}|null}
+		*/
+		static getNaviMapPoint(mapName) {
+			return getDefaultNaviMapPoint(mapName);
+		}
+		/**
+		* Get a readable navigation map name when available.
+		*
+		* @param {string} mapName
+		* @returns {string}
+		*/
+		static getNaviMapDisplayName(mapName) {
+			return getNavigationMapDisplayName(mapName);
 		}
 		/**
 		* Get the NaviLinkTable
@@ -317115,7 +323526,7 @@ var init_DBManager = __esmMin((() => {
 		* @returns {Array} The NaviLinkTable
 		*/
 		static getNaviLinkTable() {
-			return NaviLinkTable;
+			return applyNavigationLinkEra(normalizeLuaTable(NaviLinkTable), Configs.get("worldMapSettings", { episode: 98 }));
 		}
 		/**
 		* Get the NaviLinkDistanceTable
@@ -317123,7 +323534,7 @@ var init_DBManager = __esmMin((() => {
 		* @returns {Array} The NaviLinkDistanceTable
 		*/
 		static getNaviLinkDistanceTable() {
-			return NaviLinkDistanceTable;
+			return applyNavigationDistanceEra(normalizeLuaTable(NaviLinkDistanceTable), Configs.get("worldMapSettings", { episode: 98 }));
 		}
 		/**
 		* Get the NaviNpcDistanceTable
@@ -317131,7 +323542,7 @@ var init_DBManager = __esmMin((() => {
 		* @returns {Array} The NaviNpcDistanceTable
 		*/
 		static getNaviNpcDistanceTable() {
-			return NaviNpcDistanceTable;
+			return normalizeLuaTable(NaviNpcDistanceTable);
 		}
 		static createItemLink(item) {
 			if (!item) return null;
@@ -318147,7 +324558,7 @@ var init_EntityControl = __esmMin((() => {
 	init_PetInformations();
 	init_Trade$1();
 	init_NpcBox();
-	init_Altitude();
+	init_Altitude$1();
 	init_ChatBox();
 	init_Equipment();
 	init_CaptchaSelector();
@@ -321358,7 +327769,7 @@ function Init$4() {
 var DIRECTION$1, DIAGONAL_FACTOR, RIDING_MASK;
 var init_EntityWalk = __esmMin((() => {
 	init_PathFinding();
-	init_Altitude();
+	init_Altitude$1();
 	init_SessionStorage();
 	init_StatusState();
 	DIRECTION$1 = [
@@ -321778,8 +328189,8 @@ var init_EntityRender = __esmMin((() => {
 	init_Client();
 	init_StatusState();
 	init_SpriteRenderer();
-	init_Ground();
-	init_Altitude();
+	init_Ground$1();
+	init_Altitude$1();
 	init_DBManager();
 	init_Graphics();
 	init_GR2ModelRenderer();
@@ -322694,7 +329105,7 @@ var init_EntityAttachments = __esmMin((() => {
 	init_Client();
 	init_SpriteRenderer();
 	init_Camera();
-	init_Ground();
+	init_Ground$1();
 	init_StrEffect();
 	init_Renderer();
 	_defaultFog = {
@@ -323156,7 +329567,7 @@ var init_EntityEmblem = __esmMin((() => {
 // src/Renderer/Entity/Entity.js
 var vec3, mat4, Entity;
 var init_Entity$1 = __esmMin((() => {
-	init_Altitude();
+	init_Altitude$1();
 	init_SessionStorage();
 	init_Client();
 	init_gl_matrix();
@@ -324210,7 +330621,7 @@ var init_EntityManager = __esmMin((() => {
 	init_KeyEventHandler();
 	init_PathFinding();
 	init_Graphics();
-	init_Altitude();
+	init_Altitude$1();
 	init_GR2ModelRenderer();
 	init_EntityComposer();
 	_list = [];
@@ -328110,7 +334521,7 @@ var init_MobileUI = __esmMin((() => {
 	init_EntityManager();
 	init_NetworkManager();
 	init_PathFinding();
-	init_Altitude();
+	init_Altitude$1();
 	init_Events();
 	init_Client();
 	init_MobileUI$2();
@@ -330635,7 +337046,7 @@ var init_MapControl = __esmMin((() => {
 	init_Controls();
 	init_KeyEventHandler();
 	init_AIDriver();
-	init_Altitude();
+	init_Altitude$1();
 	init_PacketVerManager();
 	init_PacketStructure();
 	init_NetworkManager();
@@ -338151,7 +344562,7 @@ var init_Main = __esmMin((() => {
 	init_EffectManager();
 	init_Renderer();
 	init_Damage();
-	init_Altitude();
+	init_Altitude$1();
 	init_ChatBox();
 	init_ChatRoom$1();
 	init_Announce();
@@ -341247,7 +347658,7 @@ var init_Entity = __esmMin((() => {
 	init_NetworkManager();
 	init_PacketVerManager();
 	init_PacketStructure();
-	init_Altitude();
+	init_Altitude$1();
 	init_Renderer();
 	init_EntityManager();
 	init_Entity$1();
@@ -341319,7 +347730,7 @@ var init_ItemObject = __esmMin((() => {
 	init_EntityManager();
 	init_EffectManager();
 	init_Entity$1();
-	init_Altitude();
+	init_Altitude$1();
 	ItemObject = class {
 		/**
 		* Find an Entity and return its index
@@ -343254,7 +349665,7 @@ var init_Item = __esmMin((() => {
 	init_PacketStructure();
 	init_PacketVerManager();
 	init_ItemObject();
-	init_Altitude();
+	init_Altitude$1();
 	init_SessionStorage();
 	init_ChatBox();
 	init_ItemObtain();
@@ -345193,7 +351604,7 @@ var init_Skill = __esmMin((() => {
 	init_PacketStructure();
 	init_EntityManager();
 	init_EffectManager();
-	init_Altitude();
+	init_Altitude$1();
 	init_ShortCut();
 	init_ChatBox();
 	init_SkillTargetSelection();
@@ -349785,7 +356196,25 @@ function onServerChange(pkt) {
 * Resets the per-character UI state shared by the exit and restart flows.
 * Components that were never prepared have no root element to clean.
 */
+/**
+* Clear navigation when leaving the map server.
+*
+* Navigation has persistent floor arrows and a cached world-map overlay. These
+* are not part of the normal canvas/map renderer cleanup, so they must be
+* explicitly reset before going back to character select or login.
+*/
+function clearNavigationForMapExit() {
+	if (!Navigation_default) return;
+	if (typeof Navigation_default.resetNavigationState === "function") Navigation_default.resetNavigationState({
+		resetMapData: true,
+		terminateWorker: true,
+		clearTitles: true
+	});
+	else if (typeof Navigation_default.clear === "function") Navigation_default.clear();
+	if (Navigation_default.__loaded && typeof Navigation_default.remove === "function") Navigation_default.remove();
+}
 function cleanGameUI() {
+	clearNavigationForMapExit();
 	WhisperBox.clearAll();
 	const tasks = [
 		[BasicInfoController, "remove"],
@@ -350168,7 +356597,7 @@ var init_MapEngine = __esmMin((() => {
 	init_MapRenderer();
 	init_EntityManager();
 	init_Entity$1();
-	init_Altitude();
+	init_Altitude$1();
 	init_MapControl();
 	init_MouseEventHandler();
 	init_KeyEventHandler();
