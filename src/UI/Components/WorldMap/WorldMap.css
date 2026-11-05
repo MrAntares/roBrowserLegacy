@@ -629,7 +629,7 @@
 
 #WorldMap .worldmap .navigation-route-section {
 	fill: rgba(64, 120, 255, 0.22);
-	stroke: rgba(170, 235, 255, 0.90);
+	stroke: rgba(170, 235, 255, 0.9);
 	stroke-width: 2;
 }
 
@@ -672,7 +672,6 @@
 	stroke: rgba(0, 150, 255, 1);
 	stroke-width: 4;
 }
-
 
 /* Official-like full-screen world map: no black margins on widescreen. */
 #WorldMap .border {
@@ -819,9 +818,9 @@
 	color: #8edcff;
 	text-shadow:
 		-1px -1px 0 rgba(0, 0, 0, 0.95),
-		 1px -1px 0 rgba(0, 0, 0, 0.95),
-		-1px  1px 0 rgba(0, 0, 0, 0.95),
-		 1px  1px 0 rgba(0, 0, 0, 0.95);
+		1px -1px 0 rgba(0, 0, 0, 0.95),
+		-1px 1px 0 rgba(0, 0, 0, 0.95),
+		1px 1px 0 rgba(0, 0, 0, 0.95);
 }
 
 #WorldMap .worldmap .official-route-style .navigation-route-end-check {
@@ -833,7 +832,7 @@
 	border-left: 4px solid rgba(210, 30, 42, 0.95);
 	border-bottom: 4px solid rgba(210, 30, 42, 0.95);
 	transform: rotate(-45deg);
-	box-shadow: -1px 1px 0 rgba(255,255,255,0.35);
+	box-shadow: -1px 1px 0 rgba(255, 255, 255, 0.35);
 }
 
 #WorldMap .worldmap .official-route-style .navigation-route-start-icon {
@@ -867,7 +866,6 @@
 	transform: none;
 	box-shadow: none;
 }
-
 
 /* v22: use official worldview_interface BMPs for the world-map navigation route. */
 #WorldMap .worldmap .official-route-style .navigation-route-runline-layer {
@@ -923,7 +921,7 @@
 }
 
 #WorldMap .worldmap .official-route-style .navigation-route-line-shadow {
-	stroke: rgba(40, 25, 120, 0.40);
+	stroke: rgba(40, 25, 120, 0.4);
 	stroke-width: 15;
 }
 
@@ -988,7 +986,6 @@
 	width: 48px;
 	height: 48px;
 }
-
 
 /* v23: official route correction.
  * Use route grid tiles + blue road line only. Do not repeat the MOB/NPC
@@ -1062,9 +1059,9 @@
 	color: #92e6ff !important;
 	text-shadow:
 		-1px -1px 0 rgba(0, 0, 0, 0.95),
-		 1px -1px 0 rgba(0, 0, 0, 0.95),
-		-1px  1px 0 rgba(0, 0, 0, 0.95),
-		 1px  1px 0 rgba(0, 0, 0, 0.95) !important;
+		1px -1px 0 rgba(0, 0, 0, 0.95),
+		-1px 1px 0 rgba(0, 0, 0, 0.95),
+		1px 1px 0 rgba(0, 0, 0, 0.95) !important;
 }
 
 #WorldMap .worldmap .official-route-style .navigation-route-end-check,
@@ -1182,7 +1179,6 @@
 	background-image: var(--world-monster-density-5-icon, none);
 }
 
-
 /* v25: official search MOB markers and smaller destination end icon */
 #WorldMap .worldmap .official-route-style .navigation-monster-density-marker {
 	background-repeat: no-repeat !important;
@@ -1218,7 +1214,6 @@
 	box-shadow: none !important;
 	transform: none !important;
 }
-
 
 /* v26: correct official World View markers and clear MOB-search overlays cleanly.
  * The start/current tile shows the face/check/sword marker.  The destination
@@ -1271,7 +1266,6 @@
 	box-shadow: none !important;
 	transform: none !important;
 }
-
 
 /* v27: use official worldview tile/icon BMPs.
  * The road-icon selector background is no longer requested in Navigation.
@@ -1341,7 +1335,6 @@
 	display: none !important;
 }
 
-
 /* v28: show official NPC world-map search marker */
 #WorldMap .worldmap .official-route-style .navigation-npc-search-layer {
 	position: absolute;
@@ -1360,7 +1353,6 @@
 	background-size: contain;
 	filter: none;
 }
-
 
 /* v29: final official marker placement.
  * Regular route cells must not show the red check; only the current tile shows
@@ -1474,7 +1466,6 @@
 	filter: none !important;
 }
 
-
 /* v29: official-looking translucent blue route tiles.
  * Do not use wv_dunselect.bmp as the background for every route cell.
  * The path tiles should be simple semi-transparent blue blocks like the
@@ -1504,7 +1495,6 @@
 	z-index: 9 !important;
 }
 
-
 /* v30: destination-only selected-tile check marker.
  * Use wv_select.bmp as the destination check marker and place it in the
  * lower-left of the destination tile. Do not show checks on route path tiles. */
@@ -1528,6 +1518,11 @@
 	z-index: 10 !important;
 }
 
-#WorldMap .worldmap .official-route-style .navigation-route-marker-layer .navigation-route-cell .navigation-route-end-check {
+#WorldMap
+	.worldmap
+	.official-route-style
+	.navigation-route-marker-layer
+	.navigation-route-cell
+	.navigation-route-end-check {
 	display: none !important;
 }

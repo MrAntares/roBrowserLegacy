@@ -51,7 +51,6 @@ function createAsyncImage() {
 	return img;
 }
 
-
 const TRANSPARENT_PIXEL = 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
 
 const NAV_WINDOW_WIDTH = 300;
@@ -117,7 +116,9 @@ let _previewShadowActBuffer = null;
 const _previewShadowCallbacks = [];
 
 function normalizeGrfPath(path) {
-	return String(path || '').replace(/\\/g, '/').replace(/^\/+/, '');
+	return String(path || '')
+		.replace(/\\/g, '/')
+		.replace(/^\/+/, '');
 }
 
 function uniqueList(list) {
@@ -173,9 +174,15 @@ function findNavigationInterfaceIcons(kind) {
 	let matches = [];
 	try {
 		const keywordPattern = keywords.map(escapeRegExp).join('|');
-		matches = FileManager.search(
-			new RegExp('data[\\\\/]texture[\\\\/].*[\\\\/]navigation_interface\\d*[\\\\/].*(' + keywordPattern + ').*\\.(bmp|tga|png)$', 'i')
-		) || [];
+		matches =
+			FileManager.search(
+				new RegExp(
+					'data[\\\\/]texture[\\\\/].*[\\\\/]navigation_interface\\d*[\\\\/].*(' +
+						keywordPattern +
+						').*\\.(bmp|tga|png)$',
+					'i'
+				)
+			) || [];
 	} catch (_e) {
 		matches = [];
 	}
@@ -314,9 +321,12 @@ function applyOfficialNavigationScrollSkin(root) {
 	}
 
 	const style = target.style;
-	if (_navInterfaceIconURI.scrollUp) style.setProperty('--nav-scroll-up', 'url(' + _navInterfaceIconURI.scrollUp + ')');
-	if (_navInterfaceIconURI.scrollDown) style.setProperty('--nav-scroll-down', 'url(' + _navInterfaceIconURI.scrollDown + ')');
-	if (_navInterfaceIconURI.scrollMid) style.setProperty('--nav-scroll-mid', 'url(' + _navInterfaceIconURI.scrollMid + ')');
+	if (_navInterfaceIconURI.scrollUp)
+		style.setProperty('--nav-scroll-up', 'url(' + _navInterfaceIconURI.scrollUp + ')');
+	if (_navInterfaceIconURI.scrollDown)
+		style.setProperty('--nav-scroll-down', 'url(' + _navInterfaceIconURI.scrollDown + ')');
+	if (_navInterfaceIconURI.scrollMid)
+		style.setProperty('--nav-scroll-mid', 'url(' + _navInterfaceIconURI.scrollMid + ')');
 	if (_navInterfaceIconURI.barUp) style.setProperty('--nav-bar-up', 'url(' + _navInterfaceIconURI.barUp + ')');
 	if (_navInterfaceIconURI.barDown) style.setProperty('--nav-bar-down', 'url(' + _navInterfaceIconURI.barDown + ')');
 	if (_navInterfaceIconURI.barMid) style.setProperty('--nav-bar-mid', 'url(' + _navInterfaceIconURI.barMid + ')');
@@ -327,20 +337,85 @@ function applyOfficialNavigationIcons(root) {
 		return;
 	}
 
-	loadOfficialNavigationIcon(DB.INTERFACE_PATH + 'navigation_interface3/icon_list_map.bmp', _navListMapIcon, 'map', root);
-	loadOfficialNavigationIcon(DB.INTERFACE_PATH + 'navigation_interface3/icon_list_mob.bmp', _navListMobIcon, 'mob', root);
-	loadOfficialNavigationIcon(DB.INTERFACE_PATH + 'navigation_interface3/icon_list_npc.bmp', _navListNpcIcon, 'npc', root);
-	loadOfficialNavigationIcon(DB.INTERFACE_PATH + 'navigation_interface3/icon_list_riute.bmp', _navListRouteIcon, 'route', root);
-	loadOfficialNavigationIcon(DB.INTERFACE_PATH + 'navigation_interface3/icon_list_start.bmp', _navListStartIcon, 'start', root);
-	loadOfficialNavigationIcon(DB.INTERFACE_PATH + 'navigation_interface3/icon_list_target.bmp', _navListTargetIcon, 'target', root);
-	loadOfficialNavigationIcon(DB.INTERFACE_PATH + 'navigation_interface3/ico_destination.bmp', _navIcoDestination, 'destination', root);
-	loadOfficialNavigationIcon(DB.INTERFACE_PATH + 'navigation_interface3/ico_location.bmp', _navIcoLocation, 'location', root);
-	loadOfficialNavigationIcon(DB.INTERFACE_PATH + 'navigation_interface3/navi_scroll_up.bmp', _navScrollUp, 'scrollUp', root);
-	loadOfficialNavigationIcon(DB.INTERFACE_PATH + 'navigation_interface3/navi_scroll_mid.bmp', _navScrollMid, 'scrollMid', root);
-	loadOfficialNavigationIcon(DB.INTERFACE_PATH + 'navigation_interface3/navi_scroll_down.bmp', _navScrollDown, 'scrollDown', root);
+	loadOfficialNavigationIcon(
+		DB.INTERFACE_PATH + 'navigation_interface3/icon_list_map.bmp',
+		_navListMapIcon,
+		'map',
+		root
+	);
+	loadOfficialNavigationIcon(
+		DB.INTERFACE_PATH + 'navigation_interface3/icon_list_mob.bmp',
+		_navListMobIcon,
+		'mob',
+		root
+	);
+	loadOfficialNavigationIcon(
+		DB.INTERFACE_PATH + 'navigation_interface3/icon_list_npc.bmp',
+		_navListNpcIcon,
+		'npc',
+		root
+	);
+	loadOfficialNavigationIcon(
+		DB.INTERFACE_PATH + 'navigation_interface3/icon_list_riute.bmp',
+		_navListRouteIcon,
+		'route',
+		root
+	);
+	loadOfficialNavigationIcon(
+		DB.INTERFACE_PATH + 'navigation_interface3/icon_list_start.bmp',
+		_navListStartIcon,
+		'start',
+		root
+	);
+	loadOfficialNavigationIcon(
+		DB.INTERFACE_PATH + 'navigation_interface3/icon_list_target.bmp',
+		_navListTargetIcon,
+		'target',
+		root
+	);
+	loadOfficialNavigationIcon(
+		DB.INTERFACE_PATH + 'navigation_interface3/ico_destination.bmp',
+		_navIcoDestination,
+		'destination',
+		root
+	);
+	loadOfficialNavigationIcon(
+		DB.INTERFACE_PATH + 'navigation_interface3/ico_location.bmp',
+		_navIcoLocation,
+		'location',
+		root
+	);
+	loadOfficialNavigationIcon(
+		DB.INTERFACE_PATH + 'navigation_interface3/navi_scroll_up.bmp',
+		_navScrollUp,
+		'scrollUp',
+		root
+	);
+	loadOfficialNavigationIcon(
+		DB.INTERFACE_PATH + 'navigation_interface3/navi_scroll_mid.bmp',
+		_navScrollMid,
+		'scrollMid',
+		root
+	);
+	loadOfficialNavigationIcon(
+		DB.INTERFACE_PATH + 'navigation_interface3/navi_scroll_down.bmp',
+		_navScrollDown,
+		'scrollDown',
+		root
+	);
 	loadOfficialNavigationIcon(DB.INTERFACE_PATH + 'navigation_interface3/navi_bar_up.bmp', _navBarUp, 'barUp', root);
-	loadOfficialNavigationIcon(DB.INTERFACE_PATH + 'navigation_interface3/navi_bar_mid.bmp', _navBarMid, 'barMid', root);
-	loadOfficialNavigationIcon(DB.INTERFACE_PATH + 'navigation_interface3/navi_bar_down.bmp', _navBarDown, 'barDown', root);
+	loadOfficialNavigationIcon(
+		DB.INTERFACE_PATH + 'navigation_interface3/navi_bar_mid.bmp',
+		_navBarMid,
+		'barMid',
+		root
+	);
+	loadOfficialNavigationIcon(
+		DB.INTERFACE_PATH + 'navigation_interface3/navi_bar_down.bmp',
+		_navBarDown,
+		'barDown',
+		root
+	);
 	applyOfficialNavigationScrollSkin(root);
 }
 
@@ -411,7 +486,16 @@ function renderSpritePreviewCanvas(root, sourceCanvas) {
 	ctx.clearRect(0, 0, target.width, target.height);
 	ctx.imageSmoothingEnabled = false;
 
-	const scale = Math.min(2.5, Math.max(0.75, Math.min(DETAIL_SPRITE_MAX_WIDTH / Math.max(1, sourceCanvas.width), DETAIL_SPRITE_MAX_HEIGHT / Math.max(1, sourceCanvas.height))));
+	const scale = Math.min(
+		2.5,
+		Math.max(
+			0.75,
+			Math.min(
+				DETAIL_SPRITE_MAX_WIDTH / Math.max(1, sourceCanvas.width),
+				DETAIL_SPRITE_MAX_HEIGHT / Math.max(1, sourceCanvas.height)
+			)
+		)
+	);
 	const width = Math.round(sourceCanvas.width * scale);
 	const height = Math.round(sourceCanvas.height * scale);
 	const x = Math.floor((target.width - width) / 2);
@@ -461,12 +545,7 @@ function getMonsterSpriteCandidatePaths(result) {
 }
 
 function getNpcSpriteCandidatePaths(result) {
-	const ids = [
-		result && result.classId,
-		result && result.npcClassId,
-		result && result.jobId,
-		result && result.id
-	];
+	const ids = [result && result.classId, result && result.npcClassId, result && result.jobId, result && result.id];
 	const paths = [];
 
 	for (let i = 0; i < ids.length; i++) {
@@ -615,7 +694,6 @@ function getCanvasAlphaBounds(ctx, width, height) {
 		height: Math.min(height - Math.max(0, minY - 2), maxY - minY + 5)
 	};
 }
-
 
 function getPreviewOffscreen(runtime) {
 	if (!runtime.previewCanvas) {
@@ -775,17 +853,7 @@ function drawAnimatedMonsterPreview(root, runtime, frameTime) {
 		drawY = 0;
 	}
 
-	ctx.drawImage(
-		offscreen,
-		bounds.x,
-		bounds.y,
-		bounds.width,
-		bounds.height,
-		drawX,
-		drawY,
-		drawWidth,
-		drawHeight
-	);
+	ctx.drawImage(offscreen, bounds.x, bounds.y, bounds.width, bounds.height, drawX, drawY, drawWidth, drawHeight);
 
 	if (wrap) {
 		wrap.classList.remove('no-sprite');
@@ -874,7 +942,12 @@ function loadMonsterSpritePreview(root, result) {
 
 						loadPreviewShadowBuffers((shadowSprData, shadowActData) => {
 							try {
-								const runtime = buildMonsterPreviewRuntime(sprData, actData, shadowSprData, shadowActData);
+								const runtime = buildMonsterPreviewRuntime(
+									sprData,
+									actData,
+									shadowSprData,
+									shadowActData
+								);
 								_monsterPreviewRuntimeCache[cacheKey] = runtime;
 								startAnimatedMonsterPreview(root, runtime);
 							} catch (_e) {
@@ -906,7 +979,6 @@ function updateDetailSpritePreview(root, result) {
 
 	setSpritePreviewFallback(root, 'MAP');
 }
-
 
 function updateRoadIconSelectorUI(root) {
 	if (!root) {
@@ -963,7 +1035,6 @@ function setSelectedRoadIcon(index) {
 		resetFootstepProgress();
 	}
 }
-
 
 /**
  * @var {Image} arrow image
@@ -1217,7 +1288,9 @@ const _navigationOffRouteRecalculateDistance = 8;
  * Normalize a map name (remove .gat extension)
  */
 function normalizeMapName(mapName) {
-	mapName = String(mapName || '').replace(/\.gat$/, '').toLowerCase();
+	mapName = String(mapName || '')
+		.replace(/\.gat$/, '')
+		.toLowerCase();
 	mapName = mapName.replace(/^(.+)_[a-d]$/, '$1');
 	return mapName;
 }
@@ -1425,16 +1498,7 @@ function getFootstepPathKey(mapName, path) {
 	const last = path[path.length - 1];
 	const middle = path[Math.floor(path.length / 2)] || first;
 
-	return [
-		mapName,
-		path.length,
-		first.x,
-		first.y,
-		middle.x,
-		middle.y,
-		last.x,
-		last.y
-	].join(':');
+	return [mapName, path.length, first.x, first.y, middle.x, middle.y, last.x, last.y].join(':');
 }
 
 /**
@@ -1536,7 +1600,10 @@ function requestNavigationRecalculateFromPlayer(reason) {
 	}
 
 	const now = getNavigationTick();
-	if (_navigationBacktrackRecalculateTick && now - _navigationBacktrackRecalculateTick < _navigationBacktrackRecalculateThrottle) {
+	if (
+		_navigationBacktrackRecalculateTick &&
+		now - _navigationBacktrackRecalculateTick < _navigationBacktrackRecalculateThrottle
+	) {
 		return false;
 	}
 
@@ -1573,7 +1640,6 @@ function buildMiniStatusLine(mapName, x, y, prefix) {
 
 	return `${prefix}${mapName} ${Math.floor(Number(x) || 0)} ${Math.floor(Number(y) || 0)}`;
 }
-
 
 function getResultTypeLabel(result) {
 	if (!result || !result.type) {
@@ -1662,18 +1728,7 @@ function getSelectedMapMonster(result) {
 }
 
 function getReadableElementName(value) {
-	const elements = [
-		'Neutral',
-		'Water',
-		'Earth',
-		'Fire',
-		'Wind',
-		'Poison',
-		'Holy',
-		'Dark',
-		'Ghost',
-		'Undead'
-	];
+	const elements = ['Neutral', 'Water', 'Earth', 'Fire', 'Wind', 'Poison', 'Holy', 'Dark', 'Ghost', 'Undead'];
 
 	return elements[value] || 'Neutral';
 }
@@ -1840,9 +1895,7 @@ function updateMinimizedStatus(currentMap, currentPos) {
 	const targetEl = root.querySelector('.mini-target');
 	if (targetEl) {
 		const target = _finalTargetData || _targetData;
-		const text = target && target.map
-			? buildMiniStatusLine(target.map, target.x, target.y, '')
-			: 'No target';
+		const text = target && target.map ? buildMiniStatusLine(target.map, target.x, target.y, '') : 'No target';
 		targetEl.textContent = text;
 		targetEl.title = text;
 	}
@@ -1951,7 +2004,10 @@ function updateFootstepProgressFromPlayer(currentMap, currentPos) {
 	// Avoid large visual jumps if the player is only near, but not really on, the
 	// selected route. In that case wait until the player is closer or far enough
 	// to trigger the off-route recalculation above.
-	if (nearest.distance > _navigationFootstepNearDistance && Math.abs(nearest.index - progressIndex) > _navigationFootstepSpacing) {
+	if (
+		nearest.distance > _navigationFootstepNearDistance &&
+		Math.abs(nearest.index - progressIndex) > _navigationFootstepSpacing
+	) {
 		return { changed: false, recalculate: false };
 	}
 
@@ -2012,7 +2068,10 @@ function clearWorldMapMonsterSearchMarkers() {
 	let detail;
 	if (current.searchOnly) {
 		detail = { active: false };
-	} else if ((Array.isArray(current.targetSpawns) && current.targetSpawns.length) || (Array.isArray(current.targetEntries) && current.targetEntries.length)) {
+	} else if (
+		(Array.isArray(current.targetSpawns) && current.targetSpawns.length) ||
+		(Array.isArray(current.targetEntries) && current.targetEntries.length)
+	) {
 		detail = Object.assign({}, current, {
 			targetType: '',
 			targetName: '',
@@ -2045,7 +2104,11 @@ function publishWorldMapSearchResult(result, allResults) {
 			rateLabel: spawn.rateLabel || getSpawnRateLabel(spawn.amount)
 		}));
 
-		const key = ['search-mob', result.id || result.name || '', targetSpawns.map(spawn => [spawn.mapName, spawn.amount, spawn.rateLabel].join(',')).join('>')].join(':');
+		const key = [
+			'search-mob',
+			result.id || result.name || '',
+			targetSpawns.map(spawn => [spawn.mapName, spawn.amount, spawn.rateLabel].join(',')).join('>')
+		].join(':');
 		if (key === _lastPublishedNavigationRouteKey) {
 			return;
 		}
@@ -2076,15 +2139,22 @@ function publishWorldMapSearchResult(result, allResults) {
 	}
 
 	if (result.type === 'NPC') {
-		const npcEntries = Array.isArray(result.spawns) && result.spawns.length
-			? result.spawns
-			: ((Array.isArray(allResults) && allResults.length ? allResults : [result]).filter(candidate => candidate && candidate.type === 'NPC'));
+		const npcEntries =
+			Array.isArray(result.spawns) && result.spawns.length
+				? result.spawns
+				: (Array.isArray(allResults) && allResults.length ? allResults : [result]).filter(
+						candidate => candidate && candidate.type === 'NPC'
+					);
 		const seen = {};
 		const targetEntries = [];
 
 		for (let i = 0; i < npcEntries.length; i++) {
 			const candidate = npcEntries[i];
-			const mapName = normalizeMapName((candidate && candidate.mapName) || (candidate && candidate._selectedSpawn && candidate._selectedSpawn.mapName) || '');
+			const mapName = normalizeMapName(
+				(candidate && candidate.mapName) ||
+					(candidate && candidate._selectedSpawn && candidate._selectedSpawn.mapName) ||
+					''
+			);
 			if (!mapName || seen[mapName]) {
 				continue;
 			}
@@ -2092,8 +2162,20 @@ function publishWorldMapSearchResult(result, allResults) {
 
 			targetEntries.push({
 				mapName: mapName,
-				x: Math.floor(Number((candidate && candidate.x) || (candidate && candidate._selectedSpawn && candidate._selectedSpawn.x) || 0)),
-				y: Math.floor(Number((candidate && candidate.y) || (candidate && candidate._selectedSpawn && candidate._selectedSpawn.y) || 0))
+				x: Math.floor(
+					Number(
+						(candidate && candidate.x) ||
+							(candidate && candidate._selectedSpawn && candidate._selectedSpawn.x) ||
+							0
+					)
+				),
+				y: Math.floor(
+					Number(
+						(candidate && candidate.y) ||
+							(candidate && candidate._selectedSpawn && candidate._selectedSpawn.y) ||
+							0
+					)
+				)
 			});
 		}
 
@@ -2102,7 +2184,11 @@ function publishWorldMapSearchResult(result, allResults) {
 			return;
 		}
 
-		const key = ['search-npc', result.id || result.name || '', targetEntries.map(entry => [entry.mapName, entry.x, entry.y].join(',')).join('>')].join(':');
+		const key = [
+			'search-npc',
+			result.id || result.name || '',
+			targetEntries.map(entry => [entry.mapName, entry.x, entry.y].join(',')).join('>')
+		].join(':');
 		if (key === _lastPublishedNavigationRouteKey) {
 			return;
 		}
@@ -2166,7 +2252,13 @@ function publishNavigationRoute(active, routePath, startMap, endMap, displayName
 		addMap(endMap);
 	}
 
-	const pointsKey = points.map(point => [point.map, point.x, point.y, point.warpId || '', point.type || '', point.service ? 'svc' : 'walk'].join(',')).join('>');
+	const pointsKey = points
+		.map(point =>
+			[point.map, point.x, point.y, point.warpId || '', point.type || '', point.service ? 'svc' : 'walk'].join(
+				','
+			)
+		)
+		.join('>');
 	const key = active
 		? ['active', normalizeMapName(startMap), normalizeMapName(endMap), routeMaps.join('>'), pointsKey].join(':')
 		: 'inactive';
@@ -2178,20 +2270,37 @@ function publishNavigationRoute(active, routePath, startMap, endMap, displayName
 	_lastPublishedNavigationRouteKey = key;
 
 	const targetResult = Navigation.targetResult || null;
-	const targetSpawns = targetResult && targetResult.type === 'MOB' && Array.isArray(targetResult.spawns)
-		? targetResult.spawns.map(spawn => ({
-			mapName: normalizeMapName(spawn.mapName || ''),
-			amount: Number(spawn.amount) || 0,
-			rateLabel: spawn.rateLabel || getSpawnRateLabel(spawn.amount)
-		}))
-		: [];
-	const targetEntries = targetResult && targetResult.type === 'NPC'
-		? [{
-			mapName: normalizeMapName((targetResult._selectedSpawn && targetResult._selectedSpawn.mapName) || targetResult.mapName || endMap || ''),
-			x: Math.floor(Number((targetResult._selectedSpawn && targetResult._selectedSpawn.x) || targetResult.x || 0)),
-			y: Math.floor(Number((targetResult._selectedSpawn && targetResult._selectedSpawn.y) || targetResult.y || 0))
-		}]
-		: [];
+	const targetSpawns =
+		targetResult && targetResult.type === 'MOB' && Array.isArray(targetResult.spawns)
+			? targetResult.spawns.map(spawn => ({
+					mapName: normalizeMapName(spawn.mapName || ''),
+					amount: Number(spawn.amount) || 0,
+					rateLabel: spawn.rateLabel || getSpawnRateLabel(spawn.amount)
+				}))
+			: [];
+	const targetEntries =
+		targetResult && targetResult.type === 'NPC'
+			? [
+					{
+						mapName: normalizeMapName(
+							(targetResult._selectedSpawn && targetResult._selectedSpawn.mapName) ||
+								targetResult.mapName ||
+								endMap ||
+								''
+						),
+						x: Math.floor(
+							Number(
+								(targetResult._selectedSpawn && targetResult._selectedSpawn.x) || targetResult.x || 0
+							)
+						),
+						y: Math.floor(
+							Number(
+								(targetResult._selectedSpawn && targetResult._selectedSpawn.y) || targetResult.y || 0
+							)
+						)
+					}
+				]
+			: [];
 	const detail = {
 		active: !!active,
 		startMap: normalizeMapName(startMap),
@@ -2296,7 +2405,12 @@ function drawNavigationTargetPin(ctx, pos) {
 	}
 
 	ctx.save();
-	const icon = _navIcoDestination.complete && _navIcoDestination.width ? _navIcoDestination : (_navListTargetIcon.complete && _navListTargetIcon.width ? _navListTargetIcon : null);
+	const icon =
+		_navIcoDestination.complete && _navIcoDestination.width
+			? _navIcoDestination
+			: _navListTargetIcon.complete && _navListTargetIcon.width
+				? _navListTargetIcon
+				: null;
 	if (icon) {
 		ctx.drawImage(icon, Math.round(pos.x - icon.width / 2), Math.round(pos.y - icon.height / 2));
 	} else {
@@ -2368,7 +2482,11 @@ function spawnWorldFootsteps(currentMap) {
 	let footstepIndex = 0;
 	const startIndex = Math.max(_navigationFootstepSpacing, 1);
 
-	for (let i = startIndex; i < _path.length && footstepIndex < _navigationFootstepMax; i += _navigationFootstepSpacing) {
+	for (
+		let i = startIndex;
+		i < _path.length && footstepIndex < _navigationFootstepMax;
+		i += _navigationFootstepSpacing
+	) {
 		const point = _path[i];
 		if (!point || point.isWarp) {
 			continue;
@@ -2704,7 +2822,6 @@ Navigation.init = function init() {
 		});
 	}
 
-
 	const findButton = root.querySelector('.find-action');
 	if (findButton) {
 		findButton.addEventListener('click', e => {
@@ -2928,7 +3045,9 @@ Navigation.displaySearchResults = function displaySearchResults(results) {
 
 	const selectedLink = root.querySelector('.selected-result-link');
 	if (selectedLink) {
-		selectedLink.textContent = _selectedSearchResult ? '[' + (_selectedSearchResult.name || _selectedSearchResult.mapName || '') + ']' : '';
+		selectedLink.textContent = _selectedSearchResult
+			? '[' + (_selectedSearchResult.name || _selectedSearchResult.mapName || '') + ']'
+			: '';
 	}
 
 	if (!list) {
@@ -3099,7 +3218,8 @@ Navigation.renderSelectedResultDetail = function renderSelectedResultDetail() {
 				row.appendChild(rate);
 			}
 
-			row.title = (monster.name || '') + ' - ' + normalizeMapName(result.mapName || '') + ' ' + (monster.rateLabel || '');
+			row.title =
+				(monster.name || '') + ' - ' + normalizeMapName(result.mapName || '') + ' ' + (monster.rateLabel || '');
 			row.addEventListener('click', () => {
 				result._selectedMapMonster = monster;
 				this.renderSelectedResultDetail();
@@ -3114,16 +3234,17 @@ Navigation.renderSelectedResultDetail = function renderSelectedResultDetail() {
 		return;
 	}
 
-	const spawns = result.spawns && result.spawns.length
-		? result.spawns
-		: [
-			{
-				mapName: result.mapName,
-				x: result.x,
-				y: result.y,
-				rateLabel: result.type === 'MAP' ? DB.getNaviMapDisplayName(result.mapName) : ''
-			}
-		];
+	const spawns =
+		result.spawns && result.spawns.length
+			? result.spawns
+			: [
+					{
+						mapName: result.mapName,
+						x: result.x,
+						y: result.y,
+						rateLabel: result.type === 'MAP' ? DB.getNaviMapDisplayName(result.mapName) : ''
+					}
+				];
 
 	for (let i = 0; i < spawns.length; i++) {
 		const spawn = spawns[i];
@@ -3137,9 +3258,8 @@ Navigation.renderSelectedResultDetail = function renderSelectedResultDetail() {
 
 		const label = document.createElement('span');
 		label.className = 'spawn-map-name';
-		label.textContent = result.type === 'NPC'
-			? getNpcSpawnLabel(result, spawn)
-			: normalizeMapName(spawn.mapName || result.mapName);
+		label.textContent =
+			result.type === 'NPC' ? getNpcSpawnLabel(result, spawn) : normalizeMapName(spawn.mapName || result.mapName);
 		row.appendChild(label);
 
 		if (spawn.rateLabel && result.type !== 'NPC') {
@@ -3149,7 +3269,12 @@ Navigation.renderSelectedResultDetail = function renderSelectedResultDetail() {
 			row.appendChild(rate);
 		}
 
-		row.title = (DB.getNaviMapDisplayName(spawn.mapName) || spawn.mapName) + ' ' + Math.floor(Number(spawn.x) || 0) + ',' + Math.floor(Number(spawn.y) || 0);
+		row.title =
+			(DB.getNaviMapDisplayName(spawn.mapName) || spawn.mapName) +
+			' ' +
+			Math.floor(Number(spawn.x) || 0) +
+			',' +
+			Math.floor(Number(spawn.y) || 0);
 		row.addEventListener('click', () => {
 			result._selectedSpawn = spawn;
 			this.renderSelectedResultDetail();
@@ -3185,7 +3310,8 @@ Navigation.shareSelectedSearchResult = function shareSelectedSearchResult() {
 		return;
 	}
 
-	const text = '/navi ' + target.mapName + ' ' + Math.floor(Number(target.x) || 0) + ' ' + Math.floor(Number(target.y) || 0);
+	const text =
+		'/navi ' + target.mapName + ' ' + Math.floor(Number(target.x) || 0) + ' ' + Math.floor(Number(target.y) || 0);
 	if (navigator.clipboard && navigator.clipboard.writeText) {
 		navigator.clipboard.writeText(text).catch(() => {});
 	}
@@ -3207,9 +3333,10 @@ Navigation.navigateToSearchResult = function navigateToSearchResult(result, clos
 	const currentPos = getPlayerPosition();
 
 	const selectedMapMonster = getSelectedMapMonster(result);
-	const displayName = result.type === 'MAP' && selectedMapMonster
-		? (selectedMapMonster.name || target.displayName)
-		: target.displayName;
+	const displayName =
+		result.type === 'MAP' && selectedMapMonster
+			? selectedMapMonster.name || target.displayName
+			: target.displayName;
 
 	this.navigateTo({
 		startMap: currentMap,
@@ -3262,7 +3389,7 @@ Navigation.navigateToMap = function navigateToMap(mapName, displayName) {
 		endX: point.x,
 		endY: point.y,
 		displayName: this.targetResult.name,
-		force: true,
+		force: true
 	});
 
 	this.setResultsViewVisible(false);
@@ -3347,7 +3474,7 @@ Navigation.onMapClick = function onMapClick(event) {
 		endY: mapCoords.y,
 		displayName: 'Map Click',
 		airshipMap: MapRenderer.currentMap,
-		force: true,
+		force: true
 	});
 };
 
@@ -3413,8 +3540,19 @@ Navigation.loadMap = function loadMap(mapName, displayName) {
 			_mapData.cellTypes = cellTypes;
 			_mapData.map = mapBaseName;
 			_mapData.warps = DB.getNaviLinkTable()
-				.filter(link => normalizeMapName(link[0]) === mapBaseName && normalizeMapName(link[8]) === mapBaseName && getAllowedWarpTypes().includes(Number(link[2])))
-				.map(link => ({ srcX: Number(link[6]), srcY: Number(link[7]), destX: Number(link[9]), destY: Number(link[10]), id: link[1] }));
+				.filter(
+					link =>
+						normalizeMapName(link[0]) === mapBaseName &&
+						normalizeMapName(link[8]) === mapBaseName &&
+						getAllowedWarpTypes().includes(Number(link[2]))
+				)
+				.map(link => ({
+					srcX: Number(link[6]),
+					srcY: Number(link[7]),
+					destX: Number(link[9]),
+					destY: Number(link[10]),
+					id: link[1]
+				}));
 		}
 
 		if (_loadingMapName === mapBaseName) {
@@ -3716,7 +3854,14 @@ Navigation.renderCanvas = function renderCanvas(tick) {
 
 	// Draw current-location marker using the official navigation icon.
 	const startPos = mapToScreenBound(currentPos.x, currentPos.y);
-	const startIcon = _navIcoLocation.complete && _navIcoLocation.width ? _navIcoLocation : (_navListStartIcon.complete && _navListStartIcon.width ? _navListStartIcon : (_arrow.complete && _arrow.width ? _arrow : null));
+	const startIcon =
+		_navIcoLocation.complete && _navIcoLocation.width
+			? _navIcoLocation
+			: _navListStartIcon.complete && _navListStartIcon.width
+				? _navListStartIcon
+				: _arrow.complete && _arrow.width
+					? _arrow
+					: null;
 	if (startIcon) {
 		ctx.save();
 		if (startIcon === _arrow) {
@@ -3724,7 +3869,11 @@ Navigation.renderCanvas = function renderCanvas(tick) {
 			ctx.rotate(((Session.Entity.direction + 4) * 45 * Math.PI) / 180);
 			ctx.drawImage(startIcon, -startIcon.width / 2, -startIcon.height / 2);
 		} else {
-			ctx.drawImage(startIcon, Math.round(startPos.x - startIcon.width / 2), Math.round(startPos.y - startIcon.height / 2));
+			ctx.drawImage(
+				startIcon,
+				Math.round(startPos.x - startIcon.width / 2),
+				Math.round(startPos.y - startIcon.height / 2)
+			);
 		}
 		ctx.restore();
 	}
@@ -4208,9 +4357,12 @@ Navigation.navigateTo = function navigateTo(options) {
 
 		this.waitForMapData(function () {
 			const useMapCenterFallback = target.x === -1 && target.y === -1;
-			if (!useMapCenterFallback && (
-				target.x < 0 || target.y < 0 || (target.map === _mapData.map && (target.x >= _mapData.width || target.y >= _mapData.height))
-			)) {
+			if (
+				!useMapCenterFallback &&
+				(target.x < 0 ||
+					target.y < 0 ||
+					(target.map === _mapData.map && (target.x >= _mapData.width || target.y >= _mapData.height)))
+			) {
 				this.clear();
 				return;
 			}

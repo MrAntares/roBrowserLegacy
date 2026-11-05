@@ -417,7 +417,6 @@ function fillNaviTable(table, json) {
 	}
 }
 
-
 /**
  * Normalize Lua tables converted to JS objects.
  *
@@ -460,7 +459,9 @@ function normalizeLuaTable(value) {
 }
 
 function normalizeNaviMapName(mapName) {
-	return String(mapName || '').replace(/\.gat$/, '').toLowerCase();
+	return String(mapName || '')
+		.replace(/\.gat$/, '')
+		.toLowerCase();
 }
 
 function getDefaultNaviMapPoint(mapName) {
@@ -566,18 +567,7 @@ function decodeNavigationMobInfo(value) {
 	const elementPacked = (value >> 16) & 0xffff;
 	const element = elementPacked % 20;
 	const elementLevel = Math.floor(elementPacked / 20);
-	const elementNames = [
-		'Neutral',
-		'Water',
-		'Earth',
-		'Fire',
-		'Wind',
-		'Poison',
-		'Holy',
-		'Dark',
-		'Ghost',
-		'Undead'
-	];
+	const elementNames = ['Neutral', 'Water', 'Earth', 'Fire', 'Wind', 'Poison', 'Holy', 'Dark', 'Ghost', 'Undead'];
 	const raceNames = [
 		'Formless',
 		'Undead',
@@ -4263,12 +4253,13 @@ class DB {
 				grouped[key].amount = amount;
 				grouped[key].rateLabel = getNavigationSpawnRateLabel(amount);
 			}
-			if (Number.isFinite(mobLevel) && mobLevel > 0 && !grouped[key].levels.includes(mobLevel)) grouped[key].levels.push(mobLevel);
+			if (Number.isFinite(mobLevel) && mobLevel > 0 && !grouped[key].levels.includes(mobLevel))
+				grouped[key].levels.push(mobLevel);
 		}
 
 		return Object.keys(grouped)
 			.map(key => grouped[key])
-			.sort(function(a, b) {
+			.sort(function (a, b) {
 				const aName = String(a.name || '').toLowerCase();
 				const bName = String(b.name || '').toLowerCase();
 				return aName.localeCompare(bName) || String(a.id || '').localeCompare(String(b.id || ''));
@@ -4437,7 +4428,7 @@ class DB {
 			const npcKeys = Object.keys(groupedNpcs);
 			for (let i = 0; i < npcKeys.length; i++) {
 				const result = groupedNpcs[npcKeys[i]];
-				result.spawns.sort(function(a, b) {
+				result.spawns.sort(function (a, b) {
 					return String(a.mapName || '').localeCompare(String(b.mapName || ''));
 				});
 				if (result.spawns.length) {
@@ -4448,7 +4439,6 @@ class DB {
 				pushResult(result);
 			}
 		}
-
 
 		// Search MOBs if type is ALL or MOB. Official Navigation groups one
 		// monster in the left result list, then shows each spawn map on the

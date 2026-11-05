@@ -206,7 +206,9 @@ function onWorldMapSectionClick(e) {
 }
 
 function normalizeWorldMapName(mapName) {
-	return String(mapName || '').replace(/\.gat$/i, '').toLowerCase();
+	return String(mapName || '')
+		.replace(/\.gat$/i, '')
+		.toLowerCase();
 }
 
 function onNavigationRouteChanged(event) {
@@ -304,7 +306,7 @@ function createRouteRunLineLayer(visibleRoute) {
 		segment.style.left = (from.x / C_BASEWIDTH) * 100 + '%';
 		segment.style.top = (from.y / C_BASEHEIGHT) * 100 + '%';
 		segment.style.width = (length / C_BASEWIDTH) * 100 + '%';
-		segment.style.transform = 'rotate(' + (Math.atan2(dy, dx) * 180 / Math.PI) + 'deg) translateY(-50%)';
+		segment.style.transform = 'rotate(' + (Math.atan2(dy, dx) * 180) / Math.PI + 'deg) translateY(-50%)';
 		layer.appendChild(segment);
 	}
 
@@ -517,7 +519,12 @@ function createNpcSearchMarkerLayer(worldMapData) {
 	const markerLayer = document.createElement('div');
 	markerLayer.className = 'navigation-npc-search-layer';
 
-	if (getRouteTargetType() !== 'NPC' || !_navigationRoute || !Array.isArray(_navigationRoute.targetEntries) || !_navigationRoute.targetEntries.length) {
+	if (
+		getRouteTargetType() !== 'NPC' ||
+		!_navigationRoute ||
+		!Array.isArray(_navigationRoute.targetEntries) ||
+		!_navigationRoute.targetEntries.length
+	) {
 		return markerLayer;
 	}
 
@@ -622,7 +629,11 @@ function renderNavigationRouteOverlay(mapView, worldMapData) {
 		Array.isArray(_navigationRoute.targetEntries) &&
 		_navigationRoute.targetEntries.length
 	);
-	const hasRouteMaps = !!(_navigationRoute && Array.isArray(_navigationRoute.routeMaps) && _navigationRoute.routeMaps.length);
+	const hasRouteMaps = !!(
+		_navigationRoute &&
+		Array.isArray(_navigationRoute.routeMaps) &&
+		_navigationRoute.routeMaps.length
+	);
 
 	if (!_navigationRoute || !worldMapData || (!hasRouteMaps && !hasMonsterMarkers && !hasNpcMarkers)) {
 		return;
@@ -719,7 +730,8 @@ function onWorldMapMouseOver(e) {
 			sections: _activeWorldMapData?.maps || [],
 			getTownInfo: mapId => DB.getTownInfo(mapId),
 			isVisible: mapSection =>
-				(isEpisodeInRange(mapSection, WorldMap.settings.episode) || WorldMap.settings.add.includes(mapSection.id)) &&
+				(isEpisodeInRange(mapSection, WorldMap.settings.episode) ||
+					WorldMap.settings.add.includes(mapSection.id)) &&
 				!WorldMap.settings.remove.includes(mapSection.id),
 			renderKafraSprite: canvas => Navigation.renderNpcSprite(canvas, 117),
 			airplaneSrc: `${DB.INTERFACE_PATH}worldview_interface/wv_airplen32.bmp`,
@@ -1237,7 +1249,7 @@ function showPartyMembers() {
 		const el = root.querySelector('.worldmap .section#' + CSS.escape(mapId));
 		if (el) el.classList.add('membersonmap');
 	}
-};
+}
 
 /**
  * Toggle all maps

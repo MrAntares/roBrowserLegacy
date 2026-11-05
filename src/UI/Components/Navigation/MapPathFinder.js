@@ -258,7 +258,14 @@ MapPathFinder.findPathBetweenMaps = function findPathBetweenMaps(
 									ensureGraphNode(graph, mapName);
 									ensureGraphNode(graph, destMapName);
 
-									if (isBetterConnection(graph[mapName][destMapName], pathCost, hopCount, warpInfo.service)) {
+									if (
+										isBetterConnection(
+											graph[mapName][destMapName],
+											pathCost,
+											hopCount,
+											warpInfo.service
+										)
+									) {
 										graph[mapName][destMapName] = {
 											distance: pathCost,
 											warpId: linkId,

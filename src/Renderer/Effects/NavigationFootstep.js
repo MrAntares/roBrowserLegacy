@@ -33,7 +33,9 @@ const FALLBACK_FOOTSTEP_TEXTURES = [
 ];
 
 function normalizePath(path) {
-	return String(path || '').replace(/\\/g, '/').replace(/^\/+/, '');
+	return String(path || '')
+		.replace(/\\/g, '/')
+		.replace(/^\/+/, '');
 }
 
 function uniqueList(list) {
@@ -61,24 +63,29 @@ function findOfficialFootstepTextures() {
 	}
 
 	try {
-		navMatches = FileManager.search(
-			new RegExp('data[\\\\/]texture[\\\\/].*[\\\\/]navigation_interface3[\\\\/]navi_grid' + iconIndex + '_[0-7]\\\\.(bmp|tga|png)$', 'i')
-		) || [];
+		navMatches =
+			FileManager.search(
+				new RegExp(
+					'data[\\\\/]texture[\\\\/].*[\\\\/]navigation_interface3[\\\\/]navi_grid' +
+						iconIndex +
+						'_[0-7]\\\\.(bmp|tga|png)$',
+					'i'
+				)
+			) || [];
 	} catch (_e) {
 		navMatches = [];
 	}
 
 	try {
-		effectMatches = FileManager.search(
-			/data[\\/]texture[\\/]effect[\\/].*(foot|footprint|navi|navigation|arrow).*\.(bmp|tga|png)$/i
-		) || [];
+		effectMatches =
+			FileManager.search(
+				/data[\\/]texture[\\/]effect[\\/].*(foot|footprint|navi|navigation|arrow).*\.(bmp|tga|png)$/i
+			) || [];
 	} catch (_e) {
 		effectMatches = [];
 	}
 
-	const matches = navMatches
-		.map(normalizePath)
-		.sort((a, b) => a.localeCompare(b));
+	const matches = navMatches.map(normalizePath).sort((a, b) => a.localeCompare(b));
 
 	return uniqueList(preferred.concat(matches, FALLBACK_FOOTSTEP_TEXTURES));
 }
@@ -163,7 +170,7 @@ class NavigationFootstep {
 		this.angle = angle || 0;
 		this.index = index || 0;
 		this.alpha = alpha == null ? 0.95 : alpha;
-		this.size = 0.70;
+		this.size = 0.7;
 	}
 
 	init() {
@@ -199,14 +206,7 @@ class NavigationFootstep {
 		gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
 		gl.bufferData(
 			gl.ARRAY_BUFFER,
-			new Float32Array([
-				-1.0, -1.0,
-				 1.0, -1.0,
-				 1.0,  1.0,
-				 1.0,  1.0,
-				-1.0,  1.0,
-				-1.0, -1.0
-			]),
+			new Float32Array([-1.0, -1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0]),
 			gl.STATIC_DRAW
 		);
 
@@ -286,7 +286,7 @@ NavigationFootstep.usesTexture = function usesTexture() {
 	return !!(_useTexture && _texture);
 };
 
-NavigationFootstep.color = new Float32Array([1.0, 0.86, 0.10, 1.0]);
+NavigationFootstep.color = new Float32Array([1.0, 0.86, 0.1, 1.0]);
 NavigationFootstep.renderBeforeEntities = true;
 
 export default NavigationFootstep;

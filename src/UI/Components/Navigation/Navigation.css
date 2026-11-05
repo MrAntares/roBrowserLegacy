@@ -1196,7 +1196,7 @@
 	border: 1px solid #9b9b9b;
 	border-radius: 2px;
 	background: linear-gradient(#ffffff, #e0e0e0);
-	box-shadow: inset 1px 1px 0 rgba(255,255,255,.8);
+	box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.8);
 	color: #244a9a;
 }
 
@@ -1551,7 +1551,7 @@
 	border: 1px solid #9b9b9b;
 	border-radius: 2px;
 	background: linear-gradient(#ffffff, #e0e0e0);
-	box-shadow: inset 1px 1px 0 rgba(255,255,255,.8);
+	box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.8);
 	color: #244a9a;
 	cursor: pointer;
 	box-sizing: border-box;
@@ -1588,7 +1588,6 @@
 .Navigation.has-results .coordinates-bar {
 	display: none;
 }
-
 
 /* -------------------------------------------------------------------------
  * Result-panel final fix: keep the small map preview above the spawn list
@@ -1654,7 +1653,6 @@
 .Navigation .detail-text {
 	padding-top: 1px;
 }
-
 
 /* --- official minimize + badge cleanup overrides --- */
 .Navigation {
@@ -1755,7 +1753,6 @@
 	box-shadow: none !important;
 	background-color: transparent !important;
 }
-
 
 /* --- Navigation final runtime fixes --- */
 .Navigation {
@@ -2216,10 +2213,9 @@
 	top: 4px !important;
 	width: 10px !important;
 	height: 10px !important;
-	border-left: 1px solid rgba(255,255,255,.8) !important;
+	border-left: 1px solid rgba(255, 255, 255, 0.8) !important;
 	transform: rotate(0deg) !important;
 }
-
 
 /* -------------------------------------------------------------------------
  * Final official-navigation fixes (pass 2)
@@ -2331,7 +2327,6 @@
 	background-color: transparent !important;
 }
 
-
 /* official navigation_interface3 scrollbars */
 .Navigation .results-list::-webkit-scrollbar,
 .Navigation .detail-map-list::-webkit-scrollbar {
@@ -2381,7 +2376,6 @@
 	scrollbar-color: #8ba9d6 transparent;
 	scrollbar-width: thin;
 }
-
 
 /* official map-click / route view */
 .Navigation:not(.has-results) .content {
@@ -2456,7 +2450,6 @@
 	cursor: pointer !important;
 }
 
-
 /* v11: official action buttons + no left result scrollbar */
 .Navigation.has-results .result-action-row {
 	flex: 0 0 55px !important;
@@ -2467,7 +2460,8 @@
 
 .Navigation.has-results .result-action-row .nav-action,
 .Navigation.has-results .result-action-row .move-action {
-	position: absolute !important;	display: block !important;
+	position: absolute !important;
+	display: block !important;
 	background-repeat: no-repeat !important;
 	background-position: center center !important;
 	background-color: transparent !important;
@@ -2517,7 +2511,6 @@
 	height: 0 !important;
 	display: none !important;
 }
-
 
 /* v12: remove MOVE button, keep only Share + Find, hide all left scrollbars */
 .Navigation .move-action,
@@ -2604,15 +2597,38 @@
 	filter: brightness(1.08);
 }
 
-.Navigation .roadicon-choice-1 { left: 8px; top: 6px; }
-.Navigation .roadicon-choice-2 { left: 37px; top: 6px; }
-.Navigation .roadicon-choice-3 { left: 66px; top: 6px; }
-.Navigation .roadicon-choice-4 { left: 95px; top: 6px; }
-.Navigation .roadicon-choice-5 { left: 8px; top: 35px; }
-.Navigation .roadicon-choice-6 { left: 37px; top: 35px; }
-.Navigation .roadicon-choice-7 { left: 66px; top: 35px; }
-.Navigation .roadicon-choice-8 { left: 95px; top: 35px; }
-
+.Navigation .roadicon-choice-1 {
+	left: 8px;
+	top: 6px;
+}
+.Navigation .roadicon-choice-2 {
+	left: 37px;
+	top: 6px;
+}
+.Navigation .roadicon-choice-3 {
+	left: 66px;
+	top: 6px;
+}
+.Navigation .roadicon-choice-4 {
+	left: 95px;
+	top: 6px;
+}
+.Navigation .roadicon-choice-5 {
+	left: 8px;
+	top: 35px;
+}
+.Navigation .roadicon-choice-6 {
+	left: 37px;
+	top: 35px;
+}
+.Navigation .roadicon-choice-7 {
+	left: 66px;
+	top: 35px;
+}
+.Navigation .roadicon-choice-8 {
+	left: 95px;
+	top: 35px;
+}
 
 /* v15: final search-panel fixes: one scrollbar, non-overlapping actions, map preview mode */
 .Navigation.has-results .result-left-panel,
@@ -2736,7 +2752,6 @@
 	cursor: pointer;
 }
 
-
 /* v16: final official detail layout and single-left-hidden scrollbar */
 .Navigation.has-results .result-left-panel {
 	overflow: hidden !important;
@@ -2836,7 +2851,6 @@
 	right: 3px !important;
 	left: auto !important;
 }
-
 
 /* v17: final cleanup for sprite centering, action buttons, and no visible right scrollbar */
 .Navigation.has-results .detail-preview {
@@ -2961,7 +2975,6 @@
 	line-height: 14px !important;
 }
 
-
 /* v18: large sprite overlay in search detail panel */
 .Navigation.has-results .detail-main {
 	position: relative !important;
@@ -3023,7 +3036,6 @@
 	z-index: 2 !important;
 }
 
-
 /* v19: keep Navigation as one window shell; only switch the inner view. */
 .Navigation:not(.minimized),
 .Navigation.has-results:not(.minimized) {
@@ -3051,7 +3063,6 @@
 	right: 4px !important;
 	z-index: 2 !important;
 }
-
 
 /* v19: keep one default search field, stable one-window shell, map-fit preview, and clean action buttons */
 .Navigation.has-results {
@@ -3219,7 +3230,6 @@
 	right: 4px !important;
 	left: auto !important;
 }
-
 
 /* v20: closer to official result layout: smaller map preview and uncropped top-right folder icon */
 .Navigation .folder-button,
