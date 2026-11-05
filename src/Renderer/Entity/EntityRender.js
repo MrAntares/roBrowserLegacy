@@ -457,6 +457,9 @@ const renderEntity = (function renderEntityClosure() {
 					// Draw Weapon
 					if (self.weapon > 0) {
 						renderElement(self, self.files.weapon, 'weapon', _position, true);
+					}
+					renderElement(self, self.files.weapon_effect, 'weapon_effect', _position, true);
+					if (self.weapon > 0) {
 						renderElement(self, self.files.weapon_trail, 'weapon_trail', _position, true);
 					}
 

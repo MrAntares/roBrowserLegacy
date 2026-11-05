@@ -43,6 +43,39 @@ const GR2_MODEL_ROOT = 'data/model/3dmob/';
 // Stand-in when a .gr2 model is absent from the GRF: render the Poring sprite instead of nothing
 // (job 1002). Consumed only after GR2ModelRenderer.isMissing flags the path (see UpdateBody).
 const GR2_FALLBACK_JOB = 1002;
+const MOUNTED_SPRITE_JOBS = new Set([...Object.values(MountTable), ...Object.values(AllMountTable)]);
+
+const CLASS_EQUIPMENT_EFFECTS = new Map([
+	[JobConst.TAEKWON, 1],
+	[JobConst.STAR, 1],
+	[JobConst.STAR2, 1],
+	[JobConst.TAEKWON_B, 1],
+	[JobConst.STAR_B, 1],
+	[JobConst.STAR2_B, 1],
+	[JobConst.STAR_EMPEROR, 1],
+	[JobConst.STAR_EMPEROR_B, 1],
+	[JobConst.STAR_EMPEROR2, 1],
+	[JobConst.STAR_EMPEROR2_B, 1],
+	[JobConst.SKY_EMPEROR, 1],
+	[JobConst.SKY_EMPEROR2, 1],
+	[JobConst.RANGER2, 0],
+	[JobConst.RANGER2_H, 0],
+	[JobConst.RANGER2_B, 0],
+	[JobConst.WINDHAWK, 0],
+	[JobConst.MECHANIC, 0],
+	[JobConst.MECHANIC_H, 0],
+	[JobConst.MECHANIC_B, 0],
+	[JobConst.MEISTER, 0],
+	[JobConst.MEISTER_RIDING, 0],
+	[JobConst.MEISTER2, 0]
+]);
+
+function getClassEquipmentEffectPath(job, sex) {
+	if (!CLASS_EQUIPMENT_EFFECTS.has(job)) {
+		return null;
+	}
+	return DB.getWeaponEffectPath(-1, job, sex, CLASS_EQUIPMENT_EFFECTS.get(job));
+}
 
 /**
  * Files to display a view
@@ -66,6 +99,7 @@ function View() {
 	this.head = new ViewFiles();
 	this.weapon = new ViewFiles();
 	this.weapon_trail = new ViewFiles();
+	this.weapon_effect = new ViewFiles();
 	this.shield = new ViewFiles();
 	this.accessory = new ViewFiles();
 	this.accessory2 = new ViewFiles();
@@ -687,26 +721,58 @@ function UpdateGeneric(type, func, fallback) {
 		let path;
 		const _this = this;
 		let _val = val;
+		// A later equipment, job, or sex update must own any asynchronous load callback.
+		const requestId = ((this._viewRequestSeq || (this._viewRequestSeq = {}))[type] || 0) + 1;
+		this._viewRequestSeq[type] = requestId;
+		const requestedJob = this.job;
+		const requestedSex = this._sex;
+		this['_' + type] = val > 0 ? val : 0;
+		const isCurrentRequest = () =>
+			_this._viewRequestSeq[type] === requestId && _this.job === requestedJob && _this._sex === requestedSex;
+		if (this.files[type]) {
+			this.files[type].spr = null;
+			this.files[type].act = null;
+			this.files[type].pal = null;
+		}
+		if (type === 'weapon' && this.files.weapon_trail) {
+			this.files.weapon_trail.spr = null;
+			this.files.weapon_trail.act = null;
+		}
+		if (type === 'weapon' && this.files.weapon_effect) {
+			this.files.weapon_effect.spr = null;
+			this.files.weapon_effect.act = null;
+		}
+		const classEffectPath = type === 'weapon' ? getClassEquipmentEffectPath(requestedJob, requestedSex) : null;
+		const loadEquipmentEffect = effectPath => {
+			if (!effectPath) {
+				return;
+			}
+			Client.loadFile(effectPath + '.act');
+			Client.loadFile(effectPath + '.spr', function () {
+				if (isCurrentRequest()) {
+					_this.files.weapon_effect.spr = effectPath + '.spr';
+					_this.files.weapon_effect.act = effectPath + '.act';
+				}
+			});
+		};
+		loadEquipmentEffect(classEffectPath);
 		// Set when a weapon look is drawn from its base type's sprite
 		let keepLook = false;
 
 		// Nothing to load
 		if (!val || val <= 0) {
 			this['_' + type] = 0;
-			if (this.files[type]) {
-				this.files[type].spr = null;
-				this.files[type].act = null;
-				this.files[type].pal = null;
-			}
 			return;
 		}
 
 		// Find file path
 		switch (type) {
 			case 'weapon':
-			case 'shield':
 			case 'robe':
 				path = DB[func](val, this.job, this._sex);
+				break;
+			case 'shield':
+				path = DB[func](val, this.job, this._sex, MOUNTED_SPRITE_JOBS.has(this.costume));
 				break;
 
 			default:
@@ -716,10 +782,6 @@ function UpdateGeneric(type, func, fallback) {
 
 		// No path found, remove current files used
 		if (!path) {
-			this.files[type].spr = null;
-			this.files[type].act = null;
-			this.files[type].pal = null;
-
 			// Load weapon sound
 			if (type === 'weapon') {
 				this.sound.attackFile = DB.getWeaponSound(val);
@@ -729,10 +791,70 @@ function UpdateGeneric(type, func, fallback) {
 		}
 
 		function LoadView(filepath, final) {
+			if (type === 'shield') {
+				let actReady = false;
+				let sprReady = false;
+				let settled = false;
+
+				const finishShieldLoad = () => {
+					if (settled) {
+						return;
+					}
+					if (actReady && sprReady) {
+						settled = true;
+						if (isCurrentRequest()) {
+							_this._shield = _val;
+							_this.files.shield.act = filepath + '.act';
+							_this.files.shield.spr = filepath + '.spr';
+						}
+					}
+				};
+
+				const retryGenericShield = () => {
+					if (settled) {
+						return;
+					}
+					settled = true;
+					if (!final && isCurrentRequest()) {
+						const shieldView = DB.getShieldViewID(_val);
+						const fallbackPath = DB.getShieldPath(
+							shieldView,
+							requestedJob,
+							requestedSex,
+							MOUNTED_SPRITE_JOBS.has(_this.costume)
+						);
+						if (fallbackPath && fallbackPath !== filepath) {
+							LoadView(fallbackPath, true);
+						}
+					}
+				};
+
+				Client.loadFile(
+					filepath + '.act',
+					() => {
+						actReady = true;
+						finishShieldLoad();
+					},
+					retryGenericShield
+				);
+				Client.loadFile(
+					filepath + '.spr',
+					() => {
+						sprReady = true;
+						finishShieldLoad();
+					},
+					retryGenericShield
+				);
+				return;
+			}
+
 			Client.loadFile(filepath + '.act');
 			Client.loadFile(
 				filepath + '.spr',
 				function () {
+					if (!isCurrentRequest()) {
+						return;
+					}
 					// Keep the look itself, so a later job change can draw its sprite
 					_this['_' + type] = keepLook ? val : _val;
 
@@ -748,11 +870,20 @@ function UpdateGeneric(type, func, fallback) {
 					if (type === 'weapon') {
 						_this.attackFile = DB.getWeaponSound(_val);
 
+						// Generic ACT layer 6 weapon glow. Item-specific effect names
+						// require the client's ReqWeaponNameByClassNum metadata.
+						if (!classEffectPath) {
+							loadEquipmentEffect(DB.getWeaponEffectPath(_val, _this.job, _this._sex, 0));
+						}
+
 						//Load weapon trail effect
 						const trail_file = DB.getWeaponTrail(_val, _this.job, _this._sex);
 						if (trail_file) {
 							Client.loadFile(trail_file + '.act');
 							Client.loadFile(trail_file + '.spr', function () {
+								if (!isCurrentRequest()) {
+									return;
+								}
 								_this.files['weapon_trail'].spr = trail_file + '.spr';
 								_this.files['weapon_trail'].act = trail_file + '.act';
 							});
@@ -762,6 +893,9 @@ function UpdateGeneric(type, func, fallback) {
 
 				// if weapon isn't loaded, try to load the default sprite for the weapon type
 				function () {
+					if (!isCurrentRequest()) {
+						return;
+					}
 					if (fallback && !final) {
 						_val = DB[fallback](val);
 						filepath = DB[func](_val, _this.job, _this._sex);

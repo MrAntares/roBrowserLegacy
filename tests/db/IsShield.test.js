@@ -59,6 +59,7 @@ describe('DB.isShield', () => {
 		expect(DB.isShield(null)).toBe(false);
 		expect(DB.isShield(undefined)).toBe(false);
 		expect(DB.isShield(-1)).toBe(false);
+		expect(DB.isShield(1.5)).toBe(false);
 	});
 
 	it('keeps item and view detection separate and validates full item ranges', () => {
@@ -68,6 +69,7 @@ describe('DB.isShield', () => {
 		expect(DB.isShieldItem(460500)).toBe(true);
 		expect(DB.isShieldItem(469999)).toBe(true);
 		expect(DB.isShieldItem(470000)).toBe(false);
+		expect(DB.isShieldItem(2101.5)).toBe(false);
 	});
 });
 
@@ -84,8 +86,38 @@ describe('DB.getShieldPath', () => {
 		expect(path).toContain('\xb0\xa1\xb5\xe5'); // Guard in Korean
 	});
 
-	it('returns custom sprite path for modern custom shields (viewId >= 5)', () => {
-		const path = DB.getShieldPath(5, JobId.SWORDMAN, 1);
-		expect(path).toContain('5_\xb9\xe6\xc6\xd0');
+	it('returns an item-specific sprite path before the generic shield-view fallback', () => {
+		const path = DB.getShieldPath(2101, JobId.SWORDMAN, 1);
+		expect(path).toContain('_2101_\xb9\xe6\xc6\xd0');
+		expect(DB.getShieldViewID(2101)).toBe(1);
+		expect(DB.getShieldPath(DB.getShieldViewID(2101), JobId.SWORDMAN, 1)).toContain('\xb0\xa1\xb5\xe5');
+	});
+
+	it('only returns generic views supported by the job sprite', () => {
+		expect(DB.getShieldPath(1, JobId.WIZARD, 1)).toBeTruthy();
+		expect(DB.getShieldPath(2, JobId.WIZARD, 1)).toBeNull();
+		expect(DB.getShieldPath(3, JobId.DRUID, 1)).toBeNull();
+		expect(DB.getShieldPath(4, JobId.DRUID, 1)).toBeTruthy();
+		expect(DB.getShieldPath(1, JobId.INQUISITOR, 1)).toBeNull();
+		expect(DB.getShieldPath(5, JobId.SWORDMAN, 1)).toBeNull();
+	});
+
+	it('suppresses shields for mounted entities and shield-incompatible mount sprites', () => {
+		expect(DB.getShieldPath(1, JobId.SWORDMAN, 1, true)).toBeNull();
+		expect(DB.getShieldPath(2101, JobId.RANGER2, 1)).toBeNull();
+	});
+
+	it('uses weapon resources when the shield field carries a weapon item ID', () => {
+		expect(DB.getShieldPath(1201, JobId.ASSASSIN, 1)).toBe(DB.getWeaponPath(1201, JobId.ASSASSIN, 1));
+	});
+
+	it('rejects fractional IDs and invalid sex values instead of building malformed paths', () => {
+		expect(DB.getShieldPath(1.5, JobId.SWORDMAN, 1)).toBeNull();
+		expect(DB.getShieldPath(1, JobId.SWORDMAN, 2)).toBeNull();
+		expect(DB.getWeaponPath(1.5, JobId.SWORDMAN, 1)).toBeNull();
+		expect(DB.getWeaponPath(1, JobId.SWORDMAN, -1)).toBeNull();
+		expect(DB.getWeaponTrail(0, JobId.SWORDMAN, 1)).toBeNull();
+		expect(DB.getWeaponTrail(1.5, JobId.SWORDMAN, 1)).toBeNull();
+		expect(DB.getWeaponTrail(999999, JobId.DO_SUMMONER, 1)).toBeNull();
 	});
 });
