@@ -36,7 +36,8 @@ import WorldMap from './Map/WorldMap.js';
 import {
 	applyNavigationDistanceEra,
 	applyNavigationLinkEra,
-	applyNavigationMapEra
+	applyNavigationMapEra,
+	getIncomingNavigationMapPoint
 } from './Map/NavigationEra.js';
 import SKID from './Skills/SkillConst.js';
 import SkillInfo from './Skills/SkillInfo.js';
@@ -180,6 +181,7 @@ const NaviMapTable = [];
  * @const {Array} NaviMob Table
  */
 const NaviMobTable = [];
+let navigationMobRowsByMap = new Map();
 
 /**
  * @const {Array} NaviNpc Table
@@ -213,6 +215,17 @@ function fillNaviTable(table, json) {
 	table.length = 0;
 	if (json) {
 		Object.assign(table, normalizeLuaTable(json));
+	}
+	if (table === NaviMobTable) {
+		navigationMobRowsByMap = new Map();
+		for (const mob of table) {
+			if (!mob) continue;
+			const mapName = normalizeNaviMapName(mob[0]);
+			if (!mapName) continue;
+			let rows = navigationMobRowsByMap.get(mapName);
+			if (!rows) navigationMobRowsByMap.set(mapName, (rows = []));
+			rows.push(mob);
+		}
 	}
 }
 
@@ -264,25 +277,11 @@ function normalizeNaviMapName(mapName) {
 
 function getDefaultNaviMapPoint(mapName) {
 	const targetMap = normalizeNaviMapName(mapName);
-	const maps = applyNavigationMapEra(
-		normalizeLuaTable(NaviMapTable),
+	const links = applyNavigationLinkEra(
+		normalizeLuaTable(NaviLinkTable),
 		Configs.get('worldMapSettings', { episode: 98 })
 	);
-
-	for (let i = 0; i < maps.length; i++) {
-		const map = maps[i];
-		if (!map || normalizeNaviMapName(map[0]) !== targetMap) {
-			continue;
-		}
-
-		const x = Number(map[3]);
-		const y = Number(map[4]);
-		if (Number.isFinite(x) && Number.isFinite(y)) {
-			return { x: x, y: y };
-		}
-	}
-
-	return null;
+	return getIncomingNavigationMapPoint(targetMap, links);
 }
 
 function normalizeSearchText(value) {
@@ -554,6 +553,7 @@ class DB {
 		]) {
 			table.length = 0;
 		}
+		navigationMobRowsByMap.clear();
 
 		// Callback
 		let index = 0,
@@ -3839,17 +3839,13 @@ class DB {
 			return [];
 		}
 
-		const mobTable = normalizeLuaTable(NaviMobTable);
+		const mobTable = navigationMobRowsByMap.get(mapName) || [];
 		const grouped = {};
+		const point = getDefaultNaviMapPoint(mapName) || { x: 0, y: 0 };
 
 		for (let i = 0; i < mobTable.length; i++) {
 			const mob = mobTable[i];
 			if (!mob) {
-				continue;
-			}
-
-			const entryMap = normalizeNaviMapName(mob[0]);
-			if (entryMap !== mapName) {
 				continue;
 			}
 
@@ -3863,8 +3859,6 @@ class DB {
 			const key = [mobClass, mobName].join(':');
 			const mobLevel = Number(mob[6]);
 			const mobType = Number(mob[2]);
-
-			const point = getDefaultNaviMapPoint(mapName) || { x: 0, y: 0 };
 
 			if (!grouped[key]) {
 				grouped[key] = {
@@ -3963,7 +3957,8 @@ class DB {
 					continue;
 				}
 
-				const point = getDefaultNaviMapPoint(mapName) || { x: map[3], y: map[4] };
+				const point = getDefaultNaviMapPoint(mapName);
+				if (!point) continue;
 				pushResult({
 					type: 'MAP',
 					id: mapName,
@@ -3999,7 +3994,8 @@ class DB {
 						continue;
 					}
 
-					const point = getDefaultNaviMapPoint(mapName) || { x: 0, y: 0 };
+					const point = getDefaultNaviMapPoint(mapName);
+					if (!point) continue;
 					pushResult({
 						type: 'MAP',
 						id: mapName,
@@ -4188,11 +4184,7 @@ class DB {
 	 * @returns {{x:number,y:number}|null}
 	 */
 	static getNaviMapPoint(mapName) {
-		const point = getDefaultNaviMapPoint(mapName);
-		if (point) return point;
-		mapName = normalizeNaviMapName(mapName);
-		const incoming = this.getNaviLinkTable().find(link => normalizeNaviMapName(link[8]) === mapName);
-		return incoming ? { x: Number(incoming[9]) || 0, y: Number(incoming[10]) || 0 } : null;
+		return getDefaultNaviMapPoint(mapName);
 	}
 
 	/**

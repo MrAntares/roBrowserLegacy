@@ -91,6 +91,19 @@ export function isEpisodeInRange(entry, episode) {
 	return episode >= entry.ep_from && episode < entry.ep_to;
 }
 
+export function getIncomingNavigationMapPoint(mapName, links) {
+	const target = String(mapName || '').replace(/\.gat$/i, '').toLowerCase();
+	const incoming = (Array.isArray(links) ? links : []).filter(link =>
+		link && String(link[8] || '').replace(/\.gat$/i, '').toLowerCase() === target
+	);
+	const link = incoming.find(candidate => Number(candidate[2]) === 200) || incoming[0];
+	if (!link) return null;
+
+	const x = Number(link[9]);
+	const y = Number(link[10]);
+	return Number.isFinite(x) && Number.isFinite(y) && x >= 0 && y >= 0 ? { x, y } : null;
+}
+
 export function applyNavigationMapEra(maps, settings) {
 	if (!isPreSatanMorroc(settings)) {
 		return maps;

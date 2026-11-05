@@ -59,6 +59,7 @@ let _hoveredSection = null;
 
 let _activeWorldMapData = null;
 let _navigationRoute = null;
+let _routeListenerAttached = false;
 const _worldRouteIconURI = {};
 
 // Sizing params
@@ -97,7 +98,6 @@ WorldMap.init = function init() {
 	}
 
 	WorldMap.showLVLMode = false;
-	document.addEventListener('roBrowserNavigationRouteChanged', onNavigationRouteChanged);
 };
 
 /**
@@ -1071,6 +1071,11 @@ function _adjustImageTransparency(img) {
  * Apply preferences once append to body
  */
 WorldMap.onAppend = function onAppend() {
+	if (!_routeListenerAttached) {
+		document.addEventListener('roBrowserNavigationRouteChanged', onNavigationRouteChanged);
+		_routeListenerAttached = true;
+	}
+
 	// Apply preferences
 	if (!_preferences.show) {
 		this._host.style.display = 'none';
@@ -1112,6 +1117,11 @@ WorldMap.onAppend = function onAppend() {
 };
 
 WorldMap.onRemove = function onRemove() {
+	if (_routeListenerAttached) {
+		document.removeEventListener('roBrowserNavigationRouteChanged', onNavigationRouteChanged);
+		_routeListenerAttached = false;
+	}
+	_navigationRoute = null;
 	clearWorldMapServiceState();
 	hideTooltip();
 

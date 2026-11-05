@@ -4207,6 +4207,13 @@ Navigation.navigateTo = function navigateTo(options) {
 		const target = path[0];
 
 		this.waitForMapData(function () {
+			if (target.map === _mapData.map && (
+				target.x < 0 || target.y < 0 || target.x >= _mapData.width || target.y >= _mapData.height
+			)) {
+				this.clear();
+				return;
+			}
+
 			let walkableCell;
 			if (target.x < 0 || target.y < 0) {
 				const centerX = Math.floor(_mapData.width / 2);
