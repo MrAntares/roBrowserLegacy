@@ -2,11 +2,12 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Effect 441 (EF_BLUECASTING), the blue cast aura: the official client builds it
 // like the yellow (12) and white (58) cast auras, with effect\ring_blue.tga and
 // EF_BeginSpell.wav. Read as text: the table imports the renderer.
-const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8').replace(/\r\n/g, '\n');
+const table = effectTableSource().replace(/\r\n/g, '\n');
 
 function entry(id) {
 	const start = table.indexOf(`\n\t${id}: [`);

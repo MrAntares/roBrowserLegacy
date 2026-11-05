@@ -12,6 +12,7 @@ import {
 	spikeAxes,
 	buildSpike
 } from 'Renderer/Effects/IceSpikesSim.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Frost Diver's ice spikes (official primitive 9): the path (27) and the hit (28).
 
@@ -76,7 +77,7 @@ describe('Frost Diver wiring', () => {
 	});
 
 	it('draws 27 and 28 with IceSpikes, 28 with its sound', () => {
-		const table = read('DB/Effects/EffectTable.js');
+		const table = effectTableSource().replace(/\r\n/g, '\n');
 		const entry = id => {
 			const start = table.indexOf(`\n\t${id}: [`);
 			return table.slice(start, table.indexOf('\n\t],', start));

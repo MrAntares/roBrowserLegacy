@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 const {
 	MIN_FRAMES,
@@ -93,7 +94,7 @@ describe('Enchanting Sky', () => {
 	});
 
 	it('defines effect 831 with the cone and its ground squares', () => {
-		const table = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8').replace(/\r\n/g, '\n');
+		const table = effectTableSource().replace(/\r\n/g, '\n');
 		const start = table.indexOf('\n\t831: [');
 		expect(start).toBeGreaterThan(-1);
 		const body = table.slice(start, table.indexOf('\n\t],', start));

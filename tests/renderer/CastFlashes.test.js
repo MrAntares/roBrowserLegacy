@@ -16,11 +16,12 @@ import {
 	buildFunnel
 } from 'Renderer/Effects/CastFunnelSim.js';
 import CasterMarks, { SCHEDULES, colorAt, splitAlpha } from 'Renderer/Effects/CasterMarks.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Cast effects 934 (SS_AKUMUKESU), 2373 (SS_SHINKIROU) and 502 (HN_SPIRAL_PIERCE_MAX)
 // as the official client (2026-02-11) plays them.
 
-const effectTable = readFileSync(join(process.cwd(), 'src', 'DB/Effects/EffectTable.js'), 'utf8').replace(/\r\n/g, '\n');
+const effectTable = effectTableSource().replace(/\r\n/g, '\n');
 
 function entry(id) {
 	const start = effectTable.indexOf(`\n\t${id}: [`);

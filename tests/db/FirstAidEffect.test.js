@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // First Aid (NV_FIRSTAID, effect 309) as the official client draws it.
 // Numbers from the official client (kRO 2025-07-16).
@@ -13,7 +14,7 @@ const read = file => readFileSync(join(process.cwd(), 'src', file), 'utf8').repl
 
 // The effect table imports most of the renderer, so read entry 309 from its source.
 function effectEntry(id) {
-	const source = read('DB/Effects/EffectTable.js');
+	const source = effectTableSource().replace(/\r\n/g, '\n');
 	const start = source.indexOf(`\n\t${id}: [`);
 	const end = source.indexOf('\n\t],', start);
 	const body = source.slice(start, end + 3).trim().replace(/^\d+:/, '').replace(/,$/, '');

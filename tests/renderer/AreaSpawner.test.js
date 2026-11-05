@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 const { default: AreaSpawner, spawnAreaWidth, spawnOffset, spawnsDue } = await import(
 	'Renderer/Effects/AreaSpawner.js'
@@ -9,7 +10,7 @@ const { default: AreaSpawner, spawnAreaWidth, spawnOffset, spawnsDue } = await i
 
 // The effect table imports most of the renderer, so read named entries from its source.
 function effectEntry(name) {
-	const source = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+	const source = effectTableSource();
 	const start = source.indexOf(`\n\t${name}: [`);
 	expect(start).toBeGreaterThan(-1);
 	const end = source.indexOf('\n\t],', start);

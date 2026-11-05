@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Lightning Bolt (MG_LIGHTNINGBOLT, skill 20), as the official client plays it:
 // effect 29 (Lightning.str, nothing else) on the target as the damage packet arrives,
@@ -16,7 +17,7 @@ describe('Lightning Bolt effects', () => {
 	});
 
 	it('draws effect 29 as Lightning.str alone', () => {
-		const table = read('DB/Effects/EffectTable.js');
+		const table = effectTableSource().replace(/\r\n/g, '\n');
 		const start = table.indexOf('\n\t29: [');
 		const entry = table.slice(start, table.indexOf('\n\t],', start));
 		expect(entry).toMatch(/file: 'lightning'/);

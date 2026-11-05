@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Stone Curse (MG_STONECURSE, skill 16), as the official client plays it: when the use
 // packet reports success, effect 23 (StoneCurse.str) on the target and _stonecurse.wav
@@ -22,7 +23,7 @@ describe('Stone Curse effects', () => {
 	});
 
 	it('keeps the sound out of effect 23 and plays _stonecurse.wav', () => {
-		const table = read('DB/Effects/EffectTable.js');
+		const table = effectTableSource().replace(/\r\n/g, '\n');
 		expect(entry(table, '23')).not.toMatch(/wav:/);
 		expect(entry(table, 'stonecurse_sound')).toMatch(/wav: '_stonecurse'/);
 	});

@@ -16,6 +16,7 @@ import {
 	randomInt
 } from 'Renderer/Effects/BoltRainSim.js';
 import { createPrimState, advancePrim } from 'Renderer/Effects/EffectPrimSim.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Cold Bolt (26) and Fire Bolt (31) as the official client draws them.
 
@@ -102,7 +103,7 @@ describe('Cold Bolt wiring', () => {
 	});
 
 	it('draws 26 with BoltRain and the hit count, one sound on tick 12', () => {
-		const table = read('DB/Effects/EffectTable.js');
+		const table = effectTableSource().replace(/\r\n/g, '\n');
 		const start = table.indexOf('\n\t26: [');
 		const entry = table.slice(start, table.indexOf('\n\t],', start));
 		expect(entry).toMatch(/new BoltRain\(Params\.Init\.ownerEntity\.position, Params\.Inst\.startTick, Params\.Init\.hitCount, 'cold'\)/);
@@ -151,7 +152,7 @@ describe('Fire Bolt wiring', () => {
 	});
 
 	it('draws 31 with BoltRain, its sparks as particle4 sprites, one sound on tick 12', () => {
-		const table = read('DB/Effects/EffectTable.js');
+		const table = effectTableSource().replace(/\r\n/g, '\n');
 		const start = table.indexOf('\n\t31: [');
 		const entry = table.slice(start, table.indexOf('\n\t],', start));
 		expect(entry).toMatch(/Params\.Init\.hitCount,\s*'fire',\s*Math\.random,\s*spark\s*\)/);
