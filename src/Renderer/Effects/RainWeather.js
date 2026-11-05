@@ -18,10 +18,12 @@ import Altitude from 'Renderer/Map/Altitude.js';
 import Camera from 'Renderer/Camera.js';
 import Preferences from 'Preferences/Audio.js';
 import Session from 'Engine/SessionStorage.js';
-import EffectManager from 'Renderer/EffectManager.js';
+
 import _puddleVs from './RainWeather.vs?raw';
 import _puddleFs from './RainWeather.fs?raw';
 import WebGL from 'Utils/WebGL.js';
+import RainOverlay from 'Renderer/Effects/Shaders/RainOverlay.js';
+import RainLightning from 'Renderer/Effects/Shaders/RainLightning.js';
 
 const RAG_TICK_MS = 25;
 const FADEOUT_TAIL_MS = 1000 * RAG_TICK_MS;
@@ -88,16 +90,16 @@ const _layerCDF = (function () {
 })();
 
 // Puddle settings
-const MAX_PUDDLES = 600;
+const MAX_PUDDLES = 20;
 const PUDDLE_INITIAL_SIZE = 20.0;
-const PUDDLE_MAX_SIZE = 230.0;
-const PUDDLE_GROWTH_PER_DROP = 4.5;
+const PUDDLE_MAX_SIZE = 1000.0;
+const PUDDLE_GROWTH_PER_DROP = 1.5;
 const PUDDLE_ALPHA_MAX = 0.45;
 const PUDDLE_FADE_SPEED = 0.00004;
-const PUDDLE_SEED_CHANCE = 0.06;
+const PUDDLE_SEED_CHANCE = 0.8;
 
 let _dropFrame = null;
-let _filterFrame = null;
+// Ground splash texture (16x16 soft disc).
 let _splashFrame = null;
 const SPLASH_LIFE_MS = 220;
 const SPLASH_SIZE_PX = [10, 18];
@@ -105,6 +107,8 @@ const SPLASH_ALPHA = 0.8;
 
 let _puddleFrame = null;
 let _lightningFrame = null; // Texture generated in code for the lightning
+let _lightningCanvas = null;
+let _lightningCtx = null;
 
 let _puddleProgram = null;
 let _puddleBuffer = null;
@@ -144,21 +148,6 @@ function ensureDropFrame(gl) {
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
 	_dropFrame = { texture: tex, width: 1, height: h, type: 1 };
-}
-
-function ensureFilterFrame(gl) {
-	if (_filterFrame && _filterFrame.texture && gl.isTexture(_filterFrame.texture)) {
-		return;
-	}
-	_filterFrame = null;
-	const tex = gl.createTexture();
-	gl.bindTexture(gl.TEXTURE_2D, tex);
-	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([255, 255, 255, 255]));
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-	_filterFrame = { texture: tex, width: 1, height: 1, type: 1 };
 }
 
 function ensureSplashFrame(gl) {
@@ -250,25 +239,32 @@ function ensurePuddleFrame(gl) {
 }
 
 /**
- * Procedurally generates a realistic branched lightning bolt on an offscreen canvas
+ * Procedurally generates a realistic branched sky lightning bolt on an offscreen canvas
  */
-function ensureLightningTexture(gl) {
-	if (_lightningFrame && _lightningFrame.texture && gl.isTexture(_lightningFrame.texture)) {
+function ensureLightningTexture(gl, forceRegenerate = false) {
+	if (!forceRegenerate && _lightningFrame && _lightningFrame.texture && gl.isTexture(_lightningFrame.texture)) {
 		return _lightningFrame;
 	}
 
-	const canvas = document.createElement('canvas');
-	canvas.width = 256;
-	canvas.height = 512;
-	const ctx = canvas.getContext('2d');
+	if (!_lightningCanvas) {
+		_lightningCanvas = document.createElement('canvas');
+		_lightningCanvas.width = 1024;
+		_lightningCanvas.height = 512;
+		_lightningCtx = _lightningCanvas.getContext('2d');
+	}
 
-	ctx.clearRect(0, 256, 256, 512);
+	const canvas = _lightningCanvas;
+	const ctx = _lightningCtx;
+	const w = canvas.width;
+	const h = canvas.height;
+
+	ctx.clearRect(0, 0, w, h);
 
 	// Recursive function to draw fractal branches (Midpoint Displacement)
-	function drawBolt(x1, y1, x2, y2, displacement) {
+	function drawBoltSegment(x1, y1, x2, y2, displacement, lineWidth) {
 		if (displacement < 4) {
 			ctx.strokeStyle = '#ffffff';
-			ctx.lineWidth = 3.5;
+			ctx.lineWidth = lineWidth;
 			ctx.shadowColor = '#80bfff';
 			ctx.shadowBlur = 18;
 			ctx.beginPath();
@@ -277,32 +273,62 @@ function ensureLightningTexture(gl) {
 			ctx.stroke();
 			return;
 		}
-		const midX = (x1 + x2) / 2 + (Math.random() - 0.5) * displacement;
-		const midY = (y1 + y2) / 2 + (Math.random() - 0.5) * displacement;
 
-		drawBolt(x1, y1, midX, midY, displacement / 2);
-		drawBolt(midX, midY, x2, y2, displacement / 2);
+		const midX = (x1 + x2) * 0.5 + (Math.random() - 0.5) * displacement;
+		const midY = (y1 + y2) * 0.5 + (Math.random() - 0.5) * displacement;
 
-		// Random side branch
-		if (Math.random() < 0.25 && displacement > 15) {
-			const branchX = midX + (Math.random() - 0.5) * 60;
-			const branchY = midY + Math.random() * 80;
-			drawBolt(midX, midY, branchX, branchY, displacement / 2.2);
+		drawBoltSegment(x1, y1, midX, midY, displacement * 0.5, lineWidth);
+		drawBoltSegment(midX, midY, x2, y2, displacement * 0.5, lineWidth);
+
+		// Random side branch propagating outwards
+		if (Math.random() < 0.28 && displacement > 12) {
+			const branchDirX = x2 >= x1 ? 1 : -1;
+			const branchX = midX + (Math.random() * 0.8 + 0.2) * 60 * branchDirX;
+			const branchY = midY + randRange(10, 45);
+			drawBoltSegment(midX, midY, branchX, branchY, displacement * 0.45, Math.max(1.0, lineWidth * 0.6));
 		}
 	}
 
-	// Starts the lightning from top to bottom center
-	drawBolt(128, 10, 128 + (Math.random() - 0.5) * 40, 500, 70);
+	// Origin point in upper region (top 5-15% of height, 20-80% of width)
+	const startX = randRange(w * 0.2, w * 0.8);
+	const startY = randRange(h * 0.05, h * 0.15);
 
-	const tex = gl.createTexture();
-	gl.bindTexture(gl.TEXTURE_2D, tex);
+	// 2 to 4 main branches propagating horizontally and diagonally across the sky
+	const branchCount = Math.floor(randRange(2, 5));
+	for (let b = 0; b < branchCount; b++) {
+		// Distribute branch direction horizontally (dominant horizontal displacement)
+		const dir = b % 2 === 0 ? (Math.random() < 0.8 ? 1 : -1) : Math.random() < 0.8 ? -1 : 1;
+		let curX = startX;
+		let curY = startY;
+		const steps = Math.floor(randRange(3, 6));
+
+		for (let s = 0; s < steps; s++) {
+			const stepDisplacementX = randRange(40, 85);
+			const stepDisplacementY = randRange(10, 35);
+			const nextX = curX + dir * stepDisplacementX + randRange(-15, 15);
+			const nextY = Math.min(h * 0.5, curY + stepDisplacementY);
+
+			drawBoltSegment(curX, curY, nextX, nextY, randRange(40, 65), randRange(2.8, 3.8));
+
+			curX = nextX;
+			curY = nextY;
+		}
+	}
+
+	if (!_lightningFrame || !_lightningFrame.texture || !gl.isTexture(_lightningFrame.texture)) {
+		const tex = gl.createTexture();
+		_lightningFrame = { texture: tex, width: w, height: h, type: 1 };
+	}
+
+	gl.bindTexture(gl.TEXTURE_2D, _lightningFrame.texture);
+	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
+	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
-	_lightningFrame = { texture: tex, width: 256, height: 512, type: 1 };
 	return _lightningFrame;
 }
 
@@ -396,9 +422,6 @@ class RainWeatherEffect {
 		this.isFlashing = false;
 		this.flashStartTime = 0;
 		this.flashMultiCount = 1;
-		this.lightningX = 0;
-		this.lightningY = 0;
-		this.lightningZ = 0;
 
 		this.audioCtx = null;
 		this.rainNode = null;
@@ -810,7 +833,6 @@ class RainWeatherEffect {
 		}
 
 		ensureDropFrame(gl);
-		ensureFilterFrame(gl);
 		ensureSplashFrame(gl);
 		ensurePuddleFrame(gl);
 		ensureLightningTexture(gl);
@@ -830,18 +852,13 @@ class RainWeatherEffect {
 
 		// --- Thunderstorm / Lightning strike ---
 		if (!this.isFlashing && now >= this.nextLightningTime) {
-			// Randomly selects lightning position around the player
-			const angle = Math.random() * Math.PI * 2;
 			const dist = randRange(15, 55); // Distance in cells
-			const px = Session.Entity.position[0];
-			const py = Session.Entity.position[1];
-
-			this.lightningX = px + Math.cos(angle) * dist;
-			this.lightningY = py + Math.sin(angle) * dist;
-			this.lightningZ = Altitude.getCellHeight(this.lightningX, this.lightningY);
 
 			// Triggers sound with delay proportional to calculated distance
 			this.triggerThunderSound(dist);
+
+			// Regenerate procedural sky lightning for a unique shape each strike
+			ensureLightningTexture(gl, true);
 
 			this.isFlashing = true;
 			this.flashStartTime = now;
@@ -850,10 +867,10 @@ class RainWeatherEffect {
 		}
 
 		// Ambient flash with moderate alpha to allow seeing the lightning
-		let overlayR = 0.65;
-		let overlayG = 0.67;
-		let overlayB = 0.7;
-		let overlayA = 0.12;
+		let overlayR = 0.35;
+		let overlayG = 0.37;
+		let overlayB = 0.9;
+		let overlayA = 0.15;
 
 		if (this.isFlashing) {
 			const elapsed = now - this.flashStartTime;
@@ -861,111 +878,57 @@ class RainWeatherEffect {
 
 			if (this.flashMultiCount === 2) {
 				if (elapsed < 80) {
-					flashAlpha = 0.45 * (1 - elapsed / 80);
-					if (elapsed < 5) {
-						EffectManager.spam({
-							effectId: 30,
-							position: [this.lightningX, this.lightningY, this.lightningZ],
-							startTick: tick,
-							duration: now - this.flashStartTime + 60
-						});
-					}
+					flashAlpha = Math.max(overlayA, 0.45 * (1 - elapsed / 80));
 				} else if (elapsed < 160) {
-					flashAlpha = 0;
+					flashAlpha = overlayA;
 				} else {
 					const elapsed2 = elapsed - 160;
 					if (elapsed2 < FLASH_FADE_IN) {
 						flashAlpha = (elapsed2 / FLASH_FADE_IN) * 0.6;
 					} else if (elapsed2 < FLASH_FADE_IN + FLASH_FADE_OUT) {
 						const p = (elapsed2 - FLASH_FADE_IN) / FLASH_FADE_OUT;
-						flashAlpha = 0.6 * (1 - p);
+						flashAlpha = Math.max(overlayA, 0.6 * (1 - p));
 					} else {
 						this.isFlashing = false;
 					}
 				}
 			} else {
 				if (elapsed < FLASH_FADE_IN) {
-					if (elapsed < 5) {
-						EffectManager.spam({
-							effectId: 30,
-							position: [this.lightningX, this.lightningY, this.lightningZ],
-							startTick: tick,
-							duration: now - this.flashStartTime + 60
-						});
-					}
 					flashAlpha = (elapsed / FLASH_FADE_IN) * 0.6;
 				} else if (elapsed < FLASH_FADE_IN + FLASH_FADE_OUT) {
 					const p = (elapsed - FLASH_FADE_IN) / FLASH_FADE_OUT;
-					flashAlpha = 0.6 * (1 - p);
+					flashAlpha = Math.max(overlayA, 0.6 * (1 - p));
 				} else {
 					this.isFlashing = false;
 				}
 			}
 
 			if (this.isFlashing) {
-				overlayR = 0.85;
-				overlayG = 0.92;
+				overlayR = 1.0;
+				overlayG = 1.0;
 				overlayB = 1.0;
 				overlayA = flashAlpha; // Balanced alpha for the environment
 			}
 		}
 
-		// Renders the gray/white flash overlay
-		if (_filterFrame) {
-			if (this.endTick > 0 && !this.isFlashing) {
-				const tail = Math.max(0, Math.min(1, (this.endTick - tick) / FADEOUT_TAIL_MS));
-				overlayA *= tail;
-			}
-
-			SpriteRenderer.image.palette = null;
-			SpriteRenderer.sprite = _filterFrame;
-			SpriteRenderer.image.texture = _filterFrame.texture;
-			SpriteRenderer.position[0] = Session.Entity.position[0];
-			SpriteRenderer.position[1] = Session.Entity.position[1];
-			SpriteRenderer.position[2] = Session.Entity.position[2];
-			SpriteRenderer.zIndex = -1000;
-
-			SpriteRenderer.color[0] = overlayR;
-			SpriteRenderer.color[1] = overlayG;
-			SpriteRenderer.color[2] = overlayB;
-			SpriteRenderer.color[3] = overlayA;
-
-			SpriteRenderer.angle = 0;
-			SpriteRenderer.size[0] = 6000;
-			SpriteRenderer.size[1] = 6000;
-			SpriteRenderer.offset[0] = 0;
-			SpriteRenderer.offset[1] = 0;
-			SpriteRenderer.render(false);
+		// Overlay pass - apply grey/thunder tint via post-process GPU pipeline.
+		// Fade out overlay alpha with the rain tail (skip during active flash).
+		if (this.endTick > 0 && !this.isFlashing) {
+			const tail = Math.max(0, Math.min(1, (this.endTick - tick) / FADEOUT_TAIL_MS));
+			overlayA *= tail;
 		}
+		RainOverlay.setOverlay(overlayR, overlayG, overlayB, overlayA);
 
-		// --- Renders the Realistic Procedural Lightning in the World ---
+		// --- Update Post-Process Procedural Sky Lightning ---
+		let boltAlpha = 0;
 		if (this.isFlashing && _lightningFrame) {
 			const elapsed = now - this.flashStartTime;
-			// The lightning appears quickly in the first 120ms of the flash
-			if (elapsed < 140) {
-				const boltAlpha = Math.min(1.0, (140 - elapsed) / 80);
-
-				SpriteRenderer.image.palette = null;
-				SpriteRenderer.sprite = _lightningFrame;
-				SpriteRenderer.image.texture = _lightningFrame.texture;
-				SpriteRenderer.position[0] = this.lightningX;
-				SpriteRenderer.position[1] = this.lightningY;
-				SpriteRenderer.position[2] = this.lightningZ + 8; // Height on the map
-				SpriteRenderer.zIndex = 500; // Stays above sprites/entities
-
-				SpriteRenderer.color[0] = 0.9;
-				SpriteRenderer.color[1] = 0.95;
-				SpriteRenderer.color[2] = 1.0;
-				SpriteRenderer.color[3] = boltAlpha;
-
-				SpriteRenderer.angle = 0;
-				SpriteRenderer.size[0] = 18; // Beam width in the world
-				SpriteRenderer.size[1] = 36; // Beam height
-				SpriteRenderer.offset[0] = 0;
-				SpriteRenderer.offset[1] = 0;
-				SpriteRenderer.render(false);
+			// The lightning appears quickly during the initial flash envelope
+			if (elapsed < 200) {
+				boltAlpha = Math.min(1.0, (200 - elapsed) / 100);
 			}
 		}
+		RainLightning.setLightning(_lightningFrame ? _lightningFrame.texture : null, boltAlpha);
 
 		// Rain drop generation and update
 		let remaining = Infinity;
@@ -1186,9 +1149,11 @@ class RainWeatherEffect {
 		this.splashes = [];
 		this.puddles = [];
 		this.ready = false;
+		RainLightning.setLightning(null, 0.0);
 	}
 }
 
 RainWeatherEffect.renderBeforeEntities = false;
 
 export default RainWeatherEffect;
+
