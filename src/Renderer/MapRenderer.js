@@ -585,9 +585,9 @@ function registerPostProcessModules(gl) {
 	PostProcess.register(Cartoon, gl);
 	PostProcess.register(Vibrance, gl);
 	PostProcess.register(VerticalFlip, gl);
-	PostProcess.register(Blind, gl);
 	PostProcess.register(RainOverlay, gl);
 	PostProcess.register(RainLightning, gl);
+	PostProcess.register(Blind, gl);
 
 	// Final Pass GPU Upsampling for Performance Mode
 	PostProcess.register(Upsampling, gl);
