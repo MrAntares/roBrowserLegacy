@@ -4,6 +4,7 @@ import EquipLocation from 'DB/Items/EquipmentLocation.js';
 import ItemType from 'DB/Items/ItemType.js';
 import DB from 'DB/DBManager.js';
 import JobId from 'DB/Jobs/JobConst.js';
+import WeaponType from 'DB/Items/WeaponType.js';
 
 const me = { GID: 100 };
 const other = { GID: 999 };
@@ -179,6 +180,7 @@ describe('Spawn and SPRITE_CHANGE2 resolution paths', () => {
 	const ownAssassin = { GID: 100, job: JobId.ASSASSIN, objecttype: 0 };
 	const remoteAssassin = { GID: 999, job: JobId.ASSASSIN, objecttype: 0 };
 	const remoteSwordman = { GID: 888, job: JobId.SWORDMAN, objecttype: 0 };
+	const ownSwordman = { GID: 100, job: JobId.SWORDMAN, objecttype: 0 };
 
 	it('handles spawn path for own assassin with offhand dagger', () => {
 		const { inv, equip } = createInventoryAndEquipment();
@@ -190,6 +192,24 @@ describe('Spawn and SPRITE_CHANGE2 resolution paths', () => {
 		expect(result.shield).toBe(0);
 	});
 
+	it('uses actual local item IDs for the original dual-wield range checks', () => {
+		const { inv, equip } = createInventoryAndEquipment();
+		equip.equip({ index: 20, ITID: 1100, type: ItemType.WEAPON, location: EquipLocation.WEAPON }, EquipLocation.WEAPON);
+		equip.equip({ index: 21, ITID: 1201, type: ItemType.WEAPON, location: EquipLocation.SHIELD }, EquipLocation.SHIELD);
+
+		const result = resolveEntityWeapons(1, 1, ownAssassin, me, inv, equip);
+		expect(result).toEqual({ weapon: WeaponType.SHORTSWORD_SWORD, shield: 0 });
+	});
+
+	it('applies the original Assassin remap for unclassified offhand item ranges', () => {
+		const { inv, equip } = createInventoryAndEquipment();
+		equip.equip({ index: 22, ITID: 1150, type: ItemType.WEAPON, location: EquipLocation.WEAPON }, EquipLocation.WEAPON);
+		equip.equip({ index: 23, ITID: 1201, type: ItemType.WEAPON, location: EquipLocation.SHIELD }, EquipLocation.SHIELD);
+
+		const result = resolveEntityWeapons(3, 1, ownAssassin, me, inv, equip);
+		expect(result).toEqual({ weapon: WeaponType.SWORD, shield: 0 });
+	});
+
 	it('handles spawn path for own assassin with offhand shield', () => {
 		const { inv, equip } = createInventoryAndEquipment();
 		equip.equip({ index: 6, ITID: 2101, type: ItemType.ARMOR, location: EquipLocation.SHIELD }, EquipLocation.SHIELD);
@@ -197,7 +217,31 @@ describe('Spawn and SPRITE_CHANGE2 resolution paths', () => {
 		// Sword view ID 2 in main hand, guard view ID 1 in offhand
 		const result = resolveEntityWeapons(2, 1, ownAssassin, me, inv, equip);
 		expect(result.weapon).toBe(DB.getWeaponViewID(2));
-		expect(result.shield).toBe(1);
+		expect(result.shield).toBe(2101);
+	});
+
+	it('keeps a known non-Assassin offhand weapon as a weapon resource', () => {
+		const { inv, equip } = createInventoryAndEquipment();
+		equip.equip({ index: 9, ITID: 1201, type: ItemType.WEAPON, location: EquipLocation.SHIELD }, EquipLocation.SHIELD);
+		const result = resolveEntityWeapons(2, 1, ownSwordman, me, inv, equip);
+
+		expect(result.weapon).toBe(DB.getWeaponViewID(2));
+		expect(result.shield).toBe(1201);
+		expect(DB.getShieldPath(result.shield, ownSwordman.job, 1)).toBe(
+			DB.getWeaponPath(1201, ownSwordman.job, 1)
+		);
+	});
+
+	it('uses the Katar weapon resource alone, whether the packet puts it in the first or second value', () => {
+		const { inv, equip } = createInventoryAndEquipment();
+		expect(resolveEntityWeapons(WeaponType.KATAR, 0, remoteAssassin, me, inv, equip)).toEqual({
+			weapon: WeaponType.KATAR,
+			shield: 0
+		});
+		expect(resolveEntityWeapons(0, WeaponType.KATAR, remoteAssassin, me, inv, equip)).toEqual({
+			weapon: WeaponType.KATAR,
+			shield: 0
+		});
 	});
 
 	it('handles spawn path for remote assassin with ambiguous view ID (preserves shield)', () => {
@@ -212,6 +256,15 @@ describe('Spawn and SPRITE_CHANGE2 resolution paths', () => {
 		const { inv, equip } = createInventoryAndEquipment();
 		const result = resolveEntityWeapons(1, 1201, remoteAssassin, me, inv, equip);
 		expect(result.weapon).toBe(DB.mountWeapon(DB.getWeaponType(1, true), DB.getWeaponType(1201, true)));
+		expect(result.shield).toBe(0);
+	});
+
+	it('resolves dual wield for Guillotine Cross 2nd', () => {
+		const { inv, equip } = createInventoryAndEquipment();
+		const entity = { GID: 999, job: JobId.GUILLOTINE_CROSS_2ND, objecttype: 0 };
+		const result = resolveEntityWeapons(1, 1201, entity, me, inv, equip);
+
+		expect(result.weapon).toBe(WeaponType.SHORTSWORD_SHORTSWORD);
 		expect(result.shield).toBe(0);
 	});
 
@@ -237,7 +290,7 @@ describe('Spawn and SPRITE_CHANGE2 resolution paths', () => {
 
 		const result = resolveEntityWeapons(2, 1, ownAssassin, me, inv, equip);
 		expect(result.weapon).toBe(DB.getWeaponViewID(2));
-		expect(result.shield).toBe(1);
+		expect(result.shield).toBe(2101);
 	});
 
 	it('handles SPRITE_CHANGE2 path for remote assassin with ambiguous view ID (preserves shield)', () => {

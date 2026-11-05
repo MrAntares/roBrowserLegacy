@@ -1334,10 +1334,16 @@ function onEntityViewChange(pkt) {
 				entity.weapon = resolved.weapon;
 				entity.shield = resolved.shield;
 			} else {
-				entity.weapon = DB.getWeaponViewID(pkt.value);
-				if (pkt.value2 !== undefined) {
-					entity.shield = pkt.value2;
-				}
+				const resolved = resolveEntityWeapons(
+					pkt.value,
+					pkt.value2 !== undefined ? pkt.value2 : entity.shield,
+					entity,
+					Session.Entity,
+					Inventory,
+					Equipment
+				);
+				entity.weapon = resolved.weapon;
+				entity.shield = resolved.shield;
 			}
 
 			// load self aura
@@ -1373,7 +1379,18 @@ function onEntityViewChange(pkt) {
 			entity.bodypalette = pkt.value;
 			break;
 		case 8:
-			entity.shield = pkt.value;
+			{
+				const resolved = resolveEntityWeapons(
+					entity.weapon,
+					pkt.value,
+					entity,
+					Session.Entity,
+					Inventory,
+					Equipment
+				);
+				entity.weapon = resolved.weapon;
+				entity.shield = resolved.shield;
+			}
 			break;
 		case 9:
 			break; // LOOK_SHOES ??

@@ -203,6 +203,17 @@ duplicateEntry(
 	JobId.TROUVERE,
 	JobId.TROUVERE_RIDING
 );
+duplicateEntry(JobId.SUPERNOVICE, JobId.SUPERNOVICE_B, JobId.SUPERNOVICE2, JobId.SUPERNOVICE2_B);
+duplicateEntry(JobId.NINJA, JobId.NINJA_B);
+duplicateEntry(JobId.KAGEROU, JobId.KAGEROU_B);
+duplicateEntry(JobId.OBORO, JobId.OBORO_B);
+duplicateEntry(JobId.LINKER, JobId.LINKER_B);
+duplicateEntry(JobId.GUNSLINGER, JobId.GUNSLINGER_B);
+duplicateEntry(JobId.REBELLION, JobId.REBELLION_B);
+duplicateEntry(JobId.DO_SUMMONER, JobId.DO_SUMMONER_B, JobId.DO_CART_SUMMONER1);
+duplicateEntry(JobId.DRUID, JobId.DRUID_B);
+duplicateEntry(JobId.KARNOS, JobId.KARNOS_B);
+duplicateEntry(JobId.SPIRIT_HANDLER, JobId.SPIRIT_HANDLER_RIDING1);
 
 // Exports
 export default WeaponJobTable;
