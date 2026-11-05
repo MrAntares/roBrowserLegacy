@@ -86034,6 +86034,17 @@ var init_WeaponJobTable = __esmMin((() => {
 	duplicateEntry$3(JobConst_default.ALCHEMIST, JobConst_default.ALCHEMIST_H, JobConst_default.ALCHEMIST_B, JobConst_default.GENETIC, JobConst_default.GENETIC_H, JobConst_default.GENETIC_B, JobConst_default.GENETIC_2ND, JobConst_default.BIOLO, JobConst_default.BIOLO_RIDING);
 	duplicateEntry$3(JobConst_default.BARD, JobConst_default.BARD_H, JobConst_default.BARD_B, JobConst_default.MINSTREL, JobConst_default.MINSTREL_H, JobConst_default.MINSTREL_B, JobConst_default.MINSTREL_2ND, JobConst_default.TROUBADOUR, JobConst_default.TROUBADOUR_RIDING);
 	duplicateEntry$3(JobConst_default.DANCER, JobConst_default.DANCER_H, JobConst_default.DANCER_B, JobConst_default.WANDERER, JobConst_default.WANDERER_H, JobConst_default.WANDERER_B, JobConst_default.WANDERER_2ND, JobConst_default.TROUVERE, JobConst_default.TROUVERE_RIDING);
+	duplicateEntry$3(JobConst_default.SUPERNOVICE, JobConst_default.SUPERNOVICE_B, JobConst_default.SUPERNOVICE2, JobConst_default.SUPERNOVICE2_B);
+	duplicateEntry$3(JobConst_default.NINJA, JobConst_default.NINJA_B);
+	duplicateEntry$3(JobConst_default.KAGEROU, JobConst_default.KAGEROU_B);
+	duplicateEntry$3(JobConst_default.OBORO, JobConst_default.OBORO_B);
+	duplicateEntry$3(JobConst_default.LINKER, JobConst_default.LINKER_B);
+	duplicateEntry$3(JobConst_default.GUNSLINGER, JobConst_default.GUNSLINGER_B);
+	duplicateEntry$3(JobConst_default.REBELLION, JobConst_default.REBELLION_B);
+	duplicateEntry$3(JobConst_default.DO_SUMMONER, JobConst_default.DO_SUMMONER_B, JobConst_default.DO_CART_SUMMONER1);
+	duplicateEntry$3(JobConst_default.DRUID, JobConst_default.DRUID_B);
+	duplicateEntry$3(JobConst_default.KARNOS, JobConst_default.KARNOS_B);
+	duplicateEntry$3(JobConst_default.SPIRIT_HANDLER, JobConst_default.SPIRIT_HANDLER_RIDING1);
 }));
 // src/DB/Jobs/BabyTable.js
 var BabyTable_default;
@@ -103419,8 +103430,8 @@ var init_WeaponTypeExpansion = __esmMin((() => {
 	WeaponTypeExpansion[WeaponType_default.Book_Of_Gust_Of_Wind] = WeaponType_default.BOOK;
 	WeaponTypeExpansion[WeaponType_default.Book_Of_The_Apocalypse] = WeaponType_default.BOOK;
 	WeaponTypeExpansion[WeaponType_default.Girls_Diary] = WeaponType_default.BOOK;
-	WeaponTypeExpansion[WeaponType_default.Staff_Of_Soul] = WeaponType_default.WPCLASS_TWOHANDROD;
-	WeaponTypeExpansion[WeaponType_default.Wizardy_Staff] = WeaponType_default.WPCLASS_TWOHANDROD;
+	WeaponTypeExpansion[WeaponType_default.Staff_Of_Soul] = WeaponType_default.TWOHANDROD;
+	WeaponTypeExpansion[WeaponType_default.Wizardy_Staff] = WeaponType_default.TWOHANDROD;
 	WeaponTypeExpansion[WeaponType_default.FOXTAIL_BROWN] = WeaponType_default.ROD;
 	WeaponTypeExpansion[WeaponType_default.FOXTAIL_GREEN] = WeaponType_default.ROD;
 	WeaponTypeExpansion[WeaponType_default.CandyCaneRod] = WeaponType_default.ROD;
@@ -314400,7 +314411,7 @@ function updateMapTable() {
 		else MapTable[key] = { name: MapInfo[key].displayName };
 	}
 }
-var lua, HO_AI, MER_AI, default_HO_AI, default_MER_AI, mountPalettes, mountPalettesProbe, MsgStringTable, JokeTable, ScreamTable, MapTable, SkillDescription, SexTable, PetTalkTable, CheckAttendanceTable, buyingStoreItemList, LaphineSysTable, LaphineUpgTable, ItemDBNameTbl, ItemReformTable, EnchantListTable, SignBoardTranslatedTable, SignBoardTable, NaviMapTable, NaviMobTable, NaviNpcTable, NaviLinkTable, NaviLinkDistanceTable, NaviNpcDistanceTable, QuestInfo, TitleTable, PetDBTable, EggIDToJobID, ReputeGroup, ReputeInfo, AchievementTable, MsgEmotionCSV, HatEffectID, HatEffectInfo, FootPrintEffectInfo, CashShopBannerTable, Ez2streffect, unknownItem, servers, langType, userCharpage, grfCharpage, userStringDecoder, DB, SUFFIX_TO_FIELD, HARDCODED_FIELD_MAPPING, EZ2_VARIANT_WORD;
+var ASSASSIN_DUAL_WEAPON_TYPES, PRIEST_KNUCKLE_INCOMPATIBLE_JOBS, SHIELD_VIEW_1_JOBS, SHIELD_VIEW_1_2_JOBS, SHIELD_VIEW_1_4_JOBS, SHIELD_VIEW_1_2_4_JOBS, SHIELD_ITEM_UNSUPPORTED_JOBS, lua, HO_AI, MER_AI, default_HO_AI, default_MER_AI, mountPalettes, mountPalettesProbe, MsgStringTable, JokeTable, ScreamTable, MapTable, SkillDescription, SexTable, PetTalkTable, CheckAttendanceTable, buyingStoreItemList, LaphineSysTable, LaphineUpgTable, ItemDBNameTbl, ItemReformTable, EnchantListTable, SignBoardTranslatedTable, SignBoardTable, NaviMapTable, NaviMobTable, NaviNpcTable, NaviLinkTable, NaviLinkDistanceTable, NaviNpcDistanceTable, QuestInfo, TitleTable, PetDBTable, EggIDToJobID, ReputeGroup, ReputeInfo, AchievementTable, MsgEmotionCSV, HatEffectID, HatEffectInfo, FootPrintEffectInfo, CashShopBannerTable, Ez2streffect, unknownItem, servers, langType, userCharpage, grfCharpage, userStringDecoder, DB, SUFFIX_TO_FIELD, HARDCODED_FIELD_MAPPING, EZ2_VARIANT_WORD;
 var init_DBManager = __esmMin((() => {
 	init_Client();
 	init_Configs();
@@ -314453,6 +314464,193 @@ var init_DBManager = __esmMin((() => {
 	init_MemoryManager();
 	init_LuaModuleLoader();
 	init_preload_helper();
+	ASSASSIN_DUAL_WEAPON_TYPES = /* @__PURE__ */ new Set([
+		WeaponType_default.KATAR,
+		WeaponType_default.SHORTSWORD_SHORTSWORD,
+		WeaponType_default.SHORTSWORD_SWORD,
+		WeaponType_default.SHORTSWORD_AXE,
+		WeaponType_default.SWORD_SWORD,
+		WeaponType_default.SWORD_AXE,
+		WeaponType_default.AXE_AXE
+	]);
+	PRIEST_KNUCKLE_INCOMPATIBLE_JOBS = /* @__PURE__ */ new Set([
+		JobConst_default.PRIEST,
+		JobConst_default.PRIEST_H,
+		JobConst_default.PRIEST_B,
+		JobConst_default.ARCHBISHOP,
+		JobConst_default.ARCHBISHOP_H,
+		JobConst_default.ARCHBISHOP_B,
+		JobConst_default.ARCH_BISHOP_2ND,
+		JobConst_default.CARDINAL,
+		JobConst_default.CARDINAL_RIDING
+	]);
+	SHIELD_VIEW_1_JOBS = /* @__PURE__ */ new Set([
+		JobConst_default.NOVICE,
+		JobConst_default.MAGICIAN,
+		JobConst_default.ARCHER,
+		JobConst_default.WIZARD,
+		JobConst_default.HUNTER,
+		JobConst_default.SAGE,
+		JobConst_default.BARD,
+		JobConst_default.DANCER,
+		JobConst_default.SUPERNOVICE,
+		JobConst_default.NOVICE_H,
+		JobConst_default.MAGICIAN_H,
+		JobConst_default.ARCHER_H,
+		JobConst_default.WIZARD_H,
+		JobConst_default.HUNTER_H,
+		JobConst_default.SAGE_H,
+		JobConst_default.BARD_H,
+		JobConst_default.DANCER_H,
+		JobConst_default.NOVICE_B,
+		JobConst_default.MAGICIAN_B,
+		JobConst_default.ARCHER_B,
+		JobConst_default.WIZARD_B,
+		JobConst_default.HUNTER_B,
+		JobConst_default.SAGE_B,
+		JobConst_default.BARD_B,
+		JobConst_default.DANCER_B,
+		JobConst_default.SUPERNOVICE_B,
+		JobConst_default.WARLOCK,
+		JobConst_default.RANGER,
+		JobConst_default.WARLOCK_H,
+		JobConst_default.RANGER_H,
+		JobConst_default.SORCERER,
+		JobConst_default.MINSTREL,
+		JobConst_default.WANDERER,
+		JobConst_default.SORCERER_H,
+		JobConst_default.MINSTREL_H,
+		JobConst_default.WANDERER_H,
+		JobConst_default.WARLOCK_B,
+		JobConst_default.RANGER_B,
+		JobConst_default.SORCERER_B,
+		JobConst_default.MINSTREL_B,
+		JobConst_default.WANDERER_B,
+		JobConst_default.SUPERNOVICE2,
+		JobConst_default.SUPERNOVICE2_B,
+		JobConst_default.ARCH_MAGE,
+		JobConst_default.WINDHAWK,
+		JobConst_default.ELEMENTAL_MASTER,
+		JobConst_default.TROUBADOUR,
+		JobConst_default.TROUVERE,
+		JobConst_default.HYPER_NOVICE
+	]);
+	SHIELD_VIEW_1_2_JOBS = /* @__PURE__ */ new Set([
+		JobConst_default.ACOLYTE,
+		JobConst_default.MERCHANT,
+		JobConst_default.THIEF,
+		JobConst_default.PRIEST,
+		JobConst_default.BLACKSMITH,
+		JobConst_default.ASSASSIN,
+		JobConst_default.ROGUE,
+		JobConst_default.ALCHEMIST,
+		JobConst_default.ACOLYTE_H,
+		JobConst_default.MERCHANT_H,
+		JobConst_default.THIEF_H,
+		JobConst_default.PRIEST_H,
+		JobConst_default.BLACKSMITH_H,
+		JobConst_default.ASSASSIN_H,
+		JobConst_default.ROGUE_H,
+		JobConst_default.ALCHEMIST_H,
+		JobConst_default.ACOLYTE_B,
+		JobConst_default.MERCHANT_B,
+		JobConst_default.THIEF_B,
+		JobConst_default.PRIEST_B,
+		JobConst_default.BLACKSMITH_B,
+		JobConst_default.ASSASSIN_B,
+		JobConst_default.ROGUE_B,
+		JobConst_default.ALCHEMIST_B,
+		JobConst_default.ARCHBISHOP,
+		JobConst_default.MECHANIC,
+		JobConst_default.GUILLOTINE_CROSS,
+		JobConst_default.ARCHBISHOP_H,
+		JobConst_default.MECHANIC_H,
+		JobConst_default.GUILLOTINE_CROSS_H,
+		JobConst_default.GENETIC,
+		JobConst_default.SHADOW_CHASER,
+		JobConst_default.GENETIC_H,
+		JobConst_default.SHADOW_CHASER_H,
+		JobConst_default.ARCHBISHOP_B,
+		JobConst_default.MECHANIC_B,
+		JobConst_default.GUILLOTINE_CROSS_B,
+		JobConst_default.GENETIC_B,
+		JobConst_default.SHADOW_CHASER_B,
+		JobConst_default.MEISTER,
+		JobConst_default.SHADOW_CROSS,
+		JobConst_default.CARDINAL,
+		JobConst_default.BIOLO,
+		JobConst_default.ABYSS_CHASER
+	]);
+	SHIELD_VIEW_1_4_JOBS = /* @__PURE__ */ new Set([
+		JobConst_default.SWORDMAN,
+		JobConst_default.KNIGHT,
+		JobConst_default.CRUSADER,
+		JobConst_default.SWORDMAN_H,
+		JobConst_default.KNIGHT_H,
+		JobConst_default.CRUSADER_H,
+		JobConst_default.SWORDMAN_B,
+		JobConst_default.KNIGHT_B,
+		JobConst_default.CRUSADER_B,
+		JobConst_default.RUNE_KNIGHT,
+		JobConst_default.RUNE_KNIGHT_H,
+		JobConst_default.ROYAL_GUARD,
+		JobConst_default.ROYAL_GUARD_H,
+		JobConst_default.RUNE_KNIGHT_B,
+		JobConst_default.ROYAL_GUARD_B,
+		JobConst_default.DO_SUMMONER,
+		JobConst_default.DO_SUMMONER_B,
+		JobConst_default.DRAGON_KNIGHT,
+		JobConst_default.IMPERIAL_GUARD,
+		JobConst_default.DRAGON_KNIGHT_RIDING,
+		JobConst_default.IMPERIAL_GUARD_RIDING,
+		JobConst_default.SPIRIT_HANDLER
+	]);
+	SHIELD_VIEW_1_2_4_JOBS = /* @__PURE__ */ new Set([
+		JobConst_default.DRUID,
+		JobConst_default.DRUID_B,
+		JobConst_default.KARNOS,
+		JobConst_default.KARNOS_B,
+		JobConst_default.ALITEA
+	]);
+	SHIELD_ITEM_UNSUPPORTED_JOBS = /* @__PURE__ */ new Set([
+		JobConst_default.MARRIED,
+		JobConst_default.XMAS,
+		JobConst_default.SUMMER,
+		JobConst_default.HANBOK,
+		JobConst_default.OKTOBERFEST,
+		JobConst_default.SUMMER2,
+		JobConst_default.GANGSI,
+		JobConst_default.DEATHKNIGHT,
+		JobConst_default.COLLECTOR,
+		JobConst_default.KNIGHT2,
+		JobConst_default.KNIGHT2_H,
+		JobConst_default.KNIGHT2_B,
+		JobConst_default.CRUSADER2,
+		JobConst_default.CRUSADER2_H,
+		JobConst_default.CRUSADER2_B,
+		JobConst_default.RUNE_KNIGHT2,
+		JobConst_default.RUNE_KNIGHT2_H,
+		JobConst_default.RUNE_KNIGHT2_B,
+		JobConst_default.RUNE_CHICKEN2,
+		JobConst_default.RUNE_CHICKEN2_H,
+		JobConst_default.RUNE_CHICKEN3,
+		JobConst_default.RUNE_CHICKEN3_H,
+		JobConst_default.RUNE_CHICKEN4,
+		JobConst_default.RUNE_CHICKEN4_H,
+		JobConst_default.RUNE_CHICKEN5,
+		JobConst_default.RUNE_CHICKEN5_H,
+		JobConst_default.ROYAL_GUARD2,
+		JobConst_default.ROYAL_GUARD2_H,
+		JobConst_default.ROYAL_GUARD2_B,
+		JobConst_default.RANGER2,
+		JobConst_default.RANGER2_H,
+		JobConst_default.RANGER2_B,
+		JobConst_default.MECHANIC2,
+		JobConst_default.MECHANIC2_H,
+		JobConst_default.MECHANIC2_B,
+		JobConst_default.DO_CART_SUMMONER1,
+		JobConst_default.MEISTER_RIDING
+	]);
 	mountPalettesProbe = null;
 	MsgStringTable = [];
 	JokeTable = [];
@@ -314836,6 +315034,7 @@ var init_DBManager = __esmMin((() => {
 			JobConst_default.ASSASSIN_H,
 			JobConst_default.GUILLOTINE_CROSS,
 			JobConst_default.GUILLOTINE_CROSS_H,
+			JobConst_default.GUILLOTINE_CROSS_2ND,
 			JobConst_default.SHADOW_CROSS,
 			JobConst_default.ASSASSIN_B,
 			JobConst_default.GUILLOTINE_CROSS_B,
@@ -315202,7 +315401,7 @@ var init_DBManager = __esmMin((() => {
 		*/
 		static isShieldItem(id) {
 			const num = Number(id);
-			if (isNaN(num) || num <= 0) return false;
+			if (!Number.isInteger(num) || num <= 0) return false;
 			return num >= 2100 && num <= 2199 || num >= 28900 && num <= 28999 || num >= 46e4 && num <= 469999;
 		}
 		/**
@@ -315227,14 +315426,35 @@ var init_DBManager = __esmMin((() => {
 		*/
 		static isShield(id, job, isOffhandWeapon) {
 			const num = Number(id);
-			if (isNaN(num) || num <= 0) return false;
+			if (!Number.isInteger(num) || num <= 0) return false;
 			if (isOffhandWeapon === true) return false;
 			if (isOffhandWeapon === false) return true;
 			if (DB.isShieldItem(num)) return true;
 			if (num > 500) return false;
 			return true;
 		}
+		/**
+		* Whether the reference client has a shield sprite for this job/view pair.
+		* The original check uses custom item sprites for IDs above 2000 and fixed
+		* job/view support for the four generic shield sprites.
+		* @param {number} job
+		* @param {number} shieldView shield item ID or generic shield view
+		* @returns {boolean}
+		*/
+		static hasJobShieldSprite(job, shieldView) {
+			const shield = Number(shieldView);
+			if (!Number.isInteger(shield) || shield <= 0) return false;
+			if (shield > 2e3) return !SHIELD_ITEM_UNSUPPORTED_JOBS.has(job);
+			switch (shield) {
+				case 1: return SHIELD_VIEW_1_JOBS.has(job) || SHIELD_VIEW_1_2_JOBS.has(job) || SHIELD_VIEW_1_4_JOBS.has(job) || SHIELD_VIEW_1_2_4_JOBS.has(job);
+				case 2: return SHIELD_VIEW_1_2_JOBS.has(job) || SHIELD_VIEW_1_4_JOBS.has(job) || SHIELD_VIEW_1_2_4_JOBS.has(job);
+				case 3: return SHIELD_VIEW_1_4_JOBS.has(job);
+				case 4: return SHIELD_VIEW_1_4_JOBS.has(job) || SHIELD_VIEW_1_2_4_JOBS.has(job);
+				default: return false;
+			}
+		}
 		static getPCAttackMotion(job, sex, itemID, isDualWeapon) {
+			if (DB.isAssassin(job) && ASSASSIN_DUAL_WEAPON_TYPES.has(DB.getWeaponType(itemID))) return 3;
 			if (isDualWeapon) switch (job) {
 				case JobConst_default.THIEF:
 				case JobConst_default.THIEF_H: return 5.75;
@@ -315249,31 +315469,16 @@ var init_DBManager = __esmMin((() => {
 				case JobConst_default.SUPERNOVICE_B:
 				case JobConst_default.SUPERNOVICE2:
 				case JobConst_default.SUPERNOVICE2_B:
-				case JobConst_default.HYPER_NOVICE:
-					switch (sex) {
-						case 1: return 5.85;
-					}
-					break;
-				case JobConst_default.ASSASSIN:
-				case JobConst_default.ASSASSIN_H:
-				case JobConst_default.ASSASSIN_B:
-				case JobConst_default.GUILLOTINE_CROSS:
-				case JobConst_default.GUILLOTINE_CROSS_H:
-				case JobConst_default.GUILLOTINE_CROSS_B:
-				case JobConst_default.SHADOW_CROSS: switch (DB.getWeaponType(itemID)) {
-					case WeaponType_default.KATAR:
-					case WeaponType_default.SHORTSWORD_SHORTSWORD:
-					case WeaponType_default.SWORD_SWORD:
-					case WeaponType_default.AXE_AXE:
-					case WeaponType_default.SHORTSWORD_SWORD:
-					case WeaponType_default.SHORTSWORD_AXE:
-					case WeaponType_default.SWORD_AXE: return 3;
+				case JobConst_default.HYPER_NOVICE: switch (sex) {
+					case 1: return 5.85;
 				}
 			}
 			return 6;
 		}
 		static isDualWeapon(job, sex, weaponType) {
 			let dualWeapon = false;
+			if (!Number.isInteger(weaponType) || weaponType < 0 || weaponType >= WeaponType_default.MAX) return false;
+			if (DB.isAssassin(job) && ASSASSIN_DUAL_WEAPON_TYPES.has(weaponType)) return true;
 			switch (job) {
 				case JobConst_default.GUNSLINGER:
 				case JobConst_default.GUNSLINGER_B:
@@ -315413,9 +315618,10 @@ var init_DBManager = __esmMin((() => {
 				case JobConst_default.RUNE_KNIGHT2_B:
 				case JobConst_default.DRAGON_KNIGHT:
 				case JobConst_default.DRAGON_KNIGHT2:
+				case JobConst_default.DRAGON_KNIGHT_RIDING:
 					switch (weaponType) {
 						case WeaponType_default.TWOHANDSPEAR:
-						case WeaponAction.TWOHANDSWORD: dualWeapon = true;
+						case WeaponType_default.TWOHANDSWORD: dualWeapon = true;
 					}
 					break;
 				case JobConst_default.PRIEST:
@@ -315425,6 +315631,8 @@ var init_DBManager = __esmMin((() => {
 				case JobConst_default.ARCHBISHOP_H:
 				case JobConst_default.ARCHBISHOP_B:
 				case JobConst_default.CARDINAL:
+				case JobConst_default.ARCH_BISHOP_2ND:
+				case JobConst_default.CARDINAL_RIDING:
 					switch (weaponType) {
 						case WeaponType_default.BOOK: dualWeapon = true;
 					}
@@ -315436,6 +315644,8 @@ var init_DBManager = __esmMin((() => {
 				case JobConst_default.WARLOCK_H:
 				case JobConst_default.WARLOCK_B:
 				case JobConst_default.ARCH_MAGE:
+				case JobConst_default.WARLOCK_2ND:
+				case JobConst_default.ARCH_MAGE_RIDING:
 					switch (weaponType) {
 						case WeaponType_default.SHORTSWORD:
 							if (sex == 1) dualWeapon = true;
@@ -315455,28 +315665,14 @@ var init_DBManager = __esmMin((() => {
 				case JobConst_default.MECHANIC2_B:
 				case JobConst_default.MEISTER:
 				case JobConst_default.MEISTER2:
+				case JobConst_default.MECHANIC_2ND:
+				case JobConst_default.MECHANIC2_2ND:
+				case JobConst_default.MEISTER_RIDING:
 					switch (weaponType) {
 						case WeaponType_default.SWORD:
 						case WeaponType_default.AXE:
 						case WeaponType_default.TWOHANDAXE:
 						case WeaponType_default.MACE: dualWeapon = true;
-					}
-					break;
-				case JobConst_default.ASSASSIN:
-				case JobConst_default.ASSASSIN_H:
-				case JobConst_default.ASSASSIN_B:
-				case JobConst_default.GUILLOTINE_CROSS:
-				case JobConst_default.GUILLOTINE_CROSS_H:
-				case JobConst_default.GUILLOTINE_CROSS_B:
-				case JobConst_default.SHADOW_CROSS:
-					switch (weaponType) {
-						case WeaponType_default.KATAR:
-						case WeaponType_default.SHORTSWORD_SHORTSWORD:
-						case WeaponType_default.SHORTSWORD_SWORD:
-						case WeaponType_default.SHORTSWORD_AXE:
-						case WeaponType_default.SWORD_SWORD:
-						case WeaponType_default.SWORD_AXE:
-						case WeaponType_default.AXE_AXE: dualWeapon = true;
 					}
 					break;
 				case JobConst_default.HUNTER:
@@ -315490,6 +315686,9 @@ var init_DBManager = __esmMin((() => {
 				case JobConst_default.RANGER2_B:
 				case JobConst_default.WINDHAWK:
 				case JobConst_default.WINDHAWK2:
+				case JobConst_default.RANGER_2ND:
+				case JobConst_default.RANGER2_2ND:
+				case JobConst_default.WINDHAWK_RIDING:
 					switch (weaponType) {
 						case WeaponType_default.BOW: dualWeapon = true;
 					}
@@ -315501,6 +315700,8 @@ var init_DBManager = __esmMin((() => {
 				case JobConst_default.SORCERER_H:
 				case JobConst_default.SORCERER_B:
 				case JobConst_default.ELEMENTAL_MASTER:
+				case JobConst_default.ELEMENTAL_MASTER_RIDING:
+				case JobConst_default.SORCERER_2ND:
 					switch (weaponType) {
 						case WeaponType_default.BOOK:
 						case WeaponType_default.ROD:
@@ -315515,6 +315716,8 @@ var init_DBManager = __esmMin((() => {
 				case JobConst_default.GENETIC_H:
 				case JobConst_default.GENETIC_B:
 				case JobConst_default.BIOLO:
+				case JobConst_default.BIOLO_RIDING:
+				case JobConst_default.GENETIC_2ND:
 					switch (weaponType) {
 						case WeaponType_default.SWORD:
 						case WeaponType_default.AXE:
@@ -315539,6 +315742,9 @@ var init_DBManager = __esmMin((() => {
 				case JobConst_default.ROYAL_GUARD2_B:
 				case JobConst_default.IMPERIAL_GUARD:
 				case JobConst_default.IMPERIAL_GUARD2:
+				case JobConst_default.IMPERIAL_GUARD_RIDING:
+				case JobConst_default.ROYAL_GUARD_2ND:
+				case JobConst_default.ROYAL_GUARD2_2ND:
 					switch (weaponType) {
 						case WeaponType_default.SPEAR:
 						case WeaponType_default.TWOHANDSPEAR: dualWeapon = true;
@@ -315551,6 +315757,8 @@ var init_DBManager = __esmMin((() => {
 				case JobConst_default.SURA_H:
 				case JobConst_default.SURA_B:
 				case JobConst_default.INQUISITOR:
+				case JobConst_default.INQUISITOR_RIDING:
+				case JobConst_default.SURA_2ND:
 					switch (weaponType) {
 						case WeaponType_default.KNUKLE:
 						case WeaponType_default.NONE: dualWeapon = true;
@@ -315563,6 +315771,8 @@ var init_DBManager = __esmMin((() => {
 				case JobConst_default.SHADOW_CHASER_H:
 				case JobConst_default.SHADOW_CHASER_B:
 				case JobConst_default.ABYSS_CHASER:
+				case JobConst_default.ABYSS_CHASER_RIDING:
+				case JobConst_default.SHADOW_CHASER_2ND:
 					switch (weaponType) {
 						case WeaponType_default.BOW: dualWeapon = true;
 					}
@@ -315581,19 +315791,25 @@ var init_DBManager = __esmMin((() => {
 				case JobConst_default.WANDERER_H:
 				case JobConst_default.WANDERER_B:
 				case JobConst_default.TROUVERE:
+				case JobConst_default.TROUBADOUR_RIDING:
+				case JobConst_default.TROUVERE_RIDING:
+				case JobConst_default.MINSTREL_2ND:
+				case JobConst_default.WANDERER_2ND:
 					switch (weaponType) {
 						case WeaponType_default.BOW: dualWeapon = true;
 					}
 					break;
-				case JobConst_default.DO_SUMMONER1:
-				case JobConst_default.DO_SUMMONER_B1:
+				case JobConst_default.DO_SUMMONER:
+				case JobConst_default.DO_SUMMONER_B:
+				case JobConst_default.DO_CART_SUMMONER1:
 				case JobConst_default.SPIRIT_HANDLER:
+				case JobConst_default.SPIRIT_HANDLER_RIDING1:
 			}
 			return dualWeapon;
 		}
 		static getWeaponType(itemID, realType = false, considerDualHandIds = false) {
 			const id = Number(itemID);
-			if (isNaN(id) || id < 0) return WeaponType_default.NONE;
+			if (!Number.isInteger(id) || id < 0) return WeaponType_default.NONE;
 			if (realType && id in WeaponTypeExpansion) return WeaponTypeExpansion[id];
 			if (considerDualHandIds && id <= WeaponType_default.SWORD_AXE) return id;
 			if (id < WeaponType_default.MAX) return id;
@@ -315724,14 +315940,13 @@ var init_DBManager = __esmMin((() => {
 						type: WeaponType_default.TWOHANDSWORD
 					}
 				];
-				for (const range of ranges) if (id >= range.min && id <= range.max) return range.type;
 				if ([
 					13157,
 					13158,
 					13159,
 					13172,
 					13177
-				].indexOf(id) > -1) return WeaponType_default.GUN_GATLING;
+				].includes(id)) return WeaponType_default.GUN_GATLING;
 				if ([
 					13154,
 					13155,
@@ -315741,14 +315956,15 @@ var init_DBManager = __esmMin((() => {
 					13169,
 					13173,
 					13178
-				].indexOf(id) > -1) return WeaponType_default.GUN_SHOTGUN;
+				].includes(id)) return WeaponType_default.GUN_SHOTGUN;
 				if ([
 					13160,
 					13161,
 					13162,
 					13174,
 					13179
-				].indexOf(id) > -1) return WeaponType_default.GUN_GRANADE;
+				].includes(id)) return WeaponType_default.GUN_GRANADE;
+				for (const range of ranges) if (id >= range.min && id <= range.max) return range.type;
 			}
 			return WeaponType_default.NONE;
 		}
@@ -315758,18 +315974,31 @@ var init_DBManager = __esmMin((() => {
 		* @param {number} job class
 		* @param {boolean} sex
 		*/
-		static getShieldPath(id, job, sex) {
-			if (!id || id <= 0) return null;
-			if (!DB.isShield(id, job, false)) return DB.getWeaponPath(id, job, sex);
+		static getShieldPath(id, job, sex, isMounted = false) {
+			const shieldId = Number(id);
+			const gender = SexTable[sex];
+			if (!Number.isInteger(shieldId) || shieldId <= 0 || !gender) return null;
+			id = shieldId;
+			if (!DB.isShield(id, job)) return DB.getWeaponPath(id, job, sex);
+			if (isMounted) return null;
 			const baseClass = WeaponJobTable[job] || WeaponJobTable[0];
-			let viewId = id;
-			if (id in ItemTable_default && "ClassNum" in ItemTable_default[id]) viewId = ItemTable_default[id].ClassNum;
-			if (!viewId || viewId <= 0) return null;
-			let suffix = "";
-			if (viewId in ShieldTable_default) suffix = ShieldTable_default[viewId];
-			else if (viewId >= 5) suffix = viewId + "_¹æÆÐ";
-			else return null;
-			return "data/sprite/¹æÆÐ/" + baseClass + "/" + baseClass + "_" + SexTable[sex] + "_" + suffix;
+			const viewId = DB.getShieldViewID(id);
+			if (id > 2e3 && DB.hasJobShieldSprite(job, id)) return "data/sprite/¹æÆÐ/" + baseClass + "/" + baseClass + "_" + SexTable[sex] + "_" + id + "_¹æÆÐ";
+			if (!DB.hasJobShieldSprite(job, viewId) || !(viewId in ShieldTable_default)) return null;
+			return "data/sprite/¹æÆÐ/" + baseClass + "/" + baseClass + "_" + SexTable[sex] + "_" + ShieldTable_default[viewId];
+		}
+		/**
+		* Convert an equipped shield item ID to the view value used by the generic
+		* shield resource fallback. Packet view IDs are already in this form.
+		* @param {number} id item ID or view ID
+		* @returns {number}
+		*/
+		static getShieldViewID(id) {
+			const num = Number(id);
+			if (!Number.isInteger(num) || num <= 0) return 0;
+			if (num <= 500) return num;
+			const item = ItemTable_default[num];
+			return item && Number.isInteger(item.ClassNum) ? item.ClassNum : 0;
 		}
 		/**
 		* @return {string} Path to weapon
@@ -315778,16 +316007,20 @@ var init_DBManager = __esmMin((() => {
 		* @param {boolean} sex
 		*/
 		static getWeaponPath(id, job, sex, leftid = false) {
-			if (id === 0) return null;
+			const weaponId = Number(id);
+			const gender = SexTable[sex];
+			if (!Number.isInteger(weaponId) || weaponId <= 0 || !gender) return null;
+			id = weaponId;
 			const baseClass = WeaponJobTable[job] || WeaponJobTable[0];
 			id = DB.getWeaponType(id);
+			if (DB.getWeaponType(id, true) === WeaponType_default.KNUKLE && PRIEST_KNUCKLE_INCOMPATIBLE_JOBS.has(job)) return null;
 			if (leftid) {
 				if (leftid in ItemTable_default && "ClassNum" in ItemTable_default[leftid]) leftid = ItemTable_default[leftid].ClassNum;
 				const right = Object.keys(WeaponType_default).find((key) => WeaponType_default[key] === id);
 				const left = Object.keys(WeaponType_default).find((key) => WeaponType_default[key] === leftid);
 				if (right && left) id = WeaponType_default[right + "_" + left];
 			}
-			return "data/sprite/ÀÎ°£Á·/" + baseClass + "/" + baseClass + "_" + SexTable[sex] + (WeaponName[id] || "_" + id);
+			return "data/sprite/" + (DB.isDoram(job) ? "µµ¶÷Á·" : "ÀÎ°£Á·") + "/" + baseClass + "/" + baseClass + "_" + gender + (WeaponName[id] || "_" + id);
 		}
 		/**
 		* @return {string} Path to weapon trail
@@ -315796,10 +316029,38 @@ var init_DBManager = __esmMin((() => {
 		* @param {boolean} sex
 		*/
 		static getWeaponTrail(id, job, sex) {
-			if (id === 0) return null;
+			const weaponId = Number(id);
+			const gender = SexTable[sex];
+			if (!Number.isInteger(weaponId) || weaponId <= 0 || !gender) return null;
 			const baseClass = WeaponJobTable[job] || WeaponJobTable[0];
-			const realId = DB.getWeaponType(id, true, true);
-			return "data/sprite/ÀÎ°£Á·/" + baseClass + "/" + baseClass + "_" + SexTable[sex] + WeaponTrail[realId];
+			const realId = DB.getWeaponType(weaponId, true, true);
+			const trail = WeaponTrail[realId];
+			if (!trail) return null;
+			return "data/sprite/" + (DB.isDoram(job) ? "µµ¶÷Á·" : "ÀÎ°£Á·") + "/" + baseClass + "/" + baseClass + "_" + gender + trail;
+		}
+		/**
+		* Resolve the generic weapon-effect sprite used by ACT layer 6 in the
+		* reference client. `id` is a weapon item/view ID; -1 selects a class-only
+		* effect name (used by special job effects).
+		* @param {number} id weapon item or view ID, or -1 for class-only effects
+		* @param {number} job class
+		* @param {number} sex
+		* @param {number} effect 0 = weapon glow, 1 = class aura
+		* @returns {string|null}
+		*/
+		static getWeaponEffectPath(id, job, sex, effect = 0) {
+			const weaponId = Number(id);
+			const gender = SexTable[sex];
+			if (!Number.isInteger(weaponId) || weaponId < -1 || !gender || effect !== 0 && effect !== 1) return null;
+			const baseClass = WeaponJobTable[job] || WeaponJobTable[0];
+			let weaponName = "";
+			if (weaponId >= 0) {
+				const weaponType = DB.getWeaponType(weaponId);
+				if (weaponType === WeaponType_default.NONE || !WeaponName[weaponType]) return null;
+				weaponName = WeaponName[weaponType];
+			}
+			const effectSuffix = effect === 1 ? "_¹ß±¤" : "_°Ë±¤";
+			return "data/sprite/" + (DB.isDoram(job) ? "µµ¶÷Á·" : "ÀÎ°£Á·") + "/" + baseClass + "/" + baseClass + "_" + gender + weaponName + effectSuffix;
 		}
 		/**
 		* @param {number} cart id
@@ -315853,11 +316114,12 @@ var init_DBManager = __esmMin((() => {
 		* @param {number} id weapon
 		*/
 		static getWeaponViewID(id) {
-			if (isNaN(id)) return 0;
-			if (id === 0) return 0;
-			if (id < WeaponType_default.MAX) return id;
-			if (id in ItemTable_default && "ClassNum" in ItemTable_default[id]) return ItemTable_default[id].ClassNum;
-			return DB.getWeaponType(id);
+			const num = Number(id);
+			if (!Number.isInteger(num) || num < 0) return 0;
+			if (num === 0) return 0;
+			if (num < WeaponType_default.MAX) return num;
+			if (num in ItemTable_default && "ClassNum" in ItemTable_default[num]) return ItemTable_default[num].ClassNum;
+			return DB.getWeaponType(num);
 		}
 		/**
 		* @return {number} weapon action frame
@@ -315867,6 +316129,7 @@ var init_DBManager = __esmMin((() => {
 		*/
 		static getWeaponAction(id, job, sex) {
 			const type = DB.getWeaponType(id, true);
+			if (!Number.isInteger(sex) || sex !== 0 && sex !== 1) return 0;
 			if (job in WeaponAction) {
 				if (WeaponAction[job] instanceof Array) {
 					if (type in WeaponAction[job][sex]) return WeaponAction[job][sex][type];
@@ -315906,33 +316169,52 @@ var init_DBManager = __esmMin((() => {
 			}
 			return null;
 		}
+		/**
+		* Resolve Assassin-family dual-wield categories from the original item ID ranges.
+		* The client uses these ranges in CPc::GetDualWieldWeaponType (RVA 0x00DAB460).
+		*/
+		static getDualWieldWeaponType(firstItemId, secondItemId) {
+			let first = Number(firstItemId) || 0;
+			let second = Number(secondItemId) || 0;
+			if (!Number.isInteger(first) || !Number.isInteger(second) || first < 0 || second < 0) return WeaponType_default.NONE;
+			if (first === 0) {
+				if (second === 0) return WeaponType_default.NONE;
+				first = second;
+				second = 0;
+			}
+			const isSword = (id) => id >= 1100 && id < 1150 || id >= 13400 && id < 13500 || id >= 5e5 && id < 51e4;
+			const isDagger = (id) => id >= 1200 && id < 1250 || id >= 13e3 && id < 13100 || id >= 28700 && id < 28900 || id >= 51e4 && id < 52e4;
+			const isAxe = (id) => id >= 1300 && id < 1350 || id >= 52e4 && id < 53e4;
+			if (isSword(first)) {
+				if (isSword(second)) return WeaponType_default.SWORD_SWORD;
+				if (isDagger(second)) return WeaponType_default.SHORTSWORD_SWORD;
+				if (isAxe(second)) return WeaponType_default.SWORD_AXE;
+				return WeaponType_default.SWORD;
+			}
+			if (isDagger(first)) {
+				if (isSword(second)) return WeaponType_default.SHORTSWORD_SWORD;
+				if (isDagger(second)) return WeaponType_default.SHORTSWORD_SHORTSWORD;
+				if (isAxe(second)) return WeaponType_default.SHORTSWORD_AXE;
+				return WeaponType_default.SHORTSWORD;
+			}
+			if (isAxe(first)) {
+				if (isAxe(second)) return WeaponType_default.AXE_AXE;
+				if (isDagger(second)) return WeaponType_default.SHORTSWORD_AXE;
+				if (isSword(second)) return WeaponType_default.SWORD_AXE;
+				return WeaponType_default.AXE;
+			}
+			return WeaponType_default.NONE;
+		}
 		static mountWeapon(weaponID, shieldID) {
 			const _weapon = DB.getWeaponType(weaponID, true);
 			const _shield = DB.getWeaponType(shieldID, true);
-			let weapon;
-			const viewId = _weapon + _shield;
-			switch (viewId) {
-				case 2:
-					weapon = WeaponType_default.SHORTSWORD_SHORTSWORD;
-					break;
-				case 3:
-					weapon = WeaponType_default.SHORTSWORD_SWORD;
-					break;
-				case 4:
-					weapon = WeaponType_default.SWORD_SWORD;
-					break;
-				case 7:
-					weapon = WeaponType_default.SHORTSWORD_AXE;
-					break;
-				case 8:
-					weapon = WeaponType_default.SWORD_AXE;
-					break;
-				case 12:
-					weapon = WeaponType_default.AXE_AXE;
-					break;
-				default: weapon = viewId;
-			}
-			return weapon;
+			if (_weapon === WeaponType_default.SHORTSWORD && _shield === WeaponType_default.SHORTSWORD) return WeaponType_default.SHORTSWORD_SHORTSWORD;
+			if (_weapon === WeaponType_default.SWORD && _shield === WeaponType_default.SWORD) return WeaponType_default.SWORD_SWORD;
+			if (_weapon === WeaponType_default.AXE && _shield === WeaponType_default.AXE) return WeaponType_default.AXE_AXE;
+			if (_weapon === WeaponType_default.SHORTSWORD && _shield === WeaponType_default.SWORD || _weapon === WeaponType_default.SWORD && _shield === WeaponType_default.SHORTSWORD) return WeaponType_default.SHORTSWORD_SWORD;
+			if (_weapon === WeaponType_default.SHORTSWORD && _shield === WeaponType_default.AXE || _weapon === WeaponType_default.AXE && _shield === WeaponType_default.SHORTSWORD) return WeaponType_default.SHORTSWORD_AXE;
+			if (_weapon === WeaponType_default.SWORD && _shield === WeaponType_default.AXE || _weapon === WeaponType_default.AXE && _shield === WeaponType_default.SWORD) return WeaponType_default.SWORD_AXE;
+			return _weapon;
 		}
 		static isBow(weaponType) {
 			return weaponType == WeaponType_default.BOW || weaponType == WeaponType_default.CrossBow || weaponType == WeaponType_default.Arbalest || weaponType == WeaponType_default.Kakkung || weaponType == WeaponType_default.Hunter_Bow || weaponType == WeaponType_default.Bow_Of_Rudra;
@@ -316613,7 +316895,9 @@ var init_DBManager = __esmMin((() => {
 		static getJobClass(job) {
 			switch (job) {
 				case JobConst_default.NOVICE:
-				case JobConst_default.DO_SUMMONER1: return "Base_Class";
+				case JobConst_default.DO_SUMMONER:
+				case JobConst_default.DO_SUMMONER_B:
+				case JobConst_default.DO_CART_SUMMONER1: return "Base_Class";
 				case JobConst_default.SWORDMAN:
 				case JobConst_default.MAGICIAN:
 				case JobConst_default.ARCHER:
@@ -319719,6 +320003,10 @@ var init_AllMountTable = __esmMin((() => {
 	duplicateEntry(JobConst_default.SHADOW_CHASER, JobConst_default.SHADOW_CHASER_2ND);
 }));
 // src/Renderer/Entity/EntityView.js
+function getClassEquipmentEffectPath(job, sex) {
+	if (!CLASS_EQUIPMENT_EFFECTS.has(job)) return null;
+	return DB.getWeaponEffectPath(-1, job, sex, CLASS_EQUIPMENT_EFFECTS.get(job));
+}
 /**
 * Files to display a view
 *
@@ -319740,6 +320028,7 @@ function View() {
 	this.head = new ViewFiles();
 	this.weapon = new ViewFiles();
 	this.weapon_trail = new ViewFiles();
+	this.weapon_effect = new ViewFiles();
 	this.shield = new ViewFiles();
 	this.accessory = new ViewFiles();
 	this.accessory2 = new ViewFiles();
@@ -320134,34 +320423,94 @@ function UpdateGeneric(type, func, fallback) {
 		let path;
 		const _this = this;
 		let _val = val;
+		const requestId = ((this._viewRequestSeq || (this._viewRequestSeq = {}))[type] || 0) + 1;
+		this._viewRequestSeq[type] = requestId;
+		const requestedJob = this.job;
+		const requestedSex = this._sex;
+		this["_" + type] = val > 0 ? val : 0;
+		const isCurrentRequest = () => _this._viewRequestSeq[type] === requestId && _this.job === requestedJob && _this._sex === requestedSex;
+		if (this.files[type]) {
+			this.files[type].spr = null;
+			this.files[type].act = null;
+			this.files[type].pal = null;
+		}
+		if (type === "weapon" && this.files.weapon_trail) {
+			this.files.weapon_trail.spr = null;
+			this.files.weapon_trail.act = null;
+		}
+		if (type === "weapon" && this.files.weapon_effect) {
+			this.files.weapon_effect.spr = null;
+			this.files.weapon_effect.act = null;
+		}
+		const classEffectPath = type === "weapon" ? getClassEquipmentEffectPath(requestedJob, requestedSex) : null;
+		const loadEquipmentEffect = (effectPath) => {
+			if (!effectPath) return;
+			Client.loadFile(effectPath + ".act");
+			Client.loadFile(effectPath + ".spr", function() {
+				if (isCurrentRequest()) {
+					_this.files.weapon_effect.spr = effectPath + ".spr";
+					_this.files.weapon_effect.act = effectPath + ".act";
+				}
+			});
+		};
+		loadEquipmentEffect(classEffectPath);
 		let keepLook = false;
 		if (!val || val <= 0) {
 			this["_" + type] = 0;
-			if (this.files[type]) {
-				this.files[type].spr = null;
-				this.files[type].act = null;
-				this.files[type].pal = null;
-			}
 			return;
 		}
 		switch (type) {
 			case "weapon":
-			case "shield":
 			case "robe":
 				path = DB[func](val, this.job, this._sex);
+				break;
+			case "shield":
+				path = DB[func](val, this.job, this._sex, MOUNTED_SPRITE_JOBS.has(this.costume));
 				break;
 			default: path = DB[func](val, this._sex);
 		}
 		if (!path) {
-			this.files[type].spr = null;
-			this.files[type].act = null;
-			this.files[type].pal = null;
 			if (type === "weapon") this.sound.attackFile = DB.getWeaponSound(val);
 			return;
 		}
 		function LoadView(filepath, final) {
+			if (type === "shield") {
+				let actReady = false;
+				let sprReady = false;
+				let settled = false;
+				const finishShieldLoad = () => {
+					if (settled) return;
+					if (actReady && sprReady) {
+						settled = true;
+						if (isCurrentRequest()) {
+							_this._shield = _val;
+							_this.files.shield.act = filepath + ".act";
+							_this.files.shield.spr = filepath + ".spr";
+						}
+					}
+				};
+				const retryGenericShield = () => {
+					if (settled) return;
+					settled = true;
+					if (!final && isCurrentRequest()) {
+						const shieldView = DB.getShieldViewID(_val);
+						const fallbackPath = DB.getShieldPath(shieldView, requestedJob, requestedSex, MOUNTED_SPRITE_JOBS.has(_this.costume));
+						if (fallbackPath && fallbackPath !== filepath) LoadView(fallbackPath, true);
+					}
+				};
+				Client.loadFile(filepath + ".act", () => {
+					actReady = true;
+					finishShieldLoad();
+				}, retryGenericShield);
+				Client.loadFile(filepath + ".spr", () => {
+					sprReady = true;
+					finishShieldLoad();
+				}, retryGenericShield);
+				return;
+			}
 			Client.loadFile(filepath + ".act");
 			Client.loadFile(filepath + ".spr", function() {
+				if (!isCurrentRequest()) return;
 				_this["_" + type] = keepLook ? val : _val;
 				if (!(type === "accessory" || type === "accessory2" || type === "accessory3") || !shouldSuppressHead.call(_this)) {
 					_this.files[type].spr = filepath + ".spr";
@@ -320169,16 +320518,19 @@ function UpdateGeneric(type, func, fallback) {
 				}
 				if (type === "weapon") {
 					_this.attackFile = DB.getWeaponSound(_val);
+					if (!classEffectPath) loadEquipmentEffect(DB.getWeaponEffectPath(_val, _this.job, _this._sex, 0));
 					const trail_file = DB.getWeaponTrail(_val, _this.job, _this._sex);
 					if (trail_file) {
 						Client.loadFile(trail_file + ".act");
 						Client.loadFile(trail_file + ".spr", function() {
+							if (!isCurrentRequest()) return;
 							_this.files["weapon_trail"].spr = trail_file + ".spr";
 							_this.files["weapon_trail"].act = trail_file + ".act";
 						});
 					}
 				}
 			}, function() {
+				if (!isCurrentRequest()) return;
 				if (fallback && !final) {
 					_val = DB[fallback](val);
 					filepath = DB[func](_val, _this.job, _this._sex);
@@ -320314,7 +320666,7 @@ function Init$5() {
 	createTransformationProperty("active_monster_transform");
 	createTransformationProperty("job_transform");
 }
-var GR2_MODEL_ROOT, GR2_FALLBACK_JOB, HeadParts, AllMountJobs;
+var GR2_MODEL_ROOT, GR2_FALLBACK_JOB, MOUNTED_SPRITE_JOBS, CLASS_EQUIPMENT_EFFECTS, HeadParts, AllMountJobs;
 var init_EntityView = __esmMin((() => {
 	init_Client();
 	init_DBManager();
@@ -320327,6 +320679,31 @@ var init_EntityView = __esmMin((() => {
 	init_GR2ModelRenderer();
 	GR2_MODEL_ROOT = "data/model/3dmob/";
 	GR2_FALLBACK_JOB = 1002;
+	MOUNTED_SPRITE_JOBS = /* @__PURE__ */ new Set([...Object.values(MountTable), ...Object.values(AllMountTable)]);
+	CLASS_EQUIPMENT_EFFECTS = /* @__PURE__ */ new Map([
+		[JobConst_default.TAEKWON, 1],
+		[JobConst_default.STAR, 1],
+		[JobConst_default.STAR2, 1],
+		[JobConst_default.TAEKWON_B, 1],
+		[JobConst_default.STAR_B, 1],
+		[JobConst_default.STAR2_B, 1],
+		[JobConst_default.STAR_EMPEROR, 1],
+		[JobConst_default.STAR_EMPEROR_B, 1],
+		[JobConst_default.STAR_EMPEROR2, 1],
+		[JobConst_default.STAR_EMPEROR2_B, 1],
+		[JobConst_default.SKY_EMPEROR, 1],
+		[JobConst_default.SKY_EMPEROR2, 1],
+		[JobConst_default.RANGER2, 0],
+		[JobConst_default.RANGER2_H, 0],
+		[JobConst_default.RANGER2_B, 0],
+		[JobConst_default.WINDHAWK, 0],
+		[JobConst_default.MECHANIC, 0],
+		[JobConst_default.MECHANIC_H, 0],
+		[JobConst_default.MECHANIC_B, 0],
+		[JobConst_default.MEISTER, 0],
+		[JobConst_default.MEISTER_RIDING, 0],
+		[JobConst_default.MEISTER2, 0]
+	]);
 	HeadParts = [
 		"head",
 		"accessory",
@@ -321600,10 +321977,9 @@ var init_EntityRender = __esmMin((() => {
 						if (isLookingBack(direction)) {
 							if (self.robe > 0) renderElement(self, self.files.robe, "robe", _position, true);
 						}
-						if (self.weapon > 0) {
-							renderElement(self, self.files.weapon, "weapon", _position, true);
-							renderElement(self, self.files.weapon_trail, "weapon_trail", _position, true);
-						}
+						if (self.weapon > 0) renderElement(self, self.files.weapon, "weapon", _position, true);
+						renderElement(self, self.files.weapon_effect, "weapon_effect", _position, true);
+						if (self.weapon > 0) renderElement(self, self.files.weapon_trail, "weapon_trail", _position, true);
 						if (self.shield > 0 && !behind) renderElement(self, self.files.shield, "shield", _position, true);
 						EntityComposer.end();
 					});
@@ -337756,18 +338132,18 @@ var init_SkillAction = __esmMin((() => {
 * @param {object} [equipment] - Equipment component
 * @returns {boolean|undefined} true if own offhand is weapon, false if own offhand is not weapon, undefined if unknown/other entity
 */
-function isOwnOffhandWeapon(entity, sessionEntity, inventory, equipment) {
+function getOwnEquippedItem(entity, sessionEntity, inventory, equipment, location) {
 	if (!entity || !sessionEntity || entity.GID !== sessionEntity.GID) return;
 	if (equipment) {
 		if (typeof equipment.getEquippedItemByLocation === "function") {
-			const item = equipment.getEquippedItemByLocation(EquipmentLocation_default.SHIELD);
-			if (item) return item.type === ItemType_default.WEAPON;
+			const item = equipment.getEquippedItemByLocation(location);
+			if (item) return item;
 		}
 		if (typeof equipment.getEquippedItem === "function" && inventory) {
 			const indexes = inventory.equippedItems || [];
 			for (let i = 0; i < indexes.length; i++) {
 				const item = equipment.getEquippedItem(indexes[i]);
-				if ((item ? item.equipped || item.WearState || item.location || item.WearLocation || 0 : 0) & EquipmentLocation_default.SHIELD) return item.type === ItemType_default.WEAPON;
+				if ((item ? item.equipped || item.WearState || item.location || item.WearLocation || 0 : 0) & location) return item;
 			}
 		}
 	}
@@ -337775,10 +338151,13 @@ function isOwnOffhandWeapon(entity, sessionEntity, inventory, equipment) {
 		const indexes = inventory.equippedItems || [];
 		for (let i = 0; i < indexes.length; i++) {
 			const item = typeof inventory.getItemByIndex === "function" ? inventory.getItemByIndex(indexes[i]) : null;
-			if ((item ? item.equipped || item.WearState || item.location || item.WearLocation || 0 : 0) & EquipmentLocation_default.SHIELD) return item.type === ItemType_default.WEAPON;
+			if ((item ? item.equipped || item.WearState || item.location || item.WearLocation || 0 : 0) & location) return item;
 		}
 	}
-	return false;
+	return null;
+}
+function getOwnOffhandItem(entity, sessionEntity, inventory, equipment) {
+	return getOwnEquippedItem(entity, sessionEntity, inventory, equipment, EquipmentLocation_default.SHIELD);
 }
 /**
 * Resolve weapon and shield values for an entity given packet values.
@@ -337795,28 +338174,44 @@ function isOwnOffhandWeapon(entity, sessionEntity, inventory, equipment) {
 function resolveEntityWeapons(weaponVal, shieldVal, entity, sessionEntity, inventory, equipment) {
 	let weapon = weaponVal || 0;
 	let shield = shieldVal || 0;
-	const offhand = isOwnOffhandWeapon(entity, sessionEntity, inventory, equipment);
+	const ownMainHandItem = getOwnEquippedItem(entity, sessionEntity, inventory, equipment, EquipmentLocation_default.WEAPON);
+	const ownOffhandItem = getOwnOffhandItem(entity, sessionEntity, inventory, equipment);
+	const mainHandItemId = ownMainHandItem && ownMainHandItem.ITID ? ownMainHandItem.ITID : weapon;
+	const offhand = ownOffhandItem === void 0 ? void 0 : !!ownOffhandItem && ownOffhandItem.type === ItemType_default.WEAPON;
+	if (ownOffhandItem && ownOffhandItem.ITID && (offhand || typeof DB.isShieldItem === "function" && DB.isShieldItem(ownOffhandItem.ITID))) shield = ownOffhandItem.ITID;
 	const job = entity ? entity.job : void 0;
 	const isAssassin = typeof DB.isAssassin === "function" ? DB.isAssassin(job) : false;
-	const isShield = typeof DB.isShield === "function" ? DB.isShield(shield, job, offhand) : shield > 0;
 	const getWeaponType = typeof DB.getWeaponType === "function" ? (w, flag) => DB.getWeaponType(w, flag) : (w) => w;
 	const getWeaponViewID = typeof DB.getWeaponViewID === "function" ? (w) => DB.getWeaponViewID(w) : (w) => w;
 	const isKatar = typeof DB.isKatar === "function" ? (wt) => DB.isKatar(wt) : () => false;
 	const mountWeapon = typeof DB.mountWeapon === "function" ? (w1, w2) => DB.mountWeapon(w1, w2) : (w1, w2) => w1 << 7 | w2;
+	let weaponType = getWeaponType(mainHandItemId, true);
+	const offhandType = getWeaponType(shield, true);
+	if (isKatar(weaponType)) return {
+		weapon: getWeaponViewID(weapon),
+		shield: 0
+	};
+	if (isAssassin && weapon === 0 && shield !== 0 && isKatar(offhandType)) {
+		weapon = shield;
+		shield = 0;
+		weaponType = offhandType;
+	}
+	let isShield = typeof DB.isShield === "function" ? DB.isShield(shield, job, offhand) : shield > 0;
 	if (isAssassin && weapon === 0 && shield !== 0 && !isShield) {
 		weapon = shield;
 		shield = 0;
+		weaponType = getWeaponType(weapon, true);
+		isShield = false;
 	}
-	const weaponType = getWeaponType(weapon, true);
 	const viewId = getWeaponViewID(weapon);
-	if (isAssassin && shield !== 0 && !isShield && weapon !== 0) return {
-		weapon: mountWeapon(weaponType, getWeaponType(shield, true)),
-		shield: 0
-	};
-	if (isKatar(weaponType)) return {
-		weapon: viewId,
-		shield: viewId
-	};
+	if (isAssassin && shield !== 0 && !isShield && weapon !== 0) {
+		const secondaryWeaponType = getWeaponType(shield, true);
+		const combinedType = offhand && ownMainHandItem && ownOffhandItem && typeof DB.getDualWieldWeaponType === "function" ? DB.getDualWieldWeaponType(ownMainHandItem.ITID, ownOffhandItem.ITID) : mountWeapon(weaponType, secondaryWeaponType);
+		return {
+			weapon: combinedType === WeaponType_default.NONE || combinedType === WeaponType_default.TWOHANDAXE || combinedType === WeaponType_default.MACE ? WeaponType_default.SWORD : combinedType,
+			shield: 0
+		};
+	}
 	return {
 		weapon: viewId,
 		shield
@@ -337825,6 +338220,7 @@ function resolveEntityWeapons(weaponVal, shieldVal, entity, sessionEntity, inven
 var init_OffhandWeapon = __esmMin((() => {
 	init_EquipmentLocation();
 	init_ItemType();
+	init_WeaponType();
 	init_DBManager();
 }));
 // src/DB/Monsters/AttackEffectTable.js
@@ -338753,8 +339149,9 @@ function onEntityViewChange(pkt) {
 				entity.weapon = resolved.weapon;
 				entity.shield = resolved.shield;
 			} else {
-				entity.weapon = DB.getWeaponViewID(pkt.value);
-				if (pkt.value2 !== void 0) entity.shield = pkt.value2;
+				const resolved = resolveEntityWeapons(pkt.value, pkt.value2 !== void 0 ? pkt.value2 : entity.shield, entity, SessionStorage_default.Entity, InventoryController, EquipmentController);
+				entity.weapon = resolved.weapon;
+				entity.shield = resolved.shield;
 			}
 			entity.aura.load(EffectManager);
 			if (entity.falcon) entity.falcon.set({
@@ -338790,7 +339187,11 @@ function onEntityViewChange(pkt) {
 			entity.bodypalette = pkt.value;
 			break;
 		case 8:
-			entity.shield = pkt.value;
+			{
+				const resolved = resolveEntityWeapons(entity.weapon, pkt.value, entity, SessionStorage_default.Entity, InventoryController, EquipmentController);
+				entity.weapon = resolved.weapon;
+				entity.shield = resolved.shield;
+			}
 			break;
 		case 9: break;
 		case 10: break;
