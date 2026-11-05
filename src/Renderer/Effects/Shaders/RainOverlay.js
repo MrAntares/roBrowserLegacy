@@ -13,14 +13,14 @@ import WebGL from 'Utils/WebGL.js';
 import commonVS from './GLSL/Common.vs?raw';
 import rainOverlayFS from './GLSL/RainOverlay.fs?raw';
 import PostProcess from 'Renderer/Effects/PostProcess.js';
+import RainWeather from 'Renderer/Effects/RainWeather.js';
 
 let _program, _buffer;
-let _active = false;
 
 // Overlay colour pushed by RainWeather each frame.
 let _overlayR = 0.65;
 let _overlayG = 0.67;
-let _overlayB = 0.70;
+let _overlayB = 0.7;
 let _overlayA = 0.0;
 
 class RainOverlay {
@@ -31,7 +31,7 @@ class RainOverlay {
 	 * @param {WebGLFramebuffer|null} outputFbo - Target buffer (null = screen)
 	 */
 	static render(gl, inputTexture, outputFbo) {
-		if (!_buffer || !_program) {
+		if (!_buffer || !_program || !this.isActive()) {
 			return;
 		}
 
@@ -76,11 +76,7 @@ class RainOverlay {
 	}
 
 	static isActive() {
-		return _active;
-	}
-
-	static setActive(bool) {
-		_active = bool;
+		return RainWeather.isActive();
 	}
 
 	/**

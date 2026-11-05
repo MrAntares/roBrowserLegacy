@@ -12,10 +12,10 @@ import WebGL from 'Utils/WebGL.js';
 import commonVS from './GLSL/Common.vs?raw';
 import rainLightningFS from './GLSL/RainLightning.fs?raw';
 import PostProcess from 'Renderer/Effects/PostProcess.js';
+import RainWeather from 'Renderer/Effects/RainWeather.js';
 
 let _program, _buffer;
 let _dummyTexture = null;
-let _active = false;
 
 let _lightningTexture = null;
 let _lightningAlpha = 0.0;
@@ -28,7 +28,7 @@ class RainLightning {
 	 * @param {WebGLFramebuffer|null} outputFbo - Target buffer (null = screen)
 	 */
 	static render(gl, inputTexture, outputFbo) {
-		if (!_buffer || !_program || !_active) {
+		if (!_buffer || !_program || !this.isActive()) {
 			return;
 		}
 
@@ -87,14 +87,7 @@ class RainLightning {
 	}
 
 	static isActive() {
-		return _active;
-	}
-
-	static setActive(bool) {
-		_active = bool;
-		if (!bool) {
-			_lightningAlpha = 0.0;
-		}
+		return RainWeather.isActive();
 	}
 
 	/**

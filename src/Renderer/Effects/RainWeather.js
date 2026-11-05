@@ -90,13 +90,13 @@ const _layerCDF = (function () {
 })();
 
 // Puddle settings
-const MAX_PUDDLES = 600;
+const MAX_PUDDLES = 20;
 const PUDDLE_INITIAL_SIZE = 20.0;
-const PUDDLE_MAX_SIZE = 230.0;
-const PUDDLE_GROWTH_PER_DROP = 4.5;
+const PUDDLE_MAX_SIZE = 1000.0;
+const PUDDLE_GROWTH_PER_DROP = 1.5;
 const PUDDLE_ALPHA_MAX = 0.45;
-const PUDDLE_FADE_SPEED = 0.00004;
-const PUDDLE_SEED_CHANCE = 0.06;
+const PUDDLE_FADE_SPEED = 0.4;
+const PUDDLE_SEED_CHANCE = 0.8;
 
 let _dropFrame = null;
 // Ground splash texture (16x16 soft disc).
@@ -476,15 +476,11 @@ class RainWeatherEffect {
 				_instance.endTick = -1;
 				_instance.lastEmitTick = now;
 			}
-			RainOverlay.setActive(true);
-			RainLightning.setActive(true);
 			return _instance;
 		}
 
 		_instance = new RainWeatherEffect(Params);
 		_mapName = currentMap;
-		RainOverlay.setActive(true);
-		RainLightning.setActive(true);
 		return _instance;
 	}
 
@@ -494,8 +490,6 @@ class RainWeatherEffect {
 		}
 		if (_mapName !== MapRenderer.currentMap) {
 			_instance = null;
-			RainOverlay.setActive(false);
-			RainLightning.setActive(false);
 			return;
 		}
 
@@ -508,8 +502,6 @@ class RainWeatherEffect {
 		if (_instance.needCleanUp) {
 			_instance.free();
 			_instance = null;
-			RainOverlay.setActive(false);
-			RainLightning.setActive(false);
 		}
 
 		this.afterRender(gl);
@@ -875,10 +867,10 @@ class RainWeatherEffect {
 		}
 
 		// Ambient flash with moderate alpha to allow seeing the lightning
-		let overlayR = 0.65;
-		let overlayG = 0.67;
-		let overlayB = 0.7;
-		let overlayA = 0.12;
+		let overlayR = 0.35;
+		let overlayG = 0.37;
+		let overlayB = 0.9;
+		let overlayA = 0.15;
 
 		if (this.isFlashing) {
 			const elapsed = now - this.flashStartTime;
@@ -886,16 +878,16 @@ class RainWeatherEffect {
 
 			if (this.flashMultiCount === 2) {
 				if (elapsed < 80) {
-					flashAlpha = 0.45 * (1 - elapsed / 80);
+					flashAlpha = Math.max(overlayA, 0.45 * (1 - elapsed / 80));
 				} else if (elapsed < 160) {
-					flashAlpha = 0;
+					flashAlpha = overlayA;
 				} else {
 					const elapsed2 = elapsed - 160;
 					if (elapsed2 < FLASH_FADE_IN) {
 						flashAlpha = (elapsed2 / FLASH_FADE_IN) * 0.6;
 					} else if (elapsed2 < FLASH_FADE_IN + FLASH_FADE_OUT) {
 						const p = (elapsed2 - FLASH_FADE_IN) / FLASH_FADE_OUT;
-						flashAlpha = 0.6 * (1 - p);
+						flashAlpha = Math.max(overlayA, 0.6 * (1 - p));
 					} else {
 						this.isFlashing = false;
 					}
@@ -905,29 +897,27 @@ class RainWeatherEffect {
 					flashAlpha = (elapsed / FLASH_FADE_IN) * 0.6;
 				} else if (elapsed < FLASH_FADE_IN + FLASH_FADE_OUT) {
 					const p = (elapsed - FLASH_FADE_IN) / FLASH_FADE_OUT;
-					flashAlpha = 0.6 * (1 - p);
+					flashAlpha = Math.max(overlayA, 0.6 * (1 - p));
 				} else {
 					this.isFlashing = false;
 				}
 			}
 
 			if (this.isFlashing) {
-				overlayR = 0.85;
-				overlayG = 0.92;
+				overlayR = 1.0;
+				overlayG = 1.0;
 				overlayB = 1.0;
 				overlayA = flashAlpha; // Balanced alpha for the environment
 			}
 		}
 
 		// Overlay pass - apply grey/thunder tint via post-process GPU pipeline.
-		{
-			// Fade out overlay alpha with the rain tail (skip during active flash).
-			if (this.endTick > 0 && !this.isFlashing) {
-				const tail = Math.max(0, Math.min(1, (this.endTick - tick) / FADEOUT_TAIL_MS));
-				overlayA *= tail;
-			}
-			RainOverlay.setOverlay(overlayR, overlayG, overlayB, overlayA);
+		// Fade out overlay alpha with the rain tail (skip during active flash).
+		if (this.endTick > 0 && !this.isFlashing) {
+			const tail = Math.max(0, Math.min(1, (this.endTick - tick) / FADEOUT_TAIL_MS));
+			overlayA *= tail;
 		}
+		RainOverlay.setOverlay(overlayR, overlayG, overlayB, overlayA);
 
 		// --- Update Post-Process Procedural Sky Lightning ---
 		let boltAlpha = 0;
@@ -1159,7 +1149,6 @@ class RainWeatherEffect {
 		this.splashes = [];
 		this.puddles = [];
 		this.ready = false;
-		RainLightning.setActive(false);
 		RainLightning.setLightning(null, 0.0);
 	}
 }
