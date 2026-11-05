@@ -11,7 +11,11 @@ const opened = [];
 
 vi.mock('UI/CursorManager.js', () => ({ default: { ACTION: { DEFAULT: 0 }, setType: vi.fn(), getActualType: vi.fn() } }));
 vi.mock('DB/DBManager.js', () => ({
-	default: { INTERFACE_PATH: 'data/texture/ui/', getMessage: (_id, fallback) => fallback || '', mapalias: {}, getTownInfo: () => [] }
+	default: {
+		INTERFACE_PATH: 'data/texture/ui/', getMessage: (_id, fallback) => fallback || '', mapalias: {}, getTownInfo: () => [],
+		searchNavigation: () => [{ type: 'MAP', name: 'Custom Island', mapName: 'custom_island', x: -1, y: -1 }],
+		getNaviMapDisplayName: map => map, getNavigationMapMonsters: () => [], getMapInfo: () => null
+	}
 }));
 vi.mock('Core/Client.js', () => ({
 	default: {
@@ -115,5 +119,17 @@ describe('the Navigation Move button', () => {
 			coords.mockRestore();
 			MapRenderer.currentMap = 'prontera.gat';
 		}
+	});
+
+	it('shares a searchable map without an incoming link with the supported sentinel', () => {
+		Navigation.prepare();
+		const root = Navigation.getRoot();
+		root.querySelector('.search-input').value = 'custom';
+		root.querySelector('.search-type').value = 'MAP';
+		Navigation.onSearch();
+		const writeText = vi.fn().mockResolvedValue();
+		Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } });
+		Navigation.shareSelectedSearchResult();
+		expect(writeText).toHaveBeenCalledWith('/navi custom_island -1 -1');
 	});
 });

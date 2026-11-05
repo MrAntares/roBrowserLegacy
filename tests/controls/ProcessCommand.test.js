@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 // stands in for the module and for the receiver.
 const mocks = vi.hoisted(() => ({
 	sent: [],
+	navigation: { append: vi.fn(), navigateTo: vi.fn() },
 	chatBox: {
 		addText: vi.fn(),
 		TYPE: { INFO: 1 },
@@ -42,7 +43,8 @@ vi.mock('UI/Components/MercenaryInformations/MercenaryInformations.js', () => ({
 }));
 vi.mock('UI/Components/Captcha/CaptchaUpload.js', () => ({ default: {} }));
 vi.mock('UI/Components/Captcha/CaptchaSelector.js', () => ({ default: {} }));
-vi.mock('UI/Components/Navigation/Navigation.js', () => ({ default: {} }));
+vi.mock('UI/Components/Navigation/Navigation.js', () => ({ default: mocks.navigation }));
+vi.mock('Engine/SessionStorage.js', () => ({ default: { Entity: { position: [12, 34] } } }));
 
 const ProcessCommand = (await import('Controls/ProcessCommand.js')).default;
 const PACKET = (await import('Network/PacketStructure.js')).default;
@@ -60,8 +62,32 @@ function sentOne() {
 
 beforeEach(() => {
 	mocks.sent.length = 0;
+	mocks.navigation.append.mockClear();
+	mocks.navigation.navigateTo.mockClear();
 	mocks.chatBox.addText.mockClear();
 	mocks.chatBox.PrivateMessageStorage.blockNicks.length = 0;
+});
+
+describe('navigation command', () => {
+	it('opens a map destination with the missing-coordinate sentinel', () => {
+		run('navi custom_island -1 -1');
+		expect(mocks.navigation.append).toHaveBeenCalledOnce();
+		expect(mocks.navigation.navigateTo).toHaveBeenCalledWith({
+			startMap: 'prontera.rsw',
+			startX: 12,
+			startY: 34,
+			endMap: 'custom_island',
+			endX: -1,
+			endY: -1,
+			displayName: 'custom_island (-1, -1)'
+		});
+	});
+
+	it('rejects other negative coordinate pairs', () => {
+		run('navi custom_island -2 -1');
+		expect(mocks.navigation.append).not.toHaveBeenCalled();
+		expect(mocks.navigation.navigateTo).not.toHaveBeenCalled();
+	});
 });
 
 describe('whisper blocking', () => {
