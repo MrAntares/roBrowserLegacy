@@ -52,6 +52,8 @@ import FXAA from 'Renderer/Effects/Shaders/FXAA.js';
 import Vibrance from 'Renderer/Effects/Shaders/Vibrance.js';
 import Cartoon from 'Renderer/Effects/Shaders/Cartoon.js';
 import Blind from 'Renderer/Effects/Shaders/Blind.js';
+import RainOverlay from 'Renderer/Effects/Shaders/RainOverlay.js';
+import RainLightning from 'Renderer/Effects/Shaders/RainLightning.js';
 
 import Upsampling from 'Renderer/Effects/Shaders/Upsampling.js';
 import WebGL from 'Utils/WebGL.js';
@@ -584,6 +586,8 @@ function registerPostProcessModules(gl) {
 	PostProcess.register(Vibrance, gl);
 	PostProcess.register(VerticalFlip, gl);
 	PostProcess.register(Blind, gl);
+	PostProcess.register(RainOverlay, gl);
+	PostProcess.register(RainLightning, gl);
 
 	// Final Pass GPU Upsampling for Performance Mode
 	PostProcess.register(Upsampling, gl);
