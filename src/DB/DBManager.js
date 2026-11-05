@@ -2799,6 +2799,8 @@ class DB {
 		}
 		if (isAxe(first)) {
 			if (isAxe(second)) return WeaponType.AXE_AXE;
+			if (isDagger(second)) return WeaponType.SHORTSWORD_AXE;
+			if (isSword(second)) return WeaponType.SWORD_AXE;
 			return WeaponType.AXE;
 		}
 
