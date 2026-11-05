@@ -36,6 +36,7 @@ describe('navigation tables', () => {
 	];
 
 	afterEach(() => {
+		vi.restoreAllMocks();
 		for (const table of tables) {
 			table.length = 0;
 		}
@@ -45,15 +46,16 @@ describe('navigation tables', () => {
 		for (const table of tables) {
 			expect(Array.isArray(table)).toBe(true);
 		}
-		Object.assign(DB.getNaviLinkTable(), [['a'], ['b']]);
+		vi.spyOn(DB, 'getNaviLinkTable').mockReturnValue([['a'], ['b']]);
 		expect(DB.getNaviLinkTable().length).toBe(2);
 	});
 
 	it('route between maps over the loaded portals', () => {
-		Object.assign(DB.getNaviLinkTable(), [
+		vi.spyOn(DB, 'getNaviLinkTable').mockReturnValue([
 			['prontera', 1, 200, 45, '', '', 156, 22, 'prt_fild08', 170, 375],
 			['prt_fild08', 2, 200, 45, '', '', 170, 378, 'prontera', 156, 26]
 		]);
+		vi.spyOn(DB, 'getNaviLinkDistanceTable').mockReturnValue([]);
 
 		expect(MapPathFinder.findPathBetweenMaps('prontera', 150, 150, 'prt_fild08', 170, 300)).toEqual([
 			{ map: 'prontera', x: 156, y: 22, warpId: 1 },
@@ -62,7 +64,6 @@ describe('navigation tables', () => {
 	});
 
 	it('are emptied when an older client, which loads none, is loaded after a server switch', () => {
-		Object.assign(DB.getNaviLinkTable(), [['prontera', 1, 200, 45, '', '', 156, 22, 'prt_fild08', 170, 375]]);
 		const packetver = PACKETVER.value;
 		PACKETVER.value = 20100101;
 		try {

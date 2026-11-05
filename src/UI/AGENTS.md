@@ -106,6 +106,6 @@ Before modifying or creating UI components, read the applicable reference guides
 - **Communication:** `ChatBox`, `ChatBoxSettings`, `ChatRoom`, `ChatRoomCreate`, `WhisperBox`, `Emoticons`, `Announce`.
 - **NPC, Quests & Commerce:** `NpcBox`, `NpcStore`, `NpcMenu`, `Quest`, `Trade`, `Vending`, `VendingShop`, `VendingReport`, `Mail`, `Rodex`, `RodexIcon`, `Roulette`, `SlotMachine`.
 - **Social & Companions:** `PartyFriends`, `Guild`, `Clan`, `EntityRoom`, `HomunInformations`, `MercenaryInformations`, `PetInformations`, `PetEvolution`.
-- **Navigation:** `MiniMap`, `WorldMap`, `Navigation`, `PrivateAirship` (payment window for the Navigation window's airship Move button), `MapName`.
+- **Navigation:** `MiniMap`, `WorldMap`, `Navigation` (Navi map routing, map path worker, route state), `NavigationRouteState.js` (module-scoped route snapshot shared with WorldMap), `PathFindingWorker.js` (same-map walk and portal paths), `MapPathFinder.js` (map-level route graph), `WorldMapMonsterTooltip.js` (monster detail and level badges), `WorldMapServiceOverlay.js` (Kafra and airship overlays), `PrivateAirship` (payment window for the Navigation window's airship Move button), `MapName`.
 - **System, Settings & Overlays:** `GraphicsOption`, `SoundOption`, `FPS`, `Escape`, `Error`, `WinPopup`, `WinPrompt`, `Captcha`, `CheckAttendance`, `Reputation`, `PvPCount`, `PvPTimer`, `PCGoldTimer`, `ContextMenu`, `EntitySignboard`, `JoystickUI`, `MobileUI`.
 - **Asset Viewers:** `GrfViewer`, `ModelViewer`, `StrViewer`, `EffectViewer`, `GrannyModelViewer`.

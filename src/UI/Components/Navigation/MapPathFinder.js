@@ -15,6 +15,77 @@ import DB from 'DB/DBManager.js';
 const MapPathFinder = {};
 
 /**
+ * Official navigation link types.
+ * 200 is the normal walking/map-portal graph. 201-205 are service/transport
+ * links used by the official navigation data for things like airship, boat,
+ * Kafra/town-guide style transport, and similar NPC services.
+ */
+const WALK_LINK_TYPES = [200];
+const SERVICE_LINK_TYPES = [201, 202, 203, 204, 205];
+const ALL_SERVICE_ROUTE_TYPES = WALK_LINK_TYPES.concat(SERVICE_LINK_TYPES);
+
+function normalizeMapName(mapName) {
+	return String(mapName || '').replace(/\.gat$/, '');
+}
+
+function normalizeWarpTypes(warpTypes) {
+	if (!warpTypes) {
+		return WALK_LINK_TYPES.slice();
+	}
+
+	if (Array.isArray(warpTypes)) {
+		return warpTypes.map(Number).filter(type => Number.isFinite(type));
+	}
+
+	if (typeof warpTypes === 'object') {
+		if (warpTypes.allowServices || warpTypes.services || warpTypes.includeServices) {
+			return ALL_SERVICE_ROUTE_TYPES.slice();
+		}
+		if (Array.isArray(warpTypes.types)) {
+			return normalizeWarpTypes(warpTypes.types);
+		}
+	}
+
+	return WALK_LINK_TYPES.slice();
+}
+
+function isServiceLinkType(warpType) {
+	return SERVICE_LINK_TYPES.indexOf(Number(warpType)) !== -1;
+}
+
+function ensureGraphNode(graph, mapName) {
+	if (!mapName) {
+		return;
+	}
+	if (!graph[mapName]) {
+		graph[mapName] = {};
+	}
+}
+
+function isBetterConnection(current, distance, hopCount, service) {
+	if (!current) {
+		return true;
+	}
+
+	if (hopCount < current.hopCount) {
+		return true;
+	}
+
+	if (hopCount > current.hopCount) {
+		return false;
+	}
+
+	// If both paths look equal, prefer walking portals over service links so
+	// checking Services does not randomly swap a normal route to a paid/transport
+	// route unless it is actually shorter.
+	if (!!current.service !== !!service) {
+		return current.service && !service;
+	}
+
+	return distance < current.distance;
+}
+
+/**
  * Find a path between maps using Dijkstra's algorithm
  *
  * @param {string} startMap - Starting map name
@@ -23,7 +94,7 @@ const MapPathFinder = {};
  * @param {string} endMap - Destination map name
  * @param {number} endX - Destination X coordinate
  * @param {number} endY - Destination Y coordinate
- * @param {Array} warpTypes - Types of warps to consider [default: [200]]
+ * @param {Array|Object} warpTypes - Allowed link types, or {allowServices:true}
  * @returns {Array|null} Array of warps with map, coordinates and warpId, or null if no path found
  */
 MapPathFinder.findPathBetweenMaps = function findPathBetweenMaps(
@@ -47,22 +118,32 @@ MapPathFinder.findPathBetweenMaps = function findPathBetweenMaps(
 		return null;
 	}
 
-	// Set default warp types if not provided
-	warpTypes = warpTypes || [200];
+	const includeMetadata = warpTypes !== undefined;
+	warpTypes = normalizeWarpTypes(warpTypes);
 
 	// Normalize map names (strip .gat extension)
-	startMap = startMap.replace(/\.gat$/, '');
-	endMap = endMap.replace(/\.gat$/, '');
+	startMap = normalizeMapName(startMap);
+	endMap = normalizeMapName(endMap);
 
 	// If same map, no need for complex path
 	if (startMap === endMap) {
 		return [
-			{
-				map: startMap,
-				x: endX,
-				y: endY,
-				warpId: null
-			}
+			includeMetadata
+				? {
+						map: startMap,
+						x: endX,
+						y: endY,
+						warpId: null,
+						type: null,
+						service: false,
+						name: ''
+					}
+				: {
+						map: startMap,
+						x: endX,
+						y: endY,
+						warpId: null
+					}
 		];
 	}
 
@@ -86,51 +167,57 @@ MapPathFinder.findPathBetweenMaps = function findPathBetweenMaps(
 			continue;
 		}
 
-		const srcMap = warp[0];
+		const srcMap = normalizeMapName(warp[0]);
 		const warpId = warp[1];
-		const warpType = warp[2];
-		const destMap = warp[8];
+		const warpType = Number(warp[2]);
+		const destMap = normalizeMapName(warp[8]);
 
 		// Skip invalid warps or warps of types not in warpTypes
 		if (!srcMap || !destMap || warpTypes.indexOf(warpType) === -1) {
 			continue;
 		}
 
-		// Initialize graph nodes if they don't exist
-		if (!graph[srcMap]) {
-			graph[srcMap] = {};
-		}
+		const service = isServiceLinkType(warpType);
+		const baseDistance = service ? 0.75 : 1;
 
-		// Store the warp in the graph with a default distance and hop count
-		if (!graph[srcMap][destMap]) {
-			graph[srcMap][destMap] = {
-				distance: 1, // Default small distance for direct connections
-				warpId: warpId,
-				hopCount: 1 // Direct connection is 1 hop
-			};
-		}
+		// Initialize graph nodes if they don't exist. Destination-only maps must also
+		// be added, otherwise Dijkstra can never finish on maps without outgoing links.
+		ensureGraphNode(graph, srcMap);
+		ensureGraphNode(graph, destMap);
 
 		// Store warp details for later use
 		const warpKey = srcMap + '_' + warpId;
 		warpDetails[warpKey] = {
 			id: warpId,
 			type: warpType,
+			service: service,
 			spriteId: warp[3],
-			name: warp[4],
+			name: warp[4] || '',
 			srcMap: srcMap,
-			srcX: warp[6],
-			srcY: warp[7],
+			srcX: Number(warp[6]) || 0,
+			srcY: Number(warp[7]) || 0,
 			destMap: destMap,
-			destX: warp[9],
-			destY: warp[10]
+			destX: Number(warp[9]) || 0,
+			destY: Number(warp[10]) || 0
 		};
+
+		// Store the warp in the graph with a default distance and hop count.
+		if (isBetterConnection(graph[srcMap][destMap], baseDistance, 1, service)) {
+			graph[srcMap][destMap] = {
+				distance: baseDistance,
+				warpId: warpId,
+				type: warpType,
+				service: service,
+				hopCount: 1
+			};
+		}
 	}
 
 	// Process NaviLinkDistanceTable to enhance the graph with additional connections
 	if (naviLinkDistanceTable && naviLinkDistanceTable.length) {
 		for (let i = 0; i < naviLinkDistanceTable.length; i++) {
 			if (typeof naviLinkDistanceTable[i] === 'string') {
-				const mapName = naviLinkDistanceTable[i];
+				const mapName = normalizeMapName(naviLinkDistanceTable[i]);
 				if (i + 2 < naviLinkDistanceTable.length) {
 					//var numLinks = naviLinkDistanceTable[i + 1]; // UNUSED
 					const linksData = naviLinkDistanceTable[i + 2];
@@ -159,30 +246,24 @@ MapPathFinder.findPathBetweenMaps = function findPathBetweenMaps(
 							for (let k = 1; k < linksData[j].length; k++) {
 								const destData = linksData[j][k];
 								if (Array.isArray(destData) && destData.length >= 3) {
-									const destMapName = destData[0];
-									const hopCount = destData[1];
-									const pathCost = destData[2];
+									const destMapName = normalizeMapName(destData[0]);
+									const hopCount = Number(destData[1]) || 1;
+									const pathCost = Number(destData[2]) || 1;
 
 									// Skip empty destinations
 									if (!destMapName) {
 										continue;
 									}
 
-									// Add this connection to the graph if it's not already there or if it's a better path
-									if (!graph[mapName]) {
-										graph[mapName] = {};
-									}
+									ensureGraphNode(graph, mapName);
+									ensureGraphNode(graph, destMapName);
 
-									// Only update if this path has fewer hops or same hops but better cost
-									if (
-										!graph[mapName][destMapName] ||
-										hopCount < graph[mapName][destMapName].hopCount ||
-										(hopCount === graph[mapName][destMapName].hopCount &&
-											pathCost < graph[mapName][destMapName].distance)
-									) {
+									if (isBetterConnection(graph[mapName][destMapName], pathCost, hopCount, warpInfo.service)) {
 										graph[mapName][destMapName] = {
 											distance: pathCost,
 											warpId: linkId,
+											type: warpInfo.type,
+											service: warpInfo.service,
 											hopCount: hopCount
 										};
 									}
@@ -222,7 +303,8 @@ MapPathFinder.findPathBetweenMaps = function findPathBetweenMaps(
 	const previous = {};
 	const unvisited = new Set();
 
-	// Initialize distances and hop counts
+	// Initialize distances and hop counts. Graph now contains both source and
+	// destination nodes, including destination-only service maps.
 	for (const map in graph) {
 		distances[map] = Infinity;
 		hopCounts[map] = Infinity;
@@ -234,9 +316,16 @@ MapPathFinder.findPathBetweenMaps = function findPathBetweenMaps(
 	distances[startMap] = 0;
 	hopCounts[startMap] = 0;
 
-	// If start map is not in the graph, add it
+	// If start/end maps are not in the graph, add them so the algorithm can fail
+	// cleanly instead of leaving missing properties.
 	if (!unvisited.has(startMap)) {
 		unvisited.add(startMap);
+	}
+	if (!unvisited.has(endMap)) {
+		unvisited.add(endMap);
+		distances[endMap] = Infinity;
+		hopCounts[endMap] = Infinity;
+		previous[endMap] = null;
 	}
 
 	// Main Dijkstra loop
@@ -302,12 +391,24 @@ MapPathFinder.findPathBetweenMaps = function findPathBetweenMaps(
 	let current = endMap;
 
 	// Add the final destination
-	path.unshift({
-		map: endMap,
-		x: endX,
-		y: endY,
-		warpId: null
-	});
+	path.unshift(
+		includeMetadata
+			? {
+					map: endMap,
+					x: endX,
+					y: endY,
+					warpId: null,
+					type: null,
+					service: false,
+					name: ''
+				}
+			: {
+					map: endMap,
+					x: endX,
+					y: endY,
+					warpId: null
+				}
+	);
 
 	// Build the path in reverse
 	while (current !== startMap) {
@@ -325,13 +426,28 @@ MapPathFinder.findPathBetweenMaps = function findPathBetweenMaps(
 			break;
 		}
 
-		// Add the warp to the path (in reverse order)
-		path.unshift({
-			map: prevMap,
-			x: warpInfo.srcX,
-			y: warpInfo.srcY,
-			warpId: warpId
-		});
+		// Add the warp/service point to the path (in reverse order)
+		path.unshift(
+			includeMetadata
+				? {
+						map: prevMap,
+						x: warpInfo.srcX,
+						y: warpInfo.srcY,
+						warpId: warpId,
+						type: warpInfo.type,
+						service: warpInfo.service,
+						name: warpInfo.name,
+						destMap: warpInfo.destMap,
+						destX: warpInfo.destX,
+						destY: warpInfo.destY
+					}
+				: {
+						map: prevMap,
+						x: warpInfo.srcX,
+						y: warpInfo.srcY,
+						warpId: warpId
+					}
+		);
 
 		current = prevMap;
 	}

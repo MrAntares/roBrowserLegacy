@@ -791,7 +791,35 @@ function onServerChange(pkt) {
  * Resets the per-character UI state shared by the exit and restart flows.
  * Components that were never prepared have no root element to clean.
  */
+/**
+ * Clear navigation when leaving the map server.
+ *
+ * Navigation has persistent floor arrows and a cached world-map overlay. These
+ * are not part of the normal canvas/map renderer cleanup, so they must be
+ * explicitly reset before going back to character select or login.
+ */
+function clearNavigationForMapExit() {
+	if (!Navigation) {
+		return;
+	}
+
+	if (typeof Navigation.resetNavigationState === 'function') {
+		Navigation.resetNavigationState({
+			resetMapData: true,
+			terminateWorker: true,
+			clearTitles: true
+		});
+	} else if (typeof Navigation.clear === 'function') {
+		Navigation.clear();
+	}
+
+	if (Navigation.__loaded && typeof Navigation.remove === 'function') {
+		Navigation.remove();
+	}
+}
+
 function cleanGameUI() {
+	clearNavigationForMapExit();
 	WhisperBox.clearAll();
 
 	const tasks = [

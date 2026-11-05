@@ -16,7 +16,7 @@ vi.mock('Core/Client.js', () => ({
 	}
 }));
 vi.mock('DB/DBManager.js', () => ({
-	default: { INTERFACE_PATH: '', getMessage: () => '', getMapInfo: () => null }
+	default: { INTERFACE_PATH: '', getMessage: () => '', getMapInfo: () => null, getNavigationMapMonsters: () => [] }
 }));
 vi.mock('DB/Map/WorldMap.js', () => ({
 	default: [
@@ -50,6 +50,25 @@ const { default: WorldMap } = await import('UI/Components/WorldMap/WorldMap.js')
 await new Promise(r => setTimeout(r, 20));
 
 describe('WorldMap party markers', () => {
+	it('releases the route listener on removal and reattaches it once on append', () => {
+		const addListener = vi.spyOn(document, 'addEventListener');
+		const removeListener = vi.spyOn(document, 'removeEventListener');
+		const routeAdds = () => addListener.mock.calls.filter(([type]) => type === 'roBrowserNavigationRouteChanged').length;
+		const routeRemoves = () => removeListener.mock.calls.filter(([type]) => type === 'roBrowserNavigationRouteChanged').length;
+
+		WorldMap.append();
+		expect(routeAdds()).toBe(1);
+		WorldMap.remove();
+		expect(routeRemoves()).toBe(1);
+		WorldMap.append();
+		expect(routeAdds()).toBe(2);
+		WorldMap.remove();
+		expect(routeRemoves()).toBe(2);
+
+		addListener.mockRestore();
+		removeListener.mockRestore();
+	});
+
 	it('marks members reported while the map was hidden when it is first shown', () => {
 		vi.spyOn(console, 'log').mockImplementation(() => {});
 		WorldMap.append();
