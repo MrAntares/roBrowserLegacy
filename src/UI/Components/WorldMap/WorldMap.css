@@ -130,7 +130,7 @@
 }
 
 #WorldMap .worldmap .section.currentmap .mapname {
-	display: block;
+	display: none;
 	position: absolute;
 	top: 3px;
 	left: 50%;
@@ -186,27 +186,60 @@
 	background-repeat: no-repeat;
 }
 
-#WorldMap .worldmap .section .level-range-text {
-	display: none;
-	position: absolute;
-
-	top: 85%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-
-	width: 100%;
+#WorldMap .worldmap .section .monster-level-range {
+	display: block;
+	white-space: nowrap;
+	color: white;
+	font-size: 10px;
+	line-height: 1.2;
 	text-align: center;
-	font-weight: bold;
-	color: #ffffff;
-	text-shadow:
-		-1px -1px 0 #000,
-		1px -1px 0 #000,
-		-1px 1px 0 #000,
-		1px 1px 0 #000;
 }
 
-#WorldMap .worldmap.show-lvls .section .level-range-text {
-	display: block;
+#WorldMap .worldmap .section .monster-count-badge {
+	display: none;
+	position: absolute;
+	right: 3px;
+	bottom: 3px;
+	align-items: center;
+	justify-content: center;
+	min-width: 18px;
+	width: max-content;
+	height: 18px;
+	aspect-ratio: 1;
+	padding: 1px 3px;
+	border: 1px solid rgba(255, 225, 78, 0.92);
+	border-radius: 2px;
+	background: rgba(39, 28, 5, 0.86);
+	color: #ffe84f;
+	font-size: 10px;
+	font-weight: bold;
+	line-height: 1;
+	text-shadow: 0 1px 1px #000;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+#WorldMap .worldmap.show-lvls .section .monster-count-badge {
+	display: flex;
+}
+
+#WorldMap .worldmap.show-lvls .section.is-dungeon .monster-count-badge,
+#WorldMap .worldmap.show-lvls .section.is-dungeon-stacked .monster-count-badge {
+	display: none;
+}
+
+#WorldMap .worldmap .section .recommended-level-badge {
+	display: none;
+	border: 1px solid #ffe14e;
+	color: white;
+}
+
+#WorldMap .worldmap.show-lvls .section .recommended-level-badge {
+	display: flex;
+}
+
+#WorldMap .worldmap.show-lvls .section.is-dungeon .recommended-level-badge,
+#WorldMap .worldmap.show-lvls .section.is-dungeon-stacked .recommended-level-badge {
+	display: flex;
 }
 
 #WorldMap .worldmap .section .displayname {
@@ -219,7 +252,14 @@
 	top: 3px;
 	left: 50%;
 	transform: translate(-50%, 0);
-	height: 11px;
+	height: auto;
+	white-space: nowrap;
+	width: max-content;
+	max-width: none;
+	padding: 2px 5px;
+	border: 1px solid rgba(178, 45, 35, 0.9);
+	border-radius: 1px;
+	background-color: rgba(139, 37, 29, 0.9);
 	color: white;
 	font-weight: bold;
 	text-shadow:
@@ -249,7 +289,7 @@
 	text-align: center;
 }
 
-#WorldMap .worldmap.show-lvls .section:not(.is-dungeon):not(.is-dungeon-stacked) .mapname {
+#WorldMap .worldmap.show-lvls .section:not(.currentmap):not(.is-dungeon):not(.is-dungeon-stacked) .mapname {
 	display: block;
 	position: absolute;
 	top: 3px;
@@ -268,13 +308,157 @@
 }
 
 #WorldMap .worldmap .section.is-dungeon {
-	background-color: rgba(255, 0, 0, 0.4) !important;
-	border: 1px solid rgba(255, 0, 0, 0.6) !important;
+	background-color: transparent !important;
+	border-color: transparent !important;
+}
+
+/* Desktop-client service routes. The full layer only exists while an eligible town is hovered. */
+#WorldMap .worldmap-service-overlay,
+#WorldMap .worldmap-service-overlay * {
+	pointer-events: none;
+}
+
+#WorldMap .worldmap-service-overlay {
+	position: absolute;
+	inset: 0;
+	z-index: 20;
+	overflow: visible;
+	pointer-events: none;
+}
+
+#WorldMap .service-route-svg,
+#WorldMap .service-marker-layer {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	overflow: visible;
+}
+
+#WorldMap .service-route-arrow-shadow,
+#WorldMap .service-route-arrow,
+#WorldMap .service-airship-line-shadow,
+#WorldMap .service-airship-line {
+	fill: none;
+	vector-effect: non-scaling-stroke;
+}
+
+#WorldMap .service-route-arrow-shadow {
+	stroke: rgba(43, 29, 0, 0.72);
+	stroke-width: 7;
+}
+
+#WorldMap .service-route-arrow {
+	stroke: rgba(255, 238, 72, 0.58);
+	stroke-width: 6.8;
+	stroke-linecap: round;
+	stroke-dasharray: 1;
+	stroke-dashoffset: 1;
+}
+
+#WorldMap .service-route-traveller {
+	fill: rgba(255, 238, 72, 0.72);
+	stroke: rgba(64, 41, 0, 0.62);
+	stroke-width: 1;
+	paint-order: stroke fill;
+	filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.75));
+}
+
+#WorldMap .service-airship-line-shadow {
+	stroke: rgba(27, 8, 17, 0.78);
+	stroke-width: 5;
+}
+
+#WorldMap .service-airship-line {
+	stroke: rgba(157, 42, 82, 0.96);
+	stroke-width: 2.5;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+#WorldMap .service-airplane {
+	filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.9)) saturate(1.15);
+}
+
+#WorldMap .service-airplane-smoke-puff {
+	fill: rgba(233, 238, 241, 0.72);
+	transform-box: fill-box;
+	transform-origin: center;
+	animation: worldmap-airplane-smoke 0.9s ease-out var(--smoke-delay, 0s) infinite;
+}
+
+@keyframes worldmap-airplane-smoke {
+	0% {
+		opacity: 0.8;
+		transform: translateX(0) scale(0.7);
+	}
+	100% {
+		opacity: 0;
+		transform: translateX(-12px) scale(1.45);
+	}
+}
+
+#WorldMap .service-kafra-marker {
+	position: absolute;
+	transform: translate(-50%, -100%) translate(5px, -10px);
+	z-index: 3;
+}
+
+#WorldMap .service-kafra-character {
+	display: block;
+	width: 64px;
+	height: 64px;
+	image-rendering: pixelated;
+	filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.86));
+	transform: scale(1.2);
+	transform-origin: center bottom;
+}
+
+#WorldMap .service-kafra-marker.is-origin .service-kafra-character {
+	width: 72px;
+	height: 72px;
+}
+
+#WorldMap .service-destination-name {
+	position: absolute;
+	transform: translateX(-50%);
+	z-index: 4;
+	padding: 2px 7px;
+	border: 1px solid rgba(79, 52, 0, 0.85);
+	border-radius: 2px;
+	background: rgba(37, 26, 4, 0.84);
+	color: #ffe65a;
+	font-size: 11px;
+	font-weight: bold;
+	line-height: 1.2;
+	white-space: nowrap;
+	text-shadow: 0 1px 1px #000;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.65);
+}
+
+#WorldMap .section.service-origin-highlight,
+#WorldMap .section.service-destination-highlight {
+	z-index: 2;
+	border: 2px solid rgba(255, 238, 70, 0.96) !important;
+	background-color: rgba(255, 220, 0, 0.18) !important;
+	box-shadow:
+		0 0 0 1px rgba(42, 26, 0, 0.8),
+		0 0 9px rgba(255, 222, 31, 0.78);
+}
+
+#WorldMap .worldmap .section.service-destination-highlight .displayname {
+	visibility: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	#WorldMap .service-airship-line {
+		animation-duration: 4s;
+	}
 }
 
 #WorldMap .worldmap .section.is-dungeon-stacked {
 	background-color: transparent !important;
-	border: 1px solid rgba(255, 0, 0, 0.6) !important;
+	border-color: transparent !important;
 	display: block !important;
 }
 
@@ -290,9 +474,17 @@
 	z-index: 100;
 	pointer-events: none;
 	padding: 5px;
+	align-items: stretch;
+	gap: 5px;
 	background-color: rgba(0, 0, 0, 0.85);
 	border: 1px solid #666;
 	border-radius: 4px;
+	box-sizing: border-box;
+}
+
+#WorldMap #map-tooltip .tooltip-map-details {
+	flex: 0 0 150px;
+	width: 150px;
 }
 
 #WorldMap #map-tooltip .tooltip-img {
@@ -326,6 +518,93 @@
 		1px -1px 0 #000,
 		-1px 1px 0 #000,
 		1px 1px 0 #000;
+}
+
+#WorldMap #map-tooltip .tooltip-monsters {
+	display: none;
+	flex: 0 0 190px;
+	width: 190px;
+	min-height: 178px;
+	max-height: 260px;
+	box-sizing: border-box;
+	flex-direction: column;
+	overflow: hidden;
+	color: #eef8ff;
+	background: linear-gradient(180deg, rgba(22, 75, 137, 0.98), rgba(7, 31, 73, 0.98));
+	border: 1px solid #82b9ef;
+	box-shadow:
+		inset 0 0 0 1px rgba(2, 20, 54, 0.9),
+		inset 0 0 12px rgba(77, 164, 255, 0.2);
+}
+
+#WorldMap #map-tooltip.show-monster-list .tooltip-monsters {
+	display: flex;
+}
+
+#WorldMap #map-tooltip .tooltip-monster-header {
+	display: flex;
+	flex: 0 0 21px;
+	align-items: center;
+	justify-content: space-between;
+	box-sizing: border-box;
+	padding: 2px 6px;
+	color: #fff5b8;
+	font-size: 11px;
+	font-weight: bold;
+	background: linear-gradient(180deg, rgba(59, 130, 201, 0.95), rgba(21, 70, 128, 0.95));
+	border-bottom: 1px solid rgba(154, 208, 255, 0.8);
+	text-shadow: 1px 1px 0 #071a32;
+}
+
+#WorldMap #map-tooltip .tooltip-monster-count {
+	color: #d7efff;
+	font-weight: normal;
+}
+
+#WorldMap #map-tooltip .tooltip-monster-list {
+	flex: 1 1 auto;
+	min-height: 0;
+	overflow-y: auto;
+	scrollbar-color: #70a9df #102d55;
+	scrollbar-width: thin;
+}
+
+#WorldMap #map-tooltip .tooltip-monster-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 6px;
+	min-height: 18px;
+	box-sizing: border-box;
+	padding: 2px 5px;
+	font-size: 11px;
+	line-height: 14px;
+	border-bottom: 1px solid rgba(132, 189, 239, 0.2);
+	text-shadow: 1px 1px 0 #071426;
+}
+
+#WorldMap #map-tooltip .tooltip-monster-row:nth-child(even) {
+	background-color: rgba(100, 177, 242, 0.09);
+}
+
+#WorldMap #map-tooltip .tooltip-monster-name {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+#WorldMap #map-tooltip .tooltip-monster-amount {
+	flex: 0 0 auto;
+	color: #9ed7ff;
+}
+
+#WorldMap #map-tooltip .tooltip-monster-empty {
+	padding: 12px 6px;
+	color: #bdd8ee;
+	font-size: 11px;
+	font-style: italic;
+	text-align: center;
 }
 
 /* Official-style blue navigation route overlay on the large world map */

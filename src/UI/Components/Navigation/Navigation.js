@@ -621,7 +621,7 @@ function getPreviewOffscreen(runtime) {
 		runtime.previewCanvas = document.createElement('canvas');
 		runtime.previewCanvas.width = 220;
 		runtime.previewCanvas.height = 220;
-		runtime.previewCtx = runtime.previewCanvas.getContext('2d');
+		runtime.previewCtx = runtime.previewCanvas.getContext('2d', { willReadFrequently: true });
 	}
 
 	return {
@@ -4226,6 +4226,70 @@ Navigation.navigateTo = function navigateTo(options) {
 		this.updateTargetText(true);
 		this.setTargetCoordinatesBlinking(false);
 	}
+};
+
+Navigation.renderNpcSprite = function renderNpcSprite(canvas, npcClassId = 117) {
+	if (!canvas || !canvas.parentElement) return null;
+	const root = canvas.parentElement;
+	root._navMonsterPreviewCancelled = false;
+	canvas.classList.add('detail-sprite-canvas');
+	canvas.dataset.authenticNpcSprite = '4_f_kafra1';
+
+	const cacheKey = 'NPC:' + npcClassId;
+	if (_monsterPreviewRuntimeCache[cacheKey]) {
+		startAnimatedMonsterPreview(root, _monsterPreviewRuntimeCache[cacheKey]);
+		return () => {
+			root._navMonsterPreviewCancelled = true;
+			stopAnimatedSpritePreview(root);
+		};
+	}
+
+	let basePath = '';
+	try {
+		basePath = DB.getBodyPath(npcClassId, 0) || '';
+	} catch (_e) {
+		return null;
+	}
+	if (!basePath) return null;
+
+	const sprPath = basePath.replace(/\.act$/i, '') + (/\.spr$/i.test(basePath) ? '' : '.spr');
+	const actPath = basePath.replace(/\.spr$/i, '') + (/\.act$/i.test(basePath) ? '' : '.act');
+	Client.loadFile(
+		sprPath,
+		sprData => {
+			if (root._navMonsterPreviewCancelled || !sprData || !sprData.frames) {
+				clearSpritePreview(canvas);
+				return;
+			}
+			Client.loadFile(
+				actPath,
+				actData => {
+					if (root._navMonsterPreviewCancelled || !actData || !actData.actions) {
+						clearSpritePreview(canvas);
+						return;
+					}
+					loadPreviewShadowBuffers((shadowSprData, shadowActData) => {
+						if (root._navMonsterPreviewCancelled) return;
+						try {
+							const runtime = buildMonsterPreviewRuntime(sprData, actData, shadowSprData, shadowActData);
+							_monsterPreviewRuntimeCache[cacheKey] = runtime;
+							startAnimatedMonsterPreview(root, runtime);
+						} catch (_e) {
+							clearSpritePreview(canvas);
+						}
+					});
+				},
+				() => clearSpritePreview(canvas)
+			);
+		},
+		() => clearSpritePreview(canvas),
+		{ to_rgba: true }
+	);
+
+	return () => {
+		root._navMonsterPreviewCancelled = true;
+		stopAnimatedSpritePreview(root);
+	};
 };
 
 /**

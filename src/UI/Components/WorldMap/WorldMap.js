@@ -17,14 +17,22 @@ import UIManager from 'UI/UIManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
 import Session from 'Engine/SessionStorage.js';
 import MAPS from 'DB/Map/WorldMap.js';
+import { isEpisodeInRange } from 'DB/Map/NavigationEra.js';
 import htmlText from './WorldMap.html?raw';
 import cssText from './WorldMap.css?raw';
 import Navigation from 'UI/Components/Navigation/Navigation.js';
+import {
+	renderWorldMapMonsterPanel,
+	createWorldMapRecommendedLevelBadge,
+	createWorldMapMonsterLevelRange
+} from './WorldMapMonsterTooltip.js';
+import { renderWorldMapServiceOverlay, clearWorldMapServiceOverlay } from './WorldMapServiceOverlay.js';
 
 /**
  * Create Component
  */
 const WorldMap = new GUIComponent('WorldMap', cssText);
+WorldMap.responsiveMode = 'fixed';
 
 WorldMap.render = () => htmlText;
 
@@ -100,7 +108,7 @@ function setMapList() {
 	if (!selectEl) return;
 	let list = '';
 	for (const map of MAPS) {
-		if (WorldMap.settings.episode >= map.ep_from && WorldMap.settings.episode < map.ep_to) {
+		if (isEpisodeInRange(map, WorldMap.settings.episode)) {
 			list += `<option value="${map.id}">${map.name}</option>`;
 		}
 	}
@@ -118,6 +126,8 @@ function onSelect() {
  * @param {string} name eg. `"worldmap_localizing1"`
  */
 function selectMap(name = null) {
+	clearWorldMapServiceState();
+
 	// If no name provided, use the first available map
 	if (!name || name === null || name === '') {
 		if (MAPS.length > 0 && MAPS[0].id !== null && MAPS[0].id !== '') {
@@ -144,6 +154,7 @@ function selectMap(name = null) {
  */
 function resizeMap() {
 	const root = WorldMap.getRoot();
+	clearWorldMapServiceState();
 	const mapContainer = root.querySelector('.map-view');
 	if (!mapContainer) return;
 
@@ -699,6 +710,21 @@ function onWorldMapMouseOver(e) {
 	if (!section || section === _hoveredSection) return;
 	_hoveredSection = section;
 	showTooltip(section);
+	const mapView = section.closest('.map-view');
+	if (mapView) {
+		renderWorldMapServiceOverlay({
+			mapView,
+			hoveredMapId: section.id,
+			sections: _activeWorldMapData?.maps || [],
+			getTownInfo: mapId => DB.getTownInfo(mapId),
+			isVisible: mapSection =>
+				(isEpisodeInRange(mapSection, WorldMap.settings.episode) || WorldMap.settings.add.includes(mapSection.id)) &&
+				!WorldMap.settings.remove.includes(mapSection.id),
+			renderKafraSprite: canvas => Navigation.renderNpcSprite(canvas, 117),
+			airplaneSrc: `${DB.INTERFACE_PATH}worldview_interface/wv_airplen32.bmp`,
+			loadAsset: (path, onLoad) => Client.loadFile(path, onLoad)
+		});
+	}
 }
 
 /**
@@ -708,7 +734,7 @@ function onWorldMapMouseOver(e) {
 function onWorldMapMouseOut(e) {
 	if (!_hoveredSection) return;
 	if (_hoveredSection.contains(e.relatedTarget)) return;
-	_hoveredSection = null;
+	clearWorldMapServiceState();
 	hideTooltip();
 }
 
@@ -728,9 +754,15 @@ function showTooltip(section) {
 	const tooltipImg = tooltip.querySelector('.tooltip-img');
 	tooltipImg.style.backgroundImage = '';
 
+	// Use the same map-to-monster lookup as Navigation. The panel is tied to
+	// the existing Show Monsters checkbox and leaves the original hover card
+	// unchanged while that mode is disabled.
+	const monsters = WorldMap.showLVLMode ? DB.getNavigationMapMonsters(section.id) : [];
+	renderWorldMapMonsterPanel(tooltip, monsters, WorldMap.showLVLMode);
+
 	// position tooltip
 	const rect = section.getBoundingClientRect();
-	tooltip.style.display = 'block';
+	tooltip.style.display = 'flex';
 	tooltip.style.left = rect.right + 10 + 'px';
 	tooltip.style.top = rect.top + 'px';
 
@@ -740,7 +772,10 @@ function showTooltip(section) {
 		tooltip.style.left = rect.left - tooltipRect.width - 10 + 'px';
 	}
 	if (tooltipRect.bottom > window.innerHeight) {
-		tooltip.style.top = window.innerHeight - tooltipRect.height - 10 + 'px';
+		tooltip.style.top = Math.max(5, window.innerHeight - tooltipRect.height - 10) + 'px';
+	}
+	if (tooltip.getBoundingClientRect().left < 0) {
+		tooltip.style.left = '5px';
 	}
 
 	// load map image asset and render it
@@ -763,6 +798,17 @@ function hideTooltip() {
 }
 
 /**
+ * Remove all hover-only service visuals and reset delegated hover state.
+ * Shared by rerender, resize, hide, close and removal lifecycle paths.
+ */
+function clearWorldMapServiceState() {
+	const root = WorldMap.getRoot();
+	const mapView = root?.querySelector?.('.map-view');
+	_hoveredSection = null;
+	clearWorldMapServiceOverlay(mapView);
+}
+
+/**
  * Create the .worldmap container and loop through all the maps
  * and render them to the container.
  *
@@ -770,6 +816,7 @@ function hideTooltip() {
  * @param {string} imgData world map image data as a base64
  */
 function createWorldMapView(map, imgData) {
+	clearWorldMapServiceState();
 	_activeWorldMapData = map;
 	const root = WorldMap.getRoot();
 	const container = root.querySelector('.map .content');
@@ -802,8 +849,7 @@ function createWorldMapView(map, imgData) {
 	for (const section of map.maps) {
 		//Episode & custom add/remove check
 		if (
-			((WorldMap.settings.episode >= section.ep_from && WorldMap.settings.episode < section.ep_to) ||
-				WorldMap.settings.add.includes(section.id)) &&
+			(isEpisodeInRange(section, WorldMap.settings.episode) || WorldMap.settings.add.includes(section.id)) &&
 			!WorldMap.settings.remove.includes(section.id)
 		) {
 			const el = document.createElement('div');
@@ -913,23 +959,19 @@ function createWorldMapView(map, imgData) {
 			el_mapid.className = 'mapid'; // rsw name
 			el_mapid.innerHTML = section.id;
 
+			const monsterLevelRange = createWorldMapMonsterLevelRange(DB.getNavigationMapMonsters(section.id));
+			if (monsterLevelRange) {
+				el_displayname.appendChild(monsterLevelRange);
+			}
 			el.appendChild(el_displayname);
 			el.appendChild(el_mapname);
 			el.appendChild(el_mapid);
 
-			if (section.moblevel !== undefined && section.moblevel.length > 0) {
-				const el_level = document.createElement('div');
-				el_level.className = 'level-range-text';
-				el_level.innerText = section.moblevel;
-				el.appendChild(el_level);
-			}
+			const recommendedLevelBadge = createWorldMapRecommendedLevelBadge(section);
+			if (recommendedLevelBadge) el.appendChild(recommendedLevelBadge);
 
 			mapView.appendChild(el);
 		}
-	}
-	// airplanes, currently only in the worldmap
-	if (map.id === 'worldmap') {
-		loadAirplane(mapView);
 	}
 	worldmap.appendChild(mapView);
 	renderNavigationRouteOverlay(mapView, map);
@@ -1061,17 +1103,17 @@ WorldMap.onAppend = function onAppend() {
 	// set maps
 	setMapList();
 
-	// resize map container & add sections. Hidden, it waits for toggle(),
-	// which selects the map itself: the art is over 1 MB.
-	if (this._host.style.display !== 'none') {
-		selectMap();
-	}
+	// resize map container & add sections
+	selectMap();
 
 	this._host.style.top = '0px';
 	this._host.style.left = '0px';
 };
 
 WorldMap.onRemove = function onRemove() {
+	clearWorldMapServiceState();
+	hideTooltip();
+
 	// Save preferences
 	_preferences.show = this._host.style.display !== 'none';
 	_preferences.y = 0;
@@ -1087,6 +1129,7 @@ WorldMap.onRemove = function onRemove() {
 WorldMap.toggle = function toggle() {
 	const isVisible = this._host.style.display !== 'none';
 	if (isVisible) {
+		clearWorldMapServiceState();
 		this._host.style.display = 'none';
 		hideTooltip();
 	} else {
@@ -1183,7 +1226,7 @@ function showPartyMembers() {
 		const el = root.querySelector('.worldmap .section#' + CSS.escape(mapId));
 		if (el) el.classList.add('membersonmap');
 	}
-}
+};
 
 /**
  * Toggle all maps
@@ -1219,6 +1262,12 @@ function onShowLVL() {
 			worldmapEl.classList.add('show-lvls');
 		}
 	}
+
+	// Update an already-visible hover card immediately. Unchecking restores
+	// the original minimap/name/map-code-only card without moving the pointer.
+	if (_hoveredSection) {
+		showTooltip(_hoveredSection);
+	}
 }
 
 /**
@@ -1234,6 +1283,8 @@ function stopPropagation(event) {
  * Closing window
  */
 function onClose() {
+	clearWorldMapServiceState();
+	hideTooltip();
 	WorldMap._host.style.display = 'none';
 }
 

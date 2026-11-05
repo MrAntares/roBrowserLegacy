@@ -33,6 +33,11 @@ import WeaponHitSoundTable from './Items/WeaponHitSoundTable.js';
 import RobeTable from './Items/RobeTable.js';
 import RandomOption from 'DB/Items/ItemRandomOptionTable.js';
 import WorldMap from './Map/WorldMap.js';
+import {
+	applyNavigationDistanceEra,
+	applyNavigationLinkEra,
+	applyNavigationMapEra
+} from './Map/NavigationEra.js';
 import SKID from './Skills/SkillConst.js';
 import SkillInfo from './Skills/SkillInfo.js';
 import SkillTreeView from './Skills/SkillTreeView.js';
@@ -258,7 +263,10 @@ function normalizeNaviMapName(mapName) {
 
 function getDefaultNaviMapPoint(mapName) {
 	const targetMap = normalizeNaviMapName(mapName);
-	const maps = normalizeLuaTable(NaviMapTable);
+	const maps = applyNavigationMapEra(
+		normalizeLuaTable(NaviMapTable),
+		Configs.get('worldMapSettings', { episode: 98 })
+	);
 
 	for (let i = 0; i < maps.length; i++) {
 		const map = maps[i];
@@ -332,7 +340,6 @@ function navigationMapMatchesQuery(mapName, displayName, query) {
 		normalizeSearchText(displayName).indexOf(normalizedQuery) !== -1
 	);
 }
-
 
 function decodeNavigationMobClass(value) {
 	value = Number(value) || 0;
@@ -3819,7 +3826,6 @@ class DB {
 			};
 		});
 	}
-
 	/**
 	 * Get grouped monster entries for a single navigation map.
 	 *
@@ -3934,7 +3940,10 @@ class DB {
 		// Search map destinations too. World Map clicks put a map display name
 		// in this input, so ALL/MAP must be able to resolve map names, not only NPC/MOB names.
 		if (type === 'ALL' || type === 'MAP') {
-			const maps = normalizeLuaTable(NaviMapTable);
+			const maps = applyNavigationMapEra(
+				normalizeLuaTable(NaviMapTable),
+				Configs.get('worldMapSettings', { episode: 98 })
+			);
 			for (let i = 0; i < maps.length; i++) {
 				const map = maps[i];
 				if (!map) {
@@ -4192,7 +4201,10 @@ class DB {
 	 * @returns {Array} The NaviLinkTable
 	 */
 	static getNaviLinkTable() {
-		return NaviLinkTable;
+		return applyNavigationLinkEra(
+			normalizeLuaTable(NaviLinkTable),
+			Configs.get('worldMapSettings', { episode: 98 })
+		);
 	}
 
 	/**
@@ -4201,7 +4213,10 @@ class DB {
 	 * @returns {Array} The NaviLinkDistanceTable
 	 */
 	static getNaviLinkDistanceTable() {
-		return NaviLinkDistanceTable;
+		return applyNavigationDistanceEra(
+			normalizeLuaTable(NaviLinkDistanceTable),
+			Configs.get('worldMapSettings', { episode: 98 })
+		);
 	}
 
 	/**
@@ -4210,7 +4225,7 @@ class DB {
 	 * @returns {Array} The NaviNpcDistanceTable
 	 */
 	static getNaviNpcDistanceTable() {
-		return NaviNpcDistanceTable;
+		return normalizeLuaTable(NaviNpcDistanceTable);
 	}
 
 	static createItemLink(item) {
