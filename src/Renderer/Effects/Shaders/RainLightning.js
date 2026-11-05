@@ -28,9 +28,8 @@ class RainLightning {
 	 * @param {WebGLFramebuffer|null} outputFbo - Target buffer (null = screen)
 	 */
 	static render(gl, inputTexture, outputFbo) {
-		if (!_buffer || !_program || !this.isActive()) {
-			return;
-		}
+		if (!_buffer || !_program) return;
+		const active = this.isActive() && _lightningTexture;
 
 		PostProcess.beforeRenderPass(gl, outputFbo);
 
@@ -53,7 +52,7 @@ class RainLightning {
 		gl.bindTexture(gl.TEXTURE_2D, boltTex);
 		gl.uniform1i(_program.uniform.uLightningTex, 1);
 
-		gl.uniform1f(_program.uniform.uLightningAlpha, _lightningTexture ? _lightningAlpha : 0.0);
+		gl.uniform1f(_program.uniform.uLightningAlpha, active ? _lightningAlpha : 0.0);
 
 		gl.drawArrays(gl.TRIANGLES, 0, 6);
 
@@ -111,6 +110,9 @@ class RainLightning {
 		}
 		if (_dummyTexture && gl && gl.isTexture(_dummyTexture)) {
 			gl.deleteTexture(_dummyTexture);
+		}
+		if (_program && gl && gl.isProgram(_program)) {
+			gl.deleteProgram(_program);
 		}
 		_program = null;
 		_buffer = null;

@@ -40,7 +40,7 @@ Instructions for working on the WebGL renderer, Entity composition system (`src/
 - **16 Mixins in `src/Renderer/Entity/` (plus `Controls/EntityControl.js` = 17 total):**
   `EntityAction.js`, `EntityAnimations.js`, `EntityAttachments.js`, `EntityAura.js`, `EntityCast.js`, `EntityDialog.js`, `EntityDisplay.js`, `EntityDropEffect.js`, `EntityEmblem.js`, `EntityLife.js`, `EntityRender.js`, `EntityRoom.js`, `EntitySound.js`, `EntityState.js`, `EntityView.js`, `EntityWalk.js`.
 
-### Effects (`src/Renderer/Effects/`, 33 effect JS files + GLSL shaders + 9 post-processing shaders)
+### Effects (`src/Renderer/Effects/`, 33 effect JS files + GLSL shaders + 11 post-processing shaders)
 
 - **Weather:** `CloudWeatherEffect`, `PokJukWeatherEffect`, `RainWeather`, `SakuraWeatherEffect`, `SnowWeather`, `Sky`.
 - **Auras & Spheres:** `GroundAura`, `SwirlingAura`, `SpiritSphere`, `WarlockSphere`, `Level99Bubble`, `QuadHorn`.

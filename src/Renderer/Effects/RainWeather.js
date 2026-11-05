@@ -95,7 +95,7 @@ const PUDDLE_INITIAL_SIZE = 20.0;
 const PUDDLE_MAX_SIZE = 1000.0;
 const PUDDLE_GROWTH_PER_DROP = 1.5;
 const PUDDLE_ALPHA_MAX = 0.45;
-const PUDDLE_FADE_SPEED = 0.4;
+const PUDDLE_FADE_SPEED = 0.00004;
 const PUDDLE_SEED_CHANCE = 0.8;
 
 let _dropFrame = null;

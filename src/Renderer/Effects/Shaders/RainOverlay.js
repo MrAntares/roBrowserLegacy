@@ -31,9 +31,8 @@ class RainOverlay {
 	 * @param {WebGLFramebuffer|null} outputFbo - Target buffer (null = screen)
 	 */
 	static render(gl, inputTexture, outputFbo) {
-		if (!_buffer || !_program || !this.isActive()) {
-			return;
-		}
+		if (!_buffer || !_program) return;
+		const alpha = this.isActive() ? _overlayA : 0.0;
 
 		PostProcess.beforeRenderPass(gl, outputFbo);
 
@@ -49,10 +48,10 @@ class RainOverlay {
 		gl.activeTexture(gl.TEXTURE0);
 		gl.bindTexture(gl.TEXTURE_2D, inputTexture);
 		gl.uniform1i(_program.uniform.uTexture, 0);
-
+		
 		// Upload overlay colour uniforms
 		gl.uniform3f(_program.uniform.uOverlayColor, _overlayR, _overlayG, _overlayB);
-		gl.uniform1f(_program.uniform.uOverlayAlpha, _overlayA);
+		gl.uniform1f(_program.uniform.uOverlayAlpha, alpha);
 
 		gl.drawArrays(gl.TRIANGLES, 0, 6);
 
@@ -98,9 +97,11 @@ class RainOverlay {
 		return _program;
 	}
 
+	// RainOverlay.clean
 	static clean(gl) {
-		if (_buffer) {
-			gl.deleteBuffer(_buffer);
+		if (gl) {
+			if (_buffer && gl.isBuffer(_buffer)) gl.deleteBuffer(_buffer);
+			if (_program && gl.isProgram(_program)) gl.deleteProgram(_program);
 		}
 		_program = _buffer = null;
 	}
