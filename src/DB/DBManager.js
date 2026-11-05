@@ -3958,14 +3958,13 @@ class DB {
 				}
 
 				const point = getDefaultNaviMapPoint(mapName);
-				if (!point) continue;
 				pushResult({
 					type: 'MAP',
 					id: mapName,
 					name: displayName,
 					mapName: mapName,
-					x: point.x,
-					y: point.y
+					x: point ? point.x : -1,
+					y: point ? point.y : -1
 				});
 			}
 
@@ -3995,14 +3994,13 @@ class DB {
 					}
 
 					const point = getDefaultNaviMapPoint(mapName);
-					if (!point) continue;
 					pushResult({
 						type: 'MAP',
 						id: mapName,
 						name: displayName || section.name || mapName,
 						mapName: mapName,
-						x: point.x,
-						y: point.y
+						x: point ? point.x : -1,
+						y: point ? point.y : -1
 					});
 				}
 			}

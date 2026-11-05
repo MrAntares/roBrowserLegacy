@@ -5,6 +5,19 @@ import MapPathFinder from 'UI/Components/Navigation/MapPathFinder.js';
 describe('MapPathFinder service routes', () => {
 	afterEach(() => vi.restoreAllMocks());
 
+	it('allows a same-map destination without navigation links', () => {
+		const route = MapPathFinder.findPathBetweenMaps('custom_island', 12, 18, 'custom_island', -1, -1, [200]);
+		expect(route).toEqual([{
+			map: 'custom_island',
+			x: -1,
+			y: -1,
+			warpId: null,
+			type: null,
+			service: false,
+			name: ''
+		}]);
+	});
+
 	it('keeps service links opt-in and returns the selected transport path', () => {
 		vi.spyOn(DB, 'getNaviLinkTable').mockReturnValue([
 			['prontera', 1, 201, 0, 'Kafra', '', 10, 10, 'izlude', 20, 20]

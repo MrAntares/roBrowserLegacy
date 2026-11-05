@@ -4207,15 +4207,16 @@ Navigation.navigateTo = function navigateTo(options) {
 		const target = path[0];
 
 		this.waitForMapData(function () {
-			if (target.map === _mapData.map && (
-				target.x < 0 || target.y < 0 || target.x >= _mapData.width || target.y >= _mapData.height
+			const useMapCenterFallback = target.x === -1 && target.y === -1;
+			if (!useMapCenterFallback && (
+				target.x < 0 || target.y < 0 || (target.map === _mapData.map && (target.x >= _mapData.width || target.y >= _mapData.height))
 			)) {
 				this.clear();
 				return;
 			}
 
 			let walkableCell;
-			if (target.x < 0 || target.y < 0) {
+			if (useMapCenterFallback) {
 				const centerX = Math.floor(_mapData.width / 2);
 				const centerY = Math.floor(_mapData.height / 2);
 				let bestDistance = Infinity;
