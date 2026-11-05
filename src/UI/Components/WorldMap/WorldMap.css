@@ -271,6 +271,10 @@
 	text-align: center;
 }
 
+#WorldMap .worldmap.show-lvls .section:not(.is-dungeon):not(.is-dungeon-stacked) .displayname {
+	display: block;
+}
+
 #WorldMap .worldmap .section.currentmap .displayname {
 	display: block;
 	position: absolute;

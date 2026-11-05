@@ -19,9 +19,10 @@ export function createWorldMapRecommendedLevelBadge(section) {
 
 export function createWorldMapMonsterLevelRange(monsters) {
 	const levels = (Array.isArray(monsters) ? monsters : []).flatMap(monster => {
-		if ([1, 2].includes(Number(monster?.mobType))) return [];
+		if ([1, 2].includes(Number(monster?.mobType ?? monster?.mobtype))) return [];
 		if (Array.isArray(monster?.baseLevels)) return monster.baseLevels;
-		return [monster?.baseLevel];
+		if (Array.isArray(monster?.levels)) return monster.levels;
+		return [monster?.baseLevel ?? monster?.level];
 	});
 	const validLevels = levels.map(Number).filter(level => Number.isFinite(level) && level > 0);
 	if (!validLevels.length) return null;

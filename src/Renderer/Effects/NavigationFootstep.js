@@ -282,6 +282,10 @@ class NavigationFootstep {
 	}
 }
 
+NavigationFootstep.usesTexture = function usesTexture() {
+	return !!(_useTexture && _texture);
+};
+
 NavigationFootstep.color = new Float32Array([1.0, 0.86, 0.10, 1.0]);
 NavigationFootstep.renderBeforeEntities = true;
 

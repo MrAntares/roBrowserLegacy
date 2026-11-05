@@ -241,12 +241,13 @@ function normalizeLuaTable(value) {
 		}
 
 		if (keys.every(isNumericLuaKey)) {
-			return keys
-				.sort((a, b) => Number(a) - Number(b))
-				.map(key => normalizeLuaTable(value[key]));
+			const sorted = keys.sort((a, b) => Number(a) - Number(b));
+			if (sorted.every((key, index) => Number(key) === index + 1)) {
+				return sorted.map(key => normalizeLuaTable(value[key]));
+			}
 		}
 
-		const normalized = {};
+		const normalized = Object.create(null);
 		for (let i = 0; i < keys.length; i++) {
 			const key = keys[i];
 			normalized[key] = normalizeLuaTable(value[key]);
@@ -3860,6 +3861,8 @@ class DB {
 			const mobClass = decodeNavigationMobClass(mob[3]);
 			const amount = getNavigationMobAmount(mob[3]);
 			const key = [mobClass, mobName].join(':');
+			const mobLevel = Number(mob[6]);
+			const mobType = Number(mob[2]);
 
 			const point = getDefaultNaviMapPoint(mapName) || { x: 0, y: 0 };
 
@@ -3867,6 +3870,8 @@ class DB {
 				grouped[key] = {
 					type: 'MOB',
 					id: mobClass,
+					mobType: mobType,
+					levels: Number.isFinite(mobLevel) && mobLevel > 0 ? [mobLevel] : [],
 					name: mobName,
 					mapName: mapName,
 					x: point.x,
@@ -3878,6 +3883,7 @@ class DB {
 				grouped[key].amount = amount;
 				grouped[key].rateLabel = getNavigationSpawnRateLabel(amount);
 			}
+			if (Number.isFinite(mobLevel) && mobLevel > 0 && !grouped[key].levels.includes(mobLevel)) grouped[key].levels.push(mobLevel);
 		}
 
 		return Object.keys(grouped)
@@ -4182,7 +4188,11 @@ class DB {
 	 * @returns {{x:number,y:number}|null}
 	 */
 	static getNaviMapPoint(mapName) {
-		return getDefaultNaviMapPoint(mapName);
+		const point = getDefaultNaviMapPoint(mapName);
+		if (point) return point;
+		mapName = normalizeNaviMapName(mapName);
+		const incoming = this.getNaviLinkTable().find(link => normalizeNaviMapName(link[8]) === mapName);
+		return incoming ? { x: Number(incoming[9]) || 0, y: Number(incoming[10]) || 0 } : null;
 	}
 
 	/**

@@ -348,7 +348,8 @@ export function renderWorldMapServiceOverlay({
 	const origin = sectionsById.get(normalizedHoveredId);
 	if (!origin) return null;
 
-	const kafraDestinationIds = getKafraDestinationIds(normalizedHoveredId);
+	const hasKafra = getKafraEntries(getTownInfo(normalizedHoveredId)).length > 0;
+	const kafraDestinationIds = hasKafra ? getKafraDestinationIds(normalizedHoveredId) : [];
 	const destinations = kafraDestinationIds.map(mapId => sectionsById.get(mapId)).filter(Boolean);
 	const airshipRoutes = getAirshipRoutes(normalizedHoveredId)
 		.map(route => ({ route, sections: resolveAirshipRouteSections(route, sectionsById) }))

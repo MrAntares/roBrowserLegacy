@@ -28,6 +28,7 @@ import cssText from './Navigation.css?raw';
 import MapPathFinder from './MapPathFinder.js';
 import PrivateAirship from 'UI/Components/PrivateAirship/PrivateAirship.js';
 import PACKETVER from 'Network/PacketVerManager.js';
+import { getNavigationRoute, setNavigationRoute } from './NavigationRouteState.js';
 
 /**
  * First client date with the Private Airship request (CZ_PRIVATE_AIRSHIP_REQUEST)
@@ -1388,7 +1389,7 @@ function clearWorldFootsteps() {
 /**
  * Calculate the map-direction angle for a footstep marker.
  */
-function getFootstepAngle(previousPoint, currentPoint, nextPoint) {
+function getFootstepAngle(previousPoint, currentPoint, nextPoint, useTexture = false) {
 	const fromPoint = previousPoint || currentPoint;
 	const toPoint = nextPoint || currentPoint;
 	let dx = Number(toPoint.x) - Number(fromPoint.x);
@@ -1407,7 +1408,9 @@ function getFootstepAngle(previousPoint, currentPoint, nextPoint) {
 	// opposite direction compared with the original procedural arrow. Rotate
 	// the marker by 180 degrees so each footprint points toward the next
 	// route cell / destination instead of back to the previous location.
-	return Math.atan2(dy, dx) + Math.PI / 2;
+	// Procedural geometry points along local +Y. Official textures use a
+	// different authored orientation and retain their client rotation.
+	return Math.atan2(dy, dx) + (useTexture ? Math.PI / 2 : -Math.PI / 2);
 }
 
 /**
@@ -2001,7 +2004,7 @@ function clearWorldMapMonsterSearchMarkers() {
 		return;
 	}
 
-	const current = window.__RO_BROWSER_NAVIGATION_ROUTE__ || null;
+	const current = getNavigationRoute();
 	if (!current || !current.active) {
 		return;
 	}
@@ -2021,7 +2024,7 @@ function clearWorldMapMonsterSearchMarkers() {
 	}
 
 	_lastPublishedNavigationRouteKey = '';
-	window.__RO_BROWSER_NAVIGATION_ROUTE__ = detail;
+	setNavigationRoute(detail);
 	document.dispatchEvent(
 		new CustomEvent('roBrowserNavigationRouteChanged', {
 			detail: detail
@@ -2062,9 +2065,7 @@ function publishWorldMapSearchResult(result, allResults) {
 			points: []
 		};
 
-		if (typeof window !== 'undefined') {
-			window.__RO_BROWSER_NAVIGATION_ROUTE__ = detail;
-		}
+		setNavigationRoute(detail);
 
 		document.dispatchEvent(
 			new CustomEvent('roBrowserNavigationRouteChanged', {
@@ -2121,9 +2122,7 @@ function publishWorldMapSearchResult(result, allResults) {
 			points: []
 		};
 
-		if (typeof window !== 'undefined') {
-			window.__RO_BROWSER_NAVIGATION_ROUTE__ = detail;
-		}
+		setNavigationRoute(detail);
 
 		document.dispatchEvent(
 			new CustomEvent('roBrowserNavigationRouteChanged', {
@@ -2206,9 +2205,7 @@ function publishNavigationRoute(active, routePath, startMap, endMap, displayName
 		points: points
 	};
 
-	if (typeof window !== 'undefined') {
-		window.__RO_BROWSER_NAVIGATION_ROUTE__ = detail;
-	}
+	setNavigationRoute(detail);
 
 	document.dispatchEvent(
 		new CustomEvent('roBrowserNavigationRouteChanged', {
@@ -2392,7 +2389,7 @@ function spawnWorldFootsteps(currentMap) {
 			effectID: getFootstepEffectID(footstepIndex),
 			markerIndex: footstepIndex,
 			position: new Float32Array([x, y, z]),
-			angle: getFootstepAngle(previousPoint, point, nextPoint),
+			angle: getFootstepAngle(previousPoint, point, nextPoint, NavigationFootstep.usesTexture()),
 			alpha: 0.95,
 			x: x,
 			y: y,
@@ -3242,7 +3239,7 @@ Navigation.navigateToMap = function navigateToMap(mapName, displayName) {
 		return;
 	}
 
-	const point = DB.getNaviMapPoint(mapName) || { x: 0, y: 0 };
+	const point = DB.getNaviMapPoint(mapName) || { x: -1, y: -1 };
 	const currentMap = getCurrentMap();
 	const currentPos = getPlayerPosition();
 
@@ -3415,6 +3412,9 @@ Navigation.loadMap = function loadMap(mapName, displayName) {
 
 			_mapData.cellTypes = cellTypes;
 			_mapData.map = mapBaseName;
+			_mapData.warps = DB.getNaviLinkTable()
+				.filter(link => normalizeMapName(link[0]) === mapBaseName && normalizeMapName(link[8]) === mapBaseName && getAllowedWarpTypes().includes(Number(link[2])))
+				.map(link => ({ srcX: Number(link[6]), srcY: Number(link[7]), destX: Number(link[9]), destY: Number(link[10]), id: link[1] }));
 		}
 
 		if (_loadingMapName === mapBaseName) {
@@ -4002,11 +4002,14 @@ Navigation.hide = function hide() {
 };
 
 Navigation.onKeyDown = function onKeyDown(event) {
+	if (this.isEditableFocused()) return;
 	const hostDisplay = this._host ? getComputedStyle(this._host).display : 'none';
 	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && hostDisplay !== 'none') {
 		this.hide();
 	}
 };
+
+Navigation.captureKeyEvents = true;
 
 /**
  * Handle mouse movement over the map to display coordinates
@@ -4204,7 +4207,24 @@ Navigation.navigateTo = function navigateTo(options) {
 		const target = path[0];
 
 		this.waitForMapData(function () {
-			const walkableCell = this.findClosestWalkableCell(target.x, target.y);
+			let walkableCell;
+			if (target.x < 0 || target.y < 0) {
+				const centerX = Math.floor(_mapData.width / 2);
+				const centerY = Math.floor(_mapData.height / 2);
+				let bestDistance = Infinity;
+				for (let y = 0; y < _mapData.height; y++) {
+					for (let x = 0; x < _mapData.width; x++) {
+						if (!(_mapData.cellTypes[x + y * _mapData.width] & _mapData.walkableType)) continue;
+						const distance = (x - centerX) ** 2 + (y - centerY) ** 2;
+						if (distance < bestDistance) {
+							bestDistance = distance;
+							walkableCell = { x, y };
+						}
+					}
+				}
+			} else {
+				walkableCell = this.findClosestWalkableCell(target.x, target.y);
+			}
 
 			if (walkableCell) {
 				_targetData = {
@@ -4221,6 +4241,7 @@ Navigation.navigateTo = function navigateTo(options) {
 	} else {
 		_currentSegmentRequestKey = requestKey;
 		_pendingSegmentRequestKey = '';
+		_targetData = null;
 		publishNavigationRoute(false);
 		clearWorldFootsteps();
 		this.updateTargetText(true);

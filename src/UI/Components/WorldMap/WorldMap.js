@@ -27,6 +27,7 @@ import {
 	createWorldMapMonsterLevelRange
 } from './WorldMapMonsterTooltip.js';
 import { renderWorldMapServiceOverlay, clearWorldMapServiceOverlay } from './WorldMapServiceOverlay.js';
+import { getNavigationRoute } from '../Navigation/NavigationRouteState.js';
 
 /**
  * Create Component
@@ -595,8 +596,8 @@ function renderNavigationRouteOverlay(mapView, worldMapData) {
 	mapView = mapView || root.querySelector('.worldmap .map-view');
 	worldMapData = worldMapData || _activeWorldMapData;
 
-	if (!_navigationRoute && typeof window !== 'undefined' && window.__RO_BROWSER_NAVIGATION_ROUTE__) {
-		const savedRoute = window.__RO_BROWSER_NAVIGATION_ROUTE__;
+	if (!_navigationRoute && getNavigationRoute()) {
+		const savedRoute = getNavigationRoute();
 		_navigationRoute = savedRoute.active ? savedRoute : null;
 	}
 
@@ -1104,7 +1105,7 @@ WorldMap.onAppend = function onAppend() {
 	setMapList();
 
 	// resize map container & add sections
-	selectMap();
+	if (this._host.style.display !== 'none') selectMap();
 
 	this._host.style.top = '0px';
 	this._host.style.left = '0px';
