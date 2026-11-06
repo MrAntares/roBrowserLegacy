@@ -4,6 +4,7 @@ const mocks = vi.hoisted(() => {
 	const ids = {
 		NOVICE: 0,
 		CRUSADER: 14,
+		PALADIN: 4015,
 		DIVINE_PROTECTION: 22,
 		DEMON_BANE: 23,
 		HEAL: 28,
@@ -70,6 +71,11 @@ const mocks = vi.hoisted(() => {
 			[ids.DIVINE_PROTECTION]: 14,
 			[ids.DEMON_BANE]: 21,
 			[ids.HEAL]: 28
+		},
+		// Same tab as the job before it, like High Priest and Priest
+		[ids.PALADIN]: {
+			list: 2,
+			beforeJob: ids.CRUSADER
 		}
 	};
 
@@ -282,6 +288,24 @@ describe('SkillListV2 prerequisite planning', () => {
 		expect(getTreeSkill(root, mocks.ids.DEMON_BANE).querySelector('.current').textContent).toBe('0');
 		expect(getTreeSkill(root, mocks.ids.HEAL).querySelector('.current').textContent).toBe('0');
 		expect(root.querySelector('.skpoints_count').textContent).toBe('10');
+	});
+
+	it('keeps the job lineage when a job shares its tab with the job before it', () => {
+		mocks.session.Entity._job = mocks.ids.PALADIN;
+		try {
+			const component = createComponent();
+			const root = component.getRoot();
+
+			expect(mocks.skillTreeView[mocks.ids.PALADIN].beforeJob).toBe(mocks.ids.CRUSADER);
+
+			// Heal's prerequisites exist only for the Crusader line, so they must still apply to a Paladin
+			getTreeSkill(root, mocks.ids.HEAL).querySelector('.icon').click();
+
+			expect(getTreeSkill(root, mocks.ids.DEMON_BANE).querySelector('.current').textContent).toBe('5');
+			expect(root.querySelector('.skpoints_count').textContent).toBe('0/10');
+		} finally {
+			mocks.session.Entity._job = mocks.ids.CRUSADER;
+		}
 	});
 
 	it('resets the correct tab and discards the plan on close and reopen', () => {
