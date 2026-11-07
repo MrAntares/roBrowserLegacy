@@ -237208,6 +237208,7 @@ function _escapeHTML$4(text) {
 * Submit an index
 */
 function validate() {
+	if (!Number.isInteger(_index$1) || _index$1 < 0) return;
 	NpcMenu.onSelectMenu(_ownerID, _index$1 + 1);
 }
 /**
@@ -237258,12 +237259,12 @@ var init_NpcMenu = __esmMin((() => {
 		const content = root.querySelector(".content");
 		if (content) {
 			content.addEventListener("mousedown", (e) => {
-				const div = e.target.closest("div");
+				const div = e.target.closest("div[data-index]");
 				if (div && content.contains(div)) selectIndex(div);
 				e.stopImmediatePropagation();
 			});
 			content.addEventListener("dblclick", (e) => {
-				const div = e.target.closest("div");
+				const div = e.target.closest("div[data-index]");
 				if (div && content.contains(div)) validate();
 			});
 		}
