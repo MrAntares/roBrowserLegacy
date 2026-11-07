@@ -495,6 +495,9 @@ function onParameterChange(pkt) {
 			break;
 
 		case StatusProperty.JOBLEVEL:
+			// Keep the session in sync like CLEVEL does: BasicInfo is rebuilt from Session.Entity.joblevel
+			// on job change (sprite change) and map load, which otherwise shows the old job level.
+			Session.Entity.joblevel = amount;
 			BasicInfo.update('jlvl', amount);
 			SkillList.onLevelUp();
 			break;
