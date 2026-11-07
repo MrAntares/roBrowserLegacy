@@ -343515,6 +343515,7 @@ function onParameterChange$1(pkt) {
 			WinStatsController.update("aspd", amount);
 			break;
 		case StatusProperty_default.JOBLEVEL:
+			SessionStorage_default.Entity.joblevel = amount;
 			BasicInfoController.update("jlvl", amount);
 			Controller$4.onLevelUp();
 			break;
