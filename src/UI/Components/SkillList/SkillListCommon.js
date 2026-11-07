@@ -566,7 +566,8 @@ export function createSkillList({
 			}
 		}
 
-		positions[SkillTreeView[JobId]['list']] = SkillTreeView[JobId];
+		// A copy: the merge below would otherwise write the previous job's beforeJob into SkillTreeView itself
+		positions[SkillTreeView[JobId]['list']] = { ...SkillTreeView[JobId] };
 
 		if (SkillTreeView[JobId]['beforeJob'] !== null) {
 			const beforeJob = SkillTreeView[JobId]['beforeJob'];
