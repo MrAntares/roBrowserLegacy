@@ -73,7 +73,7 @@ NpcMenu.init = function init() {
 	const content = root.querySelector('.content');
 	if (content) {
 		content.addEventListener('mousedown', e => {
-			const div = e.target.closest('div');
+			const div = e.target.closest('div[data-index]');
 			if (div && content.contains(div)) {
 				selectIndex(div);
 			}
@@ -81,7 +81,7 @@ NpcMenu.init = function init() {
 		});
 
 		content.addEventListener('dblclick', e => {
-			const div = e.target.closest('div');
+			const div = e.target.closest('div[data-index]');
 			if (div && content.contains(div)) {
 				validate();
 			}
@@ -193,6 +193,10 @@ NpcMenu.setMenu = function setMenu(menu, gid) {
  * Submit an index
  */
 function validate() {
+	// The server kicks the player on choice 0 (clif_parse_NpcSelectMenu), so never send a choice that is not an item
+	if (!Number.isInteger(_index) || _index < 0) {
+		return;
+	}
 	NpcMenu.onSelectMenu(_ownerID, _index + 1);
 }
 
