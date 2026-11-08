@@ -13,6 +13,8 @@ export function createDBBootstrap(DB, context) {
 		NaviNpcDistanceTable,
 		NaviNpcTable,
 		clearNavigationMobIndex,
+		resetLoadedMapNames,
+		resetClientData,
 		invalidateLuaRuntime,
 		startLua
 	} = context;
@@ -85,6 +87,8 @@ export function createDBBootstrap(DB, context) {
 				table.length = 0;
 			}
 			clearNavigationMobIndex();
+			if (resetLoadedMapNames) resetLoadedMapNames();
+			if (resetClientData) resetClientData();
 
 			const tracker = createTracker(
 				current,

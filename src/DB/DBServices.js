@@ -15,7 +15,7 @@ import * as legacyItemRows from './Items/LegacyItemRows.js';
 import { mergeAccessoryNames, mergeRobeNames, mergeRandomOptions } from './Items/ResourceTableRows.js';
 import { loadWeaponTable } from './Items/WeaponTableLoader.js';
 import { createMapLoaders } from './Map/MapLoaders.js';
-import { createMapDatabase, setLegacyMapMusic, setLegacyMapName } from './Map/MapDatabase.js';
+import { createMapDatabase, setLegacyMapMusic, setLegacyMapName, resetLoadedMapNames } from './Map/MapDatabase.js';
 import { createSignBoardDatabase } from './Map/SignBoardDatabase.js';
 import {
 	createNavigationSystem,
@@ -45,6 +45,7 @@ import { createOwnerNameResolver } from './System/OwnerNameResolver.js';
 import { createEmblemLoader } from './System/EmblemLoader.js';
 import {
 	createSystemDatabase,
+	resetSystemData,
 	MsgStringTable,
 	setMessageRow,
 	setJokeRow,
@@ -112,6 +113,11 @@ export function createDBServices(DB) {
 		LuaModuleLoader,
 		setLegacyMapMusic,
 		setLegacyMapName,
+		resetLoadedMapNames,
+		resetClientData: () => {
+			itemDatabase.resetItemData();
+			resetSystemData();
+		},
 		setMapAlias,
 		MemoryManager,
 		mergeMonsterNames,

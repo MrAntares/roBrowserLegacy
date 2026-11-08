@@ -194,3 +194,65 @@ it('does not apply item callbacks after a running Lua load is superseded', async
 		if (previous === undefined) delete ItemTable[itemId]; else ItemTable[itemId] = previous;
 	}
 });
+
+it('prefers localized legacy map names until the client supplies a Lua override', async () => {
+	const { createMapDatabase, MapTable, setLegacyMapName, resetLoadedMapNames } = await import('DB/Map/MapDatabase.js');
+	const { default: MapInfo } = await import('DB/Map/MapTable.js');
+	const name = '1@gol1.rsw';
+	const previousMap = MapTable[name];
+	const previousInfo = MapInfo[name] && { ...MapInfo[name] };
+	mocks.generation = 0;
+	mocks.lua.ctx = {};
+	mocks.loadFile.mockImplementation((_path, success) => success(new Uint8Array([1])));
+	mocks.lua.doFile.mockResolvedValue(undefined);
+	mocks.lua.doStringSync.mockImplementation(() => {
+		mocks.lua.ctx.AddMapDisplayName(Uint8Array.from(name, c => c.charCodeAt(0)), Uint8Array.from('Lua name', c => c.charCodeAt(0)), false);
+	});
+	try {
+		resetLoadedMapNames();
+		setLegacyMapName(0, name, 'Nome traduzido');
+		const map = createMapDatabase({ getMessage: () => 'Unknown' }, 'windows-1252');
+		const view = map.MapDatabase.getMap(name);
+		expect(map.MapDatabase.getMapName(name)).toBe('Nome traduzido');
+		expect(view.name).toBe('Nome traduzido');
+		const done = vi.fn();
+		map.loadMapTbl('mapInfo.lub', null, done);
+		await vi.waitFor(() => expect(done).toHaveBeenCalledWith(true));
+		expect(map.MapDatabase.getMapName(name)).toBe('Lua name');
+		expect(view.name).toBe('Lua name');
+	} finally {
+		resetLoadedMapNames();
+		if (previousMap === undefined) delete MapTable[name]; else MapTable[name] = previousMap;
+		if (previousInfo === undefined) delete MapInfo[name]; else MapInfo[name] = previousInfo;
+	}
+});
+
+it('does not let a stale airship load erase the new client routes', async () => {
+	const { createMapLoaders } = await import('DB/Map/MapLoaders.js');
+	const { default: PrivateAirship } = await import('DB/Map/PrivateAirship.js');
+	let finish;
+	mocks.generation = 0;
+	mocks.lua.ctx = {};
+	mocks.loadFile.mockImplementation((_path, success) => success(new Uint8Array([1])));
+	mocks.lua.doFile.mockImplementation(() => new Promise(resolve => { finish = resolve; }));
+	const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+	const done = vi.fn();
+	try {
+		createMapLoaders('windows-1252').loadPrivateAirship('old.lub', null, done);
+		await vi.waitFor(() => expect(finish).toBeTypeOf('function'));
+		mocks.generation++;
+		PrivateAirship.reset();
+		PrivateAirship.addStartableMap('new');
+		PrivateAirship.addNeedItem(1234);
+		finish();
+		await vi.waitFor(() => expect(error).toHaveBeenCalled());
+		expect(PrivateAirship.isLoaded()).toBe(true);
+		expect(PrivateAirship.isStartableMap('new')).toBe(true);
+		expect(PrivateAirship.isStartableMap('old')).toBe(false);
+		expect(PrivateAirship.getNeedItems()).toEqual([1234]);
+		expect(done).not.toHaveBeenCalled();
+	} finally {
+		PrivateAirship.reset();
+		error.mockRestore();
+	}
+});

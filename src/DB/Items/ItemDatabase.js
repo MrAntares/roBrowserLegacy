@@ -3,6 +3,13 @@ import { createDBLoadContext } from 'DB/Loaders/DBLoadContext.js';
 import ItemTable from './ItemTable.js';
 import RandomOption from './ItemRandomOptionTable.js';
 
+const defaultItems = Object.fromEntries(Object.entries(ItemTable).map(([id, item]) => [id, { ...item }]));
+
+function clearTable(table) {
+	for (const key of Object.keys(table)) delete table[key];
+	if (Array.isArray(table)) table.length = 0;
+}
+
 export function createItemDatabase(DB, userCharpage, MsgStringTable) {
 	const userStringDecoder = TextEncoding;
 	const buyingStoreItemList = new Array();
@@ -13,7 +20,7 @@ export function createItemDatabase(DB, userCharpage, MsgStringTable) {
 	const LaphineUpgTable = [];
 	const ItemDBNameTbl = {};
 	const ItemReformTable = { ReformInfo: {}, ReformItemList: {} };
-	let EnchantListTable = {};
+	const EnchantListTable = {};
 	const unknownItem = {
 		unidentifiedDisplayName: 'Unknown Item',
 		unidentifiedResourceName: '\xbb\xe7\xb0\xfa',
@@ -24,6 +31,26 @@ export function createItemDatabase(DB, userCharpage, MsgStringTable) {
 		slotCount: 0,
 		ClassNum: 0
 	};
+	function resetItemData() {
+		for (const id of Object.keys(ItemTable)) {
+			if (!Object.prototype.hasOwnProperty.call(defaultItems, id)) delete ItemTable[id];
+		}
+		for (const [id, defaults] of Object.entries(defaultItems)) {
+			if (!ItemTable[id] || typeof ItemTable[id] !== 'object') ItemTable[id] = {};
+			clearTable(ItemTable[id]);
+			Object.assign(ItemTable[id], defaults);
+		}
+		for (const table of [
+			buyingStoreItemList,
+			LaphineSysTable,
+			LaphineUpgTable,
+			ItemDBNameTbl,
+			ItemReformTable.ReformInfo,
+			ItemReformTable.ReformItemList,
+			EnchantListTable
+		])
+			clearTable(table);
+	}
 	function loadItemInfo(filename, callback, onEnd) {
 		const { lua, loadFile, guard } = createDBLoadContext();
 		callback = guard(callback);
@@ -561,7 +588,7 @@ export function createItemDatabase(DB, userCharpage, MsgStringTable) {
 					const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
 					const ctx = lua.ctx;
 
-					EnchantListTable = {};
+					clearTable(EnchantListTable);
 
 					const decodeLuaString = value => {
 						if (value == null) {
@@ -1201,6 +1228,7 @@ export function createItemDatabase(DB, userCharpage, MsgStringTable) {
 	}
 	return {
 		ItemDatabase,
+		resetItemData,
 		buyingStoreItemList,
 		parseBuyingStoreItem,
 		loadItemInfo,

@@ -240,7 +240,7 @@ export function createMapLoaders(userCharpage) {
 	}
 
 	function loadPrivateAirship(filename, callback, onEnd) {
-		const { lua, loadFile, guard } = createDBLoadContext();
+		const { lua, loadFile, guard, isCurrent } = createDBLoadContext();
 		callback = guard(callback);
 		onEnd = guard(onEnd);
 
@@ -271,7 +271,7 @@ export function createMapLoaders(userCharpage) {
 					success = PrivateAirship.isLoaded();
 				} catch (error) {
 					console.error('[loadPrivateAirship] Error: ', error);
-					PrivateAirship.reset();
+					if (isCurrent()) PrivateAirship.reset();
 				} finally {
 					lua.unmountFile(filename);
 					onEnd(success);

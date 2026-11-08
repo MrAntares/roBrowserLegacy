@@ -7,6 +7,11 @@ import TownInfo from 'DB/TownInfo.js';
 export const MapTable = {};
 export const mapState = { mapalias: {} };
 const mapNames = new WeakMap();
+const loadedDisplayNames = new Set();
+
+export function resetLoadedMapNames() {
+	loadedDisplayNames.clear();
+}
 
 function ensureMap(key) {
 	return MapTable[key] || (MapTable[key] = {});
@@ -20,10 +25,11 @@ function attachMapName(key, map) {
 		enumerable: true,
 		configurable: true,
 		get() {
-			return (MapInfo[key] && MapInfo[key].displayName) || state.legacyName;
+			return (loadedDisplayNames.has(key) && MapInfo[key] && MapInfo[key].displayName) || state.legacyName;
 		},
 		set(value) {
-			if (MapInfo[key] && MapInfo[key].displayName) MapInfo[key].displayName = value;
+			if (loadedDisplayNames.has(key) && MapInfo[key] && MapInfo[key].displayName)
+				MapInfo[key].displayName = value;
 			else state.legacyName = value;
 		}
 	});
@@ -66,6 +72,7 @@ export function createMapDatabase(DB, userCharpage) {
 
 					// create mapInfo required functions in context
 					ctx.AddMapDisplayName = (name, displayName, notify_enter) => {
+						if (!isCurrent()) return 1;
 						const decoded_name = userStringDecoder.decode(name);
 						MapInfo[decoded_name] = {
 							displayName: userStringDecoder.decode(displayName, userCharpage),
@@ -76,11 +83,13 @@ export function createMapDatabase(DB, userCharpage) {
 							},
 							backgroundBmp: null
 						};
+						loadedDisplayNames.add(decoded_name);
 
 						return 1;
 					};
 
 					ctx.AddMapSignName = (name, subTitle, mainTitle) => {
+						if (!isCurrent()) return 1;
 						const decoded_name = userStringDecoder.decode(name);
 						const decoded_subTitle =
 							subTitle && subTitle.length > 1 ? userStringDecoder.decode(subTitle, userCharpage) : null;
@@ -96,6 +105,7 @@ export function createMapDatabase(DB, userCharpage) {
 					};
 
 					ctx.AddMapBackgroundBmp = (name, backgroundBmp) => {
+						if (!isCurrent()) return 1;
 						const decoded_name = userStringDecoder.decode(name);
 						MapInfo[decoded_name].backgroundBmp = backgroundBmp
 							? userStringDecoder.decode(backgroundBmp)
@@ -151,11 +161,9 @@ export function createMapDatabase(DB, userCharpage) {
 	}
 
 	function updateMapTable() {
-		for (const key in MapInfo) {
-			if (MapInfo.hasOwnProperty(key)) {
-				const map = ensureMap(key);
-				attachMapName(key, map);
-			}
+		for (const key of loadedDisplayNames) {
+			const map = ensureMap(key);
+			attachMapName(key, map);
 		}
 	}
 	class MapDatabase {
@@ -165,7 +173,7 @@ export function createMapDatabase(DB, userCharpage) {
 		static getMap(mapname) {
 			const map = mapname.replace('.gat', '.rsw');
 			const entry = MapTable[map];
-			if (entry && ('name' in entry || (MapInfo[map] && MapInfo[map].displayName))) attachMapName(map, entry);
+			if (entry && ('name' in entry || loadedDisplayNames.has(map))) attachMapName(map, entry);
 			return entry || null;
 		}
 
@@ -174,8 +182,6 @@ export function createMapDatabase(DB, userCharpage) {
 				return typeof defaultName === 'undefined' ? DB.getMessage(187) : defaultName;
 			}
 			const map = mapname.replace('.gat', '.rsw');
-			if (MapInfo[map] && MapInfo[map].displayName) return MapInfo[map].displayName;
-
 			if (!(map in MapTable) || !MapTable[map].name) {
 				return typeof defaultName === 'undefined' ? DB.getMessage(187) : defaultName;
 			}

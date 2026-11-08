@@ -13,6 +13,26 @@ export const AchievementTable = {};
 export const MsgEmotionCSV = {};
 export const CashShopBannerTable = [];
 
+export function resetSystemData() {
+	for (const table of [
+		MsgStringTable,
+		JokeTable,
+		ScreamTable,
+		CheckAttendanceTable.Config,
+		CheckAttendanceTable.Rewards,
+		QuestInfo,
+		TitleTable,
+		ReputeGroup,
+		ReputeInfo,
+		AchievementTable,
+		MsgEmotionCSV,
+		CashShopBannerTable
+	]) {
+		for (const key of Object.keys(table)) delete table[key];
+		if (Array.isArray(table)) table.length = 0;
+	}
+}
+
 export function setMessageRow(index, value) {
 	MsgStringTable[index] = value;
 }

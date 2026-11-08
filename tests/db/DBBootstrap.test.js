@@ -146,3 +146,16 @@ it('ignores a superseded lazy startup within the same client', async () => {
 	await second;
 	expect(db.isLoaded).toBe(false);
 });
+
+it('resets parsed client data before starting the next initial load', () => {
+	const resetClientData = vi.fn();
+	const db = { getBodyPalPath: () => 'sentinel', mapalias: {} };
+	const bootstrap = createDBBootstrap(db, {
+		Client: {}, JobId: { PIG_CREATOR: 1 }, MemoryManager: { remove() {} }, LuaModuleLoader: { clearCache() {} },
+		NaviMapTable: [], NaviMobTable: [], NaviNpcTable: [], NaviLinkTable: [], NaviLinkDistanceTable: [], NaviNpcDistanceTable: [],
+		clearNavigationMobIndex() {}, resetClientData, loadFontFromClient() {}, MapTable: {}, MsgStringTable: [],
+		loadTable() { expect(resetClientData).toHaveBeenCalledOnce(); }
+	});
+	bootstrap.init();
+	expect(resetClientData).toHaveBeenCalledOnce();
+});
