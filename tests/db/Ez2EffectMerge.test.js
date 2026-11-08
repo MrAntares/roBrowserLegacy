@@ -9,10 +9,8 @@ const sourceRoot = process.env.EFFECT_SOURCE_ROOT || join(process.cwd(), 'src');
 // mergeEz2Effects over `records`, with `SkillEffect` as the hand-written rows
 // and `units` as SkillUnit.js ({ start: SkillUnit, end: SkillUnitEnd }).
 function merge(records, EffectTable, SkillEffect, StatusEffectTable = {}, units = {}, moreSkills = {}) {
-	const db = readFileSync(join(sourceRoot, 'DB/DBManager.js'), 'utf8');
-	const start = db.indexOf('function loadBSONFile(');
-	const end = db.indexOf('function loadAttendanceFile(');
-	assert.ok(start >= 0 && end > start, 'BSON merge source boundaries');
+	const source = readFileSync(join(sourceRoot, 'DB/Effects/Ez2EffectMerge.js'), 'utf8');
+	const code = source.replace(/^import .*;\r?\n/gm, '').replace('export default function mergeEz2Effects', 'function mergeEz2Effects');
 	const context = vm.createContext({
 		console: { log() {} },
 		Ez2streffect: records,
@@ -21,8 +19,8 @@ function merge(records, EffectTable, SkillEffect, StatusEffectTable = {}, units 
 		SkillUnit: units.start || {},
 		SkillUnitEnd: units.end || {}
 	});
-	vm.runInContext(db.slice(start, end), context);
-	context.mergeEz2Effects(EffectTable, SkillEffect);
+	vm.runInContext(code, context);
+	context.mergeEz2Effects(EffectTable, SkillEffect, records);
 	return SkillEffect;
 }
 

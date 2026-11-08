@@ -1,0 +1,142 @@
+import JobId from './JobConst.js';
+
+export function createJobGroups() {
+	return {
+		S_JOBS_ASSASSIN: new Set([
+			JobId.ASSASSIN,
+			JobId.ASSASSIN_H,
+			JobId.GUILLOTINE_CROSS,
+			JobId.GUILLOTINE_CROSS_H,
+			JobId.GUILLOTINE_CROSS_2ND,
+			JobId.SHADOW_CROSS,
+
+			JobId.ASSASSIN_B,
+			JobId.GUILLOTINE_CROSS_B,
+
+			JobId.DOG_ASSASSIN,
+			JobId.DOG_ASSA_X,
+			JobId.DOG_G_CROSS,
+			JobId.DOG_ASSASSIN_B,
+			JobId.DOG_G_CROSS_B,
+			JobId.SHADOW_CROSS_RIDING
+		]),
+		S_JOBS_HUNTER: new Set([
+			JobId.HUNTER,
+			JobId.HUNTER_H,
+			JobId.RANGER,
+			JobId.RANGER_H,
+			JobId.WINDHAWK,
+			JobId.WINDHAWK2,
+
+			JobId.HUNTER_B,
+			JobId.RANGER_B,
+
+			JobId.OSTRICH_HUNTER,
+			JobId.OSTRICH_SNIPER,
+			JobId.OSTRICH_RANGER,
+			JobId.OSTRICH_HUNTER_B,
+			JobId.OSTRICH_RANGER_B,
+			JobId.WINDHAWK_RIDING
+		]),
+		S_JOBS_MONK: new Set([
+			JobId.MONK,
+			JobId.MONK_H,
+			JobId.SURA,
+			JobId.SURA_H,
+			JobId.SURA_2ND,
+			JobId.INQUISITOR,
+
+			JobId.MONK_B,
+			JobId.SURA_B,
+
+			JobId.SHEEP_MONK,
+			JobId.SHEEP_CHAMP, // lolz.. MONK_H
+			JobId.SHEEP_SURA,
+			JobId.SHEEP_MONK_B,
+			JobId.SHEEP_SURA_B,
+			JobId.INQUISITOR_RIDING
+		]),
+		S_JOBS_SN: new Set([
+			JobId.SUPERNOVICE,
+			JobId.SUPERNOVICE2,
+			JobId.HYPER_NOVICE,
+
+			JobId.SUPERNOVICE_B,
+			JobId.SUPERNOVICE2_B,
+
+			JobId.PORING_SNOVICE,
+			JobId.PORING_SNOVICE2,
+			JobId.PORING_SNOVICE_B,
+			JobId.PORING_SNOVICE2_B,
+			JobId.HYPER_NOVICE_RIDING
+		]),
+		S_JOBS_TAEKWON: new Set([
+			JobId.TAEKWON,
+			JobId.STAR,
+			JobId.STAR2,
+			JobId.LINKER,
+			JobId.STAR_EMPEROR,
+			JobId.STAR_EMPEROR2,
+			JobId.SOUL_REAPER,
+			JobId.SOUL_REAPER2,
+			JobId.SKY_EMPEROR,
+			JobId.SKY_EMPEROR2,
+			JobId.SOUL_ASCETIC,
+			//JobId.SOUL_ASCETIC2, //missing from const
+
+			JobId.TAEKWON_B,
+			JobId.STAR_B,
+			JobId.STAR2_B,
+			JobId.LINKER_B,
+			JobId.STAR_EMPEROR_B,
+			JobId.STAR_EMPEROR2_B,
+			JobId.SOUL_REAPER_B,
+			JobId.SOUL_REAPER2_B,
+			//JobId.SOUL_ASCETIC_B, //missing from const
+			//JobId.SOUL_ASCETIC2_B //missing from const
+
+			JobId.PORING_TAEKWON,
+			JobId.PORING_STAR,
+			JobId.FROG_LINKER,
+			JobId.PORING_TAEKWON_B,
+			JobId.PORING_STAR_B,
+			JobId.FROG_LINKER_B,
+			JobId.HAETAE_STAR_EMPEROR,
+			JobId.HAETAE_SOUL_REAPER,
+			JobId.HAETAE_STAR_EMPEROR_B,
+			JobId.HAETAE_SOUL_REAPER_B,
+
+			JobId.SKY_EMPEROR_RIDING,
+			JobId.SOUL_ASCETIC_RIDING
+		]),
+		S_JOBS_GS: new Set([
+			JobId.GUNSLINGER,
+			JobId.REBELLION,
+			JobId.NIGHT_WATCH,
+
+			JobId.GUNSLINGER_B,
+			JobId.REBELLION_B,
+
+			JobId.PECO_GUNNER,
+			JobId.PECO_REBELLION,
+			JobId.NIGHT_WATCH_RIDING,
+			JobId.PECO_GUNNER_B,
+			JobId.PECO_REBELLION_B
+		]),
+		S_JOBS_RG: new Set([
+			JobId.ROYAL_GUARD,
+			JobId.ROYAL_GUARD_H,
+			JobId.ROYAL_GUARD2,
+			JobId.ROYAL_GUARD2_H,
+			JobId.IMPERIAL_GUARD,
+
+			JobId.ROYAL_GUARD_B,
+			JobId.ROYAL_GUARD2_B,
+
+			JobId.LION_ROYAL_GUARD,
+			JobId.LION_ROYAL_GUARD_B,
+			JobId.IMPERIAL_GUARD_RIDING
+		]),
+		S_JOBS_MADO: new Set([JobId.MECHANIC2, JobId.MECHANIC2_H, JobId.MECHANIC2_B, JobId.MEISTER2])
+	};
+}
