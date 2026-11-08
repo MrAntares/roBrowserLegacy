@@ -173,6 +173,10 @@ CheckAttendance.updateUI = function updateUI() {
 
 	if (_CheckAttendanceInfo.Rewards) {
 		const daysList = root.querySelector('.days-list');
+		// onAppend runs this on every map change: rebuild the list, don't add 20 more days each time
+		if (daysList) {
+			daysList.innerHTML = '';
+		}
 		for (let i = 0; i < 20; i++) {
 			const item = DB.getItemInfo(_CheckAttendanceInfo.Rewards[i].item_id);
 			const day = i + 1;

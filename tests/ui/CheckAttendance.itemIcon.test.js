@@ -57,4 +57,15 @@ describe('CheckAttendance reward icons', () => {
 		}
 		CheckAttendance.remove();
 	});
+
+	it('keeps 20 days however many times the map changes', () => {
+		CheckAttendance.setData(0);
+		for (let i = 0; i < 3; i++) {
+			CheckAttendance.append(); // MapEngine appends every window on each map load
+			CheckAttendance.remove();
+		}
+		CheckAttendance.append();
+		expect(CheckAttendance.getRoot().querySelectorAll('.days-list li').length).toBe(20);
+		CheckAttendance.remove();
+	});
 });
