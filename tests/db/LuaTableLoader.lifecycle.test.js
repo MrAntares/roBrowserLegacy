@@ -210,9 +210,14 @@ it('prefers localized legacy map names until the client supplies a Lua override'
 	});
 	try {
 		resetLoadedMapNames();
-		setLegacyMapName(0, name, 'Nome traduzido');
+		delete MapTable[name];
 		const map = createMapDatabase({ getMessage: () => 'Unknown' }, 'windows-1252');
+		expect(map.MapDatabase.getMapName(name)).toBe('Biological Experiment Center');
+		expect(map.MapDatabase.getMapName('unknown_map.rsw')).toBe('Unknown');
+		MapTable[name] = { mp3: 'music.mp3' };
 		const view = map.MapDatabase.getMap(name);
+		expect(view.name).toBe('Biological Experiment Center');
+		setLegacyMapName(0, name, 'Nome traduzido');
 		expect(map.MapDatabase.getMapName(name)).toBe('Nome traduzido');
 		expect(view.name).toBe('Nome traduzido');
 		const done = vi.fn();
@@ -220,6 +225,10 @@ it('prefers localized legacy map names until the client supplies a Lua override'
 		await vi.waitFor(() => expect(done).toHaveBeenCalledWith(true));
 		expect(map.MapDatabase.getMapName(name)).toBe('Lua name');
 		expect(view.name).toBe('Lua name');
+		resetLoadedMapNames();
+		setLegacyMapName(0, name, undefined);
+		expect(map.MapDatabase.getMapName(name)).toBe('Biological Experiment Center');
+		expect(view.name).toBe('Biological Experiment Center');
 	} finally {
 		resetLoadedMapNames();
 		if (previousMap === undefined) delete MapTable[name]; else MapTable[name] = previousMap;
