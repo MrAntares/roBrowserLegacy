@@ -18,16 +18,18 @@ describe('UIManager.showErrorBox', () => {
 		expect(skillTarget.remove.mock.invocationCallOrder[0]).toBeLessThan(box.append.mock.invocationCallOrder[0]);
 	});
 
-	// The box rises to the top of the open windows, so its height depends on how
-	// many are open: an overlay at a fixed 99 either covered it or let the
-	// windows stacked above 99 take clicks.
-	it('lays its overlay right under the box', () => {
-		const box = { append: vi.fn(), _host: { style: { zIndex: '120' } } };
+	// The box and its overlay sat at a fixed 100 and 99: with about fifty
+	// windows open, the windows stacked above 99 came over both and took clicks.
+	it('stays over every window, its overlay right under it', () => {
+		const box = { append: vi.fn(), _host: { style: { zIndex: '100' } } };
 		UIManager.components.WinPopup = { clone: () => box };
 
 		UIManager.showErrorBox('Disconnected from Server.');
 
 		const overlays = document.querySelectorAll('.win_popup_overlay');
-		expect(overlays[overlays.length - 1].style.zIndex).toBe('119');
+		const overlayZ = parseInt(overlays[overlays.length - 1].style.zIndex, 10);
+		expect(box.needFocus).toBe(false);
+		expect(overlayZ).toBeGreaterThan(200);
+		expect(parseInt(box._host.style.zIndex, 10)).toBe(overlayZ + 1);
 	});
 });

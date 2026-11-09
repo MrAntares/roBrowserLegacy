@@ -192,6 +192,7 @@ class GUIComponent {
 
 		this.mouseMode = MouseMode.STOP;
 		this.needFocus = true;
+		this.alwaysOnTop = false; // Stays in front of the windows opened or clicked after it
 		this.manager = null; // Set by UIManager.addComponent()
 
 		this.__loaded = false;
@@ -475,6 +476,27 @@ class GUIComponent {
 
 		// Push ourselves to top
 		this._setZIndex(this, list.length + 50 - j);
+
+		if (!this.alwaysOnTop) {
+			this._raiseAlwaysOnTop();
+		}
+	}
+
+	/**
+	 * Put the open always-on-top windows back in front, in their current order.
+	 */
+	_raiseAlwaysOnTop() {
+		const onTop = [];
+		for (const other of _opened) {
+			if (other.alwaysOnTop && other.needFocus) {
+				onTop.push(other);
+			}
+		}
+
+		onTop.sort((a, b) => parseInt(this._getZIndex(a), 10) - parseInt(this._getZIndex(b), 10));
+		for (const other of onTop) {
+			other.focus();
+		}
 	}
 
 	/**
@@ -490,6 +512,10 @@ class GUIComponent {
 		}
 
 		this._setZIndex(this, Math.max(50, ...zList) + 1);
+
+		if (!this.alwaysOnTop) {
+			this._raiseAlwaysOnTop();
+		}
 	}
 
 	/**
@@ -509,6 +535,7 @@ class GUIComponent {
 		// Always inherit behavioral properties
 		cloned.mouseMode = this.mouseMode;
 		cloned.needFocus = this.needFocus;
+		cloned.alwaysOnTop = this.alwaysOnTop;
 
 		if (full) {
 			for (const key of Object.keys(this)) {

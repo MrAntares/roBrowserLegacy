@@ -39,6 +39,7 @@ const Mouse = (await import('Controls/MouseEventHandler.js')).default;
 const Session = (await import('Engine/SessionStorage.js')).default;
 
 let seq = 0;
+const mounted = [];
 
 /**
  * A component carrying the markup a case needs, appended the way UIManager
@@ -53,6 +54,7 @@ function mount(html, Component = GUIComponent) {
 	const component = new Component(`TestComponent${++seq}`, '');
 	component.render = () => html;
 	component.append();
+	mounted.push(component);
 	return component;
 }
 
@@ -61,6 +63,10 @@ function mount(html, Component = GUIComponent) {
 afterAll(() => new Promise(resolve => setTimeout(resolve, 600)));
 
 beforeEach(() => {
+	// remove() rather than clearing the body alone: an open window stays in the stacking
+	for (const component of mounted.splice(0)) {
+		component.remove();
+	}
 	document.body.innerHTML = '';
 	mocks.cursor.setType.mockClear();
 	mocks.cursor.getActualType.mockClear();
@@ -183,6 +189,47 @@ describe('a window UIManager does not hold', () => {
 		expect(zIndex(storage)).toBeGreaterThan(zIndex(search));
 		storage.remove();
 		search.remove();
+	});
+});
+
+/**
+ * Escape pressed over a confirmation opened the Escape menu in front of it.
+ */
+describe('an always-on-top window', () => {
+	const zIndex = component => parseInt(component._host.style.zIndex, 10);
+
+	/**
+	 * @return {GUIComponent} a message box, mounted
+	 */
+	function box() {
+		class Box extends GUIComponent {
+			alwaysOnTop = true;
+		}
+		return mount('<div></div>', Box);
+	}
+
+	it('stays in front of a window opened after it', () => {
+		const confirm = box();
+		const menu = mount('<div></div>');
+
+		expect(zIndex(confirm)).toBeGreaterThan(zIndex(menu));
+	});
+
+	it('stays in front of a window clicked after it', () => {
+		const inventory = mount('<div></div>');
+		const confirm = box();
+
+		inventory._host.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+
+		expect(zIndex(confirm)).toBeGreaterThan(zIndex(inventory));
+	});
+
+	it('keeps the box opened last in front of the first', () => {
+		const first = box();
+		const second = box();
+		mount('<div></div>');
+
+		expect(zIndex(second)).toBeGreaterThan(zIndex(first));
 	});
 });
 

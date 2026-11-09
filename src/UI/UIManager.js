@@ -27,6 +27,11 @@ function _popupPosition() {
 }
 
 /**
+ * The error box, over any window: they stack from 50, one step per open window
+ */
+const ERROR_BOX_Z_INDEX = 1000;
+
+/**
  * Create a button with data-attributes for parseHTML to process
  * @param {string} name - button name (ex: 'ok', 'cancel')
  * @param {function} onClick - click callback (fires once)
@@ -195,6 +200,7 @@ class UIManager {
 		this.components.SkillTargetSelection?.remove();
 
 		const WinError = this.getComponent('WinPopup').clone('WinError');
+		WinError.needFocus = false;
 		// eslint-disable-next-line
 		let overlay;
 
@@ -228,8 +234,9 @@ class UIManager {
 		WinError.onAppend = _prioritizeKeyDown;
 		WinError.append();
 
-		// The box rises above every open window: the overlay goes right under it
-		overlay.style.zIndex = String(parseInt(WinError._host.style.zIndex, 10) - 1);
+		// Nothing opened after it may come over the box or between it and its overlay
+		WinError._host.style.zIndex = String(ERROR_BOX_Z_INDEX);
+		overlay.style.zIndex = String(ERROR_BOX_Z_INDEX - 1);
 
 		return WinError;
 	}

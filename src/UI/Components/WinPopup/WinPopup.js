@@ -34,6 +34,7 @@ WinPopup.init = function init() {
 };
 
 WinPopup.needFocus = true;
+WinPopup.alwaysOnTop = true;
 WinPopup.mouseMode = GUIComponent.MouseMode.FREEZE;
 
 /**
