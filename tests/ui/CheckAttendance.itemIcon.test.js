@@ -32,7 +32,7 @@ vi.mock('DB/DBManager.js', () => ({
 vi.mock('Renderer/Renderer.js', () => ({ default: { width: 1024, height: 768 } }));
 vi.mock('Renderer/EntityManager.js', () => ({ default: {} }));
 vi.mock('Network/NetworkManager.js', () => ({ default: { sendPacket: vi.fn() } }));
-vi.mock('Network/PacketStructure.js', () => ({ default: { CZ: { REQ_CHECK_ATTENDANCE: function () {} } } }));
+vi.mock('Network/PacketStructure.js', () => ({ default: { CZ: { REQ_CHECK_ATTENDANCE: class {} } } }));
 vi.mock('UI/Components/ChatBox/ChatBox.js', () => ({ default: { addText: vi.fn(), TYPE: {} } }));
 vi.mock('UI/UIManager.js', () => ({ default: { addComponent: component => component } }));
 vi.mock('UI/CursorManager.js', () => ({ default: { ACTION: {}, getActualType: () => 0, setType: vi.fn() } }));
@@ -66,6 +66,21 @@ describe('CheckAttendance reward icons', () => {
 		}
 		CheckAttendance.append();
 		expect(CheckAttendance.getRoot().querySelectorAll('.days-list li').length).toBe(20);
+		CheckAttendance.remove();
+	});
+
+	it('claims once when the day is clicked twice', () => {
+		CheckAttendance.setData(0);
+		CheckAttendance.append();
+		const day1 = CheckAttendance.getRoot().querySelector('#attendance_day_0');
+		day1.click();
+		day1.click();
+		CheckAttendance.remove();
+		CheckAttendance.append();
+
+		const root = CheckAttendance.getRoot();
+		expect(root.querySelector('#attendance_day_0 .checked')).not.toBeNull();
+		expect(root.querySelector('#attendance_day_1 .checked')).toBeNull();
 		CheckAttendance.remove();
 	});
 

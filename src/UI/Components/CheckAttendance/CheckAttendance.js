@@ -254,6 +254,9 @@ function onClickAttendance(e) {
 	const root = CheckAttendance.getRoot();
 	const el = e.currentTarget;
 	const id = el.id;
+	// one claim per day: a second click would send the request and advance the count again
+	el.removeEventListener('click', onClickAttendance);
+	el.classList.remove('event_add_cursor');
 	const checkedHidden = root.querySelector(`#${id} .checked-hidden`);
 	if (checkedHidden) {
 		checkedHidden.className = 'checked';
