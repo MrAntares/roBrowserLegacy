@@ -34,6 +34,8 @@ WinPopup.init = function init() {
 };
 
 WinPopup.needFocus = true;
+// TODO make message boxes modal, as in official 2008 / 2022 / 2025: clicks outside
+// the box are ignored, no other window comes in front of it, Enter answers it
 WinPopup.alwaysOnTop = true;
 WinPopup.mouseMode = GUIComponent.MouseMode.FREEZE;
 
