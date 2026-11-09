@@ -1,8 +1,12 @@
 /**
- * The attendance rewards show their item icon through data-background, which
- * GUIComponent already resolves against DB.INTERFACE_PATH. The icon must be
- * given relative to it, or the path holds the interface folder twice and no
- * icon is found.
+ * CheckAttendance reward list.
+ *
+ * - The rewards show their item icon through data-background, which
+ *   GUIComponent already resolves against DB.INTERFACE_PATH. The icon must be
+ *   given relative to it, or the path holds the interface folder twice and no
+ *   icon is found.
+ * - MapEngine appends the window on every map load, so the list is rebuilt
+ *   each time: it must keep 20 days and keep a claimed day claimed.
  */
 import { describe, expect, it, vi } from 'vitest';
 
@@ -44,7 +48,7 @@ const { default: CheckAttendance } = await import('UI/Components/CheckAttendance
 // GUIComponent loads Client and DB itself before it handles a node
 await new Promise(r => setTimeout(r, 20));
 
-describe('CheckAttendance reward icons', () => {
+describe('CheckAttendance reward list', () => {
 	it('load from the interface item folder, named once', async () => {
 		CheckAttendance.setData(0);
 		CheckAttendance.append();
