@@ -158,6 +158,35 @@ describe('a window that freezes the map', () => {
 });
 
 /**
+ * Only windows held by UIManager took part in the stacking: a confirmation box,
+ * a whisper window or a storage search opened under the window that asked for
+ * it, and stayed there when clicked.
+ */
+describe('a window UIManager does not hold', () => {
+	const zIndex = component => parseInt(component._host.style.zIndex, 10);
+
+	it('opens above the windows already open', () => {
+		const menu = mount('<div></div>');
+		const confirm = mount('<div></div>');
+
+		expect(zIndex(confirm)).toBeGreaterThan(zIndex(menu));
+		menu.remove();
+		confirm.remove();
+	});
+
+	it('comes back to the front when clicked', () => {
+		const storage = mount('<div></div>');
+		const search = mount('<div></div>');
+
+		storage._host.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+
+		expect(zIndex(storage)).toBeGreaterThan(zIndex(search));
+		storage.remove();
+		search.remove();
+	});
+});
+
+/**
  * Checkbox widgets are a styled <div> rather than a control, so they were the
  * only clickable thing the cursor ignored.
  */

@@ -228,6 +228,9 @@ class UIManager {
 		WinError.onAppend = _prioritizeKeyDown;
 		WinError.append();
 
+		// The box rises above every open window: the overlay goes right under it
+		overlay.style.zIndex = String(parseInt(WinError._host.style.zIndex, 10) - 1);
+
 		return WinError;
 	}
 
