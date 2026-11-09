@@ -2,12 +2,13 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // Help Angel (NV_HELPANGEL) as the official client plays it: effect\priest_sanctuary.wav,
 // then effects 1367 (help_angel) and 1368 (help_angel_bottom, drawn flat on the floor).
 
 const read = file => readFileSync(join(process.cwd(), 'src/DB', file), 'utf8').replace(/\r\n/g, '\n');
-const effectTable = read('Effects/EffectTable.js');
+const effectTable = effectTableSource().replace(/\r\n/g, '\n');
 
 function effectEntry(name) {
 	const start = effectTable.indexOf(`\n\t${name}: [`);

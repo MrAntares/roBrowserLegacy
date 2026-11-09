@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 const { MIN_FRAMES, BANDS, CIRCLE_VERTICES, circleFrames, bandAlpha, pointHeight, buildCircle } = await import(
 	'Renderer/Effects/CastCircleSim.js'
@@ -78,7 +79,7 @@ describe('untinted cast circle (Hell\'s Drive, effect 1709)', () => {
 	});
 
 	it('is Hell\'s Drive\'s cast aura, cancelled with the cast', () => {
-		const table = read('DB/Effects/EffectTable.js');
+		const table = effectTableSource().replace(/\r\n/g, '\n');
 		const start = table.indexOf('\n\t1709: [');
 		expect(start).toBeGreaterThan(-1);
 		const row = table.slice(start, table.indexOf('\n\t],', start));

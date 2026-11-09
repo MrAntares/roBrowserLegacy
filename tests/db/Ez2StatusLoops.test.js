@@ -6,6 +6,7 @@ import SC from 'DB/Status/StatusConst.js';
 import SU from 'DB/Skills/SkillUnitConst.js';
 import StatusEffectTable from 'DB/Status/StatusEffectTable.js';
 import SkillUnit, { SkillUnitEnd } from 'DB/Skills/SkillUnit.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // The kRO EZ2 rows that loop forever (IsInfinite), played as the official client
 // plays them: a status keeps its loop on the actor while it is on, a ground unit
@@ -53,7 +54,7 @@ describe('statuses that loop an EZ2 effect', () => {
 	});
 
 	it('no longer draws the buff once from the skill as well', () => {
-		const effectTable = read('DB/Effects/EffectTable.js');
+		const effectTable = effectTableSource().replace(/\r\n/g, '\n');
 		for (const file of [
 			'breakinglimit_buff/breakinglimit_buff',
 			'rulebreak_buff/rulebreak_buff',
@@ -166,7 +167,7 @@ describe('ground units that loop an EZ2 effect', () => {
 
 	it('keeps an older effect for every unit that lost one', () => {
 		const units = read('DB/Skills/SkillUnit.js');
-		const table = read('DB/Effects/EffectTable.js');
+		const table = effectTableSource().replace(/\r\n/g, '\n');
 		for (const [unit, effectId] of [
 			['UNT_JACK_FROST_NOVA', 'ef_hn_jack_frost_nova'],
 			['UNT_GROUND_GRAVITATION', 'ef_hn_ground_gravitation'],

@@ -2,15 +2,16 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 const { PRIM_TICK_MS, createPrimState, advancePrim, buildPrimGeometry, primVertexCount } = await import(
 	'Renderer/Effects/EffectPrimSim.js'
 );
 // The effect table imports most of the renderer, so read entry 17 from its source.
 function effectEntry(id) {
-	const source = readFileSync(join(process.cwd(), 'src/DB/Effects/EffectTable.js'), 'utf8');
+	const source = effectTableSource();
 	const start = source.indexOf(`\n\t${id}: [`);
-	const end = source.indexOf(`\n\t${id + 1}: [`);
+	const end = source.indexOf('\n\t],', start) + 4; // the row's closing bracket
 	const body = source.slice(start, end).trim().replace(/^\d+:/, '').replace(/,\s*$/, '');
 	return vm.runInNewContext(`(${body})`);
 }

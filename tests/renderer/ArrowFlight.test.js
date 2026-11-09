@@ -8,6 +8,7 @@ import {
 	arrowFlightBetween,
 	bowAttackTiming
 } from '../../src/Renderer/Effects/ArrowFlight.js';
+import { effectTableSource } from '../helpers/effectTableSource.js';
 
 // The official client's flying arrow (kRO 2025-07-16): released at the attack motion's hit frame,
 // 8 frames of 24 ms in flight, at least 5 units (one cell) a frame under 40 units.
@@ -42,7 +43,7 @@ describe('arrow flight', () => {
 
 describe('arrow rows and the bow attack', () => {
 	it('gives the arrow projectile its flight from its distance', () => {
-		expect(src('DB/Effects/EffectTable.js')).toMatch(
+		expect(effectTableSource()).toMatch(
 			/ef_arrow_projectile: \[[\s\S]*?duration: Params => arrowFlightBetween\(Params\.Inst\.otherPosition, Params\.Inst\.position\),/
 		);
 	});
