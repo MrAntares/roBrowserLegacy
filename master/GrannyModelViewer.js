@@ -245275,6 +245275,8 @@ function onClickAttendance(e) {
 	const root = CheckAttendance.getRoot();
 	const el = e.currentTarget;
 	const id = el.id;
+	el.removeEventListener("click", onClickAttendance);
+	el.classList.remove("event_add_cursor");
 	const checkedHidden = root.querySelector(`#${id} .checked-hidden`);
 	if (checkedHidden) checkedHidden.className = "checked";
 	const completedDiv = document.createElement("div");
@@ -245282,7 +245284,9 @@ function onClickAttendance(e) {
 	completedDiv.dataset.background = "check_attendance/bt_slot_complete.tga";
 	el.appendChild(completedDiv);
 	GUIComponent.processDataAttrs(completedDiv);
-	const total_days_string = `${parseInt(_checkAttendanceData / 10) + 1} Day attendance success`;
+	const current_day = parseInt(_checkAttendanceData / 10) + 1;
+	_checkAttendanceData = current_day * 10 + 1;
+	const total_days_string = `${current_day} Day attendance success`;
 	const totalDaysEl = root.querySelector(".total-days");
 	if (totalDaysEl) totalDaysEl.innerHTML = total_days_string;
 	const _pkt = new PACKET.CZ.REQ_CHECK_ATTENDANCE();
@@ -245396,6 +245400,7 @@ var init_CheckAttendance = __esmMin((() => {
 		}
 		if (_CheckAttendanceInfo.Rewards) {
 			const daysList = root.querySelector(".days-list");
+			if (daysList) daysList.innerHTML = "";
 			for (let i = 0; i < 20; i++) {
 				const item = DB.getItemInfo(_CheckAttendanceInfo.Rewards[i].item_id);
 				const day = i + 1;
