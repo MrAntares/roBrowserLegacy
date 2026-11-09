@@ -32,7 +32,7 @@ vi.mock('DB/DBManager.js', () => ({
 vi.mock('Renderer/Renderer.js', () => ({ default: { width: 1024, height: 768 } }));
 vi.mock('Renderer/EntityManager.js', () => ({ default: {} }));
 vi.mock('Network/NetworkManager.js', () => ({ default: { sendPacket: vi.fn() } }));
-vi.mock('Network/PacketStructure.js', () => ({ default: { CZ: {} } }));
+vi.mock('Network/PacketStructure.js', () => ({ default: { CZ: { REQ_CHECK_ATTENDANCE: function () {} } } }));
 vi.mock('UI/Components/ChatBox/ChatBox.js', () => ({ default: { addText: vi.fn(), TYPE: {} } }));
 vi.mock('UI/UIManager.js', () => ({ default: { addComponent: component => component } }));
 vi.mock('UI/CursorManager.js', () => ({ default: { ACTION: {}, getActualType: () => 0, setType: vi.fn() } }));
@@ -66,6 +66,19 @@ describe('CheckAttendance reward icons', () => {
 		}
 		CheckAttendance.append();
 		expect(CheckAttendance.getRoot().querySelectorAll('.days-list li').length).toBe(20);
+		CheckAttendance.remove();
+	});
+
+	it('still shows a claimed day as claimed after a map change', () => {
+		CheckAttendance.setData(0);
+		CheckAttendance.append();
+		CheckAttendance.getRoot().querySelector('#attendance_day_0').click();
+		CheckAttendance.remove();
+		CheckAttendance.append(); // map change before the server sends the attendance data again
+
+		const day1 = CheckAttendance.getRoot().querySelector('#attendance_day_0');
+		expect(day1.querySelector('.checked')).not.toBeNull();
+		expect(day1.classList.contains('event_add_cursor')).toBe(false);
 		CheckAttendance.remove();
 	});
 });

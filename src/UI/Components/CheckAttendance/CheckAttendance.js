@@ -265,6 +265,8 @@ function onClickAttendance(e) {
 	GUIComponent.processDataAttrs(completedDiv);
 
 	const current_day = parseInt(_checkAttendanceData / 10) + 1;
+	// keep the claim when updateUI rebuilds the list on a map change; the next server data overwrites it
+	_checkAttendanceData = current_day * 10 + 1;
 	const total_days_string = `${current_day} Day attendance success`;
 	const totalDaysEl = root.querySelector('.total-days');
 	if (totalDaysEl) {
