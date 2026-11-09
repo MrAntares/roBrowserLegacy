@@ -173,6 +173,10 @@ CheckAttendance.updateUI = function updateUI() {
 
 	if (_CheckAttendanceInfo.Rewards) {
 		const daysList = root.querySelector('.days-list');
+		// onAppend runs this on every map change: rebuild the list, don't add 20 more days each time
+		if (daysList) {
+			daysList.innerHTML = '';
+		}
 		for (let i = 0; i < 20; i++) {
 			const item = DB.getItemInfo(_CheckAttendanceInfo.Rewards[i].item_id);
 			const day = i + 1;
@@ -250,6 +254,9 @@ function onClickAttendance(e) {
 	const root = CheckAttendance.getRoot();
 	const el = e.currentTarget;
 	const id = el.id;
+	// one claim per day: a second click would send the request and advance the count again
+	el.removeEventListener('click', onClickAttendance);
+	el.classList.remove('event_add_cursor');
 	const checkedHidden = root.querySelector(`#${id} .checked-hidden`);
 	if (checkedHidden) {
 		checkedHidden.className = 'checked';
@@ -261,6 +268,8 @@ function onClickAttendance(e) {
 	GUIComponent.processDataAttrs(completedDiv);
 
 	const current_day = parseInt(_checkAttendanceData / 10) + 1;
+	// keep the claim when updateUI rebuilds the list on a map change; the next server data overwrites it
+	_checkAttendanceData = current_day * 10 + 1;
 	const total_days_string = `${current_day} Day attendance success`;
 	const totalDaysEl = root.querySelector('.total-days');
 	if (totalDaysEl) {
