@@ -1,12 +1,12 @@
 import Configs from 'Core/Configs.js';
-import WorldMap from './WorldMap.js';
-import MapInfo from './MapTable.js';
+import WorldMap from 'DB/Map/WorldMap.js';
+import MapInfo from 'DB/Map/MapTable.js';
 import {
 	applyNavigationDistanceEra,
 	applyNavigationLinkEra,
 	applyNavigationMapEra,
 	getIncomingNavigationMapPoint
-} from './NavigationEra.js';
+} from 'DB/Map/NavigationEra.js';
 
 /**
  * @const {Array} NaviMap Table

@@ -1,6 +1,6 @@
 import JobId from 'DB/Jobs/JobConst.js';
 import WeaponType from 'DB/Items/WeaponType.js';
-import { getWeaponType, getAttackSlice } from './WeaponQueries.js';
+import { getWeaponType, getAttackSlice } from 'DB/Items/WeaponQueries.js';
 import ItemTable from 'DB/Items/ItemTable.js';
 import ShieldTable from 'DB/Items/ShieldTable.js';
 import WeaponTable from 'DB/Items/WeaponTable.js';

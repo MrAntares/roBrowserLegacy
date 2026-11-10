@@ -72,8 +72,10 @@ export function createDBLoadPlan(DB, context) {
 		setPetTalkTable,
 		setSkillDescription,
 		tryLoadLuaAliases,
+		getUserCharpage,
 		userCharpage
 	} = context;
+	const resolveUserCharpage = getUserCharpage ?? userCharpage;
 	function loadInitial(onLoad, isCurrent) {
 		loadFontFromClient('System/Font/');
 
@@ -271,7 +273,7 @@ export function createDBLoadPlan(DB, context) {
 			});
 
 			// Status
-			loadStateIconInfo(DB.LUA_PATH + 'stateicon/', null, onLoad(), userCharpage);
+			loadStateIconInfo(DB.LUA_PATH + 'stateicon/', null, onLoad(), resolveUserCharpage);
 
 			// Legacy Navigation
 			if (PACKETVER.value >= 20111010) {
@@ -448,7 +450,7 @@ export function createDBLoadPlan(DB, context) {
 
 		// Load ItemMoveInfo and attach to ItemTable
 		if (PACKETVER.value >= 20150422) {
-			loadMoveInfoTable(userCharpage, onLoad());
+			loadMoveInfoTable(resolveUserCharpage, onLoad());
 		}
 
 		// WoldMap

@@ -1,11 +1,13 @@
 import TextEncoding from 'Utils/CodepageManager.js';
 import { createDBLoadContext } from 'DB/Loaders/DBLoadContext.js';
-import SC from './StatusConst.js';
-import StatusInfo from './StatusInfo.js';
+import SC from 'DB/Status/StatusConst.js';
+import StatusInfo from 'DB/Status/StatusInfo.js';
 
 const userStringDecoder = TextEncoding;
 
-export function loadStateIconInfo(basePath, callback, onEnd, userCharpage) {
+export function loadStateIconInfo(basePath, callback, onEnd, getUserCharpage) {
+	const resolveUserCharpage =
+		typeof getUserCharpage === 'function' ? getUserCharpage : () => getUserCharpage;
 	const { lua, loadFile, guard } = createDBLoadContext();
 	callback = guard(callback);
 	onEnd = guard(onEnd);
@@ -80,7 +82,7 @@ export function loadStateIconInfo(basePath, callback, onEnd, userCharpage) {
 				if (!StatusInfo[id]) {
 					return 0;
 				}
-				const text = userStringDecoder.decode(desc, userCharpage);
+				const text = userStringDecoder.decode(desc, resolveUserCharpage());
 				let color = null;
 				if (r >= 0 && g >= 0 && b >= 0) {
 					color = `rgb(${r}, ${g}, ${b})`;

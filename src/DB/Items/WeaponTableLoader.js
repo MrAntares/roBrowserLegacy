@@ -1,8 +1,8 @@
 import TextEncoding from 'Utils/CodepageManager.js';
 import { createDBLoadContext } from 'DB/Loaders/DBLoadContext.js';
-import WeaponTable from './WeaponTable.js';
-import WeaponHitSoundTable from './WeaponHitSoundTable.js';
-import WeaponTypeExpansion from './WeaponTypeExpansion.js';
+import WeaponTable from 'DB/Items/WeaponTable.js';
+import WeaponHitSoundTable from 'DB/Items/WeaponHitSoundTable.js';
+import WeaponTypeExpansion from 'DB/Items/WeaponTypeExpansion.js';
 
 const userStringDecoder = TextEncoding;
 

@@ -11,9 +11,9 @@
 
 // Load dependencies
 import Executable from 'Utils/Executable.js';
-import Configs from './Configs.js';
-import Thread from './Thread.js';
-import Memory from './MemoryManager.js';
+import Configs from 'Core/Configs.js';
+import Thread from 'Core/Thread.js';
+import Memory from 'Core/MemoryManager.js';
 import PACKETVER from 'Network/PacketVerManager.js';
 import Texture from 'Utils/Texture.js';
 import WebGL from 'Utils/WebGL.js';

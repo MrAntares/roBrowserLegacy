@@ -1,5 +1,5 @@
 import Client from 'Core/Client.js';
-import { lua as currentLua, getLuaGeneration, getClientGeneration } from './LuaRuntime.js';
+import { lua as currentLua, getLuaGeneration, getClientGeneration } from 'DB/Loaders/LuaRuntime.js';
 
 /** Capture a client generation for one DB load. */
 export function createDBFileContext(clientOnly = false) {

@@ -1,4 +1,4 @@
-import { createDBLoadPlan } from './DBLoadPlan.js';
+import { createDBLoadPlan } from 'DB/Bootstrap/DBLoadPlan.js';
 
 export function createDBBootstrap(DB, context) {
 	const {

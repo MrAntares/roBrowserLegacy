@@ -3,7 +3,9 @@ import TextEncoding from 'Utils/CodepageManager.js';
 import XmlParse from 'Vendors/xmlparse.js';
 import { BSON } from 'bson';
 
-export function createTableLoaders(userCharpage) {
+export function createTableLoaders(getUserCharpage) {
+	const resolveUserCharpage =
+		typeof getUserCharpage === 'function' ? getUserCharpage : () => getUserCharpage;
 	function loadTable(filename, separator, size, callback, onEnd, useCharPage = false) {
 		Client.loadFile(
 			filename,
@@ -11,7 +13,7 @@ export function createTableLoaders(userCharpage) {
 				console.log('Loading file "' + filename + '"...');
 
 				let data = buffer instanceof ArrayBuffer ? new Uint8Array(buffer) : buffer;
-				data = TextEncoding.decode(data, useCharPage ? userCharpage : null);
+				data = TextEncoding.decode(data, useCharPage ? resolveUserCharpage() : null);
 
 				// Remove commented lines
 				const content = ('\n' + data).replace(/\n(\/\/[^\n]+)/g, '');
@@ -120,7 +122,7 @@ export function createTableLoaders(userCharpage) {
 			async function (file) {
 				console.log('Loading file "' + filename + '"...');
 				let xml = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
-				xml = TextEncoding.decode(xml, userCharpage);
+				xml = TextEncoding.decode(xml, resolveUserCharpage());
 				xml = xml.replace(/^.*<\?xml/, '<?xml');
 				const parser = new DOMParser();
 				const parsedXML = parser.parseFromString(xml, 'application/xml');

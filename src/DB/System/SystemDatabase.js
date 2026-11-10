@@ -69,8 +69,10 @@ export function getEffectScream() {
 	return effectScreamResolver();
 }
 
-export function createSystemDatabase(DB, userCharpage) {
+export function createSystemDatabase(DB, getUserCharpage) {
 	const userStringDecoder = TextEncoding;
+	const resolveUserCharpage =
+		typeof getUserCharpage === 'function' ? getUserCharpage : () => getUserCharpage;
 	function loadAttendanceFile(filename, callback, onEnd) {
 		const { lua, loadFile, guard } = createDBLoadContext();
 		callback = guard(callback);
@@ -127,7 +129,7 @@ export function createSystemDatabase(DB, userCharpage) {
 					const ctx = lua.ctx;
 
 					ctx.AddTitle = function (titleID, titleName) {
-						TitleTable[titleID] = userStringDecoder.decode(titleName, userCharpage);
+						TitleTable[titleID] = userStringDecoder.decode(titleName, resolveUserCharpage());
 						return 1;
 					};
 
@@ -194,6 +196,7 @@ export function createSystemDatabase(DB, userCharpage) {
 						RewardEXP,
 						RewardJEXP
 					) => {
+						const userCharpage = resolveUserCharpage();
 						QuestInfo[QuestID] = {
 							Title: userStringDecoder.decode(Title, userCharpage),
 							Summary: userStringDecoder.decode(Summary, userCharpage),
@@ -213,7 +216,9 @@ export function createSystemDatabase(DB, userCharpage) {
 
 					// add quest description
 					ctx.AddQuestDescription = (QuestID, QuestDescription) => {
-						QuestInfo[QuestID].Description.push(userStringDecoder.decode(QuestDescription, userCharpage));
+						QuestInfo[QuestID].Description.push(
+							userStringDecoder.decode(QuestDescription, resolveUserCharpage())
+						);
 						return 1;
 					};
 

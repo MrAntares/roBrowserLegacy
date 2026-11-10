@@ -1,4 +1,4 @@
-import JobId from './JobConst.js';
+import JobId from 'DB/Jobs/JobConst.js';
 
 export function createJobGroups() {
 	return {

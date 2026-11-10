@@ -1,7 +1,7 @@
 import Client from 'Core/Client.js';
 import TextEncoding from 'Utils/CodepageManager.js';
 import { lua, getLuaGeneration } from 'DB/Loaders/LuaRuntime.js';
-import MapInfo from './MapTable.js';
+import MapInfo from 'DB/Map/MapTable.js';
 import TownInfo from 'DB/TownInfo.js';
 
 export const MapTable = {};
@@ -50,8 +50,10 @@ export function setLegacyMapName(_index, key, value) {
 	mapNames.get(map).legacyName = value;
 }
 
-export function createMapDatabase(DB, userCharpage) {
+export function createMapDatabase(DB, getUserCharpage) {
 	const userStringDecoder = TextEncoding;
+	const resolveUserCharpage =
+		typeof getUserCharpage === 'function' ? getUserCharpage : () => getUserCharpage;
 	function setMapAlias(_index, key, value) {
 		DB.mapalias[key] = value;
 	}
@@ -74,6 +76,7 @@ export function createMapDatabase(DB, userCharpage) {
 
 					// get context, a proxy. It will be used to interact with lua conveniently
 					const ctx = instance.ctx;
+					const userCharpage = resolveUserCharpage();
 
 					// create mapInfo required functions in context
 					ctx.AddMapDisplayName = (name, displayName, notify_enter) => {

@@ -1,10 +1,10 @@
 import TextEncoding from 'Utils/CodepageManager.js';
 import { createDBLoadContext } from 'DB/Loaders/DBLoadContext.js';
 import MonsterTable from 'DB/Monsters/MonsterTable.js';
-import PetEmotionTable from './PetEmotionTable.js';
-import PetHungryState from './PetHungryState.js';
-import PetFriendlyState from './PetFriendlyState.js';
-import PetMessageConst from './PetMessageConst.js';
+import PetEmotionTable from 'DB/Pets/PetEmotionTable.js';
+import PetHungryState from 'DB/Pets/PetHungryState.js';
+import PetFriendlyState from 'DB/Pets/PetFriendlyState.js';
+import PetMessageConst from 'DB/Pets/PetMessageConst.js';
 
 const userStringDecoder = TextEncoding;
 let PetTalkTable = {};

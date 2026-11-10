@@ -1,7 +1,7 @@
 import JobId from 'DB/Jobs/JobConst.js';
-import WeaponType from './WeaponType.js';
-import WeaponTypeExpansion from './WeaponTypeExpansion.js';
-import ItemTable from './ItemTable.js';
+import WeaponType from 'DB/Items/WeaponType.js';
+import WeaponTypeExpansion from 'DB/Items/WeaponTypeExpansion.js';
+import ItemTable from 'DB/Items/ItemTable.js';
 
 let skillAttackSliceResolver;
 

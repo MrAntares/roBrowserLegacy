@@ -1,11 +1,13 @@
 import TextEncoding from 'Utils/CodepageManager.js';
 import { createDBLoadContext } from 'DB/Loaders/DBLoadContext.js';
-import WorldMap from './WorldMap.js';
+import WorldMap from 'DB/Map/WorldMap.js';
 import TownInfo from 'DB/TownInfo.js';
-import PrivateAirship from './PrivateAirship.js';
+import PrivateAirship from 'DB/Map/PrivateAirship.js';
 
-export function createMapLoaders(userCharpage) {
+export function createMapLoaders(getUserCharpage) {
 	const userStringDecoder = TextEncoding;
+	const resolveUserCharpage =
+		typeof getUserCharpage === 'function' ? getUserCharpage : () => getUserCharpage;
 	function loadWorldMapInfo(basePath, onEnd) {
 		const { lua, loadFile, guard } = createDBLoadContext();
 		onEnd = guard(onEnd);
@@ -77,7 +79,7 @@ export function createMapLoaders(userCharpage) {
 				) => {
 					const decodedTableKey = userStringDecoder.decode(worldTableKey);
 					let decodedRsw = userStringDecoder.decode(rswName);
-					const decodedName = userStringDecoder.decode(nameDisplay, userCharpage);
+					const decodedName = userStringDecoder.decode(nameDisplay, resolveUserCharpage());
 					const decodedLevel = level ? userStringDecoder.decode(level) : '';
 
 					// Find the world this map belongs to
@@ -214,7 +216,7 @@ export function createMapLoaders(userCharpage) {
 						mapName = userStringDecoder.decode(mapName);
 						TownInfo[mapName] = [];
 						TownInfo[mapName].push({
-							Name: userStringDecoder.decode(name, userCharpage),
+							Name: userStringDecoder.decode(name, resolveUserCharpage()),
 							X: X,
 							Y: Y,
 							Type: TYPE

@@ -1,8 +1,10 @@
 import TextEncoding from 'Utils/CodepageManager.js';
 import { createDBLoadContext } from 'DB/Loaders/DBLoadContext.js';
 
-export function createSignBoardDatabase(userCharpage) {
+export function createSignBoardDatabase(getUserCharpage) {
 	const userStringDecoder = TextEncoding;
+	const resolveUserCharpage =
+		typeof getUserCharpage === 'function' ? getUserCharpage : () => getUserCharpage;
 	const SignBoardTranslatedTable = {};
 	let SignBoardTable = {};
 	function loadSignBoardData(filename, callback, onEnd) {
@@ -90,7 +92,7 @@ export function createSignBoardDatabase(userCharpage) {
 							icon_location && icon_location.length > 1 ? userStringDecoder.decode(icon_location) : null;
 						const decoded_description =
 							description && description.length > 1
-								? userStringDecoder.decode(description, userCharpage)
+								? userStringDecoder.decode(description, resolveUserCharpage())
 								: null;
 						const decoded_color = color && color.length > 1 ? userStringDecoder.decode(color) : null;
 

@@ -8,20 +8,20 @@
  * @author Vincent Thibault
  */
 
-import { createDBServices } from './DBServices.js';
+import { createDBServices } from 'DB/DBServices.js';
 
-import * as JobClassification from './Jobs/JobClassification.js';
-import { createJobGroups } from './Jobs/JobGroups.js';
+import * as JobClassification from 'DB/Jobs/JobClassification.js';
+import { createJobGroups } from 'DB/Jobs/JobGroups.js';
 
-import { getMonsterName } from './Monsters/MonsterDatabase.js';
+import { getMonsterName } from 'DB/Monsters/MonsterDatabase.js';
 
-import { getSkillName, getSkillDescription } from './Skills/SkillDescriptions.js';
+import { getSkillName, getSkillDescription } from 'DB/Skills/SkillDescriptions.js';
 
-import { getHatResource } from './Effects/HatEffectLoader.js';
+import { getHatResource } from 'DB/Effects/HatEffectLoader.js';
 
-import { HO_AI, MER_AI, default_HO_AI, default_MER_AI } from './Loaders/LuaRuntime.js';
-import { createItemLink, parseItemLink, getItemNameFromLink } from './Items/ItemLink.js';
-import { formatUnixDate, formatMsgToHtml } from './System/Formatting.js';
+import { HO_AI, MER_AI, default_HO_AI, default_MER_AI } from 'DB/Loaders/LuaRuntime.js';
+import { createItemLink, parseItemLink, getItemNameFromLink } from 'DB/Items/ItemLink.js';
+import { formatUnixDate, formatMsgToHtml } from 'DB/System/Formatting.js';
 
 // Sex-specific asset path components.
 

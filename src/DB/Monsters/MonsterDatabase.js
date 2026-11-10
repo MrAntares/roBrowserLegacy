@@ -1,5 +1,5 @@
-import MonsterTable from './MonsterTable.js';
-import MonsterNameTable from './MonsterNameTable.js';
+import MonsterTable from 'DB/Monsters/MonsterTable.js';
+import MonsterNameTable from 'DB/Monsters/MonsterNameTable.js';
 
 export function getMonsterName(job) {
 	return MonsterNameTable[job] ?? 'Unknown';

@@ -1,4 +1,4 @@
-import { createDBFileContext } from './DBLoadContext.js';
+import { createDBFileContext } from 'DB/Loaders/DBLoadContext.js';
 
 export default function loadFontFromClient(fontPath) {
 	const { loadFile } = createDBFileContext(true);

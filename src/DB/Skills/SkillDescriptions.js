@@ -1,5 +1,5 @@
-import SkillInfo from './SkillInfo.js';
-import SKID from './SkillConst.js';
+import SkillInfo from 'DB/Skills/SkillInfo.js';
+import SKID from 'DB/Skills/SkillConst.js';
 
 export let SkillDescription = {};
 

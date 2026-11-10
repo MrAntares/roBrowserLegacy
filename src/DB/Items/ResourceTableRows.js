@@ -1,6 +1,6 @@
-import HatTable from './HatTable.js';
-import RobeTable from './RobeTable.js';
-import RandomOption from './ItemRandomOptionTable.js';
+import HatTable from 'DB/Items/HatTable.js';
+import RobeTable from 'DB/Items/RobeTable.js';
+import RandomOption from 'DB/Items/ItemRandomOptionTable.js';
 
 export function mergeAccessoryNames(rows) {
 	Object.assign(HatTable, rows);

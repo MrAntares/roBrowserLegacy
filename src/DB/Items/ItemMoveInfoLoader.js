@@ -1,8 +1,10 @@
 import { createDBFileContext } from 'DB/Loaders/DBLoadContext.js';
 import TextEncoding from 'Utils/CodepageManager.js';
-import ItemTable from './ItemTable.js';
+import ItemTable from 'DB/Items/ItemTable.js';
 
-export function loadMoveInfoTable(userCharpage, onEnd) {
+export function loadMoveInfoTable(getUserCharpage, onEnd) {
+	const resolveUserCharpage =
+		typeof getUserCharpage === 'function' ? getUserCharpage : () => getUserCharpage;
 	const { loadFile, guard } = createDBFileContext();
 	onEnd = guard(onEnd);
 	loadFile(
@@ -11,7 +13,7 @@ export function loadMoveInfoTable(userCharpage, onEnd) {
 			console.log('Loading file "ItemMoveInfoV5.txt"...');
 
 			let data = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
-			data = TextEncoding.decode(data, userCharpage);
+			data = TextEncoding.decode(data, resolveUserCharpage());
 			const lines = data.split(/\r?\n/);
 
 			for (let line of lines) {

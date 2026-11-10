@@ -1,4 +1,4 @@
-import ItemTable from './ItemTable.js';
+import ItemTable from 'DB/Items/ItemTable.js';
 
 export function unidentifiedDisplayName(_index, key, val) {
 	(ItemTable[key] || (ItemTable[key] = {})).unidentifiedDisplayName = val.replace(/_/g, ' ');

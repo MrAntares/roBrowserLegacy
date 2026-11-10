@@ -1,9 +1,11 @@
 import Client from 'Core/Client.js';
 import TextEncoding from 'Utils/CodepageManager.js';
-import { lua, getLuaGeneration } from './LuaRuntime.js';
+import { lua, getLuaGeneration } from 'DB/Loaders/LuaRuntime.js';
 
-export function createLuaTableLoaders(userCharpage, grfCharpage) {
+export function createLuaTableLoaders(getUserCharpage, grfCharpage) {
 	const userStringDecoder = TextEncoding;
+	const resolveUserCharpage =
+		typeof getUserCharpage === 'function' ? getUserCharpage : () => getUserCharpage;
 	function loadLuaTable(file_list, table_name, callback, onEnd, contextFunc, useCharPage = true) {
 		const instance = lua;
 		const generation = getLuaGeneration();
@@ -78,10 +80,11 @@ export function createLuaTableLoaders(userCharpage, grfCharpage) {
 
 				// get context
 				const ctx = instance.ctx;
+				const charpage = useCharPage ? resolveUserCharpage() : grfCharpage;
 
 				// create context function
 				ctx.addKeyAndValueToTable = (key, value) => {
-					table[key] = userStringDecoder.decode(value, useCharPage ? userCharpage : grfCharpage);
+					table[key] = userStringDecoder.decode(value, charpage);
 					return 1;
 				};
 
@@ -90,7 +93,7 @@ export function createLuaTableLoaders(userCharpage, grfCharpage) {
 					if (!table[key]) {
 						table[key] = '';
 					}
-					table[key] += userStringDecoder.decode(value, useCharPage ? userCharpage : grfCharpage) + '\n';
+					table[key] += userStringDecoder.decode(value, charpage) + '\n';
 					return 1;
 				};
 

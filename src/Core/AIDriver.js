@@ -5,8 +5,8 @@ import PACKET from 'Network/PacketStructure.js';
 import PACKETVER from 'Network/PacketVerManager.js';
 import SkillInfo from 'DB/Skills/SkillInfo.js';
 import EntityManager from 'Renderer/EntityManager.js';
-import Configs from './Configs.js';
-import LuaModuleLoader from './LuaModuleLoader.js';
+import Configs from 'Core/Configs.js';
+import LuaModuleLoader from 'Core/LuaModuleLoader.js';
 import UIManager from 'UI/UIManager.js';
 import TextEncoding from 'Utils/CodepageManager.js';
 

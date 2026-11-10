@@ -1,5 +1,5 @@
-import JobId from './JobConst.js';
-import BabyTable from './BabyTable.js';
+import JobId from 'DB/Jobs/JobConst.js';
+import BabyTable from 'DB/Jobs/BabyTable.js';
 
 export function isNPC(jobid) {
 	return (

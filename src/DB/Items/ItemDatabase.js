@@ -1,7 +1,7 @@
 import TextEncoding from 'Utils/CodepageManager.js';
 import { createDBLoadContext } from 'DB/Loaders/DBLoadContext.js';
-import ItemTable from './ItemTable.js';
-import RandomOption from './ItemRandomOptionTable.js';
+import ItemTable from 'DB/Items/ItemTable.js';
+import RandomOption from 'DB/Items/ItemRandomOptionTable.js';
 
 const defaultItems = Object.fromEntries(Object.entries(ItemTable).map(([id, item]) => [id, { ...item }]));
 
@@ -10,8 +10,10 @@ function clearTable(table) {
 	if (Array.isArray(table)) table.length = 0;
 }
 
-export function createItemDatabase(DB, userCharpage, MsgStringTable) {
+export function createItemDatabase(DB, getUserCharpage, MsgStringTable) {
 	const userStringDecoder = TextEncoding;
+	const resolveUserCharpage =
+		typeof getUserCharpage === 'function' ? getUserCharpage : () => getUserCharpage;
 	const buyingStoreItemList = new Array();
 	function parseBuyingStoreItem(_index, key) {
 		buyingStoreItemList.push(parseInt(key, 10));
@@ -69,6 +71,7 @@ export function createItemDatabase(DB, userCharpage, MsgStringTable) {
 					const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
 					// get context, a proxy. It will be used to interact with lua conveniently
 					const ctx = lua.ctx;
+					const userCharpage = resolveUserCharpage();
 
 					// create itemInfo required functions in context
 					ctx.AddItem = (
@@ -203,6 +206,7 @@ export function createItemDatabase(DB, userCharpage, MsgStringTable) {
 
 					// get context, a proxy. It will be used to interact with lua conveniently
 					const ctx = lua.ctx;
+					const userCharpage = resolveUserCharpage();
 
 					// create required functions in context
 					ctx.AddLaphineSysItem = (
@@ -294,6 +298,7 @@ export function createItemDatabase(DB, userCharpage, MsgStringTable) {
 
 					// get context, a proxy. It will be used to interact with lua conveniently
 					const ctx = lua.ctx;
+					const userCharpage = resolveUserCharpage();
 
 					// create required functions in context
 					ctx.AddLaphineUpgradeItem = (
@@ -490,7 +495,9 @@ export function createItemDatabase(DB, userCharpage, MsgStringTable) {
 
 					ctx.ReformInfoAddInformationString = (key, string) => {
 						const decoded_string =
-							string && string.length > 1 ? userStringDecoder.decode(string, userCharpage) : null;
+							string && string.length > 1
+								? userStringDecoder.decode(string, resolveUserCharpage())
+								: null;
 						ItemReformTable.ReformInfo[key].InformationString.push(decoded_string);
 						return 1;
 					};
@@ -694,7 +701,7 @@ export function createItemDatabase(DB, userCharpage, MsgStringTable) {
 					};
 					ctx.SetEnchantCaution = (enchantId, message) => {
 						const group = ensureGroup(enchantId);
-						group.caution = userStringDecoder.decode(message, userCharpage);
+						group.caution = userStringDecoder.decode(message, resolveUserCharpage());
 						return 1;
 					};
 					ctx.AddEnchantResetMaterial = (enchantId, itemDb, count) => {

@@ -9,7 +9,7 @@
  */
 
 import { getSkillAttackSlice } from 'DB/Items/WeaponQueries.js';
-import SK from './SkillConst.js';
+import SK from 'DB/Skills/SkillConst.js';
 
 const SkillAction = {};
 

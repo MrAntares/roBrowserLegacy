@@ -1,22 +1,22 @@
 import Client from 'Core/Client.js';
-import { createDBBootstrap } from './Bootstrap/DBBootstrap.js';
+import { createDBBootstrap } from 'DB/Bootstrap/DBBootstrap.js';
 import Configs from 'Core/Configs.js';
 import TextEncoding from 'Utils/CodepageManager.js';
-import JobId from './Jobs/JobConst.js';
+import JobId from 'DB/Jobs/JobConst.js';
 
-import { createActorResourcePaths } from './Jobs/ActorResourcePaths.js';
-import { createEquipmentRules } from './Items/EquipmentRules.js';
-import { setSkillAttackSliceResolver } from './Items/WeaponQueries.js';
-import { loadMoveInfoTable } from './Items/ItemMoveInfoLoader.js';
-import { createItemDatabase } from './Items/ItemDatabase.js';
-import { mergeMonsterNames } from './Monsters/MonsterDatabase.js';
+import { createActorResourcePaths } from 'DB/Jobs/ActorResourcePaths.js';
+import { createEquipmentRules } from 'DB/Items/EquipmentRules.js';
+import { setSkillAttackSliceResolver } from 'DB/Items/WeaponQueries.js';
+import { loadMoveInfoTable } from 'DB/Items/ItemMoveInfoLoader.js';
+import { createItemDatabase } from 'DB/Items/ItemDatabase.js';
+import { mergeMonsterNames } from 'DB/Monsters/MonsterDatabase.js';
 
-import * as legacyItemRows from './Items/LegacyItemRows.js';
-import { mergeAccessoryNames, mergeRobeNames, mergeRandomOptions } from './Items/ResourceTableRows.js';
-import { loadWeaponTable } from './Items/WeaponTableLoader.js';
-import { createMapLoaders } from './Map/MapLoaders.js';
-import { createMapDatabase, setLegacyMapMusic, setLegacyMapName, resetLoadedMapNames } from './Map/MapDatabase.js';
-import { createSignBoardDatabase } from './Map/SignBoardDatabase.js';
+import * as legacyItemRows from 'DB/Items/LegacyItemRows.js';
+import { mergeAccessoryNames, mergeRobeNames, mergeRandomOptions } from 'DB/Items/ResourceTableRows.js';
+import { loadWeaponTable } from 'DB/Items/WeaponTableLoader.js';
+import { createMapLoaders } from 'DB/Map/MapLoaders.js';
+import { createMapDatabase, setLegacyMapMusic, setLegacyMapName, resetLoadedMapNames } from 'DB/Map/MapDatabase.js';
+import { createSignBoardDatabase } from 'DB/Map/SignBoardDatabase.js';
 import {
 	createNavigationSystem,
 	fillNaviTable,
@@ -27,22 +27,22 @@ import {
 	NaviLinkDistanceTable,
 	NaviNpcDistanceTable,
 	clearNavigationMobIndex
-} from './Map/NavigationSystem.js';
-import { setSkillDescription, parseLegacySkillDescription, mergeSkillIds } from './Skills/SkillDescriptions.js';
-import { createSkillLoaders } from './Skills/SkillLoaders.js';
-import mergeEz2Effects from './Effects/Ez2EffectMerge.js';
-import Ez2streffect from './Effects/Ez2EffectData.js';
-import { loadHatEffectInfo } from './Effects/HatEffectLoader.js';
-import PrivateAirship from './Map/PrivateAirship.js';
-import { loadStateIconInfo } from './Status/StatusInfoLoader.js';
-import { createTableLoaders } from './Loaders/TableLoader.js';
-import loadFontFromClient from './Loaders/ClientFont.js';
-import { getSystemAliases, tryLoadLuaAliases } from './Loaders/LuaAliases.js';
-import { createLuaTableLoaders } from './Loaders/LuaTableLoader.js';
-import { startLua, invalidateLuaRuntime } from './Loaders/LuaRuntime.js';
+} from 'DB/Map/NavigationSystem.js';
+import { setSkillDescription, parseLegacySkillDescription, mergeSkillIds } from 'DB/Skills/SkillDescriptions.js';
+import { createSkillLoaders } from 'DB/Skills/SkillLoaders.js';
+import mergeEz2Effects from 'DB/Effects/Ez2EffectMerge.js';
+import Ez2streffect from 'DB/Effects/Ez2EffectData.js';
+import { loadHatEffectInfo } from 'DB/Effects/HatEffectLoader.js';
+import PrivateAirship from 'DB/Map/PrivateAirship.js';
+import { loadStateIconInfo } from 'DB/Status/StatusInfoLoader.js';
+import { createTableLoaders } from 'DB/Loaders/TableLoader.js';
+import loadFontFromClient from 'DB/Loaders/ClientFont.js';
+import { getSystemAliases, tryLoadLuaAliases } from 'DB/Loaders/LuaAliases.js';
+import { createLuaTableLoaders } from 'DB/Loaders/LuaTableLoader.js';
+import { startLua, invalidateLuaRuntime } from 'DB/Loaders/LuaRuntime.js';
 
-import { createOwnerNameResolver } from './System/OwnerNameResolver.js';
-import { createEmblemLoader } from './System/EmblemLoader.js';
+import { createOwnerNameResolver } from 'DB/System/OwnerNameResolver.js';
+import { createEmblemLoader } from 'DB/System/EmblemLoader.js';
 import {
 	createSystemDatabase,
 	resetSystemData,
@@ -55,8 +55,8 @@ import {
 	mergeAchievements,
 	setEffectMessageResolvers,
 	MsgEmotionCSV
-} from './System/SystemDatabase.js';
-import { createPetDatabase, loadPetInfo, loadPetEvolution, setPetTalkTable } from './Pets/PetDatabase.js';
+} from 'DB/System/SystemDatabase.js';
+import { createPetDatabase, loadPetInfo, loadPetEvolution, setPetTalkTable } from 'DB/Pets/PetDatabase.js';
 import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
 import PACKETVER from 'Network/PacketVerManager.js';
@@ -70,22 +70,26 @@ export function createDBServices(DB) {
 		() => DB.getRandomScream()
 	);
 	const SexTable = ['\xbf\xa9', '\xb3\xb2'];
-	const servers = Configs.get('servers', []);
-	const langType = servers[0] && servers[0].langtype ? parseInt(servers[0].langtype, 0) : 0;
-	const userCharpage = TextEncoding.detectEncodingByLangtype(langType, Configs.get('disableKorean'));
+	function getUserCharpage() {
+		const servers = Configs.get('servers', []);
+		const defaultLangType = Array.isArray(servers) && servers[0] ? servers[0].langtype : 0;
+		const rawLangType = Configs.get('langtype', defaultLangType);
+		const langType = rawLangType ? parseInt(rawLangType, 0) : 0;
+		return TextEncoding.detectEncodingByLangtype(langType, Configs.get('disableKorean'));
+	}
 	const grfCharpage = 'windows-1252';
 	TextEncoding.setCharset(grfCharpage);
-	const { loadTable, loadCSV, loadXMLFile, loadBSONFile } = createTableLoaders(userCharpage);
-	const { loadLuaTable, loadLuaValue } = createLuaTableLoaders(userCharpage, grfCharpage);
+	const { loadTable, loadCSV, loadXMLFile, loadBSONFile } = createTableLoaders(getUserCharpage);
+	const { loadLuaTable, loadLuaValue } = createLuaTableLoaders(getUserCharpage, grfCharpage);
 	const EquipmentRules = createEquipmentRules(DB, SexTable);
 	const NavigationSystem = createNavigationSystem(DB);
 	const ActorResourcePaths = createActorResourcePaths(DB, SexTable);
 	const PetDatabase = createPetDatabase(DB);
-	const signBoards = createSignBoardDatabase(userCharpage);
+	const signBoards = createSignBoardDatabase(getUserCharpage);
 	const { loadSignBoardData, loadSignBoardList } = signBoards;
-	const systemDatabase = createSystemDatabase(DB, userCharpage);
+	const systemDatabase = createSystemDatabase(DB, getUserCharpage);
 	const { loadAttendanceFile, loadTitleTable, loadQuestInfo, parseQuestEntry, loadCashShopBanner } = systemDatabase;
-	const itemDatabase = createItemDatabase(DB, userCharpage, MsgStringTable);
+	const itemDatabase = createItemDatabase(DB, getUserCharpage, MsgStringTable);
 	const {
 		parseBuyingStoreItem,
 		loadItemInfo,
@@ -95,12 +99,12 @@ export function createDBServices(DB) {
 		loadItemReformFile,
 		loadEnchantListFile
 	} = itemDatabase;
-	const mapDatabase = createMapDatabase(DB, userCharpage);
+	const mapDatabase = createMapDatabase(DB, getUserCharpage);
 	const { loadMapTbl, parseFogEntry, parseIndoorEntry, setMapAlias } = mapDatabase;
 	const ownerNames = createOwnerNameResolver(DB);
 	const emblemLoader = createEmblemLoader(DB);
-	const { loadWorldMapInfo, loadTownInfoFile, loadPrivateAirship } = createMapLoaders(userCharpage);
-	const { loadSkillInfoList, loadSkillTreeView } = createSkillLoaders(DB, userCharpage);
+	const { loadWorldMapInfo, loadTownInfoFile, loadPrivateAirship } = createMapLoaders(getUserCharpage);
+	const { loadSkillInfoList, loadSkillTreeView } = createSkillLoaders(DB, getUserCharpage);
 	const bootstrap = createDBBootstrap(DB, {
 		mergeAchievements,
 		Client,
@@ -186,7 +190,7 @@ export function createDBServices(DB) {
 		setSkillDescription,
 		startLua,
 		tryLoadLuaAliases,
-		userCharpage
+		getUserCharpage
 	});
 	return {
 		EquipmentRules,

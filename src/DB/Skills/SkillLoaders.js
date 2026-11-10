@@ -1,13 +1,15 @@
 import TextEncoding from 'Utils/CodepageManager.js';
 import { createDBLoadContext } from 'DB/Loaders/DBLoadContext.js';
 import JobId from 'DB/Jobs/JobConst.js';
-import SKID from './SkillConst.js';
-import SkillInfo from './SkillInfo.js';
-import SkillTreeView from './SkillTreeView.js';
-import { resetSkillTree, keepBuiltInSkills } from './SkillTreeMerge.js';
+import SKID from 'DB/Skills/SkillConst.js';
+import SkillInfo from 'DB/Skills/SkillInfo.js';
+import SkillTreeView from 'DB/Skills/SkillTreeView.js';
+import { resetSkillTree, keepBuiltInSkills } from 'DB/Skills/SkillTreeMerge.js';
 
-export function createSkillLoaders(DB, userCharpage) {
+export function createSkillLoaders(DB, getUserCharpage) {
 	const userStringDecoder = TextEncoding;
+	const resolveUserCharpage =
+		typeof getUserCharpage === 'function' ? getUserCharpage : () => getUserCharpage;
 	function loadSkillInfoList(filename, callback, onEnd) {
 		const { lua, loadFile, guard } = createDBLoadContext();
 		callback = guard(callback);
@@ -69,7 +71,7 @@ export function createSkillLoaders(DB, userCharpage) {
 						};
 						SkillInfo[skillId] = {
 							Name: userStringDecoder.decode(resName),
-							SkillName: userStringDecoder.decode(skillName, userCharpage),
+							SkillName: userStringDecoder.decode(skillName, resolveUserCharpage()),
 							MaxLv: maxLv,
 							SpAmount: toArray(spAmount),
 							bSeperateLv: bSeperateLv,
