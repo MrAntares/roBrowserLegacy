@@ -18,16 +18,12 @@ while read -r folder branch access; do
 	fi
 	for site in "$HERE"/*/; do
 		name="$(basename "$site")"
-		case "$name" in shared|patchlogs) continue ;; esac
+		case "$name" in shared) continue ;; esac
 		out="$folder/$name"
 		commit="$(cat "$PLUGINS_ROOT/$safe.commit" 2>/dev/null || true)"
 		base="$(cat "$PLUGINS_ROOT/$safe.base" 2>/dev/null || true)"
 		BUILD_SHA="${commit%% *}" BUILD_DATE="${commit#* }" BASE_SHA="${base%% *}" BASE_DATE="${base#* }" \
 			bash "$HERE/assemble.sh" "$safe" "$PLUGINS_ROOT/$safe" "$site" "$out" >&2
-		# A branch whose own tree ships no patch log gets the one kept here
-		if [ -f "$HERE/patchlogs/$safe.json" ]; then
-			cp "$HERE/patchlogs/$safe.json" "$out/patchlog.json"
-		fi
 		if [ "$access" = key ]; then
 			node "$HERE/encrypt.mjs" "$out" >&2
 		fi
