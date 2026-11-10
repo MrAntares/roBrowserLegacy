@@ -480,28 +480,6 @@ class GUIComponent {
 
 		// Push ourselves to top
 		this._setZIndex(this, list.length + 50 - j);
-
-		if (!this._modalOverlay) {
-			this._raiseModals();
-		}
-	}
-
-	/**
-	 * Put the open modal windows back in front, in their current order:
-	 * nothing comes over a window that blocks the ones behind it.
-	 */
-	_raiseModals() {
-		const modals = [];
-		for (const other of _opened) {
-			if (other._modalOverlay && other.__active && other.needFocus) {
-				modals.push(other);
-			}
-		}
-
-		modals.sort((a, b) => parseInt(this._getZIndex(a), 10) - parseInt(this._getZIndex(b), 10));
-		for (const other of modals) {
-			other.focus();
-		}
 	}
 
 	/**
@@ -517,10 +495,6 @@ class GUIComponent {
 		}
 
 		this._setZIndex(this, Math.max(50, ...zList) + 1);
-
-		if (!this._modalOverlay) {
-			this._raiseModals();
-		}
 	}
 
 	/**

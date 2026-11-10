@@ -193,47 +193,6 @@ describe('a window UIManager does not hold', () => {
 });
 
 /**
- * Escape pressed over a confirmation opened the Escape menu in front of it.
- */
-describe('a modal window', () => {
-	const zIndex = component => parseInt(component._host.style.zIndex, 10);
-
-	/**
-	 * @return {GUIComponent} a message box, mounted
-	 */
-	function box() {
-		class Box extends GUIComponent {
-			_modalOverlay = document.createElement('div');
-		}
-		return mount('<div></div>', Box);
-	}
-
-	it('stays in front of a window opened after it', () => {
-		const confirm = box();
-		const menu = mount('<div></div>');
-
-		expect(zIndex(confirm)).toBeGreaterThan(zIndex(menu));
-	});
-
-	it('stays in front of a window clicked after it', () => {
-		const inventory = mount('<div></div>');
-		const confirm = box();
-
-		inventory._host.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
-
-		expect(zIndex(confirm)).toBeGreaterThan(zIndex(inventory));
-	});
-
-	it('keeps the box opened last in front of the first', () => {
-		const first = box();
-		const second = box();
-		mount('<div></div>');
-
-		expect(zIndex(second)).toBeGreaterThan(zIndex(first));
-	});
-});
-
-/**
  * Checkbox widgets are a styled <div> rather than a control, so they were the
  * only clickable thing the cursor ignored.
  */

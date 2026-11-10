@@ -201,8 +201,6 @@ class UIManager {
 
 		const WinError = this.getComponent('WinPopup').clone('WinError');
 		WinError.needFocus = false;
-		// eslint-disable-next-line
-		let overlay;
 
 		WinError.init = function Init() {
 			const root = this._shadow;
@@ -212,7 +210,6 @@ class UIManager {
 
 			root.querySelector('.btns').appendChild(
 				_createButton('ok', () => {
-					overlay.remove();
 					WinError.remove();
 					import('Engine/GameEngine.js').then(m => m.default.reload());
 				})
@@ -224,19 +221,17 @@ class UIManager {
 			switch (event.which) {
 				case KEYS.ENTER:
 				case KEYS.ESCAPE:
-					overlay.remove();
 					this.remove();
 					import('Engine/GameEngine.js').then(m => m.default.reload());
 			}
 		};
 
-		overlay = _createOverlay();
+		WinError._modalOverlay = _createOverlay();
 		WinError.onAppend = _prioritizeKeyDown;
 		WinError.append();
 
-		// Nothing opened after it may come over the box or between it and its overlay
-		WinError._host.style.zIndex = String(ERROR_BOX_Z_INDEX);
-		overlay.style.zIndex = String(ERROR_BOX_Z_INDEX - 1);
+		// Out of the stacking: nothing opened after it comes over the box or its overlay
+		WinError._setZIndex(WinError, ERROR_BOX_Z_INDEX);
 
 		return WinError;
 	}
@@ -282,7 +277,6 @@ class UIManager {
 			WinMSG.onAppend = _prioritizeKeyDown;
 		}
 
-		WinMSG._modalOverlay = _createOverlay();
 		WinMSG.append();
 		return WinMSG;
 	}
@@ -323,7 +317,6 @@ class UIManager {
 			);
 		};
 
-		WinPrompt._modalOverlay = _createOverlay();
 		WinPrompt.append();
 		return WinPrompt;
 	}

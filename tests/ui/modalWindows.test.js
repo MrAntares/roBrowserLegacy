@@ -1,9 +1,10 @@
 /**
  * tests/ui/modalWindows.test.js
  *
- * Message boxes and the PincodeWindow block the windows behind them with a
- * win_popup_overlay. Every window now takes part in the stacking, so the
- * overlay has to follow its window's zIndex.
+ * The error box and the PincodeWindow block the windows behind them with a
+ * win_popup_overlay; message boxes stack like any other window. Every window
+ * now takes part in the stacking, so the overlay has to follow its window's
+ * zIndex.
  */
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -100,54 +101,44 @@ describe('the PincodeWindow', () => {
 		const [overlay] = overlays();
 		expect(isOver(PincodeWindow._host, overlay)).toBe(true);
 	});
+});
 
-	it('keeps blocking a window opened after it', async () => {
-		open(PincodeWindow);
-		await Promise.resolve();
-		const whisper = window_();
+/**
+ * A party, trade or guild request arrives at any time: it must not lock the
+ * other windows.
+ */
+describe('a message box', () => {
+	it('lets a window clicked after it come in front', () => {
+		const inventory = window_();
+		const box = UIManager.showPromptBox('Join the party?', 'ok', 'cancel');
+		expect(isOver(box._host, inventory._host)).toBe(true);
 
-		const [overlay] = overlays();
-		expect(isOver(overlay, whisper._host)).toBe(true);
-		expect(isOver(PincodeWindow._host, overlay)).toBe(true);
+		inventory._host.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+
+		expect(overlays()).toHaveLength(0);
+		expect(isOver(inventory._host, box._host)).toBe(true);
+		box.remove();
 	});
 });
 
 /**
- * A message box only stayed in front: the windows behind it still took clicks.
+ * The box and its overlay sat at a fixed 100 and 99: with about fifty windows
+ * open, the windows stacked above 99 came over both and took clicks.
  */
-describe('a message box', () => {
-	it('blocks the windows behind it until it is closed', () => {
-		const inventory = window_();
-		const box = UIManager.showMessageBox('Leave the party?', 'ok');
+describe('the error box', () => {
+	it('stays over every window, its overlay right under it', () => {
+		const below = window_();
+		const box = UIManager.showErrorBox('Disconnected from Server.');
+		const after = window_();
+		after.focus();
 
 		const [overlay] = overlays();
-		expect(overlay).toBeDefined();
-		expect(isOver(overlay, inventory._host)).toBe(true);
+		expect(isOver(overlay, below._host)).toBe(true);
+		expect(isOver(overlay, after._host)).toBe(true);
 		expect(isOver(box._host, overlay)).toBe(true);
 
 		box.remove();
 		expect(overlays()).toHaveLength(0);
-	});
-
-	it('keeps blocking a window opened after it', () => {
-		const box = UIManager.showPromptBox('Exit?', 'ok', 'cancel');
-		const menu = window_();
-
-		const [overlay] = overlays();
-		expect(isOver(overlay, menu._host)).toBe(true);
-		expect(isOver(box._host, overlay)).toBe(true);
-		box.remove();
-	});
-
-	it('is blocked in turn by a box opened over it', () => {
-		const first = UIManager.showMessageBox('First', 'ok');
-		const second = UIManager.showMessageBox('Second', 'ok');
-
-		const [, overlay] = overlays();
-		expect(isOver(overlay, first._host)).toBe(true);
-		expect(isOver(second._host, overlay)).toBe(true);
-		second.remove();
-		first.remove();
 	});
 });
 
