@@ -70,6 +70,7 @@ vi.mock('UI/Components/JoystickUI/JoystickUI.js', () => ({ default: { onRestore:
 vi.mock('UI/Components/CharSelect/CharSelect.js', () => ({ default: { setUIEnabled: vi.fn() } }));
 vi.mock('UI/Components/CharCreate/CharCreate.js', () => ({ default: {} }));
 vi.mock('Renderer/Entity/Player.js', () => ({ default: {} }));
+vi.mock('Engine/LoginEngine.js', () => ({ default: { reload: vi.fn() } }));
 
 const UIManager = (await import('UI/UIManager.js')).default;
 await import('UI/Components/WinPopup/WinPopup.js');
@@ -128,5 +129,19 @@ describe('the char server answering a PIN', () => {
 
 		const [box] = boxes;
 		expect(isOver(box._host, PincodeWindow._modalOverlay)).toBe(true);
+	});
+
+	it('keeps the PIN creation message on the third failed creation', () => {
+		onPincodeState({ State: 2, Seed: 0 });
+		PincodeWindow.onExitRequest(); // start from no failed attempt
+		onPincodeState({ State: 2, Seed: 0 });
+		PincodeWindow.onPincodeCheckRequest('1234');
+
+		onPincodeState({ State: 8, Seed: 0 });
+		onPincodeState({ State: 8, Seed: 0 });
+		onPincodeState({ State: 8, Seed: 0 });
+
+		const texts = boxes.slice(-3).map(box => box._shadow.querySelector('.text').textContent);
+		expect(texts).toEqual(['msg 1893', 'msg 1893', 'msg 1893']);
 	});
 });

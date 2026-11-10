@@ -749,7 +749,11 @@ function onPincodeCheckSuccess(pkt) {
 			break;
 		case 5: // client shows msgstr(1896) Unable to use restricted number in 2nd password
 		case 6: // client shows msgstr(1897) Unable to use your KSSN number
-		case 8: // pincode was incorrect
+		case 8: {
+			// pincode was incorrect; the message is picked before onExitRequest() clears _creatingPincode
+			const message = _creatingPincode
+				? DB.getMessage(1893)
+				: DB.getMessage(pkt.State == 5 ? 1896 : pkt.State == 6 ? 1897 : 1892);
 			_pincodeAttempts++;
 			if (_pincodeAttempts < 3) {
 				PincodeWindow.resetPins();
@@ -763,12 +767,9 @@ function onPincodeCheckSuccess(pkt) {
 				PincodeWindow.onExitRequest(); // Failed authentication.
 			}
 			// After the PincodeWindow: the modal window appended last is in front
-			if (_creatingPincode === true) {
-				UIManager.showMessageBox(DB.getMessage(1893), 'ok');
-			} else {
-				UIManager.showMessageBox(DB.getMessage(pkt.State == 5 ? 1896 : pkt.State == 6 ? 1897 : 1892), 'ok');
-			}
+			UIManager.showMessageBox(message, 'ok');
 			break;
+		}
 		default:
 			console.log('PINCODE: Received unknown state from server: ' + pkt.State);
 			PincodeWindow.append();
