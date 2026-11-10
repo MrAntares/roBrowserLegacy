@@ -729,20 +729,20 @@ function onPincodeCheckSuccess(pkt) {
 		case 2: // create new pin
 		case 4: // create new pin ??
 			CharSelect.setUIEnabled(false);
-			UIManager.showMessageBox(DB.getMessage(1900), 'ok');
 			PincodeWindow.selectInput(0);
 			PincodeWindow.setUserSeed(pkt.Seed);
 			PincodeWindow.onPincodeCheckRequest = onPincodeCreate;
 			PincodeWindow.append();
+			UIManager.showMessageBox(DB.getMessage(1900), 'ok');
 			break;
 		case 3: // pin must be changed
 			CharSelect.setUIEnabled(false);
 			if (_pincodeAttempts < 3) {
-				UIManager.showMessageBox(DB.getMessage(2345), 'ok');
 				PincodeWindow.setUserSeed(pkt.Seed);
 				PincodeWindow.onPincodeReset = onPincodeReset;
 				PincodeWindow.onParentPincodeResetReq();
 				PincodeWindow.append();
+				UIManager.showMessageBox(DB.getMessage(2345), 'ok');
 			} else {
 				PincodeWindow.onExitRequest(); // Failed authentication.
 			}
@@ -750,11 +750,6 @@ function onPincodeCheckSuccess(pkt) {
 		case 5: // client shows msgstr(1896) Unable to use restricted number in 2nd password
 		case 6: // client shows msgstr(1897) Unable to use your KSSN number
 		case 8: // pincode was incorrect
-			if (_creatingPincode === true) {
-				UIManager.showMessageBox(DB.getMessage(1893), 'ok');
-			} else {
-				UIManager.showMessageBox(DB.getMessage(pkt.State == 5 ? 1896 : pkt.State == 6 ? 1897 : 1892), 'ok');
-			}
 			_pincodeAttempts++;
 			if (_pincodeAttempts < 3) {
 				PincodeWindow.resetPins();
@@ -766,6 +761,12 @@ function onPincodeCheckSuccess(pkt) {
 				PincodeWindow.append();
 			} else {
 				PincodeWindow.onExitRequest(); // Failed authentication.
+			}
+			// After the PincodeWindow: the modal window appended last is in front
+			if (_creatingPincode === true) {
+				UIManager.showMessageBox(DB.getMessage(1893), 'ok');
+			} else {
+				UIManager.showMessageBox(DB.getMessage(pkt.State == 5 ? 1896 : pkt.State == 6 ? 1897 : 1892), 'ok');
 			}
 			break;
 		default:
