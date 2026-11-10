@@ -385,6 +385,7 @@ function onDeleteRequest(charID) {
 
 	// Ask the mail/birthdate
 	function onOk() {
+		document.body.appendChild(_overlay);
 		InputBox.append();
 		if (PACKETVER.value >= 20100803) {
 			InputBox.setType('birthdate', true);
@@ -392,16 +393,15 @@ function onDeleteRequest(charID) {
 			InputBox.setType('mail', true);
 		}
 		InputBox.onSubmitRequest = onSubmit;
+		_ui_box.append(); // don't remove message box
 		_ui_box._host.style.zIndex = '50'; // ui same zIndex bg
 		_overlay.style.zIndex = '51'; // overlay same zIndex input
-		_ui_box.append(); // don't remove message box
 	}
 
 	// Display prompt message
 	_ui_box = UIManager.showPromptBox(DB.getMessage(19), 'ok', 'cancel', onOk, onCancel);
 	const _overlay = document.createElement('div');
 	_overlay.className = 'win_popup_overlay';
-	document.body.appendChild(_overlay);
 
 	// Submit the mail/birthdate
 	function onSubmit(input) {

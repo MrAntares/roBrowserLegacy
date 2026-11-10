@@ -192,7 +192,7 @@ class GUIComponent {
 
 		this.mouseMode = MouseMode.STOP;
 		this.needFocus = true;
-		this.alwaysOnTop = false; // Stays in front of the windows opened or clicked after it
+		this._modalOverlay = null; // Blocks clicks behind the window, removed with it
 		this.manager = null; // Set by UIManager.addComponent()
 
 		this.__loaded = false;
@@ -391,6 +391,10 @@ class GUIComponent {
 		if (opened !== -1) {
 			_opened.splice(opened, 1);
 		}
+		if (this._modalOverlay) {
+			this._modalOverlay.remove();
+			this._modalOverlay = null;
+		}
 
 		if (this.__loaded && this._host && this._host.parentNode) {
 			// Hook
@@ -449,7 +453,7 @@ class GUIComponent {
 
 		// Collect zIndex values from other active components
 		for (const other of _opened) {
-			if (other === this || !other.needFocus) continue;
+			if (other === this || !other.__active || !other.needFocus) continue;
 
 			// Works with both UIComponent (.ui.css) and GUIComponent (._host.style)
 			const z = parseInt(this._getZIndex(other), 10);
@@ -468,7 +472,7 @@ class GUIComponent {
 
 		// Apply new zIndex to all other components
 		for (const other of _opened) {
-			if (other === this || !other.needFocus) continue;
+			if (other === this || !other.__active || !other.needFocus) continue;
 
 			const z = parseInt(this._getZIndex(other), 10);
 			this._setZIndex(other, list[z - 50]);
@@ -477,24 +481,25 @@ class GUIComponent {
 		// Push ourselves to top
 		this._setZIndex(this, list.length + 50 - j);
 
-		if (!this.alwaysOnTop) {
-			this._raiseAlwaysOnTop();
+		if (!this._modalOverlay) {
+			this._raiseModals();
 		}
 	}
 
 	/**
-	 * Put the open always-on-top windows back in front, in their current order.
+	 * Put the open modal windows back in front, in their current order:
+	 * nothing comes over a window that blocks the ones behind it.
 	 */
-	_raiseAlwaysOnTop() {
-		const onTop = [];
+	_raiseModals() {
+		const modals = [];
 		for (const other of _opened) {
-			if (other.alwaysOnTop && other.needFocus) {
-				onTop.push(other);
+			if (other._modalOverlay && other.__active && other.needFocus) {
+				modals.push(other);
 			}
 		}
 
-		onTop.sort((a, b) => parseInt(this._getZIndex(a), 10) - parseInt(this._getZIndex(b), 10));
-		for (const other of onTop) {
+		modals.sort((a, b) => parseInt(this._getZIndex(a), 10) - parseInt(this._getZIndex(b), 10));
+		for (const other of modals) {
 			other.focus();
 		}
 	}
@@ -507,14 +512,14 @@ class GUIComponent {
 		const zList = [];
 
 		for (const other of _opened) {
-			if (other === this || !other.needFocus) continue;
+			if (other === this || !other.__active || !other.needFocus) continue;
 			zList.push(parseInt(this._getZIndex(other), 10));
 		}
 
 		this._setZIndex(this, Math.max(50, ...zList) + 1);
 
-		if (!this.alwaysOnTop) {
-			this._raiseAlwaysOnTop();
+		if (!this._modalOverlay) {
+			this._raiseModals();
 		}
 	}
 
@@ -535,7 +540,6 @@ class GUIComponent {
 		// Always inherit behavioral properties
 		cloned.mouseMode = this.mouseMode;
 		cloned.needFocus = this.needFocus;
-		cloned.alwaysOnTop = this.alwaysOnTop;
 
 		if (full) {
 			for (const key of Object.keys(this)) {
@@ -639,6 +643,14 @@ class GUIComponent {
 	_setZIndex(comp, value) {
 		if (comp._host) {
 			comp._host.style.zIndex = value;
+			// Same zIndex, right before the window: under it, over every other window
+			const overlay = comp._modalOverlay;
+			if (overlay) {
+				overlay.style.zIndex = value;
+				if (overlay.nextSibling !== comp._host) {
+					comp._host.before(overlay);
+				}
+			}
 		} else {
 			comp.ui.css('zIndex', value);
 		}

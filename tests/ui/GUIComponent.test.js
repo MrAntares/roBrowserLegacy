@@ -195,7 +195,7 @@ describe('a window UIManager does not hold', () => {
 /**
  * Escape pressed over a confirmation opened the Escape menu in front of it.
  */
-describe('an always-on-top window', () => {
+describe('a modal window', () => {
 	const zIndex = component => parseInt(component._host.style.zIndex, 10);
 
 	/**
@@ -203,7 +203,7 @@ describe('an always-on-top window', () => {
 	 */
 	function box() {
 		class Box extends GUIComponent {
-			alwaysOnTop = true;
+			_modalOverlay = document.createElement('div');
 		}
 		return mount('<div></div>', Box);
 	}
