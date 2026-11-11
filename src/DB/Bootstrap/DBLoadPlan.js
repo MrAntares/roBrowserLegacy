@@ -466,8 +466,8 @@ export function createDBLoadPlan(DB, context) {
 
 		const onAIDriverLoaded = onLoad();
 		import('Core/AIDriver.js')
-			.then(module => {
-				return module.default.initAI(onAIDriverLoaded);
+			.then(async module => {
+				await module.default.initAI(onAIDriverLoaded);
 			})
 			.catch(error => {
 				console.error('[DB] Failed to initialize AI:', error);
