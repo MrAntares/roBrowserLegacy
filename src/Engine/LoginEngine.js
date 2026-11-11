@@ -123,7 +123,7 @@ class LoginEngine {
 				DB.startedLazyInit = false;
 				LoginEngine.init(server);
 			};
-			DB.lazyInit().catch()(e => {
+			DB.lazyInit().catch(() => {
 				DB.startedLazyInit = false;
 				UIManager.showErrorBox('Failed to start Database');
 			});
