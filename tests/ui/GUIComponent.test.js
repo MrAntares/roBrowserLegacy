@@ -39,6 +39,7 @@ const Mouse = (await import('Controls/MouseEventHandler.js')).default;
 const Session = (await import('Engine/SessionStorage.js')).default;
 
 let seq = 0;
+const mounted = [];
 
 /**
  * A component carrying the markup a case needs, appended the way UIManager
@@ -53,6 +54,7 @@ function mount(html, Component = GUIComponent) {
 	const component = new Component(`TestComponent${++seq}`, '');
 	component.render = () => html;
 	component.append();
+	mounted.push(component);
 	return component;
 }
 
@@ -61,6 +63,10 @@ function mount(html, Component = GUIComponent) {
 afterAll(() => new Promise(resolve => setTimeout(resolve, 600)));
 
 beforeEach(() => {
+	// remove() rather than clearing the body alone: an open window stays in the stacking
+	for (const component of mounted.splice(0)) {
+		component.remove();
+	}
 	document.body.innerHTML = '';
 	mocks.cursor.setType.mockClear();
 	mocks.cursor.getActualType.mockClear();
@@ -154,6 +160,35 @@ describe('a window that freezes the map', () => {
 		second.remove();
 		expect(Mouse.intersect).toBe(true);
 		expect(Session.FreezeUI).toBe(false);
+	});
+});
+
+/**
+ * Only windows held by UIManager took part in the stacking: a confirmation box,
+ * a whisper window or a storage search opened under the window that asked for
+ * it, and stayed there when clicked.
+ */
+describe('a window UIManager does not hold', () => {
+	const zIndex = component => parseInt(component._host.style.zIndex, 10);
+
+	it('opens above the windows already open', () => {
+		const menu = mount('<div></div>');
+		const confirm = mount('<div></div>');
+
+		expect(zIndex(confirm)).toBeGreaterThan(zIndex(menu));
+		menu.remove();
+		confirm.remove();
+	});
+
+	it('comes back to the front when clicked', () => {
+		const storage = mount('<div></div>');
+		const search = mount('<div></div>');
+
+		storage._host.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+
+		expect(zIndex(storage)).toBeGreaterThan(zIndex(search));
+		storage.remove();
+		search.remove();
 	});
 });
 

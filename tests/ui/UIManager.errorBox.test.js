@@ -8,7 +8,7 @@ const { default: UIManager } = await import('UI/UIManager.js');
 describe('UIManager.showErrorBox', () => {
 	it('drops a skill waiting for its target, since the game ends with the box', () => {
 		const skillTarget = { remove: vi.fn() };
-		const box = { append: vi.fn() };
+		const box = { append: vi.fn(), _setZIndex: vi.fn() };
 		UIManager.components.SkillTargetSelection = skillTarget;
 		UIManager.components.WinPopup = { clone: () => box };
 

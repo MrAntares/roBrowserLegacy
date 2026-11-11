@@ -248,18 +248,7 @@ function parseChatSetup() {
 	this.password = root.querySelector('input[name=password]').value;
 
 	if (this.title.length < 1) {
-		const overlay = document.createElement('div');
-		overlay.className = 'win_popup_overlay';
-		document.body.appendChild(overlay);
-
-		const popup = UIManager.showMessageBox(
-			DB.getMessage(13),
-			'ok',
-			() => {
-				document.body.removeChild(overlay);
-			},
-			true
-		);
+		const popup = UIManager.showMessageBox(DB.getMessage(13), 'ok', null, true);
 		popup._host.style.top = parseInt(this._host.style.top, 10) - 120 + 'px';
 		popup._host.style.left = parseInt(this._host.style.left, 10) + 'px';
 		return;

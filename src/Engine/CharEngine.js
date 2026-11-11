@@ -385,6 +385,7 @@ function onDeleteRequest(charID) {
 
 	// Ask the mail/birthdate
 	function onOk() {
+		document.body.appendChild(_overlay);
 		InputBox.append();
 		if (PACKETVER.value >= 20100803) {
 			InputBox.setType('birthdate', true);
@@ -392,16 +393,15 @@ function onDeleteRequest(charID) {
 			InputBox.setType('mail', true);
 		}
 		InputBox.onSubmitRequest = onSubmit;
+		_ui_box.append(); // don't remove message box
 		_ui_box._host.style.zIndex = '50'; // ui same zIndex bg
 		_overlay.style.zIndex = '51'; // overlay same zIndex input
-		_ui_box.append(); // don't remove message box
 	}
 
 	// Display prompt message
 	_ui_box = UIManager.showPromptBox(DB.getMessage(19), 'ok', 'cancel', onOk, onCancel);
 	const _overlay = document.createElement('div');
 	_overlay.className = 'win_popup_overlay';
-	document.body.appendChild(_overlay);
 
 	// Submit the mail/birthdate
 	function onSubmit(input) {
@@ -644,6 +644,18 @@ function onUserPincodeResetReq() {
 	PincodeWindow.onPincodeReset = onPincodeReset;
 }
 
+/**
+ * Show a PIN answer over the PincodeWindow, which takes no clicks until it is closed
+ *
+ * @param {string} text
+ */
+function showPincodeMessage(text) {
+	const box = UIManager.showMessageBox(text, 'ok');
+	box._modalOverlay = document.createElement('div');
+	box._modalOverlay.className = 'win_popup_overlay';
+	box.focus(); // sets the overlay right under the box
+}
+
 function onPincodeCheckSuccess(pkt) {
 	if (!PincodeWindow.__active && pkt.State == 0) {
 		console.log('Pincode is disabled.');
@@ -729,32 +741,31 @@ function onPincodeCheckSuccess(pkt) {
 		case 2: // create new pin
 		case 4: // create new pin ??
 			CharSelect.setUIEnabled(false);
-			UIManager.showMessageBox(DB.getMessage(1900), 'ok');
 			PincodeWindow.selectInput(0);
 			PincodeWindow.setUserSeed(pkt.Seed);
 			PincodeWindow.onPincodeCheckRequest = onPincodeCreate;
 			PincodeWindow.append();
+			showPincodeMessage(DB.getMessage(1900));
 			break;
 		case 3: // pin must be changed
 			CharSelect.setUIEnabled(false);
 			if (_pincodeAttempts < 3) {
-				UIManager.showMessageBox(DB.getMessage(2345), 'ok');
 				PincodeWindow.setUserSeed(pkt.Seed);
 				PincodeWindow.onPincodeReset = onPincodeReset;
 				PincodeWindow.onParentPincodeResetReq();
 				PincodeWindow.append();
+				showPincodeMessage(DB.getMessage(2345));
 			} else {
 				PincodeWindow.onExitRequest(); // Failed authentication.
 			}
 			break;
 		case 5: // client shows msgstr(1896) Unable to use restricted number in 2nd password
 		case 6: // client shows msgstr(1897) Unable to use your KSSN number
-		case 8: // pincode was incorrect
-			if (_creatingPincode === true) {
-				UIManager.showMessageBox(DB.getMessage(1893), 'ok');
-			} else {
-				UIManager.showMessageBox(DB.getMessage(pkt.State == 5 ? 1896 : pkt.State == 6 ? 1897 : 1892), 'ok');
-			}
+		case 8: {
+			// pincode was incorrect; the message is picked before onExitRequest() clears _creatingPincode
+			const message = _creatingPincode
+				? DB.getMessage(1893)
+				: DB.getMessage(pkt.State == 5 ? 1896 : pkt.State == 6 ? 1897 : 1892);
 			_pincodeAttempts++;
 			if (_pincodeAttempts < 3) {
 				PincodeWindow.resetPins();
@@ -767,7 +778,10 @@ function onPincodeCheckSuccess(pkt) {
 			} else {
 				PincodeWindow.onExitRequest(); // Failed authentication.
 			}
+			// After the PincodeWindow, so the box is in front of it
+			showPincodeMessage(message);
 			break;
+		}
 		default:
 			console.log('PINCODE: Received unknown state from server: ' + pkt.State);
 			PincodeWindow.append();

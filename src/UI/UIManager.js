@@ -27,6 +27,11 @@ function _popupPosition() {
 }
 
 /**
+ * The error box, over any window: they stack from 50, one step per open window
+ */
+const ERROR_BOX_Z_INDEX = 1000;
+
+/**
  * Create a button with data-attributes for parseHTML to process
  * @param {string} name - button name (ex: 'ok', 'cancel')
  * @param {function} onClick - click callback (fires once)
@@ -195,8 +200,7 @@ class UIManager {
 		this.components.SkillTargetSelection?.remove();
 
 		const WinError = this.getComponent('WinPopup').clone('WinError');
-		// eslint-disable-next-line
-		let overlay;
+		WinError.needFocus = false;
 
 		WinError.init = function Init() {
 			const root = this._shadow;
@@ -206,7 +210,6 @@ class UIManager {
 
 			root.querySelector('.btns').appendChild(
 				_createButton('ok', () => {
-					overlay.remove();
 					WinError.remove();
 					import('Engine/GameEngine.js').then(m => m.default.reload());
 				})
@@ -218,15 +221,17 @@ class UIManager {
 			switch (event.which) {
 				case KEYS.ENTER:
 				case KEYS.ESCAPE:
-					overlay.remove();
 					this.remove();
 					import('Engine/GameEngine.js').then(m => m.default.reload());
 			}
 		};
 
-		overlay = _createOverlay();
+		WinError._modalOverlay = _createOverlay();
 		WinError.onAppend = _prioritizeKeyDown;
 		WinError.append();
+
+		// Out of the stacking: nothing opened after it comes over the box or its overlay
+		WinError._setZIndex(WinError, ERROR_BOX_Z_INDEX);
 
 		return WinError;
 	}
