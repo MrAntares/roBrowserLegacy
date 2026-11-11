@@ -644,6 +644,18 @@ function onUserPincodeResetReq() {
 	PincodeWindow.onPincodeReset = onPincodeReset;
 }
 
+/**
+ * Show a PIN answer over the PincodeWindow, which takes no clicks until it is closed
+ *
+ * @param {string} text
+ */
+function showPincodeMessage(text) {
+	const box = UIManager.showMessageBox(text, 'ok');
+	box._modalOverlay = document.createElement('div');
+	box._modalOverlay.className = 'win_popup_overlay';
+	box.focus(); // sets the overlay right under the box
+}
+
 function onPincodeCheckSuccess(pkt) {
 	if (!PincodeWindow.__active && pkt.State == 0) {
 		console.log('Pincode is disabled.');
@@ -733,7 +745,7 @@ function onPincodeCheckSuccess(pkt) {
 			PincodeWindow.setUserSeed(pkt.Seed);
 			PincodeWindow.onPincodeCheckRequest = onPincodeCreate;
 			PincodeWindow.append();
-			UIManager.showMessageBox(DB.getMessage(1900), 'ok');
+			showPincodeMessage(DB.getMessage(1900));
 			break;
 		case 3: // pin must be changed
 			CharSelect.setUIEnabled(false);
@@ -742,7 +754,7 @@ function onPincodeCheckSuccess(pkt) {
 				PincodeWindow.onPincodeReset = onPincodeReset;
 				PincodeWindow.onParentPincodeResetReq();
 				PincodeWindow.append();
-				UIManager.showMessageBox(DB.getMessage(2345), 'ok');
+				showPincodeMessage(DB.getMessage(2345));
 			} else {
 				PincodeWindow.onExitRequest(); // Failed authentication.
 			}
@@ -766,8 +778,8 @@ function onPincodeCheckSuccess(pkt) {
 			} else {
 				PincodeWindow.onExitRequest(); // Failed authentication.
 			}
-			// After the PincodeWindow: the modal window appended last is in front
-			UIManager.showMessageBox(message, 'ok');
+			// After the PincodeWindow, so the box is in front of it
+			showPincodeMessage(message);
 			break;
 		}
 		default:

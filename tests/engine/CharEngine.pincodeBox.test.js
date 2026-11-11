@@ -124,6 +124,20 @@ describe('the char server answering a PIN', () => {
 		expect(isOver(box._host, PincodeWindow._host)).toBe(true);
 	});
 
+	// A click on the keypad raised the PincodeWindow and its overlay over the box
+	it('keeps the PincodeWindow from taking clicks until the box is closed', () => {
+		onPincodeState({ State: 1, Seed: 0 });
+		onPincodeState({ State: 8, Seed: 0 });
+
+		const [box] = boxes;
+		expect(isOver(box._modalOverlay, PincodeWindow._host)).toBe(true);
+		expect(isOver(box._host, box._modalOverlay)).toBe(true);
+
+		const overlay = box._modalOverlay;
+		box.remove();
+		expect(overlay.isConnected).toBe(false);
+	});
+
 	it('shows the new PIN box over the PincodeWindow', () => {
 		onPincodeState({ State: 2, Seed: 0 });
 
