@@ -5,16 +5,15 @@ import SKID from 'DB/Skills/SkillConst.js';
 import SkillInfo from 'DB/Skills/SkillInfo.js';
 import SkillTreeView from 'DB/Skills/SkillTreeView.js';
 import { resetSkillTree, keepBuiltInSkills } from 'DB/Skills/SkillTreeMerge.js';
+import Client from 'Core/Client.js';
 
 export function createSkillLoaders(DB, getUserCharpage) {
 	const userStringDecoder = TextEncoding;
 	const resolveUserCharpage = typeof getUserCharpage === 'function' ? getUserCharpage : () => getUserCharpage;
 	function loadSkillInfoList(filename, callback, onEnd) {
-		const { lua, loadFile, guard } = createDBLoadContext();
-		callback = guard(callback);
-		onEnd = guard(onEnd);
+		const { lua } = createDBLoadContext();
 
-		loadFile(
+		Client.loadFile(
 			filename,
 			async function (file) {
 				try {
@@ -176,12 +175,10 @@ export function createSkillLoaders(DB, getUserCharpage) {
 	}
 
 	function loadSkillTreeView(filename, callback, onEnd) {
-		const { lua, loadFile, guard } = createDBLoadContext();
-		callback = guard(callback);
-		onEnd = guard(onEnd);
+		const { lua } = createDBLoadContext();
 
 		// First load jobinheritlist.lub
-		loadFile(
+		Client.loadFile(
 			DB.LUA_PATH + 'skillinfoz/jobinheritlist.lub',
 			async function (file) {
 				try {
@@ -204,15 +201,13 @@ export function createSkillLoaders(DB, getUserCharpage) {
 	}
 
 	function loadSkillTreeViewData(filename, callback, onEnd) {
-		const { lua, loadFile, guard } = createDBLoadContext();
-		callback = guard(callback);
-		onEnd = guard(onEnd);
+		const { lua } = createDBLoadContext();
 
 		// Start from the built-in layout every time, so a second client loaded
 		// after a server switch never inherits the first one's placements.
 		resetSkillTree(SkillTreeView);
 		const fileJobs = new Set();
-		loadFile(
+		Client.loadFile(
 			filename,
 			async function (file) {
 				try {

@@ -3,13 +3,13 @@ import { createDBLoadContext } from 'DB/Loaders/DBLoadContext.js';
 import WorldMap from 'DB/Map/WorldMap.js';
 import TownInfo from 'DB/TownInfo.js';
 import PrivateAirship from 'DB/Map/PrivateAirship.js';
+import Client from 'Core/Client.js';
 
 export function createMapLoaders(getUserCharpage) {
 	const userStringDecoder = TextEncoding;
 	const resolveUserCharpage = typeof getUserCharpage === 'function' ? getUserCharpage : () => getUserCharpage;
 	function loadWorldMapInfo(basePath, onEnd) {
-		const { lua, loadFile, guard } = createDBLoadContext();
-		onEnd = guard(onEnd);
+		const { lua } = createDBLoadContext();
 
 		const files = ['worldviewdata_language.lub', 'worldviewdata_list.lub', 'worldviewdata_table.lub'];
 
@@ -26,7 +26,7 @@ export function createMapLoaders(getUserCharpage) {
 			const fullPath = dirPath + files[index];
 			console.log('Loading file "' + fullPath + '"...');
 
-			loadFile(
+			Client.loadFile(
 				fullPath,
 				function (data) {
 					loadedBuffers.push({ name: files[index], data: data });
@@ -197,11 +197,9 @@ export function createMapLoaders(getUserCharpage) {
 	}
 
 	function loadTownInfoFile(filename, callback, onEnd) {
-		const { lua, loadFile, guard } = createDBLoadContext();
-		callback = guard(callback);
-		onEnd = guard(onEnd);
+		const { lua } = createDBLoadContext();
 
-		loadFile(
+		Client.loadFile(
 			filename,
 			async function (file) {
 				console.log('Loading file "' + filename + '"...');
@@ -241,11 +239,9 @@ export function createMapLoaders(getUserCharpage) {
 	}
 
 	function loadPrivateAirship(filename, callback, onEnd) {
-		const { lua, loadFile, guard, isCurrent } = createDBLoadContext();
-		callback = guard(callback);
-		onEnd = guard(onEnd);
+		const { lua } = createDBLoadContext();
 
-		loadFile(
+		Client.loadFile(
 			filename,
 			async function (file) {
 				console.log('Loading file "' + filename + '"...');
@@ -272,7 +268,7 @@ export function createMapLoaders(getUserCharpage) {
 					success = PrivateAirship.isLoaded();
 				} catch (error) {
 					console.error('[loadPrivateAirship] Error: ', error);
-					if (isCurrent()) PrivateAirship.reset();
+					PrivateAirship.reset();
 				} finally {
 					lua.unmountFile(filename);
 					onEnd(success);

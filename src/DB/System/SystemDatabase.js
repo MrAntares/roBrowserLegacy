@@ -1,5 +1,6 @@
 import TextEncoding from 'Utils/CodepageManager.js';
 import { createDBLoadContext } from 'DB/Loaders/DBLoadContext.js';
+import Client from 'Core/Client.js';
 
 export const MsgStringTable = [];
 export const JokeTable = [];
@@ -73,11 +74,9 @@ export function createSystemDatabase(DB, getUserCharpage) {
 	const userStringDecoder = TextEncoding;
 	const resolveUserCharpage = typeof getUserCharpage === 'function' ? getUserCharpage : () => getUserCharpage;
 	function loadAttendanceFile(filename, callback, onEnd) {
-		const { lua, loadFile, guard } = createDBLoadContext();
-		callback = guard(callback);
-		onEnd = guard(onEnd);
+		const { lua } = createDBLoadContext();
 
-		loadFile(
+		Client.loadFile(
 			filename,
 			async function (file) {
 				try {
@@ -114,11 +113,9 @@ export function createSystemDatabase(DB, getUserCharpage) {
 	}
 
 	function loadTitleTable(filename, callback, onEnd) {
-		const { lua, loadFile, guard } = createDBLoadContext();
-		callback = guard(callback);
-		onEnd = guard(onEnd);
+		const { lua } = createDBLoadContext();
 
-		loadFile(
+		Client.loadFile(
 			filename,
 			async function (file) {
 				try {
@@ -161,12 +158,10 @@ export function createSystemDatabase(DB, getUserCharpage) {
 	}
 
 	function loadQuestInfo(filename, callback, onEnd) {
-		const { lua, loadFile, guard } = createDBLoadContext();
-		callback = guard(callback);
-		onEnd = guard(onEnd);
+		const { lua } = createDBLoadContext();
 
 		const loadPromise = new Promise((resolve, reject) => {
-			loadFile(filename, resolve, reject);
+			Client.loadFile(filename, resolve, reject);
 		});
 
 		loadPromise
@@ -316,11 +311,9 @@ export function createSystemDatabase(DB, getUserCharpage) {
 	}
 
 	function loadCashShopBanner(filename, callback, onEnd) {
-		const { lua, loadFile, guard } = createDBLoadContext();
-		callback = guard(callback);
-		onEnd = guard(onEnd);
+		const { lua } = createDBLoadContext();
 
-		loadFile(
+		Client.loadFile(
 			filename,
 			async function (file) {
 				try {

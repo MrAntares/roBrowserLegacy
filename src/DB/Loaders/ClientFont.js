@@ -1,15 +1,14 @@
-import { createDBFileContext } from 'DB/Loaders/DBLoadContext.js';
+import Client from 'Core/Client.js';
 
 export default function loadFontFromClient(fontPath) {
-	const { loadFile } = createDBFileContext(true);
 	console.log('Loading file "' + fontPath + 'SCDream4.otf"...');
-	loadFile(
+	Client.loadFile(
 		fontPath + 'SCDream4.otf',
 		function (fontData4) {
 			const base64_4 = arrayBufferToBase64(fontData4);
 			const fontUrl4 = 'data:font/opentype;base64,' + base64_4;
 			console.log('Loading file "' + fontPath + 'SCDream6.otf"...');
-			loadFile(
+			Client.loadFile(
 				fontPath + 'SCDream6.otf',
 				function (fontData6) {
 					const base64_6 = arrayBufferToBase64(fontData6);

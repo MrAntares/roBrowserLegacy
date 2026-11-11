@@ -46,11 +46,10 @@ export function createTableLoaders(getUserCharpage) {
 	 * @param {number} valueIndex - 0-based index of column to use as value
 	 * @param {function} onEnd - callback when done
 	 */
-	function loadCSV(filename, targetTable, keyIndex, valueIndex, onEnd, isCurrent = () => true) {
+	function loadCSV(filename, targetTable, keyIndex, valueIndex, onEnd) {
 		Client.loadFile(
 			filename,
 			function (data) {
-				if (!isCurrent()) return;
 				console.log('Loading file "' + filename + '"...');
 
 				const bytes = data instanceof ArrayBuffer ? new Uint8Array(data) : data;
@@ -141,11 +140,10 @@ export function createTableLoaders(getUserCharpage) {
 	 * @param {function} onEnd    Called when finished (success or error)
 	 *
 	 */
-	function loadBSONFile(filename, targetTable, onEnd, isCurrent = () => true) {
+	function loadBSONFile(filename, targetTable, onEnd) {
 		Client.loadFile(
 			filename,
 			function (arrayBuffer) {
-				if (!isCurrent()) return;
 				try {
 					console.log('Loading file "' + filename + '"...');
 
@@ -203,3 +201,4 @@ export function createTableLoaders(getUserCharpage) {
 
 	return { loadTable, loadCSV, loadXMLFile, loadBSONFile };
 }
+

@@ -1,14 +1,12 @@
 import Client from 'Core/Client.js';
 import TextEncoding from 'Utils/CodepageManager.js';
-import { lua, getLuaGeneration } from 'DB/Loaders/LuaRuntime.js';
+import { lua } from 'DB/Loaders/LuaRuntime.js';
 
 export function createLuaTableLoaders(getUserCharpage, grfCharpage) {
 	const userStringDecoder = TextEncoding;
 	const resolveUserCharpage = typeof getUserCharpage === 'function' ? getUserCharpage : () => getUserCharpage;
 	function loadLuaTable(file_list, table_name, callback, onEnd, contextFunc, useCharPage = true) {
 		const instance = lua;
-		const generation = getLuaGeneration();
-		const isCurrent = () => generation === getLuaGeneration();
 		const id_filename = file_list[0];
 		const value_table_filename = file_list[1];
 		let finished = false;
@@ -19,7 +17,7 @@ export function createLuaTableLoaders(getUserCharpage, grfCharpage) {
 			finished = true;
 			if (valueMounted) instance.unmountFile(value_table_filename);
 			if (idMounted) instance.unmountFile(id_filename);
-			if (onEnd && isCurrent()) onEnd(success);
+			if (onEnd) onEnd(success);
 		}
 
 		try {
@@ -28,7 +26,6 @@ export function createLuaTableLoaders(getUserCharpage, grfCharpage) {
 				id_filename,
 				async function (file) {
 					if (finished) return;
-					if (!isCurrent()) return finish(false);
 					try {
 						// check if file is ArrayBuffer and convert to Uint8Array if necessary
 						const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
@@ -37,7 +34,6 @@ export function createLuaTableLoaders(getUserCharpage, grfCharpage) {
 						idMounted = true;
 						// execute file
 						await instance.doFile(id_filename);
-						if (!isCurrent()) return finish(false);
 						loadValueTable();
 					} catch (hException) {
 						console.error(`(${id_filename}) error: `, hException);
@@ -53,7 +49,6 @@ export function createLuaTableLoaders(getUserCharpage, grfCharpage) {
 					value_table_filename,
 					async function (file) {
 						if (finished) return;
-						if (!isCurrent()) return finish(false);
 						try {
 							// check if file is ArrayBuffer and convert to Uint8Array if necessary
 							const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
@@ -62,7 +57,6 @@ export function createLuaTableLoaders(getUserCharpage, grfCharpage) {
 							valueMounted = true;
 							// execute file
 							await instance.doFile(value_table_filename);
-							if (!isCurrent()) return finish(false);
 							parseTable();
 						} catch (hException) {
 							console.error(`(${value_table_filename}) error: `, hException);
@@ -142,8 +136,6 @@ export function createLuaTableLoaders(getUserCharpage, grfCharpage) {
 	 */
 	function loadLuaValue(file_path, variable_name, callback, onEnd) {
 		const instance = lua;
-		const generation = getLuaGeneration();
-		const isCurrent = () => generation === getLuaGeneration();
 		let settled = false;
 		try {
 			console.log('Loading file "' + file_path + '"...');
@@ -152,10 +144,6 @@ export function createLuaTableLoaders(getUserCharpage, grfCharpage) {
 				async function (file) {
 					if (settled) return;
 					settled = true;
-					if (!isCurrent()) {
-						if (onEnd) onEnd();
-						return;
-					}
 					let mounted = false;
 					try {
 						// Check if file is ArrayBuffer and convert to Uint8Array if necessary
@@ -167,7 +155,6 @@ export function createLuaTableLoaders(getUserCharpage, grfCharpage) {
 
 						// Execute file
 						await instance.doFile(file_path);
-						if (!isCurrent()) return;
 
 						// Get context
 						const ctx = instance.ctx;
@@ -243,7 +230,6 @@ export function createLuaTableLoaders(getUserCharpage, grfCharpage) {
 						callback.call(null, result);
 					} catch (hException) {
 						console.error(`(${file_path}) error: `, hException);
-						if (isCurrent()) callback.call(null, null);
 					} finally {
 						if (mounted) instance.unmountFile(file_path);
 						if (onEnd) {
@@ -254,7 +240,6 @@ export function createLuaTableLoaders(getUserCharpage, grfCharpage) {
 				function () {
 					if (settled) return;
 					settled = true;
-					if (isCurrent()) callback.call(null, null);
 					if (onEnd) onEnd.call();
 				}
 			);
@@ -262,7 +247,6 @@ export function createLuaTableLoaders(getUserCharpage, grfCharpage) {
 			if (settled) return;
 			settled = true;
 			console.error('error: ', e);
-			if (isCurrent()) callback.call(null, null);
 			if (onEnd) {
 				onEnd.call();
 			}

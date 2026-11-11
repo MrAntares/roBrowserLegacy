@@ -58,15 +58,12 @@ export function createMapDatabase(DB, getUserCharpage) {
 	}
 	function loadMapTbl(filename, callback, onEnd) {
 		const instance = lua;
-		const generation = getLuaGeneration();
-		const isCurrent = () => generation === getLuaGeneration();
 		const loadPromise = new Promise((resolve, reject) => {
 			Client.loadFile(filename, resolve, reject);
 		});
 
 		loadPromise
 			.then(async file => {
-				if (!isCurrent()) return;
 				let success = false;
 				try {
 					console.log('Loading file "' + filename + '"...');
@@ -79,7 +76,6 @@ export function createMapDatabase(DB, getUserCharpage) {
 
 					// create mapInfo required functions in context
 					ctx.AddMapDisplayName = (name, displayName, notify_enter) => {
-						if (!isCurrent()) return 1;
 						const decoded_name = userStringDecoder.decode(name);
 						MapInfo[decoded_name] = {
 							displayName: userStringDecoder.decode(displayName, userCharpage),
@@ -96,7 +92,6 @@ export function createMapDatabase(DB, getUserCharpage) {
 					};
 
 					ctx.AddMapSignName = (name, subTitle, mainTitle) => {
-						if (!isCurrent()) return 1;
 						const decoded_name = userStringDecoder.decode(name);
 						const decoded_subTitle =
 							subTitle && subTitle.length > 1 ? userStringDecoder.decode(subTitle, userCharpage) : null;
@@ -112,7 +107,6 @@ export function createMapDatabase(DB, getUserCharpage) {
 					};
 
 					ctx.AddMapBackgroundBmp = (name, backgroundBmp) => {
-						if (!isCurrent()) return 1;
 						const decoded_name = userStringDecoder.decode(name);
 						MapInfo[decoded_name].backgroundBmp = backgroundBmp
 							? userStringDecoder.decode(backgroundBmp)
@@ -125,7 +119,6 @@ export function createMapDatabase(DB, getUserCharpage) {
 
 					// execute file
 					await instance.doFile(filename);
-					if (!isCurrent()) return;
 
 					// execute main function
 					instance.doStringSync('main()');
@@ -137,11 +130,11 @@ export function createMapDatabase(DB, getUserCharpage) {
 					// release file from memmory
 					instance.unmountFile(filename);
 					// call onEnd
-					if (isCurrent()) onEnd(success);
+					onEnd(success);
 				}
 			})
 			.catch(error => {
-				if (isCurrent()) onEnd(false);
+				onEnd(false);
 			});
 	}
 

@@ -1,12 +1,11 @@
-import { createDBFileContext } from 'DB/Loaders/DBLoadContext.js';
+import Client from 'Core/Client.js';
 import TextEncoding from 'Utils/CodepageManager.js';
 import ItemTable from 'DB/Items/ItemTable.js';
 
 export function loadMoveInfoTable(getUserCharpage, onEnd) {
 	const resolveUserCharpage = typeof getUserCharpage === 'function' ? getUserCharpage : () => getUserCharpage;
-	const { loadFile, guard } = createDBFileContext();
-	onEnd = guard(onEnd);
-	loadFile(
+
+	Client.loadFile(
 		'data/ItemMoveInfoV5.txt',
 		function (file) {
 			console.log('Loading file "ItemMoveInfoV5.txt"...');
