@@ -116,20 +116,6 @@ npm test          # Vitest — runs all tests in tests/**/*.test.js
 - **DB constant tests are regression guards** — they pin numeric IDs so accidental changes are caught by CI
 - **Node.js**: `>=22` required (`.nvmrc` pins Node 22; CI uses Node 24). Note: Node 25+ has experimental native `localStorage` on `globalThis` that can conflict with `jsdom`.
 
-### Test file organization
-
-```
-tests/
-├── db/           # DB constants & tables (12 files)
-├── engine/       # LoginEngine & MapEngine tests (2 files)
-├── fixtures/     # Synthetic test fixtures & mock helpers (2 files)
-├── loaders/      # Binary parsers (11 files, including GR2Loader.test.js)
-├── network/      # Packet structure, registration & handler tests (4 files)
-├── renderer/     # Renderer & GR2 tests (11 files, including 5 in GR2/)
-├── ui/           # GUIComponent & UI subsystem tests (22 files)
-└── util/         # Utilities (14 files)
-```
-
 ---
 
 ## CI Pipeline

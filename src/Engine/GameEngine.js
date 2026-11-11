@@ -223,14 +223,17 @@ function onLoginServerSelected(index) {
 	// Check if the selected server is different than the previous one.
 	if (
 		_previous_server !== undefined &&
-		(_previous_server.address != _servers[index].address || _previous_server.port != _servers[index].port)
+		(_previous_server.address != _servers[index].address ||
+			_previous_server.port != _servers[index].port ||
+			String(_previous_server.packetver) != String(_servers[index].packetver))
 	) {
 		UIManager.removeComponents();
 		Network.close();
 		Configs.setServer(_servers[index]);
+		DB.isLoaded = false;
+		DB.startedLazyInit = false;
 		// Need to reload the files.
 		loadFiles(() => {
-			LoginEngine.setLoadedServer(_servers[index]);
 			onReadyLoginServer(index);
 		});
 	} else {

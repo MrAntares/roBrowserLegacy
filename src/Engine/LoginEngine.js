@@ -32,8 +32,6 @@ import Queue from 'Utils/Queue.js';
 import Background from 'UI/Background.js';
 import MD5 from 'Vendors/spark-md5.min.js';
 import Rijndael from 'Utils/Rijndael.js';
-
-// Version Dependent UIs
 import WinLogin from 'UI/Components/WinLogin/WinLogin.js';
 
 /**
@@ -91,11 +89,6 @@ class LoginEngine {
 		const autoLogin = Configs.get('autoLogin');
 		const audioExt = Configs.get('BGMFileExtension');
 
-		if (!PACKETVER.value) {
-			UIManager.showErrorBox('Sorry, no PACKETVER configs found.');
-			return;
-		}
-
 		// Server packetver
 		const packetver = String(Configs.get('packetver'));
 		if (packetver) {
@@ -104,16 +97,13 @@ class LoginEngine {
 			}
 		}
 
+		if (!PACKETVER.value) {
+			UIManager.showErrorBox('Sorry, no PACKETVER configs found.');
+			return;
+		}
+
 		_server = server;
 		_server.packetver = PACKETVER.value;
-		if (
-			old_server !== null &&
-			(old_server.address !== _server.address ||
-				old_server.port !== _server.port ||
-				old_server.packetver !== _server.packetver)
-		) {
-			DB.isLoaded = false;
-		}
 
 		// Add support for remote client in server definition
 		if (remoteClient) {
@@ -219,16 +209,6 @@ class LoginEngine {
 		WinLogin.append();
 
 		Network.close();
-	}
-
-	/**
-	 * setLoadedServer()
-	 *
-	 * Called by GameEngine when it reloads files due to a service change
-	 * so we don't wind up trying to load the db twice. (Or concurrently.)
-	 */
-	static setLoadedServer(server) {
-		_server = server;
 	}
 }
 
