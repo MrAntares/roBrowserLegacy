@@ -230,7 +230,10 @@ export function createLuaTableLoaders(getUserCharpage, grfCharpage) {
 						callback.call(null, result);
 					} catch (hException) {
 						console.error(`(${file_path}) error: `, hException);
-						callback.call(null, null);
+						if (!settled) {
+							settled = true;
+							callback.call(null, null);
+						}
 					} finally {
 						if (mounted) instance.unmountFile(file_path);
 						if (onEnd) {

@@ -68,7 +68,6 @@ class LoginEngine {
 	 */
 	static init(server) {
 		const q = new Queue();
-		const old_server = _server;
 
 		Configs.setServer(server);
 		UIManager.removeComponents();
