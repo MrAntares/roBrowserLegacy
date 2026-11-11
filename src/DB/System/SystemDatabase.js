@@ -33,7 +33,7 @@ export function resetSystemData() {
 	}
 }
 
-export function setMessageRow(index, value) {
+export function setMsgStringTable(index, value) {
 	MsgStringTable[index] = value;
 }
 export function setJokeRow(index, value) {

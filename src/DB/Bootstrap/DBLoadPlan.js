@@ -12,7 +12,7 @@ export function createDBLoadPlan(DB, context) {
 		mergeMonsterNames,
 		MsgEmotionCSV,
 		MsgStringTable,
-		setMessageRow,
+		setMsgStringTable,
 		mergeSkillIds,
 		NaviLinkDistanceTable,
 		NaviLinkTable,
@@ -120,7 +120,7 @@ export function createDBLoadPlan(DB, context) {
 				'#',
 				1,
 				(_index, val) => {
-					setMessageRow(_index, val);
+					setMsgStringTable(_index, val);
 				},
 				onLoad(),
 				true
