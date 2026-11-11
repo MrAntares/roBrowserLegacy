@@ -106,16 +106,12 @@ export function createDBBootstrap(DB, context) {
 					DB.isLoaded = true;
 					MemoryManager.forceClean(null, /\.(lub|lua|txt|csv|bson)$/i);
 					if (DB.onReady) DB.onReady();
-				},
-				() => currentLazy === lazyGeneration
+				}
 			);
-			plan.loadLazy(
-				() => {
-					DB.count++;
-					return tracker.step();
-				},
-				() => current === generation && currentLazy === lazyGeneration
-			);
+			plan.loadLazy(() => {
+				DB.count++;
+				return tracker.step();
+			});
 			tracker.seal();
 		}
 
