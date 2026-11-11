@@ -230,6 +230,7 @@ export function createLuaTableLoaders(getUserCharpage, grfCharpage) {
 						callback.call(null, result);
 					} catch (hException) {
 						console.error(`(${file_path}) error: `, hException);
+						callback.call(null, null);
 					} finally {
 						if (mounted) instance.unmountFile(file_path);
 						if (onEnd) {
@@ -240,6 +241,7 @@ export function createLuaTableLoaders(getUserCharpage, grfCharpage) {
 				function () {
 					if (settled) return;
 					settled = true;
+					callback.call(null, null);
 					if (onEnd) onEnd.call();
 				}
 			);
@@ -247,6 +249,7 @@ export function createLuaTableLoaders(getUserCharpage, grfCharpage) {
 			if (settled) return;
 			settled = true;
 			console.error('error: ', e);
+			callback.call(null, null);
 			if (onEnd) {
 				onEnd.call();
 			}
