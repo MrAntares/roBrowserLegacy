@@ -145,6 +145,7 @@ export function createLuaTableLoaders(getUserCharpage, grfCharpage) {
 					if (settled) return;
 					settled = true;
 					let mounted = false;
+					let called = false;
 					try {
 						// Check if file is ArrayBuffer and convert to Uint8Array if necessary
 						const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
@@ -225,13 +226,13 @@ export function createLuaTableLoaders(getUserCharpage, grfCharpage) {
 						// Unmount file
 						instance.unmountFile(file_path);
 						mounted = false;
-
+						called = true;
 						// Return the extracted value
 						callback.call(null, result);
 					} catch (hException) {
 						console.error(`(${file_path}) error: `, hException);
-						if (!settled) {
-							settled = true;
+						if (!called) {
+							called = true;
 							callback.call(null, null);
 						}
 					} finally {
