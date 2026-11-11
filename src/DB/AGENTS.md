@@ -2,7 +2,10 @@
 
 ## Topological snapshot
 
-- `DBManager.js` — central lookup and loading layer.
+- `DBManager.js` — public facade and compatibility proxies.
+- `DBServices.js` — composition root for DB services and shared dependencies.
+- `Bootstrap/` — initialization lifecycle, progress tracking, and the load plan.
+- `Loaders/` — shared table readers, Lua runtime and alias handling.
 - `Items/`, `Skills/`, `Status/`, `Jobs/`, `Map/`, `Monsters/`, `Pets/`, `Effects/` — game metadata and behavior tables.
 - `*Const.js` files — stable numeric IDs and constants used across the client.
 - `docs/Encoding.md` and `docs/LuaModuleResolution.md` — text decoding and Lua-backed table rules.
@@ -30,13 +33,15 @@ Instructions for working on `DBManager.js` and game data tables (`Effects/`, `It
 3. **Preserve Skill Tree Merging (`src/DB/Skills/SkillTreeMerge.js`):**
     - `SkillTreeMerge.js` merges client-supplied `skilltreeview.lub` layouts with the built-in `SkillTreeView.js` definitions (`resetSkillTree`, `keepBuiltInSkills`). Preserve fallback behavior when client files are missing or partial.
 4. **Known Incomplete Areas:**
-    - `src/DB/DBManager.js` contains legacy TODOs and incomplete mappings for newer kRO content; verify callers before altering existing lookup return types.
+    - The DB load plan and domain modules contain legacy TODOs and incomplete mappings for newer kRO content; verify callers before altering existing lookup return types.
 
 ---
 
 ## Subsystem Structure (`src/DB/`)
 
-- `DBManager.js` — Central database manager: loads text/CSV/XML/BSON/Lua tables (`MsgStringTable`, item tables, skill trees, palette probes, AI scripts) and exposes lookup helpers (`DB.getMessage()`, `DB.getItemInfo()`, `DB.formatMsgToHtml()`, `DB.INTERFACE_PATH`, etc.).
+- `DBManager.js` — Public facade exposing initialization, status and compatibility lookups (`DB.getMessage()`, `DB.getItemInfo()`, `DB.formatMsgToHtml()`, `DB.INTERFACE_PATH`, etc.). It owns legacy mutable static fields whose data-property descriptors are public compatibility contracts.
+- `DBServices.js` and `Bootstrap/` — Create the domain services, coordinate startup and register the version-dependent file loads.
+- `Loaders/` — Shared TXT, CSV, XML, BSON and Lua loading primitives; domain-specific parsing remains with the domain.
 - `Effects/` — `EffectConst.js`, `EffectTable.js`, `WeatherEffect.js`, `EndureEffect.js` (effect 11's rows, motion in `Renderer/Effects/EndureSim.js`), `ArrowShowerEffects.js` (Arrow Shower's arrows to the cells around the target), `SoulStrikeEffect.js` (effect 15's rows, motion in `Renderer/Effects/SoulStrikeSim.js`).
 - `Items/` — `EquipmentLocation.js`, `HatTable.js`, `ItemEffect.js`, `ItemRandomOptionTable.js`, `ItemTable.js`, `ItemType.js`, `RobeTable.js`, `ShieldTable.js`, `WeaponHitSoundTable.js`, `WeaponSoundTable.js`, `WeaponTable.js`, `WeaponTrailTable.js`, `WeaponType.js`, `WeaponTypeExpansion.js`.
 - `Jobs/` — `AllMountTable.js`, `BabyTable.js`, `HairIndexTable.js`, `JobConst.js`, `JobHitSoundTable.js`, `JobNameTable.js`, `JobPropertyTable.js`, `MountTable.js`, `PalNameTable.js`, `RankingTypes.js`, `WeaponAction.js`, `WeaponJobTable.js`.

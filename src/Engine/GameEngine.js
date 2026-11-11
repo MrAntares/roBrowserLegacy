@@ -233,6 +233,7 @@ function onLoginServerSelected(index) {
 	) {
 		UIManager.removeComponents();
 		Network.close();
+		Configs.setServer(_servers[index]);
 		// Need to reload the files.
 		loadFiles(() => {
 			LoginEngine.setLoadedServer(_servers[index]);

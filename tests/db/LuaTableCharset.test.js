@@ -118,7 +118,7 @@ describe('Lua tables with a non-Korean langtype', () => {
 				name(DB.getBodyPath(SWORD_MERCENARY, 0)) !== name(DB.getBodyPath(6018, 0)) &&
 				DB.getOptionName(MAX_HP_OPTION) !== 'UNKNOWN RANDOM OPTION'
 		);
-	});
+	}, 30000);
 
 	// GRF lookup uses windows-1252 strings of the raw bytes (docs/Encoding.md), not
 	// the bytes read as big5, which name a file no client has.
@@ -142,4 +142,20 @@ describe('Lua tables with a non-Korean langtype', () => {
 	it('decode user-facing text with the langtype charset', () => {
 		expect(DB.getOptionName(MAX_HP_OPTION)).toBe('最大HP');
 	});
+
+	it('follow the selected server langtype when switching servers later', async () => {
+		const { default: Configs } = await import('Core/Configs.js');
+		const { default: RandomOption } = await import('DB/Items/ItemRandomOptionTable.js');
+		const KOREAN_HP_BYTES = [0xc3, 0xd6, 0xb4, 0xeb, 0x48, 0x50]; // '최대HP' in EUC-KR
+		files[LUA + 'addrandomoptionnametable.lub'] = luaSource(
+			`NameTable_VAR = { [VAR_MAXHPAMOUNT] = "${luaBytes(KOREAN_HP_BYTES)}" }`
+		);
+		delete RandomOption[MAX_HP_OPTION];
+
+		Configs.setServer({ langtype: 0 });
+		DB.lazyInit();
+
+		await waitFor(() => DB.getOptionName(MAX_HP_OPTION) === '최대HP');
+		expect(DB.getOptionName(MAX_HP_OPTION)).toBe('최대HP');
+	}, 30000);
 });

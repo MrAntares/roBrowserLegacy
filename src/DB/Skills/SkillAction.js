@@ -8,8 +8,8 @@
  *
  */
 
-import DB from 'DB/DBManager.js';
-import SK from './SkillConst.js';
+import { getSkillAttackSlice } from 'DB/Items/WeaponQueries.js';
+import SK from 'DB/Skills/SkillConst.js';
 
 const SkillAction = {};
 
@@ -71,7 +71,7 @@ const makeSliceAttackAction = (actionProp = 'ATTACK', startFrame = 0, length = 0
 
 		const job = entity && (typeof entity._job !== 'undefined' ? entity._job : entity.job);
 		const weapon = entity && (typeof entity.weapon !== 'undefined' ? entity.weapon : 0);
-		const hasSlice = job !== undefined ? DB.getAttackSlice(job, weapon) : true;
+		const hasSlice = job !== undefined ? getSkillAttackSlice(job, weapon) : true;
 
 		return {
 			action: entity && entity.ACTION && entity.ACTION[actionProp] !== undefined ? entity.ACTION[actionProp] : 0,

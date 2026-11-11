@@ -18,7 +18,7 @@ import Level99Bubble from 'Renderer/Effects/Level99Bubble.js';
 import SongEffects from 'Renderer/Effects/Songs.js';
 import SoundManager from 'Audio/SoundManager.js';
 import Events from 'Core/Events.js';
-import DB from 'DB/DBManager.js';
+import { getEffectJoke, getEffectScream } from 'DB/System/SystemDatabase.js';
 import Session from 'Engine/SessionStorage.js';
 import CloudWeatherEffect from 'Renderer/Effects/CloudWeatherEffect.js';
 import FlatColorTile from 'Renderer/Effects/FlatColorTile.js';
@@ -6414,7 +6414,7 @@ export default {
 			attachedEntity: true,
 			func: function (Params) {
 				if (Params.Init.ownerAID == Session.Entity.GID) {
-					const msg = DB.getRandomJoke();
+					const msg = getEffectJoke();
 					if (msg) {
 						ChatBox.onRequestTalk('', msg, ChatBox.TYPE.PUBLIC);
 					}
@@ -6430,7 +6430,7 @@ export default {
 			attachedEntity: true,
 			func: function (Params) {
 				if (Params.Init.ownerAID == Session.Entity.GID) {
-					const msg = DB.getRandomScream();
+					const msg = getEffectScream();
 					if (msg) {
 						ChatBox.onRequestTalk('', msg, ChatBox.TYPE.PUBLIC);
 					}

@@ -5,8 +5,8 @@ import PACKET from 'Network/PacketStructure.js';
 import PACKETVER from 'Network/PacketVerManager.js';
 import SkillInfo from 'DB/Skills/SkillInfo.js';
 import EntityManager from 'Renderer/EntityManager.js';
-import Configs from './Configs.js';
-import LuaModuleLoader from './LuaModuleLoader.js';
+import Configs from 'Core/Configs.js';
+import LuaModuleLoader from 'Core/LuaModuleLoader.js';
 import UIManager from 'UI/UIManager.js';
 import TextEncoding from 'Utils/CodepageManager.js';
 
@@ -426,7 +426,8 @@ class AIDriver {
 		addCTX(AIDriver.MER_AI, false);
 	}
 
-	static initAI = async onEnd => {
+	static initAI = async (onEnd, isCurrent = () => true) => {
+		if (!isCurrent()) return;
 		AIDriver.ready = false;
 
 		const defaultAISearchPaths = [
@@ -467,12 +468,14 @@ class AIDriver {
 			await LuaModuleLoader.loadAndExecuteFiles(AIDriver.default_HO_AI, defaultHoFiles, {
 				searchPaths: defaultAISearchPaths
 			});
+			if (!isCurrent()) return;
 
 			console.log('Loading Default MERAI...');
 			const defaultMerFiles = ['AI/Util.lua', 'AI/Const.lua', 'AI/AI_M.lua'];
 			await LuaModuleLoader.loadAndExecuteFiles(AIDriver.default_MER_AI, defaultMerFiles, {
 				searchPaths: defaultAISearchPaths
 			});
+			if (!isCurrent()) return;
 
 			try {
 				console.log('Loading Custom HOAI...');
@@ -480,7 +483,9 @@ class AIDriver {
 				await LuaModuleLoader.loadAndExecuteFiles(AIDriver.HO_AI, customHoFiles, {
 					searchPaths: customAISearchPaths
 				});
+				if (!isCurrent()) return;
 			} catch (customHoError) {
+				if (!isCurrent()) return;
 				if (customHoError && customHoError.code === 'LUA_FILE_NOT_FOUND') {
 					console.warn(
 						'[AIDriver] Custom HO USER_AI files not available, falling back to default HO AI:',
@@ -501,7 +506,9 @@ class AIDriver {
 				await LuaModuleLoader.loadAndExecuteFiles(AIDriver.MER_AI, customMerFiles, {
 					searchPaths: customAISearchPaths
 				});
+				if (!isCurrent()) return;
 			} catch (customMerError) {
+				if (!isCurrent()) return;
 				if (customMerError && customMerError.code === 'LUA_FILE_NOT_FOUND') {
 					console.warn(
 						'[AIDriver] Custom MER USER_AI files not available, falling back to default MER AI:',
@@ -516,6 +523,7 @@ class AIDriver {
 				AIDriver.MER_AI = AIDriver.default_MER_AI;
 			}
 		} catch (error) {
+			if (!isCurrent()) return;
 			if (error && error.code === 'LUA_FILE_NOT_FOUND') {
 				console.warn('[AIDriver] AI files not available, skipping AI initialization:', error.message || error);
 			} else {

@@ -11,13 +11,25 @@
 
 // Load dependencies
 import Executable from 'Utils/Executable.js';
-import Configs from './Configs.js';
-import Thread from './Thread.js';
-import Memory from './MemoryManager.js';
+import Configs from 'Core/Configs.js';
+import Thread from 'Core/Thread.js';
+import Memory from 'Core/MemoryManager.js';
 import PACKETVER from 'Network/PacketVerManager.js';
 import Texture from 'Utils/Texture.js';
 import WebGL from 'Utils/WebGL.js';
 import GraphicsSettings from 'Preferences/Graphics.js';
+
+// Raw tables are tied to a client archive, even when their paths are identical.
+const DB_FILE_PATTERN = /\.(?:lua|lub|txt|csv|xml|bson|otf)$/i;
+let dbFileGeneration = 0;
+
+function cacheResponseFor(filename, callback) {
+	const generation = dbFileGeneration;
+	return function (data, error, input) {
+		if (DB_FILE_PATTERN.test(filename) && generation !== dbFileGeneration) return;
+		callback(data, error, input);
+	};
+}
 
 class Client {
 	/**
@@ -69,7 +81,7 @@ class Client {
 	 */
 	static getFile(filename, onload, onerror, args) {
 		if (!Memory.exist(filename)) {
-			Thread.send('GET_FILE', { filename, args: args || null }, onFileGetted);
+			Thread.send('GET_FILE', { filename, args: args || null }, cacheResponseFor(filename, onFileGetted));
 		}
 
 		return Memory.get(filename, onload, onerror);
@@ -114,10 +126,18 @@ class Client {
 	 */
 	static loadFile(filename, onload, onerror, args = {}) {
 		if (!Memory.exist(filename)) {
-			Thread.send('LOAD_FILE', { filename, args: args || null }, onFileLoaded);
+			Thread.send('LOAD_FILE', { filename, args: args || null }, cacheResponseFor(filename, onFileLoaded));
 		}
 
 		return Memory.get(filename, onload, onerror);
+	}
+
+	/** Discard raw archive tables and prevent older in-flight responses from repopulating the cache. */
+	static invalidateDBFiles() {
+		dbFileGeneration++;
+		for (const filename of Memory.search(DB_FILE_PATTERN)) {
+			Memory.remove(null, filename);
+		}
 	}
 
 	/**
