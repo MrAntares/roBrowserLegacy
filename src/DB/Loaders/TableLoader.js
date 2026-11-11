@@ -4,8 +4,7 @@ import XmlParse from 'Vendors/xmlparse.js';
 import { BSON } from 'bson';
 
 export function createTableLoaders(getUserCharpage) {
-	const resolveUserCharpage =
-		typeof getUserCharpage === 'function' ? getUserCharpage : () => getUserCharpage;
+	const resolveUserCharpage = typeof getUserCharpage === 'function' ? getUserCharpage : () => getUserCharpage;
 	function loadTable(filename, separator, size, callback, onEnd, useCharPage = false) {
 		Client.loadFile(
 			filename,

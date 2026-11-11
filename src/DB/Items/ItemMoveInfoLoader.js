@@ -3,8 +3,7 @@ import TextEncoding from 'Utils/CodepageManager.js';
 import ItemTable from 'DB/Items/ItemTable.js';
 
 export function loadMoveInfoTable(getUserCharpage, onEnd) {
-	const resolveUserCharpage =
-		typeof getUserCharpage === 'function' ? getUserCharpage : () => getUserCharpage;
+	const resolveUserCharpage = typeof getUserCharpage === 'function' ? getUserCharpage : () => getUserCharpage;
 	const { loadFile, guard } = createDBFileContext();
 	onEnd = guard(onEnd);
 	loadFile(

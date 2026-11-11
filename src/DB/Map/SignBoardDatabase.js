@@ -3,8 +3,7 @@ import { createDBLoadContext } from 'DB/Loaders/DBLoadContext.js';
 
 export function createSignBoardDatabase(getUserCharpage) {
 	const userStringDecoder = TextEncoding;
-	const resolveUserCharpage =
-		typeof getUserCharpage === 'function' ? getUserCharpage : () => getUserCharpage;
+	const resolveUserCharpage = typeof getUserCharpage === 'function' ? getUserCharpage : () => getUserCharpage;
 	const SignBoardTranslatedTable = {};
 	let SignBoardTable = {};
 	function loadSignBoardData(filename, callback, onEnd) {

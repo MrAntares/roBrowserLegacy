@@ -71,8 +71,7 @@ export function getEffectScream() {
 
 export function createSystemDatabase(DB, getUserCharpage) {
 	const userStringDecoder = TextEncoding;
-	const resolveUserCharpage =
-		typeof getUserCharpage === 'function' ? getUserCharpage : () => getUserCharpage;
+	const resolveUserCharpage = typeof getUserCharpage === 'function' ? getUserCharpage : () => getUserCharpage;
 	function loadAttendanceFile(filename, callback, onEnd) {
 		const { lua, loadFile, guard } = createDBLoadContext();
 		callback = guard(callback);

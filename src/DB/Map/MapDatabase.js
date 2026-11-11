@@ -52,8 +52,7 @@ export function setLegacyMapName(_index, key, value) {
 
 export function createMapDatabase(DB, getUserCharpage) {
 	const userStringDecoder = TextEncoding;
-	const resolveUserCharpage =
-		typeof getUserCharpage === 'function' ? getUserCharpage : () => getUserCharpage;
+	const resolveUserCharpage = typeof getUserCharpage === 'function' ? getUserCharpage : () => getUserCharpage;
 	function setMapAlias(_index, key, value) {
 		DB.mapalias[key] = value;
 	}

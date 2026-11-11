@@ -4,8 +4,7 @@ import { lua, getLuaGeneration } from 'DB/Loaders/LuaRuntime.js';
 
 export function createLuaTableLoaders(getUserCharpage, grfCharpage) {
 	const userStringDecoder = TextEncoding;
-	const resolveUserCharpage =
-		typeof getUserCharpage === 'function' ? getUserCharpage : () => getUserCharpage;
+	const resolveUserCharpage = typeof getUserCharpage === 'function' ? getUserCharpage : () => getUserCharpage;
 	function loadLuaTable(file_list, table_name, callback, onEnd, contextFunc, useCharPage = true) {
 		const instance = lua;
 		const generation = getLuaGeneration();

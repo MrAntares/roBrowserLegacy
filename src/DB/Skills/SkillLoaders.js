@@ -8,8 +8,7 @@ import { resetSkillTree, keepBuiltInSkills } from 'DB/Skills/SkillTreeMerge.js';
 
 export function createSkillLoaders(DB, getUserCharpage) {
 	const userStringDecoder = TextEncoding;
-	const resolveUserCharpage =
-		typeof getUserCharpage === 'function' ? getUserCharpage : () => getUserCharpage;
+	const resolveUserCharpage = typeof getUserCharpage === 'function' ? getUserCharpage : () => getUserCharpage;
 	function loadSkillInfoList(filename, callback, onEnd) {
 		const { lua, loadFile, guard } = createDBLoadContext();
 		callback = guard(callback);

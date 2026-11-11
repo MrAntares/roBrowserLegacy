@@ -12,8 +12,7 @@ function clearTable(table) {
 
 export function createItemDatabase(DB, getUserCharpage, MsgStringTable) {
 	const userStringDecoder = TextEncoding;
-	const resolveUserCharpage =
-		typeof getUserCharpage === 'function' ? getUserCharpage : () => getUserCharpage;
+	const resolveUserCharpage = typeof getUserCharpage === 'function' ? getUserCharpage : () => getUserCharpage;
 	const buyingStoreItemList = new Array();
 	function parseBuyingStoreItem(_index, key) {
 		buyingStoreItemList.push(parseInt(key, 10));

@@ -6,8 +6,7 @@ import StatusInfo from 'DB/Status/StatusInfo.js';
 const userStringDecoder = TextEncoding;
 
 export function loadStateIconInfo(basePath, callback, onEnd, getUserCharpage) {
-	const resolveUserCharpage =
-		typeof getUserCharpage === 'function' ? getUserCharpage : () => getUserCharpage;
+	const resolveUserCharpage = typeof getUserCharpage === 'function' ? getUserCharpage : () => getUserCharpage;
 	const { lua, loadFile, guard } = createDBLoadContext();
 	callback = guard(callback);
 	onEnd = guard(onEnd);

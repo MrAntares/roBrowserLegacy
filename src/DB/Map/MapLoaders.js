@@ -6,8 +6,7 @@ import PrivateAirship from 'DB/Map/PrivateAirship.js';
 
 export function createMapLoaders(getUserCharpage) {
 	const userStringDecoder = TextEncoding;
-	const resolveUserCharpage =
-		typeof getUserCharpage === 'function' ? getUserCharpage : () => getUserCharpage;
+	const resolveUserCharpage = typeof getUserCharpage === 'function' ? getUserCharpage : () => getUserCharpage;
 	function loadWorldMapInfo(basePath, onEnd) {
 		const { lua, loadFile, guard } = createDBLoadContext();
 		onEnd = guard(onEnd);
