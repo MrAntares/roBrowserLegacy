@@ -35,10 +35,10 @@ For architecture, conventions, and subsystem details, see [AGENTS.md](AGENTS.md)
 
 ### 🟢 Nice to have — Always Suggest but don't block
 
-| Area                   | What to check                                                                                                                                                                                                        |
-| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Modernize on touch** | Legacy patterns (`constructor functions`, `var`, string concatenation, etc.) should be modernized when the file is already being changed. See [docs/Architecture.md](docs/Architecture.md) for the conversion table. |
-| **Test coverage**      | New utilities and loaders should include tests. Tests go in `tests/` mirroring `src/` structure.                                                                                                                     |
+| Area                   | What to check                                                                                                                                                                                                                   |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Modernize on touch** | Legacy patterns (`constructor functions`, `var`, string concatenation, etc.) should be modernized when the file is already being changed. See [docs/Architecture.md](docs/Architecture.md) for the conversion table.            |
+| **Test coverage**      | Only Loaders, Utils, and DB Constants should include Vitest unit tests (placed in `tests/` mirroring `src/`). NEVER test UI, rendering, or network flows with Vitest. These require real in-game inspection; Vitest is not E2E. |
 
 ### ✅ No Issues Found
 

@@ -76,69 +76,66 @@ export function createDBLoadPlan(DB, context) {
 		userCharpage
 	} = context;
 	const resolveUserCharpage = getUserCharpage ?? userCharpage;
-	function loadInitial(onLoad, isCurrent) {
-		loadFontFromClient('System/Font/');
-
-		// Loading TXT Tables
-		loadTable(
-			'data/mp3nametable.txt',
-			'#',
-			2,
-			function (_index, key, val) {
-				if (!isCurrent()) return;
-				setLegacyMapMusic(_index, key, val);
-			},
-			onLoad()
-		);
-		loadTable(
-			'data/mapnametable.txt',
-			'#',
-			2,
-			function (_index, key, val) {
-				if (!isCurrent()) return;
-				setLegacyMapName(_index, key, val);
-			},
-			onLoad(),
-			true
-		);
-		const loadmsg = onLoad();
-		loadTable(
-			'data/msgstringtable.txt',
-			'#',
-			1,
-			(_index, val) => {
-				if (!isCurrent()) return;
-				setMessageRow(_index, val);
-			},
-			() => {
-				if (isCurrent()) loadCSV('data/msgstringtable.csv', MsgStringTable, 0, 1, loadmsg, isCurrent);
-			},
-			true
-		);
-
-		loadTable(
-			'data/resnametable.txt',
-			'#',
-			2,
-			function (_index, key, val) {
-				if (!isCurrent()) return;
-				setMapAlias(_index, key, val);
-			},
-			onLoad()
-		);
-	}
 	function loadLazy(onLoad, isCurrent) {
 		const guard =
 			callback =>
 			(...args) => {
 				if (isCurrent() && callback) return callback(...args);
 			};
+
+		loadFontFromClient('System/Font/');
+
 		const guardedLoadTable = (file, separator, size, row, done, useCharPage) =>
 			loadTable(file, separator, size, guard(row), guard(done), useCharPage);
 		const guardedLoadCSV = (file, target, key, value, done) =>
 			loadCSV(file, target, key, value, guard(done), isCurrent);
 		const guardedLoadXMLFile = (file, callback, done) => loadXMLFile(file, guard(callback), guard(done));
 		const guardedLoadBSONFile = (file, target, done) => loadBSONFile(file, target, guard(done), isCurrent);
+
+		// Loading TXT Tables
+		guardedLoadTable(
+			'data/mp3nametable.txt',
+			'#',
+			2,
+			function (_index, key, val) {
+				setLegacyMapMusic(_index, key, val);
+			},
+			onLoad()
+		);
+		guardedLoadTable(
+			'data/mapnametable.txt',
+			'#',
+			2,
+			function (_index, key, val) {
+				setLegacyMapName(_index, key, val);
+			},
+			onLoad(),
+			true
+		);
+		if (PACKETVER.value >= 20230302) {
+			guardedLoadCSV('data/msgstringtable.csv', MsgStringTable, 0, 1, onLoad());
+		} else {
+			guardedLoadTable(
+				'data/msgstringtable.txt',
+				'#',
+				1,
+				(_index, val) => {
+					setMessageRow(_index, val);
+				},
+				onLoad(),
+				true
+			);
+		}
+
+		guardedLoadTable(
+			'data/resnametable.txt',
+			'#',
+			2,
+			function (_index, key, val) {
+				setMapAlias(_index, key, val);
+			},
+			onLoad()
+		);
 		// CSV Tables - Client Date is not sure since when they were added
 		if (PACKETVER.value >= 20230302) {
 			guardedLoadCSV('data/simplemsg/msg_emotion.csv', MsgEmotionCSV, 0, 2, onLoad());
@@ -149,13 +146,14 @@ export function createDBLoadPlan(DB, context) {
 			let iteminfoNames = [];
 			const customII = Configs.get('customItemInfo', []);
 
+			const guardedLoadItemInfo = (file, callback, done) => loadItemInfo(file, guard(callback), guard(done));
 			if (Array.isArray(customII) && customII.length > 0) {
 				// add custom client info table
 				iteminfoNames = iteminfoNames.concat(customII);
-				tryLoadLuaAliases(loadItemInfo, iteminfoNames, null, onLoad(), true);
+				tryLoadLuaAliases(guardedLoadItemInfo, iteminfoNames, null, onLoad(), true);
 			} else {
 				iteminfoNames = iteminfoNames.concat(getSystemAliases('System/itemInfo.lub'));
-				tryLoadLuaAliases(loadItemInfo, iteminfoNames, null, onLoad());
+				tryLoadLuaAliases(guardedLoadItemInfo, iteminfoNames, null, onLoad());
 			}
 
 			loadLuaTable(
@@ -525,5 +523,5 @@ export function createDBLoadPlan(DB, context) {
 				onAIDriverLoaded();
 			});
 	}
-	return { loadInitial, loadLazy };
+	return { loadLazy };
 }

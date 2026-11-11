@@ -909,6 +909,10 @@ class RainWeatherEffect {
 				overlayB = 1.0;
 				overlayA = flashAlpha; // Balanced alpha for the environment
 			}
+			RainLightning.setLightning(
+				_lightningFrame ? _lightningFrame.texture : null,
+				this.isFlashing ? flashAlpha : 0
+			);
 		}
 
 		// Overlay pass - apply grey/thunder tint via post-process GPU pipeline.
@@ -917,18 +921,8 @@ class RainWeatherEffect {
 			const tail = Math.max(0, Math.min(1, (this.endTick - tick) / FADEOUT_TAIL_MS));
 			overlayA *= tail;
 		}
-		RainOverlay.setOverlay(overlayR, overlayG, overlayB, overlayA);
 
-		// --- Update Post-Process Procedural Sky Lightning ---
-		let boltAlpha = 0;
-		if (this.isFlashing && _lightningFrame) {
-			const elapsed = now - this.flashStartTime;
-			// The lightning appears quickly during the initial flash envelope
-			if (elapsed < 200) {
-				boltAlpha = Math.min(1.0, (200 - elapsed) / 100);
-			}
-		}
-		RainLightning.setLightning(_lightningFrame ? _lightningFrame.texture : null, boltAlpha);
+		RainOverlay.setOverlay(overlayR, overlayG, overlayB, overlayA);
 
 		// Rain drop generation and update
 		let remaining = Infinity;

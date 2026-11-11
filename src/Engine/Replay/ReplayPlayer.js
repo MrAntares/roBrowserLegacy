@@ -132,25 +132,6 @@ export default class ReplayPlayer {
 			throw new Error('No replay loaded');
 		}
 
-		// Wait for DB to be ready
-		if (!DB.isLoaded) {
-			if (!DB.startedLazyInit) {
-				DB.lazyInit();
-				DB.startedLazyInit = true;
-			}
-			this._retryCount = (this._retryCount || 0) + 1;
-			if (this._retryCount > 600) {
-				console.error('[Replay] Failed loading databases.');
-				this._retryCount = 0;
-				DB.startedLazyInit = false;
-				return;
-			}
-			setTimeout(() => this.start(), 100);
-			return;
-		}
-		this._retryCount = 0;
-		DB.startedLazyInit = false;
-
 		// Reset cursors
 		this._initialGroupIndex = 0;
 		this._initialChunkIndex = 0;

@@ -60,18 +60,11 @@ class DB {
 	 */
 	static UpdateOwnerName = {};
 
-	/**
-	 * Initialize DB
-	 */
-	static init() {
-		return bootstrap.init(...arguments);
-	}
-
 	static isLoaded = false;
 	static count = 0;
 	static index = 0;
 	static async lazyInit() {
-		return bootstrap.lazyInit(...arguments);
+		return await bootstrap.lazyInit(...arguments);
 	}
 	static getHOAI_VM() {
 		return HO_AI;

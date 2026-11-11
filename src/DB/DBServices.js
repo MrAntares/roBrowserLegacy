@@ -70,13 +70,12 @@ export function createDBServices(DB) {
 		() => DB.getRandomScream()
 	);
 	const SexTable = ['\xbf\xa9', '\xb3\xb2'];
-	function getUserCharpage() {
+	const getUserCharpage = () => {
+		if (DB.userCharpage) return DB.userCharpage;
 		const servers = Configs.get('servers', []);
-		const defaultLangType = Array.isArray(servers) && servers[0] ? servers[0].langtype : 0;
-		const rawLangType = Configs.get('langtype', defaultLangType);
-		const langType = rawLangType ? parseInt(rawLangType, 0) : 0;
+		const langType = Configs.get('langtype', servers[0]?.langtype ?? 0);
 		return TextEncoding.detectEncodingByLangtype(langType, Configs.get('disableKorean'));
-	}
+	};
 	const grfCharpage = 'windows-1252';
 	TextEncoding.setCharset(grfCharpage);
 	const { loadTable, loadCSV, loadXMLFile, loadBSONFile } = createTableLoaders(getUserCharpage);
@@ -206,3 +205,4 @@ export function createDBServices(DB) {
 		bootstrap
 	};
 }
+
