@@ -124,7 +124,7 @@ class LoginEngine {
 				if (remoteClient) {
 					Background.setLoginBackground(); // remove loading
 					q._next();
-				} else Thread.send('CLIENT_FILES_ALIAS', DB.mapalias);
+				}
 				LoginEngine.init(server);
 			};
 			DB.lazyInit();
