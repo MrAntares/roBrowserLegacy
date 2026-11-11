@@ -121,10 +121,6 @@ class LoginEngine {
 			};
 			DB.onReady = () => {
 				DB.startedLazyInit = false;
-				if (remoteClient) {
-					Background.setLoginBackground(); // remove loading
-					q._next();
-				}
 				LoginEngine.init(server);
 			};
 			DB.lazyInit();
