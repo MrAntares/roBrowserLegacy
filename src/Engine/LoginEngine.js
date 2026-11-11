@@ -123,7 +123,10 @@ class LoginEngine {
 				DB.startedLazyInit = false;
 				LoginEngine.init(server);
 			};
-			DB.lazyInit();
+			DB.lazyInit().catch()(e => {
+				DB.startedLazyInit = false;
+				UIManager.showErrorBox('Failed to start Database');
+			});
 			return;
 		}
 
@@ -937,3 +940,4 @@ function onServerClosed(pkt) {
  * Export
  */
 export default LoginEngine;
+
