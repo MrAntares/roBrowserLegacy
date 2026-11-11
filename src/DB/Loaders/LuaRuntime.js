@@ -82,10 +82,3 @@ export async function startLua(createVMs = createLuaVMs) {
 	return true;
 }
 
-export function resetLua() {
-	lua = null;
-	HO_AI = null;
-	MER_AI = null;
-	default_HO_AI = null;
-	default_MER_AI = null;
-}

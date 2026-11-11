@@ -31,7 +31,6 @@ import WinList from 'UI/Components/WinList/WinList.js';
 import ConsoleManager from 'Utils/ConsoleManager.js';
 import TextEncoding from 'Utils/CodepageManager.js';
 import { roInitSpinner } from 'App/PreLoader.js';
-import { resetLua } from 'DB/Loaders/LuaRuntime.js';
 
 /**
  * @var {Array} Login server list
@@ -233,7 +232,7 @@ function onLoginServerSelected(index) {
 		Configs.setServer(_servers[index]);
 		DB.isLoaded = false;
 		DB.startedLazyInit = false;
-		resetLua();
+
 		// Need to reload the files.
 		loadFiles(() => {
 			onReadyLoginServer(index);

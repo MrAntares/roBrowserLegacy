@@ -1,9 +1,11 @@
-import { lua as currentLua } from 'DB/Loaders/LuaRuntime.js';
+import { lua as currentLua, getLuaGeneration } from 'DB/Loaders/LuaRuntime.js';
 
 /** Capture the VM as well, so a load cannot continue against a newer client. */
 export function createDBLoadContext() {
 	const instance = currentLua;
 	let guardedContext;
+	const gen = getLuaGeneration();
+	const alive = () => gen === getLuaGeneration();
 	const lua = new Proxy(instance, {
 		get(target, key) {
 			if (key === 'ctx') {
@@ -13,7 +15,7 @@ export function createDBLoadContext() {
 							context[name] =
 								typeof value === 'function'
 									? function (...args) {
-											return value.apply(this, args);
+											if (alive()) return value.apply(this, args);
 										}
 									: value;
 							return true;
@@ -29,6 +31,7 @@ export function createDBLoadContext() {
 				const result = value.apply(target, args);
 				if (result && typeof result.then === 'function')
 					return Promise.resolve(result).then(output => {
+						if (!alive()) throw new Error('stale lua load');
 						return output;
 					});
 				return result;
