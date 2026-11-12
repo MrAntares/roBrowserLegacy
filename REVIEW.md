@@ -46,6 +46,23 @@ When no bugs are found, confirm explicitly that the PR was reviewed and no issue
 
 ---
 
+## DB / Lua runtime – concurrent execution
+
+- `DB.lazyInit` NEVER runs in parallel. It is protected by the `DB.startedLazyInit` flag
+  in `src/Engine/LoginEngine.js` (`LoginEngine.init`). This flag is only released
+  within `DB.onReady` or the `catch` block of `lazyInit`.
+- Once loading begins, the player cannot interact with the game, return to the
+  server selection screen, or switch servers until the loading process is complete.
+- Therefore, do NOT flag issues such as "switching servers during loading,"
+  "overlapping `startLua` calls," "an outdated tracker invoking `DB.onReady`," or the
+  absence of generation/invalidation counters in `src/DB/Loaders/LuaRuntime.js` and
+  `src/DB/Bootstrap/DBBootstrap.js`.
+- Only raise a concern if a PR introduces a new code path that calls
+  `DB.lazyInit`/`startLua` without passing through the `DB.startedLazyInit` gate,
+  or if it removes/modifies this gate.
+
+---
+
 ## JavaScript Modernization Review Guidelines
 
 When reviewing code check modernized the code are already changed when doing so is safe and behavior-preserving. Do **not** flag modernization outside of code changed.
