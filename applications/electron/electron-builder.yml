@@ -28,7 +28,7 @@ win:
 linux:
     target:
         - dir
-    icon: applications/electron/icon.ico
+    icon: applications/electron/icon.png
 
 mac:
     target:
