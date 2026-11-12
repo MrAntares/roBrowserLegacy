@@ -34,7 +34,7 @@ Weather.sky['thana_boss.rsw'] = { skyColor: [0.88, 0.83, 0.76, 1.0], cloudColor:
 Weather.effects['xmas.rsw'] = { weather: 'snow' };
 Weather.effects['comodo.rsw'] = { weather: 'fireworks' };
 Weather.effects['einbroch.rsw'] = { weather: 'cloud3' };
-//Weather.effects['payon.rsw'] = { weather: 'rain' };
+Weather.effects['payon.rsw'] = { weather: 'rain' };
 
 /**
  * Export

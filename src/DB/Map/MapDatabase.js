@@ -1,6 +1,6 @@
 import Client from 'Core/Client.js';
 import TextEncoding from 'Utils/CodepageManager.js';
-import { lua, getLuaGeneration } from 'DB/Loaders/LuaRuntime.js';
+import { lua } from 'DB/Loaders/LuaRuntime.js';
 import MapInfo from 'DB/Map/MapTable.js';
 import TownInfo from 'DB/TownInfo.js';
 

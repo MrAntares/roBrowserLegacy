@@ -1,5 +1,5 @@
 import TextEncoding from 'Utils/CodepageManager.js';
-import { createDBLoadContext } from 'DB/Loaders/DBLoadContext.js';
+import { lua } from 'DB/Loaders/LuaRuntime.js';
 import Client from 'Core/Client.js';
 
 export const MsgStringTable = [];
@@ -74,7 +74,6 @@ export function createSystemDatabase(DB, getUserCharpage) {
 	const userStringDecoder = TextEncoding;
 	const resolveUserCharpage = typeof getUserCharpage === 'function' ? getUserCharpage : () => getUserCharpage;
 	function loadAttendanceFile(filename, callback, onEnd) {
-		const { lua } = createDBLoadContext();
 
 		Client.loadFile(
 			filename,
@@ -113,7 +112,6 @@ export function createSystemDatabase(DB, getUserCharpage) {
 	}
 
 	function loadTitleTable(filename, callback, onEnd) {
-		const { lua } = createDBLoadContext();
 
 		Client.loadFile(
 			filename,
@@ -158,7 +156,6 @@ export function createSystemDatabase(DB, getUserCharpage) {
 	}
 
 	function loadQuestInfo(filename, callback, onEnd) {
-		const { lua } = createDBLoadContext();
 
 		const loadPromise = new Promise((resolve, reject) => {
 			Client.loadFile(filename, resolve, reject);
@@ -311,7 +308,6 @@ export function createSystemDatabase(DB, getUserCharpage) {
 	}
 
 	function loadCashShopBanner(filename, callback, onEnd) {
-		const { lua } = createDBLoadContext();
 
 		Client.loadFile(
 			filename,

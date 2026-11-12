@@ -1,5 +1,5 @@
 import TextEncoding from 'Utils/CodepageManager.js';
-import { createDBLoadContext } from 'DB/Loaders/DBLoadContext.js';
+import { lua } from 'DB/Loaders/LuaRuntime.js';
 import SC from 'DB/Status/StatusConst.js';
 import StatusInfo from 'DB/Status/StatusInfo.js';
 import Client from 'Core/Client.js';
@@ -8,7 +8,6 @@ const userStringDecoder = TextEncoding;
 
 export function loadStateIconInfo(basePath, callback, onEnd, getUserCharpage) {
 	const resolveUserCharpage = typeof getUserCharpage === 'function' ? getUserCharpage : () => getUserCharpage;
-	const { lua } = createDBLoadContext();
 
 	const files = ['efstids.lub', 'stateiconimginfo.lub', 'stateiconinfo.lub'];
 

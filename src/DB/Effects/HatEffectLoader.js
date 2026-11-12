@@ -1,5 +1,5 @@
 import TextEncoding from 'Utils/CodepageManager.js';
-import { createDBLoadContext } from 'DB/Loaders/DBLoadContext.js';
+import { lua } from 'DB/Loaders/LuaRuntime.js';
 import Client from 'Core/Client.js';
 
 const userStringDecoder = TextEncoding;
@@ -12,8 +12,6 @@ export function getHatResource(id) {
 }
 
 export function loadHatEffectInfo(luaPath, onEnd) {
-	const { lua } = createDBLoadContext();
-
 	const basePath = luaPath + 'hateffectinfo/';
 	const idFile = basePath + 'hateffectids.lub';
 	const infoFile = basePath + 'hateffectinfo.lub';

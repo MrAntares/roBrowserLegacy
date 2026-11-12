@@ -9,7 +9,6 @@ import Configs from 'Core/Configs.js';
 import LuaModuleLoader from 'Core/LuaModuleLoader.js';
 import UIManager from 'UI/UIManager.js';
 import TextEncoding from 'Utils/CodepageManager.js';
-import { getLuaGeneration } from 'DB/Loaders/LuaRuntime.js';
 
 const msg = {};
 const resMsg = {};
@@ -429,8 +428,6 @@ class AIDriver {
 
 	static initAI = async onEnd => {
 		AIDriver.ready = false;
-		const gen = getLuaGeneration();
-		const alive = () => gen === getLuaGeneration();
 		const defaultAISearchPaths = [
 			'./?.lua',
 			'./?.lub',
@@ -469,20 +466,19 @@ class AIDriver {
 			await LuaModuleLoader.loadAndExecuteFiles(AIDriver.default_HO_AI, defaultHoFiles, {
 				searchPaths: defaultAISearchPaths
 			});
-			if (!alive()) return;
+
 			console.log('Loading Default MERAI...');
 			const defaultMerFiles = ['AI/Util.lua', 'AI/Const.lua', 'AI/AI_M.lua'];
 			await LuaModuleLoader.loadAndExecuteFiles(AIDriver.default_MER_AI, defaultMerFiles, {
 				searchPaths: defaultAISearchPaths
 			});
-			if (!alive()) return;
+
 			try {
 				console.log('Loading Custom HOAI...');
 				const customHoFiles = ['AI/USER_AI/Util.lua', 'AI/USER_AI/Const.lua', 'AI/USER_AI/AI.lua'];
 				await LuaModuleLoader.loadAndExecuteFiles(AIDriver.HO_AI, customHoFiles, {
 					searchPaths: customAISearchPaths
 				});
-				if (!alive()) return;
 			} catch (customHoError) {
 				if (customHoError && customHoError.code === 'LUA_FILE_NOT_FOUND') {
 					console.warn(
@@ -504,7 +500,6 @@ class AIDriver {
 				await LuaModuleLoader.loadAndExecuteFiles(AIDriver.MER_AI, customMerFiles, {
 					searchPaths: customAISearchPaths
 				});
-				if (!alive()) return;
 			} catch (customMerError) {
 				if (customMerError && customMerError.code === 'LUA_FILE_NOT_FOUND') {
 					console.warn(
@@ -530,7 +525,7 @@ class AIDriver {
 			}
 			return;
 		}
-		if (!alive()) return;
+
 		AIDriver.ready = true;
 
 		if (typeof onEnd === 'function') {

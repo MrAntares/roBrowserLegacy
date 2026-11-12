@@ -1,5 +1,5 @@
 import TextEncoding from 'Utils/CodepageManager.js';
-import { createDBLoadContext } from 'DB/Loaders/DBLoadContext.js';
+import { lua } from 'DB/Loaders/LuaRuntime.js';
 import JobId from 'DB/Jobs/JobConst.js';
 import SKID from 'DB/Skills/SkillConst.js';
 import SkillInfo from 'DB/Skills/SkillInfo.js';
@@ -11,7 +11,6 @@ export function createSkillLoaders(DB, getUserCharpage) {
 	const userStringDecoder = TextEncoding;
 	const resolveUserCharpage = typeof getUserCharpage === 'function' ? getUserCharpage : () => getUserCharpage;
 	function loadSkillInfoList(filename, callback, onEnd) {
-		const { lua } = createDBLoadContext();
 
 		Client.loadFile(
 			filename,
@@ -175,7 +174,6 @@ export function createSkillLoaders(DB, getUserCharpage) {
 	}
 
 	function loadSkillTreeView(filename, callback, onEnd) {
-		const { lua } = createDBLoadContext();
 
 		// First load jobinheritlist.lub
 		Client.loadFile(
@@ -201,7 +199,6 @@ export function createSkillLoaders(DB, getUserCharpage) {
 	}
 
 	function loadSkillTreeViewData(filename, callback, onEnd) {
-		const { lua } = createDBLoadContext();
 
 		// Start from the built-in layout every time, so a second client loaded
 		// after a server switch never inherits the first one's placements.

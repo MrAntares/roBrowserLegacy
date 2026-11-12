@@ -1,5 +1,5 @@
 import TextEncoding from 'Utils/CodepageManager.js';
-import { createDBLoadContext } from 'DB/Loaders/DBLoadContext.js';
+import { lua } from 'DB/Loaders/LuaRuntime.js';
 import WeaponTable from 'DB/Items/WeaponTable.js';
 import WeaponHitSoundTable from 'DB/Items/WeaponHitSoundTable.js';
 import WeaponTypeExpansion from 'DB/Items/WeaponTypeExpansion.js';
@@ -8,7 +8,6 @@ import Client from 'Core/Client.js';
 const userStringDecoder = TextEncoding;
 
 export function loadWeaponTable(filename, callback, onEnd) {
-	const { lua } = createDBLoadContext();
 
 	Client.loadFile(
 		filename,

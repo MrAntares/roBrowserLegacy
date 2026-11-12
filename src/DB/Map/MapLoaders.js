@@ -1,5 +1,5 @@
 import TextEncoding from 'Utils/CodepageManager.js';
-import { createDBLoadContext } from 'DB/Loaders/DBLoadContext.js';
+import { lua } from 'DB/Loaders/LuaRuntime.js';
 import WorldMap from 'DB/Map/WorldMap.js';
 import TownInfo from 'DB/TownInfo.js';
 import PrivateAirship from 'DB/Map/PrivateAirship.js';
@@ -9,7 +9,6 @@ export function createMapLoaders(getUserCharpage) {
 	const userStringDecoder = TextEncoding;
 	const resolveUserCharpage = typeof getUserCharpage === 'function' ? getUserCharpage : () => getUserCharpage;
 	function loadWorldMapInfo(basePath, onEnd) {
-		const { lua } = createDBLoadContext();
 
 		const files = ['worldviewdata_language.lub', 'worldviewdata_list.lub', 'worldviewdata_table.lub'];
 
@@ -197,7 +196,6 @@ export function createMapLoaders(getUserCharpage) {
 	}
 
 	function loadTownInfoFile(filename, callback, onEnd) {
-		const { lua } = createDBLoadContext();
 
 		Client.loadFile(
 			filename,
@@ -239,7 +237,6 @@ export function createMapLoaders(getUserCharpage) {
 	}
 
 	function loadPrivateAirship(filename, callback, onEnd) {
-		const { lua } = createDBLoadContext();
 
 		Client.loadFile(
 			filename,
