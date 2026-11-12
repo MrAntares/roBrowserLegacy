@@ -20,7 +20,7 @@ export function attachDraggable(component, handle) {
 	const SNAP_DISTANCE = 10;
 
 	if (!host) return component;
-	const Renderer = getRenderer();
+
 	component._isDraggable = true;
 
 	// Resolve handle element
@@ -108,8 +108,8 @@ export function attachDraggable(component, handle) {
 					const padY = component.gridSnap.padY || 0;
 
 					const curRect = host.getBoundingClientRect();
-					const maxXI = Math.floor(((Renderer.width ?? window.innerWidth) - width - padX) / gw);
-					const maxYI = Math.floor(((Renderer.height ?? window.innerHeight) - height - padY) / gh);
+					const maxXI = Math.floor(((getRenderer()?.width ?? window.innerWidth) - width - padX) / gw);
+					const maxYI = Math.floor(((getRenderer()?.height ?? window.innerHeight) - height - padY) / gh);
 
 					let gxi = Math.round((curRect.left - padX) / gw);
 					let gyi = Math.round((curRect.top - padY) / gh);

@@ -1,7 +1,7 @@
 /**
  * UI/GUI/Draggable.js
  *
- * Adds drag-and-drop functionality to a GUIComponent.
+ * Processes legacy data attributes to GUIComponent.
  *
  * @author AoShinHo
  */
