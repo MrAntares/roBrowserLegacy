@@ -1,4 +1,5 @@
 // applications/shared/importmap.js
+import aliases from '../../aliases.json' with { type: 'json' };
 (function () {
 	var script = document.currentScript || document.querySelector('script[src*="shared/importmap.js"]');
 	if (!script) {
@@ -10,31 +11,12 @@
 		var path = new URL(window.location.href).pathname;
 		projectRoot = path.split(splitPoint)[0] + '/';
 	}
-	var importMap = {
-		imports: {
-			bson: `${projectRoot}node_modules/bson/lib/bson.mjs`,
-			lodash: `${projectRoot}node_modules/lodash-es/lodash.default.js`,
-			'rijndael-js': `${projectRoot}src/Vendors/rijndael-es.mjs`,
-			'granny-ro-js/wasm': `${projectRoot}node_modules/granny-ro-js/dist/granny-ro.wasm.esm.js`,
-			'src/': `${projectRoot}src/`,
-			'App/': `${projectRoot}src/App/`,
-			'Audio/': `${projectRoot}src/Audio/`,
-			'Controls/': `${projectRoot}src/Controls/`,
-			'Core/': `${projectRoot}src/Core/`,
-			'DB/': `${projectRoot}src/DB/`,
-			'Engine/': `${projectRoot}src/Engine/`,
-			'Loaders/': `${projectRoot}src/Loaders/`,
-			'Network/': `${projectRoot}src/Network/`,
-			'Plugins/': `${projectRoot}src/Plugins/`,
-			'Preferences/': `${projectRoot}src/Preferences/`,
-			'Renderer/': `${projectRoot}src/Renderer/`,
-			'UI/': `${projectRoot}src/UI/`,
-			'Utils/': `${projectRoot}src/Utils/`,
-			'Vendors/': `${projectRoot}src/Vendors/`
-		}
-	};
+	const imports = { 'src/': `${projectRoot}src/` };
+	for (const d of aliases.dirs) imports[`${d}/`] = `${projectRoot}src/${d}/`;
+	for (const [pkg, p] of Object.entries(aliases.packages)) imports[pkg] = `${projectRoot}${p}`;
+
 	var s = document.createElement('script');
 	s.type = 'importmap';
-	s.textContent = JSON.stringify(importMap);
+	s.textContent = JSON.stringify({ imports });
 	script.after(s);
 })();

@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
-
+import aliasConfig from '../../aliases.json' with { type: 'json' };
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const require = createRequire(import.meta.url);
@@ -16,23 +16,7 @@ const buildDate = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
 const dist = './dist/';
 const platform = 'Web';
 
-// Aliases (same as vite.config.js)
-const aliases = {
-	App: path.resolve(__dirname, '../../src/App'),
-	Audio: path.resolve(__dirname, '../../src/Audio'),
-	Controls: path.resolve(__dirname, '../../src/Controls'),
-	Core: path.resolve(__dirname, '../../src/Core'),
-	DB: path.resolve(__dirname, '../../src/DB'),
-	Engine: path.resolve(__dirname, '../../src/Engine'),
-	Loaders: path.resolve(__dirname, '../../src/Loaders'),
-	Network: path.resolve(__dirname, '../../src/Network'),
-	Plugins: path.resolve(__dirname, '../../src/Plugins'),
-	Preferences: path.resolve(__dirname, '../../src/Preferences'),
-	Renderer: path.resolve(__dirname, '../../src/Renderer'),
-	UI: path.resolve(__dirname, '../../src/UI'),
-	Utils: path.resolve(__dirname, '../../src/Utils'),
-	Vendors: path.resolve(__dirname, '../../src/Vendors')
-};
+const aliases = Object.fromEntries(aliasConfig.dirs.map(d => [d, path.resolve(__dirname, '../../src', d)]));
 
 const header = [
 	'/*',
