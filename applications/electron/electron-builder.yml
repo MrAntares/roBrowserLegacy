@@ -23,7 +23,7 @@ asar: false
 win:
     target:
         - dir
-    icon: applications/electron/icon.png
+    icon: applications/electron/icon.ico
 
 linux:
     target:

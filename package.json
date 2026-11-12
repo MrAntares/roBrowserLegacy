@@ -48,7 +48,7 @@
 	"devDependencies": {
 		"@eslint/js": "^10.0.0",
 		"@rollup/plugin-alias": "^6.0.0",
-		"electron": "^41.2.0",
+		"electron": "^42.11.9",
 		"electron-builder": "^26.8.1",
 		"eslint": "^10.1.0",
 		"eslint-config-prettier": "^10.1.8",
