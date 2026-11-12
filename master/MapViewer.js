@@ -77981,84 +77981,6 @@ var init_MouseEventHandler = __esmMin((() => {
 		capture: true
 	});
 }));
-// src/Core/Preferences.js
-/**
-* Save from object
-*/
-function selfSave() {
-	Preferences.save(this);
-}
-var Storage, Preferences;
-var init_Preferences$1 = __esmMin((() => {
-	Storage = {
-		get: function Get(key, fn) {
-			const out = {};
-			out[key] = localStorage.getItem(key);
-			fn(out);
-		},
-		set: function Set(obj, fn) {
-			const keys = Object.keys(obj);
-			let i, count;
-			for (i = 0, count = keys.length; i < count; ++i) localStorage.setItem(keys[i], obj[keys[i]]);
-			if (fn) fn();
-		}
-	};
-	Preferences = class Preferences {
-		/**
-		* Get back values
-		*
-		* @param {string} key
-		* @param {mixed} default value
-		* @param {number} optional version
-		*/
-		static get(key, def, version) {
-			Storage.get(key, function(value) {
-				version = version || 0;
-				if (!value[key] || JSON.parse(value[key])._version !== version) {
-					Preferences.save(def);
-					return;
-				}
-				const data = JSON.parse(value[key]);
-				data._key = key;
-				data._version = version;
-				data.save = selfSave;
-				const keys = Object.keys(data);
-				const count = keys.length;
-				for (let i = 0; i < count; ++i) def[keys[i]] = data[keys[i]];
-			});
-			def._key = key;
-			def._version = version;
-			def.save = selfSave;
-			return def;
-		}
-		/**
-		* Save value in storage
-		*
-		* @param {string} key
-		* @param {object} value to store
-		*/
-		static save(data) {
-			const key = data._key;
-			delete data._key;
-			delete data.save;
-			const store = {};
-			store[key] = JSON.stringify(data);
-			Storage.set(store);
-			data._key = key;
-			data.save = selfSave;
-		}
-	};
-}));
-// src/Preferences/UI.js
-var UI_default;
-var init_UI = __esmMin((() => {
-	init_Preferences$1();
-	UI_default = Preferences.get("UI", {
-		windowmagnet: true,
-		guildMemberListSorted: true,
-		li: true
-	}, 1);
-}));
 // src/Engine/SessionStorage.js
 var SessionStorage_default;
 var init_SessionStorage = __esmMin((() => {
@@ -78138,337 +78060,6 @@ var init_SessionStorage = __esmMin((() => {
 			current_rank_points: 0,
 			next_rank_points: 0,
 			list: {}
-		}
-	};
-}));
-// src/Utils/wasmLoader.js
-var base64ToUint8Array, createWasmLoader;
-var init_wasmLoader = __esmMin((() => {
-	base64ToUint8Array = (base64) => {
-		const binaryString = atob(base64);
-		const len = binaryString.length;
-		const bytes = new Uint8Array(len);
-		for (let i = 0; i < len; ++i) bytes[i] = binaryString.charCodeAt(i);
-		return bytes;
-	};
-	createWasmLoader = (base64, name, imports = {}) => {
-		let instance = null;
-		let failed = false;
-		return () => {
-			if (instance) return instance;
-			if (failed) return null;
-			if (typeof WebAssembly !== "object" || typeof WebAssembly.Module !== "function") {
-				failed = true;
-				return null;
-			}
-			try {
-				instance = new WebAssembly.Instance(new WebAssembly.Module(base64ToUint8Array(base64)), imports);
-				return instance;
-			} catch (e) {
-				failed = true;
-				console.warn(`Loaderswasm${name} - Failed to instantiate WASM module`, e);
-				return null;
-			}
-		};
-	};
-}));
-// src/Loaders/wasm/targa.js
-var TARGA_WASM_BASE64, getTargaWasm;
-var init_targa = __esmMin((() => {
-	init_wasmLoader();
-	TARGA_WASM_BASE64 = "AGFzbQEAAAABCgFgBX9/f39/AX8DAgEABQMBAAEHFgIGbWVtb3J5AgAJZGVjb2RlUkxFAAAKuwIBuAIBCn9BACEFQQAhDAJAA0AgDCADTw0BQQAhBiAFIAJJBEAgACAFai0AACEGCyAFQQFqIQUgBkH/AHEhByAHQQFqIQcgBkGAAXEEQCAFIQsgACALaiEKIAUgBGohBSAMIAcgBGxqIANLBEBBfw8LQQAhCQJAA0AgCSAHTw0BIAwgA08NAUEAIQgCQANAIAggBE8NASAMIANPDQFBACEOIAsgCGogAkkEQCAKIAhqLQAAIQ4LIAEgDGogDjoAACAMQQFqIQwgCEEBaiEIDAALCyAJQQFqIQkMAAsLBSAHIARsIQ1BACEIAkADQCAIIA1PDQEgDCADTw0BQQAhDiAFIAJJBEAgACAFai0AACEOCyABIAxqIA46AAAgBUEBaiEFIAxBAWohDCAIQQFqIQgMAAsLCwwACwsgDAs=";
-	getTargaWasm = createWasmLoader(TARGA_WASM_BASE64, "targa");
-}));
-// src/Loaders/Targa.js
-/**
-* Check the header of TGA file to detect errors
-*
-* @param {object} tga header structure
-* @throws Error
-*/
-function checkHeader(header) {
-	if (header.imageType === Targa.Type.NO_DATA) throw new Error("Targa::checkHeader() - No data");
-	if (header.hasColorMap) {
-		if (header.colorMapLength > 256 || header.colorMapDepth !== 24 || header.colorMapType !== 1) throw new Error("Targa::checkHeader() - Invalid colormap for indexed type");
-	} else if (header.colorMapType) throw new Error("Targa::checkHeader() - Why does the image contain a palette ?");
-	if (header.width <= 0 || header.height <= 0) throw new Error("Targa::checkHeader() - Invalid image size");
-	if (header.pixelDepth !== 8 && header.pixelDepth !== 16 && header.pixelDepth !== 24 && header.pixelDepth !== 32) throw new Error(`Targa::checkHeader() - Invalid pixel size "${header.pixelDepth}"`);
-}
-/**
-* Decode RLE compression
-*
-* @param {Uint8Array} data
-* @param {number} offset in data to start loading RLE
-* @param {number} pixel count
-* @param {number} output buffer size
-*/
-function decodeRLE(data, offset, pixelSize, outputSize) {
-	let pos, c, count, i;
-	const output = new Uint8Array(outputSize);
-	const pixels = new Uint8Array(pixelSize);
-	pos = 0;
-	while (pos < outputSize) {
-		c = data[offset++];
-		count = (c & 127) + 1;
-		if (c & 128) {
-			for (i = 0; i < pixelSize; ++i) pixels[i] = data[offset++];
-			if (pos + count * pixelSize > outputSize) throw new RangeError("Targa: RLE packet exceeds image size");
-			for (i = 0; i < count; ++i) {
-				output.set(pixels, pos);
-				pos += pixelSize;
-			}
-		} else {
-			count *= pixelSize;
-			for (i = 0; i < count; ++i) output[pos++] = data[offset++];
-		}
-	}
-	return output;
-}
-var Targa;
-var init_Targa = __esmMin((() => {
-	init_targa();
-	Targa = class Targa {
-		constructor() {}
-		/**
-		* @var {object} TGA type constants
-		*/
-		static Type = {
-			NO_DATA: 0,
-			INDEXED: 1,
-			RGB: 2,
-			GREY: 3,
-			RLE_INDEXED: 9,
-			RLE_RGB: 10,
-			RLE_GREY: 11
-		};
-		/**
-		* @var {object} TGA origin constants
-		*/
-		static Origin = {
-			BOTTOM_LEFT: 0,
-			BOTTOM_RIGHT: 1,
-			TOP_LEFT: 2,
-			TOP_RIGHT: 3,
-			SHIFT: 4,
-			MASK: 48
-		};
-		/**
-		* Open a targa file using XHR, be aware with Cross Domain files...
-		*
-		* @param {string} path - Path of the filename to load
-		* @param {function} callback - callback to trigger when the file is loaded
-		*/
-		open(path, callback) {
-			const tga = this;
-			const req = new XMLHttpRequest();
-			req.responseType = "arraybuffer";
-			req.open("GET", path, true);
-			req.onload = function() {
-				if (this.status === 200) {
-					tga.load(new Uint8Array(req.response));
-					if (callback) callback.call(tga);
-				}
-			};
-			req.send(null);
-		}
-		/**
-		* Load and parse a TGA file
-		*
-		* @param {Uint8Array} data - TGA file buffer array
-		*/
-		load(data) {
-			let offset = 0;
-			if (data.length < 18) throw new Error("Targa::load() - Not enough data to contain header");
-			this.header = {
-				idLength: data[offset++],
-				colorMapType: data[offset++],
-				imageType: data[offset++],
-				colorMapIndex: data[offset++] | data[offset++] << 8,
-				colorMapLength: data[offset++] | data[offset++] << 8,
-				colorMapDepth: data[offset++],
-				offsetX: data[offset++] | data[offset++] << 8,
-				offsetY: data[offset++] | data[offset++] << 8,
-				width: data[offset++] | data[offset++] << 8,
-				height: data[offset++] | data[offset++] << 8,
-				pixelDepth: data[offset++],
-				flags: data[offset++]
-			};
-			this.header.hasEncoding = this.header.imageType === Targa.Type.RLE_INDEXED || this.header.imageType === Targa.Type.RLE_RGB || this.header.imageType === Targa.Type.RLE_GREY;
-			this.header.hasColorMap = this.header.imageType === Targa.Type.RLE_INDEXED || this.header.imageType === Targa.Type.INDEXED;
-			this.header.isGreyColor = this.header.imageType === Targa.Type.RLE_GREY || this.header.imageType === Targa.Type.GREY;
-			checkHeader(this.header);
-			offset += this.header.idLength;
-			if (offset >= data.length) throw new Error("Targa::load() - No data");
-			if (this.header.hasColorMap) {
-				const colorMapSize = this.header.colorMapLength * (this.header.colorMapDepth >> 3);
-				this.palette = data.subarray(offset, offset + colorMapSize);
-				offset += colorMapSize;
-			}
-			const pixelSize = this.header.pixelDepth >> 3;
-			const imageSize = this.header.width * this.header.height;
-			const pixelTotal = imageSize * pixelSize;
-			if (this.header.hasEncoding) this.imageData = this.decodeRLEData(data, offset, pixelSize, pixelTotal);
-			else this.imageData = data.subarray(offset, offset + (this.header.hasColorMap ? imageSize : pixelTotal));
-		}
-		/**
-		* Decode RLE data using WASM if available, otherwise JS fallback
-		*/
-		decodeRLEData(data, offset, pixelSize, outputSize) {
-			const wasm = getTargaWasm();
-			if (wasm && wasm.exports.decodeRLE) {
-				const memory = wasm.exports.memory;
-				const srcPtr = 0;
-				const maxNeeded = outputSize + Math.ceil(outputSize / pixelSize);
-				const srcBytes = Math.min(Math.max(0, data.length - offset), maxNeeded);
-				const dstPtr = srcBytes + 3 & -4;
-				const totalBytesNeeded = dstPtr + outputSize;
-				if (memory.buffer.byteLength < totalBytesNeeded) try {
-					memory.grow(Math.ceil((totalBytesNeeded - memory.buffer.byteLength) / 65536));
-				} catch (_e) {
-					return decodeRLE(data, offset, pixelSize, outputSize);
-				}
-				new Uint8Array(memory.buffer, srcPtr, srcBytes).set(data.subarray(offset, offset + srcBytes));
-				const bytesWritten = wasm.exports.decodeRLE(srcPtr, dstPtr, srcBytes, outputSize, pixelSize);
-				if (bytesWritten < 0) throw new RangeError("Targa: RLE packet exceeds image size");
-				if (bytesWritten >= outputSize) return new Uint8Array(new Uint8Array(memory.buffer, dstPtr, outputSize));
-				const out = new Uint8Array(outputSize);
-				out.set(new Uint8Array(memory.buffer, dstPtr, bytesWritten));
-				return out;
-			}
-			return decodeRLE(data, offset, pixelSize, outputSize);
-		}
-		/**
-		* Return a ImageData object from a TGA file
-		*
-		* @param {object} imageData - Optional ImageData to work with
-		* @returns {object} imageData
-		*/
-		getImageData(imageData) {
-			const width = this.header.width;
-			const height = this.header.height;
-			if (!imageData) imageData = {
-				width,
-				height,
-				data: new Uint8ClampedArray(width * height * 4)
-			};
-			const origin = (this.header.flags & Targa.Origin.MASK) >> Targa.Origin.SHIFT;
-			let x_start, x_step, x_end, y_start, y_step, y_end;
-			if (origin === Targa.Origin.TOP_LEFT || origin === Targa.Origin.TOP_RIGHT) {
-				y_start = 0;
-				y_step = 1;
-				y_end = height;
-			} else {
-				y_start = height - 1;
-				y_step = -1;
-				y_end = -1;
-			}
-			if (origin === Targa.Origin.TOP_LEFT || origin === Targa.Origin.BOTTOM_LEFT) {
-				x_start = 0;
-				x_step = 1;
-				x_end = width;
-			} else {
-				x_start = width - 1;
-				x_step = -1;
-				x_end = -1;
-			}
-			const data = imageData.data;
-			const input = this.imageData;
-			const buffer32 = new Uint32Array(data.buffer);
-			let i = 0;
-			switch (this.header.pixelDepth) {
-				case 8:
-					if (this.header.isGreyColor) for (let y = y_start; y !== y_end; y += y_step) {
-						const rowOffset = y * width;
-						for (let x = x_start; x !== x_end; x += x_step) {
-							const v = input[i++];
-							buffer32[rowOffset + x] = 255 << 24 | v << 16 | v << 8 | v;
-						}
-					}
-					else {
-						const colormap = this.palette;
-						for (let y = y_start; y !== y_end; y += y_step) {
-							const rowOffset = y * width;
-							for (let x = x_start; x !== x_end; x += x_step) {
-								const idx = input[i++] * 3;
-								const b = colormap[idx + 0];
-								const g = colormap[idx + 1];
-								const r = colormap[idx + 2];
-								buffer32[rowOffset + x] = 255 << 24 | b << 16 | g << 8 | r;
-							}
-						}
-					}
-					break;
-				case 16:
-					if (this.header.isGreyColor) for (let y = y_start; y !== y_end; y += y_step) {
-						const rowOffset = y * width;
-						for (let x = x_start; x !== x_end; x += x_step) {
-							const intensity = input[i++];
-							const alpha = input[i++];
-							buffer32[rowOffset + x] = alpha << 24 | intensity << 16 | intensity << 8 | intensity;
-						}
-					}
-					else for (let y = y_start; y !== y_end; y += y_step) {
-						const rowOffset = y * width;
-						for (let x = x_start; x !== x_end; x += x_step) {
-							const color = input[i] | input[i + 1] << 8;
-							i += 2;
-							const r = (color & 31744) >> 7;
-							const g = (color & 992) >> 2;
-							const b = (color & 31) << 3;
-							const a = color & 32768 ? 255 : 0;
-							buffer32[rowOffset + x] = a << 24 | b << 16 | g << 8 | r;
-						}
-					}
-					break;
-				case 24:
-					for (let y = y_start; y !== y_end; y += y_step) {
-						const rowOffset = y * width;
-						for (let x = x_start; x !== x_end; x += x_step) {
-							const b = input[i++];
-							const g = input[i++];
-							const r = input[i++];
-							buffer32[rowOffset + x] = 255 << 24 | b << 16 | g << 8 | r;
-						}
-					}
-					break;
-				case 32: {
-					const MAGENTA_MASK = 16711935;
-					const PIXEL_MASK = 16777215;
-					for (let y = y_start; y !== y_end; y += y_step) {
-						const rowOffset = y * width;
-						for (let x = x_start; x !== x_end; x += x_step) {
-							const pixel = input[i + 3] << 24 | input[i] << 16 | input[i + 1] << 8 | input[i + 2];
-							i += 4;
-							buffer32[rowOffset + x] = (pixel & PIXEL_MASK) === MAGENTA_MASK ? 0 : pixel;
-						}
-					}
-					break;
-				}
-			}
-			return imageData;
-		}
-		/**
-		* Return a canvas with the TGA render on it
-		*
-		* @returns {object} CanvasElement
-		*/
-		getCanvas() {
-			const canvas = document.createElement("canvas");
-			const ctx = canvas.getContext("2d");
-			const imageData = ctx.createImageData(this.header.width, this.header.height);
-			canvas.width = this.header.width;
-			canvas.height = this.header.height;
-			ctx.putImageData(this.getImageData(imageData), 0, 0);
-			return canvas;
-		}
-		/**
-		* Return a dataURI of the TGA file
-		*
-		* @param {string} type - Optional image content-type to output (default: image/png)
-		* @returns {string} url
-		*/
-		getDataURL(type) {
-			return this.getCanvas().toDataURL(type || "image/png");
 		}
 	};
 }));
@@ -78576,6 +78167,74 @@ var init_WhenDrawn = __esmMin((() => {
 		for (const element of pendingWithin(host)) _observer.observe(element);
 	};
 }));
+// src/Core/Preferences.js
+/**
+* Save from object
+*/
+function selfSave() {
+	Preferences.save(this);
+}
+var Storage, Preferences;
+var init_Preferences$1 = __esmMin((() => {
+	Storage = {
+		get: function Get(key, fn) {
+			const out = {};
+			out[key] = localStorage.getItem(key);
+			fn(out);
+		},
+		set: function Set(obj, fn) {
+			const keys = Object.keys(obj);
+			let i, count;
+			for (i = 0, count = keys.length; i < count; ++i) localStorage.setItem(keys[i], obj[keys[i]]);
+			if (fn) fn();
+		}
+	};
+	Preferences = class Preferences {
+		/**
+		* Get back values
+		*
+		* @param {string} key
+		* @param {mixed} default value
+		* @param {number} optional version
+		*/
+		static get(key, def, version) {
+			Storage.get(key, function(value) {
+				version = version || 0;
+				if (!value[key] || JSON.parse(value[key])._version !== version) {
+					Preferences.save(def);
+					return;
+				}
+				const data = JSON.parse(value[key]);
+				data._key = key;
+				data._version = version;
+				data.save = selfSave;
+				const keys = Object.keys(data);
+				const count = keys.length;
+				for (let i = 0; i < count; ++i) def[keys[i]] = data[keys[i]];
+			});
+			def._key = key;
+			def._version = version;
+			def.save = selfSave;
+			return def;
+		}
+		/**
+		* Save value in storage
+		*
+		* @param {string} key
+		* @param {object} value to store
+		*/
+		static save(data) {
+			const key = data._key;
+			delete data._key;
+			delete data.save;
+			const store = {};
+			store[key] = JSON.stringify(data);
+			Storage.set(store);
+			data._key = key;
+			data.save = selfSave;
+		}
+	};
+}));
 // src/Preferences/Graphics.js
 var defaultGraphicsSettings, cleanDefaults, GraphicsSettings;
 var init_Graphics = __esmMin((() => {
@@ -78640,6 +78299,37 @@ var init_Graphics = __esmMin((() => {
 	cleanDefaults = JSON.parse(JSON.stringify(defaultGraphicsSettings));
 	GraphicsSettings = Preferences.get("Graphics", defaultGraphicsSettings, 1.1);
 	GraphicsSettings.defaults = cleanDefaults;
+}));
+// src/Utils/wasmLoader.js
+var base64ToUint8Array, createWasmLoader;
+var init_wasmLoader = __esmMin((() => {
+	base64ToUint8Array = (base64) => {
+		const binaryString = atob(base64);
+		const len = binaryString.length;
+		const bytes = new Uint8Array(len);
+		for (let i = 0; i < len; ++i) bytes[i] = binaryString.charCodeAt(i);
+		return bytes;
+	};
+	createWasmLoader = (base64, name, imports = {}) => {
+		let instance = null;
+		let failed = false;
+		return () => {
+			if (instance) return instance;
+			if (failed) return null;
+			if (typeof WebAssembly !== "object" || typeof WebAssembly.Module !== "function") {
+				failed = true;
+				return null;
+			}
+			try {
+				instance = new WebAssembly.Instance(new WebAssembly.Module(base64ToUint8Array(base64)), imports);
+				return instance;
+			} catch (e) {
+				failed = true;
+				console.warn(`Loaderswasm${name} - Failed to instantiate WASM module`, e);
+				return null;
+			}
+		};
+	};
 }));
 // src/Loaders/wasm/paletteConvert.js
 var PALETTE_CONVERT_WASM_BASE64, getPaletteConvertWasm;
@@ -82820,6 +82510,306 @@ var init_VerticalFlip$2 = __esmMin((() => {
 var VerticalFlip_default;
 var init_VerticalFlip$1 = __esmMin((() => {
 	VerticalFlip_default = "#version 300 es\r\nprecision highp float;\r\nin vec2 vTextureCoord;\r\nout vec4 fragColor;\r\nuniform sampler2D uTexture;\r\nvoid main() {\r\n	fragColor = texture(uTexture, vec2(vTextureCoord.x, 1.0 - vTextureCoord.y));\r\n}";
+}));
+// src/Loaders/wasm/targa.js
+var TARGA_WASM_BASE64, getTargaWasm;
+var init_targa = __esmMin((() => {
+	init_wasmLoader();
+	TARGA_WASM_BASE64 = "AGFzbQEAAAABCgFgBX9/f39/AX8DAgEABQMBAAEHFgIGbWVtb3J5AgAJZGVjb2RlUkxFAAAKuwIBuAIBCn9BACEFQQAhDAJAA0AgDCADTw0BQQAhBiAFIAJJBEAgACAFai0AACEGCyAFQQFqIQUgBkH/AHEhByAHQQFqIQcgBkGAAXEEQCAFIQsgACALaiEKIAUgBGohBSAMIAcgBGxqIANLBEBBfw8LQQAhCQJAA0AgCSAHTw0BIAwgA08NAUEAIQgCQANAIAggBE8NASAMIANPDQFBACEOIAsgCGogAkkEQCAKIAhqLQAAIQ4LIAEgDGogDjoAACAMQQFqIQwgCEEBaiEIDAALCyAJQQFqIQkMAAsLBSAHIARsIQ1BACEIAkADQCAIIA1PDQEgDCADTw0BQQAhDiAFIAJJBEAgACAFai0AACEOCyABIAxqIA46AAAgBUEBaiEFIAxBAWohDCAIQQFqIQgMAAsLCwwACwsgDAs=";
+	getTargaWasm = createWasmLoader(TARGA_WASM_BASE64, "targa");
+}));
+// src/Loaders/Targa.js
+/**
+* Check the header of TGA file to detect errors
+*
+* @param {object} tga header structure
+* @throws Error
+*/
+function checkHeader(header) {
+	if (header.imageType === Targa.Type.NO_DATA) throw new Error("Targa::checkHeader() - No data");
+	if (header.hasColorMap) {
+		if (header.colorMapLength > 256 || header.colorMapDepth !== 24 || header.colorMapType !== 1) throw new Error("Targa::checkHeader() - Invalid colormap for indexed type");
+	} else if (header.colorMapType) throw new Error("Targa::checkHeader() - Why does the image contain a palette ?");
+	if (header.width <= 0 || header.height <= 0) throw new Error("Targa::checkHeader() - Invalid image size");
+	if (header.pixelDepth !== 8 && header.pixelDepth !== 16 && header.pixelDepth !== 24 && header.pixelDepth !== 32) throw new Error(`Targa::checkHeader() - Invalid pixel size "${header.pixelDepth}"`);
+}
+/**
+* Decode RLE compression
+*
+* @param {Uint8Array} data
+* @param {number} offset in data to start loading RLE
+* @param {number} pixel count
+* @param {number} output buffer size
+*/
+function decodeRLE(data, offset, pixelSize, outputSize) {
+	let pos, c, count, i;
+	const output = new Uint8Array(outputSize);
+	const pixels = new Uint8Array(pixelSize);
+	pos = 0;
+	while (pos < outputSize) {
+		c = data[offset++];
+		count = (c & 127) + 1;
+		if (c & 128) {
+			for (i = 0; i < pixelSize; ++i) pixels[i] = data[offset++];
+			if (pos + count * pixelSize > outputSize) throw new RangeError("Targa: RLE packet exceeds image size");
+			for (i = 0; i < count; ++i) {
+				output.set(pixels, pos);
+				pos += pixelSize;
+			}
+		} else {
+			count *= pixelSize;
+			for (i = 0; i < count; ++i) output[pos++] = data[offset++];
+		}
+	}
+	return output;
+}
+var Targa;
+var init_Targa = __esmMin((() => {
+	init_targa();
+	Targa = class Targa {
+		constructor() {}
+		/**
+		* @var {object} TGA type constants
+		*/
+		static Type = {
+			NO_DATA: 0,
+			INDEXED: 1,
+			RGB: 2,
+			GREY: 3,
+			RLE_INDEXED: 9,
+			RLE_RGB: 10,
+			RLE_GREY: 11
+		};
+		/**
+		* @var {object} TGA origin constants
+		*/
+		static Origin = {
+			BOTTOM_LEFT: 0,
+			BOTTOM_RIGHT: 1,
+			TOP_LEFT: 2,
+			TOP_RIGHT: 3,
+			SHIFT: 4,
+			MASK: 48
+		};
+		/**
+		* Open a targa file using XHR, be aware with Cross Domain files...
+		*
+		* @param {string} path - Path of the filename to load
+		* @param {function} callback - callback to trigger when the file is loaded
+		*/
+		open(path, callback) {
+			const tga = this;
+			const req = new XMLHttpRequest();
+			req.responseType = "arraybuffer";
+			req.open("GET", path, true);
+			req.onload = function() {
+				if (this.status === 200) {
+					tga.load(new Uint8Array(req.response));
+					if (callback) callback.call(tga);
+				}
+			};
+			req.send(null);
+		}
+		/**
+		* Load and parse a TGA file
+		*
+		* @param {Uint8Array} data - TGA file buffer array
+		*/
+		load(data) {
+			let offset = 0;
+			if (data.length < 18) throw new Error("Targa::load() - Not enough data to contain header");
+			this.header = {
+				idLength: data[offset++],
+				colorMapType: data[offset++],
+				imageType: data[offset++],
+				colorMapIndex: data[offset++] | data[offset++] << 8,
+				colorMapLength: data[offset++] | data[offset++] << 8,
+				colorMapDepth: data[offset++],
+				offsetX: data[offset++] | data[offset++] << 8,
+				offsetY: data[offset++] | data[offset++] << 8,
+				width: data[offset++] | data[offset++] << 8,
+				height: data[offset++] | data[offset++] << 8,
+				pixelDepth: data[offset++],
+				flags: data[offset++]
+			};
+			this.header.hasEncoding = this.header.imageType === Targa.Type.RLE_INDEXED || this.header.imageType === Targa.Type.RLE_RGB || this.header.imageType === Targa.Type.RLE_GREY;
+			this.header.hasColorMap = this.header.imageType === Targa.Type.RLE_INDEXED || this.header.imageType === Targa.Type.INDEXED;
+			this.header.isGreyColor = this.header.imageType === Targa.Type.RLE_GREY || this.header.imageType === Targa.Type.GREY;
+			checkHeader(this.header);
+			offset += this.header.idLength;
+			if (offset >= data.length) throw new Error("Targa::load() - No data");
+			if (this.header.hasColorMap) {
+				const colorMapSize = this.header.colorMapLength * (this.header.colorMapDepth >> 3);
+				this.palette = data.subarray(offset, offset + colorMapSize);
+				offset += colorMapSize;
+			}
+			const pixelSize = this.header.pixelDepth >> 3;
+			const imageSize = this.header.width * this.header.height;
+			const pixelTotal = imageSize * pixelSize;
+			if (this.header.hasEncoding) this.imageData = this.decodeRLEData(data, offset, pixelSize, pixelTotal);
+			else this.imageData = data.subarray(offset, offset + (this.header.hasColorMap ? imageSize : pixelTotal));
+		}
+		/**
+		* Decode RLE data using WASM if available, otherwise JS fallback
+		*/
+		decodeRLEData(data, offset, pixelSize, outputSize) {
+			const wasm = getTargaWasm();
+			if (wasm && wasm.exports.decodeRLE) {
+				const memory = wasm.exports.memory;
+				const srcPtr = 0;
+				const maxNeeded = outputSize + Math.ceil(outputSize / pixelSize);
+				const srcBytes = Math.min(Math.max(0, data.length - offset), maxNeeded);
+				const dstPtr = srcBytes + 3 & -4;
+				const totalBytesNeeded = dstPtr + outputSize;
+				if (memory.buffer.byteLength < totalBytesNeeded) try {
+					memory.grow(Math.ceil((totalBytesNeeded - memory.buffer.byteLength) / 65536));
+				} catch (_e) {
+					return decodeRLE(data, offset, pixelSize, outputSize);
+				}
+				new Uint8Array(memory.buffer, srcPtr, srcBytes).set(data.subarray(offset, offset + srcBytes));
+				const bytesWritten = wasm.exports.decodeRLE(srcPtr, dstPtr, srcBytes, outputSize, pixelSize);
+				if (bytesWritten < 0) throw new RangeError("Targa: RLE packet exceeds image size");
+				if (bytesWritten >= outputSize) return new Uint8Array(new Uint8Array(memory.buffer, dstPtr, outputSize));
+				const out = new Uint8Array(outputSize);
+				out.set(new Uint8Array(memory.buffer, dstPtr, bytesWritten));
+				return out;
+			}
+			return decodeRLE(data, offset, pixelSize, outputSize);
+		}
+		/**
+		* Return a ImageData object from a TGA file
+		*
+		* @param {object} imageData - Optional ImageData to work with
+		* @returns {object} imageData
+		*/
+		getImageData(imageData) {
+			const width = this.header.width;
+			const height = this.header.height;
+			if (!imageData) imageData = {
+				width,
+				height,
+				data: new Uint8ClampedArray(width * height * 4)
+			};
+			const origin = (this.header.flags & Targa.Origin.MASK) >> Targa.Origin.SHIFT;
+			let x_start, x_step, x_end, y_start, y_step, y_end;
+			if (origin === Targa.Origin.TOP_LEFT || origin === Targa.Origin.TOP_RIGHT) {
+				y_start = 0;
+				y_step = 1;
+				y_end = height;
+			} else {
+				y_start = height - 1;
+				y_step = -1;
+				y_end = -1;
+			}
+			if (origin === Targa.Origin.TOP_LEFT || origin === Targa.Origin.BOTTOM_LEFT) {
+				x_start = 0;
+				x_step = 1;
+				x_end = width;
+			} else {
+				x_start = width - 1;
+				x_step = -1;
+				x_end = -1;
+			}
+			const data = imageData.data;
+			const input = this.imageData;
+			const buffer32 = new Uint32Array(data.buffer);
+			let i = 0;
+			switch (this.header.pixelDepth) {
+				case 8:
+					if (this.header.isGreyColor) for (let y = y_start; y !== y_end; y += y_step) {
+						const rowOffset = y * width;
+						for (let x = x_start; x !== x_end; x += x_step) {
+							const v = input[i++];
+							buffer32[rowOffset + x] = 255 << 24 | v << 16 | v << 8 | v;
+						}
+					}
+					else {
+						const colormap = this.palette;
+						for (let y = y_start; y !== y_end; y += y_step) {
+							const rowOffset = y * width;
+							for (let x = x_start; x !== x_end; x += x_step) {
+								const idx = input[i++] * 3;
+								const b = colormap[idx + 0];
+								const g = colormap[idx + 1];
+								const r = colormap[idx + 2];
+								buffer32[rowOffset + x] = 255 << 24 | b << 16 | g << 8 | r;
+							}
+						}
+					}
+					break;
+				case 16:
+					if (this.header.isGreyColor) for (let y = y_start; y !== y_end; y += y_step) {
+						const rowOffset = y * width;
+						for (let x = x_start; x !== x_end; x += x_step) {
+							const intensity = input[i++];
+							const alpha = input[i++];
+							buffer32[rowOffset + x] = alpha << 24 | intensity << 16 | intensity << 8 | intensity;
+						}
+					}
+					else for (let y = y_start; y !== y_end; y += y_step) {
+						const rowOffset = y * width;
+						for (let x = x_start; x !== x_end; x += x_step) {
+							const color = input[i] | input[i + 1] << 8;
+							i += 2;
+							const r = (color & 31744) >> 7;
+							const g = (color & 992) >> 2;
+							const b = (color & 31) << 3;
+							const a = color & 32768 ? 255 : 0;
+							buffer32[rowOffset + x] = a << 24 | b << 16 | g << 8 | r;
+						}
+					}
+					break;
+				case 24:
+					for (let y = y_start; y !== y_end; y += y_step) {
+						const rowOffset = y * width;
+						for (let x = x_start; x !== x_end; x += x_step) {
+							const b = input[i++];
+							const g = input[i++];
+							const r = input[i++];
+							buffer32[rowOffset + x] = 255 << 24 | b << 16 | g << 8 | r;
+						}
+					}
+					break;
+				case 32: {
+					const MAGENTA_MASK = 16711935;
+					const PIXEL_MASK = 16777215;
+					for (let y = y_start; y !== y_end; y += y_step) {
+						const rowOffset = y * width;
+						for (let x = x_start; x !== x_end; x += x_step) {
+							const pixel = input[i + 3] << 24 | input[i] << 16 | input[i + 1] << 8 | input[i + 2];
+							i += 4;
+							buffer32[rowOffset + x] = (pixel & PIXEL_MASK) === MAGENTA_MASK ? 0 : pixel;
+						}
+					}
+					break;
+				}
+			}
+			return imageData;
+		}
+		/**
+		* Return a canvas with the TGA render on it
+		*
+		* @returns {object} CanvasElement
+		*/
+		getCanvas() {
+			const canvas = document.createElement("canvas");
+			const ctx = canvas.getContext("2d");
+			const imageData = ctx.createImageData(this.header.width, this.header.height);
+			canvas.width = this.header.width;
+			canvas.height = this.header.height;
+			ctx.putImageData(this.getImageData(imageData), 0, 0);
+			return canvas;
+		}
+		/**
+		* Return a dataURI of the TGA file
+		*
+		* @param {string} type - Optional image content-type to output (default: image/png)
+		* @returns {string} url
+		*/
+		getDataURL(type) {
+			return this.getCanvas().toDataURL(type || "image/png");
+		}
+	};
 }));
 // src/Vendors/libgif.js
 var bitsToNum, byteToBitArr, Stream, lzwDecode, parseGIF, SuperGif;
@@ -150280,6 +150270,16 @@ var init_NetworkManager = __esmMin((() => {
 			utils: { longToIP: utilsLongToIP }
 		};
 	})();
+}));
+// src/Preferences/UI.js
+var UI_default;
+var init_UI = __esmMin((() => {
+	init_Preferences$1();
+	UI_default = Preferences.get("UI", {
+		windowmagnet: true,
+		guildMemberListSorted: true,
+		li: true
+	}, 1);
 }));
 // src/Core/PerfProbe.js
 /**
@@ -332486,10 +332486,10 @@ var init_Scrollbar = __esmMin((() => {
 		}
 	};
 }));
-// src/UI/GUIComponent.js
+// src/UI/GUI/GUIDeps.js
 async function _loadHeavyDeps() {
 	if (_Cursor) return;
-	const [CursorMod, DBMod, ClientMod, RendererMod, EntityManagerMod, ScrollBarMod] = await Promise.all([
+	const [Cursor, DB, Client, Renderer, EntityManager, ScrollBar] = await Promise.all([
 		__vitePreload(() => Promise.resolve().then(() => (init_CursorManager(), CursorManager_exports)), void 0, import.meta.url),
 		__vitePreload(() => Promise.resolve().then(() => (init_DBManager(), DBManager_exports)), void 0, import.meta.url),
 		__vitePreload(() => Promise.resolve().then(() => (init_Client(), Client_exports)), void 0, import.meta.url),
@@ -332497,18 +332497,36 @@ async function _loadHeavyDeps() {
 		__vitePreload(() => Promise.resolve().then(() => (init_EntityManager(), EntityManager_exports)), void 0, import.meta.url),
 		__vitePreload(() => Promise.resolve().then(() => (init_Scrollbar(), Scrollbar_exports)), void 0, import.meta.url)
 	]);
-	_Cursor = CursorMod.default;
-	_DB = DBMod.default;
-	_Client = ClientMod.default;
-	_Renderer = RendererMod.default;
-	_EntityManager = EntityManagerMod.default;
-	_ScrollBar = ScrollBarMod.default;
+	_Cursor = Cursor.default;
+	_DB = DB.default;
+	_Client = Client.default;
+	_Renderer = Renderer.default;
+	_EntityManager = EntityManager.default;
+	_ScrollBar = ScrollBar.default;
 }
-function _ensureDeps() {
+function ensureDeps() {
 	if (!_depsPromise) _depsPromise = _loadHeavyDeps();
 	return _depsPromise;
 }
-function _supportsStyleQueries() {
+var _Cursor, _Client, _Renderer, _EntityManager, _ScrollBar, _DB, _depsPromise, getCursor, getDB, getClient, getRenderer, getEntityManager, getScrollBar;
+var init_GUIDeps = __esmMin((() => {
+	init_preload_helper();
+	_Cursor = null;
+	_Client = null;
+	_Renderer = null;
+	_EntityManager = null;
+	_ScrollBar = null;
+	_DB = null;
+	_depsPromise = null;
+	getCursor = () => _Cursor;
+	getDB = () => _DB;
+	getClient = () => _Client;
+	getRenderer = () => _Renderer;
+	getEntityManager = () => _EntityManager;
+	getScrollBar = () => _ScrollBar;
+}));
+// src/UI/GUI/NoCursorFallback.js
+function supportsStyleQueries() {
 	const probe = document.createElement("div");
 	probe.innerHTML = "<style>@container style(--ro-probe: 1) { i { color: rgb(1, 2, 3); } }</style><i></i>";
 	probe.style.setProperty("--ro-probe", "1");
@@ -332517,7 +332535,7 @@ function _supportsStyleQueries() {
 	probe.remove();
 	return supported;
 }
-function _syncNoCursorStyles() {
+function syncNoCursorStyles() {
 	const media = document.body.classList.contains("custom-cursor") ? "all" : "not all";
 	if (media === _noCursorMedia) return;
 	_noCursorMedia = media;
@@ -332531,12 +332549,12 @@ function _syncNoCursorStyles() {
 * @param {ShadowRoot} shadow
 * @return {?HTMLStyleElement}
 */
-function _addNoCursorFallback(shadow) {
+function addNoCursorFallback(shadow) {
 	if (_noCursorStyles === void 0) {
-		_noCursorStyles = _supportsStyleQueries() ? null : [];
+		_noCursorStyles = supportsStyleQueries() ? null : [];
 		if (_noCursorStyles) {
-			_syncNoCursorStyles();
-			new MutationObserver(_syncNoCursorStyles).observe(document.body, {
+			syncNoCursorStyles();
+			new MutationObserver(syncNoCursorStyles).observe(document.body, {
 				attributes: true,
 				attributeFilter: ["class"]
 			});
@@ -332551,40 +332569,660 @@ function _addNoCursorFallback(shadow) {
 	_noCursorStyles.push(style);
 	return style;
 }
-function _trackNoCursorStyle(style) {
+function trackNoCursorStyle(style) {
 	style.media = _noCursorMedia;
 	if (_noCursorStyles.indexOf(style) === -1) _noCursorStyles.push(style);
 }
-function _untrackNoCursorStyle(style) {
+function untrackNoCursorStyle(style) {
 	const index = _noCursorStyles.indexOf(style);
 	if (index !== -1) _noCursorStyles.splice(index, 1);
 }
-var _Cursor, _DB, _Client, _Renderer, _EntityManager, _ScrollBar, _depsPromise, _noCursorStyles, _noCursorMedia, _snapCache, _frozenBy, MouseMode, DENIED_SELECTOR, CSS_NUMBER, GUIComponent;
-var init_GUIComponent = __esmMin((() => {
-	init_Common$1();
+var _noCursorStyles, _noCursorMedia;
+var init_NoCursorFallback = __esmMin((() => {
+	_noCursorMedia = "not all";
+}));
+// src/UI/GUI/Draggable.js
+function attachDraggable(component, handle) {
+	const host = component._host;
+	const SNAP_DISTANCE = 10;
+	if (!host) return component;
+	component._isDraggable = true;
+	let handleEl;
+	if (!handle) handleEl = host;
+	else if (typeof handle === "string") handleEl = component._shadow.querySelector(handle) || component._container.querySelector(handle);
+	else if (handle instanceof HTMLElement) handleEl = handle;
+	else handleEl = handle[0] || handle;
+	if (!handleEl) return component;
+	const onStart = (event) => {
+		if (event.type === "touchstart") {
+			Mouse.screen.x = event.touches[0].pageX;
+			Mouse.screen.y = event.touches[0].pageY;
+		} else if (event.which !== 1) return;
+		const x = host.offsetLeft - Mouse.screen.x;
+		const y = host.offsetTop - Mouse.screen.y;
+		const width = host.offsetWidth;
+		const height = host.offsetHeight;
+		_snapCache = [];
+		if (UI_default.windowmagnet && component.manager) {
+			const hostParent = host.offsetParent;
+			const components = component.manager.components;
+			for (const name in components) {
+				const other = components[name];
+				if (!other || other === component || !other.__active || !other.needFocus || !other.ui || !other.ui.is(":visible")) continue;
+				const el = other._host || other.ui && other.ui[0];
+				if (!el) continue;
+				if (hostParent && el.offsetParent && el.offsetParent !== hostParent) continue;
+				_snapCache.push({
+					left: el.offsetLeft,
+					top: el.offsetTop,
+					right: el.offsetLeft + el.offsetWidth,
+					bottom: el.offsetTop + el.offsetHeight
+				});
+			}
+		}
+		host.style.transition = "";
+		host.offsetHeight;
+		let drag;
+		let currentOpacity = 1;
+		let lastMx = Mouse.screen.x;
+		let lastMy = Mouse.screen.y;
+		const onEnd = (ev) => {
+			if (ev.type === "touchend" || ev.which === 1 || ev.isTrigger) {
+				cancelAnimationFrame(drag);
+				window.removeEventListener("mouseup", onEnd);
+				window.removeEventListener("touchend", onEnd);
+				_snapCache = [];
+				if (component.gridSnap) {
+					const gw = component.gridSnap.width;
+					const gh = component.gridSnap.height;
+					const padX = component.gridSnap.padX || 0;
+					const padY = component.gridSnap.padY || 0;
+					const curRect = host.getBoundingClientRect();
+					const maxXI = Math.floor(((getRenderer()?.width ?? window.innerWidth) - width - padX) / gw);
+					const maxYI = Math.floor(((getRenderer()?.height ?? window.innerHeight) - height - padY) / gh);
+					let gxi = Math.round((curRect.left - padX) / gw);
+					let gyi = Math.round((curRect.top - padY) / gh);
+					gxi = Math.max(0, Math.min(gxi, maxXI));
+					gyi = Math.max(0, Math.min(gyi, maxYI));
+					const snappedX = gxi * gw + padX;
+					const snappedY = gyi * gh + padY;
+					host.style.transition = `left ${component.snapDuration || 150}ms, top ${component.snapDuration || 150}ms, opacity 150ms`;
+					host.style.left = `${snappedX}px`;
+					host.style.top = `${snappedY}px`;
+					host.style.opacity = "1";
+					const onTransEnd = () => {
+						host.style.transition = "";
+						host.removeEventListener("transitionend", onTransEnd);
+						if (component.onDragEnd) component.onDragEnd();
+					};
+					host.addEventListener("transitionend", onTransEnd);
+				} else {
+					host.style.transition = "opacity 150ms";
+					host.style.opacity = "1";
+					const onTransEnd = () => {
+						host.style.transition = "";
+						host.removeEventListener("transitionend", onTransEnd);
+						if (component.onDragEnd) component.onDragEnd();
+					};
+					host.addEventListener("transitionend", onTransEnd);
+				}
+			}
+		};
+		window.addEventListener("mouseup", onEnd);
+		window.addEventListener("touchend", onEnd);
+		const dragging = () => {
+			const mx = Mouse.screen.x;
+			const my = Mouse.screen.y;
+			if (mx === lastMx && my === lastMy) {
+				drag = requestAnimationFrame(dragging);
+				return;
+			}
+			lastMx = mx;
+			lastMy = my;
+			let x_ = mx + x;
+			let y_ = my + y;
+			currentOpacity = Math.max(currentOpacity - .02, .7);
+			if (component.magnet) component.magnet.TOP = component.magnet.BOTTOM = component.magnet.LEFT = component.magnet.RIGHT = false;
+			if (Math.abs(x_) < SNAP_DISTANCE) {
+				x_ = 0;
+				if (component.magnet) component.magnet.LEFT = true;
+			}
+			if (Math.abs(y_) < SNAP_DISTANCE) {
+				y_ = 0;
+				if (component.magnet) component.magnet.TOP = true;
+			}
+			if (Math.abs(x_ + width - Mouse.screen.width) < SNAP_DISTANCE) {
+				x_ = Mouse.screen.width - width;
+				if (component.magnet) component.magnet.RIGHT = true;
+			}
+			if (Math.abs(y_ + height - Mouse.screen.height) < SNAP_DISTANCE) {
+				y_ = Mouse.screen.height - height;
+				if (component.magnet) component.magnet.BOTTOM = true;
+			}
+			if (UI_default.windowmagnet && component.manager) {
+				const lockX = component.magnet && (component.magnet.LEFT || component.magnet.RIGHT);
+				const lockY = component.magnet && (component.magnet.TOP || component.magnet.BOTTOM);
+				let snapX = null, snapY = null;
+				let snapXD = 11, snapYD = 11;
+				const checkX = (val) => {
+					const d = Math.abs(val - x_);
+					if (d < snapXD) {
+						snapXD = d;
+						snapX = val;
+					}
+				};
+				const checkY = (val) => {
+					const d = Math.abs(val - y_);
+					if (d < snapYD) {
+						snapYD = d;
+						snapY = val;
+					}
+				};
+				const isNear = (sA, eA, sB, eB) => !(eA + SNAP_DISTANCE < sB || eB + SNAP_DISTANCE < sA);
+				for (let i = 0; i < _snapCache.length; i++) {
+					const box = _snapCache[i];
+					if (!lockX && isNear(y_, y_ + height, box.top, box.bottom)) {
+						checkX(box.left);
+						checkX(box.right);
+						checkX(box.left - width);
+						checkX(box.right - width);
+					}
+					if (!lockY && isNear(x_, x_ + width, box.left, box.right)) {
+						checkY(box.top);
+						checkY(box.bottom);
+						checkY(box.top - height);
+						checkY(box.bottom - height);
+					}
+				}
+				if (!lockX && snapX !== null) x_ = snapX;
+				if (!lockY && snapY !== null) y_ = snapY;
+			}
+			host.style.left = `${x_}px`;
+			host.style.top = `${y_}px`;
+			host.style.opacity = currentOpacity;
+			drag = requestAnimationFrame(dragging);
+		};
+		drag = requestAnimationFrame(dragging);
+	};
+	handleEl.addEventListener("mousedown", onStart);
+	handleEl.addEventListener("touchstart", onStart);
+	return component;
+}
+var _snapCache;
+var init_Draggable = __esmMin((() => {
 	init_MouseEventHandler();
 	init_UI();
-	init_SessionStorage();
-	init_Targa();
-	init_ClampToViewport();
-	init_WhenDrawn();
-	init_preload_helper();
-	_Cursor = null;
-	_DB = null;
-	_Client = null;
-	_Renderer = null;
-	_EntityManager = null;
-	_ScrollBar = null;
-	_depsPromise = null;
-	_noCursorMedia = "not all";
+	init_GUIDeps();
 	_snapCache = [];
-	_frozenBy = [];
+}));
+// src/UI/GUI/MouseMode.js
+function setupShadowCursorEvents(component) {
+	const container = component._container;
+	if (!container) return;
+	const CLICKABLE_SELECTOR = [
+		"a",
+		"button",
+		"ui-button",
+		"input",
+		"label",
+		"select",
+		"textarea",
+		".checkbox",
+		".item-link",
+		".draggable",
+		".ro-custom-scrollbar",
+		".ro-custom-scrollbar *"
+	].join(",");
+	let _hovering = false;
+	let _savedType = getCursor()?.ACTION?.DEFAULT ?? 0;
+	const cursorFor = (target) => (target.closest(".denied") ? getCursor()?.ACTION?.NOWALK : getCursor()?.ACTION?.CLICK) ?? 0;
+	container.addEventListener("mouseover", (e) => {
+		const target = e.target;
+		if (target.closest && target.closest(CLICKABLE_SELECTOR)) {
+			if (!_hovering) {
+				_savedType = getCursor()?.getActualType() ?? 0;
+				_hovering = true;
+			}
+			const wanted = cursorFor(target);
+			if ((getCursor()?.getActualType() ?? 0) !== wanted) getCursor()?.setType(wanted);
+		}
+	});
+	container.addEventListener("mouseout", (e) => {
+		if (!_hovering) return;
+		const related = e.relatedTarget;
+		if (related && related.closest && related.closest(CLICKABLE_SELECTOR)) return;
+		_hovering = false;
+		getCursor()?.setType(_savedType);
+	});
+	container.addEventListener("x_remove", () => {
+		if (_hovering) {
+			_hovering = false;
+			getCursor()?.setType(_savedType);
+		}
+	});
+	container.addEventListener("mousedown", (e) => {
+		const target = e.target;
+		if (target.closest && target.closest(CLICKABLE_SELECTOR)) {
+			if (!_hovering) {
+				_savedType = getCursor()?.getActualType() ?? 0;
+				_hovering = true;
+			}
+			if (target.closest(".denied")) getCursor()?.setType(getCursor()?.ACTION?.NOWALK ?? 0);
+			else getCursor()?.setType(getCursor()?.ACTION?.CLICK ?? 0, true, 1);
+		}
+	});
+	container.addEventListener("mouseup", (e) => {
+		const target = e.target;
+		if (target.closest && target.closest(CLICKABLE_SELECTOR)) {
+			const wanted = cursorFor(target);
+			if ((getCursor()?.getActualType() ?? 0) !== wanted) getCursor()?.setType(wanted);
+			return;
+		}
+		if (_hovering) {
+			_hovering = false;
+			getCursor()?.setType(_savedType);
+		}
+	});
+}
+function setupMouseMode(component) {
+	const element = component.__mouseStopBlock || component._host;
+	if (component.mouseMode === MouseMode.STOP) {
+		let _intersect;
+		let _enter = 0;
+		element.addEventListener("mouseenter", () => {
+			if (_enter === 0) {
+				_intersect = Mouse.intersect;
+				_enter++;
+				if (_intersect) {
+					Mouse.intersect = false;
+					getCursor()?.setType(getCursor()?.ACTION?.DEFAULT ?? 0);
+					getEntityManager()?.setOverEntity(null);
+				}
+			}
+		});
+		element.addEventListener("mouseleave", () => {
+			if (_enter > 0) {
+				_enter--;
+				if (_enter === 0 && _intersect) {
+					if (!SessionStorage_default.FreezeUI) Mouse.intersect = true;
+					getEntityManager()?.setOverEntity(null);
+				}
+			}
+		});
+		element.addEventListener("x_remove", () => {
+			if (_enter > 0) {
+				_enter = 0;
+				if (_intersect) {
+					Mouse.intersect = true;
+					getEntityManager()?.setOverEntity(null);
+				}
+			}
+		});
+		element.addEventListener("mousedown", () => {
+			component.focus();
+			const host = component._host;
+			if (host && !host.contains(document.activeElement)) {
+				host.tabIndex = -1;
+				host.focus({ preventScroll: true });
+			}
+		});
+	}
+	if (component.mouseMode !== MouseMode.CROSS) element.addEventListener("touchstart", (e) => e.stopImmediatePropagation());
+	component._setupShadowCursorEvents();
+}
+var frozenBy, MouseMode;
+var init_MouseMode = __esmMin((() => {
+	init_MouseEventHandler();
+	init_SessionStorage();
+	init_GUIDeps();
+	frozenBy = [];
 	MouseMode = Object.freeze({
 		CROSS: 0,
 		STOP: 1,
 		FREEZE: 2
 	});
-	DENIED_SELECTOR = ".denied";
+}));
+// src/UI/GUI/Scrollbars.js
+function setupScrollbars(component) {
+	const self = component;
+	const root = component._container || component._host;
+	const observeTarget = component._shadow || component._host;
+	setTimeout(() => {
+		if (!component._host || !component._host.parentNode) return;
+		const checkScrollbars = (el) => {
+			const candidates = [el, ...el.querySelectorAll("*")];
+			for (const node of candidates) {
+				if (node.nodeType !== 1) continue;
+				if (node._roScrollbarApplied) {
+					getScrollBar()?.applyDOMScrollbar(node);
+					continue;
+				}
+				const oy = window.getComputedStyle(node).overflowY;
+				if (oy === "auto" || oy === "scroll") getScrollBar()?.applyDOMScrollbar(node);
+			}
+		};
+		checkScrollbars(root);
+		setTimeout(() => checkScrollbars(root), 50);
+		setTimeout(() => checkScrollbars(root), 150);
+		setTimeout(() => checkScrollbars(root), 500);
+		if (!getScrollBar()) ensureDeps().then(() => {
+			if (component._host?.parentNode) checkScrollbars(root);
+		});
+		const observer = new MutationObserver((mutations) => {
+			let needsCheck = false;
+			for (const mutation of mutations) if (mutation.type === "childList") needsCheck = true;
+			else if (mutation.type === "attributes") {
+				if (mutation.attributeName === "style") {
+					const oldVal = mutation.oldValue || "";
+					const wasHidden = oldVal.includes("display: none") || oldVal.includes("display:none");
+					const isHidden = mutation.target.style.display === "none";
+					if (wasHidden && !isHidden) needsCheck = true;
+				} else if (mutation.attributeName === "class") needsCheck = true;
+			}
+			if (needsCheck) checkScrollbars(root);
+		});
+		observer.observe(observeTarget, {
+			childList: true,
+			subtree: true,
+			attributes: true,
+			attributeOldValue: true,
+			attributeFilter: ["style", "class"]
+		});
+		self.__scrollbarObserver = observer;
+	}, 0);
+}
+var init_Scrollbars = __esmMin((() => {
+	init_GUIDeps();
+}));
+// src/UI/GUI/DataAttrs.js
+function processDataAttrs(node, { text = true, images = true, deferredFrom } = {}) {
+	if (!getClient() || !getDB()) {
+		ensureDeps().then(() => processDataAttrs(node, {
+			text,
+			images,
+			deferredFrom
+		}));
+		return;
+	}
+	const background = node.dataset.background;
+	const hover = node.dataset.hover;
+	const down = node.dataset.down;
+	const active = node.dataset.active;
+	const msgId = node.dataset.text;
+	const preload = node.dataset.preload;
+	const DB = getDB();
+	const Client = getClient();
+	let bgUri = null;
+	let hoverUri = null;
+	let downUri = null;
+	let activeUri = null;
+	const state = {
+		hover: false,
+		down: false,
+		active: false
+	};
+	const updateBg = () => {
+		if (state.down && downUri) node.style.backgroundImage = `url(${downUri})`;
+		else if (state.active && activeUri) node.style.backgroundImage = `url(${activeUri})`;
+		else if (state.hover && hoverUri) node.style.backgroundImage = `url(${hoverUri})`;
+		else if (bgUri) node.style.backgroundImage = `url(${bgUri})`;
+		else node.style.backgroundImage = "";
+	};
+	if (text && msgId && DB.getMessage(msgId, "")) node.textContent = DB.getMessage(msgId, "");
+	if (!images) return;
+	if (background) Client.loadFile(`${DB.INTERFACE_PATH}${background}`, (dataURI) => {
+		bgUri = dataURI;
+		if (dataURI instanceof ArrayBuffer) try {
+			const tga = new Targa();
+			tga.load(new Uint8Array(dataURI));
+			bgUri = tga.getDataURL();
+		} catch (e) {
+			console.error(e.message);
+		}
+		if (deferredFrom !== void 0 && node.style.backgroundImage !== deferredFrom) return;
+		updateBg();
+	});
+	if (active) {
+		Client.loadFile(`${DB.INTERFACE_PATH}${active}`, (dataURI) => {
+			activeUri = dataURI;
+			if (node.classList.contains("active")) {
+				state.active = true;
+				updateBg();
+			}
+		});
+		const observer = new MutationObserver((mutations) => {
+			for (const m of mutations) if (m.attributeName === "class") {
+				const isActive = node.classList.contains("active");
+				if (state.active !== isActive) {
+					state.active = isActive;
+					updateBg();
+				}
+			}
+		});
+		observer.observe(node, {
+			attributes: true,
+			attributeFilter: ["class"]
+		});
+		node.addEventListener("x_remove", () => observer.disconnect(), { once: true });
+		if (!node._roActiveObserver) node._roActiveObserver = observer;
+	}
+	if (hover) {
+		Client.loadFile(`${DB.INTERFACE_PATH}${hover}`, (dataURI) => {
+			hoverUri = dataURI;
+		});
+		node.addEventListener("mouseover", () => {
+			state.hover = true;
+			updateBg();
+		});
+		node.addEventListener("mouseout", () => {
+			state.hover = false;
+			updateBg();
+		});
+	}
+	if (down) {
+		Client.loadFile(`${DB.INTERFACE_PATH}${down}`, (dataURI) => {
+			downUri = dataURI;
+		});
+		node.addEventListener("mousedown", () => {
+			state.down = true;
+			updateBg();
+		});
+		node.addEventListener("mouseup", () => {
+			state.down = false;
+			updateBg();
+		});
+		if (!hover) node.addEventListener("mouseout", () => {
+			state.down = false;
+			state.hover = false;
+			updateBg();
+		});
+	}
+	if (preload) {
+		const files = preload.split(";").map((f) => `${DB.INTERFACE_PATH}${f.trim()}`);
+		Client.loadFiles(files);
+	}
+}
+function processAllDataAttrs(component, deferImages = false) {
+	const root = component._shadow || component._host;
+	if (!root) return;
+	const nodes = root.querySelectorAll("[data-background],[data-hover],[data-down],[data-active],[data-text],[data-preload]");
+	for (const node of nodes) {
+		if (!deferImages) {
+			processDataAttrs(node);
+			continue;
+		}
+		processDataAttrs(node, { images: false });
+		const { background, hover, down, active, preload } = node.dataset;
+		if (background || hover || down || active || preload) {
+			const deferredFrom = node.style.backgroundImage;
+			whenDrawn(node, () => processDataAttrs(node, {
+				text: false,
+				deferredFrom
+			}));
+		}
+	}
+}
+/**
+* Compatibility shim for UIComponent.parseHTML.
+* When called via .call(element) or .each(parseHTML),
+* `this` is the DOM element.
+*/
+function parseHTML() {
+	processDataAttrs(this);
+}
+var init_DataAttrs = __esmMin((() => {
+	init_Targa();
+	init_WhenDrawn();
+	init_GUIDeps();
+}));
+// src/UI/GUI/UIProxy.js
+/**
+* Create a minimal jQuery-like proxy for this.ui so that
+* UIManager and old UIComponent.focus() can interoperate
+* during the transition period.
+*/
+function createUIProxy(component) {
+	const host = component._host;
+	const proxy = {
+		0: host,
+		length: 1,
+		css(prop, value) {
+			if (typeof prop === "object") {
+				for (const [k, v] of Object.entries(prop)) host.style[k] = typeof v === "number" && !CSS_NUMBER[k] ? `${v}px` : String(v);
+				return proxy;
+			}
+			if (value === void 0) return window.getComputedStyle(host).getPropertyValue(prop.replace(/([A-Z])/g, "-$1").toLowerCase()) || host.style[prop];
+			host.style[prop] = typeof value === "number" && !CSS_NUMBER[prop] ? `${value}px` : String(value);
+			return proxy;
+		},
+		offset() {
+			const rect = host.getBoundingClientRect();
+			return {
+				left: rect.left + window.scrollX,
+				top: rect.top + window.scrollY
+			};
+		},
+		offsetParent() {
+			let el = host.offsetParent || document.documentElement;
+			while (el && el !== document.documentElement && window.getComputedStyle(el).position === "static") el = el.offsetParent;
+			el = el || document.documentElement;
+			return {
+				length: el ? 1 : 0,
+				0: el
+			};
+		},
+		position() {
+			return {
+				left: host.offsetLeft,
+				top: host.offsetTop
+			};
+		},
+		width() {
+			return host.getBoundingClientRect().width;
+		},
+		height() {
+			return host.getBoundingClientRect().height;
+		},
+		is(selector) {
+			if (selector === ":visible") return host.style.display !== "none" && host.offsetParent !== null;
+			return host.matches(selector);
+		},
+		show() {
+			host.style.display = "";
+			component._fixPositionOverflow();
+			return proxy;
+		},
+		hide() {
+			host.style.display = "none";
+			return proxy;
+		},
+		toggle() {
+			if (host.style.display === "none") {
+				host.style.display = "";
+				component._fixPositionOverflow();
+			} else host.style.display = "none";
+			return proxy;
+		},
+		parent() {
+			return {
+				length: host.parentNode ? 1 : 0,
+				append(child) {
+					host.parentNode?.appendChild(child._host || child[0] || child);
+				}
+			};
+		},
+		detach() {
+			if (host.parentNode) host.parentNode.removeChild(host);
+			return proxy;
+		},
+		appendTo(target) {
+			const t = typeof target === "string" ? document.querySelector(target) : target[0] || target;
+			if (t) t.appendChild(host);
+			return proxy;
+		},
+		trigger(eventName) {
+			host.dispatchEvent(new CustomEvent(eventName, { bubbles: true }));
+			return proxy;
+		},
+		find(selector) {
+			const results = (host.shadowRoot || host).querySelectorAll(selector);
+			const wrapper = {
+				length: results.length,
+				0: results[0],
+				each(fn) {
+					results.forEach((el, i) => fn.call(el, i, el));
+					return wrapper;
+				},
+				click(fn) {
+					results.forEach((el) => el.addEventListener("click", fn));
+					return wrapper;
+				},
+				text(val) {
+					if (val === void 0) return results[0]?.textContent || "";
+					results.forEach((el) => {
+						el.textContent = val;
+					});
+					return wrapper;
+				},
+				show() {
+					results.forEach((el) => {
+						el.style.display = "";
+					});
+					return wrapper;
+				},
+				hide() {
+					results.forEach((el) => {
+						el.style.display = "none";
+					});
+					return wrapper;
+				},
+				css(prop, value) {
+					if (typeof prop === "object") {
+						results.forEach((el) => {
+							for (const [k, v] of Object.entries(prop)) el.style[k] = typeof v === "number" && !CSS_NUMBER[k] ? `${v}px` : String(v);
+						});
+						return wrapper;
+					}
+					if (value === void 0) return results[0] ? window.getComputedStyle(results[0]).getPropertyValue(prop.replace(/([A-Z])/g, "-$1").toLowerCase()) : "";
+					results.forEach((el) => {
+						el.style[prop] = typeof value === "number" && !CSS_NUMBER[prop] ? `${value}px` : String(value);
+					});
+					return wrapper;
+				},
+				height() {
+					return results[0] ? results[0].getBoundingClientRect().height : 0;
+				},
+				width() {
+					return results[0] ? results[0].getBoundingClientRect().width : 0;
+				}
+			};
+			return wrapper;
+		}
+	};
+	component.ui = proxy;
+}
+var CSS_NUMBER;
+var init_UIProxy = __esmMin((() => {
 	CSS_NUMBER = {
 		zIndex: true,
 		opacity: true,
@@ -332596,6 +333234,22 @@ var init_GUIComponent = __esmMin((() => {
 		widows: true,
 		zoom: true
 	};
+}));
+// src/UI/GUIComponent.js
+var GUIComponent;
+var init_GUIComponent = __esmMin((() => {
+	init_Common$1();
+	init_MouseEventHandler();
+	init_SessionStorage();
+	init_ClampToViewport();
+	init_WhenDrawn();
+	init_GUIDeps();
+	init_NoCursorFallback();
+	init_Draggable();
+	init_MouseMode();
+	init_Scrollbars();
+	init_DataAttrs();
+	init_UIProxy();
 	GUIComponent = class GUIComponent {
 		/**
 		* @param {string} name       - Unique component name
@@ -332650,7 +333304,7 @@ var init_GUIComponent = __esmMin((() => {
 			}
 		}
 		_prepare() {
-			_ensureDeps();
+			ensureDeps();
 			this._host = document.createElement("div");
 			this._host.id = this.name;
 			this._host.style.zIndex = "50";
@@ -332659,7 +333313,7 @@ var init_GUIComponent = __esmMin((() => {
 			const commonStyle = document.createElement("style");
 			commonStyle.textContent = Common_default$1;
 			this._shadow.appendChild(commonStyle);
-			this._noCursorStyle = _addNoCursorFallback(this._shadow);
+			this._noCursorStyle = addNoCursorFallback(this._shadow);
 			const compStyle = document.createElement("style");
 			compStyle.setAttribute("data-component", this.name);
 			compStyle.textContent = this._cssText || "";
@@ -332696,14 +333350,14 @@ var init_GUIComponent = __esmMin((() => {
 			}
 			parent.appendChild(this._host);
 			whenDrawn.resume(this._host);
-			if (this._noCursorStyle) _trackNoCursorStyle(this._noCursorStyle);
+			if (this._noCursorStyle) trackNoCursorStyle(this._noCursorStyle);
 			if (this.onKeyDown) this._bindKeyDown();
 			if (this.mouseMode === MouseMode.FREEZE) {
-				if (!_frozenBy.includes(this)) _frozenBy.push(this);
+				if (!frozenBy.includes(this)) frozenBy.push(this);
 				Mouse.intersect = false;
 				SessionStorage_default.FreezeUI = true;
-				_EntityManager?.setOverEntity(null);
-				_Cursor?.setType(_Cursor?.ACTION?.DEFAULT ?? 0);
+				getEntityManager()?.setOverEntity(null);
+				getCursor()?.setType(getCursor()?.ACTION?.DEFAULT ?? 0);
 			}
 			if (this.onAppend) this.onAppend();
 			this._setupScrollbars();
@@ -332720,8 +333374,8 @@ var init_GUIComponent = __esmMin((() => {
 		*/
 		_fixPositionOverflow() {
 			if (!this._host || !this._isDraggable) return;
-			const WIDTH = _Renderer?.width ?? window.innerWidth;
-			const HEIGHT = _Renderer?.height ?? window.innerHeight;
+			const WIDTH = getRenderer()?.width ?? window.innerWidth;
+			const HEIGHT = getRenderer()?.height ?? window.innerHeight;
 			UIClamp(this._host, WIDTH, HEIGHT, this.magnet);
 		}
 		/**
@@ -332739,11 +333393,11 @@ var init_GUIComponent = __esmMin((() => {
 				});
 				this._host.remove();
 				whenDrawn.suspend(this._host);
-				if (this._noCursorStyle) _untrackNoCursorStyle(this._noCursorStyle);
+				if (this._noCursorStyle) untrackNoCursorStyle(this._noCursorStyle);
 				if (this.mouseMode === MouseMode.FREEZE) {
-					const index = _frozenBy.indexOf(this);
-					if (index !== -1) _frozenBy.splice(index, 1);
-					if (!_frozenBy.length) {
+					const index = frozenBy.indexOf(this);
+					if (index !== -1) frozenBy.splice(index, 1);
+					if (!frozenBy.length) {
 						Mouse.intersect = true;
 						SessionStorage_default.FreezeUI = false;
 					}
@@ -332888,330 +333542,17 @@ var init_GUIComponent = __esmMin((() => {
 		* @returns {GUIComponent} this
 		*/
 		draggable(handle) {
-			const host = this._host;
-			const component = this;
-			const SNAP_DISTANCE = 10;
-			if (!host) return this;
-			this._isDraggable = true;
-			let handleEl;
-			if (!handle) handleEl = host;
-			else if (typeof handle === "string") handleEl = this._shadow.querySelector(handle) || this._container.querySelector(handle);
-			else if (handle instanceof HTMLElement) handleEl = handle;
-			else handleEl = handle[0] || handle;
-			if (!handleEl) return this;
-			const onStart = (event) => {
-				if (event.type === "touchstart") {
-					Mouse.screen.x = event.touches[0].pageX;
-					Mouse.screen.y = event.touches[0].pageY;
-				} else if (event.which !== 1) return;
-				const x = host.offsetLeft - Mouse.screen.x;
-				const y = host.offsetTop - Mouse.screen.y;
-				const width = host.offsetWidth;
-				const height = host.offsetHeight;
-				_snapCache = [];
-				if (UI_default.windowmagnet && component.manager) {
-					const hostParent = host.offsetParent;
-					const components = component.manager.components;
-					for (const name in components) {
-						const other = components[name];
-						if (!other || other === component || !other.__active || !other.needFocus || !other.ui || !other.ui.is(":visible")) continue;
-						const el = other._host || other.ui && other.ui[0];
-						if (!el) continue;
-						if (hostParent && el.offsetParent && el.offsetParent !== hostParent) continue;
-						_snapCache.push({
-							left: el.offsetLeft,
-							top: el.offsetTop,
-							right: el.offsetLeft + el.offsetWidth,
-							bottom: el.offsetTop + el.offsetHeight
-						});
-					}
-				}
-				host.style.transition = "";
-				host.offsetHeight;
-				let drag;
-				let currentOpacity = 1;
-				let lastMx = Mouse.screen.x;
-				let lastMy = Mouse.screen.y;
-				const onEnd = (ev) => {
-					if (ev.type === "touchend" || ev.which === 1 || ev.isTrigger) {
-						cancelAnimationFrame(drag);
-						window.removeEventListener("mouseup", onEnd);
-						window.removeEventListener("touchend", onEnd);
-						_snapCache = [];
-						if (component.gridSnap) {
-							const gw = component.gridSnap.width;
-							const gh = component.gridSnap.height;
-							const padX = component.gridSnap.padX || 0;
-							const padY = component.gridSnap.padY || 0;
-							const curRect = host.getBoundingClientRect();
-							const maxXI = Math.floor(((_Renderer?.width ?? window.innerWidth) - width - padX) / gw);
-							const maxYI = Math.floor(((_Renderer?.height ?? window.innerHeight) - height - padY) / gh);
-							let gxi = Math.round((curRect.left - padX) / gw);
-							let gyi = Math.round((curRect.top - padY) / gh);
-							gxi = Math.max(0, Math.min(gxi, maxXI));
-							gyi = Math.max(0, Math.min(gyi, maxYI));
-							const snappedX = gxi * gw + padX;
-							const snappedY = gyi * gh + padY;
-							host.style.transition = `left ${component.snapDuration || 150}ms, top ${component.snapDuration || 150}ms, opacity 150ms`;
-							host.style.left = snappedX + "px";
-							host.style.top = snappedY + "px";
-							host.style.opacity = "1";
-							const onTransEnd = () => {
-								host.style.transition = "";
-								host.removeEventListener("transitionend", onTransEnd);
-								if (component.onDragEnd) component.onDragEnd();
-							};
-							host.addEventListener("transitionend", onTransEnd);
-						} else {
-							host.style.transition = "opacity 150ms";
-							host.style.opacity = "1";
-							const onTransEnd = () => {
-								host.style.transition = "";
-								host.removeEventListener("transitionend", onTransEnd);
-								if (component.onDragEnd) component.onDragEnd();
-							};
-							host.addEventListener("transitionend", onTransEnd);
-						}
-					}
-				};
-				window.addEventListener("mouseup", onEnd);
-				window.addEventListener("touchend", onEnd);
-				const dragging = () => {
-					const mx = Mouse.screen.x;
-					const my = Mouse.screen.y;
-					if (mx === lastMx && my === lastMy) {
-						drag = requestAnimationFrame(dragging);
-						return;
-					}
-					lastMx = mx;
-					lastMy = my;
-					let x_ = mx + x;
-					let y_ = my + y;
-					currentOpacity = Math.max(currentOpacity - .02, .7);
-					if (component.magnet) component.magnet.TOP = component.magnet.BOTTOM = component.magnet.LEFT = component.magnet.RIGHT = false;
-					if (Math.abs(x_) < SNAP_DISTANCE) {
-						x_ = 0;
-						if (component.magnet) component.magnet.LEFT = true;
-					}
-					if (Math.abs(y_) < SNAP_DISTANCE) {
-						y_ = 0;
-						if (component.magnet) component.magnet.TOP = true;
-					}
-					if (Math.abs(x_ + width - Mouse.screen.width) < SNAP_DISTANCE) {
-						x_ = Mouse.screen.width - width;
-						if (component.magnet) component.magnet.RIGHT = true;
-					}
-					if (Math.abs(y_ + height - Mouse.screen.height) < SNAP_DISTANCE) {
-						y_ = Mouse.screen.height - height;
-						if (component.magnet) component.magnet.BOTTOM = true;
-					}
-					if (UI_default.windowmagnet && component.manager) {
-						const lockX = component.magnet && (component.magnet.LEFT || component.magnet.RIGHT);
-						const lockY = component.magnet && (component.magnet.TOP || component.magnet.BOTTOM);
-						let snapX = null, snapY = null;
-						let snapXD = 11, snapYD = 11;
-						const checkX = (val) => {
-							const d = Math.abs(val - x_);
-							if (d < snapXD) {
-								snapXD = d;
-								snapX = val;
-							}
-						};
-						const checkY = (val) => {
-							const d = Math.abs(val - y_);
-							if (d < snapYD) {
-								snapYD = d;
-								snapY = val;
-							}
-						};
-						const isNear = (sA, eA, sB, eB) => !(eA + SNAP_DISTANCE < sB || eB + SNAP_DISTANCE < sA);
-						for (let i = 0; i < _snapCache.length; i++) {
-							const box = _snapCache[i];
-							if (!lockX && isNear(y_, y_ + height, box.top, box.bottom)) {
-								checkX(box.left);
-								checkX(box.right);
-								checkX(box.left - width);
-								checkX(box.right - width);
-							}
-							if (!lockY && isNear(x_, x_ + width, box.left, box.right)) {
-								checkY(box.top);
-								checkY(box.bottom);
-								checkY(box.top - height);
-								checkY(box.bottom - height);
-							}
-						}
-						if (!lockX && snapX !== null) x_ = snapX;
-						if (!lockY && snapY !== null) y_ = snapY;
-					}
-					host.style.left = x_ + "px";
-					host.style.top = y_ + "px";
-					host.style.opacity = currentOpacity;
-					drag = requestAnimationFrame(dragging);
-				};
-				drag = requestAnimationFrame(dragging);
-			};
-			handleEl.addEventListener("mousedown", onStart);
-			handleEl.addEventListener("touchstart", onStart);
+			attachDraggable(this, handle);
 			return this;
 		}
 		_setupShadowCursorEvents() {
-			const container = this._container;
-			if (!container) return;
-			const CLICKABLE_SELECTOR = [
-				"a",
-				"button",
-				"ui-button",
-				"input",
-				"label",
-				"select",
-				"textarea",
-				".checkbox",
-				".item-link",
-				".draggable",
-				".ro-custom-scrollbar",
-				".ro-custom-scrollbar *"
-			].join(",");
-			let _hovering = false;
-			let _savedType = _Cursor?.ACTION?.DEFAULT ?? 0;
-			const cursorFor = (target) => (target.closest(DENIED_SELECTOR) ? _Cursor?.ACTION?.NOWALK : _Cursor?.ACTION?.CLICK) ?? 0;
-			container.addEventListener("mouseover", (e) => {
-				const target = e.target;
-				if (target.closest && target.closest(CLICKABLE_SELECTOR)) {
-					if (!_hovering) {
-						_savedType = _Cursor?.getActualType() ?? 0;
-						_hovering = true;
-					}
-					const wanted = cursorFor(target);
-					if ((_Cursor?.getActualType() ?? 0) !== wanted) _Cursor?.setType(wanted);
-				}
-			});
-			container.addEventListener("mouseout", (e) => {
-				if (!_hovering) return;
-				const related = e.relatedTarget;
-				if (related && related.closest && related.closest(CLICKABLE_SELECTOR)) return;
-				_hovering = false;
-				_Cursor?.setType(_savedType);
-			});
-			container.addEventListener("x_remove", () => {
-				if (_hovering) {
-					_hovering = false;
-					_Cursor?.setType(_savedType);
-				}
-			});
-			container.addEventListener("mousedown", (e) => {
-				const target = e.target;
-				if (target.closest && target.closest(CLICKABLE_SELECTOR)) {
-					if (!_hovering) {
-						_savedType = _Cursor?.getActualType() ?? 0;
-						_hovering = true;
-					}
-					if (target.closest(DENIED_SELECTOR)) _Cursor?.setType(_Cursor?.ACTION?.NOWALK ?? 0);
-					else _Cursor?.setType(_Cursor?.ACTION?.CLICK ?? 0, true, 1);
-				}
-			});
-			container.addEventListener("mouseup", (e) => {
-				const target = e.target;
-				if (target.closest && target.closest(CLICKABLE_SELECTOR)) {
-					const wanted = cursorFor(target);
-					if ((_Cursor?.getActualType() ?? 0) !== wanted) _Cursor?.setType(wanted);
-					return;
-				}
-				if (_hovering) {
-					_hovering = false;
-					_Cursor?.setType(_savedType);
-				}
-			});
+			setupShadowCursorEvents(this);
 		}
 		_setupMouseMode() {
-			const element = this.__mouseStopBlock || this._host;
-			if (this.mouseMode === GUIComponent.MouseMode.STOP) {
-				let _intersect;
-				let _enter = 0;
-				element.addEventListener("mouseenter", () => {
-					if (_enter === 0) {
-						_intersect = Mouse.intersect;
-						_enter++;
-						if (_intersect) {
-							Mouse.intersect = false;
-							_Cursor?.setType(_Cursor?.ACTION?.DEFAULT ?? 0);
-							_EntityManager?.setOverEntity(null);
-						}
-					}
-				});
-				element.addEventListener("mouseleave", () => {
-					if (_enter > 0) {
-						_enter--;
-						if (_enter === 0 && _intersect) {
-							if (!SessionStorage_default.FreezeUI) Mouse.intersect = true;
-							_EntityManager?.setOverEntity(null);
-						}
-					}
-				});
-				element.addEventListener("x_remove", () => {
-					if (_enter > 0) {
-						_enter = 0;
-						if (_intersect) {
-							Mouse.intersect = true;
-							_EntityManager?.setOverEntity(null);
-						}
-					}
-				});
-				element.addEventListener("mousedown", () => {
-					this.focus();
-					const host = this._host;
-					if (host && !host.contains(document.activeElement)) {
-						host.tabIndex = -1;
-						host.focus({ preventScroll: true });
-					}
-				});
-			}
-			if (this.mouseMode !== GUIComponent.MouseMode.CROSS) element.addEventListener("touchstart", (e) => e.stopImmediatePropagation());
-			this._setupShadowCursorEvents();
+			setupMouseMode(this);
 		}
 		_setupScrollbars() {
-			const self = this;
-			const root = this._container || this._host;
-			const observeTarget = this._shadow || this._host;
-			setTimeout(() => {
-				if (!this._host || !this._host.parentNode) return;
-				const checkScrollbars = (el) => {
-					const candidates = [el, ...el.querySelectorAll("*")];
-					for (const node of candidates) {
-						if (node.nodeType !== 1) continue;
-						if (node._roScrollbarApplied) {
-							_ScrollBar?.applyDOMScrollbar(node);
-							continue;
-						}
-						const oy = window.getComputedStyle(node).overflowY;
-						if (oy === "auto" || oy === "scroll") _ScrollBar?.applyDOMScrollbar(node);
-					}
-				};
-				checkScrollbars(root);
-				setTimeout(() => checkScrollbars(root), 50);
-				setTimeout(() => checkScrollbars(root), 150);
-				setTimeout(() => checkScrollbars(root), 500);
-				const observer = new MutationObserver((mutations) => {
-					let needsCheck = false;
-					for (const mutation of mutations) if (mutation.type === "childList") needsCheck = true;
-					else if (mutation.type === "attributes") {
-						if (mutation.attributeName === "style") {
-							const oldVal = mutation.oldValue || "";
-							const wasHidden = oldVal.includes("display: none") || oldVal.includes("display:none");
-							const isHidden = mutation.target.style.display === "none";
-							if (wasHidden && !isHidden) needsCheck = true;
-						} else if (mutation.attributeName === "class") needsCheck = true;
-					}
-					if (needsCheck) checkScrollbars(root);
-				});
-				observer.observe(observeTarget, {
-					childList: true,
-					subtree: true,
-					attributes: true,
-					attributeOldValue: true,
-					attributeFilter: ["style", "class"]
-				});
-				self.__scrollbarObserver = observer;
-			}, 0);
+			setupScrollbars(this);
 		}
 		/**
 		* Process legacy data-* attributes on a single DOM element.
@@ -333226,110 +333567,8 @@ var init_GUIComponent = __esmMin((() => {
 		*   when its images were deferred: a different one set since then by the
 		*   window itself stays
 		*/
-		static processDataAttrs(node, { text = true, images = true, deferredFrom } = {}) {
-			if (!_Client || !_DB) {
-				_ensureDeps().then(() => GUIComponent.processDataAttrs(node, {
-					text,
-					images,
-					deferredFrom
-				}));
-				return;
-			}
-			const background = node.dataset.background;
-			const hover = node.dataset.hover;
-			const down = node.dataset.down;
-			const active = node.dataset.active;
-			const msgId = node.dataset.text;
-			const preload = node.dataset.preload;
-			let bgUri = null;
-			let hoverUri = null;
-			let downUri = null;
-			let activeUri = null;
-			const state = {
-				hover: false,
-				down: false,
-				active: false
-			};
-			const updateBg = () => {
-				if (state.down && downUri) node.style.backgroundImage = `url(${downUri})`;
-				else if (state.active && activeUri) node.style.backgroundImage = `url(${activeUri})`;
-				else if (state.hover && hoverUri) node.style.backgroundImage = `url(${hoverUri})`;
-				else if (bgUri) node.style.backgroundImage = `url(${bgUri})`;
-				else node.style.backgroundImage = "";
-			};
-			if (text && msgId && _DB?.getMessage(msgId, "")) node.textContent = _DB?.getMessage(msgId, "");
-			if (!images) return;
-			if (background) _Client?.loadFile(_DB.INTERFACE_PATH + background, (dataURI) => {
-				bgUri = dataURI;
-				if (dataURI instanceof ArrayBuffer) try {
-					const tga = new Targa();
-					tga.load(new Uint8Array(dataURI));
-					bgUri = tga.getDataURL();
-				} catch (e) {
-					console.error(e.message);
-				}
-				if (deferredFrom !== void 0 && node.style.backgroundImage !== deferredFrom) return;
-				updateBg();
-			});
-			if (active) {
-				_Client?.loadFile(_DB.INTERFACE_PATH + active, (dataURI) => {
-					activeUri = dataURI;
-					if (node.classList.contains("active")) {
-						state.active = true;
-						updateBg();
-					}
-				});
-				const observer = new MutationObserver((mutations) => {
-					for (const m of mutations) if (m.attributeName === "class") {
-						const isActive = node.classList.contains("active");
-						if (state.active !== isActive) {
-							state.active = isActive;
-							updateBg();
-						}
-					}
-				});
-				observer.observe(node, {
-					attributes: true,
-					attributeFilter: ["class"]
-				});
-				node.addEventListener("x_remove", () => observer.disconnect(), { once: true });
-				if (!node._roActiveObserver) node._roActiveObserver = observer;
-			}
-			if (hover) {
-				_Client?.loadFile(_DB.INTERFACE_PATH + hover, (dataURI) => {
-					hoverUri = dataURI;
-				});
-				node.addEventListener("mouseover", () => {
-					state.hover = true;
-					updateBg();
-				});
-				node.addEventListener("mouseout", () => {
-					state.hover = false;
-					updateBg();
-				});
-			}
-			if (down) {
-				_Client?.loadFile(_DB.INTERFACE_PATH + down, (dataURI) => {
-					downUri = dataURI;
-				});
-				node.addEventListener("mousedown", () => {
-					state.down = true;
-					updateBg();
-				});
-				node.addEventListener("mouseup", () => {
-					state.down = false;
-					updateBg();
-				});
-				if (!hover) node.addEventListener("mouseout", () => {
-					state.down = false;
-					state.hover = false;
-					updateBg();
-				});
-			}
-			if (preload) {
-				const files = preload.split(";").map((f) => _DB.INTERFACE_PATH + f.trim());
-				_Client?.loadFiles(files);
-			}
+		static processDataAttrs(node, options) {
+			return processDataAttrs(node, options);
 		}
 		/**
 		* Walk the shadow DOM and process all elements with data-* attributes.
@@ -333339,24 +333578,7 @@ var init_GUIComponent = __esmMin((() => {
 		*   node's images when it is first drawn (UI/WhenDrawn.js)
 		*/
 		_processAllDataAttrs(deferImages = false) {
-			const root = this._shadow || this._host;
-			if (!root) return;
-			const nodes = root.querySelectorAll("[data-background],[data-hover],[data-down],[data-active],[data-text],[data-preload]");
-			for (const node of nodes) {
-				if (!deferImages) {
-					GUIComponent.processDataAttrs(node);
-					continue;
-				}
-				GUIComponent.processDataAttrs(node, { images: false });
-				const { background, hover, down, active, preload } = node.dataset;
-				if (background || hover || down || active || preload) {
-					const deferredFrom = node.style.backgroundImage;
-					whenDrawn(node, () => GUIComponent.processDataAttrs(node, {
-						text: false,
-						deferredFrom
-					}));
-				}
-			}
+			return processAllDataAttrs(this, deferImages);
 		}
 		/**
 		* Compatibility shim for UIComponent.parseHTML.
@@ -333364,9 +333586,7 @@ var init_GUIComponent = __esmMin((() => {
 		* `this` is the DOM element.
 		*/
 		get parseHTML() {
-			return function() {
-				GUIComponent.processDataAttrs(this);
-			};
+			return parseHTML;
 		}
 		reloadCSS(newCssText) {
 			if (this._shadow) {
@@ -333394,145 +333614,7 @@ var init_GUIComponent = __esmMin((() => {
 		* during the transition period.
 		*/
 		_createUIProxy() {
-			const host = this._host;
-			const component = this;
-			const proxy = {
-				0: host,
-				length: 1,
-				css(prop, value) {
-					if (typeof prop === "object") {
-						for (const [k, v] of Object.entries(prop)) host.style[k] = typeof v === "number" && !CSS_NUMBER[k] ? v + "px" : String(v);
-						return proxy;
-					}
-					if (value === void 0) return window.getComputedStyle(host).getPropertyValue(prop.replace(/([A-Z])/g, "-$1").toLowerCase()) || host.style[prop];
-					host.style[prop] = typeof value === "number" && !CSS_NUMBER[prop] ? value + "px" : String(value);
-					return proxy;
-				},
-				offset() {
-					const rect = host.getBoundingClientRect();
-					return {
-						left: rect.left + window.scrollX,
-						top: rect.top + window.scrollY
-					};
-				},
-				offsetParent() {
-					let el = host.offsetParent || document.documentElement;
-					while (el && el !== document.documentElement && window.getComputedStyle(el).position === "static") el = el.offsetParent;
-					el = el || document.documentElement;
-					return {
-						length: el ? 1 : 0,
-						0: el
-					};
-				},
-				position() {
-					return {
-						left: host.offsetLeft,
-						top: host.offsetTop
-					};
-				},
-				width() {
-					return host.getBoundingClientRect().width;
-				},
-				height() {
-					return host.getBoundingClientRect().height;
-				},
-				is(selector) {
-					if (selector === ":visible") return host.style.display !== "none" && host.offsetParent !== null;
-					return host.matches(selector);
-				},
-				show() {
-					host.style.display = "";
-					component._fixPositionOverflow();
-					return proxy;
-				},
-				hide() {
-					host.style.display = "none";
-					return proxy;
-				},
-				toggle() {
-					if (host.style.display === "none") {
-						host.style.display = "";
-						component._fixPositionOverflow();
-					} else host.style.display = "none";
-					return proxy;
-				},
-				parent() {
-					return {
-						length: host.parentNode ? 1 : 0,
-						append(child) {
-							host.parentNode?.appendChild(child._host || child[0] || child);
-						}
-					};
-				},
-				detach() {
-					if (host.parentNode) host.parentNode.removeChild(host);
-					return proxy;
-				},
-				appendTo(target) {
-					const t = typeof target === "string" ? document.querySelector(target) : target[0] || target;
-					if (t) t.appendChild(host);
-					return proxy;
-				},
-				trigger(eventName) {
-					host.dispatchEvent(new CustomEvent(eventName, { bubbles: true }));
-					return proxy;
-				},
-				find(selector) {
-					const results = (host.shadowRoot || host).querySelectorAll(selector);
-					const wrapper = {
-						length: results.length,
-						0: results[0],
-						each(fn) {
-							results.forEach((el, i) => fn.call(el, i, el));
-							return wrapper;
-						},
-						click(fn) {
-							results.forEach((el) => el.addEventListener("click", fn));
-							return wrapper;
-						},
-						text(val) {
-							if (val === void 0) return results[0]?.textContent || "";
-							results.forEach((el) => {
-								el.textContent = val;
-							});
-							return wrapper;
-						},
-						show() {
-							results.forEach((el) => {
-								el.style.display = "";
-							});
-							return wrapper;
-						},
-						hide() {
-							results.forEach((el) => {
-								el.style.display = "none";
-							});
-							return wrapper;
-						},
-						css(prop, value) {
-							if (typeof prop === "object") {
-								results.forEach((el) => {
-									for (const [k, v] of Object.entries(prop)) el.style[k] = typeof v === "number" && !CSS_NUMBER[k] ? v + "px" : String(v);
-								});
-								return wrapper;
-							}
-							if (value === void 0) return results[0] ? window.getComputedStyle(results[0]).getPropertyValue(prop.replace(/([A-Z])/g, "-$1").toLowerCase()) : "";
-							results.forEach((el) => {
-								el.style[prop] = typeof value === "number" && !CSS_NUMBER[prop] ? value + "px" : String(value);
-							});
-							return wrapper;
-						},
-						height() {
-							return results[0] ? results[0].getBoundingClientRect().height : 0;
-						},
-						width() {
-							return results[0] ? results[0].getBoundingClientRect().width : 0;
-						}
-					};
-					return wrapper;
-				}
-			};
-			this.ui = proxy;
+			return createUIProxy(this);
 		}
 	};
 }));
