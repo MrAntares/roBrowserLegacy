@@ -33,4 +33,4 @@ linux:
 mac:
     target:
         - dir
-    icon: applications/electron/icon.ico
+    icon: applications/electron/icon.png
