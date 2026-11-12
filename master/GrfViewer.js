@@ -248560,42 +248560,10 @@ async function startLua(createVMs = createLuaVMs) {
 	LuaModuleLoader.clearCache();
 	const [l, ha, ma, dha, dma] = await createVMs();
 	lua = LuaModuleLoader.setup(l);
-	HO_AI = LuaModuleLoader.setup(ha, { searchPaths: [
-		"./?.lua",
-		"./?.lub",
-		"AI/USER_AI/?.lua",
-		"AI/USER_AI/?.lub",
-		"AI/?.lua",
-		"AI/?.lub",
-		...LuaModuleLoader.DEFAULT_SEARCH_PATHS
-	] });
-	MER_AI = LuaModuleLoader.setup(ma, { searchPaths: [
-		"./?.lua",
-		"./?.lub",
-		"AI/USER_AI/?.lua",
-		"AI/USER_AI/?.lub",
-		"AI/?.lua",
-		"AI/?.lub",
-		...LuaModuleLoader.DEFAULT_SEARCH_PATHS
-	] });
-	default_HO_AI = LuaModuleLoader.setup(dha, { searchPaths: [
-		"./?.lua",
-		"./?.lub",
-		"AI/?.lua",
-		"AI/?.lub",
-		"AI/USER_AI/?.lua",
-		"AI/USER_AI/?.lub",
-		...LuaModuleLoader.DEFAULT_SEARCH_PATHS
-	] });
-	default_MER_AI = LuaModuleLoader.setup(dma, { searchPaths: [
-		"./?.lua",
-		"./?.lub",
-		"AI/?.lua",
-		"AI/?.lub",
-		"AI/USER_AI/?.lua",
-		"AI/USER_AI/?.lub",
-		...LuaModuleLoader.DEFAULT_SEARCH_PATHS
-	] });
+	HO_AI = ha;
+	MER_AI = ma;
+	default_HO_AI = dha;
+	default_MER_AI = dma;
 }
 var lua, HO_AI, MER_AI, default_HO_AI, default_MER_AI;
 var init_LuaRuntime = __esmMin((() => {
