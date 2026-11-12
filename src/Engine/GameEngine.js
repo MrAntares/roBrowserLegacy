@@ -341,4 +341,3 @@ function onThreadLog(data) {
  * Export
  */
 export default GameEngine;
-

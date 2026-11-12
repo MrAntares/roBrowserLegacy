@@ -9,7 +9,6 @@ export function createMapLoaders(getUserCharpage) {
 	const userStringDecoder = TextEncoding;
 	const resolveUserCharpage = typeof getUserCharpage === 'function' ? getUserCharpage : () => getUserCharpage;
 	function loadWorldMapInfo(basePath, onEnd) {
-
 		const files = ['worldviewdata_language.lub', 'worldviewdata_list.lub', 'worldviewdata_table.lub'];
 
 		const dirPath = basePath.endsWith('/') ? basePath : basePath + '/';
@@ -196,7 +195,6 @@ export function createMapLoaders(getUserCharpage) {
 	}
 
 	function loadTownInfoFile(filename, callback, onEnd) {
-
 		Client.loadFile(
 			filename,
 			async function (file) {
@@ -237,7 +235,6 @@ export function createMapLoaders(getUserCharpage) {
 	}
 
 	function loadPrivateAirship(filename, callback, onEnd) {
-
 		Client.loadFile(
 			filename,
 			async function (file) {

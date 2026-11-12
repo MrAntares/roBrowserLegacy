@@ -939,4 +939,3 @@ function onServerClosed(pkt) {
  * Export
  */
 export default LoginEngine;
-

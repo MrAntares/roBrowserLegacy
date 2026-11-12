@@ -201,4 +201,3 @@ export function createTableLoaders(getUserCharpage) {
 
 	return { loadTable, loadCSV, loadXMLFile, loadBSONFile };
 }
-

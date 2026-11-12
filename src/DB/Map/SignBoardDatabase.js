@@ -61,7 +61,6 @@ export function createSignBoardDatabase(getUserCharpage) {
 	}
 
 	function loadSignBoardList(filename, callback, onEnd) {
-
 		Client.loadFile(
 			filename,
 			async function (file) {

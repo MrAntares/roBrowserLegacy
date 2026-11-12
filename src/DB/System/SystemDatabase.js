@@ -74,7 +74,6 @@ export function createSystemDatabase(DB, getUserCharpage) {
 	const userStringDecoder = TextEncoding;
 	const resolveUserCharpage = typeof getUserCharpage === 'function' ? getUserCharpage : () => getUserCharpage;
 	function loadAttendanceFile(filename, callback, onEnd) {
-
 		Client.loadFile(
 			filename,
 			async function (file) {
@@ -112,7 +111,6 @@ export function createSystemDatabase(DB, getUserCharpage) {
 	}
 
 	function loadTitleTable(filename, callback, onEnd) {
-
 		Client.loadFile(
 			filename,
 			async function (file) {
@@ -156,7 +154,6 @@ export function createSystemDatabase(DB, getUserCharpage) {
 	}
 
 	function loadQuestInfo(filename, callback, onEnd) {
-
 		const loadPromise = new Promise((resolve, reject) => {
 			Client.loadFile(filename, resolve, reject);
 		});
@@ -308,7 +305,6 @@ export function createSystemDatabase(DB, getUserCharpage) {
 	}
 
 	function loadCashShopBanner(filename, callback, onEnd) {
-
 		Client.loadFile(
 			filename,
 			async function (file) {

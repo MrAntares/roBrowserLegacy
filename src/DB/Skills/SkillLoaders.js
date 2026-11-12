@@ -11,7 +11,6 @@ export function createSkillLoaders(DB, getUserCharpage) {
 	const userStringDecoder = TextEncoding;
 	const resolveUserCharpage = typeof getUserCharpage === 'function' ? getUserCharpage : () => getUserCharpage;
 	function loadSkillInfoList(filename, callback, onEnd) {
-
 		Client.loadFile(
 			filename,
 			async function (file) {
@@ -174,7 +173,6 @@ export function createSkillLoaders(DB, getUserCharpage) {
 	}
 
 	function loadSkillTreeView(filename, callback, onEnd) {
-
 		// First load jobinheritlist.lub
 		Client.loadFile(
 			DB.LUA_PATH + 'skillinfoz/jobinheritlist.lub',
@@ -199,7 +197,6 @@ export function createSkillLoaders(DB, getUserCharpage) {
 	}
 
 	function loadSkillTreeViewData(filename, callback, onEnd) {
-
 		// Start from the built-in layout every time, so a second client loaded
 		// after a server switch never inherits the first one's placements.
 		resetSkillTree(SkillTreeView);

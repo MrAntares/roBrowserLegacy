@@ -8,7 +8,6 @@ import Client from 'Core/Client.js';
 const userStringDecoder = TextEncoding;
 
 export function loadWeaponTable(filename, callback, onEnd) {
-
 	Client.loadFile(
 		filename,
 		async function (file) {

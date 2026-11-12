@@ -81,4 +81,3 @@ export async function startLua(createVMs = createLuaVMs) {
 	});
 	return true;
 }
-

@@ -54,7 +54,6 @@ export function createItemDatabase(DB, getUserCharpage, MsgStringTable) {
 			clearTable(table);
 	}
 	function loadItemInfo(filename, callback, onEnd) {
-
 		const loadPromise = new Promise((resolve, reject) => {
 			Client.loadFile(filename, resolve, reject);
 		});
@@ -188,7 +187,6 @@ export function createItemDatabase(DB, getUserCharpage, MsgStringTable) {
 	}
 
 	function loadLaphineSysFile(filename, callback, onEnd) {
-
 		Client.loadFile(
 			filename,
 			async function (file) {
@@ -277,7 +275,6 @@ export function createItemDatabase(DB, getUserCharpage, MsgStringTable) {
 	}
 
 	function loadLaphineUpgFile(filename, callback, onEnd) {
-
 		Client.loadFile(
 			filename,
 			async function (file) {
@@ -370,7 +367,6 @@ export function createItemDatabase(DB, getUserCharpage, MsgStringTable) {
 	}
 
 	function loadItemDBTable(filename, callback, onEnd) {
-
 		Client.loadFile(
 			filename,
 			async function (file) {
@@ -423,7 +419,6 @@ export function createItemDatabase(DB, getUserCharpage, MsgStringTable) {
 	}
 
 	function loadItemReformFile(filename, callback, onEnd) {
-
 		Client.loadFile(
 			filename,
 			async function (file) {
@@ -564,7 +559,6 @@ export function createItemDatabase(DB, getUserCharpage, MsgStringTable) {
 	}
 
 	function loadEnchantListFile(basePath, onEnd) {
-
 		const normalizedBase = basePath.replace(/\.(lub|lua)$/i, '');
 		const defFile = normalizedBase + '_f.lub';
 		const listFile = normalizedBase + '.lub';

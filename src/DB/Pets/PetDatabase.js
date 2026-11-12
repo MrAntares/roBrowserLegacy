@@ -17,7 +17,6 @@ export function setPetTalkTable(table) {
 }
 
 export function loadPetInfo(filename, callback, onEnd) {
-
 	Client.loadFile(
 		filename,
 		async function (file) {
@@ -98,7 +97,6 @@ export function loadPetInfo(filename, callback, onEnd) {
 }
 
 export function loadPetEvolution(filename, callback, onEnd) {
-
 	const loadPromise = new Promise((resolve, reject) => {
 		Client.loadFile(filename, resolve, reject);
 	});
