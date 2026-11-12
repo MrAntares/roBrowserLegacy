@@ -48,18 +48,32 @@ When no bugs are found, confirm explicitly that the PR was reviewed and no issue
 
 ## DB / Lua runtime – concurrent execution
 
-- `DB.lazyInit` NEVER runs in parallel. It is protected by the `DB.startedLazyInit` flag
-  in `src/Engine/LoginEngine.js` (`LoginEngine.init`). This flag is only released
-  within `DB.onReady` or the `catch` block of `lazyInit`.
-- Once loading begins, the player cannot interact with the game, return to the
-  server selection screen, or switch servers until the loading process is complete.
-- Therefore, do NOT flag issues such as "switching servers during loading,"
-  "overlapping `startLua` calls," "an outdated tracker invoking `DB.onReady`," or the
-  absence of generation/invalidation counters in `src/DB/Loaders/LuaRuntime.js` and
-  `src/DB/Bootstrap/DBBootstrap.js`.
-- Only raise a concern if a PR introduces a new code path that calls
-  `DB.lazyInit`/`startLua` without passing through the `DB.startedLazyInit` gate,
-  or if it removes/modifies this gate.
+- `DB.lazyInit` NEVER runs in parallel. It is guarded by the `DB.startedLazyInit`
+  flag in `src/Engine/LoginEngine.js` (`LoginEngine.init`).
+- `DB.startedLazyInit` is released only in:
+    - `DB.onReady` (load finished);
+    - the `catch` block of `DB.lazyInit` (load failed);
+    - `onLoginServerSelected` in `src/Engine/GameEngine.js`, which resets
+      `DB.isLoaded` / `DB.startedLazyInit` to reload the DB for a different server.
+      This reset is safe because the server list (`WinList`) is removed before
+      `LoginEngine.init` is called, and it is only reachable again after the
+      previous load has completed and the login screen was shown.
+- While loading, only the `Background` screen is displayed (background image +
+  progress bar). It has no buttons or any other interaction, so the player cannot
+  go back to server selection or switch servers until loading completes.
+- Pressing F5 reloads the whole page and wipes all JS state (Lua VMs, trackers,
+  flags), so it does not cause concurrent execution either.
+- Therefore, do NOT flag issues such as "switching servers during loading",
+  "overlapping `startLua` calls", "a stale tracker invoking `DB.onReady`", or the
+  absence of generation/invalidation counters in `src/DB/Loaders/LuaRuntime.js`
+  and `src/DB/Bootstrap/DBBootstrap.js`.
+- Only raise a concern if a PR:
+    - adds a new code path that calls `DB.lazyInit` / `startLua` without going
+      through the `DB.startedLazyInit` gate;
+    - adds a new place that resets `DB.startedLazyInit` / `DB.isLoaded`;
+    - makes `WinList` / `onLoginServerSelected` (or any interactive UI) reachable
+      while a load is in progress;
+    - removes or changes this gate.
 
 ---
 
