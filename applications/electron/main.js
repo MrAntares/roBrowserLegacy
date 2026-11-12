@@ -3,7 +3,6 @@ import { URL, fileURLToPath } from 'node:url';
 import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
-import glob from 'glob';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -18,11 +17,21 @@ const projectRoot = path.resolve(__dirname, '..', '..');
 const aliasConfig = JSON.parse(fs.readFileSync(path.join(projectRoot, 'aliases.json'), 'utf8'));
 const ALIAS_REGEX = new RegExp(`from\\s+['"](${aliasConfig.dirs.join('|')})/(.*?)['"]`, 'g');
 
-const customFiles = new Set(
-	fs.existsSync(path.join(projectRoot, 'custom'))
-		? glob.sync('custom/**/*', { cwd: projectRoot, nodir: true }).map(f => f.slice(7)) // 'custom/UI/...' → 'UI/...'
-		: []
-);
+function scanCustomFiles(dir, base = dir, out = new Set()) {
+	if (!fs.existsSync(dir)) return out;
+	for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+		const full = path.join(dir, entry.name);
+		if (entry.isDirectory()) {
+			scanCustomFiles(full, base, out);
+		} else if (entry.name.endsWith('.js')) {
+			// 'custom/UI/...' → 'UI/...' com forward slashes
+			out.add(path.relative(base, full).replace(/\\/g, '/'));
+		}
+	}
+	return out;
+}
+
+const customFiles = scanCustomFiles(path.join(projectRoot, 'custom'));
 
 if (customFiles.size) {
 	console.log('[custom] overrides:', [...customFiles]);
