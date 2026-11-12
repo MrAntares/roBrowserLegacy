@@ -18,12 +18,14 @@ const buildDate = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
 const dist = './dist/';
 const platform = 'Web';
 
+const customAliases = getCustomAliases(projectRoot);
+if (customAliases.length) {
+	console.log('[custom] overrides:');
+	for (const a of customAliases) console.log(' ', a.specifier, '→', a.replacement);
+}
 const aliases = [
-	...getCustomAliases(projectRoot),
-	...aliasConfig.dirs.map(d => ({
-		find: d,
-		replacement: path.resolve(projectRoot, 'src', d)
-	}))
+	...customAliases,
+	...aliasConfig.dirs.map(d => ({ find: d, replacement: path.resolve(projectRoot, 'src', d) }))
 ];
 
 const header = [

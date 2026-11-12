@@ -1,22 +1,28 @@
 // applications/shared/importmap.js
-import aliases from '../../aliases.json' with { type: 'json' };
 (function () {
-	var script = document.querySelector('script[src*="shared/importmap.js"]');
-	if (!script) {
-		return;
-	}
+	var script = document.currentScript || document.querySelector('script[src*="shared/importmap.js"]');
+	if (!script) return;
+
 	var projectRoot = script.dataset.projectRoot;
 	if (!projectRoot) {
 		var splitPoint = script.dataset.projectRootSplit || '/applications/';
-		var path = new URL(window.location.href).pathname;
-		projectRoot = path.split(splitPoint)[0] + '/';
+		projectRoot = new URL(window.location.href).pathname.split(splitPoint)[0] + '/';
 	}
-	const imports = { 'src/': `${projectRoot}src/` };
-	for (const d of aliases.dirs) imports[`${d}/`] = `${projectRoot}src/${d}/`;
-	for (const [pkg, p] of Object.entries(aliases.packages)) imports[pkg] = `${projectRoot}${p}`;
+	var xhr = new XMLHttpRequest();
+	xhr.open('GET', projectRoot + 'aliases.json', false);
+	xhr.send(null);
+	var aliases = JSON.parse(xhr.responseText);
+
+	var imports = { 'src/': projectRoot + 'src/' };
+	aliases.dirs.forEach(function (d) {
+		imports[d + '/'] = projectRoot + 'src/' + d + '/';
+	});
+	Object.keys(aliases.packages).forEach(function (k) {
+		imports[k] = projectRoot + aliases.packages[k];
+	});
 
 	var s = document.createElement('script');
 	s.type = 'importmap';
-	s.textContent = JSON.stringify({ imports });
+	s.textContent = JSON.stringify({ imports: imports });
 	script.after(s);
 })();
