@@ -13,12 +13,12 @@
 	xhr.send(null);
 	const aliases = JSON.parse(xhr.responseText);
 
-	const imports = { 'src/': projectRoot + 'src/' };
-	aliases.dirs.forEach(function (d) {
-		imports[d + '/'] = projectRoot + 'src/' + d + '/';
+	const imports = { 'src/': `${projectRoot}src/` };
+	aliases.dirs.forEach(d => {
+		imports[d + '/'] = `${projectRoot}src/${d}/`;
 	});
 	Object.keys(aliases.packages).forEach(function (k) {
-		imports[k] = projectRoot + aliases.packages[k];
+		imports[k] = `${projectRoot}${aliases.packages[k]}`;
 	});
 
 	const s = document.createElement('script');
