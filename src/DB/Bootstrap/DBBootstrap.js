@@ -15,21 +15,18 @@ export function createDBBootstrap(DB, context) {
 		clearNavigationMobIndex,
 		resetLoadedMapNames,
 		resetClientData,
-		invalidateLuaRuntime,
 		startLua
 	} = context;
 	const plan = createDBLoadPlan(DB, context);
 	let mountPalettes;
 	let mountPalettesProbe = null;
-	let generation = 0;
-	let lazyGeneration = 0;
-	function createTracker(current, update, complete, isActive = () => true) {
+	function createTracker(update, complete) {
 		let count = 0;
 		let index = 0;
 		let sealed = false;
 		let completed = false;
 		function maybeComplete() {
-			if (!completed && sealed && index === count && current === generation && isActive()) {
+			if (!completed && sealed && index === count) {
 				completed = true;
 				complete();
 			}
@@ -39,7 +36,7 @@ export function createDBBootstrap(DB, context) {
 				count++;
 				let done = false;
 				return () => {
-					if (done || current !== generation || !isActive()) return;
+					if (done) return;
 					done = true;
 					index++;
 					update(index, count);
@@ -54,9 +51,6 @@ export function createDBBootstrap(DB, context) {
 	}
 	return class DBBootstrap {
 		static async lazyInit() {
-			const current = ++generation;
-			const currentLazy = ++lazyGeneration;
-			if (invalidateLuaRuntime) invalidateLuaRuntime();
 			if (Client.invalidateDBFiles) Client.invalidateDBFiles();
 			DB.isLoaded = false;
 			DB.count = 0;
@@ -91,12 +85,10 @@ export function createDBBootstrap(DB, context) {
 			if (resetClientData) resetClientData();
 
 			console.log('Loading DB files...');
-			const started = await startLua();
-			if (started === false || current !== generation || currentLazy !== lazyGeneration) return;
+			await startLua();
 			DB.index = 0;
 			DB.count = 0;
 			const tracker = createTracker(
-				current,
 				(index, count) => {
 					DB.index = index;
 					DB.count = count;

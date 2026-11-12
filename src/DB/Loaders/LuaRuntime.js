@@ -1,21 +1,6 @@
 import LuaModuleLoader from 'Core/LuaModuleLoader.js';
 
 export let lua, HO_AI, MER_AI, default_HO_AI, default_MER_AI;
-let runtimeGeneration = 0;
-let clientGeneration = 0;
-
-export function invalidateLuaRuntime() {
-	runtimeGeneration++;
-	clientGeneration++;
-}
-
-export function getLuaGeneration() {
-	return runtimeGeneration;
-}
-
-export function getClientGeneration() {
-	return clientGeneration;
-}
 
 async function createLuaVMs() {
 	const wasmUrl = (await import('Vendors/liblua5.1.wasm?url')).default;
@@ -30,11 +15,11 @@ async function createLuaVMs() {
 }
 
 export async function startLua(createVMs = createLuaVMs) {
-	const generation = ++runtimeGeneration;
 	LuaModuleLoader.clearCache();
 	const [l, ha, ma, dha, dma] = await createVMs();
-	if (generation !== runtimeGeneration) return false;
+	// Setup Lua module loaders for the default DB lua VM
 	lua = LuaModuleLoader.setup(l);
+	// Setup Lua module loaders for the different Lua VMs
 	HO_AI = LuaModuleLoader.setup(ha, {
 		searchPaths: [
 			'./?.lua',
@@ -79,5 +64,4 @@ export async function startLua(createVMs = createLuaVMs) {
 			...LuaModuleLoader.DEFAULT_SEARCH_PATHS
 		]
 	});
-	return true;
 }
