@@ -7,6 +7,7 @@
  */
 
 import { getScrollBar } from 'UI/GUI/GUIDeps.js';
+import { ensureDeps } from 'UI/GUI/GUIDeps.js';
 
 export function setupScrollbars(component) {
 	const self = component;
@@ -41,6 +42,13 @@ export function setupScrollbars(component) {
 		setTimeout(() => checkScrollbars(root), 50);
 		setTimeout(() => checkScrollbars(root), 150);
 		setTimeout(() => checkScrollbars(root), 500);
+
+		// Deps may land after the staggered checks
+		if (!getScrollBar()) {
+			ensureDeps().then(() => {
+				if (component._host?.parentNode) checkScrollbars(root);
+			});
+		}
 
 		// Re-apply on visibility or content changes
 		const observer = new MutationObserver(mutations => {
