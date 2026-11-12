@@ -52,26 +52,27 @@ export function setupShadowCursorEvents(component) {
 		'.ro-custom-scrollbar',
 		'.ro-custom-scrollbar *'
 	].join(',');
-	const Cursor = getCursor();
+
 	let _hovering = false;
-	let _savedType = Cursor.ACTION.DEFAULT ?? 0;
+	let _savedType = getCursor()?.ACTION?.DEFAULT ?? 0;
 
 	// A clickable a component has marked `denied` takes the game's own
 	// refusal cursor instead of the click one. CSS cannot answer this: the
 	// custom cursor forces `cursor: none` across the window, so `not-allowed`
 	// only shows when it is switched off.
-	const cursorFor = target => (target.closest(DENIED_SELECTOR) ? Cursor.ACTION.NOWALK : Cursor.ACTION.CLICK) ?? 0;
+	const cursorFor = target =>
+		(target.closest(DENIED_SELECTOR) ? getCursor()?.ACTION?.NOWALK : getCursor()?.ACTION?.CLICK) ?? 0;
 
 	container.addEventListener('mouseover', e => {
 		const target = e.target;
 		if (target.closest && target.closest(CLICKABLE_SELECTOR)) {
 			if (!_hovering) {
-				_savedType = Cursor.getActualType() ?? 0;
+				_savedType = getCursor()?.getActualType() ?? 0;
 				_hovering = true;
 			}
 			const wanted = cursorFor(target);
-			if ((Cursor.getActualType() ?? 0) !== wanted) {
-				Cursor.setType(wanted);
+			if ((getCursor()?.getActualType() ?? 0) !== wanted) {
+				getCursor()?.setType(wanted);
 			}
 		}
 	});
@@ -86,14 +87,14 @@ export function setupShadowCursorEvents(component) {
 		}
 
 		_hovering = false;
-		Cursor.setType(_savedType);
+		getCursor()?.setType(_savedType);
 	});
 
 	// A window closed under the pointer never sees it leave its button.
 	container.addEventListener('x_remove', () => {
 		if (_hovering) {
 			_hovering = false;
-			Cursor.setType(_savedType);
+			getCursor()?.setType(_savedType);
 		}
 	});
 
@@ -101,14 +102,14 @@ export function setupShadowCursorEvents(component) {
 		const target = e.target;
 		if (target.closest && target.closest(CLICKABLE_SELECTOR)) {
 			if (!_hovering) {
-				_savedType = Cursor.getActualType() ?? 0;
+				_savedType = getCursor()?.getActualType() ?? 0;
 				_hovering = true;
 			}
 			// No press animation on a refusal - there is nothing being pressed.
 			if (target.closest(DENIED_SELECTOR)) {
-				Cursor.setType(Cursor.ACTION.NOWALK ?? 0);
+				getCursor()?.setType(getCursor()?.ACTION?.NOWALK ?? 0);
 			} else {
-				Cursor.setType(Cursor.ACTION.CLICK ?? 0, true, 1);
+				getCursor()?.setType(getCursor()?.ACTION?.CLICK ?? 0, true, 1);
 			}
 		}
 	});
@@ -117,14 +118,14 @@ export function setupShadowCursorEvents(component) {
 		const target = e.target;
 		if (target.closest && target.closest(CLICKABLE_SELECTOR)) {
 			const wanted = cursorFor(target);
-			if ((Cursor.getActualType() ?? 0) !== wanted) {
-				Cursor.setType(wanted);
+			if ((getCursor()?.getActualType() ?? 0) !== wanted) {
+				getCursor()?.setType(wanted);
 			}
 			return;
 		}
 		if (_hovering) {
 			_hovering = false;
-			Cursor.setType(_savedType);
+			getCursor()?.setType(_savedType);
 		}
 	});
 }
@@ -134,16 +135,15 @@ export function setupMouseMode(component) {
 	if (component.mouseMode === MouseMode.STOP) {
 		let _intersect;
 		let _enter = 0;
-		const Cursor = getCursor();
-		const EntityManager = getEntityManager();
+
 		element.addEventListener('mouseenter', () => {
 			if (_enter === 0) {
 				_intersect = Mouse.intersect;
 				_enter++;
 				if (_intersect) {
 					Mouse.intersect = false;
-					Cursor.setType(Cursor.ACTION.DEFAULT ?? 0);
-					EntityManager.setOverEntity(null);
+					getCursor()?.setType(getCursor()?.ACTION?.DEFAULT ?? 0);
+					getEntityManager()?.setOverEntity(null);
 				}
 			}
 		});
@@ -155,7 +155,7 @@ export function setupMouseMode(component) {
 					if (!Session.FreezeUI) {
 						Mouse.intersect = true;
 					}
-					EntityManager.setOverEntity(null);
+					getEntityManager()?.setOverEntity(null);
 				}
 			}
 		});
@@ -166,7 +166,7 @@ export function setupMouseMode(component) {
 				_enter = 0;
 				if (_intersect) {
 					Mouse.intersect = true;
-					EntityManager.setOverEntity(null);
+					getEntityManager()?.setOverEntity(null);
 				}
 			}
 		});

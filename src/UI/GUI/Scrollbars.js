@@ -14,7 +14,7 @@ export function setupScrollbars(component) {
 	const root = component._container || component._host;
 	// Observe the shadow root to detect changes inside Shadow DOM
 	const observeTarget = component._shadow || component._host;
-	const ScrollBar = getScrollBar();
+
 	setTimeout(() => {
 		if (!component._host || !component._host.parentNode) return;
 
@@ -25,13 +25,13 @@ export function setupScrollbars(component) {
 				if (node.nodeType !== 1) continue;
 
 				if (node._roScrollbarApplied) {
-					ScrollBar.applyDOMScrollbar(node);
+					getScrollBar()?.applyDOMScrollbar(node);
 					continue;
 				}
 
 				const oy = window.getComputedStyle(node).overflowY;
 				if (oy === 'auto' || oy === 'scroll') {
-					ScrollBar.applyDOMScrollbar(node);
+					getScrollBar()?.applyDOMScrollbar(node);
 				}
 			}
 		};
