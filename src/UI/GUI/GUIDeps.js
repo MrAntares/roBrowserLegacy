@@ -16,7 +16,7 @@ let _depsPromise = null;
 
 async function _loadHeavyDeps() {
 	if (_Cursor) return;
-	const [CursorMod, DB, ClientMod, Renderer, EntityManager, ScrollBar] = await Promise.all([
+	const [Cursor, DB, Client, Renderer, EntityManager, ScrollBar] = await Promise.all([
 		import('UI/CursorManager.js'),
 		import('DB/DBManager.js'),
 		import('Core/Client.js'),
@@ -24,9 +24,9 @@ async function _loadHeavyDeps() {
 		import('Renderer/EntityManager.js'),
 		import('UI/Scrollbar.js')
 	]);
-	_Cursor = CursorMod.default;
+	_Cursor = Cursor.default;
 	_DB = DB.default;
-	_Client = ClientMod.default;
+	_Client = Client.default;
 	_Renderer = Renderer.default;
 	_EntityManager = EntityManager.default;
 	_ScrollBar = ScrollBar.default;
