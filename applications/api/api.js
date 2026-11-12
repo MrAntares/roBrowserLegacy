@@ -421,6 +421,7 @@
 
 				if (!document.querySelector('script[type="importmap"]')) {
 					var sharedScript = document.createElement('script');
+					sharedScript.type = 'module';
 					sharedScript.src = projectRoot + 'applications/shared/importmap.js';
 					sharedScript.dataset.projectRoot = projectRoot;
 					sharedScript.onload = function () {

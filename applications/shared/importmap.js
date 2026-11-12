@@ -1,7 +1,7 @@
 // applications/shared/importmap.js
 import aliases from '../../aliases.json' with { type: 'json' };
 (function () {
-	var script = document.currentScript || document.querySelector('script[src*="shared/importmap.js"]');
+	var script = document.querySelector('script[src*="shared/importmap.js"]');
 	if (!script) {
 		return;
 	}

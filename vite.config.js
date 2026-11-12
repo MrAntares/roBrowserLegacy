@@ -3,7 +3,8 @@ import { configDefaults } from 'vitest/config';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import uiCssHmrPlugin from './vite/csshotreload.plugin.js';
-import glob from 'glob'; 
+import aliases from './aliases.json' with { type: 'json' };
+import { getCustomAliases } from './vite/custom-aliases.mjs'; 
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -11,13 +12,14 @@ const isDocker = process.env.RO_PROXY_TARGET === 'docker';
 const webTarget = isDocker ? 'http://rathena-web:8888' : 'http://127.0.0.1:8888';
 const remoteClientTarget = isDocker ? 'http://remote-client-php:80' : 'http://127.0.0.1:8000';
   
-// custom/Components/ChatBox/ChatBox.js → alias 'UI/Components/ChatBox/ChatBox.js'  
-const customAliases = glob  
-	.sync('custom/**/*.js')  
-	.map(f => ({  
-		find: new RegExp(`^UI/${f.slice(7).replace(/[/.]/g, m => '\\' + m)}$`),  
-		replacement: path.resolve(__dirname, f)  
-	}));  
+// custom/UI/Components/ChatBox/ChatBox.js → alias 'UI/Components/ChatBox/ChatBox.js'  
+const customAliases = getCustomAliases(__dirname);  
+if (customAliases.length) {  
+	console.log('[custom] overrides:');  
+	for (const a of customAliases) {  
+		console.log(' ', a.specifier, '→', a.replacement);  
+	}
+}
 
 const _proxy = {
 	'/get': {
@@ -56,7 +58,7 @@ export default defineConfig({
 	resolve: {
 		alias: [  
 			...customAliases, 
-			...aliasConfig.dirs.map(d => ({  
+			...aliases.dirs.map(d => ({  
 				find: d,  
 				replacement: path.resolve(__dirname, './src', d)  
 			}))  

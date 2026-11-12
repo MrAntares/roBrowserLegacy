@@ -27,3 +27,7 @@ Config.local.js
 !.vscode/launch.json
 !.vscode/extensions.json
 !.vscode/*.code-snippets
+
+# Custom overrides
+/custom/*
+!/custom/README.md

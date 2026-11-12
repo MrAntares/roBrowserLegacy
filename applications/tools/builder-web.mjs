@@ -2,11 +2,13 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { createRequire } from 'module';
 import aliasConfig from '../../aliases.json' with { type: 'json' };
+import { getCustomAliases } from '../../vite/custom-aliases.mjs';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const require = createRequire(import.meta.url);
+const projectRoot = path.resolve(__dirname, '../../');
+
 const pkg = JSON.parse(fs.readFileSync(new URL('../../package.json', import.meta.url)));
 
 const startTime = Date.now();
@@ -16,7 +18,13 @@ const buildDate = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
 const dist = './dist/';
 const platform = 'Web';
 
-const aliases = Object.fromEntries(aliasConfig.dirs.map(d => [d, path.resolve(__dirname, '../../src', d)]));
+const aliases = [
+	...getCustomAliases(projectRoot),
+	...aliasConfig.dirs.map(d => ({
+		find: d,
+		replacement: path.resolve(projectRoot, 'src', d)
+	}))
+];
 
 const header = [
 	'/*',
