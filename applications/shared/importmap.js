@@ -15,7 +15,7 @@
 
 	const imports = { 'src/': `${projectRoot}src/` };
 	aliases.dirs.forEach(d => {
-		imports[d + '/'] = `${projectRoot}src/${d}/`;
+		imports[`${d}/`] = `${projectRoot}src/${d}/`;
 	});
 	Object.keys(aliases.packages).forEach(function (k) {
 		imports[k] = `${projectRoot}${aliases.packages[k]}`;
