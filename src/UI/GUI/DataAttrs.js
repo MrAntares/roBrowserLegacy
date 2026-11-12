@@ -13,7 +13,8 @@ export function processDataAttrs(node, { text = true, images = true, deferredFro
 	const active = node.dataset.active;
 	const msgId = node.dataset.text;
 	const preload = node.dataset.preload;
-
+	const DB = getDB();
+	const Client = getClient();
 	let bgUri = null;
 	let hoverUri = null;
 	let downUri = null;
@@ -34,17 +35,15 @@ export function processDataAttrs(node, { text = true, images = true, deferredFro
 			node.style.backgroundImage = '';
 		}
 	};
-
 	// Localized text
-	if (text && msgId && getDB()?.getMessage(msgId, '')) {
-		node.textContent = getDB()?.getMessage(msgId, '');
+	if (text && msgId && DB.getMessage(msgId, '')) {
+		node.textContent = DB.getMessage(msgId, '');
 	}
 
 	if (!images) return;
-
 	// Default background
 	if (background) {
-		getClient()?.loadFile(getDB().INTERFACE_PATH + background, dataURI => {
+		Client.loadFile(`${DB.INTERFACE_PATH}${background}`, dataURI => {
 			bgUri = dataURI;
 			if (dataURI instanceof ArrayBuffer) {
 				try {
@@ -64,7 +63,7 @@ export function processDataAttrs(node, { text = true, images = true, deferredFro
 
 	// Active background
 	if (active) {
-		getClient()?.loadFile(getDB().INTERFACE_PATH + active, dataURI => {
+		Client.loadFile(`${DB.INTERFACE_PATH}${active}`, dataURI => {
 			activeUri = dataURI;
 			if (node.classList.contains('active')) {
 				state.active = true;
@@ -94,7 +93,7 @@ export function processDataAttrs(node, { text = true, images = true, deferredFro
 
 	// Hover background
 	if (hover) {
-		getClient()?.loadFile(getDB().INTERFACE_PATH + hover, dataURI => {
+		Client.loadFile(`${DB.INTERFACE_PATH}${hover}`, dataURI => {
 			hoverUri = dataURI;
 		});
 		node.addEventListener('mouseover', () => {
@@ -109,7 +108,7 @@ export function processDataAttrs(node, { text = true, images = true, deferredFro
 
 	// Down background
 	if (down) {
-		getClient()?.loadFile(getDB().INTERFACE_PATH + down, dataURI => {
+		Client.loadFile(`${DB.INTERFACE_PATH}${down}`, dataURI => {
 			downUri = dataURI;
 		});
 		node.addEventListener('mousedown', () => {
@@ -131,8 +130,8 @@ export function processDataAttrs(node, { text = true, images = true, deferredFro
 
 	// Preload images
 	if (preload) {
-		const files = preload.split(';').map(f => getDB().INTERFACE_PATH + f.trim());
-		getClient()?.loadFiles(files);
+		const files = preload.split(';').map(f => `${DB.INTERFACE_PATH}${f.trim()}`);
+		Client.loadFiles(files);
 	}
 }
 

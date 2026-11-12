@@ -112,8 +112,8 @@ export function attachDraggable(component, handle) {
 					const snappedY = gyi * gh + padY;
 
 					host.style.transition = `left ${component.snapDuration || 150}ms, top ${component.snapDuration || 150}ms, opacity 150ms`;
-					host.style.left = snappedX + 'px';
-					host.style.top = snappedY + 'px';
+					host.style.left = `${snappedX}px`;
+					host.style.top = `${snappedY}px`;
 					host.style.opacity = '1';
 
 					const onTransEnd = () => {
@@ -223,8 +223,8 @@ export function attachDraggable(component, handle) {
 				if (!lockY && snapY !== null) y_ = snapY;
 			}
 
-			host.style.left = x_ + 'px';
-			host.style.top = y_ + 'px';
+			host.style.left = `${x_}px`;
+			host.style.top = `${y_}px`;
 			host.style.opacity = currentOpacity;
 			drag = requestAnimationFrame(dragging);
 		};

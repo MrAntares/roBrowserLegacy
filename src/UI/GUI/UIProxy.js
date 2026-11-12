@@ -29,7 +29,7 @@ export function createUIProxy(component) {
 			// Setter: .css({ top: 100, left: 200 })
 			if (typeof prop === 'object') {
 				for (const [k, v] of Object.entries(prop)) {
-					host.style[k] = typeof v === 'number' && !CSS_NUMBER[k] ? v + 'px' : String(v);
+					host.style[k] = typeof v === 'number' && !CSS_NUMBER[k] ? `${v}px` : String(v);
 				}
 				return proxy;
 			}
@@ -41,7 +41,7 @@ export function createUIProxy(component) {
 				);
 			}
 			// Setter: .css('top', 100)
-			host.style[prop] = typeof value === 'number' && !CSS_NUMBER[prop] ? value + 'px' : String(value);
+			host.style[prop] = typeof value === 'number' && !CSS_NUMBER[prop] ? `${value}px` : String(value);
 			return proxy;
 		},
 
@@ -164,7 +164,7 @@ export function createUIProxy(component) {
 					if (typeof prop === 'object') {
 						results.forEach(el => {
 							for (const [k, v] of Object.entries(prop)) {
-								el.style[k] = typeof v === 'number' && !CSS_NUMBER[k] ? v + 'px' : String(v);
+								el.style[k] = typeof v === 'number' && !CSS_NUMBER[k] ? `${v}px` : String(v);
 							}
 						});
 						return wrapper;
@@ -177,7 +177,7 @@ export function createUIProxy(component) {
 							: '';
 					}
 					results.forEach(el => {
-						el.style[prop] = typeof value === 'number' && !CSS_NUMBER[prop] ? value + 'px' : String(value);
+						el.style[prop] = typeof value === 'number' && !CSS_NUMBER[prop] ? `${value}px` : String(value);
 					});
 					return wrapper;
 				},

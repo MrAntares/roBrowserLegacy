@@ -4,17 +4,16 @@
  * In viewer context they are never triggered.
  */
 let _Cursor = null;
-let _DB = null;
 let _Client = null;
 let _Renderer = null;
 let _EntityManager = null;
 let _ScrollBar = null;
-
+let _DB = null;
 let _depsPromise = null;
 
 async function _loadHeavyDeps() {
 	if (_Cursor) return;
-	const [CursorMod, DBMod, ClientMod, RendererMod, EntityManagerMod, ScrollBarMod] = await Promise.all([
+	const [CursorMod, DB, ClientMod, Renderer, EntityManager, ScrollBar] = await Promise.all([
 		import('UI/CursorManager.js'),
 		import('DB/DBManager.js'),
 		import('Core/Client.js'),
@@ -23,11 +22,11 @@ async function _loadHeavyDeps() {
 		import('UI/Scrollbar.js')
 	]);
 	_Cursor = CursorMod.default;
-	_DB = DBMod.default;
+	_DB = DB.default;
 	_Client = ClientMod.default;
-	_Renderer = RendererMod.default;
-	_EntityManager = EntityManagerMod.default;
-	_ScrollBar = ScrollBarMod.default;
+	_Renderer = Renderer.default;
+	_EntityManager = EntityManager.default;
+	_ScrollBar = ScrollBar.default;
 }
 
 export function ensureDeps() {

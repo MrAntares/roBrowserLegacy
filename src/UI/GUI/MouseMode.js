@@ -185,5 +185,5 @@ export function setupMouseMode(component) {
 		element.addEventListener('touchstart', e => e.stopImmediatePropagation());
 	}
 	// Shadow DOM cursor events (clickable hover detection)
-	setupShadowCursorEvents(component);
+	component._setupShadowCursorEvents();
 }

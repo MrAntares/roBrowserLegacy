@@ -96,6 +96,18 @@ Before modifying or creating UI components, read the applicable reference guides
 - `Common.css` — Shared baseline styles injected into both document head and each component's Shadow DOM.
 - `CursorManager.js`, `Scrollbar.js`, `Background.js`, `TouchDrag.js`, `ClampToViewport.js`, `WhenDrawn.js`.
 
+### GUI Modules (`src/UI/GUI/`)
+
+Low-level UI building blocks shared by components across versions. These modules are imported by `GUIComponent` subclasses and by `UI/Elements/` custom elements.
+
+- `GUIDeps.js` — Lazy dependency resolver for heavy modules (`Cursor`, `Client`, `Renderer`, `EntityManager`, `ScrollBar`). Provides `ensureDeps()` and getters (`getCursor`, `getClient`, `getRenderer`, `getEntityManager`, `getScrollBar`) so viewer bundles stay lightweight.
+- `DataAttrs.js` — `processDataAttrs(node, opts)` and `processAllDataAttrs(component, deferImages)`. Reads legacy `data-*` attributes (`data-background`, `data-hover`, `data-down`, `data-active`, `data-text`, `data-preload`) on DOM nodes, loads localized text and BMP/TGA backgrounds from GRF via `Client.loadFile`, and applies state-driven background switching. Includes `parseHTML()` shim for `UIComponent.parseHTML` compatibility.
+- `Draggable.js` — `attachDraggable(component, handle)`. Implements window drag behavior with screen-edge magnet, window-to-window snap cache, grid snap, and opacity fade during drag. Exposes `component._isDraggable`.
+- `MouseMode.js` — `MouseMode` enum (`CROSS`, `STOP`, `FREEZE`) and `DENIED_SELECTOR`. `setupShadowCursorEvents(component)` switches the custom cursor over clickable elements inside a shadow root. `setupMouseMode(component)` blocks scene intersection while the mouse is over `STOP`/`FREEZE` UI, handles focus on mousedown, and stop-immediate-propagation on touch.
+- `NoCursorFallback.js` — `supportsStyleQueries()`, `syncNoCursorStyles()`, `addNoCursorFallback(shadow)`, `trackNoCursorStyle(style)`, `untrackNoCursorStyle(style)`. Hides the native cursor in shadow roots where CSS container style queries are missing, gated by `body.custom-cursor`.
+- `Scrollbars.js` — `setupScrollbars(component)`. Applies the custom `Scrollbar.js` to shadow-DOM elements with `overflow-y: auto|scroll`, with staggered initial checks and a `MutationObserver` that re-applies on visibility/class/style changes.
+- `UIProxy.js` — `createUIProxy(component)`. Builds a minimal jQuery-compatible `this.ui` proxy (`css`, `offset`, `position`, `show`/`hide`/`toggle`, `find`, `detach`, `appendTo`, `trigger`, etc.) so `UIManager` and legacy `UIComponent.focus()` can interoperate during the GUIComponent transition.
+
 ### Component Categories (`src/UI/Components/`, 100 directories)
 
 - **Entry & Auth:** `Intro`, `WinList`, `WinLogin`, `CharCreate`, `CharSelect`, `PincodeWindow`.
