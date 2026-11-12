@@ -1,5 +1,6 @@
 import TextEncoding from 'Utils/CodepageManager.js';
-import { createDBLoadContext } from 'DB/Loaders/DBLoadContext.js';
+import { lua } from 'DB/Loaders/LuaRuntime.js';
+import Client from 'Core/Client.js';
 
 const userStringDecoder = TextEncoding;
 const HatEffectID = {};
@@ -11,14 +12,11 @@ export function getHatResource(id) {
 }
 
 export function loadHatEffectInfo(luaPath, onEnd) {
-	const { lua, loadFile, guard } = createDBLoadContext();
-	onEnd = guard(onEnd);
-
 	const basePath = luaPath + 'hateffectinfo/';
 	const idFile = basePath + 'hateffectids.lub';
 	const infoFile = basePath + 'hateffectinfo.lub';
 
-	loadFile(
+	Client.loadFile(
 		idFile,
 		async function (idBuf) {
 			const ctx = lua.ctx;
@@ -88,7 +86,7 @@ export function loadHatEffectInfo(luaPath, onEnd) {
 
 			// Load INFO file (AFTER IDs)
 			async function LoadHatEffectInfo() {
-				return loadFile(infoFile, async function (infoBuf) {
+				return Client.loadFile(infoFile, async function (infoBuf) {
 					try {
 						lua.mountFile(
 							'hateffectinfo.lub',
@@ -113,7 +111,7 @@ export function loadHatEffectInfo(luaPath, onEnd) {
 
 			// Load FOOTPRINT file (AFTER Info)
 			async function LoadFootPrint() {
-				return loadFile(basePath + 'footprinteffectinfo.lub', async function (buf) {
+				return Client.loadFile(basePath + 'footprinteffectinfo.lub', async function (buf) {
 					try {
 						lua.mountFile(
 							'footprinteffectinfo.lub',

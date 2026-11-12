@@ -35,10 +35,10 @@ For architecture, conventions, and subsystem details, see [AGENTS.md](AGENTS.md)
 
 ### 🟢 Nice to have — Always Suggest but don't block
 
-| Area                   | What to check                                                                                                                                                                                                        |
-| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Modernize on touch** | Legacy patterns (`constructor functions`, `var`, string concatenation, etc.) should be modernized when the file is already being changed. See [docs/Architecture.md](docs/Architecture.md) for the conversion table. |
-| **Test coverage**      | New utilities and loaders should include tests. Tests go in `tests/` mirroring `src/` structure.                                                                                                                     |
+| Area                   | What to check                                                                                                                                                                                                                   |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Modernize on touch** | Legacy patterns (`constructor functions`, `var`, string concatenation, etc.) should be modernized when the file is already being changed. See [docs/Architecture.md](docs/Architecture.md) for the conversion table.            |
+| **Test coverage**      | Only Loaders, Utils, and DB Constants should include Vitest unit tests (placed in `tests/` mirroring `src/`). NEVER test UI, rendering, or network flows with Vitest. These require real in-game inspection; Vitest is not E2E. |
 
 ### ✅ No Issues Found
 
@@ -115,20 +115,6 @@ npm test          # Vitest — runs all tests in tests/**/*.test.js
 - **All fixtures must be synthetic** — built in-memory from `ArrayBuffer`/`DataView`, no game files
 - **DB constant tests are regression guards** — they pin numeric IDs so accidental changes are caught by CI
 - **Node.js**: `>=22` required (`.nvmrc` pins Node 22; CI uses Node 24). Note: Node 25+ has experimental native `localStorage` on `globalThis` that can conflict with `jsdom`.
-
-### Test file organization
-
-```
-tests/
-├── db/           # DB constants & tables (12 files)
-├── engine/       # LoginEngine & MapEngine tests (2 files)
-├── fixtures/     # Synthetic test fixtures & mock helpers (2 files)
-├── loaders/      # Binary parsers (11 files, including GR2Loader.test.js)
-├── network/      # Packet structure, registration & handler tests (4 files)
-├── renderer/     # Renderer & GR2 tests (11 files, including 5 in GR2/)
-├── ui/           # GUIComponent & UI subsystem tests (22 files)
-└── util/         # Utilities (14 files)
-```
 
 ---
 

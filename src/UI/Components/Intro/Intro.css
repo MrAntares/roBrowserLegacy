@@ -196,7 +196,6 @@
 /* ── File status message ── */
 #intro .msg {
 	position: absolute;
-	top: 440px;
 	left: 50%;
 	transform: translateX(-50%);
 	text-align: center;

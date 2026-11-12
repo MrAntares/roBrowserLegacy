@@ -1,10 +1,11 @@
 import TextEncoding from 'Utils/CodepageManager.js';
-import { createDBLoadContext } from 'DB/Loaders/DBLoadContext.js';
+import { lua } from 'DB/Loaders/LuaRuntime.js';
 import MonsterTable from 'DB/Monsters/MonsterTable.js';
 import PetEmotionTable from 'DB/Pets/PetEmotionTable.js';
 import PetHungryState from 'DB/Pets/PetHungryState.js';
 import PetFriendlyState from 'DB/Pets/PetFriendlyState.js';
 import PetMessageConst from 'DB/Pets/PetMessageConst.js';
+import Client from 'Core/Client.js';
 
 const userStringDecoder = TextEncoding;
 let PetTalkTable = {};
@@ -16,11 +17,8 @@ export function setPetTalkTable(table) {
 }
 
 export function loadPetInfo(filename, callback, onEnd) {
-	const { lua, loadFile, guard } = createDBLoadContext();
-	callback = guard(callback);
-	onEnd = guard(onEnd);
 
-	loadFile(
+	Client.loadFile(
 		filename,
 		async function (file) {
 			try {
@@ -100,12 +98,9 @@ export function loadPetInfo(filename, callback, onEnd) {
 }
 
 export function loadPetEvolution(filename, callback, onEnd) {
-	const { lua, loadFile, guard } = createDBLoadContext();
-	callback = guard(callback);
-	onEnd = guard(onEnd);
 
 	const loadPromise = new Promise((resolve, reject) => {
-		loadFile(filename, resolve, reject);
+		Client.loadFile(filename, resolve, reject);
 	});
 
 	loadPromise

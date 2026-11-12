@@ -12,7 +12,7 @@ export function createDBLoadPlan(DB, context) {
 		mergeMonsterNames,
 		MsgEmotionCSV,
 		MsgStringTable,
-		setMessageRow,
+		setMsgStringTable,
 		mergeSkillIds,
 		NaviLinkDistanceTable,
 		NaviLinkTable,
@@ -76,7 +76,7 @@ export function createDBLoadPlan(DB, context) {
 		userCharpage
 	} = context;
 	const resolveUserCharpage = getUserCharpage ?? userCharpage;
-	function loadInitial(onLoad, isCurrent) {
+	function loadLazy(onLoad) {
 		loadFontFromClient('System/Font/');
 
 		// Loading TXT Tables
@@ -85,7 +85,6 @@ export function createDBLoadPlan(DB, context) {
 			'#',
 			2,
 			function (_index, key, val) {
-				if (!isCurrent()) return;
 				setLegacyMapMusic(_index, key, val);
 			},
 			onLoad()
@@ -95,53 +94,38 @@ export function createDBLoadPlan(DB, context) {
 			'#',
 			2,
 			function (_index, key, val) {
-				if (!isCurrent()) return;
 				setLegacyMapName(_index, key, val);
 			},
 			onLoad(),
 			true
 		);
-		const loadmsg = onLoad();
-		loadTable(
-			'data/msgstringtable.txt',
-			'#',
-			1,
-			(_index, val) => {
-				if (!isCurrent()) return;
-				setMessageRow(_index, val);
-			},
-			() => {
-				if (isCurrent()) loadCSV('data/msgstringtable.csv', MsgStringTable, 0, 1, loadmsg, isCurrent);
-			},
-			true
-		);
+		if (PACKETVER.value >= 20230302) {
+			loadCSV('data/msgstringtable.csv', MsgStringTable, 0, 1, onLoad());
+		} else {
+			loadTable(
+				'data/msgstringtable.txt',
+				'#',
+				1,
+				(_index, val) => {
+					setMsgStringTable(_index, val);
+				},
+				onLoad(),
+				true
+			);
+		}
 
 		loadTable(
 			'data/resnametable.txt',
 			'#',
 			2,
 			function (_index, key, val) {
-				if (!isCurrent()) return;
 				setMapAlias(_index, key, val);
 			},
 			onLoad()
 		);
-	}
-	function loadLazy(onLoad, isCurrent) {
-		const guard =
-			callback =>
-			(...args) => {
-				if (isCurrent() && callback) return callback(...args);
-			};
-		const guardedLoadTable = (file, separator, size, row, done, useCharPage) =>
-			loadTable(file, separator, size, guard(row), guard(done), useCharPage);
-		const guardedLoadCSV = (file, target, key, value, done) =>
-			loadCSV(file, target, key, value, guard(done), isCurrent);
-		const guardedLoadXMLFile = (file, callback, done) => loadXMLFile(file, guard(callback), guard(done));
-		const guardedLoadBSONFile = (file, target, done) => loadBSONFile(file, target, guard(done), isCurrent);
 		// CSV Tables - Client Date is not sure since when they were added
 		if (PACKETVER.value >= 20230302) {
-			guardedLoadCSV('data/simplemsg/msg_emotion.csv', MsgEmotionCSV, 0, 2, onLoad());
+			loadCSV('data/simplemsg/msg_emotion.csv', MsgEmotionCSV, 0, 2, onLoad());
 		}
 		// TODO: load these load files by PACKETVER
 		if (Configs.get('loadLua')) {
@@ -242,26 +226,17 @@ export function createDBLoadPlan(DB, context) {
 							loadSkillTreeView(DB.LUA_PATH + 'skillinfoz/skilltreeview.lub', null, () => {
 								// Load ez2streffect, PACKETVER unknown when the while has been added, tied to default PACKETVER of rathena for 4th job
 								if (PACKETVER.value >= 20211103) {
-									guardedLoadBSONFile(
-										'data/contentdata/effectdata/ez2streffect.bson',
-										Ez2streffect,
-										() => {
-											Promise.all([
-												import('DB/Effects/EffectTable.js'),
-												import('DB/Skills/SkillEffect.js')
-											])
-												.then(([EffectTable, SkillEffect]) => {
-													if (!isCurrent()) return;
-													mergeEz2Effects(
-														EffectTable.default,
-														SkillEffect.default,
-														Ez2streffect
-													);
-												})
-												.catch(error => console.error('[DB] Failed to merge effects:', error))
-												.finally(onSkillEnd);
-										}
-									);
+									loadBSONFile('data/contentdata/effectdata/ez2streffect.bson', Ez2streffect, () => {
+										Promise.all([
+											import('DB/Effects/EffectTable.js'),
+											import('DB/Skills/SkillEffect.js')
+										])
+											.then(([EffectTable, SkillEffect]) => {
+												mergeEz2Effects(EffectTable.default, SkillEffect.default, Ez2streffect);
+											})
+											.catch(error => console.error('[DB] Failed to merge effects:', error))
+											.finally(onSkillEnd);
+									});
 									return;
 								}
 								// Skill Lua finished
@@ -390,7 +365,7 @@ export function createDBLoadPlan(DB, context) {
 			}
 		} else {
 			// Item
-			guardedLoadTable(
+			loadTable(
 				'data/num2itemdisplaynametable.txt',
 				'#',
 				2,
@@ -398,22 +373,9 @@ export function createDBLoadPlan(DB, context) {
 				onLoad(),
 				true
 			);
-			guardedLoadTable(
-				'data/num2itemresnametable.txt',
-				'#',
-				2,
-				legacyItemRows.unidentifiedResourceName,
-				onLoad()
-			);
-			guardedLoadTable(
-				'data/num2itemdesctable.txt',
-				'#',
-				2,
-				legacyItemRows.unidentifiedDescriptionName,
-				onLoad(),
-				true
-			);
-			guardedLoadTable(
+			loadTable('data/num2itemresnametable.txt', '#', 2, legacyItemRows.unidentifiedResourceName, onLoad());
+			loadTable('data/num2itemdesctable.txt', '#', 2, legacyItemRows.unidentifiedDescriptionName, onLoad(), true);
+			loadTable(
 				'data/idnum2itemdisplaynametable.txt',
 				'#',
 				2,
@@ -421,31 +383,18 @@ export function createDBLoadPlan(DB, context) {
 				onLoad(),
 				true
 			);
-			guardedLoadTable(
-				'data/idnum2itemresnametable.txt',
-				'#',
-				2,
-				legacyItemRows.identifiedResourceName,
-				onLoad()
-			);
-			guardedLoadTable(
-				'data/idnum2itemdesctable.txt',
-				'#',
-				2,
-				legacyItemRows.identifiedDescriptionName,
-				onLoad(),
-				true
-			);
-			guardedLoadTable('data/itemslotcounttable.txt', '#', 2, legacyItemRows.slotCount, onLoad());
+			loadTable('data/idnum2itemresnametable.txt', '#', 2, legacyItemRows.identifiedResourceName, onLoad());
+			loadTable('data/idnum2itemdesctable.txt', '#', 2, legacyItemRows.identifiedDescriptionName, onLoad(), true);
+			loadTable('data/itemslotcounttable.txt', '#', 2, legacyItemRows.slotCount, onLoad());
 
 			// Skill
-			guardedLoadTable('data/skilldesctable.txt', '#', 2, parseLegacySkillDescription, onLoad(), true);
+			loadTable('data/skilldesctable.txt', '#', 2, parseLegacySkillDescription, onLoad(), true);
 			// TODO: data/skillnametable.txt	- ?
 			// TODO: data/skilltreeview.txt	- Replaces DB/Skills/SkillTreeView.js
 			// TODO: data/leveluseskillspamount.txt	- Replaces DB/Skills/SkillInfo.js -> SkillInfo.SpAmount
 
 			// Quest
-			guardedLoadTable('data/questid2display.txt', '#', 6, parseQuestEntry, onLoad(), true);
+			loadTable('data/questid2display.txt', '#', 6, parseQuestEntry, onLoad(), true);
 		}
 
 		// Load ItemMoveInfo and attach to ItemTable
@@ -475,26 +424,26 @@ export function createDBLoadPlan(DB, context) {
 		});
 
 		// Forging/Creation
-		guardedLoadTable('data/metalprocessitemlist.txt', '#', 2, legacyItemRows.processitemlist, onLoad(), true);
+		loadTable('data/metalprocessitemlist.txt', '#', 2, legacyItemRows.processitemlist, onLoad(), true);
 
 		// Card
-		guardedLoadTable('data/num2cardillustnametable.txt', '#', 2, legacyItemRows.illustResourcesName, onLoad());
-		guardedLoadTable('data/cardprefixnametable.txt', '#', 2, legacyItemRows.prefixName, onLoad(), true);
-		guardedLoadTable('data/cardpostfixnametable.txt', '#', 1, legacyItemRows.isPostfix, onLoad(), true);
+		loadTable('data/num2cardillustnametable.txt', '#', 2, legacyItemRows.illustResourcesName, onLoad());
+		loadTable('data/cardprefixnametable.txt', '#', 2, legacyItemRows.prefixName, onLoad(), true);
+		loadTable('data/cardpostfixnametable.txt', '#', 1, legacyItemRows.isPostfix, onLoad(), true);
 
 		// EtcMapData
-		guardedLoadTable('data/fogparametertable.txt', '#', 5, parseFogEntry, onLoad());
-		guardedLoadTable('data/indoorrswtable.txt', '#', 1, parseIndoorEntry, onLoad());
+		loadTable('data/fogparametertable.txt', '#', 5, parseFogEntry, onLoad());
+		loadTable('data/indoorrswtable.txt', '#', 1, parseIndoorEntry, onLoad());
 
 		// Frost/Scream
-		guardedLoadTable('data/ba_frostjoke.txt', '\t', 1, setJokeRow, onLoad(), true);
-		guardedLoadTable('data/dc_scream.txt', '\t', 1, setScreamRow, onLoad(), true);
+		loadTable('data/ba_frostjoke.txt', '\t', 1, setJokeRow, onLoad(), true);
+		loadTable('data/dc_scream.txt', '\t', 1, setScreamRow, onLoad(), true);
 
 		// Tips
 		// TODO: /tipoftheday.txt
 		// TODO: /GuildTip.txt
 
-		guardedLoadXMLFile(
+		loadXMLFile(
 			'data/pettalktable.xml',
 			function (json) {
 				setPetTalkTable(json['monster_talk_table']);
@@ -503,13 +452,13 @@ export function createDBLoadPlan(DB, context) {
 		);
 
 		if (PACKETVER.value >= 20100427) {
-			guardedLoadTable('data/buyingstoreitemlist.txt', '#', 1, parseBuyingStoreItem, onLoad());
+			loadTable('data/buyingstoreitemlist.txt', '#', 1, parseBuyingStoreItem, onLoad());
 		}
 
 		// Reputation
 		if (PACKETVER.value >= 20220330) {
-			guardedLoadBSONFile('data/contentdata/repute/reputegroupdata.bson', ReputeGroup, function () {});
-			guardedLoadBSONFile('data/contentdata/repute/reputeinfodata.bson', ReputeInfo, function () {});
+			loadBSONFile('data/contentdata/repute/reputegroupdata.bson', ReputeGroup, onLoad());
+			loadBSONFile('data/contentdata/repute/reputeinfodata.bson', ReputeInfo, onLoad());
 		}
 
 		Network.hookPacket(PACKET.ZC.ACK_REQNAME_BYGID, ownerNames.onUpdateOwnerName);
@@ -517,13 +466,14 @@ export function createDBLoadPlan(DB, context) {
 
 		const onAIDriverLoaded = onLoad();
 		import('Core/AIDriver.js')
-			.then(module => {
-				if (isCurrent()) return module.default.initAI(onAIDriverLoaded, isCurrent);
+			.then(async module => {
+				await module.default.initAI(onAIDriverLoaded);
 			})
 			.catch(error => {
 				console.error('[DB] Failed to initialize AI:', error);
 				onAIDriverLoaded();
 			});
 	}
-	return { loadInitial, loadLazy };
+	return { loadLazy };
 }
+

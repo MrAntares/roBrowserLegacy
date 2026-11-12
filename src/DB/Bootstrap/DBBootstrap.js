@@ -53,9 +53,9 @@ export function createDBBootstrap(DB, context) {
 		};
 	}
 	return class DBBootstrap {
-		static init() {
+		static async lazyInit() {
 			const current = ++generation;
-			lazyGeneration++;
+			const currentLazy = ++lazyGeneration;
 			if (invalidateLuaRuntime) invalidateLuaRuntime();
 			if (Client.invalidateDBFiles) Client.invalidateDBFiles();
 			DB.isLoaded = false;
@@ -90,25 +90,6 @@ export function createDBBootstrap(DB, context) {
 			if (resetLoadedMapNames) resetLoadedMapNames();
 			if (resetClientData) resetClientData();
 
-			const tracker = createTracker(
-				current,
-				(index, count) => {
-					if (DB.onProgress) DB.onProgress(index, count);
-				},
-				() => {
-					if (DB.onReady) DB.onReady();
-				}
-			);
-			plan.loadInitial(
-				() => tracker.step(),
-				() => current === generation
-			);
-			tracker.seal();
-		}
-
-		static async lazyInit() {
-			const current = generation;
-			const currentLazy = ++lazyGeneration;
 			console.log('Loading DB files...');
 			const started = await startLua();
 			if (started === false || current !== generation || currentLazy !== lazyGeneration) return;
@@ -124,16 +105,13 @@ export function createDBBootstrap(DB, context) {
 				() => {
 					DB.isLoaded = true;
 					MemoryManager.forceClean(null, /\.(lub|lua|txt|csv|bson)$/i);
-				},
-				() => currentLazy === lazyGeneration
+					if (DB.onReady) DB.onReady();
+				}
 			);
-			plan.loadLazy(
-				() => {
-					DB.count++;
-					return tracker.step();
-				},
-				() => current === generation && currentLazy === lazyGeneration
-			);
+			plan.loadLazy(() => {
+				DB.count++;
+				return tracker.step();
+			});
 			tracker.seal();
 		}
 

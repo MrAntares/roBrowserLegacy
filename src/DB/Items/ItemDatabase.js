@@ -1,7 +1,8 @@
 import TextEncoding from 'Utils/CodepageManager.js';
-import { createDBLoadContext } from 'DB/Loaders/DBLoadContext.js';
+import { lua } from 'DB/Loaders/LuaRuntime.js';
 import ItemTable from 'DB/Items/ItemTable.js';
 import RandomOption from 'DB/Items/ItemRandomOptionTable.js';
+import Client from 'Core/Client.js';
 
 const defaultItems = Object.fromEntries(Object.entries(ItemTable).map(([id, item]) => [id, { ...item }]));
 
@@ -53,12 +54,9 @@ export function createItemDatabase(DB, getUserCharpage, MsgStringTable) {
 			clearTable(table);
 	}
 	function loadItemInfo(filename, callback, onEnd) {
-		const { lua, loadFile, guard } = createDBLoadContext();
-		callback = guard(callback);
-		onEnd = guard(onEnd);
 
 		const loadPromise = new Promise((resolve, reject) => {
-			loadFile(filename, resolve, reject);
+			Client.loadFile(filename, resolve, reject);
 		});
 
 		loadPromise
@@ -190,11 +188,8 @@ export function createItemDatabase(DB, getUserCharpage, MsgStringTable) {
 	}
 
 	function loadLaphineSysFile(filename, callback, onEnd) {
-		const { lua, loadFile, guard } = createDBLoadContext();
-		callback = guard(callback);
-		onEnd = guard(onEnd);
 
-		loadFile(
+		Client.loadFile(
 			filename,
 			async function (file) {
 				try {
@@ -282,11 +277,8 @@ export function createItemDatabase(DB, getUserCharpage, MsgStringTable) {
 	}
 
 	function loadLaphineUpgFile(filename, callback, onEnd) {
-		const { lua, loadFile, guard } = createDBLoadContext();
-		callback = guard(callback);
-		onEnd = guard(onEnd);
 
-		loadFile(
+		Client.loadFile(
 			filename,
 			async function (file) {
 				try {
@@ -378,11 +370,8 @@ export function createItemDatabase(DB, getUserCharpage, MsgStringTable) {
 	}
 
 	function loadItemDBTable(filename, callback, onEnd) {
-		const { lua, loadFile, guard } = createDBLoadContext();
-		callback = guard(callback);
-		onEnd = guard(onEnd);
 
-		loadFile(
+		Client.loadFile(
 			filename,
 			async function (file) {
 				try {
@@ -434,11 +423,8 @@ export function createItemDatabase(DB, getUserCharpage, MsgStringTable) {
 	}
 
 	function loadItemReformFile(filename, callback, onEnd) {
-		const { lua, loadFile, guard } = createDBLoadContext();
-		callback = guard(callback);
-		onEnd = guard(onEnd);
 
-		loadFile(
+		Client.loadFile(
 			filename,
 			async function (file) {
 				try {
@@ -578,14 +564,12 @@ export function createItemDatabase(DB, getUserCharpage, MsgStringTable) {
 	}
 
 	function loadEnchantListFile(basePath, onEnd) {
-		const { lua, loadFile, guard } = createDBLoadContext();
-		onEnd = guard(onEnd);
 
 		const normalizedBase = basePath.replace(/\.(lub|lua)$/i, '');
 		const defFile = normalizedBase + '_f.lub';
 		const listFile = normalizedBase + '.lub';
 
-		loadFile(
+		Client.loadFile(
 			defFile,
 			async function (file) {
 				try {
@@ -803,7 +787,7 @@ export function createItemDatabase(DB, getUserCharpage, MsgStringTable) {
 					lua.mountFile('EnchantList_f.lub', buffer);
 					await lua.doFile('EnchantList_f.lub');
 
-					loadFile(
+					Client.loadFile(
 						listFile,
 						async function (fileList) {
 							try {

@@ -80,17 +80,11 @@ function loadFiles(callback) {
 		// For skipIntro=false, Intro.onAppend already removed it (this is a safe no-op).
 		roInitSpinner.remove();
 
-		DB.onReady = () => {
-			q._next();
-		};
-		DB.onProgress = (i, count) => {
-			Background.setPercent(Math.floor((i / count) * 100));
-		};
 		UIManager.removeComponents();
 		Background.init();
 		Background.resize(Renderer.width, Renderer.height);
 		Background.setImage('bgi_temp.bmp', () => {
-			DB.init();
+			q._next();
 		});
 	});
 
@@ -229,14 +223,18 @@ function onLoginServerSelected(index) {
 	// Check if the selected server is different than the previous one.
 	if (
 		_previous_server !== undefined &&
-		(_previous_server.address != _servers[index].address || _previous_server.port != _servers[index].port)
+		(_previous_server.address != _servers[index].address ||
+			_previous_server.port != _servers[index].port ||
+			String(_previous_server.packetver) != String(_servers[index].packetver))
 	) {
 		UIManager.removeComponents();
 		Network.close();
 		Configs.setServer(_servers[index]);
+		DB.isLoaded = false;
+		DB.startedLazyInit = false;
+
 		// Need to reload the files.
 		loadFiles(() => {
-			LoginEngine.setLoadedServer(_servers[index]);
 			onReadyLoginServer(index);
 		});
 	} else {
@@ -343,3 +341,4 @@ function onThreadLog(data) {
  * Export
  */
 export default GameEngine;
+

@@ -813,31 +813,9 @@ function onCharListNotify(charListInfo) {
  *
  * @param {object} pkt - PACKET.HC.NOTIFY_ZONESVR
  */
-let retryCount = 0;
 function onReceiveMapInfo(pkt) {
 	// Once, from the packet: a retry may run after the game moved on to another socket
-	if (retryCount === 0) {
-		Network.expectClose();
-	}
-	if (!DB.isLoaded) {
-		if (!DB.startedLazyInit) {
-			DB.lazyInit();
-			DB.startedLazyInit = true;
-		}
-		retryCount++;
-		if (retryCount > 600) {
-			UIManager.showMessageBox('Failed loading databases, please restart the game', 'ok', () => {
-				CharEngine.reload();
-			});
-			retryCount = 0;
-			DB.startedLazyInit = false;
-			return;
-		}
-		setTimeout(() => onReceiveMapInfo(pkt), 100);
-		return;
-	}
-	DB.startedLazyInit = false;
-	retryCount = 0;
+	Network.expectClose();
 	Session.GID = pkt.GID;
 	MapEngine.init(pkt.addr.ip, pkt.addr.port, pkt.mapName);
 }

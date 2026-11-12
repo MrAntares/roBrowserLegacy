@@ -426,10 +426,8 @@ class AIDriver {
 		addCTX(AIDriver.MER_AI, false);
 	}
 
-	static initAI = async (onEnd, isCurrent = () => true) => {
-		if (!isCurrent()) return;
+	static initAI = async onEnd => {
 		AIDriver.ready = false;
-
 		const defaultAISearchPaths = [
 			'./?.lua',
 			'./?.lub',
@@ -468,14 +466,12 @@ class AIDriver {
 			await LuaModuleLoader.loadAndExecuteFiles(AIDriver.default_HO_AI, defaultHoFiles, {
 				searchPaths: defaultAISearchPaths
 			});
-			if (!isCurrent()) return;
 
 			console.log('Loading Default MERAI...');
 			const defaultMerFiles = ['AI/Util.lua', 'AI/Const.lua', 'AI/AI_M.lua'];
 			await LuaModuleLoader.loadAndExecuteFiles(AIDriver.default_MER_AI, defaultMerFiles, {
 				searchPaths: defaultAISearchPaths
 			});
-			if (!isCurrent()) return;
 
 			try {
 				console.log('Loading Custom HOAI...');
@@ -483,9 +479,7 @@ class AIDriver {
 				await LuaModuleLoader.loadAndExecuteFiles(AIDriver.HO_AI, customHoFiles, {
 					searchPaths: customAISearchPaths
 				});
-				if (!isCurrent()) return;
 			} catch (customHoError) {
-				if (!isCurrent()) return;
 				if (customHoError && customHoError.code === 'LUA_FILE_NOT_FOUND') {
 					console.warn(
 						'[AIDriver] Custom HO USER_AI files not available, falling back to default HO AI:',
@@ -506,9 +500,7 @@ class AIDriver {
 				await LuaModuleLoader.loadAndExecuteFiles(AIDriver.MER_AI, customMerFiles, {
 					searchPaths: customAISearchPaths
 				});
-				if (!isCurrent()) return;
 			} catch (customMerError) {
-				if (!isCurrent()) return;
 				if (customMerError && customMerError.code === 'LUA_FILE_NOT_FOUND') {
 					console.warn(
 						'[AIDriver] Custom MER USER_AI files not available, falling back to default MER AI:',
@@ -523,7 +515,6 @@ class AIDriver {
 				AIDriver.MER_AI = AIDriver.default_MER_AI;
 			}
 		} catch (error) {
-			if (!isCurrent()) return;
 			if (error && error.code === 'LUA_FILE_NOT_FOUND') {
 				console.warn('[AIDriver] AI files not available, skipping AI initialization:', error.message || error);
 			} else {

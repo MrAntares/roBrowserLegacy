@@ -1,15 +1,13 @@
 import TextEncoding from 'Utils/CodepageManager.js';
-import { createDBLoadContext } from 'DB/Loaders/DBLoadContext.js';
+import { lua } from 'DB/Loaders/LuaRuntime.js';
 import SC from 'DB/Status/StatusConst.js';
 import StatusInfo from 'DB/Status/StatusInfo.js';
+import Client from 'Core/Client.js';
 
 const userStringDecoder = TextEncoding;
 
 export function loadStateIconInfo(basePath, callback, onEnd, getUserCharpage) {
 	const resolveUserCharpage = typeof getUserCharpage === 'function' ? getUserCharpage : () => getUserCharpage;
-	const { lua, loadFile, guard } = createDBLoadContext();
-	callback = guard(callback);
-	onEnd = guard(onEnd);
 
 	const files = ['efstids.lub', 'stateiconimginfo.lub', 'stateiconinfo.lub'];
 
@@ -26,7 +24,7 @@ export function loadStateIconInfo(basePath, callback, onEnd, getUserCharpage) {
 		const fullPath = dirPath + files[index];
 		console.log('Loading file "' + fullPath + '"...');
 
-		loadFile(
+		Client.loadFile(
 			fullPath,
 			function (data) {
 				loadedBuffers.push({ name: files[index], data: data });

@@ -1,5 +1,6 @@
 import TextEncoding from 'Utils/CodepageManager.js';
-import { createDBLoadContext } from 'DB/Loaders/DBLoadContext.js';
+import { lua } from 'DB/Loaders/LuaRuntime.js';
+import Client from 'Core/Client.js';
 
 export function createSignBoardDatabase(getUserCharpage) {
 	const userStringDecoder = TextEncoding;
@@ -7,11 +8,7 @@ export function createSignBoardDatabase(getUserCharpage) {
 	const SignBoardTranslatedTable = {};
 	let SignBoardTable = {};
 	function loadSignBoardData(filename, callback, onEnd) {
-		const { lua, loadFile, guard } = createDBLoadContext();
-		callback = guard(callback);
-		onEnd = guard(onEnd);
-
-		loadFile(
+		Client.loadFile(
 			filename,
 			async function (file) {
 				try {
@@ -64,11 +61,8 @@ export function createSignBoardDatabase(getUserCharpage) {
 	}
 
 	function loadSignBoardList(filename, callback, onEnd) {
-		const { lua, loadFile, guard } = createDBLoadContext();
-		callback = guard(callback);
-		onEnd = guard(onEnd);
 
-		loadFile(
+		Client.loadFile(
 			filename,
 			async function (file) {
 				try {
