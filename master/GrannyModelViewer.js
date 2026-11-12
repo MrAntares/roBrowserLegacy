@@ -229324,8 +229324,7 @@ var init_AIDriver = __esmMin((() => {
 			addCTX(AIDriver.default_MER_AI, false);
 			addCTX(AIDriver.MER_AI, false);
 		}
-		static initAI = async (onEnd, isCurrent = () => true) => {
-			if (!isCurrent()) return;
+		static initAI = async (onEnd) => {
 			AIDriver.ready = false;
 			const defaultAISearchPaths = [
 				"./?.lua",
@@ -229361,14 +229360,12 @@ var init_AIDriver = __esmMin((() => {
 					"AI/Const.lua",
 					"AI/AI.lua"
 				], { searchPaths: defaultAISearchPaths });
-				if (!isCurrent()) return;
 				console.log("Loading Default MERAI...");
 				await LuaModuleLoader.loadAndExecuteFiles(AIDriver.default_MER_AI, [
 					"AI/Util.lua",
 					"AI/Const.lua",
 					"AI/AI_M.lua"
 				], { searchPaths: defaultAISearchPaths });
-				if (!isCurrent()) return;
 				try {
 					console.log("Loading Custom HOAI...");
 					await LuaModuleLoader.loadAndExecuteFiles(AIDriver.HO_AI, [
@@ -229376,9 +229373,7 @@ var init_AIDriver = __esmMin((() => {
 						"AI/USER_AI/Const.lua",
 						"AI/USER_AI/AI.lua"
 					], { searchPaths: customAISearchPaths });
-					if (!isCurrent()) return;
 				} catch (customHoError) {
-					if (!isCurrent()) return;
 					if (customHoError && customHoError.code === "LUA_FILE_NOT_FOUND") console.warn("[AIDriver] Custom HO USER_AI files not available, falling back to default HO AI:", customHoError.message || customHoError);
 					else console.error("[AIDriver] Custom HO USER_AI failed to initialize, falling back to default HO AI:", customHoError.message || customHoError);
 					AIDriver.HO_AI = AIDriver.default_HO_AI;
@@ -229390,15 +229385,12 @@ var init_AIDriver = __esmMin((() => {
 						"AI/USER_AI/Const.lua",
 						"AI/USER_AI/AI_M.lua"
 					], { searchPaths: customAISearchPaths });
-					if (!isCurrent()) return;
 				} catch (customMerError) {
-					if (!isCurrent()) return;
 					if (customMerError && customMerError.code === "LUA_FILE_NOT_FOUND") console.warn("[AIDriver] Custom MER USER_AI files not available, falling back to default MER AI:", customMerError.message || customMerError);
 					else console.error("[AIDriver] Custom MER USER_AI failed to initialize, falling back to default MER AI:", customMerError.message || customMerError);
 					AIDriver.MER_AI = AIDriver.default_MER_AI;
 				}
 			} catch (error) {
-				if (!isCurrent()) return;
 				if (error && error.code === "LUA_FILE_NOT_FOUND") console.warn("[AIDriver] AI files not available, skipping AI initialization:", error.message || error);
 				else console.error("[AIDriver] Failed to initialize AI:", error.message || error);
 				if (typeof onEnd === "function") onEnd();
@@ -242898,18 +242890,13 @@ var init_RainWeather = __esmMin((() => {
 					overlayB = 1;
 					overlayA = flashAlpha;
 				}
+				RainLightning.setLightning(_lightningFrame ? _lightningFrame.texture : null, this.isFlashing ? flashAlpha : 0);
 			}
 			if (this.endTick > 0 && !this.isFlashing) {
 				const tail = Math.max(0, Math.min(1, (this.endTick - tick) / FADEOUT_TAIL_MS));
 				overlayA *= tail;
 			}
 			RainOverlay.setOverlay(overlayR, overlayG, overlayB, overlayA);
-			let boltAlpha = 0;
-			if (this.isFlashing && _lightningFrame) {
-				const elapsed = now - this.flashStartTime;
-				if (elapsed < 200) boltAlpha = Math.min(1, (200 - elapsed) / 100);
-			}
-			RainLightning.setLightning(_lightningFrame ? _lightningFrame.texture : null, boltAlpha);
 			let remaining = Infinity;
 			if (this.endTick > 0) {
 				remaining = this.endTick - tick;
@@ -263868,12 +263855,6 @@ function invalidateLuaRuntime() {
 	runtimeGeneration++;
 	clientGeneration++;
 }
-function getLuaGeneration() {
-	return runtimeGeneration;
-}
-function getClientGeneration() {
-	return clientGeneration;
-}
 async function createLuaVMs() {
 	const wasmUrl = (await __vitePreload(async () => {
 		const { default: __vite_default__ } = await Promise.resolve().then(() => (init_liblua5_1(), liblua5_1_exports));
@@ -263942,61 +263923,6 @@ var init_LuaRuntime = __esmMin((() => {
 	runtimeGeneration = 0;
 	clientGeneration = 0;
 }));
-// src/DB/Loaders/DBLoadContext.js
-/** Capture a client generation for one DB load. */
-function createDBFileContext(clientOnly = false) {
-	const getGeneration = clientOnly ? getClientGeneration : getLuaGeneration;
-	const generation = getGeneration();
-	const isCurrent = () => generation === getGeneration();
-	const guard = (callback) => typeof callback !== "function" ? callback : function(...args) {
-		if (isCurrent()) return callback.apply(this, args);
-	};
-	const loadFile = (path, success, failure, ...rest) => Client.loadFile(path, guard(success), guard(failure), ...rest);
-	return {
-		loadFile,
-		guard,
-		isCurrent
-	};
-}
-/** Capture the VM as well, so a load cannot continue against a newer client. */
-function createDBLoadContext() {
-	const { loadFile, guard, isCurrent } = createDBFileContext();
-	const instance = lua;
-	let guardedContext;
-	return {
-		lua: new Proxy(instance, { get(target, key) {
-			if (key === "ctx") {
-				if (!isCurrent()) throw new Error("DB load belongs to a previous client");
-				if (!guardedContext) guardedContext = new Proxy(target.ctx, { set(context, name, value) {
-					context[name] = typeof value === "function" ? function(...args) {
-						return isCurrent() ? value.apply(this, args) : 1;
-					} : value;
-					return true;
-				} });
-				return guardedContext;
-			}
-			const value = Reflect.get(target, key, target);
-			if (typeof value !== "function") return value;
-			if (key === "unmountFile") return value.bind(target);
-			return (...args) => {
-				if (!isCurrent()) throw new Error("DB load belongs to a previous client");
-				const result = value.apply(target, args);
-				if (result && typeof result.then === "function") return Promise.resolve(result).then((output) => {
-					if (!isCurrent()) throw new Error("DB load belongs to a previous client");
-					return output;
-				});
-				return result;
-			};
-		} }),
-		loadFile,
-		guard,
-		isCurrent
-	};
-}
-var init_DBLoadContext = __esmMin((() => {
-	init_Client();
-	init_LuaRuntime();
-}));
 // src/DB/System/SystemDatabase.js
 function resetSystemData() {
 	for (const table of [
@@ -264017,7 +263943,7 @@ function resetSystemData() {
 		if (Array.isArray(table)) table.length = 0;
 	}
 }
-function setMessageRow(index, value) {
+function setMsgStringTable(index, value) {
 	MsgStringTable[index] = value;
 }
 function setJokeRow(index, value) {
@@ -264049,10 +263975,7 @@ function createSystemDatabase(DB, getUserCharpage) {
 	const userStringDecoder = CodepageManager;
 	const resolveUserCharpage = typeof getUserCharpage === "function" ? getUserCharpage : () => getUserCharpage;
 	function loadAttendanceFile(filename, callback, onEnd) {
-		const { lua, loadFile, guard } = createDBLoadContext();
-		callback = guard(callback);
-		onEnd = guard(onEnd);
-		loadFile(filename, async function(file) {
+		Client.loadFile(filename, async function(file) {
 			try {
 				const buffer = new Uint8Array(file);
 				const ctx = lua.ctx;
@@ -264081,10 +264004,7 @@ function createSystemDatabase(DB, getUserCharpage) {
 		}, onEnd);
 	}
 	function loadTitleTable(filename, callback, onEnd) {
-		const { lua, loadFile, guard } = createDBLoadContext();
-		callback = guard(callback);
-		onEnd = guard(onEnd);
-		loadFile(filename, async function(file) {
+		Client.loadFile(filename, async function(file) {
 			try {
 				console.log("Loading file \"" + filename + "\"...");
 				const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
@@ -264118,11 +264038,8 @@ function createSystemDatabase(DB, getUserCharpage) {
 		}, onEnd);
 	}
 	function loadQuestInfo(filename, callback, onEnd) {
-		const { lua, loadFile, guard } = createDBLoadContext();
-		callback = guard(callback);
-		onEnd = guard(onEnd);
 		new Promise((resolve, reject) => {
-			loadFile(filename, resolve, reject);
+			Client.loadFile(filename, resolve, reject);
 		}).then(async (file) => {
 			console.log("Loading file \"" + filename + "\"...");
 			try {
@@ -264233,10 +264150,7 @@ function createSystemDatabase(DB, getUserCharpage) {
 		quest.Summary = summary;
 	}
 	function loadCashShopBanner(filename, callback, onEnd) {
-		const { lua, loadFile, guard } = createDBLoadContext();
-		callback = guard(callback);
-		onEnd = guard(onEnd);
-		loadFile(filename, async function(file) {
+		Client.loadFile(filename, async function(file) {
 			try {
 				console.log("Loading file \"" + filename + "\"...");
 				const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
@@ -264341,7 +264255,8 @@ function createSystemDatabase(DB, getUserCharpage) {
 var MsgStringTable, JokeTable, ScreamTable, CheckAttendanceTable, QuestInfo, TitleTable, ReputeGroup, ReputeInfo, AchievementTable, MsgEmotionCSV, CashShopBannerTable, effectJokeResolver, effectScreamResolver;
 var init_SystemDatabase = __esmMin((() => {
 	init_CodepageManager();
-	init_DBLoadContext();
+	init_LuaRuntime();
+	init_Client();
 	MsgStringTable = [];
 	JokeTable = [];
 	ScreamTable = [];
@@ -286909,39 +286824,24 @@ var init_EffectTable = __esmMin((() => {
 }));
 // src/DB/Bootstrap/DBLoadPlan.js
 function createDBLoadPlan(DB, context) {
-	const { mergeAchievements, Configs, Ez2streffect, mergeAccessoryNames, legacyItemRows, setJokeRow, setLegacyMapMusic, setLegacyMapName, setMapAlias, mergeMonsterNames, MsgEmotionCSV, MsgStringTable, setMessageRow, mergeSkillIds, NaviLinkDistanceTable, NaviLinkTable, NaviMapTable, NaviMobTable, NaviNpcDistanceTable, NaviNpcTable, Network, PACKET, PACKETVER, PrivateAirship, mergeRandomOptions, ReputeGroup, ReputeInfo, mergeRobeNames, setScreamRow, parseBuyingStoreItem, fillNaviTable, getSystemAliases, loadAttendanceFile, loadBSONFile, loadCSV, loadCashShopBanner, loadEnchantListFile, loadFontFromClient, loadHatEffectInfo, loadItemDBTable, loadItemInfo, loadItemReformFile, loadLaphineSysFile, loadLaphineUpgFile, loadLuaTable, loadLuaValue, loadMapTbl, loadMoveInfoTable, loadPetEvolution, loadPetInfo, loadPrivateAirship, loadQuestInfo, loadSignBoardData, loadSignBoardList, loadSkillInfoList, loadSkillTreeView, loadStateIconInfo, loadTable, loadTitleTable, loadTownInfoFile, loadWeaponTable, loadWorldMapInfo, loadXMLFile, mergeEz2Effects, ownerNames, parseFogEntry, parseIndoorEntry, parseQuestEntry, parseLegacySkillDescription, setPetTalkTable, setSkillDescription, tryLoadLuaAliases, getUserCharpage, userCharpage } = context;
+	const { mergeAchievements, Configs, Ez2streffect, mergeAccessoryNames, legacyItemRows, setJokeRow, setLegacyMapMusic, setLegacyMapName, setMapAlias, mergeMonsterNames, MsgEmotionCSV, MsgStringTable, setMsgStringTable, mergeSkillIds, NaviLinkDistanceTable, NaviLinkTable, NaviMapTable, NaviMobTable, NaviNpcDistanceTable, NaviNpcTable, Network, PACKET, PACKETVER, PrivateAirship, mergeRandomOptions, ReputeGroup, ReputeInfo, mergeRobeNames, setScreamRow, parseBuyingStoreItem, fillNaviTable, getSystemAliases, loadAttendanceFile, loadBSONFile, loadCSV, loadCashShopBanner, loadEnchantListFile, loadFontFromClient, loadHatEffectInfo, loadItemDBTable, loadItemInfo, loadItemReformFile, loadLaphineSysFile, loadLaphineUpgFile, loadLuaTable, loadLuaValue, loadMapTbl, loadMoveInfoTable, loadPetEvolution, loadPetInfo, loadPrivateAirship, loadQuestInfo, loadSignBoardData, loadSignBoardList, loadSkillInfoList, loadSkillTreeView, loadStateIconInfo, loadTable, loadTitleTable, loadTownInfoFile, loadWeaponTable, loadWorldMapInfo, loadXMLFile, mergeEz2Effects, ownerNames, parseFogEntry, parseIndoorEntry, parseQuestEntry, parseLegacySkillDescription, setPetTalkTable, setSkillDescription, tryLoadLuaAliases, getUserCharpage, userCharpage } = context;
 	const resolveUserCharpage = getUserCharpage ?? userCharpage;
-	function loadInitial(onLoad, isCurrent) {
+	function loadLazy(onLoad) {
 		loadFontFromClient("System/Font/");
 		loadTable("data/mp3nametable.txt", "#", 2, function(_index, key, val) {
-			if (!isCurrent()) return;
 			setLegacyMapMusic(_index, key, val);
 		}, onLoad());
 		loadTable("data/mapnametable.txt", "#", 2, function(_index, key, val) {
-			if (!isCurrent()) return;
 			setLegacyMapName(_index, key, val);
 		}, onLoad(), true);
-		const loadmsg = onLoad();
-		loadTable("data/msgstringtable.txt", "#", 1, (_index, val) => {
-			if (!isCurrent()) return;
-			setMessageRow(_index, val);
-		}, () => {
-			if (isCurrent()) loadCSV("data/msgstringtable.csv", MsgStringTable, 0, 1, loadmsg, isCurrent);
-		}, true);
+		if (PACKETVER.value >= 20230302) loadCSV("data/msgstringtable.csv", MsgStringTable, 0, 1, onLoad());
+		else loadTable("data/msgstringtable.txt", "#", 1, (_index, val) => {
+			setMsgStringTable(_index, val);
+		}, onLoad(), true);
 		loadTable("data/resnametable.txt", "#", 2, function(_index, key, val) {
-			if (!isCurrent()) return;
 			setMapAlias(_index, key, val);
 		}, onLoad());
-	}
-	function loadLazy(onLoad, isCurrent) {
-		const guard = (callback) => (...args) => {
-			if (isCurrent() && callback) return callback(...args);
-		};
-		const guardedLoadTable = (file, separator, size, row, done, useCharPage) => loadTable(file, separator, size, guard(row), guard(done), useCharPage);
-		const guardedLoadCSV = (file, target, key, value, done) => loadCSV(file, target, key, value, guard(done), isCurrent);
-		const guardedLoadXMLFile = (file, callback, done) => loadXMLFile(file, guard(callback), guard(done));
-		const guardedLoadBSONFile = (file, target, done) => loadBSONFile(file, target, guard(done), isCurrent);
-		if (PACKETVER.value >= 20230302) guardedLoadCSV("data/simplemsg/msg_emotion.csv", MsgEmotionCSV, 0, 2, onLoad());
+		if (PACKETVER.value >= 20230302) loadCSV("data/simplemsg/msg_emotion.csv", MsgEmotionCSV, 0, 2, onLoad());
 		if (Configs.get("loadLua")) {
 			let iteminfoNames = [];
 			const customII = Configs.get("customItemInfo", []);
@@ -286979,9 +286879,8 @@ function createDBLoadPlan(DB, context) {
 					loadSkillInfoList(DB.LUA_PATH + "skillinfoz/skillinfolist.lub", null, () => {
 						loadSkillTreeView(DB.LUA_PATH + "skillinfoz/skilltreeview.lub", null, () => {
 							if (PACKETVER.value >= 20211103) {
-								guardedLoadBSONFile("data/contentdata/effectdata/ez2streffect.bson", Ez2streffect, () => {
+								loadBSONFile("data/contentdata/effectdata/ez2streffect.bson", Ez2streffect, () => {
 									Promise.all([__vitePreload(() => Promise.resolve().then(() => (init_EffectTable(), EffectTable_exports)), void 0, import.meta.url), __vitePreload(() => Promise.resolve().then(() => (init_SkillEffect(), SkillEffect_exports)), void 0, import.meta.url)]).then(([EffectTable, SkillEffect]) => {
-										if (!isCurrent()) return;
 										mergeEz2Effects(EffectTable.default, SkillEffect.default, Ez2streffect);
 									}).catch((error) => console.error("[DB] Failed to merge effects:", error)).finally(onSkillEnd);
 								});
@@ -287031,15 +286930,15 @@ function createDBLoadPlan(DB, context) {
 			if (Configs.get("enableAchievements") && PACKETVER.value >= 20150513) loadLuaValue("System/achievement_list.lub", "achievement_tbl", mergeAchievements, onLoad());
 			if (Configs.get("enableCashShop") && PACKETVER.value >= 2018e4) loadCashShopBanner(DB.LUA_PATH + "datainfo/tb_cashshop_banner.lub", null, onLoad());
 		} else {
-			guardedLoadTable("data/num2itemdisplaynametable.txt", "#", 2, legacyItemRows.unidentifiedDisplayName, onLoad(), true);
-			guardedLoadTable("data/num2itemresnametable.txt", "#", 2, legacyItemRows.unidentifiedResourceName, onLoad());
-			guardedLoadTable("data/num2itemdesctable.txt", "#", 2, legacyItemRows.unidentifiedDescriptionName, onLoad(), true);
-			guardedLoadTable("data/idnum2itemdisplaynametable.txt", "#", 2, legacyItemRows.identifiedDisplayName, onLoad(), true);
-			guardedLoadTable("data/idnum2itemresnametable.txt", "#", 2, legacyItemRows.identifiedResourceName, onLoad());
-			guardedLoadTable("data/idnum2itemdesctable.txt", "#", 2, legacyItemRows.identifiedDescriptionName, onLoad(), true);
-			guardedLoadTable("data/itemslotcounttable.txt", "#", 2, legacyItemRows.slotCount, onLoad());
-			guardedLoadTable("data/skilldesctable.txt", "#", 2, parseLegacySkillDescription, onLoad(), true);
-			guardedLoadTable("data/questid2display.txt", "#", 6, parseQuestEntry, onLoad(), true);
+			loadTable("data/num2itemdisplaynametable.txt", "#", 2, legacyItemRows.unidentifiedDisplayName, onLoad(), true);
+			loadTable("data/num2itemresnametable.txt", "#", 2, legacyItemRows.unidentifiedResourceName, onLoad());
+			loadTable("data/num2itemdesctable.txt", "#", 2, legacyItemRows.unidentifiedDescriptionName, onLoad(), true);
+			loadTable("data/idnum2itemdisplaynametable.txt", "#", 2, legacyItemRows.identifiedDisplayName, onLoad(), true);
+			loadTable("data/idnum2itemresnametable.txt", "#", 2, legacyItemRows.identifiedResourceName, onLoad());
+			loadTable("data/idnum2itemdesctable.txt", "#", 2, legacyItemRows.identifiedDescriptionName, onLoad(), true);
+			loadTable("data/itemslotcounttable.txt", "#", 2, legacyItemRows.slotCount, onLoad());
+			loadTable("data/skilldesctable.txt", "#", 2, parseLegacySkillDescription, onLoad(), true);
+			loadTable("data/questid2display.txt", "#", 6, parseQuestEntry, onLoad(), true);
 		}
 		if (PACKETVER.value >= 20150422) loadMoveInfoTable(resolveUserCharpage, onLoad());
 		loadWorldMapInfo(DB.LUA_PATH + "worldviewdata/", onLoad());
@@ -287049,36 +286948,33 @@ function createDBLoadPlan(DB, context) {
 		loadTownInfoFile("System/Towninfo.lub", null, () => {
 			loadTownInfoFile("SystemEN/Towninfo.lub", null, onTownInfoEnd);
 		});
-		guardedLoadTable("data/metalprocessitemlist.txt", "#", 2, legacyItemRows.processitemlist, onLoad(), true);
-		guardedLoadTable("data/num2cardillustnametable.txt", "#", 2, legacyItemRows.illustResourcesName, onLoad());
-		guardedLoadTable("data/cardprefixnametable.txt", "#", 2, legacyItemRows.prefixName, onLoad(), true);
-		guardedLoadTable("data/cardpostfixnametable.txt", "#", 1, legacyItemRows.isPostfix, onLoad(), true);
-		guardedLoadTable("data/fogparametertable.txt", "#", 5, parseFogEntry, onLoad());
-		guardedLoadTable("data/indoorrswtable.txt", "#", 1, parseIndoorEntry, onLoad());
-		guardedLoadTable("data/ba_frostjoke.txt", "	", 1, setJokeRow, onLoad(), true);
-		guardedLoadTable("data/dc_scream.txt", "	", 1, setScreamRow, onLoad(), true);
-		guardedLoadXMLFile("data/pettalktable.xml", function(json) {
+		loadTable("data/metalprocessitemlist.txt", "#", 2, legacyItemRows.processitemlist, onLoad(), true);
+		loadTable("data/num2cardillustnametable.txt", "#", 2, legacyItemRows.illustResourcesName, onLoad());
+		loadTable("data/cardprefixnametable.txt", "#", 2, legacyItemRows.prefixName, onLoad(), true);
+		loadTable("data/cardpostfixnametable.txt", "#", 1, legacyItemRows.isPostfix, onLoad(), true);
+		loadTable("data/fogparametertable.txt", "#", 5, parseFogEntry, onLoad());
+		loadTable("data/indoorrswtable.txt", "#", 1, parseIndoorEntry, onLoad());
+		loadTable("data/ba_frostjoke.txt", "	", 1, setJokeRow, onLoad(), true);
+		loadTable("data/dc_scream.txt", "	", 1, setScreamRow, onLoad(), true);
+		loadXMLFile("data/pettalktable.xml", function(json) {
 			setPetTalkTable(json["monster_talk_table"]);
 		}, onLoad());
-		if (PACKETVER.value >= 20100427) guardedLoadTable("data/buyingstoreitemlist.txt", "#", 1, parseBuyingStoreItem, onLoad());
+		if (PACKETVER.value >= 20100427) loadTable("data/buyingstoreitemlist.txt", "#", 1, parseBuyingStoreItem, onLoad());
 		if (PACKETVER.value >= 20220330) {
-			guardedLoadBSONFile("data/contentdata/repute/reputegroupdata.bson", ReputeGroup, function() {});
-			guardedLoadBSONFile("data/contentdata/repute/reputeinfodata.bson", ReputeInfo, function() {});
+			loadBSONFile("data/contentdata/repute/reputegroupdata.bson", ReputeGroup, onLoad());
+			loadBSONFile("data/contentdata/repute/reputeinfodata.bson", ReputeInfo, onLoad());
 		}
 		Network.hookPacket(PACKET.ZC.ACK_REQNAME_BYGID, ownerNames.onUpdateOwnerName);
 		Network.hookPacket(PACKET.ZC.ACK_REQNAME_BYGID2, ownerNames.onUpdateOwnerName);
 		const onAIDriverLoaded = onLoad();
-		__vitePreload(() => Promise.resolve().then(() => (init_AIDriver(), AIDriver_exports)).then((module) => {
-			if (isCurrent()) return module.default.initAI(onAIDriverLoaded, isCurrent);
+		__vitePreload(() => Promise.resolve().then(() => (init_AIDriver(), AIDriver_exports)).then(async (module) => {
+			await module.default.initAI(onAIDriverLoaded);
 		}), void 0, import.meta.url).catch((error) => {
 			console.error("[DB] Failed to initialize AI:", error);
 			onAIDriverLoaded();
 		});
 	}
-	return {
-		loadInitial,
-		loadLazy
-	};
+	return { loadLazy };
 }
 var init_DBLoadPlan = __esmMin((() => {
 	init_preload_helper();
@@ -287121,9 +287017,9 @@ function createDBBootstrap(DB, context) {
 		};
 	}
 	return class DBBootstrap {
-		static init() {
+		static async lazyInit() {
 			const current = ++generation;
-			lazyGeneration++;
+			const currentLazy = ++lazyGeneration;
 			if (invalidateLuaRuntime) invalidateLuaRuntime();
 			if (Client.invalidateDBFiles) Client.invalidateDBFiles();
 			DB.isLoaded = false;
@@ -287144,17 +287040,6 @@ function createDBBootstrap(DB, context) {
 			clearNavigationMobIndex();
 			if (resetLoadedMapNames) resetLoadedMapNames();
 			if (resetClientData) resetClientData();
-			const tracker = createTracker(current, (index, count) => {
-				if (DB.onProgress) DB.onProgress(index, count);
-			}, () => {
-				if (DB.onReady) DB.onReady();
-			});
-			plan.loadInitial(() => tracker.step(), () => current === generation);
-			tracker.seal();
-		}
-		static async lazyInit() {
-			const current = generation;
-			const currentLazy = ++lazyGeneration;
 			console.log("Loading DB files...");
 			if (await startLua() === false || current !== generation || currentLazy !== lazyGeneration) return;
 			DB.index = 0;
@@ -287166,11 +287051,12 @@ function createDBBootstrap(DB, context) {
 			}, () => {
 				DB.isLoaded = true;
 				MemoryManager.forceClean(null, /\.(lub|lua|txt|csv|bson)$/i);
-			}, () => currentLazy === lazyGeneration);
+				if (DB.onReady) DB.onReady();
+			});
 			plan.loadLazy(() => {
 				DB.count++;
 				return tracker.step();
-			}, () => current === generation && currentLazy === lazyGeneration);
+			});
 			tracker.seal();
 		}
 		static hasMountPalettes(onAnswer) {
@@ -300934,9 +300820,7 @@ var init_EquipmentRules = __esmMin((() => {
 // src/DB/Items/ItemMoveInfoLoader.js
 function loadMoveInfoTable(getUserCharpage, onEnd) {
 	const resolveUserCharpage = typeof getUserCharpage === "function" ? getUserCharpage : () => getUserCharpage;
-	const { loadFile, guard } = createDBFileContext();
-	onEnd = guard(onEnd);
-	loadFile("data/ItemMoveInfoV5.txt", function(file) {
+	Client.loadFile("data/ItemMoveInfoV5.txt", function(file) {
 		console.log("Loading file \"ItemMoveInfoV5.txt\"...");
 		let data = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
 		data = CodepageManager.decode(data, resolveUserCharpage());
@@ -300968,7 +300852,7 @@ function loadMoveInfoTable(getUserCharpage, onEnd) {
 	}, onEnd);
 }
 var init_ItemMoveInfoLoader = __esmMin((() => {
-	init_DBLoadContext();
+	init_Client();
 	init_CodepageManager();
 	init_ItemTable();
 }));
@@ -301218,11 +301102,8 @@ function createItemDatabase(DB, getUserCharpage, MsgStringTable) {
 		]) clearTable(table);
 	}
 	function loadItemInfo(filename, callback, onEnd) {
-		const { lua, loadFile, guard } = createDBLoadContext();
-		callback = guard(callback);
-		onEnd = guard(onEnd);
 		new Promise((resolve, reject) => {
-			loadFile(filename, resolve, reject);
+			Client.loadFile(filename, resolve, reject);
 		}).then(async (file) => {
 			let wasSuccessful = false;
 			try {
@@ -301327,10 +301208,7 @@ function createItemDatabase(DB, getUserCharpage, MsgStringTable) {
 		});
 	}
 	function loadLaphineSysFile(filename, callback, onEnd) {
-		const { lua, loadFile, guard } = createDBLoadContext();
-		callback = guard(callback);
-		onEnd = guard(onEnd);
-		loadFile(filename, async function(file) {
+		Client.loadFile(filename, async function(file) {
 			try {
 				console.log("Loading file \"" + filename + "\"...");
 				const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
@@ -301388,10 +301266,7 @@ function createItemDatabase(DB, getUserCharpage, MsgStringTable) {
 		}, onEnd);
 	}
 	function loadLaphineUpgFile(filename, callback, onEnd) {
-		const { lua, loadFile, guard } = createDBLoadContext();
-		callback = guard(callback);
-		onEnd = guard(onEnd);
-		loadFile(filename, async function(file) {
+		Client.loadFile(filename, async function(file) {
 			try {
 				console.log("Loading file \"" + filename + "\"...");
 				const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
@@ -301450,10 +301325,7 @@ function createItemDatabase(DB, getUserCharpage, MsgStringTable) {
 		}, onEnd);
 	}
 	function loadItemDBTable(filename, callback, onEnd) {
-		const { lua, loadFile, guard } = createDBLoadContext();
-		callback = guard(callback);
-		onEnd = guard(onEnd);
-		loadFile(filename, async function(file) {
+		Client.loadFile(filename, async function(file) {
 			try {
 				console.log("Loading file \"" + filename + "\"...");
 				const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
@@ -301485,10 +301357,7 @@ function createItemDatabase(DB, getUserCharpage, MsgStringTable) {
 		}, onEnd);
 	}
 	function loadItemReformFile(filename, callback, onEnd) {
-		const { lua, loadFile, guard } = createDBLoadContext();
-		callback = guard(callback);
-		onEnd = guard(onEnd);
-		loadFile(filename, async function(file) {
+		Client.loadFile(filename, async function(file) {
 			try {
 				console.log("Loading file \"" + filename + "\"...");
 				const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
@@ -301581,12 +301450,10 @@ function createItemDatabase(DB, getUserCharpage, MsgStringTable) {
 		}, onEnd);
 	}
 	function loadEnchantListFile(basePath, onEnd) {
-		const { lua, loadFile, guard } = createDBLoadContext();
-		onEnd = guard(onEnd);
 		const normalizedBase = basePath.replace(/\.(lub|lua)$/i, "");
 		const defFile = normalizedBase + "_f.lub";
 		const listFile = normalizedBase + ".lub";
-		loadFile(defFile, async function(file) {
+		Client.loadFile(defFile, async function(file) {
 			try {
 				console.log("Loading file \"" + defFile + "\"...");
 				const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
@@ -301819,7 +301686,7 @@ function createItemDatabase(DB, getUserCharpage, MsgStringTable) {
 				};
 				lua.mountFile("EnchantList_f.lub", buffer);
 				await lua.doFile("EnchantList_f.lub");
-				loadFile(listFile, async function(fileList) {
+				Client.loadFile(listFile, async function(fileList) {
 					try {
 						console.log("Loading file \"" + listFile + "\"...");
 						const listBuffer = fileList instanceof ArrayBuffer ? new Uint8Array(fileList) : fileList;
@@ -302144,9 +302011,10 @@ function createItemDatabase(DB, getUserCharpage, MsgStringTable) {
 var defaultItems;
 var init_ItemDatabase = __esmMin((() => {
 	init_CodepageManager();
-	init_DBLoadContext();
+	init_LuaRuntime();
 	init_ItemTable();
 	init_ItemRandomOptionTable();
+	init_Client();
 	defaultItems = Object.fromEntries(Object.entries(ItemTable_default).map(([id, item]) => [id, { ...item }]));
 }));
 // src/DB/Monsters/MonsterNameTable.js
@@ -304678,10 +304546,7 @@ var init_ResourceTableRows = __esmMin((() => {
 }));
 // src/DB/Items/WeaponTableLoader.js
 function loadWeaponTable(filename, callback, onEnd) {
-	const { lua, loadFile, guard } = createDBLoadContext();
-	callback = guard(callback);
-	onEnd = guard(onEnd);
-	loadFile(filename, async function(file) {
+	Client.loadFile(filename, async function(file) {
 		try {
 			console.log("Loading file \"" + filename + "\"...");
 			const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
@@ -304750,10 +304615,11 @@ function loadWeaponTable(filename, callback, onEnd) {
 var userStringDecoder$3;
 var init_WeaponTableLoader = __esmMin((() => {
 	init_CodepageManager();
-	init_DBLoadContext();
+	init_LuaRuntime();
 	init_WeaponTable();
 	init_WeaponHitSoundTable();
 	init_WeaponTypeExpansion();
+	init_Client();
 	userStringDecoder$3 = CodepageManager;
 }));
 // src/DB/TownInfo.js
@@ -306066,8 +305932,6 @@ function createMapLoaders(getUserCharpage) {
 	const userStringDecoder = CodepageManager;
 	const resolveUserCharpage = typeof getUserCharpage === "function" ? getUserCharpage : () => getUserCharpage;
 	function loadWorldMapInfo(basePath, onEnd) {
-		const { lua, loadFile, guard } = createDBLoadContext();
-		onEnd = guard(onEnd);
 		const files = [
 			"worldviewdata_language.lub",
 			"worldviewdata_list.lub",
@@ -306082,7 +305946,7 @@ function createMapLoaders(getUserCharpage) {
 			}
 			const fullPath = dirPath + files[index];
 			console.log("Loading file \"" + fullPath + "\"...");
-			loadFile(fullPath, function(data) {
+			Client.loadFile(fullPath, function(data) {
 				loadedBuffers.push({
 					name: files[index],
 					data
@@ -306209,10 +306073,7 @@ function createMapLoaders(getUserCharpage) {
 		loadNext(0);
 	}
 	function loadTownInfoFile(filename, callback, onEnd) {
-		const { lua, loadFile, guard } = createDBLoadContext();
-		callback = guard(callback);
-		onEnd = guard(onEnd);
-		loadFile(filename, async function(file) {
+		Client.loadFile(filename, async function(file) {
 			console.log("Loading file \"" + filename + "\"...");
 			try {
 				const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
@@ -306239,10 +306100,7 @@ function createMapLoaders(getUserCharpage) {
 		}, onEnd);
 	}
 	function loadPrivateAirship(filename, callback, onEnd) {
-		const { lua, loadFile, guard, isCurrent } = createDBLoadContext();
-		callback = guard(callback);
-		onEnd = guard(onEnd);
-		loadFile(filename, async function(file) {
+		Client.loadFile(filename, async function(file) {
 			console.log("Loading file \"" + filename + "\"...");
 			let success = false;
 			try {
@@ -306267,7 +306125,7 @@ function createMapLoaders(getUserCharpage) {
 				success = PrivateAirship$1.isLoaded();
 			} catch (error) {
 				console.error("[loadPrivateAirship] Error: ", error);
-				if (isCurrent()) PrivateAirship$1.reset();
+				PrivateAirship$1.reset();
 			} finally {
 				lua.unmountFile(filename);
 				onEnd(success);
@@ -306282,10 +306140,11 @@ function createMapLoaders(getUserCharpage) {
 }
 var init_MapLoaders = __esmMin((() => {
 	init_CodepageManager();
-	init_DBLoadContext();
+	init_LuaRuntime();
 	init_WorldMap$3();
 	init_TownInfo();
 	init_PrivateAirship$3();
+	init_Client();
 }));
 // src/DB/Map/MapTable.js
 var MapInfo;
@@ -313241,12 +313100,9 @@ function createMapDatabase(DB, getUserCharpage) {
 	}
 	function loadMapTbl(filename, callback, onEnd) {
 		const instance = lua;
-		const generation = getLuaGeneration();
-		const isCurrent = () => generation === getLuaGeneration();
 		new Promise((resolve, reject) => {
 			Client.loadFile(filename, resolve, reject);
 		}).then(async (file) => {
-			if (!isCurrent()) return;
 			let success = false;
 			try {
 				console.log("Loading file \"" + filename + "\"...");
@@ -313254,7 +313110,6 @@ function createMapDatabase(DB, getUserCharpage) {
 				const ctx = instance.ctx;
 				const userCharpage = resolveUserCharpage();
 				ctx.AddMapDisplayName = (name, displayName, notify_enter) => {
-					if (!isCurrent()) return 1;
 					const decoded_name = userStringDecoder.decode(name);
 					MapInfo[decoded_name] = {
 						displayName: userStringDecoder.decode(displayName, userCharpage),
@@ -313269,7 +313124,6 @@ function createMapDatabase(DB, getUserCharpage) {
 					return 1;
 				};
 				ctx.AddMapSignName = (name, subTitle, mainTitle) => {
-					if (!isCurrent()) return 1;
 					const decoded_name = userStringDecoder.decode(name);
 					const decoded_subTitle = subTitle && subTitle.length > 1 ? userStringDecoder.decode(subTitle, userCharpage) : null;
 					const decoded_mainTitle = mainTitle && mainTitle.length > 1 ? userStringDecoder.decode(mainTitle, userCharpage) : null;
@@ -313280,14 +313134,12 @@ function createMapDatabase(DB, getUserCharpage) {
 					return 1;
 				};
 				ctx.AddMapBackgroundBmp = (name, backgroundBmp) => {
-					if (!isCurrent()) return 1;
 					const decoded_name = userStringDecoder.decode(name);
 					MapInfo[decoded_name].backgroundBmp = backgroundBmp ? userStringDecoder.decode(backgroundBmp) : "field";
 					return 1;
 				};
 				instance.mountFile(filename, buffer);
 				await instance.doFile(filename);
-				if (!isCurrent()) return;
 				instance.doStringSync("main()");
 				updateMapTable();
 				success = true;
@@ -313295,10 +313147,10 @@ function createMapDatabase(DB, getUserCharpage) {
 				console.error("[loadMapTbl] Error: ", error);
 			} finally {
 				instance.unmountFile(filename);
-				if (isCurrent()) onEnd(success);
+				onEnd(success);
 			}
 		}).catch((error) => {
-			if (isCurrent()) onEnd(false);
+			onEnd(false);
 		});
 	}
 	function parseFogEntry(index, key, near, far, color, factor) {
@@ -313382,10 +313234,7 @@ function createSignBoardDatabase(getUserCharpage) {
 	const SignBoardTranslatedTable = {};
 	let SignBoardTable = {};
 	function loadSignBoardData(filename, callback, onEnd) {
-		const { lua, loadFile, guard } = createDBLoadContext();
-		callback = guard(callback);
-		onEnd = guard(onEnd);
-		loadFile(filename, async function(file) {
+		Client.loadFile(filename, async function(file) {
 			try {
 				console.log("Loading file \"" + filename + "\"...");
 				const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
@@ -313418,10 +313267,7 @@ function createSignBoardDatabase(getUserCharpage) {
 		}, onEnd);
 	}
 	function loadSignBoardList(filename, callback, onEnd) {
-		const { lua, loadFile, guard } = createDBLoadContext();
-		callback = guard(callback);
-		onEnd = guard(onEnd);
-		loadFile(filename, async function(file) {
+		Client.loadFile(filename, async function(file) {
 			try {
 				console.log("Loading file \"" + filename + "\"...");
 				const signBoardList = [];
@@ -313510,7 +313356,8 @@ function createSignBoardDatabase(getUserCharpage) {
 }
 var init_SignBoardDatabase = __esmMin((() => {
 	init_CodepageManager();
-	init_DBLoadContext();
+	init_LuaRuntime();
+	init_Client();
 }));
 // src/DB/Map/NavigationSystem.js
 /**
@@ -313961,10 +313808,7 @@ function createSkillLoaders(DB, getUserCharpage) {
 	const userStringDecoder = CodepageManager;
 	const resolveUserCharpage = typeof getUserCharpage === "function" ? getUserCharpage : () => getUserCharpage;
 	function loadSkillInfoList(filename, callback, onEnd) {
-		const { lua, loadFile, guard } = createDBLoadContext();
-		callback = guard(callback);
-		onEnd = guard(onEnd);
-		loadFile(filename, async function(file) {
+		Client.loadFile(filename, async function(file) {
 			try {
 				console.log("Loading file \"" + filename + "\"...");
 				const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
@@ -314080,10 +313924,7 @@ function createSkillLoaders(DB, getUserCharpage) {
 		}, onEnd);
 	}
 	function loadSkillTreeView(filename, callback, onEnd) {
-		const { lua, loadFile, guard } = createDBLoadContext();
-		callback = guard(callback);
-		onEnd = guard(onEnd);
-		loadFile(DB.LUA_PATH + "skillinfoz/jobinheritlist.lub", async function(file) {
+		Client.loadFile(DB.LUA_PATH + "skillinfoz/jobinheritlist.lub", async function(file) {
 			try {
 				console.log(`Loading file "${DB.LUA_PATH}skillinfoz/jobinheritlist.lub"...`);
 				const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
@@ -314097,12 +313938,9 @@ function createSkillLoaders(DB, getUserCharpage) {
 		}, onEnd);
 	}
 	function loadSkillTreeViewData(filename, callback, onEnd) {
-		const { lua, loadFile, guard } = createDBLoadContext();
-		callback = guard(callback);
-		onEnd = guard(onEnd);
 		resetSkillTree(SkillTreeView);
 		const fileJobs = /* @__PURE__ */ new Set();
-		loadFile(filename, async function(file) {
+		Client.loadFile(filename, async function(file) {
 			try {
 				console.log("Loading file \"" + filename + "\"...");
 				const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
@@ -314207,12 +314045,13 @@ function createSkillLoaders(DB, getUserCharpage) {
 }
 var init_SkillLoaders = __esmMin((() => {
 	init_CodepageManager();
-	init_DBLoadContext();
+	init_LuaRuntime();
 	init_JobConst();
 	init_SkillConst();
 	init_SkillInfo();
 	init_SkillTreeView();
 	init_SkillTreeMerge();
+	init_Client();
 }));
 // src/DB/Status/StatusEffectTable.js
 var StatusEffectTable_default;
@@ -314475,12 +314314,10 @@ function getHatResource(id) {
 	return HatEffectInfo[id] || null;
 }
 function loadHatEffectInfo(luaPath, onEnd) {
-	const { lua, loadFile, guard } = createDBLoadContext();
-	onEnd = guard(onEnd);
 	const basePath = luaPath + "hateffectinfo/";
 	const idFile = basePath + "hateffectids.lub";
 	const infoFile = basePath + "hateffectinfo.lub";
-	loadFile(idFile, async function(idBuf) {
+	Client.loadFile(idFile, async function(idBuf) {
 		const ctx = lua.ctx;
 		ctx.MessageBox = function(msg) {
 			console.warn("[HatEffect] " + msg);
@@ -314529,7 +314366,7 @@ function loadHatEffectInfo(luaPath, onEnd) {
 			return 1;
 		};
 		async function LoadHatEffectInfo() {
-			return loadFile(infoFile, async function(infoBuf) {
+			return Client.loadFile(infoFile, async function(infoBuf) {
 				try {
 					lua.mountFile("hateffectinfo.lub", infoBuf instanceof ArrayBuffer ? new Uint8Array(infoBuf) : infoBuf);
 					await lua.doFile("hateffectinfo.lub");
@@ -314549,7 +314386,7 @@ function loadHatEffectInfo(luaPath, onEnd) {
 			});
 		}
 		async function LoadFootPrint() {
-			return loadFile(basePath + "footprinteffectinfo.lub", async function(buf) {
+			return Client.loadFile(basePath + "footprinteffectinfo.lub", async function(buf) {
 				try {
 					lua.mountFile("footprinteffectinfo.lub", buf instanceof ArrayBuffer ? new Uint8Array(buf) : buf);
 					await lua.doFile("footprinteffectinfo.lub");
@@ -314590,7 +314427,8 @@ function loadHatEffectInfo(luaPath, onEnd) {
 var userStringDecoder$2, HatEffectID, HatEffectInfo, FootPrintEffectInfo;
 var init_HatEffectLoader = __esmMin((() => {
 	init_CodepageManager();
-	init_DBLoadContext();
+	init_LuaRuntime();
+	init_Client();
 	userStringDecoder$2 = CodepageManager;
 	HatEffectID = {};
 	HatEffectInfo = {};
@@ -317815,9 +317653,6 @@ var init_StatusInfo = __esmMin((() => {
 // src/DB/Status/StatusInfoLoader.js
 function loadStateIconInfo(basePath, callback, onEnd, getUserCharpage) {
 	const resolveUserCharpage = typeof getUserCharpage === "function" ? getUserCharpage : () => getUserCharpage;
-	const { lua, loadFile, guard } = createDBLoadContext();
-	callback = guard(callback);
-	onEnd = guard(onEnd);
 	const files = [
 		"efstids.lub",
 		"stateiconimginfo.lub",
@@ -317832,7 +317667,7 @@ function loadStateIconInfo(basePath, callback, onEnd, getUserCharpage) {
 		}
 		const fullPath = dirPath + files[index];
 		console.log("Loading file \"" + fullPath + "\"...");
-		loadFile(fullPath, function(data) {
+		Client.loadFile(fullPath, function(data) {
 			loadedBuffers.push({
 				name: files[index],
 				data
@@ -317963,9 +317798,10 @@ function loadStateIconInfo(basePath, callback, onEnd, getUserCharpage) {
 var userStringDecoder$1;
 var init_StatusInfoLoader = __esmMin((() => {
 	init_CodepageManager();
-	init_DBLoadContext();
+	init_LuaRuntime();
 	init_StatusConst();
 	init_StatusInfo();
+	init_Client();
 	userStringDecoder$1 = CodepageManager;
 }));
 // src/Vendors/xmlparse.js
@@ -322104,9 +321940,8 @@ function createTableLoaders(getUserCharpage) {
 	* @param {number} valueIndex - 0-based index of column to use as value
 	* @param {function} onEnd - callback when done
 	*/
-	function loadCSV(filename, targetTable, keyIndex, valueIndex, onEnd, isCurrent = () => true) {
+	function loadCSV(filename, targetTable, keyIndex, valueIndex, onEnd) {
 		Client.loadFile(filename, function(data) {
-			if (!isCurrent()) return;
 			console.log("Loading file \"" + filename + "\"...");
 			const bytes = data instanceof ArrayBuffer ? new Uint8Array(data) : data;
 			let text = "";
@@ -322168,9 +322003,8 @@ function createTableLoaders(getUserCharpage) {
 	* @param {function} onEnd    Called when finished (success or error)
 	*
 	*/
-	function loadBSONFile(filename, targetTable, onEnd, isCurrent = () => true) {
+	function loadBSONFile(filename, targetTable, onEnd) {
 		Client.loadFile(filename, function(arrayBuffer) {
-			if (!isCurrent()) return;
 			try {
 				console.log("Loading file \"" + filename + "\"...");
 				const bytes = new Uint8Array(arrayBuffer);
@@ -322213,12 +322047,11 @@ var init_TableLoader = __esmMin((() => {
 }));
 // src/DB/Loaders/ClientFont.js
 function loadFontFromClient(fontPath) {
-	const { loadFile } = createDBFileContext(true);
 	console.log("Loading file \"" + fontPath + "SCDream4.otf\"...");
-	loadFile(fontPath + "SCDream4.otf", function(fontData4) {
+	Client.loadFile(fontPath + "SCDream4.otf", function(fontData4) {
 		const fontUrl4 = "data:font/opentype;base64," + arrayBufferToBase64(fontData4);
 		console.log("Loading file \"" + fontPath + "SCDream6.otf\"...");
-		loadFile(fontPath + "SCDream6.otf", function(fontData6) {
+		Client.loadFile(fontPath + "SCDream6.otf", function(fontData6) {
 			const fontUrl6 = "data:font/opentype;base64," + arrayBufferToBase64(fontData6);
 			const style = document.createElement("style");
 			style.textContent = `
@@ -322279,7 +322112,7 @@ function arrayBufferToBase64(buffer) {
 	return btoa(binary);
 }
 var init_ClientFont = __esmMin((() => {
-	init_DBLoadContext();
+	init_Client();
 }));
 // src/DB/Loaders/LuaAliases.js
 function getSystemAliases(basePath) {
@@ -322328,8 +322161,6 @@ function createLuaTableLoaders(getUserCharpage, grfCharpage) {
 	const resolveUserCharpage = typeof getUserCharpage === "function" ? getUserCharpage : () => getUserCharpage;
 	function loadLuaTable(file_list, table_name, callback, onEnd, contextFunc, useCharPage = true) {
 		const instance = lua;
-		const generation = getLuaGeneration();
-		const isCurrent = () => generation === getLuaGeneration();
 		const id_filename = file_list[0];
 		const value_table_filename = file_list[1];
 		let finished = false;
@@ -322340,19 +322171,17 @@ function createLuaTableLoaders(getUserCharpage, grfCharpage) {
 			finished = true;
 			if (valueMounted) instance.unmountFile(value_table_filename);
 			if (idMounted) instance.unmountFile(id_filename);
-			if (onEnd && isCurrent()) onEnd(success);
+			if (onEnd) onEnd(success);
 		}
 		try {
 			console.log("Loading file \"" + id_filename + "\"...");
 			Client.loadFile(id_filename, async function(file) {
 				if (finished) return;
-				if (!isCurrent()) return finish(false);
 				try {
 					const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
 					instance.mountFile(id_filename, buffer);
 					idMounted = true;
 					await instance.doFile(id_filename);
-					if (!isCurrent()) return finish(false);
 					loadValueTable();
 				} catch (hException) {
 					console.error(`(${id_filename}) error: `, hException);
@@ -322363,13 +322192,11 @@ function createLuaTableLoaders(getUserCharpage, grfCharpage) {
 				console.log("Loading file \"" + value_table_filename + "\"...");
 				Client.loadFile(value_table_filename, async function(file) {
 					if (finished) return;
-					if (!isCurrent()) return finish(false);
 					try {
 						const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
 						instance.mountFile(value_table_filename, buffer);
 						valueMounted = true;
 						await instance.doFile(value_table_filename);
-						if (!isCurrent()) return finish(false);
 						parseTable();
 					} catch (hException) {
 						console.error(`(${value_table_filename}) error: `, hException);
@@ -322428,25 +322255,19 @@ function createLuaTableLoaders(getUserCharpage, grfCharpage) {
 	*/
 	function loadLuaValue(file_path, variable_name, callback, onEnd) {
 		const instance = lua;
-		const generation = getLuaGeneration();
-		const isCurrent = () => generation === getLuaGeneration();
 		let settled = false;
 		try {
 			console.log("Loading file \"" + file_path + "\"...");
 			Client.loadFile(file_path, async function(file) {
 				if (settled) return;
 				settled = true;
-				if (!isCurrent()) {
-					if (onEnd) onEnd();
-					return;
-				}
 				let mounted = false;
+				let called = false;
 				try {
 					const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
 					instance.mountFile(file_path, buffer);
 					mounted = true;
 					await instance.doFile(file_path);
-					if (!isCurrent()) return;
 					const ctx = instance.ctx;
 					let result = null;
 					ctx.extractValue = (value) => {
@@ -322504,10 +322325,14 @@ function createLuaTableLoaders(getUserCharpage, grfCharpage) {
 							`);
 					instance.unmountFile(file_path);
 					mounted = false;
+					called = true;
 					callback.call(null, result);
 				} catch (hException) {
 					console.error(`(${file_path}) error: `, hException);
-					if (isCurrent()) callback.call(null, null);
+					if (!called) {
+						called = true;
+						callback.call(null, null);
+					}
 				} finally {
 					if (mounted) instance.unmountFile(file_path);
 					if (onEnd) onEnd.call();
@@ -322515,14 +322340,14 @@ function createLuaTableLoaders(getUserCharpage, grfCharpage) {
 			}, function() {
 				if (settled) return;
 				settled = true;
-				if (isCurrent()) callback.call(null, null);
+				callback.call(null, null);
 				if (onEnd) onEnd.call();
 			});
 		} catch (e) {
 			if (settled) return;
 			settled = true;
 			console.error("error: ", e);
-			if (isCurrent()) callback.call(null, null);
+			callback.call(null, null);
 			if (onEnd) onEnd.call();
 		}
 	}
@@ -323018,10 +322843,7 @@ function setPetTalkTable(table) {
 	PetTalkTable = table;
 }
 function loadPetInfo(filename, callback, onEnd) {
-	const { lua, loadFile, guard } = createDBLoadContext();
-	callback = guard(callback);
-	onEnd = guard(onEnd);
-	loadFile(filename, async function(file) {
+	Client.loadFile(filename, async function(file) {
 		try {
 			console.log("Loading file \"" + filename + "\"...");
 			const buffer = file instanceof ArrayBuffer ? new Uint8Array(file) : file;
@@ -323079,11 +322901,8 @@ function loadPetInfo(filename, callback, onEnd) {
 	}, onEnd);
 }
 function loadPetEvolution(filename, callback, onEnd) {
-	const { lua, loadFile, guard } = createDBLoadContext();
-	callback = guard(callback);
-	onEnd = guard(onEnd);
 	new Promise((resolve, reject) => {
-		loadFile(filename, resolve, reject);
+		Client.loadFile(filename, resolve, reject);
 	}).then(async (file) => {
 		let wasSuccessful = false;
 		try {
@@ -323220,12 +323039,13 @@ function createPetDatabase(DB) {
 var userStringDecoder, PetTalkTable, PetDBTable, EggIDToJobID;
 var init_PetDatabase = __esmMin((() => {
 	init_CodepageManager();
-	init_DBLoadContext();
+	init_LuaRuntime();
 	init_MonsterTable();
 	init_PetEmotionTable();
 	init_PetHungryState();
 	init_PetFriendlyState();
 	init_PetMessageConst();
+	init_Client();
 	userStringDecoder = CodepageManager;
 	PetTalkTable = {};
 	PetDBTable = {};
@@ -323236,13 +323056,12 @@ function createDBServices(DB) {
 	setSkillAttackSliceResolver((job, weapon) => DB.getAttackSlice(job, weapon));
 	setEffectMessageResolvers(() => DB.getRandomJoke(), () => DB.getRandomScream());
 	const SexTable = ["¿©", "³²"];
-	function getUserCharpage() {
+	const getUserCharpage = () => {
+		if (DB.userCharpage) return DB.userCharpage;
 		const servers = Configs.get("servers", []);
-		const defaultLangType = Array.isArray(servers) && servers[0] ? servers[0].langtype : 0;
-		const rawLangType = Configs.get("langtype", defaultLangType);
-		const langType = rawLangType ? parseInt(rawLangType, 0) : 0;
+		const langType = Configs.get("langtype", servers[0]?.langtype ?? 0);
 		return CodepageManager.detectEncodingByLangtype(langType, Configs.get("disableKorean"));
-	}
+	};
 	const grfCharpage = "windows-1252";
 	CodepageManager.setCharset(grfCharpage);
 	const { loadTable, loadCSV, loadXMLFile, loadBSONFile } = createTableLoaders(getUserCharpage);
@@ -323296,7 +323115,7 @@ function createDBServices(DB) {
 			mergeMonsterNames,
 			MsgEmotionCSV,
 			MsgStringTable,
-			setMessageRow,
+			setMsgStringTable,
 			mergeSkillIds,
 			NaviLinkDistanceTable,
 			NaviLinkTable,
@@ -324097,17 +323916,11 @@ var init_DBManager = __esmMin((() => {
 		* @type {Object} UpdateOwnerName Table
 		*/
 		static UpdateOwnerName = {};
-		/**
-		* Initialize DB
-		*/
-		static init() {
-			return bootstrap.init(...arguments);
-		}
 		static isLoaded = false;
 		static count = 0;
 		static index = 0;
 		static async lazyInit() {
-			return bootstrap.lazyInit(...arguments);
+			return await bootstrap.lazyInit(...arguments);
 		}
 		static getHOAI_VM() {
 			return HO_AI;
@@ -360299,31 +360112,17 @@ function onCharListNotify(charListInfo) {
 		Network.sendPacket(pkt);
 	}
 }
+/**
+* Player selection successful, get mapserver information to connect
+*
+* @param {object} pkt - PACKET.HC.NOTIFY_ZONESVR
+*/
 function onReceiveMapInfo(pkt) {
-	if (retryCount === 0) Network.expectClose();
-	if (!DB.isLoaded) {
-		if (!DB.startedLazyInit) {
-			DB.lazyInit();
-			DB.startedLazyInit = true;
-		}
-		retryCount++;
-		if (retryCount > 600) {
-			UIManager.showMessageBox("Failed loading databases, please restart the game", "ok", () => {
-				CharEngine.reload();
-			});
-			retryCount = 0;
-			DB.startedLazyInit = false;
-			return;
-		}
-		setTimeout(() => onReceiveMapInfo(pkt), 100);
-		return;
-	}
-	DB.startedLazyInit = false;
-	retryCount = 0;
+	Network.expectClose();
 	SessionStorage_default.GID = pkt.GID;
 	MapEngine.init(pkt.addr.ip, pkt.addr.port, pkt.mapName);
 }
-var _server$1, _creationSlot, _pincodeAttempts, _inAuthPincodeReset, _resettingPincode, _creatingPincode, CharEngine, retryCount;
+var _server$1, _creationSlot, _pincodeAttempts, _inAuthPincodeReset, _resettingPincode, _creatingPincode, CharEngine;
 var init_CharEngine = __esmMin((() => {
 	init_DBManager();
 	init_Configs();
@@ -360410,7 +360209,6 @@ var init_CharEngine = __esmMin((() => {
 			});
 		}
 	};
-	retryCount = 0;
 }));
 // src/UI/Components/WinList/WinList.html?raw
 var WinList_default$2;
@@ -365038,23 +364836,6 @@ var init_ReplayPlayer = __esmMin((() => {
 				console.error("[ReplayPlayer] No replay loaded");
 				throw new Error("No replay loaded");
 			}
-			if (!DB.isLoaded) {
-				if (!DB.startedLazyInit) {
-					DB.lazyInit();
-					DB.startedLazyInit = true;
-				}
-				this._retryCount = (this._retryCount || 0) + 1;
-				if (this._retryCount > 600) {
-					console.error("[Replay] Failed loading databases.");
-					this._retryCount = 0;
-					DB.startedLazyInit = false;
-					return;
-				}
-				setTimeout(() => this.start(), 100);
-				return;
-			}
-			this._retryCount = 0;
-			DB.startedLazyInit = false;
 			this._initialGroupIndex = 0;
 			this._initialChunkIndex = 0;
 			this._streamChunkIndex = 0;
@@ -366514,26 +366295,24 @@ var init_LoginEngine = __esmMin((() => {
 	_server = null;
 	_charServers = [];
 	_loginID = "";
-	LoginEngine = class {
+	LoginEngine = class LoginEngine {
 		/**
 		* Init Game
 		*/
 		static init(server) {
 			const q = new Queue();
-			const old_server = _server;
 			Configs.setServer(server);
 			UIManager.removeComponents();
 			SessionStorage_default.LangType = "langtype" in server ? parseInt(server.langtype, 10) : 1;
 			SessionStorage_default.isRenewal = Configs.get("renewal", false);
 			console.log("%c[LOGIN] Game Mode: ", "color:#007000", SessionStorage_default.isRenewal ? "RENEWAL" : "PRE-RENEWAL");
-			const charset = CodepageManager.detectEncodingByLangtype(SessionStorage_default.LangType, Configs.get("disableKorean"));
+			DB.userCharpage = CodepageManager.detectEncodingByLangtype(SessionStorage_default.LangType, Configs.get("disableKorean"));
 			console.log("%c[LOGIN] Language Type: ", "color:#007000", SessionStorage_default.LangType);
-			console.log("%c[LOGIN] Encoding: ", "color:#007000", charset);
-			_server = server;
-			const packetver = String(Configs.get("packetver"));
+			console.log("%c[LOGIN] Encoding: ", "color:#007000", DB.userCharpage);
 			const remoteClient = Configs.get("remoteClient");
 			const autoLogin = Configs.get("autoLogin");
 			const audioExt = Configs.get("BGMFileExtension");
+			const packetver = String(Configs.get("packetver"));
 			if (packetver) {
 				if (packetver.match(/^\d+$/)) PacketVerManager_default.value = parseInt(packetver, 10);
 			}
@@ -366541,24 +366320,26 @@ var init_LoginEngine = __esmMin((() => {
 				UIManager.showErrorBox("Sorry, no PACKETVER configs found.");
 				return;
 			}
-			if (remoteClient) {
-				Thread.send("SET_HOST", remoteClient);
-				if (old_server != null && (old_server.address != _server.address || old_server.port != _server.port)) q.add(() => {
-					DB.onReady = () => {
-						Background.setLoginBackground();
-						q._next();
-					};
-					DB.onProgress = (i, count) => {
-						Background.setPercent(Math.floor(i / count * 100));
-					};
-					UIManager.removeComponents();
-					Background.init();
-					Background.resize(Renderer.width, Renderer.height);
-					Background.setLoginBackground(() => {
-						DB.isLoaded = false;
-						DB.init();
-					});
+			_server = server;
+			_server.packetver = PacketVerManager_default.value;
+			if (remoteClient) Thread.send("SET_HOST", remoteClient);
+			if (!DB.isLoaded && !DB.startedLazyInit) {
+				DB.startedLazyInit = true;
+				Background.init();
+				Background.resize(Renderer.width, Renderer.height);
+				Background.setImage("bgi_temp.bmp");
+				DB.onProgress = (i, count) => {
+					Background.setPercent(Math.floor(i / count * 100));
+				};
+				DB.onReady = () => {
+					DB.startedLazyInit = false;
+					LoginEngine.init(server);
+				};
+				DB.lazyInit().catch(() => {
+					DB.startedLazyInit = false;
+					UIManager.showErrorBox("Failed to start Database");
 				});
+				return;
 			}
 			if (audioExt) BGM.setAvailableExtensions(audioExt);
 			SessionStorage_default.AdminList = server.adminList || [];
@@ -366601,26 +366382,17 @@ var init_LoginEngine = __esmMin((() => {
 			Controller.append();
 			Network.close();
 		}
-		/**
-		* setLoadedServer()
-		*
-		* Called by GameEngine when it reloads files due to a service change
-		* so we don't wind up trying to load the db twice. (Or concurrently.)
-		*/
-		static setLoadedServer(server) {
-			_server = server;
-		}
 	};
 }));
 // src/UI/Components/Intro/Intro.html?raw
 var Intro_default$2;
 var init_Intro$2 = __esmMin((() => {
-	Intro_default$2 = "<div id=\"intro\">\r\n	<div class=\"intro\">\r\n		<!-- Loading overlay -->\r\n		<div class=\"overlay loading\" style=\"display: none\">\r\n			<div class=\"loading-content\">\r\n				<div class=\"loading-spinner\"></div>\r\n				<p class=\"loading-text\">\r\n					<span style=\"--i: 0\">L</span><span style=\"--i: 1\">o</span><span style=\"--i: 2\">a</span\r\n					><span style=\"--i: 3\">d</span><span style=\"--i: 4\">i</span><span style=\"--i: 5\">n</span\r\n					><span style=\"--i: 6\">g</span><span style=\"--i: 7\">.</span><span style=\"--i: 8\">.</span\r\n					><span style=\"--i: 9\">.</span>\r\n				</p>\r\n			</div>\r\n		</div>\r\n\r\n		<!-- About overlay -->\r\n		<div class=\"overlay about\" style=\"display: none\">\r\n			<div class=\"about-content\">\r\n				<div class=\"emblem small-emblem\">\r\n					<div class=\"emblem-ring\"></div>\r\n					<span class=\"emblem-icon\">&#x2694;&#xFE0F;</span>\r\n				</div>\r\n				<h1 class=\"about-title\">roBrowserLegacy</h1>\r\n				<h2 class=\"about-subtitle\">Open Source Ragnarok Online Web Client</h2>\r\n				<div class=\"ornament\">\r\n					<div class=\"ornament-line\"></div>\r\n					<div class=\"ornament-dot\"></div>\r\n					<div class=\"ornament-diamond\"></div>\r\n					<div class=\"ornament-dot\"></div>\r\n					<div class=\"ornament-line\"></div>\r\n				</div>\r\n				<table class=\"info\">\r\n					<tr>\r\n						<td>Author:</td>\r\n						<td>Vincent Thibault</td>\r\n					</tr>\r\n					<tr>\r\n						<td>Site:</td>\r\n						<td><a href=\"http://www.robrowser.com/\" target=\"_blank\">robrowser.com</a></td>\r\n					</tr>\r\n					<tr>\r\n						<td>Source:</td>\r\n						<td>\r\n							<a href=\"https://github.com/MrAntares/roBrowserLegacy\" target=\"_blank\"\r\n								>github.com/MrAntares/roBrowserLegacy</a\r\n							>\r\n						</td>\r\n					</tr>\r\n				</table>\r\n				<div class=\"concept\">\r\n					<p>\r\n						roBrowser is an open source project based on the game Ragnarok Online.<br />It's not affiliated\r\n						in any way with Gravity.\r\n					</p>\r\n					<p>\r\n						The concept is to reproduce the game using web technologies (HTML5, Javascript, WebGL) to bring\r\n						it to Web Browsers.\r\n					</p>\r\n					<p>Cross-platform: runs on Windows, Linux, macOS, and any device with WebGL support.</p>\r\n				</div>\r\n				<p class=\"about-hint\">Click anywhere to close</p>\r\n			</div>\r\n		</div>\r\n\r\n		<!-- Settings overlay -->\r\n		<div class=\"overlay settings\" style=\"display: none\">\r\n			<div class=\"settings-content\">\r\n				<h1 class=\"settings-title\">&#x2699; Settings</h1>\r\n\r\n				<div class=\"section-header\"><span>Window</span></div>\r\n				<table class=\"screen\">\r\n					<tr class=\"resolution\">\r\n						<td>Screen Resolution</td>\r\n						<td colspan=\"2\">\r\n							<select class=\"screensize\">\r\n								<option value=\"640x480\">640 x 480</option>\r\n								<option value=\"800x600\">800 x 600</option>\r\n								<option value=\"1024x768\">1024 x 768</option>\r\n								<option value=\"1280x800\">1280 x 800</option>\r\n								<option value=\"1400x900\">1400 x 900</option>\r\n								<option value=\"1680x1050\">1680 x 1050</option>\r\n								<option value=\"full\">Full Screen</option>\r\n							</select>\r\n						</td>\r\n					</tr>\r\n					<tr>\r\n						<td>Resolution Details</td>\r\n						<td><input class=\"quality\" type=\"range\" value=\"100\" max=\"100\" min=\"25\" step=\"25\" /></td>\r\n						<td class=\"quality_result\">100%</td>\r\n					</tr>\r\n					<tr>\r\n						<td>Cursor</td>\r\n						<td>\r\n							<label><input class=\"cursor\" type=\"checkbox\" /> Show official cursor</label>\r\n						</td>\r\n					</tr>\r\n				</table>\r\n\r\n				<div class=\"section-header\"><span>Full Client</span></div>\r\n				<table class=\"screen\">\r\n					<tr>\r\n						<td>\r\n							<label><input class=\"save\" type=\"checkbox\" /> Save Files</label>\r\n						</td>\r\n						<td><button class=\"clean\">Clean cache</button> <span class=\"clean-status\"></span></td>\r\n					</tr>\r\n				</table>\r\n\r\n				<div class=\"section-header\"><span>Sound</span></div>\r\n				<table class=\"sound\">\r\n					<tr>\r\n						<td>BGM</td>\r\n						<td><input class=\"bgmvol\" type=\"range\" value=\"50\" max=\"100\" min=\"0\" step=\"25\" /></td>\r\n						<td class=\"bgmvol_result\">50%</td>\r\n					</tr>\r\n					<tr>\r\n						<td>Sound</td>\r\n						<td><input class=\"soundvol\" type=\"range\" value=\"50\" max=\"100\" min=\"0\" step=\"25\" /></td>\r\n						<td class=\"soundvol_result\">50%</td>\r\n					</tr>\r\n				</table>\r\n\r\n				<div class=\"serveredit\">\r\n					<div class=\"section-header\"><span>Server List</span></div>\r\n					<dl>\r\n						<dt>\r\n							<input class=\"radio serverdef\" type=\"radio\" value=\"serverfile\" name=\"server\" />\r\n							<span>Using clientinfo.xml file stored in my FullClient</span>\r\n						</dt>\r\n						<dd>data / <input type=\"text\" value=\"clientinfo.xml\" class=\"clientinfo\" /></dd>\r\n						<dt>\r\n							<input class=\"radio serverdef\" type=\"radio\" value=\"serverlist\" name=\"server\" />\r\n							<span>Using servers from the current list:</span>\r\n						</dt>\r\n						<dd>\r\n							<div class=\"servercontainer\">\r\n								<table class=\"serverlist\">\r\n									<thead>\r\n										<tr>\r\n											<td width=\"22%\">Name</td>\r\n											<td width=\"25%\">Address</td>\r\n											<td width=\"12%\">Version</td>\r\n											<td width=\"15%\">Langtype</td>\r\n											<td width=\"22%\">Packet Ver</td>\r\n											<td width=\"10px\"></td>\r\n										</tr>\r\n									</thead>\r\n									<tbody class=\"servers\"></tbody>\r\n								</table>\r\n							</div>\r\n							<button class=\"btn_add\">+ Add Server</button>\r\n							<div class=\"clear\"></div>\r\n						</dd>\r\n					</dl>\r\n				</div>\r\n\r\n				<button class=\"btn_save\">SAVE SETTINGS</button>\r\n			</div>\r\n		</div>\r\n\r\n		<!-- Main UI elements -->\r\n		<button class=\"btn_about\">ℹ</button>\r\n		<div class=\"ribbon\"><span>UNOFFICIAL</span></div>\r\n		<div class=\"drop-zone\">\r\n			<div class=\"drop-zone-icon\">📂</div>\r\n			<div class=\"drop-zone-text\"><strong>Drop GRF / data files here</strong><br />or click to browse</div>\r\n		</div>\r\n		<div class=\"msg\"></div>\r\n		<input type=\"file\" multiple=\"multiple\" directory=\"\" webkitDirectory=\"\" />\r\n		<button class=\"btn_play\">START NOW</button>\r\n		<button class=\"btn_settings\">⚙</button>\r\n		<canvas width=\"800\" height=\"600\"></canvas>\r\n	</div>\r\n</div>\r\n";
+	Intro_default$2 = "<div id=\"intro\">\r\n	<div class=\"intro\">\r\n		<!-- Loading overlay -->\r\n		<div class=\"overlay loading\" style=\"display: none\">\r\n			<div class=\"loading-content\">\r\n				<div class=\"loading-spinner\"></div>\r\n				<p class=\"loading-text\">\r\n					<span style=\"--i: 0\">L</span><span style=\"--i: 1\">o</span><span style=\"--i: 2\">a</span\r\n					><span style=\"--i: 3\">d</span><span style=\"--i: 4\">i</span><span style=\"--i: 5\">n</span\r\n					><span style=\"--i: 6\">g</span><span style=\"--i: 7\">.</span><span style=\"--i: 8\">.</span\r\n					><span style=\"--i: 9\">.</span>\r\n				</p>\r\n			</div>\r\n		</div>\r\n\r\n		<!-- About overlay -->\r\n		<div class=\"overlay about\" style=\"display: none\">\r\n			<div class=\"about-content\">\r\n				<div class=\"emblem small-emblem\">\r\n					<div class=\"emblem-ring\"></div>\r\n					<span class=\"emblem-icon\">&#x2694;&#xFE0F;</span>\r\n				</div>\r\n				<h1 class=\"about-title\">roBrowserLegacy</h1>\r\n				<h2 class=\"about-subtitle\">Open Source Ragnarok Online Web Client</h2>\r\n				<div class=\"ornament\">\r\n					<div class=\"ornament-line\"></div>\r\n					<div class=\"ornament-dot\"></div>\r\n					<div class=\"ornament-diamond\"></div>\r\n					<div class=\"ornament-dot\"></div>\r\n					<div class=\"ornament-line\"></div>\r\n				</div>\r\n				<table class=\"info\">\r\n					<tr>\r\n						<td>Author:</td>\r\n						<td>Vincent Thibault</td>\r\n					</tr>\r\n					<tr>\r\n						<td>Site:</td>\r\n						<td><a href=\"http://www.robrowser.com/\" target=\"_blank\">robrowser.com</a></td>\r\n					</tr>\r\n					<tr>\r\n						<td>Source:</td>\r\n						<td>\r\n							<a href=\"https://github.com/MrAntares/roBrowserLegacy\" target=\"_blank\"\r\n								>github.com/MrAntares/roBrowserLegacy</a\r\n							>\r\n						</td>\r\n					</tr>\r\n				</table>\r\n				<div class=\"concept\">\r\n					<p>\r\n						roBrowser is an open source project based on the game Ragnarok Online.<br />It's not affiliated\r\n						in any way with Gravity.\r\n					</p>\r\n					<p>\r\n						The concept is to reproduce the game using web technologies (HTML5, Javascript, WebGL) to bring\r\n						it to Web Browsers.\r\n					</p>\r\n					<p>Cross-platform: runs on Windows, Linux, macOS, and any device with WebGL support.</p>\r\n				</div>\r\n				<p class=\"about-hint\">Click anywhere to close</p>\r\n			</div>\r\n		</div>\r\n\r\n		<!-- Settings overlay -->\r\n		<div class=\"overlay settings\" style=\"display: none\">\r\n			<div class=\"settings-content\">\r\n				<h1 class=\"settings-title\">&#x2699; Settings</h1>\r\n\r\n				<div class=\"section-header\"><span>Window</span></div>\r\n				<table class=\"screen\">\r\n					<tr class=\"resolution\">\r\n						<td>Screen Resolution</td>\r\n						<td colspan=\"2\">\r\n							<select class=\"screensize\">\r\n								<option value=\"640x480\">640 x 480</option>\r\n								<option value=\"800x600\">800 x 600</option>\r\n								<option value=\"1024x768\">1024 x 768</option>\r\n								<option value=\"1280x800\">1280 x 800</option>\r\n								<option value=\"1400x900\">1400 x 900</option>\r\n								<option value=\"1680x1050\">1680 x 1050</option>\r\n								<option value=\"full\">Full Screen</option>\r\n							</select>\r\n						</td>\r\n					</tr>\r\n					<tr>\r\n						<td>Resolution Details</td>\r\n						<td><input class=\"quality\" type=\"range\" value=\"100\" max=\"100\" min=\"25\" step=\"25\" /></td>\r\n						<td class=\"quality_result\">100%</td>\r\n					</tr>\r\n					<tr>\r\n						<td>Cursor</td>\r\n						<td>\r\n							<label><input class=\"cursor\" type=\"checkbox\" /> Show official cursor</label>\r\n						</td>\r\n					</tr>\r\n				</table>\r\n\r\n				<div class=\"section-header\"><span>Full Client</span></div>\r\n				<table class=\"screen\">\r\n					<tr>\r\n						<td>\r\n							<label><input class=\"save\" type=\"checkbox\" /> Save Files</label>\r\n						</td>\r\n						<td><button class=\"clean\">Clean cache</button> <span class=\"clean-status\"></span></td>\r\n					</tr>\r\n				</table>\r\n\r\n				<div class=\"section-header\"><span>Sound</span></div>\r\n				<table class=\"sound\">\r\n					<tr>\r\n						<td>BGM</td>\r\n						<td><input class=\"bgmvol\" type=\"range\" value=\"50\" max=\"100\" min=\"0\" step=\"25\" /></td>\r\n						<td class=\"bgmvol_result\">50%</td>\r\n					</tr>\r\n					<tr>\r\n						<td>Sound</td>\r\n						<td><input class=\"soundvol\" type=\"range\" value=\"50\" max=\"100\" min=\"0\" step=\"25\" /></td>\r\n						<td class=\"soundvol_result\">50%</td>\r\n					</tr>\r\n				</table>\r\n\r\n				<div class=\"serveredit\">\r\n					<div class=\"section-header\"><span>Server List</span></div>\r\n					<dl>\r\n						<dt>\r\n							<input class=\"radio serverdef\" type=\"radio\" value=\"serverfile\" name=\"server\" />\r\n							<span>Using clientinfo.xml file stored in my FullClient</span>\r\n						</dt>\r\n						<dd>data / <input type=\"text\" value=\"clientinfo.xml\" class=\"clientinfo\" /></dd>\r\n						<dt>\r\n							<input class=\"radio serverdef\" type=\"radio\" value=\"serverlist\" name=\"server\" />\r\n							<span>Using servers from the current list:</span>\r\n						</dt>\r\n						<dd>\r\n							<div class=\"servercontainer\">\r\n								<table class=\"serverlist\">\r\n									<thead>\r\n										<tr>\r\n											<td width=\"22%\">Name</td>\r\n											<td width=\"25%\">Address</td>\r\n											<td width=\"12%\">Version</td>\r\n											<td width=\"15%\">Langtype</td>\r\n											<td width=\"22%\">Packet Ver</td>\r\n											<td width=\"10px\"></td>\r\n										</tr>\r\n									</thead>\r\n									<tbody class=\"servers\"></tbody>\r\n								</table>\r\n							</div>\r\n							<button class=\"btn_add\">+ Add Server</button>\r\n							<div class=\"clear\"></div>\r\n						</dd>\r\n					</dl>\r\n				</div>\r\n\r\n				<button class=\"btn_save\">SAVE SETTINGS</button>\r\n			</div>\r\n		</div>\r\n\r\n		<!-- Main UI elements -->\r\n		<button class=\"btn_about\">ℹ</button>\r\n		<div class=\"ribbon\"><span>UNOFFICIAL</span></div>\r\n		<div class=\"drop-zone\">\r\n			<div class=\"drop-zone-icon\">📂</div>\r\n			<div class=\"drop-zone-text\"><strong>Drop GRF / data files here</strong><br />or click to browse</div>\r\n			<div class=\"msg\"></div>\r\n		</div>\r\n		<input type=\"file\" multiple=\"multiple\" directory=\"\" webkitDirectory=\"\" />\r\n		<button class=\"btn_play\">START NOW</button>\r\n		<button class=\"btn_settings\">⚙</button>\r\n		<canvas width=\"800\" height=\"600\"></canvas>\r\n	</div>\r\n</div>\r\n";
 }));
 // src/UI/Components/Intro/Intro.css?raw
 var Intro_default$1;
 var init_Intro$1 = __esmMin((() => {
-	Intro_default$1 = "/* ── Design Tokens ── */\r\n#intro {\r\n	--gold: #e8b84b;\r\n	--gold-bright: #f5d47c;\r\n	--gold-dark: #9a7030;\r\n	--bg-void: #060810;\r\n	--bg-deep: #0b0f1e;\r\n	--bg-panel: #111827;\r\n	--bg-card: #151d2e;\r\n	--border-dim: rgba(232, 184, 75, 0.15);\r\n	--border-glow: rgba(232, 184, 75, 0.5);\r\n	--text-light: #e2e8f0;\r\n	--text-muted: #64748b;\r\n	--radius: 12px;\r\n	--radius-sm: 8px;\r\n}\r\n\r\n/* ── Reset ── */\r\n#intro *,\r\n#intro *::before,\r\n#intro *::after {\r\n	box-sizing: border-box;\r\n}\r\n#intro button {\r\n	cursor: pointer;\r\n	font-family: inherit;\r\n}\r\n#intro .clear {\r\n	clear: both;\r\n}\r\n\r\n/* ── Main container ── */\r\n#intro .intro {\r\n	width: 800px;\r\n	height: 600px;\r\n	position: absolute;\r\n	top: 50%;\r\n	left: 50%;\r\n	margin-top: -300px;\r\n	margin-left: -400px;\r\n	overflow: hidden;\r\n	transform-origin: center center;\r\n	backface-visibility: hidden;\r\n	font-family: 'Inter', sans-serif;\r\n	/* Opt out of Common.css's font-size-adjust: this whole screen renders in Inter/Cinzel, whose\r\n	   x-height differs from Arial's — normalizing would rescale its headings (Cinzel ~+18%). All\r\n	   descendants inherit this reset, keeping the pre-normalization rendering. */\r\n	font-size-adjust: none;\r\n	color: var(--text-light);\r\n}\r\n\r\n/* ── Canvas ── */\r\n#intro canvas {\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n	z-index: -1;\r\n}\r\n\r\n/* ── Hidden file input ── */\r\n#intro input[type='file'] {\r\n	visibility: hidden;\r\n	position: absolute;\r\n}\r\n\r\n/* ══════════════════════════════════════════  \r\n   RIBBON — top-right corner  \r\n   ══════════════════════════════════════════ */\r\n#intro .ribbon {\r\n	width: 200px;\r\n	height: 200px;\r\n	position: absolute;\r\n	top: 0;\r\n	right: 0;\r\n	overflow: hidden;\r\n	pointer-events: none;\r\n	z-index: 10;\r\n}\r\n#intro .ribbon span {\r\n	display: block;\r\n	position: absolute;\r\n	top: 60px;\r\n	right: -80px;\r\n	width: 300px;\r\n	text-align: center;\r\n	transform: rotate(45deg);\r\n	background: linear-gradient(to bottom, var(--gold-bright), var(--gold-dark));\r\n	color: var(--bg-void);\r\n	font-family: 'Cinzel', serif;\r\n	font-size: 10px;\r\n	font-weight: 700;\r\n	letter-spacing: 2px;\r\n	padding: 5px 0;\r\n	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);\r\n}\r\n\r\n/* ══════════════════════════════════════════  \r\n   BUTTON ABOUT  \r\n   ══════════════════════════════════════════ */\r\n#intro .btn_about {\r\n	position: absolute;\r\n	top: 12px;\r\n	left: 12px;\r\n	background: rgba(60, 9, 90, 0.8);\r\n	border: 1px solid var(--border-dim);\r\n	border-radius: var(--radius-sm);\r\n	color: var(--text-muted);\r\n	font-size: 20px;\r\n	width: 40px;\r\n	height: 40px;\r\n	line-height: 38px;\r\n	text-align: center;\r\n	z-index: 5;\r\n	transition:\r\n		color 0.3s,\r\n		border-color 0.3s,\r\n		transform 0.15s;\r\n	padding: 0;\r\n}\r\n#intro .btn_about:hover {\r\n	color: var(--gold);\r\n	border-color: var(--border-glow);\r\n	transform: scale(1.1);\r\n}\r\n\r\n/* ══════════════════════════════════════════  \r\n   BUTTON SETTINGS  \r\n   ══════════════════════════════════════════ */\r\n#intro .btn_settings {\r\n	position: absolute;\r\n	bottom: 12px;\r\n	right: 12px;\r\n	background: rgba(60, 9, 90, 0.8);\r\n	border: 1px solid var(--border-dim);\r\n	border-radius: var(--radius-sm);\r\n	color: var(--text-muted);\r\n	font-size: 28px;\r\n	width: 44px;\r\n	height: 44px;\r\n	line-height: 42px;\r\n	text-align: center;\r\n	z-index: 5;\r\n	transition:\r\n		color 0.3s,\r\n		border-color 0.3s,\r\n		transform 0.4s ease-out;\r\n	padding: 0;\r\n}\r\n#intro .btn_settings:hover {\r\n	color: var(--gold);\r\n	border-color: var(--border-glow);\r\n	transform: rotate(360deg);\r\n}\r\n\r\n/* ══════════════════════════════════════════  \r\n   DROP ZONE (replaces old .box)  \r\n   ══════════════════════════════════════════ */\r\n#intro .drop-zone {\r\n	position: absolute;\r\n	top: 300px;\r\n	left: 50%;\r\n	transform: translateX(-50%);\r\n	width: 320px;\r\n	border: 2px dashed rgba(232, 184, 75, 0.25);\r\n	border-radius: var(--radius);\r\n	padding: 30px 24px;\r\n	background: rgba(21, 29, 46, 0.6);\r\n	backdrop-filter: blur(10px);\r\n	transition:\r\n		border-color 0.3s,\r\n		box-shadow 0.3s,\r\n		background 0.3s;\r\n	cursor: pointer;\r\n	text-align: center;\r\n	z-index: 5;\r\n}\r\n#intro .drop-zone:hover,\r\n#intro .drop-zone.dragover {\r\n	border-color: rgba(232, 184, 75, 0.6);\r\n	box-shadow: 0 0 30px rgba(232, 184, 75, 0.12);\r\n	background: rgba(21, 29, 46, 0.8);\r\n}\r\n#intro .drop-zone-icon {\r\n	font-size: 36px;\r\n	margin-bottom: 8px;\r\n}\r\n#intro .drop-zone-text {\r\n	color: var(--text-muted);\r\n	font-size: 13px;\r\n	line-height: 1.6;\r\n}\r\n#intro .drop-zone-text strong {\r\n	color: var(--text-light);\r\n}\r\n\r\n/* ── File status message ── */\r\n#intro .msg {\r\n	position: absolute;\r\n	top: 440px;\r\n	left: 50%;\r\n	transform: translateX(-50%);\r\n	text-align: center;\r\n	font-size: 14px;\r\n	color: var(--gold);\r\n	z-index: 6;\r\n	pointer-events: none;\r\n	text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);\r\n	white-space: nowrap;\r\n}\r\n\r\n/* ══════════════════════════════════════════  \r\n   BUTTON PLAY  \r\n   ══════════════════════════════════════════ */\r\n#intro .btn_play {\r\n	position: absolute;\r\n	top: 470px;\r\n	left: 50%;\r\n	transform: translateX(-50%);\r\n	display: inline-flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n	gap: 8px;\r\n	padding: 14px 44px;\r\n	font-family: 'Cinzel', serif;\r\n	font-size: 14px;\r\n	font-weight: 600;\r\n	letter-spacing: 0.1em;\r\n	text-transform: uppercase;\r\n	color: var(--bg-void);\r\n	background: linear-gradient(135deg, var(--gold-bright), var(--gold), var(--gold-dark));\r\n	border: none;\r\n	border-radius: var(--radius-sm);\r\n	z-index: 5;\r\n	transition:\r\n		transform 0.2s,\r\n		box-shadow 0.3s;\r\n	box-shadow: 0 4px 20px rgba(232, 184, 75, 0.3);\r\n}\r\n#intro .btn_play:hover {\r\n	transform: translateX(-50%) translateY(-2px);\r\n	box-shadow: 0 6px 30px rgba(232, 184, 75, 0.45);\r\n}\r\n#intro .btn_play:active {\r\n	transform: translateX(-50%) translateY(0);\r\n	box-shadow: 0 2px 10px rgba(232, 184, 75, 0.2);\r\n}\r\n\r\n/* ══════════════════════════════════════════  \r\n   OVERLAYS  \r\n   ══════════════════════════════════════════ */\r\n#intro .overlay {\r\n	background: rgba(6, 8, 16, 0.92);\r\n	position: absolute;\r\n	z-index: 100;\r\n	top: 0;\r\n	left: 0;\r\n	width: 100%;\r\n	height: 100%;\r\n	color: var(--text-light);\r\n	opacity: 0;\r\n	display: none;\r\n	overflow-y: auto;\r\n	transition: opacity 0.2s ease;\r\n}\r\n\r\n/* ── Loading ── */\r\n#intro .loading-content {\r\n	position: absolute;\r\n	top: 50%;\r\n	left: 50%;\r\n	transform: translate(-50%, -50%);\r\n	text-align: center;\r\n	color: var(--gold, #e8b84b);\r\n}\r\n\r\n#intro .loading-spinner {\r\n	width: 48px;\r\n	height: 48px;\r\n	margin: 0 auto 16px;\r\n	border: 4px solid rgba(232, 184, 75, 0.2);\r\n	border-top-color: var(--gold, #e8b84b);\r\n	border-radius: 50%;\r\n	animation: intro-spin 0.8s linear infinite;\r\n}\r\n\r\n@keyframes intro-spin {\r\n	to {\r\n		transform: rotate(360deg);\r\n	}\r\n}\r\n\r\n#intro .loading-content p {\r\n	font-family: 'Cinzel', serif;\r\n	font-size: 14px;\r\n	letter-spacing: 2px;\r\n	text-transform: uppercase;\r\n}\r\n\r\n#intro .loading-text {\r\n	font-family: 'Cinzel', serif;\r\n	font-size: 16px;\r\n	letter-spacing: 3px;\r\n	text-transform: uppercase;\r\n	color: var(--gold, #e8b84b);\r\n}\r\n\r\n#intro .loading-text span {\r\n	display: inline-block;\r\n	animation: intro-wave 1.2s ease-in-out infinite;\r\n	animation-delay: calc(var(--i) * 0.08s);\r\n}\r\n\r\n@keyframes intro-wave {\r\n	0%,\r\n	60%,\r\n	100% {\r\n		transform: translateY(0);\r\n	}\r\n	30% {\r\n		transform: translateY(-8px);\r\n	}\r\n}\r\n\r\n/* ── About overlay ── */\r\n#intro .about-content {\r\n	max-width: 480px;\r\n	margin: 0 auto;\r\n	padding: 60px 30px 30px;\r\n	text-align: center;\r\n}\r\n#intro .emblem-icon {\r\n	font-size: 48px;\r\n	margin-bottom: 12px;\r\n	display: block;\r\n}\r\n#intro .about-title,\r\n#intro .gold-title {\r\n	font-family: 'Cinzel', serif;\r\n	font-size: 24px;\r\n	font-weight: 700;\r\n	background: linear-gradient(135deg, var(--gold-bright), var(--gold), var(--gold-dark));\r\n	-webkit-background-clip: text;\r\n	-webkit-text-fill-color: transparent;\r\n	background-clip: text;\r\n	margin: 0 0 6px;\r\n}\r\n#intro .about-subtitle {\r\n	font-family: 'Cinzel', serif;\r\n	font-size: 12px;\r\n	font-weight: 400;\r\n	color: var(--text-muted);\r\n	letter-spacing: 0.08em;\r\n	margin: 0 0 20px;\r\n}\r\n\r\n/* Ornament divider */\r\n#intro .ornament {\r\n	display: flex;\r\n	align-items: center;\r\n	gap: 12px;\r\n	margin: 0 auto 24px;\r\n	max-width: 280px;\r\n}\r\n#intro .ornament-line {\r\n	flex: 1;\r\n	height: 1px;\r\n	background: linear-gradient(to right, transparent, var(--gold-dark));\r\n}\r\n#intro .ornament-line:last-child {\r\n	background: linear-gradient(to left, transparent, var(--gold-dark));\r\n}\r\n#intro .ornament-diamond {\r\n	width: 8px;\r\n	height: 8px;\r\n	background: var(--gold);\r\n	transform: rotate(45deg);\r\n	box-shadow: 0 0 8px var(--gold);\r\n	flex-shrink: 0;\r\n}\r\n#intro .ornament-dot {\r\n	width: 4px;\r\n	height: 4px;\r\n	background: var(--gold-dark);\r\n	border-radius: 50%;\r\n	flex-shrink: 0;\r\n}\r\n\r\n#intro .about-content .info {\r\n	margin: 0 auto 24px;\r\n	text-align: left;\r\n	font-size: 14px;\r\n}\r\n#intro .about-content .info td:first-child {\r\n	color: var(--text-muted);\r\n	padding-right: 12px;\r\n	white-space: nowrap;\r\n}\r\n#intro .about-content a {\r\n	color: var(--gold);\r\n	text-decoration: none;\r\n}\r\n#intro .about-content a:hover {\r\n	text-decoration: underline;\r\n	color: var(--gold-bright);\r\n}\r\n#intro .concept {\r\n	font-size: 13px;\r\n	text-align: justify;\r\n	line-height: 1.6;\r\n	color: var(--text-muted);\r\n}\r\n#intro .concept p {\r\n	margin: 0 0 10px;\r\n}\r\n#intro .hint {\r\n	margin-top: 24px;\r\n	font-size: 11px;\r\n	color: var(--text-muted);\r\n	opacity: 0.6;\r\n}\r\n\r\n/* ── Settings overlay ── */\r\n#intro .settings-content {\r\n	max-width: 520px;\r\n	margin: 0 auto;\r\n	padding: 30px 30px 80px;\r\n}\r\n#intro .settings-title {\r\n	font-family: 'Cinzel', serif;\r\n	font-size: 22px;\r\n	font-weight: 700;\r\n	background: linear-gradient(135deg, var(--gold-bright), var(--gold), var(--gold-dark));\r\n	-webkit-background-clip: text;\r\n	-webkit-text-fill-color: transparent;\r\n	background-clip: text;\r\n	margin: 0 0 20px;\r\n	text-align: center;\r\n}\r\n\r\n/* Section headers */\r\n#intro .section-header {\r\n	display: flex;\r\n	align-items: center;\r\n	gap: 12px;\r\n	margin: 20px 0 12px;\r\n}\r\n#intro .section-header span {\r\n	font-family: 'Cinzel', serif;\r\n	font-size: 13px;\r\n	font-weight: 600;\r\n	color: var(--gold);\r\n	letter-spacing: 0.08em;\r\n	text-transform: uppercase;\r\n	white-space: nowrap;\r\n}\r\n#intro .section-header::after {\r\n	content: '';\r\n	flex: 1;\r\n	height: 1px;\r\n	background: linear-gradient(to right, var(--border-dim), transparent);\r\n}\r\n\r\n/* Tables */\r\n#intro .screen,\r\n#intro .sound {\r\n	width: 100%;\r\n	border-collapse: collapse;\r\n}\r\n#intro .screen td,\r\n#intro .sound td {\r\n	padding: 6px 4px;\r\n	font-size: 13px;\r\n	color: var(--text-light);\r\n	vertical-align: middle;\r\n}\r\n#intro .screen td:first-child,\r\n#intro .sound td:first-child {\r\n	width: 40%;\r\n	color: var(--text-muted);\r\n}\r\n\r\n/* Selects & inputs */\r\n#intro .settings-content select,\r\n#intro .settings-content input[type='text'] {\r\n	background: var(--bg-card);\r\n	border: 1px solid var(--border-dim);\r\n	border-radius: var(--radius-sm);\r\n	color: var(--text-light);\r\n	padding: 4px 8px;\r\n	font-size: 13px;\r\n	font-family: inherit;\r\n}\r\n#intro .settings-content select:focus,\r\n#intro .settings-content input[type='text']:focus {\r\n	border-color: var(--gold);\r\n	outline: none;\r\n}\r\n#intro .screensize {\r\n	width: 150px;\r\n}\r\n\r\n/* Range sliders */\r\n#intro input[type='range'] {\r\n	width: 150px;\r\n	accent-color: var(--gold);\r\n}\r\n\r\n/* Checkboxes */\r\n#intro .settings-content input[type='checkbox'] {\r\n	accent-color: var(--gold);\r\n}\r\n\r\n/* Quality result / volume result */\r\n#intro .quality_result,\r\n#intro .bgmvol_result,\r\n#intro .soundvol_result {\r\n	font-size: 12px;\r\n	color: var(--gold);\r\n	min-width: 40px;\r\n}\r\n\r\n/* Clean cache */\r\n#intro .clean {\r\n	display: none;\r\n	padding: 4px 10px;\r\n	background: var(--bg-card);\r\n	border: 1px solid var(--border-dim);\r\n	border-radius: var(--radius-sm);\r\n	color: var(--text-light);\r\n	font-size: 12px;\r\n	transition: border-color 0.2s;\r\n}\r\n#intro .clean:hover {\r\n	border-color: var(--gold);\r\n}\r\n#intro .clean-status {\r\n	color: var(--text-muted);\r\n	font-size: 12px;\r\n	margin-left: 8px;\r\n}\r\n\r\n/* ── Server list ── */\r\n#intro .serveredit dl {\r\n	margin: 0;\r\n}\r\n#intro .serveredit dt {\r\n	margin-bottom: 6px;\r\n}\r\n#intro .serveredit dd {\r\n	margin: 0 0 10px 0;\r\n}\r\n\r\n#intro .clientinfo {\r\n	background: transparent !important;\r\n	border: 1px solid transparent !important;\r\n	color: var(--gold) !important;\r\n	cursor: pointer;\r\n	text-decoration: underline;\r\n}\r\n#intro .clientinfo:focus {\r\n	cursor: text;\r\n	border: 1px solid var(--gold) !important;\r\n	background: var(--bg-card) !important;\r\n	color: var(--text-light) !important;\r\n	text-decoration: none;\r\n}\r\n\r\n#intro .settings-content span {\r\n	vertical-align: top;\r\n	margin-left: 5px;\r\n}\r\n\r\n/* Radio buttons */\r\n#intro input[type='radio'] {\r\n	margin: 0;\r\n	width: 15px;\r\n	height: 15px;\r\n	accent-color: var(--gold);\r\n	vertical-align: middle;\r\n	position: relative;\r\n	bottom: 1px;\r\n}\r\n\r\n/* Server container */\r\n#intro .servercontainer {\r\n	max-height: 70px;\r\n	overflow-y: auto;\r\n	overflow-x: hidden;\r\n	margin-top: 10px;\r\n	padding-right: 6px;\r\n}\r\n#intro .servercontainer::-webkit-scrollbar {\r\n	width: 6px;\r\n}\r\n#intro .servercontainer::-webkit-scrollbar-track {\r\n	background: var(--bg-void);\r\n	border-radius: 6px;\r\n}\r\n#intro .servercontainer::-webkit-scrollbar-thumb {\r\n	border-radius: 6px;\r\n	background: var(--gold-dark);\r\n}\r\n\r\n/* Server list table */\r\n#intro .serverlist {\r\n	border-collapse: collapse;\r\n	width: 100%;\r\n}\r\n#intro .serverlist td {\r\n	text-align: center;\r\n	height: 22px;\r\n	font-size: 12px;\r\n}\r\n#intro .serverlist thead td {\r\n	color: var(--gold-dark);\r\n	font-weight: bold;\r\n	font-size: 11px;\r\n}\r\n#intro .serverlist tbody tr:hover {\r\n	background: rgba(232, 184, 75, 0.06);\r\n}\r\n#intro .servers input {\r\n	background: transparent;\r\n	border: 1px solid transparent;\r\n	cursor: pointer;\r\n	color: var(--text-light);\r\n	text-align: center;\r\n	width: 100%;\r\n	font-size: 12px;\r\n	font-family: inherit;\r\n}\r\n#intro .servers input:focus {\r\n	cursor: text;\r\n	border: 1px solid var(--gold);\r\n	background: var(--bg-card);\r\n	color: var(--text-light);\r\n}\r\n\r\n/* Delete button */\r\n#intro .btn_delete {\r\n	width: 20px;\r\n	height: 20px;\r\n	background: rgba(239, 68, 68, 0.15);\r\n	border: 1px solid rgba(239, 68, 68, 0.3);\r\n	border-radius: 4px;\r\n	color: #ef4444;\r\n	font-size: 14px;\r\n	line-height: 18px;\r\n	text-align: center;\r\n	padding: 0;\r\n	transition: background 0.2s;\r\n}\r\n#intro .btn_delete:hover {\r\n	background: rgba(239, 68, 68, 0.3);\r\n}\r\n\r\n/* Add server button */\r\n#intro .settings .btn_add {\r\n	margin-top: 10px;\r\n	float: right;\r\n	padding: 5px 14px;\r\n	background: var(--bg-card);\r\n	border: 1px solid var(--border-dim);\r\n	border-radius: var(--radius-sm);\r\n	color: var(--text-light);\r\n	font-size: 12px;\r\n	transition: border-color 0.2s;\r\n}\r\n#intro .settings .btn_add:hover {\r\n	border-color: var(--gold);\r\n	color: var(--gold);\r\n}\r\n\r\n/* Save button */\r\n#intro .settings .btn_save {\r\n	display: block;\r\n	width: 200px;\r\n	margin: 24px auto 0;\r\n	padding: 12px 0;\r\n	font-family: 'Cinzel', serif;\r\n	font-size: 13px;\r\n	font-weight: 600;\r\n	letter-spacing: 0.1em;\r\n	text-transform: uppercase;\r\n	color: var(--bg-void);\r\n	background: linear-gradient(135deg, var(--gold-bright), var(--gold), var(--gold-dark));\r\n	border: none;\r\n	border-radius: var(--radius-sm);\r\n	transition:\r\n		transform 0.2s,\r\n		box-shadow 0.3s;\r\n	box-shadow: 0 4px 20px rgba(232, 184, 75, 0.3);\r\n}\r\n#intro .settings .btn_save:hover {\r\n	transform: translateY(-2px);\r\n	box-shadow: 0 6px 30px rgba(232, 184, 75, 0.45);\r\n}\r\n#intro .settings .btn_save:active {\r\n	transform: translateY(0);\r\n}\r\n\r\n/* ── Aspect Ratio Fixes ── */\r\n#intro .drop-zone {\r\n	transform: translateX(-50%) scale(var(--cx, 1), var(--cy, 1));\r\n}\r\n#intro .msg {\r\n	transform: translateX(-50%) scale(var(--cx, 1), var(--cy, 1));\r\n}\r\n#intro .btn_play {\r\n	transform: translateX(-50%) scale(var(--cx, 1), var(--cy, 1));\r\n}\r\n#intro .btn_play:hover {\r\n	transform: translateX(-50%) translateY(-2px) scale(var(--cx, 1), var(--cy, 1));\r\n}\r\n#intro .btn_play:active {\r\n	transform: translateX(-50%) translateY(0) scale(var(--cx, 1), var(--cy, 1));\r\n}\r\n#intro .btn_about {\r\n	transform: scale(var(--cx, 1), var(--cy, 1));\r\n}\r\n#intro .btn_about:hover {\r\n	transform: scale(calc(1.1 * var(--cx, 1)), calc(1.1 * var(--cy, 1)));\r\n}\r\n#intro .btn_settings {\r\n	scale: var(--cx, 1) var(--cy, 1);\r\n}\r\n#intro .btn_settings:hover {\r\n	scale: var(--cx, 1) var(--cy, 1);\r\n}\r\n#intro .loading-content {\r\n	transform: translate(-50%, -50%) scale(var(--cx, 1), var(--cy, 1));\r\n}\r\n#intro .about-content,\r\n#intro .settings-content {\r\n	scale: var(--cx, 1) var(--cy, 1);\r\n}\r\n";
+	Intro_default$1 = "/* ── Design Tokens ── */\r\n#intro {\r\n	--gold: #e8b84b;\r\n	--gold-bright: #f5d47c;\r\n	--gold-dark: #9a7030;\r\n	--bg-void: #060810;\r\n	--bg-deep: #0b0f1e;\r\n	--bg-panel: #111827;\r\n	--bg-card: #151d2e;\r\n	--border-dim: rgba(232, 184, 75, 0.15);\r\n	--border-glow: rgba(232, 184, 75, 0.5);\r\n	--text-light: #e2e8f0;\r\n	--text-muted: #64748b;\r\n	--radius: 12px;\r\n	--radius-sm: 8px;\r\n}\r\n\r\n/* ── Reset ── */\r\n#intro *,\r\n#intro *::before,\r\n#intro *::after {\r\n	box-sizing: border-box;\r\n}\r\n#intro button {\r\n	cursor: pointer;\r\n	font-family: inherit;\r\n}\r\n#intro .clear {\r\n	clear: both;\r\n}\r\n\r\n/* ── Main container ── */\r\n#intro .intro {\r\n	width: 800px;\r\n	height: 600px;\r\n	position: absolute;\r\n	top: 50%;\r\n	left: 50%;\r\n	margin-top: -300px;\r\n	margin-left: -400px;\r\n	overflow: hidden;\r\n	transform-origin: center center;\r\n	backface-visibility: hidden;\r\n	font-family: 'Inter', sans-serif;\r\n	/* Opt out of Common.css's font-size-adjust: this whole screen renders in Inter/Cinzel, whose\r\n	   x-height differs from Arial's — normalizing would rescale its headings (Cinzel ~+18%). All\r\n	   descendants inherit this reset, keeping the pre-normalization rendering. */\r\n	font-size-adjust: none;\r\n	color: var(--text-light);\r\n}\r\n\r\n/* ── Canvas ── */\r\n#intro canvas {\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n	z-index: -1;\r\n}\r\n\r\n/* ── Hidden file input ── */\r\n#intro input[type='file'] {\r\n	visibility: hidden;\r\n	position: absolute;\r\n}\r\n\r\n/* ══════════════════════════════════════════  \r\n   RIBBON — top-right corner  \r\n   ══════════════════════════════════════════ */\r\n#intro .ribbon {\r\n	width: 200px;\r\n	height: 200px;\r\n	position: absolute;\r\n	top: 0;\r\n	right: 0;\r\n	overflow: hidden;\r\n	pointer-events: none;\r\n	z-index: 10;\r\n}\r\n#intro .ribbon span {\r\n	display: block;\r\n	position: absolute;\r\n	top: 60px;\r\n	right: -80px;\r\n	width: 300px;\r\n	text-align: center;\r\n	transform: rotate(45deg);\r\n	background: linear-gradient(to bottom, var(--gold-bright), var(--gold-dark));\r\n	color: var(--bg-void);\r\n	font-family: 'Cinzel', serif;\r\n	font-size: 10px;\r\n	font-weight: 700;\r\n	letter-spacing: 2px;\r\n	padding: 5px 0;\r\n	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);\r\n}\r\n\r\n/* ══════════════════════════════════════════  \r\n   BUTTON ABOUT  \r\n   ══════════════════════════════════════════ */\r\n#intro .btn_about {\r\n	position: absolute;\r\n	top: 12px;\r\n	left: 12px;\r\n	background: rgba(60, 9, 90, 0.8);\r\n	border: 1px solid var(--border-dim);\r\n	border-radius: var(--radius-sm);\r\n	color: var(--text-muted);\r\n	font-size: 20px;\r\n	width: 40px;\r\n	height: 40px;\r\n	line-height: 38px;\r\n	text-align: center;\r\n	z-index: 5;\r\n	transition:\r\n		color 0.3s,\r\n		border-color 0.3s,\r\n		transform 0.15s;\r\n	padding: 0;\r\n}\r\n#intro .btn_about:hover {\r\n	color: var(--gold);\r\n	border-color: var(--border-glow);\r\n	transform: scale(1.1);\r\n}\r\n\r\n/* ══════════════════════════════════════════  \r\n   BUTTON SETTINGS  \r\n   ══════════════════════════════════════════ */\r\n#intro .btn_settings {\r\n	position: absolute;\r\n	bottom: 12px;\r\n	right: 12px;\r\n	background: rgba(60, 9, 90, 0.8);\r\n	border: 1px solid var(--border-dim);\r\n	border-radius: var(--radius-sm);\r\n	color: var(--text-muted);\r\n	font-size: 28px;\r\n	width: 44px;\r\n	height: 44px;\r\n	line-height: 42px;\r\n	text-align: center;\r\n	z-index: 5;\r\n	transition:\r\n		color 0.3s,\r\n		border-color 0.3s,\r\n		transform 0.4s ease-out;\r\n	padding: 0;\r\n}\r\n#intro .btn_settings:hover {\r\n	color: var(--gold);\r\n	border-color: var(--border-glow);\r\n	transform: rotate(360deg);\r\n}\r\n\r\n/* ══════════════════════════════════════════  \r\n   DROP ZONE (replaces old .box)  \r\n   ══════════════════════════════════════════ */\r\n#intro .drop-zone {\r\n	position: absolute;\r\n	top: 300px;\r\n	left: 50%;\r\n	transform: translateX(-50%);\r\n	width: 320px;\r\n	border: 2px dashed rgba(232, 184, 75, 0.25);\r\n	border-radius: var(--radius);\r\n	padding: 30px 24px;\r\n	background: rgba(21, 29, 46, 0.6);\r\n	backdrop-filter: blur(10px);\r\n	transition:\r\n		border-color 0.3s,\r\n		box-shadow 0.3s,\r\n		background 0.3s;\r\n	cursor: pointer;\r\n	text-align: center;\r\n	z-index: 5;\r\n}\r\n#intro .drop-zone:hover,\r\n#intro .drop-zone.dragover {\r\n	border-color: rgba(232, 184, 75, 0.6);\r\n	box-shadow: 0 0 30px rgba(232, 184, 75, 0.12);\r\n	background: rgba(21, 29, 46, 0.8);\r\n}\r\n#intro .drop-zone-icon {\r\n	font-size: 36px;\r\n	margin-bottom: 8px;\r\n}\r\n#intro .drop-zone-text {\r\n	color: var(--text-muted);\r\n	font-size: 13px;\r\n	line-height: 1.6;\r\n}\r\n#intro .drop-zone-text strong {\r\n	color: var(--text-light);\r\n}\r\n\r\n/* ── File status message ── */\r\n#intro .msg {\r\n	position: absolute;\r\n	left: 50%;\r\n	transform: translateX(-50%);\r\n	text-align: center;\r\n	font-size: 14px;\r\n	color: var(--gold);\r\n	z-index: 6;\r\n	pointer-events: none;\r\n	text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);\r\n	white-space: nowrap;\r\n}\r\n\r\n/* ══════════════════════════════════════════  \r\n   BUTTON PLAY  \r\n   ══════════════════════════════════════════ */\r\n#intro .btn_play {\r\n	position: absolute;\r\n	top: 470px;\r\n	left: 50%;\r\n	transform: translateX(-50%);\r\n	display: inline-flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n	gap: 8px;\r\n	padding: 14px 44px;\r\n	font-family: 'Cinzel', serif;\r\n	font-size: 14px;\r\n	font-weight: 600;\r\n	letter-spacing: 0.1em;\r\n	text-transform: uppercase;\r\n	color: var(--bg-void);\r\n	background: linear-gradient(135deg, var(--gold-bright), var(--gold), var(--gold-dark));\r\n	border: none;\r\n	border-radius: var(--radius-sm);\r\n	z-index: 5;\r\n	transition:\r\n		transform 0.2s,\r\n		box-shadow 0.3s;\r\n	box-shadow: 0 4px 20px rgba(232, 184, 75, 0.3);\r\n}\r\n#intro .btn_play:hover {\r\n	transform: translateX(-50%) translateY(-2px);\r\n	box-shadow: 0 6px 30px rgba(232, 184, 75, 0.45);\r\n}\r\n#intro .btn_play:active {\r\n	transform: translateX(-50%) translateY(0);\r\n	box-shadow: 0 2px 10px rgba(232, 184, 75, 0.2);\r\n}\r\n\r\n/* ══════════════════════════════════════════  \r\n   OVERLAYS  \r\n   ══════════════════════════════════════════ */\r\n#intro .overlay {\r\n	background: rgba(6, 8, 16, 0.92);\r\n	position: absolute;\r\n	z-index: 100;\r\n	top: 0;\r\n	left: 0;\r\n	width: 100%;\r\n	height: 100%;\r\n	color: var(--text-light);\r\n	opacity: 0;\r\n	display: none;\r\n	overflow-y: auto;\r\n	transition: opacity 0.2s ease;\r\n}\r\n\r\n/* ── Loading ── */\r\n#intro .loading-content {\r\n	position: absolute;\r\n	top: 50%;\r\n	left: 50%;\r\n	transform: translate(-50%, -50%);\r\n	text-align: center;\r\n	color: var(--gold, #e8b84b);\r\n}\r\n\r\n#intro .loading-spinner {\r\n	width: 48px;\r\n	height: 48px;\r\n	margin: 0 auto 16px;\r\n	border: 4px solid rgba(232, 184, 75, 0.2);\r\n	border-top-color: var(--gold, #e8b84b);\r\n	border-radius: 50%;\r\n	animation: intro-spin 0.8s linear infinite;\r\n}\r\n\r\n@keyframes intro-spin {\r\n	to {\r\n		transform: rotate(360deg);\r\n	}\r\n}\r\n\r\n#intro .loading-content p {\r\n	font-family: 'Cinzel', serif;\r\n	font-size: 14px;\r\n	letter-spacing: 2px;\r\n	text-transform: uppercase;\r\n}\r\n\r\n#intro .loading-text {\r\n	font-family: 'Cinzel', serif;\r\n	font-size: 16px;\r\n	letter-spacing: 3px;\r\n	text-transform: uppercase;\r\n	color: var(--gold, #e8b84b);\r\n}\r\n\r\n#intro .loading-text span {\r\n	display: inline-block;\r\n	animation: intro-wave 1.2s ease-in-out infinite;\r\n	animation-delay: calc(var(--i) * 0.08s);\r\n}\r\n\r\n@keyframes intro-wave {\r\n	0%,\r\n	60%,\r\n	100% {\r\n		transform: translateY(0);\r\n	}\r\n	30% {\r\n		transform: translateY(-8px);\r\n	}\r\n}\r\n\r\n/* ── About overlay ── */\r\n#intro .about-content {\r\n	max-width: 480px;\r\n	margin: 0 auto;\r\n	padding: 60px 30px 30px;\r\n	text-align: center;\r\n}\r\n#intro .emblem-icon {\r\n	font-size: 48px;\r\n	margin-bottom: 12px;\r\n	display: block;\r\n}\r\n#intro .about-title,\r\n#intro .gold-title {\r\n	font-family: 'Cinzel', serif;\r\n	font-size: 24px;\r\n	font-weight: 700;\r\n	background: linear-gradient(135deg, var(--gold-bright), var(--gold), var(--gold-dark));\r\n	-webkit-background-clip: text;\r\n	-webkit-text-fill-color: transparent;\r\n	background-clip: text;\r\n	margin: 0 0 6px;\r\n}\r\n#intro .about-subtitle {\r\n	font-family: 'Cinzel', serif;\r\n	font-size: 12px;\r\n	font-weight: 400;\r\n	color: var(--text-muted);\r\n	letter-spacing: 0.08em;\r\n	margin: 0 0 20px;\r\n}\r\n\r\n/* Ornament divider */\r\n#intro .ornament {\r\n	display: flex;\r\n	align-items: center;\r\n	gap: 12px;\r\n	margin: 0 auto 24px;\r\n	max-width: 280px;\r\n}\r\n#intro .ornament-line {\r\n	flex: 1;\r\n	height: 1px;\r\n	background: linear-gradient(to right, transparent, var(--gold-dark));\r\n}\r\n#intro .ornament-line:last-child {\r\n	background: linear-gradient(to left, transparent, var(--gold-dark));\r\n}\r\n#intro .ornament-diamond {\r\n	width: 8px;\r\n	height: 8px;\r\n	background: var(--gold);\r\n	transform: rotate(45deg);\r\n	box-shadow: 0 0 8px var(--gold);\r\n	flex-shrink: 0;\r\n}\r\n#intro .ornament-dot {\r\n	width: 4px;\r\n	height: 4px;\r\n	background: var(--gold-dark);\r\n	border-radius: 50%;\r\n	flex-shrink: 0;\r\n}\r\n\r\n#intro .about-content .info {\r\n	margin: 0 auto 24px;\r\n	text-align: left;\r\n	font-size: 14px;\r\n}\r\n#intro .about-content .info td:first-child {\r\n	color: var(--text-muted);\r\n	padding-right: 12px;\r\n	white-space: nowrap;\r\n}\r\n#intro .about-content a {\r\n	color: var(--gold);\r\n	text-decoration: none;\r\n}\r\n#intro .about-content a:hover {\r\n	text-decoration: underline;\r\n	color: var(--gold-bright);\r\n}\r\n#intro .concept {\r\n	font-size: 13px;\r\n	text-align: justify;\r\n	line-height: 1.6;\r\n	color: var(--text-muted);\r\n}\r\n#intro .concept p {\r\n	margin: 0 0 10px;\r\n}\r\n#intro .hint {\r\n	margin-top: 24px;\r\n	font-size: 11px;\r\n	color: var(--text-muted);\r\n	opacity: 0.6;\r\n}\r\n\r\n/* ── Settings overlay ── */\r\n#intro .settings-content {\r\n	max-width: 520px;\r\n	margin: 0 auto;\r\n	padding: 30px 30px 80px;\r\n}\r\n#intro .settings-title {\r\n	font-family: 'Cinzel', serif;\r\n	font-size: 22px;\r\n	font-weight: 700;\r\n	background: linear-gradient(135deg, var(--gold-bright), var(--gold), var(--gold-dark));\r\n	-webkit-background-clip: text;\r\n	-webkit-text-fill-color: transparent;\r\n	background-clip: text;\r\n	margin: 0 0 20px;\r\n	text-align: center;\r\n}\r\n\r\n/* Section headers */\r\n#intro .section-header {\r\n	display: flex;\r\n	align-items: center;\r\n	gap: 12px;\r\n	margin: 20px 0 12px;\r\n}\r\n#intro .section-header span {\r\n	font-family: 'Cinzel', serif;\r\n	font-size: 13px;\r\n	font-weight: 600;\r\n	color: var(--gold);\r\n	letter-spacing: 0.08em;\r\n	text-transform: uppercase;\r\n	white-space: nowrap;\r\n}\r\n#intro .section-header::after {\r\n	content: '';\r\n	flex: 1;\r\n	height: 1px;\r\n	background: linear-gradient(to right, var(--border-dim), transparent);\r\n}\r\n\r\n/* Tables */\r\n#intro .screen,\r\n#intro .sound {\r\n	width: 100%;\r\n	border-collapse: collapse;\r\n}\r\n#intro .screen td,\r\n#intro .sound td {\r\n	padding: 6px 4px;\r\n	font-size: 13px;\r\n	color: var(--text-light);\r\n	vertical-align: middle;\r\n}\r\n#intro .screen td:first-child,\r\n#intro .sound td:first-child {\r\n	width: 40%;\r\n	color: var(--text-muted);\r\n}\r\n\r\n/* Selects & inputs */\r\n#intro .settings-content select,\r\n#intro .settings-content input[type='text'] {\r\n	background: var(--bg-card);\r\n	border: 1px solid var(--border-dim);\r\n	border-radius: var(--radius-sm);\r\n	color: var(--text-light);\r\n	padding: 4px 8px;\r\n	font-size: 13px;\r\n	font-family: inherit;\r\n}\r\n#intro .settings-content select:focus,\r\n#intro .settings-content input[type='text']:focus {\r\n	border-color: var(--gold);\r\n	outline: none;\r\n}\r\n#intro .screensize {\r\n	width: 150px;\r\n}\r\n\r\n/* Range sliders */\r\n#intro input[type='range'] {\r\n	width: 150px;\r\n	accent-color: var(--gold);\r\n}\r\n\r\n/* Checkboxes */\r\n#intro .settings-content input[type='checkbox'] {\r\n	accent-color: var(--gold);\r\n}\r\n\r\n/* Quality result / volume result */\r\n#intro .quality_result,\r\n#intro .bgmvol_result,\r\n#intro .soundvol_result {\r\n	font-size: 12px;\r\n	color: var(--gold);\r\n	min-width: 40px;\r\n}\r\n\r\n/* Clean cache */\r\n#intro .clean {\r\n	display: none;\r\n	padding: 4px 10px;\r\n	background: var(--bg-card);\r\n	border: 1px solid var(--border-dim);\r\n	border-radius: var(--radius-sm);\r\n	color: var(--text-light);\r\n	font-size: 12px;\r\n	transition: border-color 0.2s;\r\n}\r\n#intro .clean:hover {\r\n	border-color: var(--gold);\r\n}\r\n#intro .clean-status {\r\n	color: var(--text-muted);\r\n	font-size: 12px;\r\n	margin-left: 8px;\r\n}\r\n\r\n/* ── Server list ── */\r\n#intro .serveredit dl {\r\n	margin: 0;\r\n}\r\n#intro .serveredit dt {\r\n	margin-bottom: 6px;\r\n}\r\n#intro .serveredit dd {\r\n	margin: 0 0 10px 0;\r\n}\r\n\r\n#intro .clientinfo {\r\n	background: transparent !important;\r\n	border: 1px solid transparent !important;\r\n	color: var(--gold) !important;\r\n	cursor: pointer;\r\n	text-decoration: underline;\r\n}\r\n#intro .clientinfo:focus {\r\n	cursor: text;\r\n	border: 1px solid var(--gold) !important;\r\n	background: var(--bg-card) !important;\r\n	color: var(--text-light) !important;\r\n	text-decoration: none;\r\n}\r\n\r\n#intro .settings-content span {\r\n	vertical-align: top;\r\n	margin-left: 5px;\r\n}\r\n\r\n/* Radio buttons */\r\n#intro input[type='radio'] {\r\n	margin: 0;\r\n	width: 15px;\r\n	height: 15px;\r\n	accent-color: var(--gold);\r\n	vertical-align: middle;\r\n	position: relative;\r\n	bottom: 1px;\r\n}\r\n\r\n/* Server container */\r\n#intro .servercontainer {\r\n	max-height: 70px;\r\n	overflow-y: auto;\r\n	overflow-x: hidden;\r\n	margin-top: 10px;\r\n	padding-right: 6px;\r\n}\r\n#intro .servercontainer::-webkit-scrollbar {\r\n	width: 6px;\r\n}\r\n#intro .servercontainer::-webkit-scrollbar-track {\r\n	background: var(--bg-void);\r\n	border-radius: 6px;\r\n}\r\n#intro .servercontainer::-webkit-scrollbar-thumb {\r\n	border-radius: 6px;\r\n	background: var(--gold-dark);\r\n}\r\n\r\n/* Server list table */\r\n#intro .serverlist {\r\n	border-collapse: collapse;\r\n	width: 100%;\r\n}\r\n#intro .serverlist td {\r\n	text-align: center;\r\n	height: 22px;\r\n	font-size: 12px;\r\n}\r\n#intro .serverlist thead td {\r\n	color: var(--gold-dark);\r\n	font-weight: bold;\r\n	font-size: 11px;\r\n}\r\n#intro .serverlist tbody tr:hover {\r\n	background: rgba(232, 184, 75, 0.06);\r\n}\r\n#intro .servers input {\r\n	background: transparent;\r\n	border: 1px solid transparent;\r\n	cursor: pointer;\r\n	color: var(--text-light);\r\n	text-align: center;\r\n	width: 100%;\r\n	font-size: 12px;\r\n	font-family: inherit;\r\n}\r\n#intro .servers input:focus {\r\n	cursor: text;\r\n	border: 1px solid var(--gold);\r\n	background: var(--bg-card);\r\n	color: var(--text-light);\r\n}\r\n\r\n/* Delete button */\r\n#intro .btn_delete {\r\n	width: 20px;\r\n	height: 20px;\r\n	background: rgba(239, 68, 68, 0.15);\r\n	border: 1px solid rgba(239, 68, 68, 0.3);\r\n	border-radius: 4px;\r\n	color: #ef4444;\r\n	font-size: 14px;\r\n	line-height: 18px;\r\n	text-align: center;\r\n	padding: 0;\r\n	transition: background 0.2s;\r\n}\r\n#intro .btn_delete:hover {\r\n	background: rgba(239, 68, 68, 0.3);\r\n}\r\n\r\n/* Add server button */\r\n#intro .settings .btn_add {\r\n	margin-top: 10px;\r\n	float: right;\r\n	padding: 5px 14px;\r\n	background: var(--bg-card);\r\n	border: 1px solid var(--border-dim);\r\n	border-radius: var(--radius-sm);\r\n	color: var(--text-light);\r\n	font-size: 12px;\r\n	transition: border-color 0.2s;\r\n}\r\n#intro .settings .btn_add:hover {\r\n	border-color: var(--gold);\r\n	color: var(--gold);\r\n}\r\n\r\n/* Save button */\r\n#intro .settings .btn_save {\r\n	display: block;\r\n	width: 200px;\r\n	margin: 24px auto 0;\r\n	padding: 12px 0;\r\n	font-family: 'Cinzel', serif;\r\n	font-size: 13px;\r\n	font-weight: 600;\r\n	letter-spacing: 0.1em;\r\n	text-transform: uppercase;\r\n	color: var(--bg-void);\r\n	background: linear-gradient(135deg, var(--gold-bright), var(--gold), var(--gold-dark));\r\n	border: none;\r\n	border-radius: var(--radius-sm);\r\n	transition:\r\n		transform 0.2s,\r\n		box-shadow 0.3s;\r\n	box-shadow: 0 4px 20px rgba(232, 184, 75, 0.3);\r\n}\r\n#intro .settings .btn_save:hover {\r\n	transform: translateY(-2px);\r\n	box-shadow: 0 6px 30px rgba(232, 184, 75, 0.45);\r\n}\r\n#intro .settings .btn_save:active {\r\n	transform: translateY(0);\r\n}\r\n\r\n/* ── Aspect Ratio Fixes ── */\r\n#intro .drop-zone {\r\n	transform: translateX(-50%) scale(var(--cx, 1), var(--cy, 1));\r\n}\r\n#intro .msg {\r\n	transform: translateX(-50%) scale(var(--cx, 1), var(--cy, 1));\r\n}\r\n#intro .btn_play {\r\n	transform: translateX(-50%) scale(var(--cx, 1), var(--cy, 1));\r\n}\r\n#intro .btn_play:hover {\r\n	transform: translateX(-50%) translateY(-2px) scale(var(--cx, 1), var(--cy, 1));\r\n}\r\n#intro .btn_play:active {\r\n	transform: translateX(-50%) translateY(0) scale(var(--cx, 1), var(--cy, 1));\r\n}\r\n#intro .btn_about {\r\n	transform: scale(var(--cx, 1), var(--cy, 1));\r\n}\r\n#intro .btn_about:hover {\r\n	transform: scale(calc(1.1 * var(--cx, 1)), calc(1.1 * var(--cy, 1)));\r\n}\r\n#intro .btn_settings {\r\n	scale: var(--cx, 1) var(--cy, 1);\r\n}\r\n#intro .btn_settings:hover {\r\n	scale: var(--cx, 1) var(--cy, 1);\r\n}\r\n#intro .loading-content {\r\n	transform: translate(-50%, -50%) scale(var(--cx, 1), var(--cy, 1));\r\n}\r\n#intro .about-content,\r\n#intro .settings-content {\r\n	scale: var(--cx, 1) var(--cy, 1);\r\n}\r\n";
 }));
 // src/UI/Components/Intro/Particle.js
 var Particle;
@@ -367394,17 +367166,11 @@ function loadFiles(callback) {
 	});
 	q.add(() => {
 		roInitSpinner.remove();
-		DB.onReady = () => {
-			q._next();
-		};
-		DB.onProgress = (i, count) => {
-			Background.setPercent(Math.floor(i / count * 100));
-		};
 		UIManager.removeComponents();
 		Background.init();
 		Background.resize(Renderer.width, Renderer.height);
 		Background.setImage("bgi_temp.bmp", () => {
-			DB.init();
+			q._next();
 		});
 	});
 	q.add(() => {
@@ -367448,12 +367214,13 @@ function onReadyLoginServer(index) {
 */
 function onLoginServerSelected(index) {
 	SoundManager.play("¹öÆ°¼Ò¸®.wav");
-	if (_previous_server !== void 0 && (_previous_server.address != _servers[index].address || _previous_server.port != _servers[index].port)) {
+	if (_previous_server !== void 0 && (_previous_server.address != _servers[index].address || _previous_server.port != _servers[index].port || String(_previous_server.packetver) != String(_servers[index].packetver))) {
 		UIManager.removeComponents();
 		Network.close();
 		Configs.setServer(_servers[index]);
+		DB.isLoaded = false;
+		DB.startedLazyInit = false;
 		loadFiles(() => {
-			LoginEngine.setLoadedServer(_servers[index]);
 			onReadyLoginServer(index);
 		});
 	} else onReadyLoginServer(index);
