@@ -19,49 +19,9 @@ export async function startLua(createVMs = createLuaVMs) {
 	const [l, ha, ma, dha, dma] = await createVMs();
 	// Setup Lua module loaders for the default DB lua VM
 	lua = LuaModuleLoader.setup(l);
-	// Setup Lua module loaders for the different Lua VMs
-	HO_AI = LuaModuleLoader.setup(ha, {
-		searchPaths: [
-			'./?.lua',
-			'./?.lub',
-			'AI/USER_AI/?.lua',
-			'AI/USER_AI/?.lub',
-			'AI/?.lua',
-			'AI/?.lub',
-			...LuaModuleLoader.DEFAULT_SEARCH_PATHS
-		]
-	});
-	MER_AI = LuaModuleLoader.setup(ma, {
-		searchPaths: [
-			'./?.lua',
-			'./?.lub',
-			'AI/USER_AI/?.lua',
-			'AI/USER_AI/?.lub',
-			'AI/?.lua',
-			'AI/?.lub',
-			...LuaModuleLoader.DEFAULT_SEARCH_PATHS
-		]
-	});
-	default_HO_AI = LuaModuleLoader.setup(dha, {
-		searchPaths: [
-			'./?.lua',
-			'./?.lub',
-			'AI/?.lua',
-			'AI/?.lub',
-			'AI/USER_AI/?.lua',
-			'AI/USER_AI/?.lub',
-			...LuaModuleLoader.DEFAULT_SEARCH_PATHS
-		]
-	});
-	default_MER_AI = LuaModuleLoader.setup(dma, {
-		searchPaths: [
-			'./?.lua',
-			'./?.lub',
-			'AI/?.lua',
-			'AI/?.lub',
-			'AI/USER_AI/?.lua',
-			'AI/USER_AI/?.lub',
-			...LuaModuleLoader.DEFAULT_SEARCH_PATHS
-		]
-	});
+	// HOAI and MER_AI are used for the AI lua VM and setuped in AIDriver.js
+	HO_AI = ha;
+	MER_AI = ma;
+	default_HO_AI = dha;
+	default_MER_AI = dma;
 }
