@@ -23,7 +23,7 @@ function scanCustomFiles(dir, base = dir, out = new Set()) {
 		const full = path.join(dir, entry.name);
 		if (entry.isDirectory()) {
 			scanCustomFiles(full, base, out);
-		} else if (entry.name.endsWith('.js')) {
+		} else if (entry.name !== 'README.md') {
 			// 'custom/UI/...' → 'UI/...' com forward slashes
 			out.add(path.relative(base, full).replace(/\\/g, '/'));
 		}

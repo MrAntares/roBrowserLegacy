@@ -43,13 +43,13 @@ custom/UI/Components/Intro/Intro.js
 
 ## Limitations
 
-- **Only intercepts imports via alias** (e.g., `import x from 'UI/...'`). Internal
-  relative imports within `src/` (e.g., `import './Foo.js'`) are not affected.
-- Overrides are resolved at the **file level**: any request for a `src/` file  
-  that has a counterpart in `custom/` serves the custom version—including  
-  relative imports inside `src/` itself.
-- Importing the original module from inside an override is **not possible**;  
-  overrides replace the file entirely. To extend a module, copy it and edit.
+- **Vite / web build:** only alias imports (`import x from 'UI/...'`) are
+  overridden. Relative imports inside `src/` (`import './Foo.js'`) still load
+  the original.
+- **Electron:** any request for a `src/` file with a counterpart in `custom/`
+  serves the custom version, including relative imports inside `src/`.
+- Overrides replace the file entirely; importing the original from inside an
+  override is not supported.
 
 #### Assets (.html, .css)
 
