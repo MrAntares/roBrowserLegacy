@@ -1,4 +1,12 @@
 /**
+ * UI/GUI/UIProxy.js
+ *
+ * Creates a jQuery-like proxy for UI components.
+ *
+ * @author AoShinHo
+ */
+
+/**
  * CSS properties that are unitless (don't need 'px')
  */
 const CSS_NUMBER = {

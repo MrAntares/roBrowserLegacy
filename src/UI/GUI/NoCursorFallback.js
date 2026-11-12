@@ -1,3 +1,11 @@
+/**
+ * UI/GUI/NoCursorFallback.js
+ *
+ * Provides a fallback for hiding the native cursor when CSS style queries are not supported.
+ *
+ * @author AoShinHo
+ */
+
 let _noCursorStyles;
 let _noCursorMedia = 'not all';
 

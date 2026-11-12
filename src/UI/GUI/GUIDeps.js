@@ -2,7 +2,10 @@
  * Heavy modules loaded lazily to keep viewer bundles lightweight.
  * In Online/full-game context these resolve instantly (already loaded).
  * In viewer context they are never triggered.
+ *
+ * @author AoShinHo
  */
+
 let _Cursor = null;
 let _Client = null;
 let _Renderer = null;

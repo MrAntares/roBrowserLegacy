@@ -1,3 +1,11 @@
+/**
+ * UI/GUI/Draggable.js
+ *
+ * Adds drag-and-drop functionality to a GUIComponent.
+ *
+ * @author AoShinHo
+ */
+
 import Targa from 'Loaders/Targa.js';
 import whenDrawn from 'UI/WhenDrawn.js';
 import { ensureDeps, getClient, getDB } from 'UI/GUI/GUIDeps.js';
