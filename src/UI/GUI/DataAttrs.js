@@ -1,6 +1,6 @@
 import Targa from 'Loaders/Targa.js';
 import whenDrawn from 'UI/WhenDrawn.js';
-import { ensureDeps, getClient, getDB } from './GUIDeps.js';
+import { ensureDeps, getClient, getDB } from 'UI/GUI/GUIDeps.js';
 
 export function processDataAttrs(node, { text = true, images = true, deferredFrom } = {}) {
 	if (!getClient() || !getDB()) {

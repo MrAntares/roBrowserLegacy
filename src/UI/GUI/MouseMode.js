@@ -1,6 +1,6 @@
 import Mouse from 'Controls/MouseEventHandler.js';
 import Session from 'Engine/SessionStorage.js';
-import { getCursor, getEntityManager } from './GUIDeps.js';
+import { getCursor, getEntityManager } from 'UI/GUI/GUIDeps.js';
 
 /**
  * Open windows that freeze the map. It thaws when the last one closes, not the

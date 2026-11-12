@@ -1,6 +1,6 @@
 import Mouse from 'Controls/MouseEventHandler.js';
 import UIPreferences from 'Preferences/UI.js';
-import { getRenderer } from './GUIDeps.js';
+import { getRenderer } from 'UI/GUI/GUIDeps.js';
 
 /**
  * Snap cache shared across all draggable instances (same as UIComponent)

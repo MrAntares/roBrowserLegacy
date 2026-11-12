@@ -19,7 +19,7 @@ import { addNoCursorFallback, trackNoCursorStyle, untrackNoCursorStyle } from 'U
 import { attachDraggable } from 'UI/GUI/Draggable.js';
 import { MouseMode, frozenBy, setupMouseMode, setupShadowCursorEvents } from 'UI/GUI/MouseMode.js';
 import { setupScrollbars } from 'UI/GUI/Scrollbars.js';
-import { parseHTML, processAllDataAttrs, processDataAttrs } from './GUI/DataAttrs.js';
+import { parseHTML, processAllDataAttrs, processDataAttrs } from 'UI/GUI/DataAttrs.js';
 import { createUIProxy } from 'UI/GUI/UIProxy.js';
 
 class GUIComponent {

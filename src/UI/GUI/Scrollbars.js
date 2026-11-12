@@ -1,4 +1,4 @@
-import { getScrollBar } from './GUIDeps.js';
+import { getScrollBar } from 'UI/GUI/GUIDeps.js';
 
 export function setupScrollbars(component) {
 	const self = component;
