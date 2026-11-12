@@ -39,30 +39,21 @@ custom/UI/Components/Intro/Intro.js
 
 3. **Restart the development server**—the `custom/` folder is only scanned
    during Vite's startup. Once started, any subsequent edits to these custom
-   files will trigger HMR (Hot Module Replacement) or a reload as usual. ## Extending instead of copying
-
-To reuse the original module while modifying only specific parts, import it using a
-**relative path** (relative imports bypass the alias, preventing recursion):
-
-```js
-// custom/UI/Components/Intro/Intro.js
-import VanillaIntro from '../../../../src/UI/Components/Intro/Intro.js';
-
-const Intro = Object.create(VanillaIntro);
-
-Intro.onAppend = function () {
-	VanillaIntro.onAppend.call(this);
-	// your customizations...
-};
-
-export default Intro;
-```
+   files will trigger HMR (Hot Module Replacement) or a reload as usual.
 
 ## Limitations
 
 - **Only intercepts imports via alias** (e.g., `import x from 'UI/...'`). Internal
   relative imports within `src/` (e.g., `import './Foo.js'`) are not affected.
-- Overrides apply to the **entire file**—there is no automatic partial merging.
-- If the upstream source changes the original module's API, the override may break
-  at runtime (this will not trigger a merge conflict; be sure to review after updates).
-- Adding or removing files in `custom/` requires a restart of the development server.
+- Overrides are resolved at the **file level**: any request for a `src/` file  
+  that has a counterpart in `custom/` serves the custom version—including  
+  relative imports inside `src/` itself.
+- Importing the original module from inside an override is **not possible**;  
+  overrides replace the file entirely. To extend a module, copy it and edit.
+
+#### Assets (.html, .css)
+
+Only `.js` files are aliased. If your override imports assets via relative  
+paths (`import html from './Intro.html'`), copy those files into `custom/`  
+alongside the `.js`. Importing an asset via alias (`UI/.../Intro.html`)  
+loads the **original** file—useful when you only want to change logic.
