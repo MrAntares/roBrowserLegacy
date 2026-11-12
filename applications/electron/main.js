@@ -93,7 +93,15 @@ app.whenReady().then(() => {
 		const isRaw = url.searchParams.has('raw');
 		const isUrl = url.searchParams.has('url');
 		const relativePath = decodeURIComponent(url.pathname).replace(/^\/+/, '');
-		const filePath = path.normalize(path.join(projectRoot, relativePath));
+		let filePath = path.normalize(path.join(projectRoot, relativePath));
+
+		// custom/ override: src/UI/... → custom/UI/...
+		if (relativePath.startsWith('src/')) {
+			const customPath = path.normalize(path.join(projectRoot, 'custom', relativePath.slice(4)));
+			if (fs.existsSync(customPath)) {
+				filePath = customPath;
+			}
+		}
 
 		// Prevent path traversal outside project root
 		if (!filePath.startsWith(projectRoot + path.sep) && filePath !== projectRoot) {
@@ -143,14 +151,12 @@ app.whenReady().then(() => {
 			const ext = path.extname(filePath).toLowerCase();
 			const mimeType = MIME_TYPES[ext] || 'application/octet-stream';
 			let body = data;
-
+			const aliasConfig = JSON.parse(fs.readFileSync(path.join(projectRoot, 'aliases.json'), 'utf8'));
+			const ALIAS_REGEX = new RegExp(`from\\s+['"](${aliasConfig.dirs.join('|')})/(.*?)['"]`, 'g');
 			// Transform JS files to resolve bare specifiers (roBrowser aliases)
 			if (mimeType === 'text/javascript' && !isRaw) {
 				let content = data.toString('utf8');
-				content = content.replace(
-					/from\s+['"](Core|Loaders|Utils|Network|DB|Renderer|UI|App|Audio|Controls|Plugins|Preferences|Engine|Vendors)\/(.*?)['"]/g,
-					"from '/src/$1/$2'"
-				);
+				content = content.replace(ALIAS_REGEX, "from '/src/$1/$2'");
 				body = Buffer.from(content);
 			}
 
