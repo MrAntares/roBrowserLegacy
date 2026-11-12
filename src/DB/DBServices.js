@@ -39,7 +39,7 @@ import { createTableLoaders } from 'DB/Loaders/TableLoader.js';
 import loadFontFromClient from 'DB/Loaders/ClientFont.js';
 import { getSystemAliases, tryLoadLuaAliases } from 'DB/Loaders/LuaAliases.js';
 import { createLuaTableLoaders } from 'DB/Loaders/LuaTableLoader.js';
-import { startLua, invalidateLuaRuntime } from 'DB/Loaders/LuaRuntime.js';
+import { startLua } from 'DB/Loaders/LuaRuntime.js';
 
 import { createOwnerNameResolver } from 'DB/System/OwnerNameResolver.js';
 import { createEmblemLoader } from 'DB/System/EmblemLoader.js';
@@ -145,7 +145,6 @@ export function createDBServices(DB) {
 		setScreamRow,
 		parseBuyingStoreItem,
 		clearNavigationMobIndex,
-		invalidateLuaRuntime,
 		fillNaviTable,
 		getSystemAliases,
 		loadAttendanceFile,

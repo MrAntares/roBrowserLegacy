@@ -19,7 +19,6 @@ import { getSkillName, getSkillDescription } from 'DB/Skills/SkillDescriptions.j
 
 import { getHatResource } from 'DB/Effects/HatEffectLoader.js';
 
-import { HO_AI, MER_AI, default_HO_AI, default_MER_AI } from 'DB/Loaders/LuaRuntime.js';
 import { createItemLink, parseItemLink, getItemNameFromLink } from 'DB/Items/ItemLink.js';
 import { formatUnixDate, formatMsgToHtml } from 'DB/System/Formatting.js';
 
@@ -65,21 +64,6 @@ class DB {
 	static index = 0;
 	static async lazyInit() {
 		return await bootstrap.lazyInit(...arguments);
-	}
-	static getHOAI_VM() {
-		return HO_AI;
-	}
-
-	static getMERAI_VM() {
-		return MER_AI;
-	}
-
-	static getDefaultHOAI_VM() {
-		return default_HO_AI;
-	}
-
-	static getDefaultMERAI_VM() {
-		return default_MER_AI;
 	}
 
 	static getAllTitles() {
