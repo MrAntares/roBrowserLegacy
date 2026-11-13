@@ -10,10 +10,12 @@ files:
     - applications/electron/**/*
     - applications/shared/**/*
     - src/**/*
+    - aliases.json
     - node_modules/lodash-es/**/*
     - node_modules/bson/**/*
     - node_modules/granny-ro-js/dist/**/*
     - package.json
+    - custom/**/*
 
 extraMetadata:
     main: applications/electron/main.js

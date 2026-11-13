@@ -14,6 +14,29 @@ app.commandLine.appendSwitch('disable-frame-rate-limit');
 
 const projectRoot = path.resolve(__dirname, '..', '..');
 
+const aliasConfig = JSON.parse(fs.readFileSync(path.join(projectRoot, 'aliases.json'), 'utf8'));
+const ALIAS_REGEX = new RegExp(`from\\s+['"](${aliasConfig.dirs.join('|')})/(.*?)['"]`, 'g');
+
+function scanCustomFiles(dir, base = dir, out = new Set()) {
+	if (!fs.existsSync(dir)) return out;
+	for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+		const full = path.join(dir, entry.name);
+		if (entry.isDirectory()) {
+			scanCustomFiles(full, base, out);
+		} else if (entry.name !== 'README.md') {
+			// 'custom/UI/...' → 'UI/...' com forward slashes
+			out.add(path.relative(base, full).replace(/\\/g, '/'));
+		}
+	}
+	return out;
+}
+
+const customFiles = scanCustomFiles(path.join(projectRoot, 'custom'));
+
+if (customFiles.size) {
+	console.log('[custom] overrides:', [...customFiles]);
+}
+
 // MIME types required for ES module loading — Chromium enforces strict
 // MIME checking for <script type="module"> and dynamic import().
 const MIME_TYPES = {
@@ -93,7 +116,12 @@ app.whenReady().then(() => {
 		const isRaw = url.searchParams.has('raw');
 		const isUrl = url.searchParams.has('url');
 		const relativePath = decodeURIComponent(url.pathname).replace(/^\/+/, '');
-		const filePath = path.normalize(path.join(projectRoot, relativePath));
+		let filePath = path.normalize(path.join(projectRoot, relativePath));
+
+		// custom/ override: src/UI/... → custom/UI/...
+		if (relativePath.startsWith('src/') && customFiles.has(relativePath.slice(4))) {
+			filePath = path.normalize(path.join(projectRoot, 'custom', relativePath.slice(4)));
+		}
 
 		// Prevent path traversal outside project root
 		if (!filePath.startsWith(projectRoot + path.sep) && filePath !== projectRoot) {
@@ -117,13 +145,13 @@ app.whenReady().then(() => {
 			if (isUrl) {
 				const ext = path.extname(filePath).toLowerCase();
 				if (ext === '.wasm') {
-					const dataUri = 'data:application/octet-stream;base64,' + data.toString('base64');
+					const dataUri = `data:application/octet-stream;base64,${data.toString('base64')}`;
 					const js = `export default ${JSON.stringify(dataUri)};`;
 					return new Response(js, {
 						headers: { 'Content-Type': 'text/javascript' }
 					});
 				}
-				const assetUrl = 'app://localhost/' + relativePath;
+				const assetUrl = `app://localhost/${relativePath}`;
 				const js = `export default ${JSON.stringify(assetUrl)};`;
 				return new Response(js, {
 					headers: { 'Content-Type': 'text/javascript' }
@@ -143,14 +171,10 @@ app.whenReady().then(() => {
 			const ext = path.extname(filePath).toLowerCase();
 			const mimeType = MIME_TYPES[ext] || 'application/octet-stream';
 			let body = data;
-
 			// Transform JS files to resolve bare specifiers (roBrowser aliases)
 			if (mimeType === 'text/javascript' && !isRaw) {
 				let content = data.toString('utf8');
-				content = content.replace(
-					/from\s+['"](Core|Loaders|Utils|Network|DB|Renderer|UI|App|Audio|Controls|Plugins|Preferences|Engine|Vendors)\/(.*?)['"]/g,
-					"from '/src/$1/$2'"
-				);
+				content = content.replace(ALIAS_REGEX, "from '/src/$1/$2'");
 				body = Buffer.from(content);
 			}
 

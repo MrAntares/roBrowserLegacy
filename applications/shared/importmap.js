@@ -1,40 +1,28 @@
 // applications/shared/importmap.js
 (function () {
-	var script = document.currentScript || document.querySelector('script[src*="shared/importmap.js"]');
-	if (!script) {
-		return;
-	}
-	var projectRoot = script.dataset.projectRoot;
+	const script = document.currentScript || document.querySelector('script[src*="shared/importmap.js"]');
+	if (!script) return;
+
+	let projectRoot = script.dataset.projectRoot;
 	if (!projectRoot) {
-		var splitPoint = script.dataset.projectRootSplit || '/applications/';
-		var path = new URL(window.location.href).pathname;
-		projectRoot = path.split(splitPoint)[0] + '/';
+		const splitPoint = script.dataset.projectRootSplit || '/applications/';
+		projectRoot = new URL(window.location.href).pathname.split(splitPoint)[0] + '/';
 	}
-	var importMap = {
-		imports: {
-			bson: `${projectRoot}node_modules/bson/lib/bson.mjs`,
-			lodash: `${projectRoot}node_modules/lodash-es/lodash.default.js`,
-			'rijndael-js': `${projectRoot}src/Vendors/rijndael-es.mjs`,
-			'granny-ro-js/wasm': `${projectRoot}node_modules/granny-ro-js/dist/granny-ro.wasm.esm.js`,
-			'src/': `${projectRoot}src/`,
-			'App/': `${projectRoot}src/App/`,
-			'Audio/': `${projectRoot}src/Audio/`,
-			'Controls/': `${projectRoot}src/Controls/`,
-			'Core/': `${projectRoot}src/Core/`,
-			'DB/': `${projectRoot}src/DB/`,
-			'Engine/': `${projectRoot}src/Engine/`,
-			'Loaders/': `${projectRoot}src/Loaders/`,
-			'Network/': `${projectRoot}src/Network/`,
-			'Plugins/': `${projectRoot}src/Plugins/`,
-			'Preferences/': `${projectRoot}src/Preferences/`,
-			'Renderer/': `${projectRoot}src/Renderer/`,
-			'UI/': `${projectRoot}src/UI/`,
-			'Utils/': `${projectRoot}src/Utils/`,
-			'Vendors/': `${projectRoot}src/Vendors/`
-		}
-	};
-	var s = document.createElement('script');
+	const xhr = new XMLHttpRequest();
+	xhr.open('GET', `${projectRoot}aliases.json`, false);
+	xhr.send(null);
+	const aliases = JSON.parse(xhr.responseText);
+
+	const imports = { 'src/': `${projectRoot}src/` };
+	aliases.dirs.forEach(d => {
+		imports[`${d}/`] = `${projectRoot}src/${d}/`;
+	});
+	Object.keys(aliases.packages).forEach(k => {
+		imports[k] = `${projectRoot}${aliases.packages[k]}`;
+	});
+
+	const s = document.createElement('script');
 	s.type = 'importmap';
-	s.textContent = JSON.stringify(importMap);
+	s.textContent = JSON.stringify({ imports: imports });
 	script.after(s);
 })();
